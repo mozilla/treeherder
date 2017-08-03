@@ -218,3 +218,8 @@ treeherder.factory('numeral', [
     function () {
         return require('numeral');
     }]);
+
+treeherder.factory('metricsgraphics', [
+    function () {
+        return require('metrics-graphics');
+    }]);

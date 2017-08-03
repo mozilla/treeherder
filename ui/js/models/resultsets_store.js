@@ -154,7 +154,7 @@ treeherder.factory('ThResultSetStore', [
                             _.groupBy(jobList, 'result_set_id')
                         );
                         jobListByResultSet
-                            .forEach((singleResultSetJobList) =>
+                            .forEach(singleResultSetJobList =>
                                      mapResultSetJobs($rootScope.repoName,
                                                       singleResultSetJobList));
                     } else if (lastJobUpdate) {
@@ -835,7 +835,7 @@ treeherder.factory('ThResultSetStore', [
             if (data.results.length > 0) {
 
                 $log.debug("appendResultSets", data.results);
-                var rsIds = repositories[repoName].resultSets.map((rs) => rs.id);
+                var rsIds = repositories[repoName].resultSets.map(rs => rs.id);
 
                 // ensure we only append resultsets we don't already have.
                 // There could be overlap with fetching "next 10" because we use
@@ -1019,7 +1019,7 @@ treeherder.factory('ThResultSetStore', [
                                                                 count,
                                                                 true,
                                                                 keepFilters)
-                    .then((data) => {resultsets = data.data;});
+                    .then((data) => { resultsets = data.data; });
 
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendResultSets(repoName, resultsets),
@@ -1043,7 +1043,7 @@ treeherder.factory('ThResultSetStore', [
                     $q.all(jobsPromiseList)
                         .then((resultSetJobList) => {
                             var lastModifiedTimes = resultSetJobList
-                                .map((jobList) => getLastModifiedJobTime(jobList))
+                                .map(jobList => getLastModifiedJobTime(jobList))
                                 .filter(x => x);
                             if (lastModifiedTimes.length) {
                                 var lastModifiedTime = _.max(lastModifiedTimes);
@@ -1065,8 +1065,8 @@ treeherder.factory('ThResultSetStore', [
                      * ie when we can register the job poller
                      */
                     var mapResultSetJobsPromiseList = jobsPromiseList
-                           .map((jobsPromise) => jobsPromise
-                                .then((jobs) => mapResultSetJobs(repoName, jobs)));
+                           .map(jobsPromise => jobsPromise
+                                .then(jobs => mapResultSetJobs(repoName, jobs)));
                     $q.all(mapResultSetJobsPromiseList)
                         .then(() => {
                             setSelectedJobFromQueryString(repoName);
@@ -1177,7 +1177,7 @@ treeherder.factory('ThResultSetStore', [
                 job_counts: getJobCount(jobList)
             };
 
-            if (jobList.length === 0) {return groupedJobs;}
+            if (jobList.length === 0) { return groupedJobs; }
             groupedJobs.id = jobList[0].result_set_id;
             var lastModified = "";
             for (var i=0; i<jobList.length; i++) {

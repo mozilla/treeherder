@@ -11,7 +11,7 @@ from treeherder.model.models import (Commit,
 
 def test_ingest_hg_pushlog(test_repository, test_base_dir,
                            activate_responses):
-    """ingesting a number of pushes should populate result set and revisions"""
+    """ingesting a number of pushes should populate push and revisions"""
 
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
     with open(pushlog_path) as f:

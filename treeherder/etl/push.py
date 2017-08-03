@@ -9,23 +9,22 @@ from treeherder.model.models import (Commit,
 logger = logging.getLogger(__name__)
 
 
-def store_push(repository, result_set):
-    result_set_revision = result_set.get('revision')
-    if not result_set.get('revision'):
-        raise ValueError("Result set must have a revision "
+def store_push(repository, push_dict):
+    push_revision = push_dict.get('revision')
+    if not push_dict.get('revision'):
+        raise ValueError("Push must have a revision "
                          "associated with it!")
     with transaction.atomic():
         push, _ = Push.objects.update_or_create(
             repository=repository,
-            revision=result_set_revision,
+            revision=push_revision,
             defaults={
-                'revision_hash': result_set.get('revision_hash',
-                                                result_set_revision),
-                'author': result_set['author'],
+                'revision_hash': push_dict.get('revision_hash', push_revision),
+                'author': push_dict['author'],
                 'time': datetime.utcfromtimestamp(
-                    result_set['push_timestamp'])
+                    push_dict['push_timestamp'])
             })
-        for revision in result_set['revisions']:
+        for revision in push_dict['revisions']:
             commit, _ = Commit.objects.update_or_create(
                 push=push,
                 revision=revision['revision'],
@@ -35,12 +34,11 @@ def store_push(repository, result_set):
                 })
 
 
-def store_result_set_data(repository, result_sets):
+def store_push_data(repository, pushes):
     """
-    Stores "result sets" (legacy nomenclature) as push data in
-    the treeherder database
+    Stores push data in the treeherder database
 
-    result_sets = [
+    pushes = [
         {
          "revision": "8afdb7debc82a8b6e0d56449dfdf916c77a7bf80",
          "push_timestamp": 1378293517,
@@ -62,9 +60,9 @@ def store_result_set_data(repository, result_sets):
         }
     """
 
-    if not result_sets:
-        logger.info("No new resultsets to store")
+    if not pushes:
+        logger.info("No new pushes to store")
         return
 
-    for result_set in result_sets:
-        store_push(repository, result_set)
+    for push in pushes:
+        store_push(repository, push)

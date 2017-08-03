@@ -472,9 +472,12 @@ perf.controller('CompareResultsCtrl', [
             $scope.newProject = ThRepositoryModel.getRepo(
                 $stateParams.newProject);
             $scope.newRevision = $stateParams.newRevision;
+
+            // always need to verify the new revision, only sometimes the original
+            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
             }
             else {
                 $scope.timeRanges = phTimeRanges;
@@ -482,8 +485,7 @@ perf.controller('CompareResultsCtrl', [
                     value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
                 });
             }
-
-            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+            $q.all(verifyPromises).then(function () {
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
                     return;
@@ -509,12 +511,13 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location',
     'thServiceDomain', 'ThRepositoryModel',
     'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
-    'PhCompare', 'phTimeRanges', 'compareBaseLineDefaultTimeRange',
+    'PhCompare', 'phTimeRanges', 'compareBaseLineDefaultTimeRange', '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
                                        $location, thServiceDomain,
                                        ThRepositoryModel, ThResultSetModel,
                                        $http, $q, $timeout, PhSeries, math,
-                                       PhCompare, phTimeRanges, compareBaseLineDefaultTimeRange) {
+                                       PhCompare, phTimeRanges, compareBaseLineDefaultTimeRange,
+                                       $httpParamSerializer) {
          //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
@@ -586,6 +589,20 @@ perf.controller('CompareSubtestResultsCtrl', [
                             };
                         }), [$scope.originalResultSet, $scope.newResultSet])
                     }];
+                    //replicate distribution is added only for talos
+                    if ($scope.filterOptions.framework === '1') {
+                        cmap.links.push({
+                            title: 'replicate',
+                            href: 'perf.html#/comparesubtestdistribution?' + $httpParamSerializer({
+                                originalProject: $scope.originalProject.name,
+                                newProject: $scope.newProject.name,
+                                originalRevision: $scope.originalRevision,
+                                newRevision: $scope.newRevision,
+                                originalSubtestSignature: oldSig,
+                                newSubtestSignature: newSig
+                            })
+                        });
+                    }
                 }
 
                 else {
@@ -603,7 +620,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                         }), [$scope.newResultSet], $scope.selectedTimeRange.value)
                     }];
                 }
-
                 $scope.compareResults[testName].push(cmap);
             });
         }
@@ -635,9 +651,11 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.originalSignature = $stateParams.originalSignature;
             $scope.newSignature = $stateParams.newSignature;
 
+            // always need to verify the new revision, only sometimes the original
+            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyRevision($scope.originalProject, $scope.originalRevision, "original");
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
             }
             else {
                 $scope.timeRanges = phTimeRanges;
@@ -646,7 +664,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 });
             }
 
-            verifyRevision($scope.newProject, $scope.newRevision, "new").then(function () {
+            $q.all(verifyPromises).then(function () {
                 $scope.pageList = [];
 
                 if ($scope.errors.length > 0) {
@@ -849,3 +867,108 @@ perf.controller('CompareSubtestResultsCtrl', [
             });
         });
     }]);
+
+perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q', 'ThRepositoryModel',
+    'PhSeries', 'ThResultSetModel', 'metricsgraphics',
+    function CompareSubtestDistributionCtrl($scope, $stateParams, $q, ThRepositoryModel,
+        PhSeries, ThResultSetModel, metricsgraphics) {
+        $scope.originalRevision = $stateParams.originalRevision;
+        $scope.newRevision = $stateParams.newRevision;
+        $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
+        $scope.newSubtestSignature = $stateParams.newSubtestSignature;
+        $scope.dataLoading = true;
+        let loadRepositories = ThRepositoryModel.load();
+        const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
+            let replicateData = {};
+            return ThResultSetModel.getResultSetsFromRevision(project, revision).then(
+                (revisionData) => {
+                    replicateData.resultSet = revisionData[0];
+                    return PhSeries.getSeriesData(project, {
+                        signatures: subtestSignature,
+                        push_id: replicateData.resultSet.id
+                    });
+                }).then((perfDatumList) => {
+                    if (!perfDatumList[subtestSignature]) {
+                        replicateData.replicateDataError = true;
+                        return;
+                    }
+                    const numRuns = perfDatumList[subtestSignature].length;
+                    let replicatePromises = perfDatumList[subtestSignature].map(
+                        value => PhSeries.getReplicateData({job_id: value.job_id}));
+                    return $q.all(replicatePromises).then((replicateData) => {
+                        let replicateValues = replicateData.concat.apply([],
+                                replicateData.map((data) => {
+                                    let testSuite = data.suites.find(suite => suite.name === $scope.testSuite);
+                                    let subtest = testSuite.subtests.find(subtest => subtest.name === $scope.subtest);
+                                    return subtest.replicates;
+                                })
+                            );
+                        //metrics-graphics doesn't accept "0" as x_accesor
+                        replicateValues = replicateValues.map((value, index) => ({
+                            "replicate": (index + 1).toString(),
+                            "value": value
+                        }));
+                        metricsgraphics.data_graphic({
+                            title: `${target} Replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
+                            chart_type: "bar",
+                            data: replicateValues,
+                            y_accessor: "value",
+                            x_accessor: "replicate",
+                            height: 275,
+                            width: 1000,
+                            target: `#${target}`
+                        });
+                    },
+                    () => {
+                        replicateData.replicateDataError = true;
+                    });
+                }).then(() => {
+                    if (replicateData.replicateDataError) {
+                        metricsgraphics.data_graphic({
+                            title: `${target} Replicates`,
+                            chart_type: 'missing-data',
+                            missing_text: 'No Data Found',
+                            target: `#${target}`,
+                            width: 1000,
+                            height: 275
+                        });
+                    }
+                    return replicateData;
+                });
+        };
+
+        $q.all([loadRepositories]).then(() => {
+            $scope.originalProject = ThRepositoryModel.getRepo(
+                $stateParams.originalProject);
+            $scope.newProject = ThRepositoryModel.getRepo(
+                $stateParams.newProject);
+            PhSeries.getSeriesList($scope.originalProject.name, {signature: $scope.originalSubtestSignature}).then(
+                (seriesData) => {
+                    $scope.testSuite = seriesData[0].suite;
+                    $scope.subtest = seriesData[0].test;
+                    $scope.testName = seriesData[0].name;
+                    $scope.platform = seriesData[0].platform;
+                    return fetchAndDrawReplicateGraph($scope.originalProject.name,
+                                              $scope.originalRevision,
+                                              $scope.originalSubtestSignature,
+                                              'Base');
+                }).then((result) => {
+                    $scope.originalResultSet = result.resultSet;
+                    $scope.originalReplicateError = result.replicateDataError;
+                    if ($scope.originalReplicateError)
+                        $scope.noResult = "base";
+                    return fetchAndDrawReplicateGraph($scope.newProject.name,
+                                              $scope.newRevision,
+                                              $scope.newSubtestSignature,
+                                              'New');
+                }).then((result) => {
+                    $scope.newResultSet = result.resultSet;
+                    $scope.newReplicateError = result.replicateDataError;
+                    if ($scope.newReplicateError)
+                        $scope.noResult = "new";
+                    window.document.title = `${$scope.platform}: ${$scope.testName}`;
+                    $scope.dataLoading = false;
+                });
+        });
+    }
+]);

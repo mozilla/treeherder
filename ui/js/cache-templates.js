@@ -5,7 +5,7 @@
 // actually need to request a partial file at any point.
 module.exports = ['$templateCache', ($templateCache) => {
     const partialsReq = require.context('../partials', true, /\.(tmpl|html)$/);
-    partialsReq.keys().forEach(template => {
+    partialsReq.keys().forEach((template) => {
         const keyPath = `partials${template.substring(1)}`;
         $templateCache.put(
             keyPath,
@@ -13,7 +13,7 @@ module.exports = ['$templateCache', ($templateCache) => {
         );
     });
     const pluginsReq = require.context('../plugins', true, /\.(tmpl|html)$/);
-    pluginsReq.keys().forEach(template => {
+    pluginsReq.keys().forEach((template) => {
         const keyPath = `plugins${template.substring(1)}`;
         $templateCache.put(
             keyPath,

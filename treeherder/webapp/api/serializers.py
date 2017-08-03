@@ -303,7 +303,7 @@ class CommitSerializer(serializers.ModelSerializer):
 class PushSerializer(serializers.ModelSerializer):
 
     def get_revisions_uri(self, obj):
-        return reverse("resultset-revisions",
+        return reverse("push-revisions",
                        kwargs={"project": obj.repository.name,
                                "pk": obj.id})
 

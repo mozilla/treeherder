@@ -440,7 +440,7 @@ class TreeherderClient(object):
         'User-Agent': 'treeherder-pyclient/{}'.format(__version__),
     }
 
-    RESULTSET_ENDPOINT = 'resultset'
+    PUSH_ENDPOINT = 'push'
     JOBS_ENDPOINT = 'jobs'
     JOB_DETAIL_ENDPOINT = 'jobdetail'
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
@@ -674,16 +674,22 @@ class TreeherderClient(object):
         """
         return self._get_json(self.MACHINE_PLATFORM_ENDPOINT)
 
-    def get_resultsets(self, project, **params):
+    def get_pushes(self, project, **params):
         """
-        Gets resultsets from project, filtered by parameters
+        Gets pushes from project, filtered by parameters
 
-        By default this method will just return the latest 10 result sets (if they exist)
+        By default this method will just return the latest 10 pushes (if they exist)
 
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        return self._get_json_list(self.RESULTSET_ENDPOINT, project, **params)
+        return self._get_json_list(self.PUSH_ENDPOINT, project, **params)
+
+    def get_resultsets(self, project, **params):
+        """
+        Returns get_pushes for backwards compatibility
+        """
+        return self.get_pushes(project)
 
     def get_jobs(self, project, **params):
         """

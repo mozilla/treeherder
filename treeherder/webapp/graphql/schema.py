@@ -1,7 +1,9 @@
 import graphene
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
+from graphql.utils.ast_to_dict import ast_to_dict
 
+import helpers
 from treeherder.model import error_summary
 from treeherder.model.models import *
 from treeherder.webapp.graphql.types import ObjectScalar
@@ -119,14 +121,27 @@ class PushGraph(DjangoObjectType):
         filter_fields = ('revision', )
         interfaces = (graphene.relay.Node, )
 
-    jobs = DjangoFilterConnectionField(JobGraph)
+    jobs = helpers.OptimizedFilterConnectionField(JobGraph)
 
     def resolve_jobs(self, args, context, info):
-        return Job.objects.filter(push=self, **args)
+        field_map = {
+            "buildPlatform": ("build_platform", "select"),
+            "jobLog": ("job_log", "prefetch"),
+            "jobType": ("job_type", "select"),
+            "jobGroup": ("job_type__job_group", "select"),
+            "failureClassification": ("failure_classification", "prefetch"),
+            "failureLine": ("job_log__failure_line", "prefetch"),
+            "group": ("job_log__failure_line__group", "prefetch"),
+            "textLogStep": ("text_log_step", "prefetch"),
+            "errors": ("text_log_step__errors", "prefetch"),
+        }
+        return helpers.optimize(Job.objects.filter(push=self, **args),
+                                ast_to_dict(info.field_asts),
+                                field_map)
 
 
 class Query(graphene.ObjectType):
-    all_jobs = DjangoFilterConnectionField(JobGraph)
+    all_jobs = helpers.OptimizedFilterConnectionField(JobGraph)
     all_job_details = DjangoFilterConnectionField(JobDetailGraph)
     all_build_platforms = graphene.List(BuildPlatformGraph)
     all_machine_platforms = graphene.List(MachinePlatformGraph)
@@ -154,7 +169,12 @@ class Query(graphene.ObjectType):
         return Machine.objects.all()
 
     def resolve_all_option_collections(self, args, context, info):
-        return OptionCollection.objects.all()
+        field_map = {
+            "option": ("option", "select"),
+        }
+        return helpers.optimize(OptionCollection.objects.all(),
+                                ast_to_dict(info.field_asts),
+                                field_map)
 
     def resolve_all_job_types(self, args, context, info):
         return JobType.objects.all()

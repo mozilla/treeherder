@@ -9,7 +9,7 @@ from treeherder.model.models import (Job,
 
 
 def test_calculate_durations(test_repository, failure_classifications,
-                             result_set_stored, mock_log_parser):
+                             push_stored, mock_log_parser):
     """
     Test the calculation of average job durations and their use during
     subsequent job ingestion.
@@ -17,7 +17,7 @@ def test_calculate_durations(test_repository, failure_classifications,
     now = int(time.time())
 
     first_job_duration = 120
-    first_job = job_data(revision=result_set_stored[0]['revision'],
+    first_job = job_data(revision=push_stored[0]['revision'],
                          start_timestamp=now,
                          end_timestamp=now + first_job_duration)
     store_job_data(test_repository, [first_job])
@@ -28,7 +28,7 @@ def test_calculate_durations(test_repository, failure_classifications,
     # Ingest the same job type again to check that the pre-generated
     # average duration is used during ingestion.
     second_job_duration = 142
-    second_job = job_data(revision=result_set_stored[0]['revision'],
+    second_job = job_data(revision=push_stored[0]['revision'],
                           start_timestamp=now,
                           end_timestamp=now + second_job_duration,
                           job_guid='a-different-unique-guid')
@@ -45,7 +45,7 @@ def test_calculate_durations(test_repository, failure_classifications,
 
     # Add a fake job with an end time > start time, verify that it is
     # ignored and average duration remains the same
-    third_job = job_data(revision=result_set_stored[0]['revision'],
+    third_job = job_data(revision=push_stored[0]['revision'],
                          start_timestamp=now,
                          end_timestamp=now - second_job_duration,
                          job_guid='another-unique-guid')

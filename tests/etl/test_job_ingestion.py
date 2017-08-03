@@ -7,7 +7,7 @@ from tests.sample_data_generator import job_data
 from treeherder.etl.jobs import (_get_lower_tier_signatures,
                                  _remove_existing_jobs,
                                  store_job_data)
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model.models import (ExclusionProfile,
                                      Job,
                                      JobExclusion,
@@ -17,39 +17,39 @@ from treeherder.model.models import (ExclusionProfile,
 
 
 def test_ingest_single_sample_job(test_repository, failure_classifications,
-                                  sample_data, sample_resultset,
+                                  sample_data, sample_push,
                                   mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
 
 
 def test_ingest_all_sample_jobs(test_repository, failure_classifications,
-                                sample_data, sample_resultset, mock_log_parser):
+                                sample_data, sample_push, mock_log_parser):
     """
     Process each job structure in the job_data.txt file and verify.
     """
     job_data = sample_data.job_data
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
 
 
 def test_ingest_twice_log_parsing_status_changed(test_repository,
                                                  failure_classifications,
                                                  sample_data,
-                                                 sample_resultset,
+                                                 sample_push,
                                                  mock_log_parser):
     """Process a single job twice, but change the log parsing status between,
     verify that nothing changes"""
     job_data = sample_data.job_data[:1]
 
     job_data[0]['job']['state'] = 'running'
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert JobLog.objects.count() == 1
     for job_log in JobLog.objects.all():
         job_log.update_status(JobLog.FAILED)
 
     job_data[0]['job']['state'] = 'completed'
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert JobLog.objects.count() == 1
     for job_log in JobLog.objects.all():
         job_log.status == JobLog.FAILED
@@ -59,15 +59,15 @@ def test_ingest_twice_log_parsing_status_changed(test_repository,
 def test_ingest_running_to_retry_sample_job(test_repository,
                                             failure_classifications,
                                             sample_data,
-                                            sample_resultset,
+                                            sample_push,
                                             mock_log_parser,
                                             same_ingestion_cycle):
     """Process a single job structure in the job_data.txt file"""
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
-    job_data[0]['revision'] = sample_resultset[0]['revision']
+    job_data[0]['revision'] = sample_push[0]['revision']
     job['state'] = 'running'
     job['result'] = 'unknown'
 
@@ -107,14 +107,14 @@ def test_ingest_running_to_retry_sample_job(test_repository,
 def test_ingest_running_to_retry_to_success_sample_job(test_repository,
                                                        failure_classifications,
                                                        sample_data,
-                                                       sample_resultset,
+                                                       sample_push,
                                                        mock_log_parser,
                                                        ingestion_cycles):
     # verifies that retries to success work, no matter how jobs are batched
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     job_datum = copy.deepcopy(sample_data.job_data[0])
-    job_datum['revision'] = sample_resultset[0]['revision']
+    job_datum['revision'] = sample_push[0]['revision']
 
     job = job_datum['job']
     job_guid_root = job['job_guid']
@@ -144,16 +144,16 @@ def test_ingest_running_to_retry_to_success_sample_job(test_repository,
                                               [(0, 3), (3, 4)],
                                               [(0, 2), (2, 4)]])
 def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
-        test_repository, failure_classifications, sample_data, sample_resultset,
+        test_repository, failure_classifications, sample_data, sample_push,
         mock_log_parser, ingestion_cycles):
     # this verifies that if we ingest multiple retries:
     # (1) nothing errors out
     # (2) we end up with three jobs (the original + 2 retry jobs)
 
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     job_datum = copy.deepcopy(sample_data.job_data[0])
-    job_datum['revision'] = sample_resultset[0]['revision']
+    job_datum['revision'] = sample_push[0]['revision']
 
     job = job_datum['job']
     job_guid_root = job['job_guid']
@@ -185,14 +185,14 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
 
 def test_ingest_retry_sample_job_no_running(test_repository,
                                             failure_classifications,
-                                            sample_data, sample_resultset,
+                                            sample_data, sample_push,
                                             mock_log_parser):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
-    job_data[0]['revision'] = sample_resultset[0]['revision']
+    job_data[0]['revision'] = sample_push[0]['revision']
 
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     # complete version of the job coming in
     job['state'] = 'completed'
@@ -210,15 +210,15 @@ def test_ingest_retry_sample_job_no_running(test_repository,
 
 
 def test_bad_date_value_ingestion(test_repository, failure_classifications,
-                                  sample_resultset, mock_log_parser):
+                                  sample_push, mock_log_parser):
     """
     Test ingesting a job blob with bad date value
 
     """
     blob = job_data(start_timestamp="foo",
-                    revision=sample_resultset[0]['revision'])
+                    revision=sample_push[0]['revision'])
 
-    store_result_set_data(test_repository, sample_resultset[:1])
+    store_push_data(test_repository, sample_push[:1])
     store_job_data(test_repository, [blob])
     # if no exception, we are good.
 
@@ -226,15 +226,15 @@ def test_bad_date_value_ingestion(test_repository, failure_classifications,
 def test_ingest_job_revision_hash_blank_revision(test_repository,
                                                  failure_classifications,
                                                  sample_data, mock_log_parser,
-                                                 sample_resultset):
+                                                 sample_push):
 
-    # Given a resultset with a revision_hash value that is NOT the
+    # Given a push with a revision_hash value that is NOT the
     # top revision SHA, ingest a job with a different revision_hash, but a
-    # matching revision SHA.  Ensure the job still goes to the right resultset.
+    # matching revision SHA.  Ensure the job still goes to the right push.
     rs_revision_hash = "12345abc"
-    resultset = sample_resultset[0].copy()
-    resultset["revision_hash"] = rs_revision_hash
-    store_result_set_data(test_repository, [resultset])
+    push = sample_push[0].copy()
+    push["revision_hash"] = rs_revision_hash
+    store_push_data(test_repository, [push])
 
     first_job = sample_data.job_data[0]
     first_job["revision_hash"] = rs_revision_hash
@@ -247,12 +247,12 @@ def test_ingest_job_revision_hash_blank_revision(test_repository,
 
 
 def test_remove_existing_jobs_single_existing(test_repository, failure_classifications,
-                                              sample_data, sample_resultset,
+                                              sample_data, sample_push,
                                               mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     assert Job.objects.count() == 1
 
     data = _remove_existing_jobs(job_data)
@@ -261,12 +261,12 @@ def test_remove_existing_jobs_single_existing(test_repository, failure_classific
 
 def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_classifications,
                                                    sample_data,
-                                                   sample_resultset,
+                                                   sample_push,
                                                    mock_log_parser):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
 
     data = _remove_existing_jobs(sample_data.job_data[:2])
 
@@ -275,10 +275,10 @@ def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_clas
 
 
 def test_new_job_in_exclusion_profile(test_repository, failure_classifications, sample_data,
-                                      sample_resultset, mock_log_parser,
-                                      test_sheriff, result_set_stored):
+                                      sample_push, mock_log_parser,
+                                      test_sheriff, push_stored):
     for job in sample_data.job_data[:2]:
-        job["revision"] = result_set_stored[0]["revision"]
+        job["revision"] = push_stored[0]["revision"]
 
     job = sample_data.job_data[1]
     platform = job["job"]["machine_platform"]["platform"]
@@ -315,10 +315,10 @@ def test_new_job_in_exclusion_profile(test_repository, failure_classifications, 
 
 
 def test_ingesting_skip_existing(test_repository, failure_classifications, sample_data,
-                                 sample_resultset, mock_log_parser):
+                                 sample_push, mock_log_parser):
     """Remove single existing job prior to loading"""
     job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
 
     store_job_data(test_repository, sample_data.job_data[:2])
 
@@ -327,7 +327,7 @@ def test_ingesting_skip_existing(test_repository, failure_classifications, sampl
 
 def test_ingest_job_with_updated_job_group(test_repository, failure_classifications,
                                            sample_data, mock_log_parser,
-                                           result_set_stored):
+                                           push_stored):
     """
     When a job_type is associated with a job group on data ingestion,
     that association will not updated ingesting a new job with the same
@@ -336,7 +336,7 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
     first_job_datum = sample_data.job_data[0]
     first_job_datum["job"]["group_name"] = "first group name"
     first_job_datum["job"]["group_symbol"] = "1"
-    first_job_datum["revision"] = result_set_stored[0]["revision"]
+    first_job_datum["revision"] = push_stored[0]["revision"]
     store_job_data(test_repository, [first_job_datum])
 
     second_job_datum = copy.deepcopy(first_job_datum)
@@ -345,7 +345,7 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
     second_job_datum["job"]["job_guid"] = second_job_guid
     second_job_datum["job"]["group_name"] = "second group name"
     second_job_datum["job"]["group_symbol"] = "2"
-    second_job_datum["revision"] = result_set_stored[0]["revision"]
+    second_job_datum["revision"] = push_stored[0]["revision"]
 
     store_job_data(test_repository, [second_job_datum])
 
@@ -363,20 +363,20 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
 
 def test_ingest_job_with_revision_hash(test_repository,
                                        failure_classifications, sample_data,
-                                       mock_log_parser, sample_resultset):
+                                       mock_log_parser, sample_push):
     """
     Test ingesting a job with only a revision hash, no revision.  And the
     revision_hash must NOT be the same SHA value as the top revision.
 
-    This can happen if a user submits a new resultset in the API with their
+    This can happen if a user submits a new push in the API with their
     own revision_hash value.  If we just use the latest revision value, then
     their subsequent job submissions with the revision_hash they generated
     will fail and the jobs will be skipped.
     """
     revision_hash = "12345abc"
-    resultset = sample_resultset[0].copy()
-    resultset["revision_hash"] = revision_hash
-    store_result_set_data(test_repository, [resultset])
+    push = sample_push[0].copy()
+    push["revision_hash"] = revision_hash
+    store_push_data(test_repository, [push])
 
     first_job = sample_data.job_data[0]
     first_job["revision_hash"] = revision_hash
@@ -389,16 +389,16 @@ def test_ingest_job_with_revision_hash(test_repository,
 def test_ingest_job_revision_and_revision_hash(test_repository,
                                                failure_classifications,
                                                sample_data, mock_log_parser,
-                                               sample_resultset):
+                                               sample_push):
 
-    # Given a resultset with a revision_hash value that is NOT the
+    # Given a push with a revision_hash value that is NOT the
     # top revision SHA, ingest a job with a different revision_hash, but a
-    # matching revision SHA.  Ensure the job still goes to the right resultset.
+    # matching revision SHA.  Ensure the job still goes to the right push.
     rs_revision_hash = "12345abc"
-    resultset = sample_resultset[0].copy()
-    resultset["revision_hash"] = rs_revision_hash
-    revision = resultset["revision"]
-    store_result_set_data(test_repository, [resultset])
+    push = sample_push[0].copy()
+    push["revision_hash"] = rs_revision_hash
+    revision = push["revision"]
+    store_push_data(test_repository, [push])
 
     first_job = sample_data.job_data[0]
     first_job["revision_hash"] = "abcdef123"

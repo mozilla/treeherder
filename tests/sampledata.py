@@ -15,11 +15,15 @@ class SampleData(object):
             os.path.dirname(__file__)
         )
 
-        self.resultset_data_file = "{0}/sample_data/resultset_data.json".format(
+        self.push_data_file = "{0}/sample_data/push_data.json".format(
             os.path.dirname(__file__)
         )
 
         self.logs_dir = "{0}/sample_data/logs".format(
+            os.path.dirname(__file__)
+        )
+
+        self.graphql_dir = "{0}/sample_data/graphql".format(
             os.path.dirname(__file__)
         )
 
@@ -60,7 +64,7 @@ class SampleData(object):
             self.transformed_hg_push = json.load(f)
 
         self.job_data = []
-        self.resultset_data = []
+        self.push_data = []
 
         self.initialize_data()
 
@@ -69,9 +73,13 @@ class SampleData(object):
             for line in f.readlines():
                 self.job_data.append(json.loads(line.strip()))
 
-        with open(self.resultset_data_file) as f:
-            self.resultset_data = json.load(f)
+        with open(self.push_data_file) as f:
+            self.push_data = json.load(f)
 
     def get_log_path(self, name):
         """Returns the full path to a log file"""
         return "{0}/{1}".format(self.logs_dir, name)
+
+    def get_graphql_path(self, name):
+        """Returns the full path to a log file"""
+        return "{0}/{1}".format(self.graphql_dir, name)

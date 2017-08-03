@@ -51,7 +51,7 @@ def check_job_log(test_repository, job_guid, parse_status):
 
 
 def test_post_job_with_unparsed_log(test_repository, failure_classifications,
-                                    result_set_stored, mock_post_json,
+                                    push_stored, mock_post_json,
                                     monkeypatch, activate_responses):
     """
     test submitting a job with an unparsed log parses the log,
@@ -72,7 +72,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -96,7 +96,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
 
 
 def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
-                                                         result_set_stored,
+                                                         push_stored,
                                                          failure_classifications,
                                                          activate_responses,
                                                          mock_post_json):
@@ -107,7 +107,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'running'
@@ -124,7 +124,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -143,7 +143,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
 
 
-def test_post_job_with_parsed_log(test_repository, result_set_stored,
+def test_post_job_with_parsed_log(test_repository, push_stored,
                                   failure_classifications,
                                   mock_post_json,
                                   monkeypatch,
@@ -163,7 +163,7 @@ def test_post_job_with_parsed_log(test_repository, result_set_stored,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -185,7 +185,7 @@ def test_post_job_with_parsed_log(test_repository, result_set_stored,
 def test_post_job_with_text_log_summary_artifact_parsed(
         test_repository,
         failure_classifications,
-        result_set_stored,
+        push_stored,
         monkeypatch,
         mock_post_json,
         text_log_summary_dict,
@@ -203,7 +203,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -234,7 +234,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 def test_post_job_with_text_log_summary_artifact_pending(
         test_repository,
         failure_classifications,
-        result_set_stored,
+        push_stored,
         monkeypatch,
         mock_post_json,
         text_log_summary_dict,
@@ -253,7 +253,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -285,7 +285,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 def test_post_job_artifacts_by_add_artifact(
         test_repository,
         failure_classifications,
-        result_set_stored,
+        push_stored,
         monkeypatch,
         mock_post_json,
         ):
@@ -306,7 +306,7 @@ def test_post_job_artifacts_by_add_artifact(
     tjc = client.TreeherderJobCollection()
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         "job": {
             "artifacts": [],
             "job_guid": job_guid,
@@ -392,7 +392,7 @@ def test_post_job_artifacts_by_add_artifact(
 
 
 def test_post_job_with_tier(test_repository, failure_classifications,
-                            result_set_stored,
+                            push_stored,
                             mock_post_json):
     """test submitting a job with tier specified"""
 
@@ -400,7 +400,7 @@ def test_post_job_with_tier(test_repository, failure_classifications,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -416,7 +416,7 @@ def test_post_job_with_tier(test_repository, failure_classifications,
 
 
 def test_post_job_with_default_tier(test_repository, failure_classifications,
-                                    result_set_stored,
+                                    push_stored,
                                     mock_post_json):
     """test submitting a job with no tier specified gets default"""
 
@@ -424,7 +424,7 @@ def test_post_job_with_default_tier(test_repository, failure_classifications,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -439,7 +439,7 @@ def test_post_job_with_default_tier(test_repository, failure_classifications,
 
 
 def test_post_job_with_buildapi_artifact(test_repository, failure_classifications,
-                                         result_set_stored,
+                                         push_stored,
                                          mock_post_json):
     """
     test submitting a job with a buildapi artifact gets that stored (and
@@ -449,7 +449,7 @@ def test_post_job_with_buildapi_artifact(test_repository, failure_classification
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'artifacts': [],
             'job_guid': job_guid,

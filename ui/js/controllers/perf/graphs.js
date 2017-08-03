@@ -781,7 +781,7 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesObject = {
                         project:  partialSeriesArray[0],
                         signature:  partialSeriesArray[1],
-                        visible: (partialSeriesArray[2] === 0) ? false : true,
+                        visible: (partialSeriesArray[2] !== 0),
                         frameworkId: partialSeriesArray[3]
                     };
                     return partialSeriesObject;

@@ -26,8 +26,16 @@ module.exports = neutrino => {
                     }
                 },
                 extends: 'eslint:recommended',
-                rules: {
+              rules: {
+                    'arrow-body-style': ['error', 'as-needed', {
+                        requireReturnForObjectLiteral: false,
+                    }],
+                    'arrow-parens': ['error', 'as-needed', {
+                        requireForBlockBody: true,
+                    }],
+                    'arrow-spacing': ['error', { before: true, after: true }],
                     'accessor-pairs': 'error',
+                    'block-spacing': ['error', 'always'],
                     'comma-spacing': 'error',
                     'comma-style': 'error',
                     'eol-last': 'error',
@@ -75,6 +83,7 @@ module.exports = neutrino => {
                     'no-undef-init': 'error',
                     'no-undef': 'error',
                     'no-unexpected-multiline': 'error',
+                    'no-unneeded-ternary': 'error',
                     'no-unused-expressions': 'error',
                     'no-unused-vars': 'error',
                     'no-useless-call': 'error',
@@ -93,7 +102,8 @@ module.exports = neutrino => {
                 globals: ['angular', '$', '_', 'treeherder', 'perf',
                     'treeherderApp', 'failureViewerApp', 'logViewerApp',
                     'userguideApp', 'admin', 'Mousetrap', 'jQuery', 'React',
-                    'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN', 'numeral'
+                    'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN', 'numeral',
+                    'metrics-graphics'
                 ]
             }
         }));

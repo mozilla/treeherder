@@ -81,12 +81,26 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         },
         getSeriesData: function (projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
-                             { params: params }).then(function (response) {
+                             {params: params}).then(function (response) {
                                  if (response.data) {
                                      return response.data;
                                  }
                                  return $q.reject("No series data found");
                              });
+        },
+        getReplicateData: function (params) {
+            params.value = 'perfherder-data.json';
+            return $http.get(thServiceDomain + '/api/jobdetail/'
+                , {params: params}).then(
+                    function (response) {
+                        if (response.data.results[0]) {
+                            let url = response.data.results[0].url;
+                            return $http.get(url).then(function (response) {
+                                return response.data;
+                            });
+                        }
+                        return $q.reject("No replicate data found");
+                    });
         }
     };
 }]);

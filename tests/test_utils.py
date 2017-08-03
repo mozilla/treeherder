@@ -6,7 +6,7 @@ import responses
 from tests.sampledata import SampleData
 from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model import models
 
 
@@ -16,7 +16,7 @@ def post_collection(project, th_collection):
     return client.post_collection(project, th_collection)
 
 
-def do_job_ingestion(test_repository, job_data, sample_resultset,
+def do_job_ingestion(test_repository, job_data, sample_push,
                      verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
@@ -24,10 +24,10 @@ def do_job_ingestion(test_repository, job_data, sample_resultset,
     ``verify_data`` - whether or not to run the ingested jobs
                       through the verifier.
     """
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
-    max_index = len(sample_resultset) - 1
-    resultset_index = 0
+    max_index = len(sample_push) - 1
+    push_index = 0
 
     # Structures to test if we stored everything
     build_platforms_ref = set()
@@ -37,7 +37,7 @@ def do_job_ingestion(test_repository, job_data, sample_resultset,
     options_ref = set()
     job_types_ref = set()
     products_ref = set()
-    result_sets_ref = set()
+    pushes_ref = set()
     log_urls_ref = set()
     coalesced_job_guids = {}
     artifacts_ref = {}
@@ -45,18 +45,18 @@ def do_job_ingestion(test_repository, job_data, sample_resultset,
     blobs = []
     for index, blob in enumerate(job_data):
 
-        if resultset_index > max_index:
-            resultset_index = 0
+        if push_index > max_index:
+            push_index = 0
 
-        # Modify job structure to sync with the resultset sample data
+        # Modify job structure to sync with the push sample data
         if 'sources' in blob:
             del blob['sources']
 
-        blob['revision'] = sample_resultset[resultset_index]['revision']
+        blob['revision'] = sample_push[push_index]['revision']
 
         blobs.append(blob)
 
-        resultset_index += 1
+        push_index += 1
 
         # Build data structures to confirm everything is stored
         # as expected
@@ -86,7 +86,7 @@ def do_job_ingestion(test_repository, job_data, sample_resultset,
 
             job_types_ref.add(job.get('name', 'unknown'))
             products_ref.add(job.get('product_name', 'unknown'))
-            result_sets_ref.add(blob['revision'])
+            pushes_ref.add(blob['revision'])
 
             log_url_list = job.get('log_references', [])
             for log_data in log_url_list:
@@ -111,7 +111,7 @@ def do_job_ingestion(test_repository, job_data, sample_resultset,
         verify_options(options_ref)
         verify_job_types(job_types_ref)
         verify_products(products_ref)
-        verify_result_sets(test_repository, result_sets_ref)
+        verify_pushes(test_repository, pushes_ref)
         verify_log_urls(test_repository, log_urls_ref)
         verify_coalesced(coalesced_job_guids)
 
@@ -170,9 +170,9 @@ def verify_products(products_ref):
     assert products_ref.issubset(products)
 
 
-def verify_result_sets(test_repository, result_sets_ref):
+def verify_pushes(test_repository, pushes_ref):
 
-    return result_sets_ref.issubset(models.Push.objects.values_list(
+    return pushes_ref.issubset(models.Push.objects.values_list(
         'revision', flat=True))
 
 

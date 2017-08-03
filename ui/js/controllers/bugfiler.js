@@ -57,7 +57,7 @@ treeherder.controller('BugFilerCtrl', [
 
             // Auto-block the stylo-bustage metabug if this is a stylo failure
             if (selectedJob.build_platform.includes("stylo")) {
-                $scope.modalBlocks = "stylo-bustage,";
+                $scope.modalBlocks = "1381405,";
             }
 
             for (var i = 0; i < allFailures.length; i++) {
@@ -126,15 +126,21 @@ treeherder.controller('BugFilerCtrl', [
 
             summary = summary.split(" | ");
 
+            // If the search_terms used for finding bug suggestions
+            // contains any of the omittedLeads, that lead is needed
+            // for the full string match, so don't omit it in this case.
+            // If it's not needed, go ahead and omit it.
             for (var i=0; i < $scope.omittedLeads.length; i++) {
-                if (summary[0].search($scope.omittedLeads[i]) >= 0 && summary.length > 1) {
+                if ($scope.search_terms.length > 0 && summary.length > 1 &&
+                    !$scope.search_terms[0].includes($scope.omittedLeads[i]) &&
+                    summary[0].search($scope.omittedLeads[i]) >= 0) {
                     summary.shift();
                 }
             }
 
             // Some of the TEST-FOO bits aren't removed from the summary,
             // so we sometimes end up with them instead of the test path here.
-            var summaryName = summary[0].startsWith("TEST-") ? summary[1] : summary[0];
+            var summaryName = summary[0].startsWith("TEST-") && summary.length > 1 ? summary[1] : summary[0];
             $uibModalInstance.possibleFilename = findFilename(summaryName);
 
             return [summary, $uibModalInstance.possibleFilename];
@@ -223,7 +229,7 @@ treeherder.controller('BugFilerCtrl', [
                         // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
                         $http.get(dxrlink, {"headers": {
                             "Accept": "application/json"
-                        }}).then(secondRequest => {
+                        }}).then((secondRequest) => {
                             const results = secondRequest.data.results;
                             var resultsCount = results.length;
                             // If the search returns too many results, this probably isn't a good search term, so bail
@@ -231,10 +237,10 @@ treeherder.controller('BugFilerCtrl', [
                                 $scope.searching = false;
                                 injectProducts(failurePath);
                             }
-                            results.forEach(result => {
+                            results.forEach((result) => {
                                 $scope.searching = "DXR & Mercurial";
                                 $http.get(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`)
-                                    .then(thirdRequest => {
+                                    .then((thirdRequest) => {
                                         if (thirdRequest.data.aggregate && thirdRequest.data.aggregate.recommended_bug_component) {
                                             const suggested = thirdRequest.data.aggregate.recommended_bug_component;
                                             addProduct(suggested[0] + " :: " + suggested[1]);
@@ -340,6 +346,7 @@ treeherder.controller('BugFilerCtrl', [
             var keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
 
             var severity = "normal";
+            var priority = "P5";
             var blocks = $scope.modalBlocks;
             var dependsOn = $scope.modalDependsOn;
             var seeAlso = $scope.modalSeeAlso;
@@ -364,6 +371,9 @@ treeherder.controller('BugFilerCtrl', [
                     return $http({
                         url: "api/bugzilla/create_bug/",
                         method: "POST",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
                         data: {
                             "product": productString,
                             "component": componentString,
@@ -375,6 +385,7 @@ treeherder.controller('BugFilerCtrl', [
                             "see_also": seeAlso,
                             "crash_signature": crashSignature,
                             "severity": severity,
+                            "priority": priority,
                             "comment": descriptionStrings,
                             "comment_tags": "treeherder"
                         }

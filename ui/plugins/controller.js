@@ -74,30 +74,23 @@ treeherder.controller('PluginCtrl', [
          * and some based on query string params (such as autoClassification).
          *
          */
-        var initializeTabs = function (job) {
-            var successTab = "jobDetails";
-            var failTab = "failureSummary";
+        var initializeTabs = function (job, hasPerformanceData) {
+            let successTab = "jobDetails";
+            let failTab = "failureSummary";
 
             // Error Classification/autoclassify special handling
             if ($scope.tabService.tabs.autoClassification.enabled) {
                 failTab = "autoClassification";
             }
 
-            $scope.tabService.tabs.perfDetails.enabled = false;
-            // Load performance data regardless of status, but only switch to
-            // it if job was successful.
-            $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
-                      '/performance/data/?job_id=' + job.id).then(function (response) {
-                          var jobType = job.job_type_name;
-                          if (!_.isEmpty(response.data)) {
-                              $scope.tabService.tabs.perfDetails.enabled = true;
-                              if (jobType !== "Build" && jobType !== "Nightly" &&
-                                  !jobType.startsWith('build-') &&
-                                  thResultStatus(job) === 'success') {
-                                  $scope.tabService.selectedTab = 'perfDetails';
-                              }
-                          }
-                      });
+            $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
+            // the success tabs should be "performance" if job was not a build
+            const jobType = job.job_type_name;
+            if (hasPerformanceData && jobType !== "Build" && jobType !== "Nightly" &&
+                !jobType.startsWith('build-')) {
+                successTab = 'perfDetails';
+            }
+
             if (thResultStatus(job) === 'success') {
                 $scope.tabService.selectedTab = successTab;
             } else {
@@ -155,9 +148,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.average_duration = $scope.job.get_average_duration();
                     $scope.resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
                     $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, $scope.resultsetId).revision;
-
-                    // set the tab options and selections based on the selected job
-                    initializeTabs($scope.job);
 
                     // filtering values for data fields and signature
                     $scope.jobSearchStr = $scope.job.get_title();
@@ -239,6 +229,9 @@ treeherder.controller('PluginCtrl', [
                             });
                         });
                     }
+
+                    // set the tab options and selections based on the selected job
+                    initializeTabs($scope.job, (Object.keys(performanceData).length > 0));
 
                     updateVisibleFields();
                     $scope.updateClassifications();
@@ -325,7 +318,7 @@ treeherder.controller('PluginCtrl', [
         var getRevisionTips = function (projectName, list) {
             list.splice(0, list.length);
             var rsArr = ThResultSetStore.getResultSetsArray(projectName);
-            _.forEach(rsArr, rs => {
+            _.forEach(rsArr, (rs) => {
                 list.push({
                     revision: rs.revision,
                     author: rs.author,

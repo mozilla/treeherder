@@ -133,7 +133,7 @@ treeherder.component('distributionGraph', {
             ctrl.minValue = Math.floor(ctrl.minValue/1.001);
         }
         ctx.globalAlpha = 0.3;
-        ctrl.replicates.forEach((value) =>{
+        ctrl.replicates.forEach((value) => {
             ctx.beginPath();
             ctx.arc(180/(ctrl.maxValue - ctrl.minValue)*(value - ctrl.minValue) + 5, 18, 5, 0, 360);
             ctx.fillStyle = 'white';

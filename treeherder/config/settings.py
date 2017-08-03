@@ -25,7 +25,7 @@ TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 
-GRAPHQL = env.bool("GRAPHQL", default=False)
+GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
@@ -299,9 +299,10 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
 
 CELERYBEAT_SCHEDULE = {
-    'fetch-push-logs-every-minute': {
+    # this is just a failsafe in case the Pulse ingestion misses something
+    'fetch-push-logs-every-5-minutes': {
         'task': 'fetch-push-logs',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {
             "queue": "pushlog"
@@ -390,7 +391,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
-        'resultset': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
+        'push': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_VERSION': '1.0',
@@ -539,8 +540,8 @@ PULSE_DATA_INGESTION_SOURCES = env.json(
         # ... other CI systems
     ])
 
-PULSE_RESULTSET_SOURCES = env.json(
-    "PULSE_RESULTSET_SOURCES",
+PULSE_PUSH_SOURCES = env.json(
+    "PULSE_PUSH_SOURCES",
     default=[
         # {
         #     "exchange": "exchange/taskcluster-github/v1/push",

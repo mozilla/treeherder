@@ -76,7 +76,7 @@ def test_summary_status(test_repository, test_perf_signature,
 
 
 def test_alert_modification(test_perf_signature, test_perf_alert_summary,
-                            result_set_stored, test_perf_alert):
+                            push_stored, test_perf_alert):
     p = test_perf_alert
     s2 = PerformanceAlertSummary.objects.create(
         id=2,

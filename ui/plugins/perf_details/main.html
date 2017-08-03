@@ -2,7 +2,7 @@
   <ul ng-show="perfJobDetail">
     <li>Perfherder:
       <ul ng-repeat="detail in perfJobDetail | toArray | orderBy: 'title'">
-        <li>{{detail.title}}: <a href="{{::detail.url}}">{{::detail.value}}</a>
+        <li>{{detail.title}}: <a href="{{::detail.url}}">{{::detail.value|displayNumber}}</a>
         </li>
       </ul>
     </li>

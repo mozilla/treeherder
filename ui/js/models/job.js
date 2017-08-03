@@ -48,7 +48,7 @@ treeherder.factory('ThJobModel', [
             ]).join(' ');
         };
 
-        ThJobModel.get_uri = function (repoName) {return thUrl.getProjectUrl("/jobs/", repoName);};
+        ThJobModel.get_uri = function (repoName) { return thUrl.getProjectUrl("/jobs/", repoName); };
 
         ThJobModel.get_list = function (repoName, options, config) {
             // a static method to retrieve a list of ThJobModel

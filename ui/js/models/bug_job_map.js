@@ -9,7 +9,7 @@ treeherder.factory('ThBugJobMapModel', [
             angular.extend(this, data);
         };
 
-        ThBugJobMapModel.get_uri = function () {return thUrl.getProjectUrl("/bug-job-map/");};
+        ThBugJobMapModel.get_uri = function () { return thUrl.getProjectUrl("/bug-job-map/"); };
 
         // a static method to retrieve a list of ThBugJobMap
         // the options parameter is used to filter/limit the list of objects

@@ -102,13 +102,12 @@ class JobConsumer(PulseConsumer):
         message.ack()
 
 
-class ResultsetConsumer(PulseConsumer):
+class PushConsumer(PulseConsumer):
 
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
-        logger.info('received resultset message from %s#%s' % (exchange,
-                                                               routing_key))
+        logger.info('received push message from %s#%s' % (exchange, routing_key))
         store_pulse_resultsets.apply_async(
             args=[body, exchange, routing_key],
             routing_key='store_pulse_resultsets'

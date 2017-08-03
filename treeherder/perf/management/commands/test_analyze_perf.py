@@ -93,17 +93,16 @@ class Command(BaseCommand):
 
                 data = []
 
-                for (result_set_id, timestamp, value) in zip(
+                for (push_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    data.append(Datum(timestamp, value, testrun_id=result_set_id))
+                    data.append(Datum(timestamp, value, testrun_id=push_id))
 
                 for r in detect_changes(data):
                     if r.state == 'regression':
-                        resultsets = pc.get_resultsets(project,
-                                                       id=r.testrun_id)
-                        if len(resultsets):
-                            revision = resultsets[0]['revision']
+                        pushes = pc.get_pushes(project, id=r.testrun_id)
+                        if len(pushes):
+                            revision = pushes[0]['revision']
                         else:
                             revision = ''
                         initial_value = r.historical_stats['avg']

@@ -20,11 +20,11 @@ treeherder.factory('ThLog', [
             return this.name;
         };
 
-        ThLog.prototype.debug = function () {logIt(this, $log.debug, arguments);};
-        ThLog.prototype.log = function () {logIt(this, $log.log, arguments);};
-        ThLog.prototype.warn = function () {logIt(this, $log.warn, arguments);};
-        ThLog.prototype.info = function () {logIt(this, $log.info, arguments);};
-        ThLog.prototype.error = function () {logIt(this, $log.error, arguments);};
+        ThLog.prototype.debug = function () { logIt(this, $log.debug, arguments); };
+        ThLog.prototype.log = function () { logIt(this, $log.log, arguments); };
+        ThLog.prototype.warn = function () { logIt(this, $log.warn, arguments); };
+        ThLog.prototype.info = function () { logIt(this, $log.info, arguments); };
+        ThLog.prototype.error = function () { logIt(this, $log.error, arguments); };
 
         var logIt = function (self, func, args) {
             if ((whitelist.length && _.includes(whitelist, self.getClassName())) ||
