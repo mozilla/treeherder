@@ -112,6 +112,11 @@ def publish_push_action(project, action, push_id, requester, times=1):
     )
 
 
+@task(name='publish-resultset-runnable-job-action')
+def publish_resultset_runnable_job_action(project, resultset_id, requester, requested_jobs, decision_task_id):
+    publish_push_runnable_job_action(project, resultset_id, requester, requested_jobs, decision_task_id)
+
+
 @task(name='publish-push-runnable-job-action')
 def publish_push_runnable_job_action(project, push_id, requester, requested_jobs, decision_task_id):
     newrelic.agent.add_custom_parameter("project", project)

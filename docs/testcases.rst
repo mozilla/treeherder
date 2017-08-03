@@ -408,4 +408,4 @@ Optional: There are other variants that can be tested: classification of expande
 
 .. _`stage`: https://treeherder.allizom.org
 .. _`production`: https://treeherder.mozilla.org
-.. _`userguide`: https://treeherder.allizom.org/userguide.html
+.. _`userguide`: https://treeherder.mozilla.org/userguide.html
