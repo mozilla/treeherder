@@ -1,4 +1,4 @@
-web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 29
+web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 20
 worker_beat: newrelic-admin run-program celery beat -A treeherder
 worker_pushlog: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q pushlog --concurrency=5
 worker_buildapi_pending: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q buildapi_pending --concurrency=5
