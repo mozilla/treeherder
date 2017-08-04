@@ -307,65 +307,74 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
         assert d.value == 20.0
 
 
-@pytest.mark.parametrize(('add_suite_value',
+@pytest.mark.parametrize(('alerts_enabled_repository',
+                          'add_suite_value',
                           'extra_suite_metadata',
                           'extra_subtest_metadata',
                           'expected_subtest_alert',
                           'expected_suite_alert'), [
                               # just subtest, no metadata, default settings
-                              (False, None, {}, True, False),
+                              (True, False, None, {}, True, False),
                               # just subtest, high alert threshold (so no alert)
-                              (False, None, {'alertThreshold': 500.0}, False,
+                              (True, False, None, {'alertThreshold': 500.0}, False,
                                False),
                               # just subtest, but larger min window size
                               # (so no alerting)
-                              (False, {}, {'minBackWindow': 100,
-                                           'maxBackWindow': 100}, False,
+                              (True, False, {}, {'minBackWindow': 100,
+                                                 'maxBackWindow': 100}, False,
                                False),
                               # should still alert even if we optionally
                               # use a large maximum back window
-                              (False, None, {'minBackWindow': 12,
-                                             'maxBackWindow': 100}, True,
+                              (True, False, None, {'minBackWindow': 12,
+                                                   'maxBackWindow': 100}, True,
                                False),
                               # summary+subtest, no metadata, default settings
-                              (True, {}, {}, False, True),
+                              (True, True, {}, {}, False, True),
                               # summary+subtest, high alert threshold
                               # (so no alert)
-                              (True, {'alertThreshold': 500.0}, {}, False,
+                              (True, True, {'alertThreshold': 500.0}, {}, False,
                                False),
                               # summary+subtest, no metadata, no alerting on summary
-                              (True, {'shouldAlert': False}, {}, False,
+                              (True, True, {'shouldAlert': False}, {}, False,
                                False),
                               # summary+subtest, no metadata, no alerting on
                               # summary, alerting on subtest
-                              (True, {'shouldAlert': False},
+                              (True, True, {'shouldAlert': False},
                                {'shouldAlert': True}, True, False),
                               # summary+subtest, no metadata on summary, alerting
                               # override on subtest
-                              (True, {}, {'shouldAlert': True}, True, True),
+                              (True, True, {}, {'shouldAlert': True}, True, True),
                               # summary+subtest, alerting override on subtest +
                               # summary
-                              (True, {'shouldAlert': True},
+                              (True, True, {'shouldAlert': True},
                                {'shouldAlert': True}, True, True),
+                              # summary+subtest, alerting override on subtest +
+                              # summary -- but alerts disabled
+                              (False, True, {'shouldAlert': True},
+                               {'shouldAlert': True}, False, False),
                               # summary+subtest, alerting override on subtest +
                               # summary, but using absolute change so shouldn't
                               # alert
-                              (True,
+                              (True, True,
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                False, False),
                               # summary + subtest, only subtest is absolute so
                               # summary should alert
-                              (True,
+                              (True, True,
                                {'shouldAlert': True},
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                False, True),
                         ])
 def test_alert_generation(test_repository,
                           failure_classifications, generic_reference_data,
+                          alerts_enabled_repository,
                           add_suite_value, extra_suite_metadata,
                           extra_subtest_metadata, expected_subtest_alert,
                           expected_suite_alert):
+    test_repository.performance_alerts_enabled = alerts_enabled_repository
+    test_repository.save()
+
     _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               add_suite_value=add_suite_value,
