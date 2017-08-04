@@ -606,7 +606,14 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         class NumberInFilter(django_filters.filters.BaseInFilter,
                              django_filters.NumberFilter):
-            pass
+
+            # prevent a non-filter if ``value`` is empty
+            # See https://github.com/carltongibson/django-filter/issues/755
+            def filter(self, qs, value):
+                if value in django_filters.constants.EMPTY_VALUES:
+                    raise ValueError("Invalid filter on empty value: {}".format(value))
+
+                return django_filters.Filter.filter(self, qs, value)
 
         job_id = django_filters.NumberFilter(name='job')
         job_id__in = NumberInFilter(name='job', lookup_expr='in')
