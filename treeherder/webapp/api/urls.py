@@ -13,8 +13,8 @@ from treeherder.webapp.api import (auth,
                                    jobs,
                                    note,
                                    performance_data,
+                                   push,
                                    refdata,
-                                   resultset,
                                    runnable_jobs,
                                    seta,
                                    text_log_error)
@@ -49,8 +49,14 @@ project_bound_router.register(
 
 project_bound_router.register(
     r'resultset',
-    resultset.ResultSetViewSet,
+    push.PushViewSet,
     base_name='resultset',
+)
+
+project_bound_router.register(
+    r'push',
+    push.PushViewSet,
+    base_name='push',
 )
 
 project_bound_router.register(

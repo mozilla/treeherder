@@ -82,7 +82,7 @@
         "email": "cdawson@mozilla.com",
         "date": "2016-07-27T22:36:30Z"
       },
-      "message": "Bug 1264074 - Refactor JobConsumer to have a PulseConsumer super class\n\nMuch of what was in the JobConsumer is reusable by the upcoming\nResultsetConsumer.  So refactor those parts out so that each specific\nconsumer can reuse code as much as possible.",
+      "message": "Bug 1264074 - Refactor JobConsumer to have a PulseConsumer super class\n\nMuch of what was in the JobConsumer is reusable by the upcoming\nPushConsumer.  So refactor those parts out so that each specific\nconsumer can reuse code as much as possible.",
       "tree": {
         "sha": "798773be063a1023eb1869491383d7580433fdd7",
         "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/798773be063a1023eb1869491383d7580433fdd7"
@@ -152,7 +152,7 @@
         "email": "cdawson@mozilla.com",
         "date": "2016-07-27T22:36:30Z"
       },
-      "message": "Bug 1264074 - Add ability to ingest Github Resultsets via Pulse\n\nThis introduces a ResultsetConsumer and a read_pulse_resultsets\nmanagement command to ingest resultsets from the TaskCluster\ngithub exchanges.\n\nWhen a supported Github repo has a Pull Request created or\nupdated, or a push is made to master, then it will kick off a\nPulse message.  We will receive it and then fetch any additional\ninformation we need from github's API and store the Resultset.\n\nThis follows a very similar pattern to the Job Pulse ingestion.",
+      "message": "Bug 1264074 - Add ability to ingest Github Resultsets via Pulse\n\nThis introduces a PushConsumer and a read_pulse_pushes\nmanagement command to ingest resultsets from the TaskCluster\ngithub exchanges.\n\nWhen a supported Github repo has a Pull Request created or\nupdated, or a push is made to master, then it will kick off a\nPulse message.  We will receive it and then fetch any additional\ninformation we need from github's API and store the Resultset.\n\nThis follows a very similar pattern to the Job Pulse ingestion.",
       "tree": {
         "sha": "113e76ea64049cdfd8d257a9a6f3b26cf316c661",
         "url": "https://api.github.com/repos/mozilla/treeherder/git/trees/113e76ea64049cdfd8d257a9a6f3b26cf316c661"

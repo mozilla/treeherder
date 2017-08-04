@@ -15,29 +15,27 @@ from treeherder.model.models import (Commit,
                                      Push,
                                      Repository)
 from treeherder.model.tasks import (publish_job_action,
-                                    publish_resultset_action,
-                                    publish_resultset_runnable_job_action)
+                                    publish_push_action,
+                                    publish_push_runnable_job_action)
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
 
 
-class ResultSetViewSet(viewsets.ViewSet):
+class PushViewSet(viewsets.ViewSet):
 
     """
-    View for ``resultset`` records
-
-    ``result sets`` are synonymous with ``pushes`` in the ui
+    View for ``push`` records
     """
-    throttle_scope = 'resultset'
+    throttle_scope = 'push'
     permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     def list(self, request, project):
         """
-        GET method for list of ``resultset`` records with revisions
+        GET method for list of ``push`` records with revisions
         """
-        # What is the upper limit on the number of resultsets returned by the api
-        MAX_RESULTS_COUNT = 1000
+        # What is the upper limit on the number of pushes returned by the api
+        MAX_PUSH_COUNT = 1000
 
         # make a mutable copy of these params
         filter_params = request.query_params.copy()
@@ -142,8 +140,8 @@ class ResultSetViewSet(viewsets.ViewSet):
             return Response({"error": "Valid count value required"},
                             status=HTTP_400_BAD_REQUEST)
 
-        if count > MAX_RESULTS_COUNT:
-            msg = "Specified count exceeds api limit: {}".format(MAX_RESULTS_COUNT)
+        if count > MAX_PUSH_COUNT:
+            msg = "Specified count exceeds api limit: {}".format(MAX_PUSH_COUNT)
             return Response({"error": msg}, status=HTTP_400_BAD_REQUEST)
 
         # we used to have a "full" parameter for this endpoint so you could
@@ -167,7 +165,7 @@ class ResultSetViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, project, pk=None):
         """
-        GET method implementation for detail view of ``resultset``
+        GET method implementation for detail view of ``push``
         """
         try:
             push = Push.objects.get(repository__name=project,
@@ -175,33 +173,33 @@ class ResultSetViewSet(viewsets.ViewSet):
             serializer = PushSerializer(push)
             return Response(serializer.data)
         except Push.DoesNotExist:
-            return Response("No resultset with id: {0}".format(pk),
+            return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
 
     @detail_route()
     def revisions(self, request, project, pk=None):
         """
-        GET method for revisions of a resultset
+        GET method for revisions of a push
         """
         try:
             serializer = CommitSerializer(Commit.objects.filter(push_id=pk),
                                           many=True)
             return Response(serializer.data)
         except Commit.DoesNotExist:
-            return Response("No resultset with id: {0}".format(pk),
+            return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def cancel_all(self, request, project, pk=None):
         """
-        Cancel all pending and running jobs in this resultset
+        Cancel all pending and running jobs in this push
         """
         if not pk:  # pragma nocover
-            return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
 
         # Sending 'cancel_all' action to pulse. Right now there is no listener
         # for this, so we cannot remove 'cancel' action for each job below.
-        publish_resultset_action.apply_async(
+        publish_push_action.apply_async(
             args=[project, 'cancel_all', pk, request.user.email],
             routing_key='publish_to_pulse'
         )
@@ -221,55 +219,55 @@ class ResultSetViewSet(viewsets.ViewSet):
             result='usercancel',
             last_modified=datetime.datetime.now())
 
-        return Response({"message": "pending and running jobs canceled for resultset '{0}'".format(pk)})
+        return Response({"message": "pending and running jobs canceled for push '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def trigger_missing_jobs(self, request, project, pk=None):
         """
-        Trigger jobs that are missing in a resultset.
+        Trigger jobs that are missing in a push.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
 
-        publish_resultset_action.apply_async(
+        publish_push_action.apply_async(
             args=[project, "trigger_missing_jobs", pk, request.user.email],
             routing_key='publish_to_pulse'
         )
 
-        return Response({"message": "Missing jobs triggered for result set '{0}'".format(pk)})
+        return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def trigger_all_talos_jobs(self, request, project, pk=None):
         """
-        Trigger all the talos jobs in a resultset.
+        Trigger all the talos jobs in a push.
         """
         if not pk:
-            return Response({"message": "resultset id required"}, status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
 
         times = int(request.query_params.get('times', None))
         if not times:
             raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
 
-        publish_resultset_action.apply_async(
+        publish_push_action.apply_async(
             args=[project, "trigger_all_talos_jobs", pk, request.user.email,
                   times],
             routing_key='publish_to_pulse'
         )
 
-        return Response({"message": "Talos jobs triggered for result set '{0}'".format(pk)})
+        return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def trigger_runnable_jobs(self, request, project, pk=None):
         """
-        Add new jobs to a resultset.
+        Add new jobs to a push.
         """
         if not pk:
-            return Response({"message": "result set id required"},
+            return Response({"message": "push id required"},
                             status=HTTP_400_BAD_REQUEST)
 
         # Making sure a push with this id exists
         if not Push.objects.filter(id=pk).exists():
-            return Response({"message": "No result set with id: {0}".format(pk)},
+            return Response({"message": "No push with id: {0}".format(pk)},
                             status=HTTP_404_NOT_FOUND)
 
         requested_jobs = request.data.get('requested_jobs', [])
@@ -278,7 +276,7 @@ class ResultSetViewSet(viewsets.ViewSet):
             Response({"message": "The list of requested_jobs cannot be empty"},
                      status=HTTP_400_BAD_REQUEST)
 
-        publish_resultset_runnable_job_action.apply_async(
+        publish_push_runnable_job_action.apply_async(
             args=[project, pk, request.user.email, requested_jobs, decision_task_id],
             routing_key='publish_to_pulse'
         )
@@ -288,12 +286,12 @@ class ResultSetViewSet(viewsets.ViewSet):
     @detail_route()
     def status(self, request, project, pk=None):
         """
-        Return a count of the jobs belonging to this push (resultset)
+        Return a count of the jobs belonging to this push
         grouped by job status.
         """
         try:
             push = Push.objects.get(id=pk)
         except Push.DoesNotExist:
-            return Response("No result set with id: {0}".format(pk),
+            return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
         return Response(push.get_status())

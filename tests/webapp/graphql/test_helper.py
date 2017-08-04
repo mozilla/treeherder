@@ -19,8 +19,8 @@ def test_collect_fields(query_node):
     assert exp_fields == fields
 
 
-def test_optimize(query_node, result_set_stored):
-    qs = Push.objects.filter(revision=result_set_stored[0]["revision"])
+def test_optimize(query_node, push_stored):
+    qs = Push.objects.filter(revision=push_stored[0]["revision"])
     field_map = {
         "jobType": ("job_type", "select"),
         "jobGroup": ("job_type__job_group", "select"),

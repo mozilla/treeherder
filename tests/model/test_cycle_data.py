@@ -21,12 +21,12 @@ from treeherder.perf.models import (PerformanceDatum,
 
 
 def test_cycle_all_data(test_repository, failure_classifications, sample_data,
-                        sample_resultset, mock_log_parser, failure_lines):
+                        sample_push, mock_log_parser, failure_lines):
     """
     Test cycling the sample data
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # set the submit time to be a week before today
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
@@ -49,7 +49,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
-                               sample_resultset, mock_log_parser, elasticsearch,
+                               sample_push, mock_log_parser, elasticsearch,
                                failure_lines):
     """
     Test cycling all but one job in a group of jobs to confirm there are no
@@ -57,7 +57,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     """
 
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # one job should not be deleted, set its submit time to now
     job_not_deleted = Job.objects.get(id=2)
@@ -100,12 +100,12 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
 
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
-                                  sample_resultset, mock_log_parser):
+                                  sample_push, mock_log_parser):
     """
     Test cycling the sample data in chunks.
     """
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # build a date that will cause the data to be cycled
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
@@ -129,10 +129,10 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,
-                                        sample_data, sample_resultset,
+                                        sample_data, sample_push,
                                         mock_log_parser):
     job_data = sample_data.job_data[:20]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_resultset, False)
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # get a list of ids of original reference data
     original_job_type_ids = JobType.objects.values_list('id', flat=True)
@@ -185,7 +185,7 @@ def test_cycle_job_with_performance_data(test_repository, failure_classification
 
 
 @pytest.mark.parametrize("test_repository_expire_data", [False, True])
-def test_cycle_performance_data(test_repository, result_set_stored,
+def test_cycle_performance_data(test_repository, push_stored,
                                 test_perf_signature,
                                 test_repository_expire_data):
     test_repository.expire_performance_data = test_repository_expire_data

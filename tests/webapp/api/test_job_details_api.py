@@ -7,7 +7,7 @@ from treeherder.model.models import (Job,
 
 
 def test_job_details(test_repository, failure_classifications,
-                     generic_reference_data, result_set_stored, webapp):
+                     generic_reference_data, push_stored, webapp):
     details = {
         'abcd': {
             'title': 'title',

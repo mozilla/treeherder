@@ -2,7 +2,7 @@ import pytest
 
 from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -25,19 +25,19 @@ def jobs_with_local_log(activate_responses):
     return [job]
 
 
-def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_resultset):
+def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_push):
     """
     check that 2 job_artifacts get inserted when running a parse_log task for
     a successful job and that JobDetail objects get created
     """
 
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     jobs = jobs_with_local_log
     for job in jobs:
         # make this a successful job, to check it's still parsed for errors
         job['job']['result'] = "success"
-        job['revision'] = sample_resultset[0]['revision']
+        job['revision'] = sample_push[0]['revision']
 
     store_job_data(test_repository, jobs)
 
@@ -46,19 +46,19 @@ def test_parse_log(test_repository, failure_classifications, jobs_with_local_log
 
 
 def test_create_error_summary(failure_classifications,
-                              jobs_with_local_log, sample_resultset,
+                              jobs_with_local_log, sample_push,
                               test_repository):
     """
     check that a bug suggestions artifact gets inserted when running
     a parse_log task for a failed job, and that the number of
     bug search terms/suggestions matches the number of error lines.
     """
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     jobs = jobs_with_local_log
     for job in jobs:
         job['job']['result'] = "testfailed"
-        job['revision'] = sample_resultset[0]['revision']
+        job['revision'] = sample_push[0]['revision']
 
     store_job_data(test_repository, jobs)
 

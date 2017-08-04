@@ -581,7 +581,7 @@ class JobsViewSet(viewsets.ViewSet):
 
     def create(self, request, project):
         """
-        This method adds a job to a given resultset.
+        This method adds a job to a given push.
         """
         try:
             repository = Repository.objects.get(name=project)

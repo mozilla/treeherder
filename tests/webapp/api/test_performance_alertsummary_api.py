@@ -170,7 +170,7 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
 
 
 def test_alert_summary_post(webapp, test_repository,
-                            result_set_stored,
+                            push_stored,
                             test_perf_signature):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)

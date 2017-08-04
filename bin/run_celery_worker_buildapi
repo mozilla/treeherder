@@ -8,4 +8,3 @@ source /etc/profile.d/treeherder.sh
 exec newrelic-admin run-program celery -A treeherder worker -Q buildapi_pending,buildapi_running,buildapi_4hr,store_pulse_jobs,store_pulse_resultsets \
     --concurrency=5 -l INFO \
     -n buildapi.%h
-

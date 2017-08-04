@@ -15,7 +15,7 @@ from webtest.app import TestApp
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model.models import (JobNote,
                                      Push,
                                      TextLogErrorMetadata)
@@ -106,8 +106,8 @@ def test_base_dir():
 
 
 @pytest.fixture
-def sample_resultset(sample_data):
-    return copy.deepcopy(sample_data.resultset_data)
+def sample_push(sample_data):
+    return copy.deepcopy(sample_data.push_data)
 
 
 @pytest.fixture
@@ -176,10 +176,10 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def result_set_stored(test_repository, sample_resultset):
-    store_result_set_data(test_repository, sample_resultset)
+def push_stored(test_repository, sample_push):
+    store_push_data(test_repository, sample_push)
 
-    return sample_resultset
+    return sample_push
 
 
 @pytest.fixture
@@ -189,20 +189,20 @@ def mock_message_broker(monkeypatch):
 
 
 @pytest.fixture
-def push_with_three_jobs(sample_data, sample_resultset, test_repository):
+def push_with_three_jobs(sample_data, sample_push, test_repository):
     """
-    Stores a number of jobs in the same resultset.
+    Stores a number of jobs in the same push.
     """
     num_jobs = 3
-    resultset = sample_resultset[0]
+    push = sample_push[0]
     jobs = copy.deepcopy(sample_data.job_data[0:num_jobs])
 
-    # Only store data for the first resultset....
-    store_result_set_data(test_repository, [resultset])
+    # Only store data for the first push....
+    store_push_data(test_repository, [push])
 
     blobs = []
     for index, blob in enumerate(jobs):
-        # Modify job structure to sync with the resultset sample data
+        # Modify job structure to sync with the push sample data
         if 'sources' in blob:
             del blob['sources']
 
@@ -210,41 +210,41 @@ def push_with_three_jobs(sample_data, sample_resultset, test_repository):
         if 'log_references' in blob['job']:
             del blob['job']['log_references']
 
-        blob['revision'] = resultset['revision']
+        blob['revision'] = push['revision']
         blob['job']['state'] = 'pending'
         blobs.append(blob)
 
     # Store and process the jobs so they are present in the tables.
     store_job_data(test_repository, blobs)
     return Push.objects.get(repository=test_repository,
-                            revision=resultset['revision'])
+                            revision=push['revision'])
 
 
 @pytest.fixture
-def eleven_job_blobs(sample_data, sample_resultset, test_repository, mock_log_parser):
-    store_result_set_data(test_repository, sample_resultset)
+def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
+    store_push_data(test_repository, sample_push)
 
     num_jobs = 11
     jobs = sample_data.job_data[0:num_jobs]
 
-    max_index = len(sample_resultset) - 1
-    resultset_index = 0
+    max_index = len(sample_push) - 1
+    push_index = 0
 
     blobs = []
     for index, blob in enumerate(jobs):
 
-        if resultset_index > max_index:
-            resultset_index = 0
+        if push_index > max_index:
+            push_index = 0
 
-        # Modify job structure to sync with the resultset sample data
+        # Modify job structure to sync with the push sample data
         if 'sources' in blob:
             del blob['sources']
 
-        blob['revision'] = sample_resultset[resultset_index]['revision']
+        blob['revision'] = sample_push[push_index]['revision']
 
         blobs.append(blob)
 
-        resultset_index += 1
+        push_index += 1
     return blobs
 
 
@@ -561,7 +561,7 @@ def text_log_error_lines(test_job, failure_lines):
 
 
 @pytest.fixture
-def test_perf_alert_summary(test_repository, result_set_stored, test_perf_framework):
+def test_perf_alert_summary(test_repository, push_stored, test_perf_framework):
     from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,

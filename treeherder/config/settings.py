@@ -391,7 +391,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
-        'resultset': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
+        'push': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_VERSION': '1.0',
@@ -540,8 +540,8 @@ PULSE_DATA_INGESTION_SOURCES = env.json(
         # ... other CI systems
     ])
 
-PULSE_RESULTSET_SOURCES = env.json(
-    "PULSE_RESULTSET_SOURCES",
+PULSE_PUSH_SOURCES = env.json(
+    "PULSE_PUSH_SOURCES",
     default=[
         # {
         #     "exchange": "exchange/taskcluster-github/v1/push",
