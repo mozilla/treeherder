@@ -124,6 +124,9 @@
                 <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
               <li>
+                <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
+              </li>
+              <li>
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
               </li>
               <li ng-if-end>
