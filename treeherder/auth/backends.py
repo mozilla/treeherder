@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
 from taskcluster import Auth
-from taskcluster.utils import scope_match
+from taskcluster.utils import scopeMatch
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class TaskclusterAuthBackend(object):
         Try to find an existing user that matches the email.
         """
 
-        if scope_match(scopes, [["assume:mozilla-user:{}".format(email)]]):
+        if scopeMatch(scopes, [["assume:mozilla-user:{}".format(email)]]):
             # Find the user by their email.
 
             # Since there is a unique index on username, but not on email,
