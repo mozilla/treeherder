@@ -4,10 +4,12 @@ import os
 import pytest
 import responses
 
-from treeherder.etl.resultset_loader import (GithubPullRequestTransformer,
-                                             GithubPushTransformer,
-                                             HgPushTransformer,
-                                             ResultsetLoader)
+from treeherder.etl.push_loader import (GithubPullRequestTransformer,
+                                        GithubPushTransformer,
+                                        HgPushTransformer,
+                                        PulsePushError,
+                                        PushLoader)
+from treeherder.model.models import Push
 
 
 @pytest.fixture
@@ -89,26 +91,48 @@ def mock_hg_push_commits(activate_responses):
     ("exchange/taskcluster-github/v1/push", GithubPushTransformer),
     ("exchange/taskcluster-github/v1/pull-request", GithubPullRequestTransformer)])
 def test_get_transformer_class(exchange, transformer_class):
-    rsl = ResultsetLoader()
+    rsl = PushLoader()
     assert rsl.get_transformer_class(exchange) == transformer_class
+
+
+def test_unsupported_exchange():
+    with pytest.raises(PulsePushError):
+        rsl = PushLoader()
+        rsl.get_transformer_class("meh")
 
 
 def test_ingest_github_pull_request(test_repository, github_pr, transformed_github_pr,
                                     mock_github_pr_commits):
     xformer = GithubPullRequestTransformer(github_pr)
-    resultset = xformer.transform(test_repository.name)
-    assert transformed_github_pr == resultset
+    push = xformer.transform(test_repository.name)
+    assert transformed_github_pr == push
 
 
 def test_ingest_github_push(test_repository, github_push, transformed_github_push,
                             mock_github_push_commits):
     xformer = GithubPushTransformer(github_push)
-    resultset = xformer.transform(test_repository.name)
-    assert transformed_github_push == resultset
+    push = xformer.transform(test_repository.name)
+    assert transformed_github_push == push
 
 
 def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push,
                         mock_hg_push_commits):
     xformer = HgPushTransformer(hg_push)
-    resultset = xformer.transform(test_repository.name)
-    assert transformed_hg_push == resultset
+    push = xformer.transform(test_repository.name)
+    assert transformed_hg_push == push
+
+
+@pytest.mark.django_db
+def test_ingest_hg_push_bad_repo(hg_push):
+    """Test graceful handling of an unknown HG repo"""
+    hg_push["payload"]["repo_url"] = "https://bad.repo.com"
+    PushLoader().process(hg_push, "exchange/hgpushes/v1")
+    assert Push.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_bad_repo(github_push):
+    """Test graceful handling of an unknown GH repo"""
+    github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
+    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push")
+    assert Push.objects.count() == 0

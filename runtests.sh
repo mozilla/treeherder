@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "Running pip check"
+pip check || { exit 1; }
+
 echo "Checking CELERY_QUEUES matches Procfile"
 ./lints/queuelint.py || { exit 1; }
 

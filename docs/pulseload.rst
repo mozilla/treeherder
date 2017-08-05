@@ -41,7 +41,7 @@ Then to get those jobs loaded into Treeherder, start the periodic tasks with
 
     celery -A treeherder worker -B -Q pushlog,store_pulse_jobs --concurrency 5
 
-.. note::  It is important to run the ``pushlog`` queue processing as well as ``store_pulse_jobs`` because jobs that come in from pulse for which Treeherder does not already have a resultset will be skipped.
+.. note::  It is important to run the ``pushlog`` queue processing as well as ``store_pulse_jobs`` because jobs that come in from pulse for which Treeherder does not already have a push will be skipped.
 
 If you want to just run all the Treeherder *Celery* tasks to enable things like
 log parsing, etc, then don't specify the ``-Q`` param and it will default to

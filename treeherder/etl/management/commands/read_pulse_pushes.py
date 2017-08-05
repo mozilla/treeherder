@@ -3,30 +3,30 @@ from django.core.management.base import BaseCommand
 from kombu import (Connection,
                    Exchange)
 
-from treeherder.etl.pulse_consumer import ResultsetConsumer
+from treeherder.etl.pulse_consumer import PushConsumer
 
 
 class Command(BaseCommand):
 
     """
-    Management command to read resultsets from a set of pulse exchanges
+    Management command to read pushes from a set of pulse exchanges
 
-    This adds the resultsets to a celery queue called ``store_pulse_resultsets`` which
-    does the actual storing of the resultsets in the database.
+    This adds the pushes to a celery queue called ``store_pulse_resultsets`` which
+    does the actual storing of the pushes in the database.
     """
 
-    help = "Read resultsets from a set of pulse exchanges and queue for ingestion"
+    help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
         config = settings.PULSE_DATA_INGESTION_CONFIG
         assert config, "PULSE_DATA_INGESTION_CONFIG must be set"
-        sources = settings.PULSE_RESULTSET_SOURCES
-        assert sources, "PULSE_RESULTSET_SOURCES must be set"
+        sources = settings.PULSE_PUSH_SOURCES
+        assert sources, "PULSE_PUSH_SOURCES must be set"
 
         new_bindings = []
 
         with Connection(config.geturl()) as connection:
-            consumer = ResultsetConsumer(connection, "resultsets")
+            consumer = PushConsumer(connection, "resultsets")
 
             for source in sources:
                 # When creating this exchange object, it is important that it
@@ -55,4 +55,4 @@ class Command(BaseCommand):
             try:
                 consumer.run()
             except KeyboardInterrupt:
-                self.stdout.write("Pulse Resultset listening stopped...")
+                self.stdout.write("Pulse Push listening stopped...")

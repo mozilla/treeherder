@@ -25,7 +25,7 @@ TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 
-GRAPHQL = env.bool("GRAPHQL", default=False)
+GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Default to retaining data for ~4 months.
 DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
@@ -106,8 +106,12 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
 ] if middleware]
 
 if ENABLE_DEBUG_TOOLBAR:
-    # set INTERNAL_IPS if debug enabled, so the toolbar works
-    INTERNAL_IPS = ['127.0.0.1']
+    # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
+    # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:
+    # http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/
+    # If the Vagrant IPs vary by platform or if there isn't a consistent IP when we switch to Docker,
+    # we'll have to do: https://github.com/jazzband/django-debug-toolbar/pull/805#issuecomment-240976813
+    INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -138,6 +142,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
+    'django_filters',
     'graphene_django',
     # treeherder apps
     'treeherder.model',
@@ -294,9 +299,10 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
 
 CELERYBEAT_SCHEDULE = {
-    'fetch-push-logs-every-minute': {
+    # this is just a failsafe in case the Pulse ingestion misses something
+    'fetch-push-logs-every-5-minutes': {
         'task': 'fetch-push-logs',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {
             "queue": "pushlog"
@@ -385,7 +391,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         'jobs': '220/minute',
-        'resultset': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
+        'push': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
     },
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_VERSION': '1.0',
@@ -462,6 +468,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
     SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
     # Mark session and CSRF cookies as being HTTPS-only.
     CSRF_COOKIE_SECURE = True
@@ -533,8 +540,8 @@ PULSE_DATA_INGESTION_SOURCES = env.json(
         # ... other CI systems
     ])
 
-PULSE_RESULTSET_SOURCES = env.json(
-    "PULSE_RESULTSET_SOURCES",
+PULSE_PUSH_SOURCES = env.json(
+    "PULSE_PUSH_SOURCES",
     default=[
         # {
         #     "exchange": "exchange/taskcluster-github/v1/push",

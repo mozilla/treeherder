@@ -1,7 +1,7 @@
 'use strict';
 
-treeherder.directive('lvLogSteps', ['$timeout', $timeout => {
-    function getOffsetOfStep (order) {
+treeherder.directive('lvLogSteps', ['$timeout', ($timeout) => {
+    function getOffsetOfStep(order) {
         const el = $('.lv-step[order="' + order + '"]');
         const parentOffset = el.parent().offset();
 
@@ -19,9 +19,7 @@ treeherder.directive('lvLogSteps', ['$timeout', $timeout => {
             scope.toggleSuccessfulSteps = () => {
                 scope.showSuccessful = !scope.showSuccessful;
 
-                const firstError = scope.steps.filter(step => {
-                    return step.result && step.result !== 'success';
-                })[0];
+                const firstError = scope.steps.filter(step => step.result && step.result !== 'success')[0];
 
                 if (!firstError) {
                     return;

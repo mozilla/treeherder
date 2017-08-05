@@ -28,7 +28,7 @@
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
       </select>
       <hr/>
-      <div id = "loading-symbol" >
+      <div id="loading-symbol">
         <div id="overview-plot"></div>
         <div id="graph"></div>
         <loading data="loadingGraphs"></loading>
@@ -64,8 +64,8 @@
         <p id="tt-series2" class="small"><span ng-bind="tooltipContent.series.platform"/></p>
       </div>
       <div>
-        <p id="tt-v" ng-bind="tooltipContent.value"></p>
-        <p id="tt-dv" class="small">&Delta; <span ng-bind="tooltipContent.deltaValue"/>
+        <p id="tt-v">{{tooltipContent.value|displayNumber}}</p>
+        <p id="tt-dv" class="small">&Delta; {{tooltipContent.deltaValue|displayNumber}}
           (<span ng-bind="tooltipContent.deltaPercentValue"/>%)</p>
       </div>
       <div>

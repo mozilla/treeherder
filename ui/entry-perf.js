@@ -10,6 +10,7 @@ require('font-awesome/css/font-awesome.css');
 require('./css/treeherder-navbar.css');
 require('./css/perf.css');
 require('./css/treeherder-loading-overlay.css');
+require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
 require('angular');

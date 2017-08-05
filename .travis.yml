@@ -1,8 +1,6 @@
 dist: trusty
 env:
   global:
-    # Ensure the vendored libmysqlclient library can be found at run-time.
-    - LD_LIBRARY_PATH="$HOME/venv/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
     - BROKER_URL='amqp://guest:guest@localhost:5672//'
     - DATABASE_URL='mysql://root@localhost/test_treeherder'
     - ELASTICSEARCH_URL='http://127.0.0.1:9200'
@@ -24,10 +22,11 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       script:
+        - pip check
         - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
@@ -36,7 +35,7 @@ matrix:
     - env: ui-tests
       sudo: false
       language: node_js
-      node_js: "7.9.0"
+      node_js: "7.10.0"
       cache:
         # Note: This won't re-use the same cache as the linters job,
         # since caches are tied to the language/version combination.
@@ -45,8 +44,7 @@ matrix:
       addons:
         firefox: latest
       before_install:
-        # Required until Travis makes yarn available in the environment,
-        # since we override the default `install` for clarity.
+        # Required due to: https://github.com/travis-ci/travis-ci/issues/7951
         - curl -sSfL https://yarnpkg.com/install.sh | bash
         - export PATH=$HOME/.yarn/bin:$PATH
       install:
@@ -60,7 +58,7 @@ matrix:
         - sh -e /etc/init.d/xvfb start
       script:
         - yarn test
-        - yarn run build
+        - yarn build
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main
@@ -74,16 +72,17 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        - sudo service mysql restart
+        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
+        - sudo -E apt-get -yqq update
+        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
-        - ./bin/vendor-libmysqlclient.sh ~/venv
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         # Create the test database for `manage.py check --deploy`.
         - mysql -u root -e 'create database test_treeherder;'
       install:
@@ -95,7 +94,7 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/ --ignore=tests/selenium/
+        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/ --ignore=tests/selenium/ --ignore=tests/jenkins/
 
     # Job 4: Python Tests Chunk B
     - env: python-tests-e2e-etl-logparser
@@ -109,16 +108,17 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        - sudo service mysql restart
+        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
+        - sudo -E apt-get -yqq update
+        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
-        - ./bin/vendor-libmysqlclient.sh ~/venv
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       before_script:
@@ -138,16 +138,17 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        - sudo service mysql restart
+        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
+        - sudo -E apt-get -yqq update
+        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
-        - ./bin/vendor-libmysqlclient.sh ~/venv
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
       before_script:
@@ -169,22 +170,22 @@ matrix:
       services:
         - rabbitmq
       before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.3.1.deb && sudo dpkg -i ~/elasticsearch.deb
-        - sudo service elasticsearch start
+        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
+        - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        - sudo service mysql restart
+        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
+        - sudo -E apt-get -yqq update
+        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - pip install --disable-pip-version-check --upgrade pip==8.1.1
-        - ./bin/vendor-libmysqlclient.sh ~/venv
+        - pip install --disable-pip-version-check --upgrade pip==9.0.1
         - mkdir -p $HOME/bin
-        - wget https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
-        - tar -xzf geckodriver-v0.14.0-linux64.tar.gz -C $HOME/bin
-        - nvm install 7.9.0
-        # Required until Travis makes yarn available in the environment,
-        # since we override the default `install` for clarity.
+        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz | tar -zxC $HOME/bin
+        - nvm install 7.10.0
+        # Required until Travis makes yarn available in the base image,
+        # since it only installs it for `language: nodejs` currently.
         - curl -sSfL https://yarnpkg.com/install.sh | bash
         - export PATH=$HOME/.yarn/bin:$PATH
       install:
@@ -196,7 +197,7 @@ matrix:
         - "sh -e /etc/init.d/xvfb start"
         - sleep 3 # give xvfb some time to start
       script:
-        - yarn run build
+        - yarn build
         - py.test tests/selenium/ --runselenium --driver Firefox
 
 notifications:

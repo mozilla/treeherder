@@ -88,7 +88,7 @@ def mock_buildapi_builds4h_missing_branch_url(activate_responses):
                   content_type='application/json')
 
 
-def test_ingest_pending_jobs(result_set_stored,
+def test_ingest_pending_jobs(push_stored,
                              failure_classifications,
                              mock_buildapi_pending_url,
                              mock_log_parser):
@@ -107,7 +107,7 @@ def test_ingest_pending_jobs(result_set_stored,
     assert Job.objects.count() == 1
 
 
-def test_ingest_running_jobs(result_set_stored,
+def test_ingest_running_jobs(push_stored,
                              failure_classifications,
                              mock_buildapi_running_url,
                              mock_log_parser):
@@ -126,7 +126,7 @@ def test_ingest_running_jobs(result_set_stored,
     assert Job.objects.count() == 1
 
 
-def test_ingest_builds4h_jobs(result_set_stored,
+def test_ingest_builds4h_jobs(push_stored,
                               failure_classifications,
                               mock_buildapi_builds4h_url,
                               mock_log_parser):
@@ -145,7 +145,7 @@ def test_ingest_builds4h_jobs(result_set_stored,
     assert Job.objects.count() == 32
 
 
-def test_ingest_running_to_complete_job(result_set_stored,
+def test_ingest_running_to_complete_job(push_stored,
                                         failure_classifications,
                                         mock_buildapi_running_url,
                                         mock_buildapi_builds4h_url,
@@ -172,7 +172,7 @@ def test_ingest_running_to_complete_job(result_set_stored,
         assert job.state == 'completed'
 
 
-def test_ingest_running_job_fields(result_set_stored,
+def test_ingest_running_job_fields(push_stored,
                                    failure_classifications,
                                    mock_buildapi_running_url,
                                    mock_log_parser):
@@ -186,12 +186,12 @@ def test_ingest_running_job_fields(result_set_stored,
     assert time.mktime(Job.objects.all()[0].start_time.timetuple()) > 0
 
 
-def test_ingest_builds4h_jobs_1_missing_resultset(result_set_stored,
-                                                  failure_classifications,
-                                                  mock_buildapi_builds4h_missing1_url,
-                                                  mock_log_parser):
+def test_ingest_builds4h_jobs_1_missing_push(push_stored,
+                                             failure_classifications,
+                                             mock_buildapi_builds4h_missing1_url,
+                                             mock_log_parser):
     """
-    Ensure the builds4h job with the missing resultset is not ingested
+    Ensure the builds4h job with the missing push is not ingested
     """
     etl_process = Builds4hJobsProcess()
     etl_process.run()
@@ -199,7 +199,7 @@ def test_ingest_builds4h_jobs_1_missing_resultset(result_set_stored,
     assert Job.objects.count() == 1
 
 
-def test_ingest_builds4h_jobs_missing_branch(result_set_stored,
+def test_ingest_builds4h_jobs_missing_branch(push_stored,
                                              failure_classifications,
                                              mock_buildapi_builds4h_missing_branch_url,
                                              mock_log_parser):

@@ -50,7 +50,7 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
         manually_created=False)
 
 
-def test_alerts_put(webapp, result_set_stored, test_repository,
+def test_alerts_put(webapp, push_stored, test_repository,
                     test_perf_alert, test_perf_alert_summary_2, test_user,
                     test_sheriff):
     resp = webapp.get(reverse('performance-alerts-list'))
@@ -70,7 +70,7 @@ def test_alerts_put(webapp, result_set_stored, test_repository,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': 2,
         'status': PerformanceAlert.DOWNSTREAM
-    }, format='json')
+    })
     assert resp.status_code == 403
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
 
@@ -80,7 +80,7 @@ def test_alerts_put(webapp, result_set_stored, test_repository,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': 2,
         'status': PerformanceAlert.DOWNSTREAM
-    }, format='json')
+    })
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id == 2
     assert PerformanceAlert.objects.get(id=1).classifier == test_sheriff
@@ -89,12 +89,12 @@ def test_alerts_put(webapp, result_set_stored, test_repository,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': None,
         'status': PerformanceAlert.UNTRIAGED
-    }, format='json')
+    })
     assert resp.status_code == 200
     assert PerformanceAlert.objects.get(id=1).related_summary_id is None
 
 
-def test_reassign_different_repository(result_set_stored,
+def test_reassign_different_repository(push_stored,
                                        test_repository, test_repository_2,
                                        test_perf_alert,
                                        test_perf_alert_summary_2,
@@ -111,7 +111,7 @@ def test_reassign_different_repository(result_set_stored,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': test_perf_alert_summary_2.id,
         'status': PerformanceAlert.REASSIGNED
-    }, format='json')
+    })
     assert resp.status_code == 400
     test_perf_alert.refresh_from_db()
     assert test_perf_alert.related_summary_id is None
@@ -122,14 +122,14 @@ def test_reassign_different_repository(result_set_stored,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': test_perf_alert_summary_2.id,
         'status': PerformanceAlert.DOWNSTREAM
-    }, format='json')
+    })
     assert resp.status_code == 200
     test_perf_alert.refresh_from_db()
     assert test_perf_alert.related_summary_id == test_perf_alert_summary_2.id
     assert test_perf_alert.classifier == test_sheriff
 
 
-def test_reassign_different_framework(result_set_stored,
+def test_reassign_different_framework(push_stored,
                                       test_repository, test_repository_2,
                                       test_perf_alert,
                                       test_perf_alert_summary_2,
@@ -147,7 +147,7 @@ def test_reassign_different_framework(result_set_stored,
     resp = client.put(reverse('performance-alerts-list') + '1/', {
         'related_summary_id': test_perf_alert_summary_2.id,
         'status': PerformanceAlert.REASSIGNED
-    }, format='json')
+    })
     assert resp.status_code == 400
     test_perf_alert.refresh_from_db()
     assert test_perf_alert.related_summary_id is None

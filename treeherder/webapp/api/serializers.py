@@ -246,22 +246,6 @@ class TextLogStepSerializer(serializers.ModelSerializer):
         exclude = ['job']
 
 
-class TextLogSummaryLineSerializer(serializers.ModelSerializer):
-    bug = BugscacheSerializer(read_only=True)
-
-    class Meta:
-        model = models.TextLogSummaryLine
-        fields = '__all__'
-
-
-class TextLogSummarySerializer(serializers.ModelSerializer):
-    lines = TextLogSummaryLineSerializer(many=True)
-
-    class Meta:
-        model = models.TextLogSummary
-        fields = '__all__'
-
-
 class JobDetailSerializer(serializers.ModelSerializer):
 
     job_id = serializers.PrimaryKeyRelatedField(
@@ -319,7 +303,7 @@ class CommitSerializer(serializers.ModelSerializer):
 class PushSerializer(serializers.ModelSerializer):
 
     def get_revisions_uri(self, obj):
-        return reverse("resultset-revisions",
+        return reverse("push-revisions",
                        kwargs={"project": obj.repository.name,
                                "pk": obj.id})
 

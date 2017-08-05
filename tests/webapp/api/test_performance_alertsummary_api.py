@@ -155,7 +155,7 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     client.force_authenticate(user=test_user)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
-    }, format='json')
+    })
     assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.get(id=1).status == 0
 
@@ -164,13 +164,13 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     client.force_authenticate(user=test_sheriff)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
-    }, format='json')
+    })
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
 
 
 def test_alert_summary_post(webapp, test_repository,
-                            result_set_stored,
+                            push_stored,
                             test_perf_signature):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)

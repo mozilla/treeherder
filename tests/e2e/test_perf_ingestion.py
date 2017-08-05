@@ -8,14 +8,14 @@ from treeherder.perf.models import (PerformanceDatum,
 
 
 def test_post_perf_artifact(test_repository, failure_classifications,
-                            result_set_stored, mock_post_json):
+                            push_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
     tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -53,7 +53,7 @@ def test_post_perf_artifact(test_repository, failure_classifications,
 
 
 def test_post_perf_artifact_revision_hash(test_repository, failure_classifications,
-                                          result_set_stored, mock_post_json):
+                                          push_stored, mock_post_json):
     test_repository.save()
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
@@ -61,8 +61,8 @@ def test_post_perf_artifact_revision_hash(test_repository, failure_classificatio
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision_hash': result_set_stored[0]['revision'],
-        'revision': result_set_stored[0]['revision'],
+        'revision_hash': push_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
@@ -101,7 +101,7 @@ def test_post_perf_artifact_revision_hash(test_repository, failure_classificatio
 
 def test_post_perf_artifact_multiple(test_repository,
                                      failure_classifications,
-                                     result_set_stored, mock_post_json):
+                                     push_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
     perfobj = {
         "framework": {"name": "cheezburger"},
@@ -120,7 +120,7 @@ def test_post_perf_artifact_multiple(test_repository,
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     tj = client.TreeherderJob({
         'project': test_repository.name,
-        'revision': result_set_stored[0]['revision'],
+        'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',

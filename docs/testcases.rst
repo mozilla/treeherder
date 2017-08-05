@@ -11,7 +11,7 @@ Load Treeherder. eg.
 
 Depending on your test requirement.
 
-    **Expected**: Page loads displaying resultsets pushed to mozilla-inbound.
+    **Expected**: Page loads displaying pushes pushed to mozilla-inbound.
 
 Treeherder logo > Perfherder
 
@@ -19,7 +19,7 @@ Treeherder logo > Perfherder
 
 Perfherder logo > Treeherder
 
-    **Expected**: Treeherder loads again, displaying resultsets per step 1.
+    **Expected**: Treeherder loads again, displaying pushes per step 1.
 
 Check Job details Tab selection
 ------
@@ -126,11 +126,11 @@ Switch repos
 ------
 Click on the Repos menu, select a different repo.
 
-    **Expected**: The new repo and its resultsets should load.
+    **Expected**: The new repo and its pushes should load.
 
 Reverse the process, and switch back.
 
-    **Expected**: The original repo and resultsets should load.
+    **Expected**: The original repo and pushes should load.
 
 Toggle unclassified failures
 ------
@@ -162,9 +162,9 @@ Select any job and click on the adjacent "(sig)" signature link.
 
     **Expected**: Ensure only jobs using that unique signature SHA are visible.
 
-Pin all visible jobs in resultset
+Pin all visible jobs in push
 ------
-Click on the Pin 'all' pin-icon in the right hand side of any resultset bar.
+Click on the Pin 'all' pin-icon in the right hand side of any push bar.
 
     **Expected**: Up to a maximum of 500 jobs should be pinned, and a matching notification warning should appear if exceeded.
 
@@ -222,25 +222,25 @@ Select any completed job and click the raw log button in the lower navbar.
 
     **Expected**: The raw log for that job should load in a new tab.
 
-View resultsets by Author
+View pushes by Author
 ------
-Click on the Author email (eg. ryanvm@gmail.com) in a resultset bar.
+Click on the Author email (eg. ryanvm@gmail.com) in a push bar.
 
-    **Expected**: Only resultsets pushed by that Author should appear.
+    **Expected**: Only pushes pushed by that Author should appear.
 
-Get next 10| resultsets via the main page footer.
+Get next 10| pushes via the main page footer.
 
-    **Expected**: Only resultsets from that Author should be added.
+    **Expected**: Only pushes from that Author should be added.
 
-View a single resultset
+View a single push
 ------
-Load Treeherder and click on the 'Date' on the left side of any resultset.
+Load Treeherder and click on the 'Date' on the left side of any push.
 
-    **Expected**: Only that resultset should load, with an accompanying URL param "&revision=(SHA)"
+    **Expected**: Only that push should load, with an accompanying URL param "&revision=(SHA)"
 
 (optional) Wait a minute or two for ingestion updates.
 
-    **Expected**: Only newly started jobs for that same resultset (if any have occurred) should appear. No new resultsets should load.
+    **Expected**: Only newly started jobs for that same push (if any have occurred) should appear. No new pushes should load.
 
 Quick Filter input field
 ------
@@ -256,9 +256,9 @@ Click the grey (x) 'Clear this filter' icon the right hand side of the input fie
 
     **Expected**: Filter should be cleared and input should shrink to original width.
 
-Check resultset actions menu
+Check push actions menu
 ------
-From any resultset bar, select each entry in the far right dropdown that doesn't involve retriggers. eg:
+From any push bar, select each entry in the far right dropdown that doesn't involve retriggers. eg:
 
 Bugherder,
 BuildAPI,
@@ -266,53 +266,53 @@ Revision URL List
 
     **Expected**: Each should open without error or hanging.
 
-Get next 10|20|50 resultsets
+Get next 10|20|50 pushes
 ------
-Click on Get next 10| resultsets.
+Click on Get next 10| pushes.
 
-    **Expected**: Ensure exactly 10 additional resultsets were loaded.
+    **Expected**: Ensure exactly 10 additional pushes were loaded.
 
-Click on Get next 50| resultsets.
+Click on Get next 50| pushes.
 
     **Expected**: Ensure the page has a reasonable load time of ~10 seconds.
 
-View a single resultset via its Date link. Click Get next 10| resultsets.
+View a single push via its Date link. Click Get next 10| pushes.
 
-    **Expected**: Ensure the page loads the 10 prior resultsets and the "tochange" and "fromchange" in the url appear correct.
+    **Expected**: Ensure the page loads the 10 prior pushes and the "tochange" and "fromchange" in the url appear correct.
 
-Filter resultsets by URL fromchange, tochange
+Filter pushes by URL fromchange, tochange
 ------
 See also the Treeherder `userguide`_ for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
-Navigate to the 2nd resultset loaded, from the resultset action menu select 'Set as top of range'.
+Navigate to the 2nd push loaded, from the push action menu select 'Set as top of range'.
 
-    **Expected**: Ensure: (1) 1st resultset is omitted (2) url contains `&tochange=SHA` and (3) ten resultsets are loaded from that new top
+    **Expected**: Ensure: (1) 1st push is omitted (2) url contains `&tochange=SHA` and (3) ten pushes are loaded from that new top
 
-Navigate to the 3rd resultset loaded and select 'Set as bottom of range'
+Navigate to the 3rd push loaded and select 'Set as bottom of range'
 
-    **Expected**: Ensure (1) only the 3 ranged resultsets are loaded (2) url contains '&tochange=[top-SHA]&fromchange=[bottom-SHA]'
+    **Expected**: Ensure (1) only the 3 ranged pushes are loaded (2) url contains '&tochange=[top-SHA]&fromchange=[bottom-SHA]'
 
 Click Get Next | 10 in the page footer.
 
-    **Expected**: Ensure 10 additional pages load for a total of 13 resultsets.
+    **Expected**: Ensure 10 additional pages load for a total of 13 pushes.
 
-(optional) wait a minute or two for job and resultset updates
+(optional) wait a minute or two for job and push updates
 
-    **Expected**: Updates should only occur for the visible resultsets. No new resultsets should appear.
+    **Expected**: Updates should only occur for the visible pushes. No new pushes should appear.
 
-Filter resultsets by URL date range
+Filter pushes by URL date range
 ------
 See also the Treeherder `userguide`_ for URL Query String Parameters
 Add a revision range to the URL in the format, eg:
 
 &startdate=2015-09-28&enddate=2015-09-28
 
-Warning: With the latest volume of jobs and resultsets, anything greater than a single day window risks loading too much data for the browser with Treeherder default filter and exclusion settings.
+Warning: With the latest volume of jobs and pushes, anything greater than a single day window risks loading too much data for the browser with Treeherder default filter and exclusion settings.
 
-    **Expected**: Resultsets loaded should honor that range.
+    **Expected**: pushes loaded should honor that range.
 
 (Optional) Wait for new pushes to that repo.
 
-    **Expected**: Resultsets loaded should continue to honor that range.
+    **Expected**: pushes loaded should continue to honor that range.
 
 Modify Exclusion Profiles in the Sheriff panel
 ------
@@ -380,7 +380,7 @@ Check all keyboard shortcut functionality as listed in the `userguide`_.
 
 Job counts
 ------
-In any resultset with job counts, click on the group button eg. B( ) to expand the count.
+In any push with job counts, click on the group button eg. B( ) to expand the count.
 
     **Expected**: Jobs should appear.
 
@@ -394,7 +394,7 @@ Click in empty space to deselect the collapsed job.
 
 Click on the ( + ) global Expand/Collapse icon in the navbar to toggle all +n counts.
 
-    **Expected**: Counts should expand and collapse on all visible resultsets.
+    **Expected**: Counts should expand and collapse on all visible pushes.
 
 Navigate via the n,p and left/right keys.
 
@@ -402,10 +402,10 @@ Navigate via the n,p and left/right keys.
 
 expand all the groups, (the url querystring will reflect this) then reload the page
 
-    **Expected**: groups should still be expanded for all resultsets
+    **Expected**: groups should still be expanded for all pushes
 
 Optional: There are other variants that can be tested: classification of expanded job count members, Filters, and any other workflow integration testing.
 
 .. _`stage`: https://treeherder.allizom.org
 .. _`production`: https://treeherder.mozilla.org
-.. _`userguide`: https://treeherder.allizom.org/userguide.html
+.. _`userguide`: https://treeherder.mozilla.org/userguide.html

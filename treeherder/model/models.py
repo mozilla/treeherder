@@ -90,6 +90,7 @@ class Repository(models.Model):
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
     performance_alerts_enabled = models.BooleanField(default=False)
     expire_performance_data = models.BooleanField(default=True)
+    is_try_repo = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'repository'
@@ -672,13 +673,13 @@ class Job(models.Model):
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
     signature = models.ForeignKey(ReferenceDataSignatures)
-    build_platform = models.ForeignKey(BuildPlatform)
+    build_platform = models.ForeignKey(BuildPlatform, related_name='jobs')
     machine_platform = models.ForeignKey(MachinePlatform)
     machine = models.ForeignKey(Machine)
     option_collection_hash = models.CharField(max_length=64)
-    job_type = models.ForeignKey(JobType)
+    job_type = models.ForeignKey(JobType, related_name='jobs')
     product = models.ForeignKey(Product)
-    failure_classification = models.ForeignKey(FailureClassification)
+    failure_classification = models.ForeignKey(FailureClassification, related_name='jobs')
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
@@ -882,7 +883,7 @@ class JobLog(models.Model):
                 (PARSED, 'parsed'),
                 (FAILED, 'failed'))
 
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, related_name="job_log")
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
@@ -972,14 +973,6 @@ class JobNoteManager(models.Manager):
                           .exclude(bug_number=None)
                           .exclude(bug_number=0)
                           .values_list('bug_number', flat=True))
-
-        # Legacy
-        bug_numbers |= set(TextLogSummaryLine.objects
-                           .filter(summary__job_guid=job.guid,
-                                   verified=True)
-                           .exclude(bug_number=None)
-                           .exclude(bug_number=0)
-                           .values_list('bug_number', flat=True))
 
         for bug_number in bug_numbers:
             BugJobMap.objects.get_or_create(job=job,
@@ -1098,7 +1091,7 @@ class FailureLine(models.Model):
     id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
     repository = models.ForeignKey(Repository)
-    job_log = models.ForeignKey(JobLog, null=True)
+    job_log = models.ForeignKey(JobLog, null=True, related_name="failure_line")
     action = models.CharField(max_length=11, choices=ACTION_CHOICES)
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
@@ -1256,6 +1249,28 @@ class FailureLine(models.Model):
         if es_line:
             es_line.save()
             return es_line
+
+
+class Group(models.Model):
+    """
+    The test harness group.
+
+    This is most often a manifest file.  But in some instances where a suite
+    doesn't have manifests, or a test suite isn't logging its data properly,
+    this can simply be "default"
+
+    Note: This is not to be confused with JobGroup which is Treeherder specific.
+    """
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
+    failure_lines = models.ManyToManyField(FailureLine,
+                                           related_name='group')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'group'
 
 
 class ClassifiedFailure(models.Model):
@@ -1474,7 +1489,7 @@ class TextLogStep(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
 
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, related_name="text_log_step")
 
     # these are presently based off of buildbot results
     # (and duplicated in treeherder/etl/buildbot.py)
@@ -1702,45 +1717,3 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
-
-
-class TextLogSummary(models.Model):
-    """
-    An intermediate class correlating artifact + text log data with
-    structured failure line data
-
-    This is a legacy model that doesn't serve much useful purpose.
-    Should probably be removed at some point.
-    """
-    id = models.BigAutoField(primary_key=True)
-    job_guid = models.CharField(max_length=50)
-    repository = models.ForeignKey(Repository)
-    text_log_summary_artifact_id = models.PositiveIntegerField(blank=True, null=True)
-    bug_suggestions_artifact_id = models.PositiveIntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'text_log_summary'
-        unique_together = (('job_guid', 'repository'))
-
-
-class TextLogSummaryLine(models.Model):
-    """
-    An intermediate class correlating failure lines with text log error lines
-
-    This probably should be merged with TextLogError above (but isn't yet for
-    legacy reasons)
-    """
-    id = models.BigAutoField(primary_key=True)
-    summary = models.ForeignKey(TextLogSummary, related_name="lines")
-    line_number = models.PositiveIntegerField(blank=True, null=True)
-    failure_line = models.ForeignKey(FailureLine, related_name="text_log_line", null=True)
-    bug_number = models.PositiveIntegerField(blank=True, null=True)
-    verified = models.BooleanField(default=False)
-
-    def bug(self):
-        # Putting this here forces one query per object; there should be a way
-        # to make things more efficient
-        return Bugscache.objects.filter(id=self.bug_number).first()
-
-    class Meta:
-        db_table = 'text_log_summary_line'

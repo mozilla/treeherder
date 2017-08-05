@@ -2,11 +2,11 @@
 
 treeherder.factory('thBuildApi', [
     '$http', '$location', 'thUrl', 'thServiceDomain', 'ThLog', 'thNotify',
-    function($http, $location, thUrl, thServiceDomain, ThLog, thNotify) {
+    function ($http, $location, thUrl, thServiceDomain, ThLog, thNotify) {
 
         var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
-        var notify = function(status, action) {
+        var notify = function (status, action) {
             /*
               Use this logic if self-serve can return us a parse-able response.
               currently it comes back here with status 0 for success and error, so
@@ -25,7 +25,7 @@ treeherder.factory('thBuildApi', [
         };
 
         return {
-            retriggerJob: function(repoName, requestId) {
+            retriggerJob: function (repoName, requestId) {
 
                 return $http({
                     url: selfServeUrl + repoName + "/request",
@@ -37,7 +37,7 @@ treeherder.factory('thBuildApi', [
                     withCredentials: true
                 });
             },
-            cancelJob: function(repoName, requestId) {
+            cancelJob: function (repoName, requestId) {
                 return $http({
                     url: selfServeUrl + repoName + "/request/" + requestId,
                     method: "POST",
@@ -47,14 +47,14 @@ treeherder.factory('thBuildApi', [
                     },
                     withCredentials: true
                 }).
-                    success(function(data, status) {
+                    success(function (data, status) {
                         notify(status, "cancel");
                     }).
-                    error(function(data, status) {
+                    error(function (data, status) {
                         notify(status, "cancel");
                     });
             },
-            cancelAll: function(repoName, revision) {
+            cancelAll: function (repoName, revision) {
                 return $http({
                     url: selfServeUrl + repoName + "/rev/" + revision,
                     method: "POST",
@@ -65,10 +65,10 @@ treeherder.factory('thBuildApi', [
                     withCredentials: true
 
                 }).
-                    success(function(data, status) {
+                    success(function (data, status) {
                         notify(status, "cancel all jobs");
                     }).
-                    error(function(data, status) {
+                    error(function (data, status) {
                         notify(status, "cancel all jobs");
                     });
             }

@@ -251,32 +251,39 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     # exist yet)
     job_guid_root = get_guid_root(job_guid)
     if not Job.objects.filter(guid__in=[job_guid, job_guid_root]).exists():
-        # this could theoretically throw an exception if we were processing
-        # several updates simultaneously, but that should never happen --
-        # and if it does it's better just to error out
-        Job.objects.create(
+        # This could theoretically already have been created by another process
+        # that is running updates simultaneously.  So just attempt to create
+        # it, but allow it to skip if it's the same guid.  The odds are
+        # extremely high that this is a pending and running job that came in
+        # quick succession and are being processed by two different workers.
+        Job.objects.get_or_create(
             guid=job_guid,
-            repository=repository,
-            signature=signature,
-            build_platform=build_platform,
-            machine_platform=machine_platform,
-            machine=machine,
-            option_collection_hash=option_collection_hash,
-            job_type=job_type,
-            product=product,
-            failure_classification=default_failure_classification,
-            who=who,
-            reason=reason,
-            result=result,
-            state=state,
-            tier=tier,
-            submit_time=submit_time,
-            start_time=start_time,
-            end_time=end_time,
-            last_modified=datetime.now(),
-            running_eta=duration,
-            push_id=push_id)
-
+            defaults={
+                "repository": repository,
+                "signature": signature,
+                "build_platform": build_platform,
+                "machine_platform": machine_platform,
+                "machine": machine,
+                "option_collection_hash": option_collection_hash,
+                "job_type": job_type,
+                "product": product,
+                "failure_classification": default_failure_classification,
+                "who": who,
+                "reason": reason,
+                "result": result,
+                "state": state,
+                "tier": tier,
+                "submit_time": submit_time,
+                "start_time": start_time,
+                "end_time": end_time,
+                "last_modified": datetime.now(),
+                "running_eta": duration,
+                "push_id": push_id
+            }
+        )
+    # Can't just use the ``job`` we would get from the ``get_or_create``
+    # because we need to try the job_guid_root instance first for update,
+    # rather than a possible retry job instance.
     try:
         job = Job.objects.get(guid=job_guid_root)
     except ObjectDoesNotExist:
@@ -338,8 +345,8 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         store_job_artifacts(artifacts)
 
     log_refs = job_datum.get('log_references', [])
+    job_logs = []
     if log_refs:
-
         for log in log_refs:
             name = log.get('name') or 'unknown'
             name = name[0:50]
@@ -368,45 +375,50 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
                     'status': parse_status
                 })
 
-            _schedule_log_parsing(jl, result)
+            job_logs.append(jl)
+
+        _schedule_log_parsing(job, job_logs, result)
 
     return (job_guid, signature_hash)
 
 
-def _schedule_log_parsing(job_log, result):
+def _schedule_log_parsing(job, job_logs, result):
     """Kick off the initial task that parses the log data.
 
     log_data is a list of job log objects and the result for that job
     """
 
     # importing here to avoid an import loop
-    from treeherder.log_parser.tasks import parse_job_log
+    from treeherder.log_parser.tasks import parse_logs
 
     task_types = {
-        "errorsummary_json": ("store_failure_lines", "store_failure_lines"),
-        "buildbot_text": ("parse_log", "log_parser"),
-        "builds-4h": ("parse_log", "log_parser"),
+        "errorsummary_json",
+        "buildbot_text",
+        "builds-4h"
     }
 
-    # a log can be submitted already parsed.  So only schedule
-    # a parsing task if it's ``pending``
-    # the submitter is then responsible for submitting the
-    # text_log_summary artifact
-    if job_log.status != JobLog.PENDING:
-        return
+    job_log_ids = []
+    for job_log in job_logs:
+        # a log can be submitted already parsed.  So only schedule
+        # a parsing task if it's ``pending``
+        # the submitter is then responsible for submitting the
+        # text_log_summary artifact
+        if job_log.status != JobLog.PENDING:
+            continue
 
-    # if this is not a known type of log, abort parse
-    if not task_types.get(job_log.name):
-        return
+        # if this is not a known type of log, abort parse
+        if job_log.name not in task_types:
+            continue
 
-    func_name, routing_key = task_types[job_log.name]
+        job_log_ids.append(job_log.id)
 
     if result != 'success':
-        routing_key += '.failures'
+        priority = 'failures'
     else:
-        routing_key += ".normal"
+        priority = "normal"
 
-    parse_job_log(func_name, routing_key, job_log)
+    parse_logs.apply_async(routing_key="log_parser.%s" % priority,
+                           args=[job.id, job_log_ids, priority])
 
 
 def store_job_data(repository, data):

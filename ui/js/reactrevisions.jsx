@@ -1,6 +1,6 @@
 'use strict';
 
-const MoreRevisionsLink = (props) => (
+const MoreRevisionsLink = props => (
     <li>
         <a href={props.href}
            data-ignore-job-clear-on-click={true}
@@ -18,11 +18,14 @@ const RevisionItem = (props) => {
     let email, name, userTokens, escapedComment, escapedCommentHTML, initialsHTML, tags;
 
     userTokens = props.revision.author.split(/[<>]+/);
-    name = userTokens[0].trim();
+    name = userTokens[0].trim().replace(/\w\S*/g,
+                                        txt => txt.charAt(0).toUpperCase() + txt.substr(1));
+
     if (userTokens.length > 1) email = userTokens[1];
     initialsHTML = { __html: props.initialsFilter(name) };
+    const comment = props.revision.comments.split('\n')[0];
 
-    escapedComment = _.escape(props.revision.comments.split('\n')[0]);
+    escapedComment = _.escape(comment);
     escapedCommentHTML = { __html: props.linkifyBugsFilter(escapedComment) };
 
     tags = '';
@@ -42,7 +45,7 @@ const RevisionItem = (props) => {
             </span>
             <span title={`${name}: ${email}`}
                   dangerouslySetInnerHTML={initialsHTML} />
-            <span title={escapedComment}>
+            <span title={comment}>
                 <span className="revision-comment">
                     <em dangerouslySetInnerHTML={escapedCommentHTML} />
                 </span>

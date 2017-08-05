@@ -54,17 +54,17 @@ describe('initials filter', function() {
 
     it('initializes a one-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Starscream')).toEqual('<span class="label label-initials">S</span>');
+        expect(initials('Starscream')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div>');
     });
 
     it('initializes a two-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Optimus Prime')).toEqual('<span class="label label-initials">OP</span>');
+        expect(initials('Optimus Prime')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">OP</div>');
     });
 
     it('initializes a three-word name', function() {
         var initials = $filter('initials');
-        expect(initials('Some Other Transformer')).toEqual('<span class="label label-initials">ST</span>');
+        expect(initials('Some Other Transformer')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">ST</div>');
     });
 });
 
@@ -228,7 +228,7 @@ describe('encodeURIComponent filter', function() {
     });
 });
 
-describe('displayPrecision filter', function() {
+describe('displayNumber filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject(function(_$filter_) {
@@ -236,9 +236,11 @@ describe('displayPrecision filter', function() {
     }));
 
     it('returns expected values', function() {
-        var displayPrecision = $filter('displayPrecision');
+        var displayPrecision = $filter('displayNumber');
+        const infinitySymbol = '\u221e';
         expect(displayPrecision('123.53222')).toEqual('123.53');
-        expect(displayPrecision(1/0)).toEqual('Infinity');
+        expect(displayPrecision('123123123.53222')).toEqual('123,123,123.53');
+        expect(displayPrecision(1/0)).toEqual(infinitySymbol);
         expect(displayPrecision(Number.NaN)).toEqual('N/A');
     });
 });

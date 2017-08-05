@@ -12,8 +12,8 @@ from treeherder.model.models import (Job,
 
 
 @pytest.fixture
-def first_job(sample_data, test_repository, result_set_stored):
-    revision = result_set_stored[0]["revisions"][0]["revision"]
+def first_job(sample_data, test_repository, push_stored):
+    revision = push_stored[0]["revisions"][0]["revision"]
     job = copy.deepcopy(sample_data.pulse_jobs[0])
     job["origin"]["project"] = test_repository.name
     job["origin"]["revision"] = revision
@@ -21,8 +21,8 @@ def first_job(sample_data, test_repository, result_set_stored):
 
 
 @pytest.fixture
-def pulse_jobs(sample_data, test_repository, result_set_stored):
-    revision = result_set_stored[0]["revisions"][0]["revision"]
+def pulse_jobs(sample_data, test_repository, push_stored):
+    revision = push_stored[0]["revisions"][0]["revision"]
     jobs = copy.deepcopy(sample_data.pulse_jobs)
     for job in jobs:
         job["origin"]["project"] = test_repository.name
@@ -44,14 +44,14 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(job)))
 
 
-def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
+def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
                            failure_classifications, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
 
     jl = JobLoader()
-    revision = result_set_stored[0]["revision"]
+    revision = push_stored[0]["revision"]
     for job in pulse_jobs:
         job["origin"]["revision"] = revision
 
@@ -74,16 +74,14 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, result_set_stored,
                       "parse_status": 0},
                      {"name": "errorsummary_json",
                       "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-                      # Note that the test causes store_failure_lines to be
-                      # run, which sets this to parsed.
-                      "parse_status": 1}]
+                      "parse_status": 0}]
     assert [{"name": item.name, "url": item.url, "parse_status": item.status}
             for item in job_logs.all()] == logs_expected
 
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
+def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
                                   failure_classifications, mock_log_parser):
     """
     Test that ingesting a pending job (1) works and (2) ingests the
@@ -92,7 +90,7 @@ def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
     jl = JobLoader()
 
     pulse_job = pulse_jobs[0]
-    revision = result_set_stored[0]["revision"]
+    revision = push_stored[0]["revision"]
     pulse_job["origin"]["revision"] = revision
     pulse_job["state"] = "pending"
     jl.process_job_list([pulse_job])
@@ -109,14 +107,14 @@ def test_ingest_pending_pulse_job(pulse_jobs, result_set_stored,
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_stored,
+def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
                                        failure_classifications, mock_log_parser):
     """
     Test ingesting a pulse job with bad repo will skip, ingest others
     """
 
     jl = JobLoader()
-    revision = result_set_stored[0]["revision"]
+    revision = push_stored[0]["revision"]
     job = pulse_jobs[0]
     job["origin"]["revision"] = revision
     job["origin"]["project"] = "ferd"
@@ -127,7 +125,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, result_set_s
 
 
 def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,
-                                              result_set_stored,
+                                              push_stored,
                                               failure_classifications,
                                               mock_log_parser):
     """
@@ -147,9 +145,9 @@ def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,
     assert Job.objects.count() == 5
 
 
-def test_ingest_pulse_jobs_with_missing_resultset(pulse_jobs):
+def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
     """
-    Ingest jobs with missing resultsets, so they should throw an exception
+    Ingest jobs with missing pushes, so they should throw an exception
     """
 
     jl = JobLoader()

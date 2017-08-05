@@ -1,8 +1,16 @@
 # Source .bashrc, since the default .profile we're replacing did so.
 . "$HOME/.bashrc"
 
-# Activate the virtualenv.
-. "$HOME/venv/bin/activate"
+# Hack to avoid servers having to bind to 0.0.0.0 to be accessible from the VM host (bug 1362443).
+# This is still secure so long as the Vagrantfile port forwarding uses a `host_ip` of `127.0.0.1`.
+# To prevent this "Martian packet" traffic from being blocked, `route_localnet` has to enabled. See:
+# https://unix.stackexchange.com/questions/111433/iptables-redirect-outside-requests-to-127-0-0-1
+# By default neither sysctl or iptables settings are persisted across reboots, and fixing that
+# requires a bizarre amount of complexity (installing iptables-persistent and then more boilerplate).
+# As such, it's just easier to re-run the commands on each login since they take <30ms.
+sudo sysctl -q -w net.ipv4.conf.all.route_localnet=1
+sudo iptables -t nat --flush
+sudo iptables -t nat -A PREROUTING -i enp0s3 -p tcp -j DNAT --to 127.0.0.1
 
 PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
 echo "Type 'thelp' to see a list of Treeherder-specific helper aliases"
@@ -40,12 +48,12 @@ function thqueuespurge {
 
 function threstartmemcached {
     echo "Restarting memcache"
-    sudo service memcached restart
+    sudo systemctl restart memcached.service
 }
 
 function threstartrabbitmq {
     echo "Restarting rabbitmq"
-    sudo service rabbitmq-server restart
+    sudo systemctl restart rabbitmq-server.service
 }
 
 function thresetall {

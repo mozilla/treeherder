@@ -68,9 +68,9 @@ treeherder.component("login", {
              * Using a window listener here because I wasn't getting reliable
              * results from the events from angular-local-storage.
              */
-            $window.addEventListener("storage", function(e) {
+            $window.addEventListener("storage", function (e) {
                 if (e.key === "treeherder.user") {
-                    $timeout(function() {
+                    $timeout(function () {
                         var newUser = JSON.parse(e.newValue);
                         if (newUser && newUser.email) {
                             // User was saved to local storage. Use it.
@@ -112,14 +112,14 @@ treeherder.component("login", {
              */
             ctrl.logout = function () {
                 $http.get(thUrl.getRootUrl("/auth/logout/"))
-                    .then(function() {
+                    .then(function () {
                         ctrl.setLoggedOut();
-                    }, function(data) {
+                    }, function (data) {
                         thNotify.send(`Logout failed: ${data.data}`, "danger", true);
                     });
             };
 
-            ctrl.setLoggedIn = function(newUser) {
+            ctrl.setLoggedIn = function (newUser) {
                 newUser.loggedin = true;
                 localStorageService.set("user", newUser);
                 ctrl.user = newUser;
@@ -127,7 +127,7 @@ treeherder.component("login", {
 
             };
 
-            ctrl.setLoggedOut = function() {
+            ctrl.setLoggedOut = function () {
                 localStorageService.set("user", loggedOutUser);
                 localStorageService.set('taskcluster.credentials', {});
                 ctrl.user = loggedOutUser;
@@ -146,7 +146,7 @@ treeherder.component("loginCallback", {
         </div>
     `,
     controller: ['localStorageService', '$location', '$window', '$http', '$scope',
-        function(localStorageService, $location, $window, $http, $scope) {
+        function (localStorageService, $location, $window, $http, $scope) {
             const hawk = require('hawk');
             const host = $location.host();
             const port = $location.port();
@@ -175,13 +175,13 @@ treeherder.component("loginCallback", {
             // creds from login.taskcluster.net
             $http.get(loginUrl,
                       {headers: {"tcauth": header.field}})
-                .then(function(resp) {
+                .then(function (resp) {
                     var user = resp.data;
                     user.loggedin = true;
                     localStorageService.set("user", user);
                     localStorageService.set('taskcluster.credentials', results);
                     $window.close();
-                }, function(data) {
+                }, function (data) {
                     $scope.loginError = data.data.detail;
                 });
         }

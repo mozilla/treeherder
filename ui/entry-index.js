@@ -33,7 +33,6 @@ require('js-yaml');
 require('react-dom');
 require('ngreact');
 require('jquery.scrollto');
-require('json-schema-defaults');
 require('./vendor/resizer.js');
 
 // Treeherder JS
@@ -78,8 +77,6 @@ require('./js/models/text_log_errors.js');
 require('./js/models/classified_failure.js');
 require('./js/models/bug_suggestions.js');
 require('./js/models/text_log_step.js');
-require('./js/models/text_log_summary.js');
-require('./js/models/text_log_summary_line.js');
 require('./js/models/perf/series.js');
 require('./js/controllers/main.js');
 require('./js/controllers/settings.js');

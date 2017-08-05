@@ -11,11 +11,11 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
         $log.debug("annotations plugin initialized");
 
-        $scope.$watch('classifications', function(newValue) {
+        $scope.$watch('classifications', function (newValue) {
             thTabs.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;
         }, true);
 
-        $rootScope.$on(thEvents.deleteClassification, function() {
+        $rootScope.$on(thEvents.deleteClassification, function () {
             if ($scope.classifications[0]) {
                 $scope.deleteClassification($scope.classifications[0]);
 
@@ -28,7 +28,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
             }
         });
 
-        $scope.deleteClassification = function(classification) {
+        $scope.deleteClassification = function (classification) {
 
             var key = "key" + classification.job_id;
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
@@ -36,12 +36,12 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
             // this $evalAsync will be sure that the * is added or removed in
             // the job in the jobs table when this change takes place.
-            $scope.$evalAsync(function() {job.failure_classification_id = 1;});
+            $scope.$evalAsync(function () { job.failure_classification_id = 1; });
             ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
             classification.delete()
                 .then(
-                    function(){
+                    function () {
                         thNotify.send("Classification successfully deleted", "success", false);
                         var jobs = {};
                         jobs[$scope.selectedJob.id] = $scope.selectedJob;
@@ -52,23 +52,23 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
                         $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
                     },
-                    function(){
+                    function () {
                         thNotify.send("Classification deletion failed", "danger", true);
                     }
                 );
         };
 
-        $scope.deleteBug = function(bug) {
+        $scope.deleteBug = function (bug) {
             bug.delete()
                 .then(
-                    function(){
+                    function () {
                         thNotify.send("Association to bug " + bug.bug_id + " successfully deleted", "success", false);
                         var jobs = {};
                         jobs[$scope.selectedJob.id] = $scope.selectedJob;
 
                         $rootScope.$emit(thEvents.bugsAssociated, {jobs: jobs});
                     },
-                    function(){
+                    function () {
                         thNotify.send("Association to bug " + bug.bug_id + " deletion failed", "danger", true);
                     }
                 );

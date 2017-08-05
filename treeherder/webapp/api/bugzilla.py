@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import requests
 from django.conf import settings
 from rest_framework import viewsets
@@ -27,10 +29,11 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": "Crash signature can't be more than 2048 characters."},
                             status=HTTP_400_BAD_REQUEST)
 
-        description = "Filed by: {}\n\n{}".format(
+        description = u"Filed by: {}\n\n{}".format(
             request.user.email.replace('@', " [at] "),
             params.get("comment", "")
-        )
+        ).encode("utf-8")
+        summary = params.get("summary").encode("utf-8").strip()
         url = settings.BUGFILER_API_URL + "/rest/bug"
         headers = {
             'x-bugzilla-api-key': settings.BUGFILER_API_KEY,
@@ -39,7 +42,7 @@ class BugzillaViewSet(viewsets.ViewSet):
         data = {
             'product': params.get("product"),
             'component': params.get("component"),
-            'summary': params.get("summary"),
+            'summary': summary,
             'keywords': params.get("keywords"),
             'blocks': params.get("blocks"),
             'depends_on': params.get("depends_on"),
@@ -47,6 +50,7 @@ class BugzillaViewSet(viewsets.ViewSet):
             'version': params.get("version"),
             'cf_crash_signature': params.get("crash_signature"),
             'severity': params.get("severity"),
+            'priority': params.get("priority"),
             'description': description,
             'comment_tags': "treeherder",
         }

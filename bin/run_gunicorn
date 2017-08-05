@@ -5,9 +5,6 @@ set -e
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd $SRC_DIR
 
-PROJECT_ROOT=$(readlink -f ../)
-PATH=$PROJECT_ROOT/venv/bin:$PATH
-
 source /etc/profile.d/treeherder.sh
 
 NUM_WORKERS=5
@@ -16,4 +13,4 @@ exec newrelic-admin run-program gunicorn -w $NUM_WORKERS \
     treeherder.config.wsgi:application \
     --keep-alive=3 \
     --log-level error \
-    --timeout=30
+    --timeout=20

@@ -382,3 +382,23 @@ fieldset[disabled] .btn-view-nav-closed.active {
   cursor: default;
 }
 
+.dropdown.open > #repo-dropdown {
+  width: 420px;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+  grid-auto-rows: minmax(150px, auto);
+}
+
+#repo-dropdown > .repogroup.even {
+  grid-column: 1;
+}
+
+#repo-dropdown > .repogroup.odd {
+  grid-column: 2;
+}
+
+#repo-dropdown .repogroup {
+  margin-left: 15px;
+  margin-top: 5px;
+}

@@ -2,7 +2,7 @@
 
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
-    function($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
+    function ($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
 
@@ -23,12 +23,12 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
         }).state('compare', {
             title: 'Compare',
             templateUrl: 'partials/perf/comparectrl.html',
-            url: '/compare?originalProject&originalRevision&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident',
+            url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident&selectedTimeRange?',
             controller: 'CompareResultsCtrl'
         }).state('comparesubtest', {
             title: 'Compare - Subtests',
             templateUrl: 'partials/perf/comparesubtestctrl.html',
-            url: '/comparesubtest?originalProject&originalRevision&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework',
+            url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange?',
             controller: 'CompareSubtestResultsCtrl'
         }).state('comparechooser', {
             title: 'Compare Chooser',
@@ -55,14 +55,18 @@ perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterP
             templateUrl: 'partials/perf/dashboardsubtest.html',
             url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
             controller: 'dashSubtestCtrl'
+        }).state('comparesubtestdistribution', {
+            title: 'Compare Subtest Distribution',
+            templateUrl: 'partials/perf/comparesubtestdistribution.html',
+            url: '/comparesubtestdistribution?originalProject&newProject&originalRevision&newRevision&originalSubtestSignature?newSubtestSignature',
+            controller: 'CompareSubtestDistributionCtrl'
         });
-
         $urlRouterProvider.otherwise('/graphs');
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
 
-        $rootScope.$on('$stateChangeSuccess', function() {
+        $rootScope.$on('$stateChangeSuccess', function () {
             if ($state.current.title) {
                 window.document.title = $state.current.title;
             }

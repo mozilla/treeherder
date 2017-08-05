@@ -1,5 +1,4 @@
-# Ensure the vendored libmysqlclient library can be found at run-time.
-export LD_LIBRARY_PATH="/home/vagrant/venv/lib/x86_64-linux-gnu"
+export PATH="/home/vagrant/python/bin:$PATH"
 
 export ENABLE_LOCAL_SETTINGS_FILE='True'
 export BROKER_URL='amqp://guest:guest@localhost//'

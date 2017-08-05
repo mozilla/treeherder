@@ -4,37 +4,38 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
-SRC_DIR="$HOME/treeherder"
-VENV_DIR="$HOME/venv"
-ELASTICSEARCH_VERSION="5.3.1"
+if [[ "$(lsb_release -r -s)" != "16.04" ]]; then
+    echo "This machine needs to be switched to the new Ubuntu 16.04 image."
+    echo "Please run 'vagrant destroy -f && vagrant up' from the host."
+    exit 1
+fi
 
-export PATH="$VENV_DIR/bin:$PATH"
+SRC_DIR="$HOME/treeherder"
+PYTHON_DIR="$HOME/python"
+
+cd "$SRC_DIR"
+
+ELASTICSEARCH_VERSION="5.5.0"
+PYTHON_VERSION="$(cat runtime.txt | sed 's/python-//')"
+PIP_VERSION="9.0.1"
+
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
 # Speeds up pip invocations and reduces output spam.
 export PIP_DISABLE_PIP_VERSION_CHECK='True'
-
-cd "$SRC_DIR"
 
 echo '-----> Configuring .profile and environment variables'
 ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . /etc/profile.d/treeherder.sh
 
-if [[ ! -f /etc/apt/sources.list.d/fkrull-deadsnakes-python2_7-trusty.list ]]; then
-    echo '-----> Adding APT repository for Python 2.7'
-    sudo add-apt-repository -y ppa:fkrull/deadsnakes-python2.7 2>&1
-fi
-
-if [[ ! -f /etc/apt/sources.list.d/openjdk-r-ppa-trusty.list ]]; then
-    echo '-----> Adding APT repository for OpenJDK'
-    sudo add-apt-repository -y ppa:openjdk-r/ppa 2>&1
-fi
+# Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
+sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
 
 if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
     echo '-----> Adding APT repository for Node.js'
     curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    echo 'deb https://deb.nodesource.com/node_7.x trusty main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+    echo 'deb https://deb.nodesource.com/node_7.x xenial main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/yarn.list ]]; then
@@ -47,20 +48,18 @@ echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 # g++ is required by Brotli
 # libmemcached-dev and zlib1g-dev are required by pylibmc
-# openjdk-7-jre-headless is required by Elasticsearch
-# python-dev is required by mysqlclient
+# libmysqlclient-dev is required by mysqlclient
+# openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
     git \
     libmemcached-dev \
+    libmysqlclient-dev \
     memcached \
-    mysql-server-5.6 \
+    mysql-server-5.7 \
     nodejs \
     openjdk-8-jre-headless \
-    python2.7 \
-    python2.7-dev \
     rabbitmq-server \
-    varnish \
     yarn \
     zlib1g-dev
 
@@ -68,44 +67,30 @@ if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$E
     echo '-----> Installing Elasticsearch'
     curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb"
     sudo dpkg -i /tmp/elasticsearch.deb
-    sudo update-rc.d elasticsearch defaults 95 10
-    # Clean up old JDK version, otherwise Elasticsearch won't know which to use,
-    # and existing Vagrant VMs will break.
-    sudo apt-get remove -y openjdk-7-jre-headless
     # Override the new ES 5.x default minimum heap size of 2GB.
     sudo sed -i 's/.*ES_JAVA_OPTS=.*/ES_JAVA_OPTS="-Xms256m -Xmx1g"/' /etc/default/elasticsearch
-    sudo service elasticsearch restart
+    sudo systemctl enable elasticsearch.service 2>&1
+    sudo systemctl restart elasticsearch.service
 fi
 
 if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     echo '-----> Configuring MySQL'
     sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-    sudo service mysql restart
+    sudo systemctl restart mysql.service
 fi
 
-if ! (cmp -s vagrant/varnish.vcl /etc/varnish/default.vcl && grep -q 'DAEMON_OPTS=\"-a :80' /etc/default/varnish); then
-    echo '-----> Configuring Varnish'
-    sudo sed -i '/^DAEMON_OPTS=\"-a :6081* / s/6081/80/' /etc/default/varnish
-    sudo cp vagrant/varnish.vcl /etc/varnish/default.vcl
-    sudo service varnish restart
+if [[ "$($PYTHON_DIR/bin/python --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
+    echo "-----> Installing Python"
+    rm -rf "$PYTHON_DIR"
+    mkdir -p "$PYTHON_DIR"
+    # Uses the Heroku Python buildpack's binaries for parity with production.
+    curl -sSf "https://lang-python.s3.amazonaws.com/heroku-16/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
 fi
 
-if [[ ! -f /usr/local/bin/pip ]]; then
-    echo '-----> Installing pip'
-    curl -sSf https://bootstrap.pypa.io/get-pip.py | sudo -H python -
+if [[ "$($PYTHON_DIR/bin/pip --version 2>&1)" != *"$PIP_VERSION"* ]]; then
+    echo "-----> Installing pip"
+    curl -sSf https://bootstrap.pypa.io/get-pip.py | python - "pip==$PIP_VERSION"
 fi
-
-if [[ ! -f /usr/local/bin/virtualenv ]]; then
-    echo '-----> Installing virtualenv'
-    sudo -H pip install virtualenv==15.0.1
-fi
-
-if [[ ! -d "$VENV_DIR" ]]; then
-    echo '-----> Creating virtualenv'
-    virtualenv "$VENV_DIR"
-fi
-
-./bin/vendor-libmysqlclient.sh "$VENV_DIR"
 
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
@@ -116,6 +101,8 @@ echo '-----> Running yarn install'
 yarn install --no-bin-links
 
 echo '-----> Initialising MySQL database'
+# Re-enable blank password root logins, which are disabled by default in MySQL 5.7.
+sudo mysql -e 'ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY ""';
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
 mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'

@@ -2,21 +2,21 @@
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
-    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches',
-    function($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
-             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches) {
+    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
+    function ($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
+             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
-        var Alert = function(alertData, optionCollectionMap) {
+        var Alert = function (alertData, optionCollectionMap) {
             _.assign(this, alertData);
             this.title = PhSeries.getSeriesName(
                 this.series_signature, optionCollectionMap,
                 {includePlatformInName: true});
         };
-        Alert.prototype.getStatusText = function() {
+        Alert.prototype.getStatusText = function () {
             return _.result(_.find(phAlertStatusMap, {id: this.status}),
                             'text');
         };
-        Alert.prototype.getGraphsURL = function(timeRange, alertRepository,
+        Alert.prototype.getGraphsURL = function (timeRange, alertRepository,
                                                 performanceFrameworkId) {
             var signature = this.series_signature.signature_hash;
             var url = "#/graphs?timerange=" + timeRange +
@@ -25,19 +25,13 @@ treeherder.factory('PhAlerts', [
 
             // for talos only, automatically add related branches
             if (performanceFrameworkId === 1) {
-                _.forEach(thPerformanceBranches, function(performanceBranch) {
-                    if (performanceBranch !== alertRepository) {
-                        url += "&series=[" + [performanceBranch, signature, 0] + "]";
-                    }
-                });
-                if (alertRepository === "mozilla-beta") {
-                    url += "&series=[" + ["mozilla-aurora", signature, 0] + "]";
-                }
+                const branches = (alertRepository === "mozilla-beta") ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
+                url += branches.map(branch => `&series=[${branch},${signature},0]`).join("");
             }
 
             return url;
         };
-        Alert.prototype.getSubtestsURL = function(alertSummary) {
+        Alert.prototype.getSubtestsURL = function (alertSummary) {
             var endpoint = '#/comparesubtest';
             var urlParameters = {
                 framework: alertSummary.framework,
@@ -55,42 +49,42 @@ treeherder.factory('PhAlerts', [
 
             return endpoint + '?' + $httpParamSerializer(urlParameters);
         };
-        Alert.prototype.modify = function(modification) {
+        Alert.prototype.modify = function (modification) {
             return $http.put(thServiceDomain +
                              '/api/performance/alert/' + this.id + '/',
                              modification);
         };
-        _.forEach(phAlertStatusMap, function(status) {
-            Alert.prototype['is' + _.capitalize(status.text)] = function() {
+        _.forEach(phAlertStatusMap, function (status) {
+            Alert.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
         });
 
-        var AlertSummary = function(alertSummaryData, optionCollectionMap) {
+        var AlertSummary = function (alertSummaryData, optionCollectionMap) {
             _.assign(this, alertSummaryData);
             this._initializeAlerts(optionCollectionMap);
         };
-        _.forEach(phAlertSummaryStatusMap, function(status) {
-            AlertSummary.prototype['is' + _.capitalize(status.text)] = function() {
+        _.forEach(phAlertSummaryStatusMap, function (status) {
+            AlertSummary.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
-            AlertSummary.prototype['mark' + _.capitalize(status.text)] = function() {
+            AlertSummary.prototype['mark' + _.capitalize(status.text)] = function () {
                 this.updateStatus(status);
             };
         });
-        AlertSummary.prototype.getTextualSummary = function(copySummary) {
+        AlertSummary.prototype.getTextualSummary = function (copySummary) {
             var resultStr = "";
-            var improved = _.sortBy(_.filter(this.alerts, function(alert) {
-                return !alert.is_regression && alert.visible;}),
+            var improved = _.sortBy(_.filter(this.alerts, function (alert) {
+                return !alert.is_regression && alert.visible; }),
             'amount_pct').reverse();
-            var regressed = _.sortBy(_.filter(this.alerts, function(alert) {
-                return alert.is_regression && alert.visible && !alert.isInvalid();}),
+            var regressed = _.sortBy(_.filter(this.alerts, function (alert) {
+                return alert.is_regression && alert.visible && !alert.isInvalid(); }),
             'amount_pct').reverse();
 
-            var formatAlert = function(alert, alertList){
+            var formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
-                _.padEnd(alert.title, _.max(alertList, function(alert){ return alert.title.length; }).title.length +5) +
-               alert.prev_value + " -> " + alert.new_value ;
+                _.padEnd(alert.title, _.max(alertList, function (alert) { return alert.title.length; }).title.length +5) +
+                displayNumberFilter(alert.prev_value) + " -> " + displayNumberFilter(alert.new_value);
             };
 
             // add summary header if getting text for clipboard only
@@ -105,7 +99,7 @@ treeherder.factory('PhAlerts', [
                     resultStr += "\n";
                 }
                 resultStr += "Regressions:\n\n" +
-                             _.map(regressed, function(alert){
+                             _.map(regressed, function (alert) {
                                  return formatAlert(alert, regressed);
                              }).join('\n') + "\n";
             }
@@ -115,7 +109,7 @@ treeherder.factory('PhAlerts', [
                     resultStr += "\n";
                 }
                 resultStr += "Improvements:\n\n" +
-                             _.map(improved, function(alert) {
+                             _.map(improved, function (alert) {
                                  return formatAlert(alert, improved);
                              }).join('\n') + "\n";
             }
@@ -126,47 +120,47 @@ treeherder.factory('PhAlerts', [
             }
             return resultStr;
         };
-        AlertSummary.prototype.isResolved = function() {
+        AlertSummary.prototype.isResolved = function () {
             return this.isFixed() || this.isWontfix() || this.isBackedout();
         };
-        AlertSummary.prototype._initializeAlerts = function(optionCollectionMap) {
+        AlertSummary.prototype._initializeAlerts = function (optionCollectionMap) {
             // this function converts the representation returned by the perfherder
             // api into a representation more suited for display in the UI
 
             // just treat related (reassigned or downstream) alerts as one
             // big block -- we'll display in the UI depending on their content
             this.alerts = _.map(this.alerts.concat(this.related_alerts),
-                function(alertData) {
+                function (alertData) {
                     return new Alert(alertData, optionCollectionMap);
                 });
         };
-        AlertSummary.prototype.updateStatus = function(newStatus) {
+        AlertSummary.prototype.updateStatus = function (newStatus) {
             var alertSummary = this;
             return $http.put(thServiceDomain +
                              '/api/performance/alertsummary/' + this.id + '/',
-                             { status: newStatus.id }).then(function() {
+                             { status: newStatus.id }).then(function () {
                                  alertSummary.status = newStatus.id;
                              });
         };
-        AlertSummary.prototype.update = function() {
+        AlertSummary.prototype.update = function () {
             var alertSummary = this;
             return $http.get(thServiceDomain +
                              '/api/performance/alertsummary/' + this.id + '/').then(
-                                 function(response) {
+                                 function (response) {
                                      return ThOptionCollectionModel.getMap().then(
-                                         function(optionCollectionMap) {
+                                         function (optionCollectionMap) {
                                              _.assign(alertSummary, response.data);
                                              alertSummary._initializeAlerts(
                                                  optionCollectionMap);
                                          });
                                  });
         };
-        AlertSummary.prototype.getTitle = function() {
+        AlertSummary.prototype.getTitle = function () {
             var title;
 
             // we should never include downstream alerts in the description
             var alertSummary = this;
-            var alertsInSummary = _.filter(this.alerts, function(alert) {
+            var alertsInSummary = _.filter(this.alerts, function (alert) {
                 return (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
                         alert.summary_id === alertSummary.id);
             });
@@ -189,34 +183,34 @@ treeherder.factory('PhAlerts', [
             }
             // add test info
             title += " " + _.uniq(
-                _.map(alertsInSummary, function(a) {
+                _.map(alertsInSummary, function (a) {
                     return PhSeries.getTestName(a.series_signature, { abbreviate:true });
                 })).sort().join(' / ');
             // add platform info
             title += " (" + _.uniq(
-                _.map(alertsInSummary, function(a) {
+                _.map(alertsInSummary, function (a) {
                     return a.series_signature.machine_platform;
                 })).sort().join(', ') + ')';
             return title;
         };
-        AlertSummary.prototype.assignBug = function(bugNumber) {
+        AlertSummary.prototype.assignBug = function (bugNumber) {
             var alertSummary = this;
             return $http.put(thServiceDomain +
                              '/api/performance/alertsummary/' + this.id + '/',
-                             { bug_number: bugNumber }).then(function() {
+                             { bug_number: bugNumber }).then(function () {
                                  return alertSummary.update();
                              });
         };
-        AlertSummary.prototype.modifySelectedAlerts = function(modification) {
+        AlertSummary.prototype.modifySelectedAlerts = function (modification) {
             this.allSelected = false;
 
             return $q.all(_.filter(this.alerts, {'selected': true}).map(
-                function(selectedAlert) {
+                function (selectedAlert) {
                     selectedAlert.selected = false;
                     return selectedAlert.modify(modification);
                 }));
         };
-        AlertSummary.prototype.getStatusText = function() {
+        AlertSummary.prototype.getStatusText = function () {
             return _.find(phAlertSummaryStatusMap, { id: this.status }).text;
         };
 
@@ -226,17 +220,17 @@ treeherder.factory('PhAlerts', [
             // http://odetocode.com/blogs/scott/archive/2014/04/24/canceling-http-requests-in-angularjs.aspx
             var canceller = $q.defer();
             var promise = ThOptionCollectionModel.getMap().then(
-                function(optionCollectionMap) {
+                function (optionCollectionMap) {
                     return $http.get(thServiceDomain + '/api/performance/alertsummary/' + id + '/',
                                     {timeout : canceller.promise}).then(
-                                        function(response) {
+                                        function (response) {
                                             return new AlertSummary(response.data,
                                                                     optionCollectionMap);
                                         }
                     );
                 }
             );
-            promise.cancel = function() {
+            promise.cancel = function () {
                 canceller.resolve();
             };
             return promise;
@@ -244,15 +238,15 @@ treeherder.factory('PhAlerts', [
 
         return {
             getAlertSummary: _getAlertSummary,
-            getAlertSummaryTitle: function(id) {
+            getAlertSummaryTitle: function (id) {
                 var request = _getAlertSummary(id);
-                var promise = request.then(function(alertSummary) {
+                var promise = request.then(function (alertSummary) {
                     return alertSummary.getTitle();
                 });
                 promise.cancel = request.cancel;
                 return promise;
             },
-            getAlertSummaries: function(options) {
+            getAlertSummaries: function (options) {
                 var href;
                 if (!options || !options.href) {
                     href = thServiceDomain + '/api/performance/alertsummary/';
@@ -287,10 +281,10 @@ treeherder.factory('PhAlerts', [
                 }
 
                 return ThOptionCollectionModel.getMap().then(
-                    function(optionCollectionMap) {
-                        return $http.get(href).then(function(response) {
+                    function (optionCollectionMap) {
+                        return $http.get(href).then(function (response) {
                             return {
-                                results: _.map(response.data.results, function(alertSummaryData) {
+                                results: _.map(response.data.results, function (alertSummaryData) {
                                     return new AlertSummary(alertSummaryData, optionCollectionMap);
                                 }),
                                 next: response.data.next,
@@ -299,18 +293,18 @@ treeherder.factory('PhAlerts', [
                         });
                     });
             },
-            createAlert: function(data) {
+            createAlert: function (data) {
                 return $http.post(thServiceDomain + '/api/performance/alertsummary/', {
                     repository_id: data.project.id,
                     framework_id: data.series.frameworkId,
                     push_id: data.resultSetId,
                     prev_push_id: data.prevResultSetId
-                }).then(function(response) {
+                }).then(function (response) {
                     var newAlertSummaryId = response.data.alert_summary_id;
                     return $http.post(thServiceDomain + '/api/performance/alert/', {
                         summary_id: newAlertSummaryId,
                         signature_id: data.series.id
-                    }).then(function() {
+                    }).then(function () {
                         return newAlertSummaryId;
                     });
                 });

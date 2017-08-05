@@ -12,7 +12,7 @@ treeherderApp.controller('JobsCtrl', [
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
-        $scope.getNextResultSets = function(count, keepFilters) {
+        $scope.getNextResultSets = function (count, keepFilters) {
             var revision = $location.search().revision;
             if (revision) {
                 $rootScope.skipNextPageReload = true;
@@ -20,7 +20,7 @@ treeherderApp.controller('JobsCtrl', [
                 $location.search('tochange', revision);
             }
             ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
-                then(function() {
+                then(function () {
 
                     // since we fetched more resultsets, we need to persist the
                     // resultset state in the URL.
@@ -49,11 +49,11 @@ treeherderApp.controller('JobsCtrl', [
         $scope.job_map = ThResultSetStore.getJobMap($scope.repoName);
 
         $scope.searchParams = $location.search();
-        $scope.locationHasSearchParam = function(prop) {
+        $scope.locationHasSearchParam = function (prop) {
             return _.has($scope.searchParams, prop);
         };
 
-        $scope.getSearchParamValue = function(param) {
+        $scope.getSearchParamValue = function (param) {
             var params = $location.search();
             var searchParamValue = params[param];
             // in the event the user manually strips off the search
@@ -76,8 +76,8 @@ treeherderApp.controller('JobsCtrl', [
                 true);
         }
 
-        $rootScope.$on(thEvents.toggleAllRevisions, function(ev, expand) {
-            _.forEach($scope.result_sets, function(rs) {
+        $rootScope.$on(thEvents.toggleAllRevisions, function (ev, expand) {
+            _.forEach($scope.result_sets, function (rs) {
                 $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
             });
         });
@@ -98,18 +98,18 @@ treeherderApp.controller('ResultSetCtrl', [
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
         ThJobModel, ThTaskclusterErrors) {
 
-        $scope.getCountClass = function(resultStatus) {
+        $scope.getCountClass = function (resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
         };
-        $scope.getCountText = function(resultStatus) {
+        $scope.getCountText = function (resultStatus) {
             return thResultStatusInfo(resultStatus).countText;
         };
-        $scope.viewJob = function(job) {
+        $scope.viewJob = function (job) {
             // set the selected job
             $rootScope.selectedJob = job;
         };
 
-        $scope.toggleRevisions = function() {
+        $scope.toggleRevisions = function () {
 
             ThResultSetStore.loadRevisions(
                 $rootScope.repoName, $scope.resultset.id
@@ -127,7 +127,7 @@ treeherderApp.controller('ResultSetCtrl', [
          * If optional resultsetId is passed in, then only pin jobs from that
          * resultset.
          */
-        $scope.pinAllShownJobs = function() {
+        $scope.pinAllShownJobs = function () {
             if (!thPinboard.spaceRemaining()) {
                 thNotify.send("Pinboard is full.  Can not pin any more jobs.",
                               "danger");
@@ -147,43 +147,43 @@ treeherderApp.controller('ResultSetCtrl', [
 
         };
 
-        $scope.showRunnableJobs = function() {
+        $scope.showRunnableJobs = function () {
             if ($scope.user.loggedin) {
                 $rootScope.$emit(thEvents.showRunnableJobs, $scope.resultset);
             }
         };
 
-        $scope.deleteRunnableJobs = function() {
+        $scope.deleteRunnableJobs = function () {
             $rootScope.$emit(thEvents.deleteRunnableJobs, $scope.resultset);
         };
 
-        $scope.getCancelJobsTitle = function() {
+        $scope.getCancelJobsTitle = function () {
             if (!$scope.user || !$scope.user.loggedin) {
                 return "Must be logged in to cancel jobs";
             }
             return "Cancel all jobs";
         };
 
-        $scope.canCancelJobs = function() {
+        $scope.canCancelJobs = function () {
             return $scope.user && $scope.user.loggedin;
         };
 
-        $scope.confirmCancelAllJobs = function() {
+        $scope.confirmCancelAllJobs = function () {
             $scope.showConfirmCancelAll = true;
         };
 
-        $scope.hideConfirmCancelAll = function() {
+        $scope.hideConfirmCancelAll = function () {
             $scope.showConfirmCancelAll = false;
         };
 
-        $scope.cancelAllJobs = function(revision) {
+        $scope.cancelAllJobs = function (revision) {
             $scope.showConfirmCancelAll = false;
             if (!$scope.canCancelJobs())
                 return;
 
-            ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function() {
+            ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function () {
                 return thBuildApi.cancelAll($scope.repoName, revision);
-            }).catch(function(e) {
+            }).catch(function (e) {
                 thNotify.send(
                     ThModelErrors.format(e, "Failed to cancel all jobs"),
                     'danger', true
@@ -191,14 +191,14 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
-        $scope.triggerMissingJobs = function(revision) {
+        $scope.triggerMissingJobs = function (revision) {
             if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;
             }
 
-            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function() {
+            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function () {
                 thNotify.send("Request sent to trigger missing jobs", "success");
-            }, function(e) {
+            }, function (e) {
                 thNotify.send(
                     ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
                     'danger', true
@@ -206,7 +206,7 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
-        $scope.triggerAllTalosJobs = function(revision) {
+        $scope.triggerAllTalosJobs = function (revision) {
             if (!window.confirm('This will trigger all talos jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;
             }
@@ -219,38 +219,38 @@ treeherderApp.controller('ResultSetCtrl', [
             ThResultSetStore.getGeckoDecisionTaskId(
                 $scope.repoName,
                 $scope.resultset.id
-            ).then(function(decisionTaskID) {
+            ).then(function (decisionTaskID) {
                 ThResultSetModel.triggerAllTalosJobs(
                     $scope.resultset.id,
                     $scope.repoName,
                     times,
                     decisionTaskID
-                ).then(function(msg) {
+                ).then(function (msg) {
                     thNotify.send(msg, "success");
-                }, function(e) {
+                }, function (e) {
                     thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
                 });
             });
         };
 
-        $scope.showTriggerButton = function() {
+        $scope.showTriggerButton = function () {
             var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
             return buildernames.length > 0;
         };
 
-        $scope.triggerNewJobs = function() {
+        $scope.triggerNewJobs = function () {
             if (!window.confirm(
                 'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
                 return;
             }
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
-                ThResultSetStore.getGeckoDecisionTaskId($rootScope.repoName, $scope.resultset.id).then(function(decisionTaskID) {
-                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function() {
+                ThResultSetStore.getGeckoDecisionTaskId($rootScope.repoName, $scope.resultset.id).then(function (decisionTaskID) {
+                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function () {
                         thNotify.send("Trigger request sent", "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
-                    }, function(e) {
-                        thNotify.send(ThTaskclusterErrors.format(e), 'danger');
+                    }, function (e) {
+                        thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
                     });
                 });
             } else {

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
+cd $SRC_DIR
+
+source /etc/profile.d/treeherder.sh
+
+exec newrelic-admin run-program ./manage.py read_pulse_pushes

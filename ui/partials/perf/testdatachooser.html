@@ -30,7 +30,7 @@
       </div>
       <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
       <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control choose-test-list" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
-        <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature">
+        <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature" title="{{::testElem.name}}">
           {{::testElem.name}}
         </option>
       </select>
@@ -53,7 +53,8 @@
     <div id="added-test-list" class="form-group">
       <label>Tests to add</label>
       <select multiple class="form-control" ng-model="selectedTestsToAdd">
-        <option value="{{testToAdd}}" ng-repeat="testToAdd in testsToAdd">
+        <option value="{{testToAdd}}" ng-repeat="testToAdd in testsToAdd"
+                title="{{testToAdd.projectName}} {{testToAdd.platform}} {{testToAdd.name}}">
            {{testToAdd.projectName}} {{testToAdd.platform}}
            {{testToAdd.name}}
         </option>

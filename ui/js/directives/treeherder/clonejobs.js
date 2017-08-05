@@ -7,12 +7,12 @@ treeherder.directive('thCloneJobs', [
     'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
     'thNotify', '$timeout', '$compile',
-    function(
+    function (
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, thResultStatusObject, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
-        thNotify, $timeout, $compile){
+        thNotify, $timeout, $compile) {
 
         var $log = new ThLog("thCloneJobs");
 
@@ -54,11 +54,11 @@ treeherder.directive('thCloneJobs', [
         //Instantiate job btn interpolator
         var runnableJobBtnInterpolator = thCloneHtml.get('runnableJobBtnClone').interpolator;
 
-        var getJobMapKey = function(job){
+        var getJobMapKey = function (job) {
             return 'key' + job.id;
         };
 
-        var getHoverText = function(job) {
+        var getHoverText = function (job) {
             var hoverText = job.job_type_name + " - " + thResultStatus(job);
             if (job.state === 'completed') {
                 var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
@@ -69,17 +69,17 @@ treeherder.directive('thCloneJobs', [
 
         //Global event listeners
         $rootScope.$on(
-            thEvents.changeSelection, function(ev, direction, jobNavSelector){
+            thEvents.changeSelection, function (ev, direction, jobNavSelector) {
 
                 var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
                 var el, key, jobs, getIndex;
 
                 if (direction === 'next') {
-                    getIndex = function(idx, jobs) {
+                    getIndex = function (idx, jobs) {
                         return idx+1 > _.size(jobs)-1 ? 0: idx+1;
                     };
                 } else if (direction === 'previous') {
-                    getIndex = function(idx, jobs) {
+                    getIndex = function (idx, jobs) {
                         return idx-1 < 0 ? _.size(jobs)-1 : idx-1;
                     };
                 }
@@ -108,7 +108,7 @@ treeherder.directive('thCloneJobs', [
                 }
                 // if there was no new job selected, then ensure that we clear any job that
                 // was previously selected.
-                $timeout(function() {
+                $timeout(function () {
                     if ($(".selected-job").css('display') === 'none') {
                         $rootScope.closeJob();
                     }
@@ -116,11 +116,11 @@ treeherder.directive('thCloneJobs', [
                 }, 0);
             });
 
-        $rootScope.$on(thEvents.selectJob, function(ev, job, job_selection_type) {
+        $rootScope.$on(thEvents.selectJob, function (ev, job, job_selection_type) {
             selectJob(job, job_selection_type);
         });
 
-        $rootScope.$on(thEvents.clearSelectedJob, function() {
+        $rootScope.$on(thEvents.clearSelectedJob, function () {
             clearSelectJobStyles();
         });
 
@@ -128,7 +128,7 @@ treeherder.directive('thCloneJobs', [
          * Sets the styling for the selected job and sets the selectedJob
          * in ThResultSetStore
          */
-        var selectJob = function(job, job_selection_type) {
+        var selectJob = function (job, job_selection_type) {
             var jobKey = getJobMapKey(job);
             var jobEl = $('.' + jobKey);
             clickJobCb({}, jobEl, job, job_selection_type);
@@ -137,7 +137,7 @@ treeherder.directive('thCloneJobs', [
             ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         };
 
-        var setSelectJobStyles = function(el){
+        var setSelectJobStyles = function (el) {
             // clear the styles from the previously selected job, if any.
             clearSelectJobStyles();
 
@@ -146,7 +146,7 @@ treeherder.directive('thCloneJobs', [
             el.addClass(selectedBtnCls);
         };
 
-        var clearSelectJobStyles = function() {
+        var clearSelectJobStyles = function () {
             var lastJobSelected = ThResultSetStore.getSelectedJob(
                 $rootScope.repoName);
             if (!_.isEmpty(lastJobSelected.job)) {
@@ -170,14 +170,14 @@ treeherder.directive('thCloneJobs', [
         };
 
         var broadcastJobChangedTimeout = null;
-        var clickJobCb = function(ev, el, job, job_selection_type){
+        var clickJobCb = function (ev, el, job, job_selection_type) {
             setSelectJobStyles(el);
             // delay switching right away, in case the user is switching rapidly
             // between jobs
             if (broadcastJobChangedTimeout) {
                 window.clearTimeout(broadcastJobChangedTimeout);
             }
-            broadcastJobChangedTimeout = window.setTimeout(function() {
+            broadcastJobChangedTimeout = window.setTimeout(function () {
                 $rootScope.$emit(thEvents.jobClick, job, job_selection_type);
             }, 200);
         };
@@ -186,13 +186,13 @@ treeherder.directive('thCloneJobs', [
          * Clicking a group will expand or collapse it.  Expanded shows all
          * jobs.  Collapsed shows counts and failed jobs.
          */
-        var clickGroupCb = function(el) {
+        var clickGroupCb = function (el) {
             var clickedEl = $(el);
             if (clickedEl.hasClass('group-symbol') || clickedEl.hasClass('job-group-count')) {
                 var groupMap = ThResultSetStore.getGroupMap($rootScope.repoName);
                 var gi = getGroupInfo(el, groupMap);
                 if (gi) {
-                    gi.jgObj.jobs.forEach(function(job) {
+                    gi.jgObj.jobs.forEach(function (job) {
                         // Keep track of visibility with this property. This
                         // way down stream job consumers don't need to repeatedly
                         // call showJob
@@ -214,17 +214,17 @@ treeherder.directive('thCloneJobs', [
             }
         };
 
-        var clickRunnableJobCb = function(el, resultset_id) {
+        var clickRunnableJobCb = function (el, resultset_id) {
             var buildername = el.attr(runnableJobBuildernameAttr);
             ThResultSetStore.toggleSelectedRunnableJob($rootScope.repoName, resultset_id, buildername);
             el.toggleClass("runnable-job-btn-selected");
         };
 
-        var togglePinJobCb = function(ev, el, job){
+        var togglePinJobCb = function (ev, el, job) {
             $rootScope.$emit(thEvents.toggleJobPin, job);
         };
 
-        var filterWithRunnable = function(job) {
+        var filterWithRunnable = function (job) {
             var visible = thJobFilters.showJob(job);
             if (job.state === "runnable") {
                 var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
@@ -233,12 +233,12 @@ treeherder.directive('thCloneJobs', [
             return visible;
         };
 
-        var renderJobBtnEls = function(jgObj) {
+        var renderJobBtnEls = function (jgObj) {
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var job, l;
             var jobBtnArray = [];
 
-            for (l=0; l<jgObj.jobs.length; l++){
+            for (l=0; l<jgObj.jobs.length; l++) {
 
                 job = jgObj.jobs[l];
 
@@ -247,10 +247,10 @@ treeherder.directive('thCloneJobs', [
             return jobBtnArray;
         };
 
-        var getJobBtnEls = function(jgObj) {
+        var getJobBtnEls = function (jgObj) {
             var jobBtnArray = renderJobBtnEls(jgObj);
             var jobBtnHTML = "";
-            jobBtnArray.forEach(function(element) {
+            jobBtnArray.forEach(function (element) {
                 jobBtnHTML += element;
             });
             return jobBtnHTML;
@@ -260,7 +260,7 @@ treeherder.directive('thCloneJobs', [
          * Decide what the job should look like as a button and add it to the
          * array that's passed in.
          */
-        var addJobBtnToArray = function(job, lastJobSelected, jobBtnArray) {
+        var addJobBtnToArray = function (job, lastJobSelected, jobBtnArray) {
             var jobStatus, jobBtn;
 
             jobStatus = thResultStatusInfo(thResultStatus(job), job.failure_classification_id);
@@ -270,7 +270,7 @@ treeherder.directive('thCloneJobs', [
             jobStatus.extraClasses = "";
             jobStatus.extraClasses += job.visible ? " filter-shown" : "";
             if ( !_.isEmpty(lastJobSelected.job) &&
-                (lastJobSelected.job.id === job.id)){
+                (lastJobSelected.job.id === job.id)) {
                 jobStatus.extraClasses += " " + largeBtnCls + " " + selectedBtnCls;
             } else {
                 jobStatus.extraClasses += " " + btnCls;
@@ -291,7 +291,7 @@ treeherder.directive('thCloneJobs', [
             jobBtnArray.push(' ');
         };
 
-        var getGroupInfo = function(el, groupMap) {
+        var getGroupInfo = function (el, groupMap) {
             var gi = {};
             try {
                 gi.platformGroupEl = $(el).closest(".platform-group");
@@ -311,14 +311,14 @@ treeherder.directive('thCloneJobs', [
          * Each job receives a corresponding resultState which determines its
          * display.
          */
-        var renderGroupJobsAndCounts = function(jgObj) {
+        var renderGroupJobsAndCounts = function (jgObj) {
             var jobCountBtnArray = [];
             var jobBtnArray = [];
             var stateCounts = {};
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var typeSymbolCounts = _.countBy(jgObj.jobs, "job_type_symbol");
 
-            _.forEach(jgObj.jobs, function(job) {
+            _.forEach(jgObj.jobs, function (job) {
 
                 // Set the resultState
                 var resultStatus = thResultStatus(job);
@@ -356,7 +356,7 @@ treeherder.directive('thCloneJobs', [
                 }
             });
 
-            _.forEach(stateCounts, function(countInfo) {
+            _.forEach(stateCounts, function (countInfo) {
                 if (countInfo.count === 1) {
                     // if there is only 1 job for this status, then just add
                     // the job, rather than the count
@@ -379,7 +379,7 @@ treeherder.directive('thCloneJobs', [
             };
         };
 
-        var addGroupJobsAndCounts = function(jgObj, platformGroup) {
+        var addGroupJobsAndCounts = function (jgObj, platformGroup) {
             var btnArrays = renderGroupJobsAndCounts(jgObj);
             var jobBtnArray = btnArrays.jobBtnArray;
             var jobCountBtnArray = btnArrays.jobCountBtnArray;
@@ -390,7 +390,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * When a job is clicked
          */
-        var jobClick = function(resultset, ev){
+        var jobClick = function (resultset, ev) {
             var el = $(ev.target);
 
             // return in case 'mousedown' was fired and target was clickable
@@ -424,7 +424,7 @@ treeherder.directive('thCloneJobs', [
 
                     case 2:
                         //Middle mouse button pressed
-                        ThJobModel.get(this.repoName, job.id).then(function(data){
+                        ThJobModel.get(this.repoName, job.id).then(function (data) {
                             // Open the logviewer in a new window
                             if (data.logs.length > 0) {
                                 window.open(location.origin + "/" + thUrl.getLogViewerUrl(job.id));
@@ -450,9 +450,9 @@ treeherder.directive('thCloneJobs', [
         /**
          * Add the list of revisions to the resultset
          */
-        var addRevisions = function(scope, element){
+        var addRevisions = function (scope, element) {
 
-            if (scope.resultset.revisions.length > 0){
+            if (scope.resultset.revisions.length > 0) {
 
                 var ulEl = element.find('.revision-list');
 
@@ -466,7 +466,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * Toggle the visibility of the list of revisions
          */
-        var toggleRevisions = function(element, expand) {
+        var toggleRevisions = function (element, expand) {
 
             var revisionsEl = element.find('ul').parent();
             var jobsEl = element.find('table').parent();
@@ -501,22 +501,22 @@ treeherder.directive('thCloneJobs', [
 
         };
 
-        var toggleRevisionsSpanOnWithJobs = function(el) {
+        var toggleRevisionsSpanOnWithJobs = function (el) {
             el.css('display', 'block');
             el.addClass(col5Cls);
         };
-        var toggleRevisionsSpanOff = function(el) {
+        var toggleRevisionsSpanOff = function (el) {
             el.css('display', 'none');
             el.removeClass(col5Cls);
         };
-        var toggleJobsSpanOnWithRevisions = function(el) {
+        var toggleJobsSpanOnWithRevisions = function (el) {
             el.css('display', 'block');
             el.removeClass(jobListNoPadCls);
             el.removeClass(col12Cls);
             el.addClass(col7Cls);
             el.addClass(jobListPadCls);
         };
-        var toggleJobsSpanOnWithoutRevisions = function(el) {
+        var toggleJobsSpanOnWithoutRevisions = function (el) {
             el.css('display', 'block');
             el.removeClass(col7Cls);
             el.removeClass(jobListPadCls);
@@ -527,10 +527,10 @@ treeherder.directive('thCloneJobs', [
         /**
          * Initial rendering of a Platform row on page load
          */
-        var getJobTableRowHTML = function(jobGroups) {
+        var getJobTableRowHTML = function (jobGroups) {
             //Empty the job column before populating it
             var btnHTML = "", countBtnHTML = "", jobTdHtml = "";
-            jobGroups.forEach(function(jobGroup) {
+            jobGroups.forEach(function (jobGroup) {
                 if (jobGroup.symbol !== '?') {
                     // Job group detected, add job group symbols
                     if (isGroupExpanded(jobGroup)) {
@@ -539,12 +539,12 @@ treeherder.directive('thCloneJobs', [
                         var btnArrays = renderGroupJobsAndCounts(jobGroup);
                         btnHTML = "";
                         // put individual jobs first
-                        btnArrays.jobBtnArray.forEach(function(element) {
+                        btnArrays.jobBtnArray.forEach(function (element) {
                             btnHTML += element;
                         });
                         countBtnHTML = "";
                         // put counts after individual jobs
-                        btnArrays.jobCountBtnArray.forEach(function(element) {
+                        btnArrays.jobCountBtnArray.forEach(function (element) {
                             countBtnHTML += element;
                         });
                     }
@@ -568,7 +568,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * Update all platforms for a resultset when job updates come in.
          */
-        var renderJobTableRow = function(row, jobTdEl, jobGroups) {
+        var renderJobTableRow = function (row, jobTdEl, jobGroups) {
             jobTdEl.html(getJobTableRowHTML(jobGroups));
             row.append(jobTdEl);
             filterPlatform(row);
@@ -577,10 +577,10 @@ treeherder.directive('thCloneJobs', [
         /**
          * Called when filters are changed after the page has loaded
          */
-        var filterJobs = function(element){
+        var filterJobs = function (element) {
             $log.debug("filterJobs", element);
 
-            if (this.resultset.platforms === undefined){
+            if (this.resultset.platforms === undefined) {
                 return;
             }
 
@@ -608,7 +608,7 @@ treeherder.directive('thCloneJobs', [
 
         };
 
-        var isGroupExpanded = function(group) {
+        var isGroupExpanded = function (group) {
             var singleGroupState = group.groupState || $scope.groupState;
             return singleGroupState === "expanded";
         };
@@ -629,7 +629,7 @@ treeherder.directive('thCloneJobs', [
          * @param resetGroupState Whether to reset groups individual expanded
          *                        or collapsed states.
          */
-        var renderGroups = function(element, resetGroupState) {
+        var renderGroups = function (element, resetGroupState) {
             var groupMap = ThResultSetStore.getGroupMap($rootScope.repoName);
             // with items in the group, it's not as simple as just hiding or
             // showing a job or count.  Since there can be lots of criteria for whether to show
@@ -643,7 +643,7 @@ treeherder.directive('thCloneJobs', [
                 if (resetGroupState) {
                     delete gi.jgObj.groupState;
                 }
-                gi.jgObj.jobs.forEach(function(job) {
+                gi.jgObj.jobs.forEach(function (job) {
                     // Keep track of visibility with this property. This
                     // way down stream job consumers don't need to repeatedly
                     // call showJob
@@ -660,7 +660,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * Can be used to show/hide a job or a count of jobs
          */
-        var showHideElement = function(el, show) {
+        var showHideElement = function (el, show) {
             // Note: I was using
             //     jobEl.style.display = "inline";
             //     jobEl.className += " filter-shown";
@@ -681,7 +681,7 @@ treeherder.directive('thCloneJobs', [
          * Decide whether or not a platform row should be shown based on
          * whether or not it has any visible jobs
          */
-        var filterPlatform = function(platform) {
+        var filterPlatform = function (platform) {
             var showPlt = platform.find('.job-row .filter-shown').length !== 0;
             var showGrp;
 
@@ -702,11 +702,11 @@ treeherder.directive('thCloneJobs', [
          * If we get new jobs and some are in a platform that never existed
          * before, then this will get called to create that new platform row.
          */
-        var appendPlatformRow = function(tableEl, rowEl, platformName) {
+        var appendPlatformRow = function (tableEl, rowEl, platformName) {
 
             var tableRows = $(tableEl).find('tr');
 
-            if (tableRows.length > 0){
+            if (tableRows.length > 0) {
                 //Rows already exist, insert the new one in
                 //alphabetical order
                 var orderedPlatforms = [];
@@ -716,7 +716,7 @@ treeherder.directive('thCloneJobs', [
 
                 //Generate a list of platform names that have
                 //been added to the html table, use this for sorting
-                for (r=0; r<tableRows.length; r++){
+                for (r=0; r<tableRows.length; r++) {
                     td = $( tableRows[r] ).find('td');
                     platformSpan = $( td[0] ).find('span');
                     spanPlatformName = $(platformSpan).text();
@@ -725,8 +725,8 @@ treeherder.directive('thCloneJobs', [
 
                 orderedPlatforms.sort();
 
-                for (p=0; p<orderedPlatforms.length; p++){
-                    if (orderedPlatforms[p] === platformName){
+                for (p=0; p<orderedPlatforms.length; p++) {
+                    if (orderedPlatforms[p] === platformName) {
                         //Target row for appending should be one less
                         //than the position of the platform name
                         $(tableRows[ p - 1 ]).after(rowEl);
@@ -743,10 +743,10 @@ treeherder.directive('thCloneJobs', [
          * Update / create a platform when new jobs are loaded/updated.
          * The platform may not have existed before
          */
-        var updateJobs = function(platformData){
-            angular.forEach(platformData, function(value, platformId) {
+        var updateJobs = function (platformData) {
+            angular.forEach(platformData, function (value, platformId) {
                 addAdditionalJobParameters(value.jobGroups);
-                if (value.resultsetId !== this.resultset.id){
+                if (value.resultsetId !== this.resultset.id) {
                     //Confirm we are the correct result set
                     return;
                 }
@@ -757,7 +757,7 @@ treeherder.directive('thCloneJobs', [
                 platformName = thPlatformName(value.platformName);
 
                 rowEl = document.getElementById(platformId);
-                if (!rowEl){
+                if (!rowEl) {
                     //First job for this platform found, which means we need
                     //to create the platform and job td elements and the
                     //row
@@ -798,7 +798,7 @@ treeherder.directive('thCloneJobs', [
         /**
          * When job selection change, scroll the viewport to display it
          */
-        var scrollToElement = function(el, duration) {
+        var scrollToElement = function (el, duration) {
             if (_.isUndefined(duration)) {
                 duration = 50;
             }
@@ -816,7 +816,7 @@ treeherder.directive('thCloneJobs', [
 
         };
 
-        var isOnScreen = function(el){
+        var isOnScreen = function (el) {
             const viewport = {};
             viewport.top = $(window).scrollTop() + $("#global-navbar-container").height() + 30;
             const filterbarheight = $(".active-filters-bar").height();
@@ -830,7 +830,7 @@ treeherder.directive('thCloneJobs', [
             return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
         };
 
-        var registerCustomEventCallbacks = function(scope, element){
+        var registerCustomEventCallbacks = function (scope, element) {
 
 
             //Register rootScope custom event listeners that require
@@ -842,50 +842,50 @@ treeherder.directive('thCloneJobs', [
             //      events are really at the level of the $rootScope but the
             //      callbacks need access to the resultset level angular scope.
             $rootScope.$on(
-                thEvents.revisionsLoaded, function(ev, rs){
-                    if (rs.id === scope.resultset.id){
+                thEvents.revisionsLoaded, function (ev, rs) {
+                    if (rs.id === scope.resultset.id) {
                         _.bind(addRevisions, scope, rs, element)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.toggleRevisions, function(ev, rs, expand){
-                    if (rs.id === scope.resultset.id){
+                thEvents.toggleRevisions, function (ev, rs, expand) {
+                    if (rs.id === scope.resultset.id) {
                         _.bind(toggleRevisions, scope, element, expand)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.globalFilterChanged, function(){
+                thEvents.globalFilterChanged, function () {
                     _.bind(filterJobs, scope, element)();
                 });
 
             $rootScope.$on(
-                thEvents.groupStateChanged, function(){
+                thEvents.groupStateChanged, function () {
                     _.bind(renderGroups, scope, element, true)();
                     scrollToElement($(viewContentSel).find(".selected-job, .selected-count"), 1);
                 });
-            $rootScope.$on(thEvents.duplicateJobsVisibilityChanged, function() {
+            $rootScope.$on(thEvents.duplicateJobsVisibilityChanged, function () {
                 _.bind(renderGroups, scope, element, true)();
             });
 
             $rootScope.$on(
-                thEvents.searchPage, function(){
+                thEvents.searchPage, function () {
                     _.bind(filterJobs, scope, element)();
                 });
 
             $rootScope.$on(
-                thEvents.jobsLoaded, function(ev, platformData){
+                thEvents.jobsLoaded, function (ev, platformData) {
                     _.bind(updateJobs, scope, platformData)();
                 });
 
             $rootScope.$on(
-                thEvents.jobsClassified, function(ev, pinnedJobs){
+                thEvents.jobsClassified, function (ev, pinnedJobs) {
 
                     var platformData = {};
 
                     var jid;
-                    for (jid in pinnedJobs.jobs){
+                    for (jid in pinnedJobs.jobs) {
                         if (pinnedJobs.jobs.hasOwnProperty(jid)) {
                             //Only update the target resultset id
                             if (pinnedJobs.jobs[jid].result_set_id === scope.resultset.id) {
@@ -895,14 +895,14 @@ treeherder.directive('thCloneJobs', [
                             }
                         }
                     }
-                    if (!_.isEmpty(platformData)){
+                    if (!_.isEmpty(platformData)) {
                         _.bind(updateJobs, scope, platformData)();
                     }
                 });
 
             $rootScope.$on(
-                thEvents.applyNewJobs, function(ev, resultSetId){
-                    if (scope.resultset.id === resultSetId){
+                thEvents.applyNewJobs, function (ev, resultSetId) {
+                    if (scope.resultset.id === resultSetId) {
 
                         var rsMap = ThResultSetStore.getResultSetsMap($rootScope.repoName);
 
@@ -917,20 +917,20 @@ treeherder.directive('thCloneJobs', [
                           in the UI. Use a timeout to avoid rendering jankiness
                           here.
                         **************/
-                        rsMap[resultSetId].rs_obj.platforms.forEach(function(platform) {
+                        rsMap[resultSetId].rs_obj.platforms.forEach(function (platform) {
                             addAdditionalJobParameters(platform.groups);
                         });
                         $timeout(generateJobElements(
                           resultsetAggregateId,
                           rsMap[resultSetId].rs_obj
-                        )).then(function() {
+                        )).then(function () {
                             $rootScope.jobsReady = true;
                         });
                     }
                 });
 
             // Show runnable jobs when users press 'Add new jobs'
-            $rootScope.$on(thEvents.showRunnableJobs, function(ev, rs) {
+            $rootScope.$on(thEvents.showRunnableJobs, function (ev, rs) {
                 if (scope.resultset.id === rs.id) {
                     rs.isRunnableVisible = true;
 
@@ -939,20 +939,20 @@ treeherder.directive('thCloneJobs', [
             });
 
             // Hide runnable jobs when users press 'Hide runnable jobs'
-            $rootScope.$on(thEvents.deleteRunnableJobs, function(ev, rs) {
+            $rootScope.$on(thEvents.deleteRunnableJobs, function (ev, rs) {
                 if (scope.resultset.id === rs.id) {
                     ThResultSetStore.deleteRunnableJobs($rootScope.repoName, rs);
                 }
             });
 
         };
-        var addAdditionalJobParameters = function(groups) {
-            groups.forEach(function(jobGroup) {
+        var addAdditionalJobParameters = function (groups) {
+            groups.forEach(function (jobGroup) {
                 if (jobGroup.symbol !== '?') {
                     jobGroup.grkey = jobGroup.mapKey;
                     jobGroup.collapsed = true;
                 }
-                jobGroup.jobs.forEach(function(job) {
+                jobGroup.jobs.forEach(function (job) {
                     // Keep track of visibility with this property. This
                     // way down stream job consumers don't need to repeatedly
                     // call showJob
@@ -960,12 +960,12 @@ treeherder.directive('thCloneJobs', [
                 });
             });
         };
-        var generateJobElements = function(resultsetAggregateId, resultset) {
+        var generateJobElements = function (resultsetAggregateId, resultset) {
             var tableEl = $('#' + resultsetAggregateId);
             var waitSpanEl = $(tableEl).prev();
             $(waitSpanEl).css('display', 'none');
             var tableHtml = "";
-            resultset.platforms.forEach(function(platform) {
+            resultset.platforms.forEach(function (platform) {
                 var platformId = thAggregateIds.getPlatformRowId(
                     $rootScope.repoName,
                     resultset.id,
@@ -974,7 +974,7 @@ treeherder.directive('thCloneJobs', [
                 );
 
                 // We first determine whether the row has some visible element
-                var anyVisible = _.some(platform.groups, function(jobGroup) {
+                var anyVisible = _.some(platform.groups, function (jobGroup) {
                     return _.some(jobGroup.jobs, {visible: true});
                 });
                 var display_style = anyVisible ? "table-row" : "none";
@@ -997,7 +997,7 @@ treeherder.directive('thCloneJobs', [
         };
 
         var $scope = null;
-        var linker = function(scope, element) {
+        var linker = function (scope, element) {
 
             $scope = scope;
 
@@ -1023,7 +1023,7 @@ treeherder.directive('thCloneJobs', [
             element.append(targetEl);
 
             if (scope.resultset.platforms !== undefined) {
-                scope.resultset.platforms.forEach(function(platform) {
+                scope.resultset.platforms.forEach(function (platform) {
                     addAdditionalJobParameters(platform.groups);
                 });
                 generateJobElements(

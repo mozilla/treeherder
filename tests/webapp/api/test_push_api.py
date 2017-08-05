@@ -5,7 +5,7 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model.models import (FailureClassification,
                                      Job,
                                      JobNote,
@@ -13,13 +13,13 @@ from treeherder.model.models import (FailureClassification,
 from treeherder.webapp.api import utils
 
 
-def test_resultset_list_basic(webapp, eleven_jobs_stored, test_repository):
+def test_push_list_basic(webapp, eleven_jobs_stored, test_repository):
     """
     test retrieving a list of ten json blobs from the jobs-list
     endpoint.
     """
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}))
+        reverse("push-list", kwargs={"project": test_repository.name}))
 
     results = resp.json['results']
     meta = resp.json['meta']
@@ -49,12 +49,12 @@ def test_resultset_list_basic(webapp, eleven_jobs_stored, test_repository):
     })
 
 
-def test_resultset_list_bad_project(webapp, transactional_db):
+def test_push_list_bad_project(webapp, transactional_db):
     """
     test that we have a sane error when the repository does not exist
     """
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": "foo"}),
+        reverse("push-list", kwargs={"project": "foo"}),
         expect_errors=True
     )
 
@@ -62,27 +62,27 @@ def test_resultset_list_bad_project(webapp, transactional_db):
     assert resp.json == {"detail": "No project with name foo"}
 
 
-def test_resultset_list_empty_rs_still_show(webapp, sample_resultset, test_repository):
+def test_push_list_empty_push_still_show(webapp, sample_push, test_repository):
     """
-    test retrieving a resultset list, when the resultset has no jobs.
+    test retrieving a push list, when the push has no jobs.
     should show.
     """
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
     )
     assert resp.status_int == 200
     assert len(resp.json['results']) == 10
 
 
-def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_repository):
+def test_push_list_single_short_revision(webapp, eleven_jobs_stored, test_repository):
     """
-    test retrieving a resultset list, filtered by single short revision
+    test retrieving a push list, filtered by single short revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
         {"revision": "45f8637cb9f7"}
     )
     assert resp.status_int == 200
@@ -100,13 +100,13 @@ def test_resultset_list_single_short_revision(webapp, eleven_jobs_stored, test_r
     )
 
 
-def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_repository):
+def test_push_list_single_long_revision(webapp, eleven_jobs_stored, test_repository):
     """
-    test retrieving a resultset list, filtered by a single long revision
+    test retrieving a push list, filtered by a single long revision
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
         {"revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf"}
     )
     assert resp.status_int == 200
@@ -124,26 +124,26 @@ def test_resultset_list_single_long_revision(webapp, eleven_jobs_stored, test_re
     )
 
 
-def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultset, test_repository):
+def test_push_list_single_long_revision_stored_long(webapp, sample_push, test_repository):
     """
-    test retrieving a resultset list with store long revision, filtered by a single long revision
+    test retrieving a push list with store long revision, filtered by a single long revision
     """
     long_revision = "21fb3eed1b5f3456789012345678901234567890"
 
-    # store a resultset with long revision
-    resultset = copy.deepcopy(sample_resultset[0])
-    resultset["revisions"][0]["revision"] = long_revision
-    store_result_set_data(test_repository, [resultset])
+    # store a push with long revision
+    push = copy.deepcopy(sample_push[0])
+    push["revisions"][0]["revision"] = long_revision
+    store_push_data(test_repository, [push])
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
         {"revision": long_revision}
     )
     assert resp.status_int == 200
     results = resp.json['results']
     meta = resp.json['meta']
     assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {sample_resultset[0]['revision']}
+    assert set([ph["revision"] for ph in results]) == {sample_push[0]['revision']}
     assert(meta == {
         'count': 1,
         'revision': long_revision,
@@ -154,13 +154,13 @@ def test_resultset_list_single_long_revision_stored_long(webapp, sample_resultse
     )
 
 
-def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_repository):
+def test_push_list_filter_by_revision(webapp, eleven_jobs_stored, test_repository):
     """
-    test retrieving a resultset list, filtered by a revision range
+    test retrieving a push list, filtered by a revision range
     """
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
         {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
     )
     assert resp.status_int == 200
@@ -185,21 +185,22 @@ def test_resultset_list_filter_by_revision(webapp, eleven_jobs_stored, test_repo
     )
 
 
-def test_resultset_list_filter_by_date(webapp, test_repository,
-                                       sample_resultset):
+def test_push_list_filter_by_date(webapp,
+                                  test_repository,
+                                  sample_push):
     """
-    test retrieving a resultset list, filtered by a date range
+    test retrieving a push list, filtered by a date range
     """
     for (i, datestr) in zip([3, 4, 5, 6, 7], ["2013-08-09", "2013-08-10",
                                               "2013-08-11", "2013-08-12",
                                               "2013-08-13"]):
-        sample_resultset[i]['push_timestamp'] = utils.to_timestamp(
+        sample_push[i]['push_timestamp'] = utils.to_timestamp(
             utils.to_datetime(datestr))
 
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}),
+        reverse("push-list", kwargs={"project": test_repository.name}),
         {"startdate": "2013-08-10", "enddate": "2013-08-13"}
     )
     assert resp.status_int == 200
@@ -231,8 +232,10 @@ def test_resultset_list_filter_by_date(webapp, test_repository,
     ('id__gt=2', [3]),
     ('id__gte=2', [2, 3])
 ])
-def test_resultset_list_filter_by_id(webapp, test_repository, filter_param,
-                                     exp_ids):
+def test_push_list_filter_by_id(webapp,
+                                test_repository,
+                                filter_param,
+                                exp_ids):
     """
     test filtering by id in various ways
     """
@@ -244,7 +247,7 @@ def test_resultset_list_filter_by_id(webapp, test_repository, filter_param,
                             author=author,
                             time=datetime.datetime.now())
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        reverse("push-list", kwargs={"project": test_repository.name}) +
         '?' + filter_param
     )
     assert resp.status_int == 200
@@ -252,7 +255,7 @@ def test_resultset_list_filter_by_id(webapp, test_repository, filter_param,
     assert set([result['id'] for result in results]) == set(exp_ids)
 
 
-def test_resultset_list_id_in(webapp, test_repository):
+def test_push_list_id_in(webapp, test_repository):
     """
     test the id__in parameter
     """
@@ -264,7 +267,7 @@ def test_resultset_list_id_in(webapp, test_repository):
                             author=author,
                             time=datetime.datetime.now())
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        reverse("push-list", kwargs={"project": test_repository.name}) +
         '?id__in=1,2'
     )
     assert resp.status_int == 200
@@ -275,28 +278,28 @@ def test_resultset_list_id_in(webapp, test_repository):
 
     # test that we do something sane if invalid list passed in
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        reverse("push-list", kwargs={"project": test_repository.name}) +
         '?id__in=1,2,foobar',
         expect_errors=True
     )
     assert resp.status_int == 400
 
 
-def test_resultset_list_bad_count(webapp, test_repository):
+def test_push_list_bad_count(webapp, test_repository):
     """
     test for graceful error when passed an invalid count value
     """
     bad_count = "ZAP%n%s%n%s"
 
     resp = webapp.get(
-            reverse("resultset-list", kwargs={"project": test_repository.name}),
+            reverse("push-list", kwargs={"project": test_repository.name}),
             params={'count': bad_count}, expect_errors=True)
 
     assert resp.status_code == 400
     assert resp.json == {'error': 'Valid count value required'}
 
 
-def test_resultset_author(webapp, test_repository):
+def test_push_author(webapp, test_repository):
     """
     test the author parameter
     """
@@ -309,7 +312,7 @@ def test_resultset_author(webapp, test_repository):
                             time=datetime.datetime.now())
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        reverse("push-list", kwargs={"project": test_repository.name}) +
         '?author=foo@bar.com'
     )
     assert resp.status_int == 200
@@ -319,7 +322,7 @@ def test_resultset_author(webapp, test_repository):
     assert set([result['id'] for result in results]) == set([1, 2])
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name}) +
+        reverse("push-list", kwargs={"project": test_repository.name}) +
         '?author=foo2@bar.com'
     )
     assert resp.status_int == 200
@@ -329,15 +332,16 @@ def test_resultset_author(webapp, test_repository):
     assert results[0]['id'] == 3
 
 
-def test_resultset_list_without_jobs(webapp, test_repository,
-                                     sample_resultset):
+def test_push_list_without_jobs(webapp,
+                                test_repository,
+                                sample_push):
     """
-    test retrieving a resultset list without jobs
+    test retrieving a push list without jobs
     """
-    store_result_set_data(test_repository, sample_resultset)
+    store_push_data(test_repository, sample_push)
 
     resp = webapp.get(
-        reverse("resultset-list", kwargs={"project": test_repository.name})
+        reverse("push-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_int == 200
 
@@ -354,16 +358,16 @@ def test_resultset_list_without_jobs(webapp, test_repository,
     }
 
 
-def test_resultset_detail(webapp, eleven_jobs_stored, test_repository):
+def test_push_detail(webapp, eleven_jobs_stored, test_repository):
     """
-    test retrieving a resultset from the resultset-detail
+    test retrieving a push from the push-detail
     endpoint.
     """
 
     push = Push.objects.get(id=1)
 
     resp = webapp.get(
-        reverse("resultset-detail",
+        reverse("push-detail",
                 kwargs={"project": test_repository.name, "pk": 1})
     )
     assert resp.status_int == 200
@@ -371,38 +375,38 @@ def test_resultset_detail(webapp, eleven_jobs_stored, test_repository):
     assert resp.json["id"] == push.id
 
 
-def test_resultset_detail_not_found(webapp, test_repository):
+def test_push_detail_not_found(webapp, test_repository):
     """
-    test retrieving a HTTP 404 from the resultset-detail
+    test retrieving a HTTP 404 from the push-detail
     endpoint.
     """
     resp = webapp.get(
-        reverse("resultset-detail",
+        reverse("push-detail",
                 kwargs={"project": test_repository.name, "pk": -32767}),
         expect_errors=True
     )
     assert resp.status_int == 404
 
 
-def test_resultset_detail_bad_project(webapp, test_repository):
+def test_push_detail_bad_project(webapp, test_repository):
     """
-    test retrieving a HTTP 404 from the resultset-detail
+    test retrieving a HTTP 404 from the push-detail
     endpoint.
     """
     bad_pk = -32767
     resp = webapp.get(
-        reverse("resultset-detail",
+        reverse("push-detail",
                 kwargs={"project": "foo", "pk": bad_pk}),
         expect_errors=True
     )
     assert resp.status_int == 404
 
 
-def test_resultset_cancel_all(failure_classifications,
-                              push_with_three_jobs, pulse_action_consumer,
-                              test_repository, test_user):
+def test_push_cancel_all(failure_classifications,
+                         push_with_three_jobs, pulse_action_consumer,
+                         test_repository, test_user):
     """
-    Issue cancellation of a resultset with three unfinished jobs.
+    Issue cancellation of a push with three unfinished jobs.
     """
     client = APIClient()
     client.force_authenticate(user=test_user)
@@ -411,7 +415,7 @@ def test_resultset_cancel_all(failure_classifications,
     for job in Job.objects.all():
         assert job.state == 'pending'
 
-    url = reverse("resultset-cancel-all",
+    url = reverse("push-cancel-all",
                   kwargs={"project": test_repository.name, "pk": push_with_three_jobs.id})
     client.post(url)
 
@@ -428,9 +432,9 @@ def test_resultset_cancel_all(failure_classifications,
         assert content['project'] == test_repository.name
 
 
-def test_resultset_status(webapp, test_job, test_user):
+def test_push_status(webapp, test_job, test_user):
     """
-    test retrieving the status of a resultset
+    test retrieving the status of a push
     """
     failure_classification = FailureClassification.objects.get(
         name="fixed by commit")
@@ -438,7 +442,7 @@ def test_resultset_status(webapp, test_job, test_user):
     push = test_job.push
 
     resp = webapp.get(
-        reverse("resultset-status",
+        reverse("push-status",
                 kwargs={"project": push.repository.name, "pk": push.id})
     )
     assert resp.status_int == 200
@@ -451,7 +455,7 @@ def test_resultset_status(webapp, test_job, test_user):
                            text='A random note')
 
     resp = webapp.get(
-        reverse("resultset-status",
+        reverse("push-status",
                 kwargs={"project": push.repository.name, "pk": push.id})
     )
     assert resp.status_int == 200

@@ -2,10 +2,10 @@
 
 treeherder.factory('ThLog', [
     '$log', 'ThLogConfig',
-    function($log, ThLogConfig) {
+    function ($log, ThLogConfig) {
         // a logger that states the object doing the logging
 
-        var ThLog = function(name) {
+        var ThLog = function (name) {
             this.name = name;
         };
 
@@ -16,17 +16,17 @@ treeherder.factory('ThLog', [
         var whitelist = ThLogConfig.whitelist;
         var blacklist = ThLogConfig.blacklist;
 
-        ThLog.prototype.getClassName = function() {
+        ThLog.prototype.getClassName = function () {
             return this.name;
         };
 
-        ThLog.prototype.debug = function() {logIt(this, $log.debug, arguments);};
-        ThLog.prototype.log = function() {logIt(this, $log.log, arguments);};
-        ThLog.prototype.warn = function() {logIt(this, $log.warn, arguments);};
-        ThLog.prototype.info = function() {logIt(this, $log.info, arguments);};
-        ThLog.prototype.error = function() {logIt(this, $log.error, arguments);};
+        ThLog.prototype.debug = function () { logIt(this, $log.debug, arguments); };
+        ThLog.prototype.log = function () { logIt(this, $log.log, arguments); };
+        ThLog.prototype.warn = function () { logIt(this, $log.warn, arguments); };
+        ThLog.prototype.info = function () { logIt(this, $log.info, arguments); };
+        ThLog.prototype.error = function () { logIt(this, $log.error, arguments); };
 
-        var logIt = function(self, func, args) {
+        var logIt = function (self, func, args) {
             if ((whitelist.length && _.includes(whitelist, self.getClassName())) ||
                 (blacklist.length && !_.includes(blacklist, self.getClassName())) ||
                 (!whitelist.length && !blacklist.length)) {
@@ -53,18 +53,18 @@ treeherder.factory('ThLog', [
  * Note: even though this is called ThLogConfig, when you configure it, you must
  * refer to it as a ``ThLogConfigProvider`` in ``local.conf.js``.
  */
-treeherder.provider('ThLogConfig', function() {
+treeherder.provider('ThLogConfig', function () {
     this.whitelist = [];
     this.blacklist = [];
 
-    this.setBlacklist = function(bl) {
+    this.setBlacklist = function (bl) {
         this.blacklist = bl;
     };
-    this.setWhitelist = function(wl) {
+    this.setWhitelist = function (wl) {
         this.whitelist = wl;
     };
 
-    this.$get = function() {
+    this.$get = function () {
         var self = this;
 
         return {

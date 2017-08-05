@@ -8,7 +8,7 @@ from django.core.cache import cache
 from treeherder.etl.common import (CollectionNotStoredException,
                                    fetch_json,
                                    generate_revision_hash)
-from treeherder.etl.resultset import store_push
+from treeherder.etl.push import store_push
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)

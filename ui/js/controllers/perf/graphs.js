@@ -2,10 +2,10 @@
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
-    'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
+    '$window', 'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
-        $uibModal, thServiceDomain, $http, $q, $timeout, PhSeries,
+        $uibModal, $window, thServiceDomain, $http, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
@@ -23,13 +23,13 @@ perf.controller('GraphsCtrl', [
         $scope.showToolTipTimeout = null;
         $scope.seriesList = [];
 
-        $scope.createAlert = function(dataPoint) {
+        $scope.createAlert = function (dataPoint) {
             $scope.creatingAlert = true;
-            PhAlerts.createAlert(dataPoint).then(function(alertSummaryId) {
+            PhAlerts.createAlert(dataPoint).then(function (alertSummaryId) {
                 PhAlerts.getAlertSummaries({
                     seriesSignature: dataPoint.series.seriesSignature,
                     repository: dataPoint.project.id
-                }).then(function(alertSummaryData) {
+                }).then(function (alertSummaryData) {
                     $scope.creatingAlert = false;
 
                     var alertSummary = _.find(alertSummaryData.results,
@@ -64,7 +64,7 @@ perf.controller('GraphsCtrl', [
         }
 
         function deselectDataPoint() {
-            $timeout(function() {
+            $timeout(function () {
                 $scope.selectedDataPoint = null;
                 hideTooltip();
                 updateDocument();
@@ -72,11 +72,11 @@ perf.controller('GraphsCtrl', [
         }
 
         function showTooltip(dataPoint) {
-            if ($scope.showToolTipTimeout){
+            if ($scope.showToolTipTimeout) {
                 window.clearTimeout($scope.showToolTipTimeout);
             }
 
-            $scope.showToolTipTimeout = window.setTimeout(function() {
+            $scope.showToolTipTimeout = window.setTimeout(function () {
                 if ($scope.ttHideTimer) {
                     clearTimeout($scope.ttHideTimer);
                     $scope.ttHideTimer = null;
@@ -84,7 +84,7 @@ perf.controller('GraphsCtrl', [
 
                 var phSeriesIndex = _.findIndex(
                     $scope.seriesList,
-                    function(s) {
+                    function (s) {
                         return s.projectName === dataPoint.projectName &&
                             s.signature === dataPoint.signature;
                     });
@@ -95,7 +95,7 @@ perf.controller('GraphsCtrl', [
                 var flotIndex = phSeries.flotSeries.idData.indexOf(
                     dataPoint.id);
                 var flotData = {
-                    series: _.find($scope.plot.getData(), function(fs) {
+                    series: _.find($scope.plot.getData(), function (fs) {
                         return fs.thSeries.projectName === dataPoint.projectName &&
                             fs.thSeries.signature === dataPoint.signature;
                     }),
@@ -109,7 +109,7 @@ perf.controller('GraphsCtrl', [
                     phSeries.flotSeries.resultSetData[firstResultSetIndex- 1] : null;
 
                 var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
-                    function(resultSetId) {
+                    function (resultSetId) {
                         return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
                     });
                 var prevFlotDataPointIndex = (flotData.pointIndex - 1);
@@ -121,13 +121,13 @@ perf.controller('GraphsCtrl', [
                         flotSeriesData[prevFlotDataPointIndex][1] : v),
                     dv = v - v0,
                     dvp = v / v0 - 1;
-                var alertSummary = _.find(phSeries.relatedAlertSummaries, function(alertSummary) {
+                var alertSummary = _.find(phSeries.relatedAlertSummaries, function (alertSummary) {
                     return alertSummary.push_id === dataPoint.resultSetId;
                 });
                 var alert;
                 if (alertSummary) {
                     alert = _.find(alertSummary.alerts,
-                        function(alert) {
+                        function (alert) {
                             return alert.series_signature.signature_hash === phSeries.signature;
                         });
                 }
@@ -157,7 +157,7 @@ perf.controller('GraphsCtrl', [
                 }, {
                     resultSetId: prevResultSetId,
                     scopeKey: 'prevRevision'
-                }], function(resultRevision) {
+                }], function (resultRevision) {
                     ThResultSetModel.getRevisions(
                         phSeries.projectName, resultRevision.resultSetId
                     ).then(function (revisions) {
@@ -174,7 +174,7 @@ perf.controller('GraphsCtrl', [
                 });
 
                 // now position it
-                $timeout(function() {
+                $timeout(function () {
                     var x = parseInt(flotData.series.xaxis.p2c(t) +
                         $scope.plot.offset().left);
                     var y = parseInt(flotData.series.yaxis.p2c(v) +
@@ -211,24 +211,27 @@ perf.controller('GraphsCtrl', [
 
         function hideTooltip(now) {
             var tip = $('#graph-tooltip');
-            if ($scope.showToolTipTimeout){
+            if ($scope.showToolTipTimeout) {
                 window.clearTimeout($scope.showToolTipTimeout);
             }
 
             if (!$scope.ttHideTimer && tip.css('visibility') === 'visible') {
-                $scope.ttHideTimer = setTimeout(function() {
+                $scope.ttHideTimer = setTimeout(function () {
                     $scope.ttHideTimer = null;
                     tip.animate({ opacity: 0, top: '+=10' },
-                        250, 'linear', function() {
+                        250, 'linear', function () {
                             $(this).css({ visibility: 'hidden' });
                         });
                 }, now ? 0 : 250);
             }
         }
 
-        Mousetrap.bind('escape', function() {
+        Mousetrap.bind('escape', function () {
             deselectDataPoint();
         });
+
+        // on window resize, replot the graph
+        angular.element($window).bind('resize', () => plotGraph());
 
         // Highlight the points persisted in the url
         function highlightDataPoints() {
@@ -236,10 +239,10 @@ perf.controller('GraphsCtrl', [
 
             // if we have a highlighted revision(s), highlight all points that
             // correspond to that
-            $scope.seriesList.forEach(function(series, i) {
+            $scope.seriesList.forEach(function (series, i) {
                 if (series.visible && series.highlightedPoints &&
                     series.highlightedPoints.length) {
-                    _.forEach(series.highlightedPoints, function(highlightedPoint) {
+                    _.forEach(series.highlightedPoints, function (highlightedPoint) {
                         $scope.plot.highlight(i, highlightedPoint);
                     });
                 }
@@ -249,7 +252,7 @@ perf.controller('GraphsCtrl', [
             if ($scope.selectedDataPoint) {
                 var selectedSeriesIndex = _.findIndex(
                     $scope.seriesList,
-                    function(s) {
+                    function (s) {
                         return s.projectName === $scope.selectedDataPoint.projectName &&
                             s.signature === $scope.selectedDataPoint.signature;
                     });
@@ -274,12 +277,12 @@ perf.controller('GraphsCtrl', [
             deselectDataPoint();
             hideTooltip();
 
-            $.each($scope.plot.getXAxes(), function(_, axis) {
+            $.each($scope.plot.getXAxes(), function (_, axis) {
                 var opts = axis.options;
                 opts.min = ranges.xaxis.from;
                 opts.max = ranges.xaxis.to;
             });
-            $.each($scope.plot.getYAxes(), function(_, axis) {
+            $.each($scope.plot.getYAxes(), function (_, axis) {
                 var opts = axis.options;
                 opts.min = ranges.yaxis.from;
                 opts.max = ranges.yaxis.to;
@@ -293,14 +296,14 @@ perf.controller('GraphsCtrl', [
 
         function plotOverviewGraph() {
             // We want to show lines for series in the overview plot, if they are visible
-            $scope.seriesList.forEach(function(series) {
+            $scope.seriesList.forEach(function (series) {
                 series.flotSeries.points.show = false;
                 series.flotSeries.lines.show = series.visible;
             });
 
             $scope.overviewPlot = $.plot(
                 $("#overview-plot"),
-                $scope.seriesList.map(function(series) {
+                $scope.seriesList.map(function (series) {
                     return series.flotSeries;
                 }),
                 {
@@ -321,26 +324,26 @@ perf.controller('GraphsCtrl', [
                 }
             );
             // Reset $scope.seriesList with lines.show = false
-            $scope.seriesList.forEach(function(series) {
+            $scope.seriesList.forEach(function (series) {
                 series.flotSeries.points.show = series.visible;
                 series.flotSeries.lines.show = false;
             });
 
-            $("#overview-plot").bind("plotunselected", plotUnselected);
+            $("#overview-plot").on("plotunselected", plotUnselected);
 
-            $("#overview-plot").bind("plotselected", plotSelected);
+            $("#overview-plot").on("plotselected", plotSelected);
         }
 
         function zoomGraph() {
             // If either x or y exists then there is zoom set in the variable
             if ($scope.zoom['x']) {
-                if (_.find($scope.seriesList, function(series) { return series.visible; })) {
-                    $.each($scope.plot.getXAxes(), function(_, axis) {
+                if (_.find($scope.seriesList, function (series) { return series.visible; })) {
+                    $.each($scope.plot.getXAxes(), function (_, axis) {
                         var opts = axis.options;
                         opts.min = $scope.zoom['x'][0];
                         opts.max = $scope.zoom['x'][1];
                     });
-                    $.each($scope.plot.getYAxes(), function(_, axis) {
+                    $.each($scope.plot.getYAxes(), function (_, axis) {
                         var opts = axis.options;
                         opts.min = $scope.zoom['y'][0];
                         opts.max = $scope.zoom['y'][1];
@@ -364,13 +367,13 @@ perf.controller('GraphsCtrl', [
 
         function plotGraph() {
             // synchronize series visibility with flot, in case it's changed
-            $scope.seriesList.forEach(function(series) {
+            $scope.seriesList.forEach(function (series) {
                 series.flotSeries.points.show = series.visible;
                 series.blockColor = series.visible ? series.color : "grey";
             });
 
             // reset highlights
-            $scope.seriesList.forEach(function(series) {
+            $scope.seriesList.forEach(function (series) {
                 series.highlightedPoints = [];
             });
 
@@ -394,15 +397,15 @@ perf.controller('GraphsCtrl', [
                     series.highlightedPoints,
                     _.compact(_.map(
                         series.flotSeries.resultSetData,
-                        function(seriesResultSetId, index) {
+                        function (seriesResultSetId, index) {
                             return resultSetId === seriesResultSetId ? index : null;
                         })));
             }
 
             if ($scope.highlightAlerts) {
-                _.forEach($scope.seriesList, function(series) {
+                _.forEach($scope.seriesList, function (series) {
                     if (series.visible) {
-                        _.forEach(series.relatedAlertSummaries, function(alertSummary) {
+                        _.forEach(series.relatedAlertSummaries, function (alertSummary) {
                             addHighlightedDatapoint(series, alertSummary.push_id);
                         });
                     }
@@ -411,16 +414,16 @@ perf.controller('GraphsCtrl', [
 
             // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
-            _.each($scope.highlightedRevisions, function(rev) {
+            _.each($scope.highlightedRevisions, function (rev) {
                 if (rev && rev.length === 12) {
                     highlightPromises = _.union(
-                        highlightPromises, $scope.seriesList.map(function(series) {
+                        highlightPromises, $scope.seriesList.map(function (series) {
                             if (series.visible) {
                                 return ThResultSetModel.getResultSetsFromRevision(
                                     series.projectName, rev).then(
-                                    function(resultSets) {
+                                    function (resultSets) {
                                         addHighlightedDatapoint(series, resultSets[0].id);
-                                    }, function() {
+                                    }, function () {
                                             /* ignore cases where no result set exists
                                            for revision */
                                     });
@@ -429,11 +432,11 @@ perf.controller('GraphsCtrl', [
                         }));
                 }
             });
-            $q.all(highlightPromises).then(function() {
+            $q.all(highlightPromises).then(function () {
                 // plot the actual graph
                 $scope.plot = $.plot(
                     $("#graph"),
-                    $scope.seriesList.map(function(series) {
+                    $scope.seriesList.map(function (series) {
                         return series.flotSeries;
                     }),
                     {
@@ -471,7 +474,7 @@ perf.controller('GraphsCtrl', [
                     }
                 }
 
-                $("#graph").bind("plothover", function (event, pos, item) {
+                $("#graph").on("plothover", function (event, pos, item) {
                     // if examining an item, disable this behaviour
                     if ($scope.selectedDataPoint)
                         return;
@@ -493,7 +496,7 @@ perf.controller('GraphsCtrl', [
                     }
                 });
 
-                $('#graph').bind('plotclick', function(e, pos, item) {
+                $('#graph').on('plotclick', function (e, pos, item) {
                     if (item) {
                         $scope.selectedDataPoint = getSeriesDataPoint(item);
                         showTooltip($scope.selectedDataPoint);
@@ -507,19 +510,19 @@ perf.controller('GraphsCtrl', [
                     highlightDataPoints();
                 });
 
-                $('#graph').bind("plotselected", function(event, ranges) {
+                $('#graph').on("plotselected", function (event, ranges) {
                     $scope.plot.clearSelection();
                     plotSelected(event, ranges);
                     zoomGraph();
                 });
 
                 // Close pop up when user clicks outside of the graph area
-                $('html').click(function() {
+                $('html').click(function () {
                     $scope.closePopup();
                 });
 
                 // Stop propagation when user clicks inside the graph area
-                $('#graph, #graph-tooltip').click(function(event) {
+                $('#graph, #graph-tooltip').click(function (event) {
                     event.stopPropagation();
                 });
             });
@@ -542,7 +545,7 @@ perf.controller('GraphsCtrl', [
 
         function updateDocument() {
             $state.transitionTo('graphs', {
-                series: $scope.seriesList.map(function(series) {
+                series: $scope.seriesList.map(function (series) {
                     return "[" + [series.projectName,
                         series.signature,
                         (series.visible ? 1 : 0),
@@ -551,12 +554,12 @@ perf.controller('GraphsCtrl', [
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
                 highlightedRevisions: _.filter($scope.highlightedRevisions,
-                    function(highlight) {
+                    function (highlight) {
                         return (highlight &&
                             highlight.length >= 12);
                     }),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
-                zoom: (function() {
+                zoom: (function () {
                     if ((typeof $scope.zoom.x !== "undefined")
                         && (typeof $scope.zoom.y !== "undefined")
                         && ($scope.zoom.x !== 0 && $scope.zoom.y !== 0)) {
@@ -567,7 +570,7 @@ perf.controller('GraphsCtrl', [
                     $scope.zoom = [];
                     return $scope.zoom;
                 })(),
-                selected: (function() {
+                selected: (function () {
                     return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
                         $scope.selectedDataPoint.signature,
                         $scope.selectedDataPoint.resultSetId,
@@ -590,7 +593,7 @@ perf.controller('GraphsCtrl', [
                 signatures: series.signature,
                 framework: series.frameworkId
             }).then(
-                function(seriesData) {
+                function (seriesData) {
                     series.flotSeries = {
                         lines: { show: false },
                         points: { show: series.visible },
@@ -598,7 +601,7 @@ perf.controller('GraphsCtrl', [
                         label: series.projectName + " " + series.name,
                         data: _.map(
                             seriesData[series.signature],
-                            function(dataPoint) {
+                            function (dataPoint) {
                                 return [
                                     new Date(dataPoint.push_timestamp*1000),
                                     dataPoint.value
@@ -611,12 +614,12 @@ perf.controller('GraphsCtrl', [
                         jobIdData: _.map(seriesData[series.signature], 'job_id'),
                         idData: _.map(seriesData[series.signature], 'id')
                     };
-                }).then(function() {
+                }).then(function () {
                     series.relatedAlertSummaries = [];
                     var repo = _.find($rootScope.repos, { name: series.projectName });
                     return PhAlerts.getAlertSummaries({
                         seriesSignature: series.signature,
-                        repository: repo.id }).then(function(data) {
+                        repository: repo.id }).then(function (data) {
                             series.relatedAlertSummaries = data.results;
                         });
                 });
@@ -624,12 +627,12 @@ perf.controller('GraphsCtrl', [
 
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
-            return $q.all(partialSeriesList.map(function(partialSeries) {
+            return $q.all(partialSeriesList.map(function (partialSeries) {
                 return PhSeries.getSeriesList(
                     partialSeries.project, {
                         signature: partialSeries.signature,
                         framework: partialSeries.frameworkId
-                    }).then(function(seriesList) {
+                    }).then(function (seriesList) {
                         if (!seriesList.length) {
                             return $q.reject("Signature `" + partialSeries.signature +
                                 "` not found for " + partialSeries.project);
@@ -641,10 +644,10 @@ perf.controller('GraphsCtrl', [
                         seriesSummary.highlighted = partialSeries.highlighted;
                         $scope.seriesList.push(seriesSummary);
                     });
-            }, function(error) {
+            }, function (error) {
                 alert("Error loading performance signature\n\n" + error);
-            })).then(function() {
-                $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+            })).then(function () {
+                $q.all($scope.seriesList.map(getSeriesData)).then(function () {
                     plotGraph();
                     updateDocumentTitle();
                     $scope.loadingGraphs = false;
@@ -652,7 +655,7 @@ perf.controller('GraphsCtrl', [
                         showTooltip($scope.selectedDataPoint);
                     }
                 });
-            }, function(error) {
+            }, function (error) {
                 if (error.statusText) {
                     error = "HTTP Error: " + error.statusText;
                 }
@@ -663,9 +666,9 @@ perf.controller('GraphsCtrl', [
             });
         }
 
-        $scope.removeSeries = function(projectName, signature) {
+        $scope.removeSeries = function (projectName, signature) {
             var newSeriesList = [];
-            $scope.seriesList.forEach(function(series) {
+            $scope.seriesList.forEach(function (series) {
                 if (series.signature !== signature ||
                     series.projectName !== projectName) {
                     newSeriesList.push(series);
@@ -694,12 +697,12 @@ perf.controller('GraphsCtrl', [
             }
         };
 
-        $scope.showHideSeries = function() {
+        $scope.showHideSeries = function () {
             updateDocument();
             plotGraph();
         };
 
-        $scope.resetHighlight = function(i) {
+        $scope.resetHighlight = function (i) {
             $scope.highlightedRevisions[i] = '';
 
             // update url
@@ -707,18 +710,18 @@ perf.controller('GraphsCtrl', [
             plotGraph();
         };
 
-        $scope.updateHighlightedRevisions = function() {
+        $scope.updateHighlightedRevisions = function () {
             updateDocument();
             plotGraph();
         };
 
-        $scope.closePopup = function() {
+        $scope.closePopup = function () {
             $scope.selectedDataPoint = null;
             hideTooltip();
             highlightDataPoints();
         };
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             if ($stateParams.timerange) {
                 var timeRange = _.find(phTimeRanges,
                     {'value': parseInt($stateParams.timerange)});
@@ -727,14 +730,14 @@ perf.controller('GraphsCtrl', [
                 $scope.myTimerange = _.find(phTimeRanges,
                     {'value': phDefaultTimeRangeValue});
             }
-            $scope.timeRangeChanged = function() {
+            $scope.timeRangeChanged = function () {
                 $scope.loadingGraphs = true;
                 $scope.zoom = {};
                 deselectDataPoint();
 
                 updateDocument();
                 // refetch and re-render all graph data
-                $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                $q.all($scope.seriesList.map(getSeriesData)).then(function () {
                     plotGraph();
                     $scope.loadingGraphs = false;
                 });
@@ -744,8 +747,8 @@ perf.controller('GraphsCtrl', [
                 var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
                 var zoomArray = zoomString.split(",");
                 var zoomObject = {
-                    "x": zoomArray.slice(0,2),
-                    "y": zoomArray.slice(2,4)
+                    "x": zoomArray.slice(0, 2),
+                    "y": zoomArray.slice(2, 4)
                 };
                 $scope.zoom = (zoomString) ? zoomObject : [];
             } else {
@@ -772,13 +775,13 @@ perf.controller('GraphsCtrl', [
 
                 // we only store the signature + project name in the url, we need to
                 // fetch everything else from the server
-                var partialSeriesList = $stateParams.series.map(function(encodedSeries) {
+                var partialSeriesList = $stateParams.series.map(function (encodedSeries) {
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
                     var partialSeriesArray = partialSeriesString.split(",");
                     var partialSeriesObject = {
                         project:  partialSeriesArray[0],
                         signature:  partialSeriesArray[1],
-                        visible: (partialSeriesArray[2] === 0) ? false : true,
+                        visible: (partialSeriesArray[2] !== 0),
                         frameworkId: partialSeriesArray[3]
                     };
                     return partialSeriesObject;
@@ -801,7 +804,7 @@ perf.controller('GraphsCtrl', [
                 $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
             }
 
-            $scope.addTestData = function(option, seriesSignature) {
+            $scope.addTestData = function (option, seriesSignature) {
                 var defaultProjectName, defaultPlatform, defaultFrameworkId;
                 var options = {};
                 if ($scope.seriesList.length > 0) {
@@ -821,25 +824,25 @@ perf.controller('GraphsCtrl', [
                     controller: 'TestChooserCtrl',
                     size: 'lg',
                     resolve: {
-                        projects: function() {
+                        projects: function () {
                             return $rootScope.repos;
                         },
-                        timeRange: function() {
+                        timeRange: function () {
                             return $scope.myTimerange.value;
                         },
-                        testsDisplayed: function() {
+                        testsDisplayed: function () {
                             return $scope.seriesList;
                         },
-                        defaultFrameworkId: function() { return defaultFrameworkId; },
-                        defaultProjectName: function() { return defaultProjectName; },
-                        defaultPlatform: function() { return defaultPlatform; },
-                        options: function() { return options; }
+                        defaultFrameworkId: function () { return defaultFrameworkId; },
+                        defaultProjectName: function () { return defaultProjectName; },
+                        defaultPlatform: function () { return defaultPlatform; },
+                        options: function () { return options; }
                     }
                 });
 
-                modalInstance.result.then(function(seriesList) {
+                modalInstance.result.then(function (seriesList) {
                     $scope.loadingGraphs = true;
-                    seriesList.forEach(function(series) {
+                    seriesList.forEach(function (series) {
                         series.hightlightedPoints = [];
                         series.visible = true;
                         series.color = availableColors.pop();
@@ -852,7 +855,7 @@ perf.controller('GraphsCtrl', [
                         $scope.zoom = {};
                     }
                     updateDocument();
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function() {
+                    $q.all($scope.seriesList.map(getSeriesData)).then(function () {
                         plotGraph();
                         $scope.loadingGraphs = false;
                     });
@@ -861,19 +864,19 @@ perf.controller('GraphsCtrl', [
         });
     }]);
 
-perf.filter('testNameContainsWords', function() {
+perf.filter('testNameContainsWords', function () {
     /**
      Filter a list of test by ensuring that every word in the textFilter is
      present in the test name.
      **/
-    return function(tests, textFilter) {
+    return function (tests, textFilter) {
         if (!textFilter) {
             return tests;
         }
 
         var filters = textFilter.split(/\s+/);
-        return _.filter(tests, function(test) {
-            return _.every(filters, function(filter) {
+        return _.filter(tests, function (test) {
+            return _.every(filters, function (filter) {
                 return test.name.toLowerCase().indexOf(filter) !== -1;
             });
         });
@@ -884,7 +887,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
     'projects', 'timeRange', 'thServiceDomain', 'thDefaultRepo', 'PhSeries',
     'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
     '$q', 'testsDisplayed', 'options', 'thPerformanceBranches', 'phDefaultFramework',
-    function($scope, $uibModalInstance, $http, projects, timeRange, thServiceDomain,
+    function ($scope, $uibModalInstance, $http, projects, timeRange, thServiceDomain,
         thDefaultRepo, PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
         defaultPlatform, $q, testsDisplayed, options, thPerformanceBranches,
         phDefaultFramework) {
@@ -910,7 +913,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
 
         var addTestToGraph = function () {
             $scope.selectedSeriesList = $scope.testsToAdd;
-            $scope.selectedSeriesList.forEach(function(selectedSeries, i) {
+            $scope.selectedSeriesList.forEach(function (selectedSeries, i) {
                 series[i] = _.clone(selectedSeries);
                 series[i].projectName = selectedSeries.projectName;
             });
@@ -927,7 +930,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
 
         $scope.unselectTest = function () {
-            $scope.selectedTestsToAdd.forEach(function(testValue) {
+            $scope.selectedTestsToAdd.forEach(function (testValue) {
                 // selectedTestsToAdd is stored in JSON format, need to convert
                 // it back to an object and get the actual value
                 var test = _.find($scope.testsToAdd, JSON.parse(testValue));
@@ -948,7 +951,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         };
 
         $scope.selectTest = function () {
-            $scope.selectedTestSignatures.forEach(function(signature) {
+            $scope.selectedTestSignatures.forEach(function (signature) {
                 // Add the selected tests to the selected test list
                 $scope.testsToAdd.push(_.clone(
                     _.find($scope.unselectedTestList, { signature: signature })));
@@ -959,13 +962,13 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         };
 
         var loadingExtraDataPromise = $q.defer();
-        var addRelatedPlatforms = function(originalSeries) {
+        var addRelatedPlatforms = function (originalSeries) {
             PhSeries.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId
-                }).then(function(seriesList) {
-                    $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
+                }).then(function (seriesList) {
+                    $scope.testsToAdd = _.clone(_.filter(seriesList, function (series) {
                         return series.platform !== originalSeries.platform &&
                             series.name === originalSeries.name &&
                             !_.some(testsDisplayed, {
@@ -973,14 +976,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                                 signature: series.signature
                             });
                     }));
-                }).then(function() {
+                }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
                     loadingExtraDataPromise.resolve($scope.testsToAdd.length);
                 });
         };
 
-        var addRelatedBranches = function(originalSeries) {
+        var addRelatedBranches = function (originalSeries) {
             var branchList = [];
             thPerformanceBranches.forEach(function (branch) {
                 if (branch !== originalSeries.projectName) {
@@ -989,19 +992,19 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             });
             // get each project's series data from remote and use promise to
             // ensure each step will be executed after last on has finished
-            $q.all(branchList.map(function(project) {
+            $q.all(branchList.map(function (project) {
                 return PhSeries.getSeriesList(project.name, {
                     interval: $scope.timeRange,
                     signature: originalSeries.signature,
                     framework: originalSeries.frameworkId
                 });
-            })).then(function(seriesList) {
+            })).then(function (seriesList) {
                 // we get a list of lists because we are getting the results
                 // of multiple promises, filter that down to one flat list
                 seriesList = _.flatten(seriesList);
 
                 // filter out tests which are already displayed
-                $scope.testsToAdd = _.filter(seriesList, function(series) {
+                $scope.testsToAdd = _.filter(seriesList, function (series) {
                     return !_.some(testsDisplayed, {
                         projectName: series.projectName,
                         signature: series.signature
@@ -1012,18 +1015,18 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             });
         };
 
-        var addRelatedConfigs = function(originalSeries) {
+        var addRelatedConfigs = function (originalSeries) {
             PhSeries.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId
-                }).then(function(seriesList) {
-                    $scope.testsToAdd = _.clone(_.filter(seriesList, function(series) {
+                }).then(function (seriesList) {
+                    $scope.testsToAdd = _.clone(_.filter(seriesList, function (series) {
                         return series.platform === originalSeries.platform &&
                             series.testName === originalSeries.testName &&
                             series.name !== originalSeries.name;
                     }));
-                }).then(function() {
+                }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
                     loadingExtraDataPromise.resolve($scope.testsToAdd.length);
@@ -1038,7 +1041,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             } else if (options.option === "addRelatedConfigs") {
                 addRelatedConfigs(options.relatedSeries);
             }
-            loadingExtraDataPromise.promise.then(function(length){
+            loadingExtraDataPromise.promise.then(function (length) {
                 if (length > 0) {
                     $scope.loadingRelatedSignatures = true;
                 } else {
@@ -1047,7 +1050,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             });
         }
 
-        PhFramework.getFrameworkList().then(function(frameworkList) {
+        PhFramework.getFrameworkList().then(function (frameworkList) {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
                 $scope.selectedFramework = _.find($scope.frameworkList, {
@@ -1058,14 +1061,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     name: phDefaultFramework
                 });
             }
-            $scope.updateTestInput = function() {
+            $scope.updateTestInput = function () {
                 $scope.addTestDataDisabled = true;
                 $scope.loadingTestData = true;
                 $scope.loadingPlatformList = true;
                 $scope.platformList = [];
                 PhSeries.getPlatformList($scope.selectedProject.name, {
                     interval: $scope.timeRange,
-                    framework: $scope.selectedFramework.id }).then(function(platformList) {
+                    framework: $scope.selectedFramework.id }).then(function (platformList) {
                         $scope.platformList = platformList;
                         $scope.platformList.sort();
                         if (_.includes($scope.platformList, defaultPlatform)) {
@@ -1077,7 +1080,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                         $scope.updateTestSelector();
                     });
 
-                $scope.updateTestSelector = function() {
+                $scope.updateTestSelector = function () {
                     $scope.loadingTestData = true;
                     if ($scope.selectedPlatform) {
                         defaultPlatform = $scope.selectedPlatform;
@@ -1086,14 +1089,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                         $scope.selectedProject.name,
                         { interval: $scope.timeRange, platform: $scope.selectedPlatform,
                             framework: $scope.selectedFramework.id,
-                            subtests: $scope.includeSubtests ? 1 : 0 }).then(function(seriesList) {
+                            subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
                                 $scope.unselectedTestList = _.sortBy(
                                     _.filter(seriesList,
                                     { platform: $scope.selectedPlatform }), 'name');
                                 // filter out tests which are already displayed or are
                                 // already selected
                                 _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
-                                    function(test) {
+                                    function (test) {
                                         _.remove($scope.unselectedTestList, {
                                             projectName: test.projectName,
                                             signature: test.signature });

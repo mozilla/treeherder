@@ -50,25 +50,25 @@ perf.controller('dashCtrl', [
             var getSeriesList, resultSetId;
             if ($scope.revision) {
                 getSeriesList = ThResultSetModel.getResultSetsFromRevision(
-                    $scope.selectedRepo.name, $scope.revision).then(function(resultSets) {
+                    $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
                             push_id: resultSetId, subtests: 0 });
-                    }, function() {
+                    }, function () {
                         $scope.revisionNotFound = true;
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
-                    framework: $scope.framework}).then(function(seriesList) {
-                        return _.filter(seriesList, function(series) {
+                    framework: $scope.framework}).then(function (seriesList) {
+                        return _.filter(seriesList, function (series) {
                             return filterSeriesByTopic(series);
                         });
                     });
             }
 
-            getSeriesList.then(function(seriesToMeasure) {
+            getSeriesList.then(function (seriesToMeasure) {
                 $scope.platformList = _.uniq(_.map(seriesToMeasure, 'platform'));
                 // we just use the unadorned suite name to distinguish tests in this view
                 // (so we can mash together pgo and opt)
@@ -85,8 +85,8 @@ perf.controller('dashCtrl', [
                         params.interval = $scope.selectedTimeRange.value;
                     }
 
-                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function(seriesData) {
-                        _.forIn(seriesData, function(data, signature) {
+                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
+                        _.forIn(seriesData, function (data, signature) {
                             var series = _.find(seriesChunk, { signature: signature });
                             var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                             resultsMap[type][signature] = {
@@ -99,16 +99,16 @@ perf.controller('dashCtrl', [
                             };
                         });
                     });
-                })).then(function() {
+                })).then(function () {
                     $scope.dataLoading = false;
-                    $scope.testList.forEach(function(testName) {
+                    $scope.testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
-                        $scope.platformList.forEach(function(platform) {
-                            var baseSig = _.find(Object.keys(resultsMap['base']), function(sig) {
+                        $scope.platformList.forEach(function (platform) {
+                            var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                                 return resultsMap['base'][sig].name === testName &&
                                     resultsMap['base'][sig].platform === platform;
                             });
-                            var variantSig = _.find(Object.keys(resultsMap['variant']), function(sig) {
+                            var variantSig = _.find(Object.keys(resultsMap['variant']), function (sig) {
                                 return resultsMap['variant'][sig].name === testName &&
                                     resultsMap['variant'][sig].platform === platform;
                             });
@@ -120,7 +120,7 @@ perf.controller('dashCtrl', [
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, variantSig], function(sig) {
+                                        _.map([baseSig, variantSig], function (sig) {
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
@@ -150,7 +150,7 @@ perf.controller('dashCtrl', [
                                         $scope.compareResults[testName].push(cmap);
                                     }
                                 }
-                            }});
+                            } });
                     });
                 });
             });
@@ -184,7 +184,7 @@ perf.controller('dashCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
@@ -197,7 +197,7 @@ perf.controller('dashCtrl', [
                 'filterOptions.showOnlyBlockers'
             ], updateURL);
 
-            $scope.globalOptionsChanged = function(selectedRepo, selectedTimeRange) {
+            $scope.globalOptionsChanged = function (selectedRepo, selectedTimeRange) {
                 // we pass `selectedRepo` and `selectedTimeRange` as
                 // parameters, because angular assigns them to a different
                 // scope (*sigh*) and I don't know of any other workaround
@@ -217,7 +217,7 @@ perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
-    function($state, $stateParams, $scope, $rootScope, $q, $http,
+    function ($state, $stateParams, $scope, $rootScope, $q, $http,
              ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
              thServiceDomain, thDefaultRepo, phTimeRanges, defaultTimeRange,
              phDashboardValues) {
@@ -252,7 +252,7 @@ perf.controller('dashSubtestCtrl', [
             var getSeriesList, resultSetId;
             if ($scope.revision) {
                 getSeriesList = ThResultSetModel.getResultSetsFromRevision(
-                    $scope.selectedRepo.name, $scope.revision).then(function(resultSets) {
+                    $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
                             parent_signature: [ baseSignature, variantSignature ],
@@ -267,12 +267,12 @@ perf.controller('dashSubtestCtrl', [
             }
 
             // get base data
-            getSeriesList.then(function(seriesList) {
+            getSeriesList.then(function (seriesList) {
                 var summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
-                return $q.all(_.chunk(seriesList, 20).map(function(seriesChunk) {
+                return $q.all(_.chunk(seriesList, 20).map(function (seriesChunk) {
                     var params = {
                         signatures: _.map(seriesChunk, 'signature'),
                         framework: $scope.framework
@@ -283,8 +283,8 @@ perf.controller('dashSubtestCtrl', [
                         params.interval = $scope.selectedTimeRange.value;
                     }
                     return PhSeries.getSeriesData(
-                        $scope.selectedRepo.name, params).then(function(seriesData) {
-                            _.forIn(seriesData, function(data, signature) {
+                        $scope.selectedRepo.name, params).then(function (seriesData) {
+                            _.forIn(seriesData, function (data, signature) {
                                 var series = _.find(seriesList, { signature: signature });
                                 var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                                 resultsMap[type][signature] = {
@@ -296,13 +296,13 @@ perf.controller('dashSubtestCtrl', [
                                 };
                             });
                         });
-                })).then(function() {
+                })).then(function () {
                     $scope.dataLoading = false;
                     var subtestNames = _.map(resultsMap['base'],
-                                             function(results) {
+                                             function (results) {
                                                  return results.name;
                                              });
-                    _.forEach(subtestNames, function(subtestName) {
+                    _.forEach(subtestNames, function (subtestName) {
                         var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
                             return resultsMap['base'][sig].name === subtestName;
                         });
@@ -317,7 +317,7 @@ perf.controller('dashSubtestCtrl', [
                             cmap.links = [{
                                 title: 'graph',
                                 href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, variantSig], function(sig) {
+                                        _.map([baseSig, variantSig], function (sig) {
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
@@ -362,7 +362,7 @@ perf.controller('dashSubtestCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function() {
+        ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
                 name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
@@ -374,7 +374,7 @@ perf.controller('dashSubtestCtrl', [
                 'filterOptions.showOnlyConfident'
             ], updateURL);
 
-            $scope.globalOptionsChanged = function(selectedRepo, selectedTimeRange) {
+            $scope.globalOptionsChanged = function (selectedRepo, selectedTimeRange) {
                 // we pass `selectedRepo` and `selectedTimeRange` as
                 // parameter, because angular assigns them to a different
                 // scope (*sigh*) and I don't know of any other workaround

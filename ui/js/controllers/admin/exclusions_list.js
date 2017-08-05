@@ -2,8 +2,8 @@
 
 admin.controller('ExclusionsListCtrl', ['$scope',
     function ExclusionsListCtrl($scope) {
-        $scope.delete_exclusion = function(exclusion) {
-            exclusion.delete().then(function() {
+        $scope.delete_exclusion = function (exclusion) {
+            exclusion.delete().then(function () {
                 // update the exclusion profiles since some of them may keep
                 // an old relationship with the exclusion just deleted
                 $scope.populateProfilesData();

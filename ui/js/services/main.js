@@ -9,37 +9,40 @@ treeherder.factory('thUrl', [
             getRootUrl: function (uri) {
                 return thServiceDomain + "/api" + uri;
             },
-            getProjectUrl: function(uri, repoName) {
+            getProjectUrl: function (uri, repoName) {
                 if (_.isUndefined(repoName)) {
                     repoName = $rootScope.repoName;
                 }
                 return thServiceDomain + "/api/project/" + repoName + uri;
             },
-            getProjectJobUrl: function(url, jobId, repoName) {
+            getProjectJobUrl: function (url, jobId, repoName) {
                 var uri = "/jobs/" + jobId + url;
                 return thUrl.getProjectUrl(uri, repoName);
             },
-            getJobsUrl: function(repo, fromChange, toChange) {
+            getJobsUrl: function (repo, fromChange, toChange) {
                 return "index.html#/jobs?" + _.reduce({
                     repo: repo, fromchange: fromChange, tochange: toChange
-                }, function(result, v, k) {
+                }, function (result, v, k) {
                     if (result.length)
                         result += '&';
                     return result + k + '=' + v;
                 }, "");
             },
-            getLogViewerUrl: function(job_id, line_number) {
+            getLogViewerUrl: function (job_id, line_number) {
                 var rv = "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
                 if (line_number) {
                     rv += "&lineNumber=" + line_number;
                 }
                 return rv;
             },
-            getBugUrl: function(bug_id) {
+            getBugUrl: function (bug_id) {
                 return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;
             },
-            getSlaveHealthUrl: function(machine_name) {
+            getSlaveHealthUrl: function (machine_name) {
                 return "https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + machine_name;
+            },
+            getInspectTaskUrl: function (taskId) {
+                return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
             }
         };
         return thUrl;
@@ -48,7 +51,7 @@ treeherder.factory('thUrl', [
 
 treeherder.factory('thCloneHtml', [
     '$interpolate',
-    function($interpolate) {
+    function ($interpolate) {
 
         var cloneTemplateIds = [
             'platformClone.html',
@@ -63,7 +66,7 @@ treeherder.factory('thCloneHtml', [
         var templateId, templateName, templateTxt, i;
 
         var cloneHtmlObjs = {};
-        for (i=0; i<cloneTemplateIds.length; i++){
+        for (i=0; i<cloneTemplateIds.length; i++) {
 
             templateId = cloneTemplateIds[i];
             templateName = templateId.replace('.html', '');
@@ -75,7 +78,7 @@ treeherder.factory('thCloneHtml', [
             };
         }
 
-        var getClone = function(templateName){
+        var getClone = function (templateName) {
             return cloneHtmlObjs[templateName];
         };
 
@@ -85,20 +88,20 @@ treeherder.factory('thCloneHtml', [
 
     }]);
 
-treeherder.factory('ThPaginator', function(){
+treeherder.factory('ThPaginator', function () {
     //dead-simple implementation of an in-memory paginator
 
-    var ThPaginator = function(data, limit){
+    var ThPaginator = function (data, limit) {
         this.data = data;
         this.length = data.length;
         this.limit = limit;
     };
 
-    ThPaginator.prototype.get_page = function(n){
+    ThPaginator.prototype.get_page = function (n) {
         return this.data.slice(n * this.limit - this.limit, n * this.limit);
     };
 
-    ThPaginator.prototype.get_all = function(){
+    ThPaginator.prototype.get_all = function () {
         return this.data;
     };
 
@@ -108,7 +111,7 @@ treeherder.factory('ThPaginator', function(){
 
 treeherder.factory('thNotify', [
     '$timeout', 'ThLog',
-    function($timeout, ThLog){
+    function ($timeout, ThLog) {
         //a growl-like notification system
 
         var $log = new ThLog("thNotify");
@@ -123,7 +126,7 @@ treeherder.factory('thNotify', [
              * @sticky is a boolean indicating if you want the message to disappear
              * after a while or not
              */
-            send: function(message, severity, sticky, linkText, url) {
+            send: function (message, severity, sticky, linkText, url) {
                 $log.debug("received message", message);
                 severity = severity || 'info';
                 sticky = sticky || false;
@@ -148,9 +151,9 @@ treeherder.factory('thNotify', [
             /*
              * Delete the first non-sticky element from the notifications queue
              */
-            shift: function(){
-                for (var i=0;i<thNotify.notifications.length; i++){
-                    if (!thNotify.notifications[i].sticky){
+            shift: function () {
+                for (var i=0;i<thNotify.notifications.length; i++) {
+                    if (!thNotify.notifications[i].sticky) {
                         thNotify.remove(i);
                         return;
                     }
@@ -159,7 +162,7 @@ treeherder.factory('thNotify', [
             /*
              * remove an arbitrary element from the notifications queue
              */
-            remove: function(index){
+            remove: function (index) {
                 thNotify.notifications.splice(index, 1);
             }
         };
@@ -169,9 +172,9 @@ treeherder.factory('thNotify', [
 
 treeherder.factory('thPlatformName', [
     'thPlatformMap',
-    function(thPlatformMap) {
+    function (thPlatformMap) {
 
-        return function(name) {
+        return function (name) {
             var platformName = thPlatformMap[name];
             if (_.isUndefined(platformName)) {
                 platformName = name;
@@ -181,14 +184,14 @@ treeherder.factory('thPlatformName', [
     }]);
 
 treeherder.factory('jsyaml', [
-    function() {
+    function () {
         return require('js-yaml');
     }]);
 
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
-    function() {
-        return function(dest, src) {
+    function () {
+        return function (dest, src) {
             if (dest !== src) {
                 for (var key in src) {
                     if (!src.hasOwnProperty(key)) {
@@ -209,4 +212,14 @@ treeherder.factory('thExtendProperties', [
             }
             return dest;
         };
+    }]);
+
+treeherder.factory('numeral', [
+    function () {
+        return require('numeral');
+    }]);
+
+treeherder.factory('metricsgraphics', [
+    function () {
+        return require('metrics-graphics');
     }]);

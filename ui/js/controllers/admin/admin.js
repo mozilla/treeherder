@@ -3,7 +3,7 @@
 admin.controller('AdminCtrl', [
     '$scope', 'ThBuildPlatformModel', 'ThJobTypeModel', 'ThRepositoryModel',
     'ThOptionCollectionModel', 'ThJobExclusionModel', '$state',
-    '$q','ThExclusionProfileModel',
+    '$q', 'ThExclusionProfileModel',
     function AdminCtrl(
         $scope, ThBuildPlatformModel, ThJobTypeModel, ThRepositoryModel,
         ThOptionCollectionModel, ThJobExclusionModel, $state,
@@ -14,7 +14,7 @@ admin.controller('AdminCtrl', [
         // If we use ui-sref there, it will ignore the ng-disabled.
         $scope.go = $state.go.bind($state);
 
-        $scope.populateProfilesData = function() {
+        $scope.populateProfilesData = function () {
             return ThExclusionProfileModel.get_list({}, false).then(function (data) {
                 $scope.profiles = _.map(data, function (profile) {
                     profile.showExcludedUrl = "/#/jobs?repo=mozilla-inbound&exclusion_profile=" +
@@ -25,7 +25,7 @@ admin.controller('AdminCtrl', [
             });
         };
 
-        $scope.populateExclusionsData = function() {
+        $scope.populateExclusionsData = function () {
             return ThJobExclusionModel.get_list().then(function (data) {
                 $scope.exclusions = data;
                 $scope.exclusionsMap = _.keyBy($scope.exclusions, 'id');
@@ -40,14 +40,14 @@ admin.controller('AdminCtrl', [
          * so that it doesn't have to be reloaded each time you navigate to
          * that page.
          */
-        $scope.initMasterLists = function() {
+        $scope.initMasterLists = function () {
             // initialize the list of platform
             var promise = $q.resolve();
             if (!$scope.masterListsInitialized) {
 
                 var platformPromise = ThBuildPlatformModel.get_list()
-                    .then(function(buildPlatforms) {
-                        $scope.master_platforms = _.uniq(buildPlatforms.map(function(buildPlatform) {
+                    .then(function (buildPlatforms) {
+                        $scope.master_platforms = _.uniq(buildPlatforms.map(function (buildPlatform) {
                             return `${buildPlatform.platform} (${buildPlatform.architecture})`;
                         }).sort());
                         $scope.form_platforms = angular.copy($scope.master_platforms);
@@ -55,8 +55,8 @@ admin.controller('AdminCtrl', [
 
                 // initialize the list of job_types
                 var jobTypePromise = ThJobTypeModel.get_list()
-                    .then(function(jobTypes) {
-                        $scope.master_job_types = _.uniq(jobTypes.map(function(jobType) {
+                    .then(function (jobTypes) {
+                        $scope.master_job_types = _.uniq(jobTypes.map(function (jobType) {
                             return `${jobType.name} (${jobType.symbol})`;
                         }).sort());
                         $scope.form_job_types = angular.copy($scope.master_job_types);
@@ -64,8 +64,8 @@ admin.controller('AdminCtrl', [
 
                 // initialize the list of repos
                 var repoPromise = ThRepositoryModel.get_list()
-                    .success(function(repos) {
-                        $scope.master_repos = _.uniq(repos.map(function(repo) {
+                    .success(function (repos) {
+                        $scope.master_repos = _.uniq(repos.map(function (repo) {
                             return repo.name;
                         }).sort());
                         $scope.form_repos = angular.copy($scope.master_repos);
@@ -74,7 +74,7 @@ admin.controller('AdminCtrl', [
                 // initialize the list of option collections
                 $scope.master_option_collections = [];
 
-                var optPromise = ThOptionCollectionModel.getMap().then(function(optCollectionMap) {
+                var optPromise = ThOptionCollectionModel.getMap().then(function (optCollectionMap) {
                     // the string representations of the option collections
                     $scope.master_option_collections = _.values(optCollectionMap);
 

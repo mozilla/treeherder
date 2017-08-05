@@ -2,7 +2,7 @@ REST API
 ========
 
 Treeherder provides a REST API which can be used to query for all the
-resultset, job, and performance data it stores internally. To allow
+push, job, and performance data it stores internally. To allow
 inspection of this API, we use Swagger_, which provides a friendly
 browsable interface to Treeherder's API endpoints. After setting up a
 local instance of Treeherder, you can access Swagger at

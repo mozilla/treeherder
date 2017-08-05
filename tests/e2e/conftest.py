@@ -38,13 +38,13 @@ def completed_jobs(sample_data):
 @pytest.fixture
 def pending_jobs_stored(
         test_repository, failure_classifications, pending_jobs,
-        result_set_stored, mock_post_json):
+        push_stored, mock_post_json):
     """
     stores a list of buildapi pending jobs into the jobs store
     using BuildApiTreeHerderAdapter
     """
 
-    pending_jobs.update(result_set_stored[0])
+    pending_jobs.update(push_stored[0])
     pending_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()
@@ -57,11 +57,11 @@ def pending_jobs_stored(
 @pytest.fixture
 def running_jobs_stored(
         test_repository, failure_classifications, running_jobs,
-        result_set_stored, mock_post_json):
+        push_stored, mock_post_json):
     """
     stores a list of buildapi running jobs
     """
-    running_jobs.update(result_set_stored[0])
+    running_jobs.update(push_stored[0])
     running_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()
@@ -74,11 +74,11 @@ def running_jobs_stored(
 @pytest.fixture
 def completed_jobs_stored(
         test_repository, failure_classifications, completed_jobs,
-        result_set_stored, mock_post_json):
+        push_stored, mock_post_json):
     """
     stores a list of buildapi completed jobs
     """
-    completed_jobs['revision'] = result_set_stored[0]['revision']
+    completed_jobs['revision'] = push_stored[0]['revision']
     completed_jobs.update({'project': test_repository.name})
 
     tjc = TreeherderJobCollection()

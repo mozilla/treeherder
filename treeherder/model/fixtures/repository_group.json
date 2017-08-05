@@ -4,7 +4,7 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "development",
-        "description": ""
+        "description": "Collection of repositories where code initially lands in the development process"
     }
 },
 {
@@ -12,7 +12,7 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "release-stabilization",
-        "description": ""
+        "description": "Collection of repositories further along the release process"
     }
 },
 {
@@ -20,7 +20,7 @@
     "model": "model.repositorygroup",
     "fields": {
         "name": "try",
-        "description": ""
+        "description": "Collection of repositories where patches are initially tested before officially landing"
     }
 },
 {
@@ -53,6 +53,14 @@
     "fields": {
         "name": "other",
         "description": "Other repositories not falling under the above categories"
+    }
+},
+{
+    "pk": 8,
+    "model": "model.repositorygroup",
+    "fields": {
+        "name": "comm-repositories",
+        "description": "Repositories for Seamonkey/Thunderbird development"
     }
 }
 ]

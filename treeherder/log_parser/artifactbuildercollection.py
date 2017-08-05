@@ -1,5 +1,7 @@
 from contextlib import closing
 
+import newrelic.agent
+
 from treeherder.etl.common import make_request
 
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
@@ -86,6 +88,15 @@ BuildbotPerformanceDataArtifactBuilder
         building the ``artifact`` as we go.
         """
         with closing(make_request(self.url, stream=True)) as response:
+            # Temporary annotation of log size to help set thresholds in bug 1295997.
+            newrelic.agent.add_custom_parameter(
+                'unstructured_log_size',
+                int(response.headers.get('Content-Length', -1))
+            )
+            newrelic.agent.add_custom_parameter(
+                'unstructured_log_encoding',
+                response.headers.get('Content-Encoding', 'None')
+            )
             for line in response.iter_lines():
                 for builder in self.builders:
                     builder.parse_line(line)

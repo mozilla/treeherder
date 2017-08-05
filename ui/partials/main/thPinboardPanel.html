@@ -30,6 +30,7 @@
              class="add-related-bugs-input"
              ng-model="$parent.newEnteredBugNumber"
              placeholder="enter bug number"
+             ng-keypress="ctrlEnterSaves($event)"
              focus-me="focusInput">
     </form>
     <span ng-repeat="bug in relatedBugs">
@@ -54,6 +55,7 @@
                class="form-control add-classification-input"
                ng-model="classification.text"
                ng-click="allowKeys()"
+               ng-paste="pasteSHA($event)"
                placeholder="click to add comment"
                blur-this></input>
         <div ng-if="classification.failure_classification_id === 2">

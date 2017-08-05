@@ -26,11 +26,11 @@ treeherder.controller('PluginCtrl', [
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-        var getJobSearchStrHref = function(jobSearchStr){
+        var getJobSearchStrHref = function (jobSearchStr) {
             var absUrl = $location.absUrl();
 
             // Don't double up the searchStr param
-            if (absUrl.indexOf('filter-searchStr=') !== -1){
+            if (absUrl.indexOf('filter-searchStr=') !== -1) {
                 var replaceString = 'filter-searchStr=' +
                                     absUrl.split('filter-searchStr=')[1].split('&')[0];
                 absUrl = absUrl.replace(replaceString, 'filter-searchStr=' +
@@ -39,7 +39,7 @@ treeherder.controller('PluginCtrl', [
                 // If there are parameters, the parameter delimiter '&'
                 // should be used
                 var delimiter = '?';
-                if (absUrl.indexOf('?') !== -1){
+                if (absUrl.indexOf('?') !== -1) {
                     delimiter = '&';
                 }
 
@@ -49,19 +49,19 @@ treeherder.controller('PluginCtrl', [
             return absUrl;
         };
 
-        $scope.filterByJobSearchStr = function(jobSearchStr) {
+        $scope.filterByJobSearchStr = function (jobSearchStr) {
             thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
         };
 
         // Show the Failure Classification tab, except if there's a URL parameter to disable it.
-        var showAutoClassifyTab = function() {
+        var showAutoClassifyTab = function () {
             thTabs.tabs.autoClassification.enabled = $location.search().noautoclassify !== true;
         };
         showAutoClassifyTab();
-        $rootScope.$on('$locationChangeSuccess', function() {
+        $rootScope.$on('$locationChangeSuccess', function () {
             showAutoClassifyTab();
         });
-        $rootScope.$on('userChange', function() {
+        $rootScope.$on('userChange', function () {
             showAutoClassifyTab();
         });
 
@@ -74,30 +74,23 @@ treeherder.controller('PluginCtrl', [
          * and some based on query string params (such as autoClassification).
          *
          */
-        var initializeTabs = function(job) {
-            var successTab = "jobDetails";
-            var failTab = "failureSummary";
+        var initializeTabs = function (job, hasPerformanceData) {
+            let successTab = "jobDetails";
+            let failTab = "failureSummary";
 
             // Error Classification/autoclassify special handling
             if ($scope.tabService.tabs.autoClassification.enabled) {
                 failTab = "autoClassification";
             }
 
-            $scope.tabService.tabs.perfDetails.enabled = false;
-            // Load performance data regardless of status, but only switch to
-            // it if job was successful.
-            $http.get(thServiceDomain + '/api/project/' + $scope.repoName +
-                      '/performance/data/?job_id=' + job.id).then(function(response) {
-                          var jobType = job.job_type_name;
-                          if (!_.isEmpty(response.data)) {
-                              $scope.tabService.tabs.perfDetails.enabled = true;
-                              if (jobType !== "Build" && jobType !== "Nightly" &&
-                                  !jobType.startsWith('build-') &&
-                                  thResultStatus(job) === 'success') {
-                                  $scope.tabService.selectedTab = 'perfDetails';
-                              }
-                          }
-                      });
+            $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
+            // the success tabs should be "performance" if job was not a build
+            const jobType = job.job_type_name;
+            if (hasPerformanceData && jobType !== "Build" && jobType !== "Nightly" &&
+                !jobType.startsWith('build-')) {
+                successTab = 'perfDetails';
+            }
+
             if (thResultStatus(job) === 'success') {
                 $scope.tabService.selectedTab = successTab;
             } else {
@@ -109,14 +102,14 @@ treeherder.controller('PluginCtrl', [
         // triggered by selectJob once resolved
         var selectJobPromise = null;
 
-        var selectJob = function(job) {
+        var selectJob = function (job) {
             // make super-extra sure that the autoclassify tab shows up when it should
             showAutoClassifyTab();
 
             // set the scope variables needed for the job detail panel
             if (job.id) {
                 $scope.job_detail_loading = true;
-                if (selectJobPromise !== null){
+                if (selectJobPromise !== null) {
                     $log.debug("timing out previous job request");
                     selectJobPromise.resolve();
                 }
@@ -144,7 +137,7 @@ treeherder.controller('PluginCtrl', [
                     jobDetailPromise,
                     jobLogUrlPromise,
                     phSeriesPromise
-                ]).then(function(results){
+                ]).then(function (results) {
 
                     //the first result comes from the job promise
                     $scope.job = results[0];
@@ -155,9 +148,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.average_duration = $scope.job.get_average_duration();
                     $scope.resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
                     $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, $scope.resultsetId).revision;
-
-                    // set the tab options and selections based on the selected job
-                    initializeTabs($scope.job);
 
                     // filtering values for data fields and signature
                     $scope.jobSearchStr = $scope.job.get_title();
@@ -184,7 +174,7 @@ treeherder.controller('PluginCtrl', [
                     // exclude the json log URLs
                     $scope.job_log_urls = _.reject(
                         results[2],
-                        function(log) {
+                        function (log) {
                             return log.name.endsWith("_json");
                         });
 
@@ -196,7 +186,7 @@ treeherder.controller('PluginCtrl', [
                     }
 
                     // Provide a parse status for the model
-                    $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function(jlu) {
+                    $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function (jlu) {
                         return jlu.parse_status !== 'pending';
                     });
 
@@ -211,14 +201,14 @@ treeherder.controller('PluginCtrl', [
                     if (performanceData) {
                         var seriesList = [];
                         $scope.perfJobDetail = [];
-                        $q.all(_.chunk(_.keys(performanceData), 20).map(function(signatureHashes) {
-                            var signatureIds = _.map(signatureHashes, function(signatureHash) {
+                        $q.all(_.chunk(_.keys(performanceData), 20).map(function (signatureHashes) {
+                            var signatureIds = _.map(signatureHashes, function (signatureHash) {
                                 return performanceData[signatureHash][0].signature_id;
                             });
-                            return PhSeries.getSeriesList($scope.repoName, { id: signatureIds }).then(function(newSeriesList) {
+                            return PhSeries.getSeriesList($scope.repoName, { id: signatureIds }).then(function (newSeriesList) {
                                 seriesList = seriesList.concat(newSeriesList);
                             });
-                        })).then(function() {
+                        })).then(function () {
                             _.forEach(seriesList, function (series) {
                                 // skip series which are subtests of another series
                                 if (series.parentSignature)
@@ -240,6 +230,9 @@ treeherder.controller('PluginCtrl', [
                         });
                     }
 
+                    // set the tab options and selections based on the selected job
+                    initializeTabs($scope.job, (Object.keys(performanceData).length > 0));
+
                     updateVisibleFields();
                     $scope.updateClassifications();
                     $scope.updateBugs();
@@ -249,7 +242,7 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        var updateVisibleFields = function() {
+        var updateVisibleFields = function () {
             var undef = "",
                 duration = "";
             // fields that will show in the job detail panel
@@ -295,11 +288,11 @@ treeherder.controller('PluginCtrl', [
             jobDetailsPane.scrollTop = 0;
         };
 
-        $scope.getCountPinnedJobs = function() {
+        $scope.getCountPinnedJobs = function () {
             return thPinboard.count.numPinnedJobs;
         };
 
-        $scope.getCountPinnedTitle = function() {
+        $scope.getCountPinnedTitle = function () {
             var title = "";
 
             if (thPinboard.count.numPinnedJobs === 1) {
@@ -311,21 +304,21 @@ treeherder.controller('PluginCtrl', [
             return title;
         };
 
-        $scope.togglePinboardVisibility = function() {
+        $scope.togglePinboardVisibility = function () {
             $scope.isPinboardVisible = !$scope.isPinboardVisible;
         };
 
-        $scope.$watch('getCountPinnedJobs()', function(newVal, oldVal) {
+        $scope.$watch('getCountPinnedJobs()', function (newVal, oldVal) {
             if (oldVal === 0 && newVal > 0) {
                 $scope.isPinboardVisible = true;
                 getRevisionTips($scope.repoName, $scope.revisionList);
             }
         });
 
-        var getRevisionTips = function(projectName, list) {
+        var getRevisionTips = function (projectName, list) {
             list.splice(0, list.length);
             var rsArr = ThResultSetStore.getResultSetsArray(projectName);
-            _.forEach(rsArr, rs => {
+            _.forEach(rsArr, (rs) => {
                 list.push({
                     revision: rs.revision,
                     author: rs.author,
@@ -334,20 +327,28 @@ treeherder.controller('PluginCtrl', [
             });
         };
 
-        $scope.canCancel = function() {
+        $scope.canCancel = function () {
             return $scope.job &&
                    ($scope.job.state === "pending" || $scope.job.state === "running");
         };
 
-        $scope.retriggerJob = function(jobs) {
+        $scope.retriggerJob = function (jobs) {
             if ($scope.user.loggedin) {
+                // Spin the retrigger button when retriggers happen
+                $("#retrigger-btn > span").removeClass("action-bar-spin");
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(function () {
+                        $("#retrigger-btn > span").addClass("action-bar-spin");
+                    });
+                });
+
                 var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
                 // two use cases the first is the case where we notify a system
                 // other then buildbot that a retrigger has been requested. The
                 // second is when we have the buildapi id and need to send a request
                 // to the self serve api (which does not listen over pulse!).
-                ThJobModel.retrigger($scope.repoName, job_id_list).then(function() {
+                ThJobModel.retrigger($scope.repoName, job_id_list).then(function () {
                     // XXX: Remove this after 1134929 is resolved.
                     return ThJobDetailModel.getJobDetails({
                         "title": "buildbot_request_id",
@@ -359,9 +360,9 @@ treeherder.controller('PluginCtrl', [
                             thBuildApi.retriggerJob($scope.repoName, requestId);
                         });
                     });
-                }).then(function() {
+                }).then(function () {
                     thNotify.send("Retrigger request sent", "success");
-                }, function(e) {
+                }, function (e) {
                     // Generic error eg. the user doesn't have LDAP access
                     thNotify.send(
                         ThModelErrors.format(e, "Unable to send retrigger"), 'danger');
@@ -371,14 +372,14 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        $scope.backfillJob = function() {
+        $scope.backfillJob = function () {
             if ($scope.canBackfill()) {
                 if ($scope.user.loggedin) {
                     if ($scope.job.id) {
-                        if ($scope.job.build_system_type === 'taskcluster') {
+                        if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
                             ThResultSetStore.getGeckoDecisionTaskId(
                                 $scope.repoName,
-                                $scope.resultsetId).then(function(decisionTaskId) {
+                                $scope.resultsetId).then(function (decisionTaskId) {
                                     let tc = thTaskcluster.client();
                                     let queue = new tc.Queue();
                                     let url = "";
@@ -399,7 +400,7 @@ treeherder.controller('PluginCtrl', [
                                         thNotify.send(errorMsg, 'danger', true);
                                         return;
                                     }
-                                    $http.get(url).then(function(resp) {
+                                    $http.get(url).then(function (resp) {
                                         let action = resp.data;
                                         let template = $interpolate(action);
                                         action = template({
@@ -408,9 +409,9 @@ treeherder.controller('PluginCtrl', [
                                         });
                                         let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                         let taskId = tc.slugid();
-                                        queue.createTask(taskId, task).then(function() {
+                                        queue.createTask(taskId, task).then(function () {
                                             $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
-                                        }, function(e) {
+                                        }, function (e) {
                                             // The full message is too large to fit in a Treeherder
                                             // notification box.
                                             $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
@@ -421,9 +422,9 @@ treeherder.controller('PluginCtrl', [
                             ThJobModel.backfill(
                                 $scope.repoName,
                                 $scope.job.id
-                            ).then(function() {
+                            ).then(function () {
                                 thNotify.send("Request sent to backfill jobs", 'success');
-                            }, function(e) {
+                            }, function (e) {
                                 // Generic error eg. the user doesn't have LDAP access
                                 thNotify.send(
                                     ThModelErrors.format(e, "Unable to send backfill"),
@@ -441,12 +442,12 @@ treeherder.controller('PluginCtrl', [
         };
 
         // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
-        $scope.canBackfill = function() {
+        $scope.canBackfill = function () {
             return $scope.user.loggedin && $scope.currentRepo &&
-                   $scope.currentRepo.repository_group.name !== 'try';
+                   !$scope.currentRepo.is_try_repo;
         };
 
-        $scope.backfillButtonTitle = function() {
+        $scope.backfillButtonTitle = function () {
             var title = "";
 
             // Ensure currentRepo is available on initial page load
@@ -459,7 +460,7 @@ treeherder.controller('PluginCtrl', [
                 title = title.concat("must be logged in to backfill a job / ");
             }
 
-            if ($scope.currentRepo.repository_group.name === 'try') {
+            if ($scope.currentRepo.is_try_repo) {
                 title = title.concat("backfill not available in this repository");
             }
 
@@ -468,14 +469,14 @@ treeherder.controller('PluginCtrl', [
                         "to fill in gaps where the job was not run";
             } else {
                 // Cut off trailing "/ " if one exists, capitalize first letter
-                title = title.replace(/\/ $/,"");
-                title = title.replace(/^./, function(l) { return l.toUpperCase(); });
+                title = title.replace(/\/ $/, "");
+                title = title.replace(/^./, function (l) { return l.toUpperCase(); });
             }
 
             return title;
         };
 
-        $scope.cancelJobs = function(jobs) {
+        $scope.cancelJobs = function (jobs) {
             var jobIdsToCancel = jobs.filter(job => (job.state === "pending" ||
                                                      job.state === "running")).map(
                                                          job => job.id);
@@ -484,18 +485,18 @@ treeherder.controller('PluginCtrl', [
             ThJobDetailModel.getJobDetails({
                 job_id__in: jobIdsToCancel,
                 title: 'buildbot_request_id'
-            }).then(function(buildbotRequestIdDetails) {
+            }).then(function (buildbotRequestIdDetails) {
                 return ThJobModel.cancel($scope.repoName, jobIdsToCancel).then(
-                    function() {
+                    function () {
                         buildbotRequestIdDetails.forEach(
-                            function(buildbotRequestIdDetail) {
+                            function (buildbotRequestIdDetail) {
                                 var requestId = parseInt(buildbotRequestIdDetail.value);
                                 thBuildApi.cancelJob($scope.repoName, requestId);
                             });
                     });
-            }).then(function() {
+            }).then(function () {
                 thNotify.send("Cancel request sent", "success");
-            }).catch(function(e) {
+            }).catch(function (e) {
                 thNotify.send(
                     ThModelErrors.format(e, "Unable to cancel job"),
                     "danger", true
@@ -503,23 +504,23 @@ treeherder.controller('PluginCtrl', [
             });
         };
 
-        $scope.cancelJob = function() {
+        $scope.cancelJob = function () {
             $scope.cancelJobs([$scope.job]);
         };
 
-        $scope.customJobAction = function() {
+        $scope.customJobAction = function () {
             $uibModal.open({
                 templateUrl: 'partials/main/tcjobactions.html',
                 controller: 'TCJobActionsCtrl',
                 size: 'lg',
                 resolve: {
-                    job: function() {
+                    job: function () {
                         return $scope.job;
                     },
-                    repoName: function() {
+                    repoName: function () {
                         return $scope.repoName;
                     },
-                    resultsetId: function() {
+                    resultsetId: function () {
                         return $scope.resultsetId;
                     }
                 }
@@ -527,32 +528,32 @@ treeherder.controller('PluginCtrl', [
         };
 
         // Test to expose the reftest button in the job details navbar
-        $scope.isReftest = function() {
+        $scope.isReftest = function () {
             if ($scope.selectedJob) {
                 return thReftestStatus($scope.selectedJob);
             }
         };
 
-        var selectJobAndRender = function(job) {
+        var selectJobAndRender = function (job) {
             $scope.jobLoadedPromise = selectJob(job);
             $('#info-panel').addClass('info-panel-slide');
-            $scope.jobLoadedPromise.then(function() {
+            $scope.jobLoadedPromise.then(function () {
                 thTabs.showTab(thTabs.selectedTab, job.id);
             });
         };
 
-        $rootScope.$on(thEvents.jobClick, function(event, job) {
+        $rootScope.$on(thEvents.jobClick, function (event, job) {
             selectJobAndRender(job);
             $rootScope.selectedJob = job;
         });
 
-        $rootScope.$on(thEvents.clearSelectedJob, function() {
-            if (selectJobPromise !== null){
+        $rootScope.$on(thEvents.clearSelectedJob, function () {
+            if (selectJobPromise !== null) {
                 $timeout.cancel(selectJobPromise);
             }
         });
 
-        $rootScope.$on(thEvents.selectNextTab, function() {
+        $rootScope.$on(thEvents.selectNextTab, function () {
             // Establish the visible tabs for the job
             var visibleTabs = [];
             for (var i in thTabs.tabOrder) {
@@ -579,8 +580,8 @@ treeherder.controller('PluginCtrl', [
 
         // load the list of existing classifications (including possibly a new one just
         // added).
-        $scope.updateClassifications = function() {
-            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function(response) {
+        $scope.updateClassifications = function () {
+            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function (response) {
                 $scope.classifications = response;
                 $scope.job.note = $scope.classifications[0];
             });
@@ -597,7 +598,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         // Open the logviewer and provide notifications if it isn't available
-        $rootScope.$on(thEvents.openLogviewer, function() {
+        $rootScope.$on(thEvents.openLogviewer, function () {
             if ($scope.logParseStatus === 'pending') {
                 thNotify.send("Log parsing in progress, log viewer not yet available", 'info');
             } else if ($scope.logParseStatus === 'failed') {
@@ -610,22 +611,22 @@ treeherder.controller('PluginCtrl', [
             }
         });
 
-        $rootScope.$on(thEvents.jobRetrigger, function(event, job) {
+        $rootScope.$on(thEvents.jobRetrigger, function (event, job) {
             $scope.retriggerJob([job]);
         });
 
-        $rootScope.$on(thEvents.jobsClassified, function() {
+        $rootScope.$on(thEvents.jobsClassified, function () {
             // use $timeout here so that all the other $digest operations related to
             // the event of ``jobsClassified`` will be done.  This will then
             // be a new $digest cycle.
             $timeout($scope.updateClassifications);
         });
 
-        $rootScope.$on(thEvents.bugsAssociated, function() {
+        $rootScope.$on(thEvents.bugsAssociated, function () {
             $scope.updateBugs();
         });
 
-        $rootScope.$on(thEvents.autoclassifyVerified, function() {
+        $rootScope.$on(thEvents.autoclassifyVerified, function () {
             // These operations are unneeded unless we verified the full job,
             // But getting that information to here seems to be non-trivial
             $scope.updateBugs();
@@ -646,5 +647,6 @@ treeherder.controller('PluginCtrl', [
         //fetch URLs
         $scope.getBugUrl = thUrl.getBugUrl;
         $scope.getSlaveHealthUrl = thUrl.getSlaveHealthUrl;
+        $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
     }
 ]);

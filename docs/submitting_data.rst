@@ -127,7 +127,7 @@ Using the Python Client
 -----------------------
 
 There are two types of data structures you can submit with the :ref:`Python client
-<python-client>`: job and resultset collections. The client provides methods
+<python-client>`: job and push collections. The client provides methods
 for building a data structure that treeherder will accept. Data
 structures can be extended with new properties as needed, there is a
 minimal validation protocol applied that confirms the bare minimum
@@ -144,7 +144,7 @@ Job Collections
 
 Job collections can contain test results from any kind of test. The
 `revision` provided should match the associated `revision` in the
-resultset structure. The `revision` is the top-most revision in the push.
+push structure. The `revision` is the top-most revision in the push.
 The `job_guid` provided can be any unique string of 50
 characters at most. A job collection has the following data structure.
 

@@ -2,7 +2,7 @@
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
-    'ThBugSuggestionsModel', 'thPinboard', 'thEvents','$q',
+    'ThBugSuggestionsModel', 'thPinboard', 'thEvents', '$q',
     'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
         $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,
@@ -20,7 +20,7 @@ treeherder.controller('BugsPluginCtrl', [
         var query;
 
         // update function triggered by the plugins controller
-        thTabs.tabs.failureSummary.update = function() {
+        thTabs.tabs.failureSummary.update = function () {
             var newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
             $scope.bugSuggestionsLoaded = false;
@@ -36,8 +36,8 @@ treeherder.controller('BugsPluginCtrl', [
                 query = ThBugSuggestionsModel.query({
                     project: $rootScope.repoName,
                     jobId: newValue
-                }, function(suggestions) {
-                    suggestions.forEach(function(suggestion) {
+                }, function (suggestions) {
+                    suggestions.forEach(function (suggestion) {
                         suggestion.bugs.too_many_open_recent = (
                             suggestion.bugs.open_recent.length > $scope.bug_limit
                         );
@@ -64,10 +64,10 @@ treeherder.controller('BugsPluginCtrl', [
                         query = ThTextLogStepModel.query({
                             project: $rootScope.repoName,
                             jobId: newValue
-                        }, function(textLogSteps) {
+                        }, function (textLogSteps) {
                             $scope.errors = textLogSteps
                                 .filter(step => step.result !== 'success')
-                                .map(function(step) {
+                                .map(function (step) {
                                     return {
                                         name: step.name,
                                         result: step.result,
@@ -85,15 +85,15 @@ treeherder.controller('BugsPluginCtrl', [
             }
         };
 
-        var showBugFilerButton = function() {
+        var showBugFilerButton = function () {
             $scope.filerInAddress = $location.search().bugfiler === true;
         };
         showBugFilerButton();
-        $rootScope.$on('$locationChangeSuccess', function() {
+        $rootScope.$on('$locationChangeSuccess', function () {
             showBugFilerButton();
         });
 
-        $scope.fileBug = function(index) {
+        $scope.fileBug = function (index) {
             var summary = $scope.suggestions[index].search;
             var allFailures = [];
             var crashSignatures = [];
@@ -114,29 +114,32 @@ treeherder.controller('BugsPluginCtrl', [
                 size: 'lg',
                 openedClass: "filer-open",
                 resolve: {
-                    summary: function() {
+                    summary: function () {
                         return summary;
                     },
-                    fullLog: function() {
+                    search_terms: function () {
+                        return $scope.suggestions[index].search_terms;
+                    },
+                    fullLog: function () {
                         return $scope.job_log_urls[0].url;
                     },
-                    parsedLog: function() {
+                    parsedLog: function () {
                         return $scope.lvFullUrl;
                     },
-                    reftest: function() {
+                    reftest: function () {
                         return $scope.isReftest() ? $scope.reftestUrl : "";
                     },
-                    selectedJob: function() {
+                    selectedJob: function () {
                         return $scope.selectedJob;
                     },
-                    allFailures: function() {
+                    allFailures: function () {
                         return allFailures;
                     },
-                    crashSignatures: function() {
+                    crashSignatures: function () {
                         return crashSignatures;
                     },
-                    successCallback: function() {
-                        return function(data) {
+                    successCallback: function () {
+                        return function (data) {
                             // Auto-classify this failure now that the bug has been filed
                             // and we have a bug number
                             thPinboard.addBug({id: data.success});

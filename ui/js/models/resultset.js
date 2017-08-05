@@ -91,6 +91,9 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     } else if (hasLowerRange(locationParams)) {
                         // fetch the maximum number of resultsets if a lower range is specified
                         params.count = MAX_RESULTSET_FETCH_SIZE;
+                    } else if (locationParams.revision) {
+                        // fetch a single resultset if `revision` is a URL param
+                        delete params.count;
                     }
 
                     locationParams = convertDates(locationParams);
@@ -239,12 +242,32 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     if (errorMsg === 'credentials must be given') {
                         errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
                     }
-                    throw new Error(errorMsg);
+                    return $q.reject(new Error(errorMsg));
                 }
                 return $http.get(url).then(function (resp) {
                     let graph = resp.data;
-                    let tclabels = _.intersection(buildernames, _.keys(graph));
-                    let bbnames = _.difference(buildernames, tclabels);
+
+                    // Build a mapping of buildbot buildername to taskcluster tasklabel for bbb tasks
+                    let builderToTask = _.omit(_.invert(_.mapValues(graph, 'task.payload.buildername')), [undefined]);
+                    let allLabels = _.keys(graph);
+
+                    let tclabels = [];
+                    let bbnames = [];
+
+                    _.forEach(buildernames, function (name) {
+                        // The following has 3 cases that it accounts for
+                        // 1. The name is a buildbot buildername not scheduled through bbb, in which case we pass it on
+                        // 2. The name is a taskcluster task label, in which case we pass it on
+                        // 3. The name is a buildbot buildername _scheduled_ through bbb, in which case we
+                        //    translate it to the taskcluster label that triggers it.
+                        name = builderToTask[name] || name;
+                        if (_.includes(allLabels, name)) {
+                            tclabels.push(name);
+                        } else {
+                            bbnames.push(name);
+                        }
+                    });
+
                     return $q.all([
                         $q.resolve().then(function () {
                             if (bbnames.length === 0) {

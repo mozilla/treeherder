@@ -78,7 +78,7 @@ class JobLoader:
         if revision:
             # will raise an exception if repository with name does not
             # exist (which we want, I think, to draw attention to the problem)
-            # check the revision for this job has an existing resultset
+            # check the revision for this job has an existing push
             # If it doesn't, then except out so that the celery task will
             # retry till it DOES exist.
             if not Push.objects.filter(repository=repository,

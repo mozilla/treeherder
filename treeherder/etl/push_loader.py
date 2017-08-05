@@ -7,38 +7,45 @@ from django.core.exceptions import ObjectDoesNotExist
 from treeherder.etl.common import (fetch_json,
                                    generate_revision_hash,
                                    to_timestamp)
-from treeherder.etl.resultset import store_result_set_data
+from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
 
 
-class ResultsetLoader:
-    """Transform and load a list of Resultsets"""
+class PushLoader:
+    """Transform and load a list of pushes"""
 
     def process(self, message_body, exchange):
+        transformer = self.get_transformer_class(exchange)(message_body)
         try:
-            transformer = self.get_transformer_class(exchange)(message_body)
+            newrelic.agent.add_custom_parameter("url", transformer.repo_url)
+            newrelic.agent.add_custom_parameter("branch", transformer.branch)
             repo = Repository.objects.get(url=transformer.repo_url,
                                           branch=transformer.branch,
                                           active_status="active")
-            transformed_data = transformer.transform(repo.name)
-
-            logger.info("Storing resultset for {} {} {}".format(
-                repo.name,
-                transformer.repo_url,
-                transformer.branch))
-            store_result_set_data(repo, [transformed_data])
+            newrelic.agent.add_custom_parameter("repository", repo.name)
 
         except ObjectDoesNotExist:
+            repo_info = transformer.get_info()
+            repo_info.update({
+                "url": transformer.repo_url,
+                "branch": transformer.branch,
+            })
             newrelic.agent.record_custom_event("skip_unknown_repository",
-                                               message_body["details"])
+                                               repo_info)
             logger.warn("Skipping unsupported repo: {} {}".format(
                 transformer.repo_url,
                 transformer.branch))
-        except Exception as ex:
-            newrelic.agent.record_exception(exc=ex)
-            logger.exception("Error transforming resultset", exc_info=ex)
+            return
+
+        transformed_data = transformer.transform(repo.name)
+
+        logger.info("Storing push for {} {} {}".format(
+            repo.name,
+            transformer.repo_url,
+            transformer.branch))
+        store_push_data(repo, [transformed_data])
 
     def get_transformer_class(self, exchange):
         if "github" in exchange:
@@ -48,8 +55,8 @@ class ResultsetLoader:
                 return GithubPullRequestTransformer
         elif "/hgpushes/" in exchange:
             return HgPushTransformer
-        raise PulseResultsetError(
-            "Unsupported resultset exchange: {}".format(exchange))
+        raise PulsePushError(
+            "Unsupported push exchange: {}".format(exchange))
 
 
 class GithubTransformer:
@@ -68,39 +75,43 @@ class GithubTransformer:
     def get_branch(self):
         return self.message_body["details"]["event.base.repo.branch"]
 
-    def fetch_resultset(self, url, repository, sha=None):
+    def get_info(self):
+        # flatten the data a bit so it will show in new relic as fields
+        info = self.message_body["details"].copy()
+        info.update({
+            "organization": self.message_body["organization"],
+            "repository": self.message_body["repository"]
+        })
+        return info
+
+    def fetch_push(self, url, repository, sha=None):
         params = {"sha": sha} if sha else {}
         params.update(self.CREDENTIALS)
 
-        logger.info("Fetching resultset details: {}".format(url))
-        try:
-            commits = self.get_cleaned_commits(fetch_json(url, params))
-            head_commit = commits[-1]
-            resultset = {
-                "revision": head_commit["sha"],
-                "push_timestamp": to_timestamp(
-                    head_commit["commit"]["author"]["date"]),
-                "author": head_commit["commit"]["author"]["email"],
-            }
+        logger.info("Fetching push details: {}".format(url))
+        newrelic.agent.add_custom_parameter("sha", sha)
 
-            revisions = []
-            for commit in commits:
-                revisions.append({
-                    "comment": commit["commit"]["message"],
-                    "author": "{} <{}>".format(
-                        commit["commit"]["author"]["name"],
-                        commit["commit"]["author"]["email"]),
-                    "revision": commit["sha"]
-                })
+        commits = self.get_cleaned_commits(fetch_json(url, params))
+        head_commit = commits[-1]
+        push = {
+            "revision": head_commit["sha"],
+            "push_timestamp": to_timestamp(
+                head_commit["commit"]["author"]["date"]),
+            "author": head_commit["commit"]["author"]["email"],
+        }
 
-            resultset["revisions"] = revisions
-            return resultset
+        revisions = []
+        for commit in commits:
+            revisions.append({
+                "comment": commit["commit"]["message"],
+                "author": u"{} <{}>".format(
+                    commit["commit"]["author"]["name"],
+                    commit["commit"]["author"]["email"]),
+                "revision": commit["sha"]
+            })
 
-        except Exception as ex:
-            logger.exception("Error fetching commits", exc_info=ex)
-            newrelic.agent.record_exception(ex, params={
-                "url": url, "repository": repository, "sha": sha
-                })
+        push["revisions"] = revisions
+        return push
 
     def get_cleaned_commits(self, commits):
         """Allow a subclass to change the order of the commits"""
@@ -132,7 +143,7 @@ class GithubPushTransformer(GithubTransformer):
             self.message_body["organization"],
             self.message_body["repository"]
         )
-        return self.fetch_resultset(push_url, repository, sha=commit)
+        return self.fetch_push(push_url, repository, sha=commit)
 
     def get_cleaned_commits(self, commits):
         # The list of commits will include ones not in the push.  we
@@ -158,9 +169,9 @@ class GithubPullRequestTransformer(GithubTransformer):
     #         "event.base.ref": "master",
     #         "event.head.user.login": "mozilla",
     #         "event.head.repo.url": "https: // github.com / mozilla / treeherder.git",
-    #         "event.head.repo.branch": "github - pulse - resultsets",
+    #         "event.head.repo.branch": "github - pulse - pushes",
     #         "event.head.sha": "0efea0fa1396369b5058e16139a8ab51cdd7bd29",
-    #         "event.head.ref": "github - pulse - resultsets",
+    #         "event.head.ref": "github - pulse - pushes",
     #         "event.head.user.email": "mozilla@noreply.github.com",
     #     },
     #     "repository": "treeherder",
@@ -182,7 +193,7 @@ class GithubPullRequestTransformer(GithubTransformer):
             self.message_body["details"]["event.pullNumber"]
         )
 
-        return self.fetch_resultset(pr_url, repository)
+        return self.fetch_push(pr_url, repository)
 
 
 class HgPushTransformer:
@@ -217,14 +228,15 @@ class HgPushTransformer:
         self.repo_url = message_body["payload"]["repo_url"]
         self.branch = None
 
+    def get_info(self):
+        return self.message_body["payload"]
+
     def transform(self, repository):
         logger.info("transforming for {}".format(repository))
         url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
-        return self.fetch_resultset(url, repository)
+        return self.fetch_push(url, repository)
 
-    def fetch_resultset(self, url, repository, sha=None):
-        newrelic.agent.add_custom_parameter("url", url)
-        newrelic.agent.add_custom_parameter("repository", repository)
+    def fetch_push(self, url, repository, sha=None):
         newrelic.agent.add_custom_parameter("sha", sha)
 
         logger.info("fetching for {} {}".format(repository, url))
@@ -254,5 +266,5 @@ class HgPushTransformer:
         }
 
 
-class PulseResultsetError(ValueError):
+class PulsePushError(ValueError):
     pass

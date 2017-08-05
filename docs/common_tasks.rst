@@ -120,7 +120,7 @@ To do this:
 
      git checkout (your feature branch)
      git checkout -b gh-pages
-     SERVICE_DOMAIN=https://treeherder.mozilla.org yarn run build
+     SERVICE_DOMAIN=https://treeherder.mozilla.org yarn build
      git add -f dist/
      git commit -m "Add dist directory containing built UI"
 

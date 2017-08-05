@@ -4,12 +4,12 @@ logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', '$resource', 'ThTextLogStepModel', 'ThJobDetailModel',
     'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
-    'thDateFormat', 'thReftestStatus',
+    'thDateFormat', 'thReftestStatus', 'thUrl',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
         $timeout, $resource, ThTextLogStepModel, ThJobDetailModel,
         ThJobModel, thNotify, dateFilter, ThResultSetModel,
-        thDateFormat, thReftestStatus) {
+        thDateFormat, thReftestStatus, thUrl) {
 
         const query_string = $location.search();
         $scope.css = '';
@@ -76,9 +76,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         // Get the css class for the result, step buttons and other general use
-        $scope.getShadingClass = (result) => {
-            return "result-status-shading-" + result;
-        };
+        $scope.getShadingClass = result => "result-status-shading-" + result;
 
         // @@@ it may be possible to do this with the angular date filter?
         $scope.formatTime = (startedStr, finishedStr) => {
@@ -104,16 +102,18 @@ logViewerApp.controller('LogviewerCtrl', [
             return start + '-' + end;
         };
 
+        $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
+
         $scope.init = () => {
             $scope.logProperties = [];
 
             ThJobModel.get_list($scope.repoName, {
                 project_specific_id: $scope.job_id
-            }).then(function(jobList) {
+            }).then(function (jobList) {
                 if (jobList.length > 0) {
                     $scope.job_id = jobList[0]['id'];
                 }
-                ThJobModel.get($scope.repoName, $scope.job_id).then(job => {
+                ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
                     // set the title of the browser window/tab
                     $scope.logViewerTitle = job.get_title();
 
@@ -135,6 +135,9 @@ logViewerApp.controller('LogviewerCtrl', [
 
                     // Test to disable successful steps checkbox on taskcluster jobs
                     $scope.isTaskClusterLog = (job.build_system_type === 'taskcluster');
+                    if (job.taskcluster_metadata) {
+                        $scope.taskId = job.taskcluster_metadata.task_id;
+                    }
 
                     // Test to expose the reftest button in the logviewer actionbar
                     $scope.isReftest = () => {
@@ -144,13 +147,13 @@ logViewerApp.controller('LogviewerCtrl', [
                     };
 
                     // get the revision and linkify it
-                    ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then(data => {
+                    ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
                         const revision = data.data.revision;
 
                         $scope.logProperties.push({label: 'Revision', value: revision});
                     });
 
-                    ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then(jobDetails => {
+                    ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then((jobDetails) => {
                         $scope.job_details = jobDetails;
                     });
                 }, () => {
@@ -168,14 +171,14 @@ logViewerApp.controller('LogviewerCtrl', [
             ThTextLogStepModel.query({
                 project: $rootScope.repoName,
                 jobId: $scope.job_id
-            }, textLogSteps => {
+            }, (textLogSteps) => {
                 let shouldPost = true;
                 const allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 const q = $location.search();
                 $scope.steps = textLogSteps;
 
                 // add an ordering to each step
-                textLogSteps.forEach((step, i) => {step.order = i;});
+                textLogSteps.forEach((step, i) => { step.order = i; });
 
                 // load the first failure step line else load the head
                 if (allErrors.length) {

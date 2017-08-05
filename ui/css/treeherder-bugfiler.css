@@ -91,6 +91,16 @@
     float: right;
 }
 
+#unhelpfulSummaryReason > div:first-child {
+    color: red;
+}
+
+#unhelpfulSummaryReason > div:not(:first-child) {
+    font-family: monospace;
+    padding: 3px;
+    padding-left: 20px;
+}
+
 #productSearchSpinner {
     padding: 6px;
 }

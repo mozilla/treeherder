@@ -6,7 +6,7 @@ var admin = angular.module('admin', [
 ]);
 
 admin.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
-    function($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
+    function ($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
 

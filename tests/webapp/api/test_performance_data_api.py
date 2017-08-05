@@ -145,12 +145,12 @@ def test_summary_performance_data(webapp, test_repository,
 
     client = APIClient()
     resp = client.get(reverse('performance-signatures-list',
-                              kwargs={"project": test_repository.name}), fromat='json')
+                              kwargs={"project": test_repository.name}))
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2
-    assert resp.data.keys() == [test_perf_signature.signature_hash,
-                                summary_signature_hash]
+    assert set(resp.data.keys()) == set([test_perf_signature.signature_hash,
+                                        summary_signature_hash])
 
     for signature in [summary_perf_signature, test_perf_signature]:
         expected = {
@@ -198,7 +198,7 @@ def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signa
 
 
 def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
-                                  result_set_stored,
+                                  push_stored,
                                   test_perf_signature_same_hash_different_framework):
     signature2 = test_perf_signature_same_hash_different_framework
     push = Push.objects.get(id=1)

@@ -11,8 +11,10 @@ treeherder.value("thPlatformMap", {
     "linux64-qr": "Linux x64 QuantumRender",
     "linux64-nightly": "Linux x64 Nightly",
     "linux64-stylo": "Linux x64 Stylo",
+    "linux64-stylo-sequential": "Linux x64 Stylo-Seq",
     "linux64-ccov": "Linux x64 CCov",
     "linux64-jsdcov": "Linux x64 JSDCov",
+    "linux64-noopt": "Linux x64 NoOpt",
     "osx-10-6": "OS X 10.6",
     "osx-10-7": "OS X 10.7",
     "osx-10-7-add-on-devel": "OS X 10.7 addon",
@@ -23,6 +25,11 @@ treeherder.value("thPlatformMap", {
     "osx-10-10-devedition": "OS X 10.10 DevEdition",
     "osx-10-11": "OS X 10.11",
     "osx-10-7-qr": "OS X 10.7 QuantumRender",
+    "osx-10-7-noopt": "OS X 10.7 NoOpt",
+    "osx-cross": "OS X Cross Compiled",
+    "osx-cross-noopt": "OS X Cross Compiled NoOpt",
+    "osx-cross-add-on-devel": "OS X Cross Compiled addon",
+    "osx-cross-devedition": "OS X Cross Compiled DevEdition",
     "windowsxp": "Windows XP",
     "windowsxp-devedition": "Windows XP DevEdition",
     "windows7-32": "Windows 7",
@@ -38,10 +45,12 @@ treeherder.value("thPlatformMap", {
     "windows10-64-vm": "Windows 10 x64 VM",
     "windows2012-32": "Windows 2012",
     "windows2012-32-qr": "Windows 2012 QuantumRender",
+    "windows2012-32-add-on-devel": "Windows 2012 addon",
+    "windows2012-32-noopt": "Windows 2012 NoOpt",
     "windows2012-64": "Windows 2012 x64",
     "windows2012-64-qr": "Windows 2012 x64 QuantumRender",
-    "windows2012-32-add-on-devel": "Windows 2012 addon",
     "windows2012-64-add-on-devel": "Windows 2012 x64 addon",
+    "windows2012-64-noopt": "Windows 2012 x64 NoOpt",
 
     "android-2-2-armv6": "Android 2.2 Armv6",
     "android-2-2": "Android 2.2",
@@ -52,7 +61,9 @@ treeherder.value("thPlatformMap", {
     "android-4-0-armv7-api10": "Android 4.0 API10+",
     "android-4-0-armv7-api11": "Android 4.0 API11+",
     "android-4-0-armv7-api15": "Android 4.0 API15+",
+    "android-4-0-armv7-api15-old-id": "Android 4.0 API15+ OldId",
     "android-4-2-x86": "Android 4.2 x86",
+    "android-4-2-x86-old-id": "Android 4.2 x86 OldId",
     "android-4-2": "Android 4.2",
     "android-4-2-armv7-api11": "Android 4.2 API11+",
     "android-4-2-armv7-api15": "Android 4.2 API15+",
@@ -62,6 +73,7 @@ treeherder.value("thPlatformMap", {
     "android-4-4": "Android 4.4",
     "android-4-4-armv7-api11": "Android 4.4 API11+",
     "android-4-4-armv7-api15": "Android 4.4 API15+",
+    "android-5-0-aarch64": "Android 5.0 AArch64",
     "android-5-0-armv7-api11": "Android 5.0 API11+",
     "android-5-0-armv7-api15": "Android 5.0 API15+",
     "android-5-1-armv7-api15": "Android 5.1 API15+",
@@ -122,18 +134,19 @@ treeherder.value("thFavicons", {
 
 treeherder.value("thRepoGroupOrder", {
     "development": 1,
-    "project repositories": 2,
-    "try": 3,
-    "release-stabilization": 4,
-    "taskcluster": 5,
-    "qa automation tests": 6
+    "release-stabilization": 2,
+    "project repositories": 3,
+    "comm-repositories": 4,
+    "qa automation tests": 5,
+    "try": 6,
+    "taskcluster": 7
 });
 
 treeherder.value("thDefaultRepo", "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");
 
-treeherder.value("phCompareDefaultOriginalRepo", "mozilla-inbound");
+treeherder.value("phCompareDefaultOriginalRepo", "mozilla-central");
 
 treeherder.value("phCompareDefaultNewRepo", "try");
 
@@ -148,6 +161,10 @@ treeherder.value("phTimeRanges", [
       { "value":31536000, "text": "Last year" } ]);
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
+
+treeherder.value("phTimeRangeValues", {
+    "mozilla-beta": 7776000
+});
 
 treeherder.value("phComparisonDate", [
     { "value":0, "text": "Today" },
@@ -312,3 +329,5 @@ treeherder.value("phDashboardValues",
         }
     }
 );
+
+treeherder.value('compareBaseLineDefaultTimeRange', 86400 * 2);

@@ -121,7 +121,7 @@
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
               <li ng-if-start="job.taskcluster_metadata">
-                <a target="_blank" href="https://tools.taskcluster.net/task-inspector/#{{job.taskcluster_metadata.task_id}}">Inspect Task</a>
+                <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
               <li>
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
@@ -198,6 +198,12 @@
             </a>
             <span ng-switch-default ng-if="job.build_system_type !== 'buildbot'">{{job.machine_name}}</span>
           </span>
+        </li>
+        <li class="small" ng-if="job.taskcluster_metadata">
+          <label>Task:</label>
+          <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">
+            {{ job.taskcluster_metadata.task_id }}
+          </a>
         </li>
         <li class="small" ng-repeat="(label, value) in visibleFields">
           <label>{{label}}:</label>
