@@ -7,7 +7,6 @@ treeherder.controller('TCJobActionsCtrl', [
     function ($scope, $http, $uibModalInstance, ThResultSetStore,
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, actionsRender) {
-        let jsonSchemaDefaults = require('json-schema-defaults');
         let originalTask;
         $scope.input = {};
 
@@ -16,7 +15,8 @@ treeherder.controller('TCJobActionsCtrl', [
         };
 
         $scope.updateSelectedAction = function () {
-            $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
+            $scope.actionSchema = $scope.input.selectedAction.schema;
+            $scope.actionModel = {};
         };
 
         $scope.triggerAction = function () {
@@ -29,7 +29,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 taskGroupId: originalTask.taskGroupId,
                 taskId: job.taskcluster_metadata.task_id,
                 task: originalTask,
-                input: JSON.parse($scope.input.jsonPayload),
+                input: $scope.model,
             }, $scope.staticActionVariables));
 
             let queue = new tc.Queue();

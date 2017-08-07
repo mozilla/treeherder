@@ -101,6 +101,23 @@ angular-sanitize@1.5.11:
   version "1.5.11"
   resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.5.11.tgz#ebfb3f343e543f9b2ef050fb4c2e9ee048d1772f"
 
+"angular-sanitize@>= 1.2":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.6.5.tgz#b5625a817afad2ba58c333e98eef169a1c6f517a"
+
+angular-schema-form-bootstrap@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/angular-schema-form-bootstrap/-/angular-schema-form-bootstrap-0.2.0.tgz#7465db99e4a8bc7fa86c1385a510552384e27ace"
+
+angular-schema-form@^0.8.13:
+  version "0.8.13"
+  resolved "https://registry.yarnpkg.com/angular-schema-form/-/angular-schema-form-0.8.13.tgz#90bbe2a90664d083da3dc1271f890a94be7d140f"
+  dependencies:
+    angular ">= 1.2"
+    angular-sanitize ">= 1.2"
+    objectpath "^1.2.1"
+    tv4 "~1.0.15"
+
 angular-toarrayfilter@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/angular-toarrayfilter/-/angular-toarrayfilter-1.0.2.tgz#a81dcb0c9f3c39985f8fd4424dbe1dbea84771c4"
@@ -118,6 +135,10 @@ angular-ui-router@0.4.2:
 angular@1.5.11, angular@^1.0.8:
   version "1.5.11"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.5.11.tgz#8c5ba7386f15965c9acf3429f6881553aada30d6"
+
+"angular@>= 1.2":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.5.tgz#37f788eebec5ce2e3fa02b17bbcb2a231576a0d6"
 
 ansi-escapes@^1.1.0:
   version "1.4.0"
@@ -4618,6 +4639,10 @@ object.values@^1.0.3:
     function-bind "^1.1.0"
     has "^1.0.1"
 
+objectpath@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/objectpath/-/objectpath-1.2.1.tgz#c87433bdd352aea014e4f9c0b52d70a42652052e"
+
 obuf@^1.0.0, obuf@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.1.tgz#104124b6c602c6796881a042541d36db43a5264e"
@@ -6175,6 +6200,10 @@ tunnel-agent@^0.6.0:
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.6.0.tgz#27a5dea06b36b04a0a9966774b290868f0fc40fd"
   dependencies:
     safe-buffer "^5.0.1"
+
+tv4@~1.0.15:
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/tv4/-/tv4-1.0.18.tgz#7397769f00358e33bf528dc5c8764c61b6de8245"
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
