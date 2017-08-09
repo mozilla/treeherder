@@ -42,7 +42,8 @@ matrix:
         directories:
           - node_modules
       addons:
-        firefox: latest
+        # Not using `latest` since the test run frequently times out with Firefox 55.
+        firefox: "54.0.1"
       before_install:
         # Required due to: https://github.com/travis-ci/travis-ci/issues/7951
         - curl -sSfL https://yarnpkg.com/install.sh | bash
@@ -166,7 +167,8 @@ matrix:
         directories:
           - ~/venv
       addons:
-        firefox: latest
+        # Not using `latest` since the test run frequently times out with Firefox 55.
+        firefox: "54.0.1"
       services:
         - rabbitmq
       before_install:
