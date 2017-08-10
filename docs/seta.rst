@@ -34,37 +34,26 @@ APIs
 
 Local set up
 ------------
-After you set up Treeherder, ssh into the provisioned VM and follow these steps:
+After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and follow these steps:
 
-* Choose a couple of consecutive revisions from one of the Firefox development repositories
+1st tab
+-------
+./manage.py runserver
 
-  * Import these jobs to your local setup. For example:
+2nd tab
+-------
+yarn install --no-bin-links
+yarn start:local
 
-  .. code-block:: bash
-
-     ./manage.py ingest_push mozilla-inbound  d70bb3fba851
-     ./manage.py ingest_push mozilla-inbound  5a5d50943bbc
-
-NOTE: Make sure these are pushes with jobs that have run in the last 4 hours
-
-NOTE: This will only import Buildbot jobs
-
-* Start the server with ./manage.py runserver
-* Open `http://localhost:8000/#/jobs?repo=mozilla-inbound <http://localhost:8000/#/jobs?repo=mozilla-inbound>`_.
-  * Make sure you log in
-* Select few failed jobs from the older push
-* Tag the jobs as fixed by commit and make a reference to the newer push
-* Back inside of vagrant run the following:
-
-  .. code-block:: bash
-
-     ./manage.py analyze_failures
-
-NOTE: preseed.json gets loaded automatically on start up.
+3rd tab
+-------
+./manage.py initialize_seta
 
 * Test the different APIs:
 
   * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
   * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
   * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-types/
-  * http://localhost:8000/api/seta/v1/failures-fixed-by-commit/
+  * http://localhost:8000/api/seta/v1/failures-fixed-by-commit/ 
+
+    * This one won't work until https://bugzilla.mozilla.org/show_bug.cgi?id=1389123 is fixed
