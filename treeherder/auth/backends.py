@@ -51,30 +51,6 @@ class TaskclusterAuthBackend(object):
         raise NoEmailException(
             "No email found in clientId: '{}'".format(client_id))
 
-    def _find_user_by_email(self, email, username, scopes):
-        """
-        Try to find an existing user that matches the email.
-        """
-
-        if scopeMatch(scopes, [["assume:mozilla-user:{}".format(email)]]):
-            # Find the user by their email.
-
-            # Since there is a unique index on username, but not on email,
-            # it is POSSIBLE there could be two users with the same email and
-            # different usernames.  Not very likely, but this is safer.
-            users = User.objects.filter(email=email)
-
-            # update the username
-            if users:
-                user = users.first()
-                user.username = username
-                user.save()
-                return user
-
-        # if we didn't find any, or the user doesn't have the proper scope,
-        # then raise an exception so we create a new user
-        raise ObjectDoesNotExist
-
     def authenticate(self, auth_header=None, host=None, port=None):
         if not auth_header:
             # Doesn't have the right params for this backend.  So just
@@ -108,15 +84,9 @@ class TaskclusterAuthBackend(object):
             return User.objects.get(username=client_id)
 
         except ObjectDoesNotExist:
-            try:
-                # TODO: remove this once all users are converted to clientId
-                # as username.  Bug 1337987.
-                return self._find_user_by_email(email, client_id, result["scopes"])
-
-            except ObjectDoesNotExist:
-                # the user doesn't already exist, create it.
-                logger.warning("Creating new user: {}".format(client_id))
-                return User.objects.create_user(client_id, email=email)
+            # the user doesn't already exist, create it.
+            logger.warning("Creating new user: {}".format(client_id))
+            return User.objects.create_user(client_id, email=email)
 
     def get_user(self, user_id):
         try:
