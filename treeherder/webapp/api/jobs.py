@@ -352,9 +352,9 @@ class JobsViewSet(viewsets.ViewSet):
                     # If ``visibility`` is ``excluded`` then we only want to
                     # include jobs that were excluded by this profile.  Since
                     # no jobs are excluded for this project, we should return
-                    # an empty array and skip the query altogether.
+                    # an empty queryset and skip the query altogether.
                     if visibility == "excluded":
-                        jobs = []
+                        jobs = jobs.none()
             except ExclusionProfile.DoesNotExist:
                 # Either there's no default profile setup or the profile
                 # specified is not available
