@@ -7,60 +7,6 @@ from treeherder.auth.backends import (NoEmailException,
                                       TaskclusterAuthBackend)
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize(('username', 'email', 'scopes', 'user', 'exp_exception'), [
-    # user exists, has scope, exact match on username
-    ('mozilla-ldap/dude@lebowski.net',
-     'dude@lebowski.net',
-     ["assume:mozilla-user:dude@lebowski.net"],
-     {"username": "mozilla-ldap/dude@lebowski.net", "email": "dude@lebowski.net"},
-     False
-     ),
-    # user exists, wildcard scope, exact match on username
-    ('mozilla-ldap/dude@lebowski.net',
-     'dude@lebowski.net',
-     ["assume:mozilla-user:*"],
-     {"username": "mozilla-ldap/dude@lebowski.net", "email": "dude@lebowski.net"},
-     False
-     ),
-    # user exists, has scope, but username gets updated
-    ('mozilla-ldap/dude@lebowski.net',
-     'dude@lebowski.net',
-     ["assume:mozilla-user:dude@lebowski.net"],
-     {"username": "dude", "email": "dude@lebowski.net"},
-     False
-     ),
-    # user does not exist, raises exception
-    ('thneed',
-     'dood@lebowski.net',
-     ["assume:mozilla-user:dude@lebowski.net"],
-     None,
-     True
-     ),
-    # user does not have scope, raises exception
-    ('mozilla-ldap/dude@me.net',
-     'dude@lebowski.net',
-     ["assume:foo:bar"],
-     {"username": "dude", "email": "nope@lebowski.net"},
-     True
-     )])
-def test_find_user_by_email(username, email, scopes, user, exp_exception):
-    if user:
-        test_user = User.objects.create(**user)
-        # create a user with duplicate email
-        User.objects.create(username="fleh", email=user["email"])
-
-    tca = TaskclusterAuthBackend()
-    if exp_exception:
-        with pytest.raises(ObjectDoesNotExist):
-            tca._find_user_by_email(email, username, scopes)
-    else:
-        found_user = tca._find_user_by_email(email, username, scopes)
-        assert found_user.id == test_user.id
-        assert found_user.username == username
-        assert found_user.email == email
-
-
 @pytest.mark.parametrize(
     ('client_id', 'exp_email', 'exp_exception'),
     [('email/biped@mozilla.com', 'biped@mozilla.com', False),  # email clientId
