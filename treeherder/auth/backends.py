@@ -77,7 +77,6 @@ class TaskclusterAuthBackend(object):
         # Look for an existing user in this order:
         #
         # 1. Matching username/clientId
-        # 2. Matching email.
         # Otherwise, create it, as long as it has an email.
         try:
             return User.objects.get(username=client_id)
