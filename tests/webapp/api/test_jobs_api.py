@@ -229,6 +229,24 @@ def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
     assert resp['results'][0]['job_guid'] == '9abb6f7d54a49d763c584926377f09835c5e1a32'
 
 
+def test_job_list_no_signatures(webapp, test_repository, test_sheriff):
+    """
+    test retrieving jobs in case of no signatures of exclusion
+    profile.
+    """
+    ExclusionProfile.objects.create(
+        name="no_profile",
+        is_default=False,
+        author=test_sheriff,
+    )
+
+    url = reverse("jobs-list",
+                  kwargs={"project": test_repository.name})
+    final_url = url + "?exclusion_profile=no_profile&visibility=excluded"
+    resp = webapp.get(final_url).json
+    assert resp['results'] == []
+
+
 def test_job_detail(webapp, test_job):
     """
     test retrieving a single job from the jobs-detail

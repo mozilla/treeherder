@@ -545,12 +545,7 @@ perf.controller('GraphsCtrl', [
 
         function updateDocument() {
             $state.transitionTo('graphs', {
-                series: $scope.seriesList.map(function (series) {
-                    return "[" + [series.projectName,
-                        series.signature,
-                        (series.visible ? 1 : 0),
-                        series.frameworkId] + "]";
-                }),
+                series: $scope.seriesList.map(series => `${series.projectName},${series.id},${series.visible ? 1 : 0},${series.frameworkId}`),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
                 highlightedRevisions: _.filter($scope.highlightedRevisions,
@@ -628,11 +623,15 @@ perf.controller('GraphsCtrl', [
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
             return $q.all(partialSeriesList.map(function (partialSeries) {
+                let params = {framework: partialSeries.frameworkId};
+                if (partialSeries.id) {
+                    params.id = partialSeries.id;
+                }
+                else {
+                    params.signature = partialSeries.signature;
+                }
                 return PhSeries.getSeriesList(
-                    partialSeries.project, {
-                        signature: partialSeries.signature,
-                        framework: partialSeries.frameworkId
-                    }).then(function (seriesList) {
+                    partialSeries.project, params).then(function (seriesList) {
                         if (!seriesList.length) {
                             return $q.reject("Signature `" + partialSeries.signature +
                                 "` not found for " + partialSeries.project);
@@ -780,8 +779,9 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesArray = partialSeriesString.split(",");
                     var partialSeriesObject = {
                         project:  partialSeriesArray[0],
-                        signature:  partialSeriesArray[1],
-                        visible: (partialSeriesArray[2] !== 0),
+                        signature:  partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
+                        id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
+                        visible: partialSeriesArray[2] !== 0,
                         frameworkId: partialSeriesArray[3]
                     };
                     return partialSeriesObject;

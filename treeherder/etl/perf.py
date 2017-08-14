@@ -174,10 +174,9 @@ def _load_perf_datum(job, perf_datum):
             # generate alerts task for the subtest, since we have new data
             # (this can be over-ridden by the optional "should alert"
             # property)
-            if signature.should_alert or (signature.should_alert is None and
-                                          (datum_created and
-                                           job.repository.performance_alerts_enabled and
-                                           suite.get('value') is None)):
+            if ((signature.should_alert or (signature.should_alert is None and
+                                            suite.get('value') is None)) and
+                datum_created and job.repository.performance_alerts_enabled):
                 generate_alerts.apply_async(args=[signature.id],
                                             routing_key='generate_perf_alerts')
 

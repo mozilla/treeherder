@@ -9,7 +9,7 @@ from requests_hawk import HawkAuth
 
 # The Python client release process is documented here:
 # https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
-__version__ = '3.1.0'
+__version__ = '4.0.0'
 
 logger = logging.getLogger(__name__)
 
@@ -146,15 +146,6 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
             'job': {'type': dict, 'cb': self.validate_existence},
             'job.job_guid': {'len': 50, 'cb': self.validate_existence}
             }
-
-    def add_revision_hash(self, revision_hash):
-        """
-        DEPRECATED:  Use ``add_revision`` to add the 40 character top
-        revision for this job.
-        """
-        logger.warn("DEPRECATED: Use ``add_revision`` to add the " +
-                    "40 character top revision instead.")
-        self.data['revision_hash'] = revision_hash
 
     def add_revision(self, revision):
         self.data['revision'] = revision
@@ -455,24 +446,15 @@ class TreeherderClient(object):
     BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
-    def __init__(self, server_url='https://treeherder.mozilla.org', protocol=None, host=None,
+    def __init__(self, server_url='https://treeherder.mozilla.org',
                  timeout=30, client_id=None, secret=None):
         """
         :param server_url: The site URL of the Treeherder instance (defaults to production)
-        :param protocol: *DEPRECATED* protocol to use (http or https)
-        :param host: *DEPRECATED* treeherder host to post to
         :param timeout: maximum time it can take for a request to complete
         :param client_id: the Treeherder API credentials client ID
         :param secret: the Treeherder API credentials secret
         """
-        if host:
-            logger.warning("The `TreeherderClient()` parameters `host` and `protocol` are "
-                           "deprecated. Use `server_url` instead, or omit entirely to use "
-                           "the default of production Treeherder.")
-            self.server_url = '{}://{}'.format(protocol or 'https', host)
-        else:
-            self.server_url = server_url
-
+        self.server_url = server_url
         self.timeout = timeout
 
         # Using a session gives us automatic keep-alive/connection pooling.

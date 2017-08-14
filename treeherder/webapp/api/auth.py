@@ -60,12 +60,12 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
         except NoEmailException as ex:
             # The user's clientId didn't have an email
             logger.warning("Email required for login.", exc_info=ex)
-            raise AuthenticationFailed(ex.message)
+            raise AuthenticationFailed(str(ex))
         except TaskclusterAuthException as ex:
             # This is an error where the user wasn't able to log in
             # for some reason.
             logger.warning("Error authenticating with Taskcluster", exc_info=ex)
-            raise AuthenticationFailed(ex.message)
+            raise AuthenticationFailed(str(ex))
         except (TaskclusterConnectionError,
                 TaskclusterRestFailure) as ex:
             # This indicates an error that may require attention by the
@@ -73,7 +73,7 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
             # increase visibility.
             newrelic.agent.record_exception()
             logger.exception("Error communicating with Taskcluster", exc_info=ex)
-            raise AuthenticationFailed(ex.message)
+            raise AuthenticationFailed(str(ex))
 
     @list_route()
     def logout(self, request):
