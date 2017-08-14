@@ -31,5 +31,5 @@ def test_gecko_decision_task_invalid_repo():
     with pytest.raises(SetaError) as exception_info:
         seta_job_scheduling(project='mozilla-repo-x', build_system_type='taskcluster')
 
-    assert exception_info.value.message == "The specified project repo 'mozilla-repo-x' " \
-                                           "is not supported by SETA."
+    assert str(exception_info.value) == "The specified project repo 'mozilla-repo-x' " \
+                                        "is not supported by SETA."
