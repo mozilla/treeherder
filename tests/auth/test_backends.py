@@ -1,6 +1,5 @@
 import pytest
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from taskcluster import Auth
 
 from treeherder.auth.backends import (NoEmailException,

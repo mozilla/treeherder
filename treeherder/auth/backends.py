@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.reverse import reverse
 from taskcluster import Auth
-from taskcluster.utils import scopeMatch
 
 logger = logging.getLogger(__name__)
 
