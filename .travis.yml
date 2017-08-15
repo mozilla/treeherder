@@ -162,6 +162,7 @@ matrix:
       cache:
         directories:
           - ~/venv
+          - node_modules
       addons:
         # Not using `latest` since the test run frequently times out with Firefox 55.
         firefox: "54.0.1"
