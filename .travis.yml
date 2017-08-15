@@ -32,7 +32,7 @@ matrix:
 
     # Job 2: Nodejs UI tests
     - env: ui-tests
-      sudo: false
+      sudo: required
       language: node_js
       node_js: "7.10.0"
       cache:
