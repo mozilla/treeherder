@@ -89,10 +89,10 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - py.test tests/ --runslow --ignore=tests/e2e/ --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/ --ignore=tests/selenium/ --ignore=tests/jenkins/
+        - pytest tests/ --runslow --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/api/ --ignore=tests/selenium/ --ignore=tests/jenkins/
 
     # Job 4: Python Tests Chunk B
-    - env: python-tests-e2e-etl-logparser
+    - env: python-tests-etl-logparser
       language: python
       python: "2.7.13"
       cache:
@@ -116,10 +116,10 @@ matrix:
       before_script:
         - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
       script:
-        - py.test tests/e2e/ tests/etl/ tests/log_parser/ --runslow
+        - pytest tests/etl/ tests/log_parser/ --runslow
 
     # Job 5: Python Tests Chunk C
-    - env: python-tests-webapp
+    - env: python-tests-rest-api
       language: python
       python: "2.7.13"
       cache:
@@ -143,7 +143,7 @@ matrix:
       before_script:
         - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
       script:
-        - py.test tests/webapp/ --runslow
+        - pytest tests/webapp/api/ --runslow
 
     # Job 6: Python Tests - Selenium integration
     - env: python-tests-selenium
