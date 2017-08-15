@@ -192,7 +192,6 @@ matrix:
         - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
         - "export DISPLAY=:99.0"
         - "sh -e /etc/init.d/xvfb start"
-        - sleep 3 # give xvfb some time to start
       script:
         - yarn build
         - py.test tests/selenium/ --runselenium --driver Firefox
