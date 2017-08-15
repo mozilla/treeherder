@@ -27,6 +27,8 @@ export PIP_DISABLE_PIP_VERSION_CHECK='True'
 echo '-----> Performing cleanup'
 # Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
 sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
+# Stale pyc files can cause pytest ImportMismatchError exceptions.
+find . -type f -name '*.pyc' -delete
 # Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
 rm -f celerybeat-schedule
 
