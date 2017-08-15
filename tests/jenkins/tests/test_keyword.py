@@ -10,9 +10,9 @@ def test_filter_by_job_keyword(base_url, selenium):
     page = TreeherderPage(selenium, base_url).open()
     page.select_random_job()
 
-    page.job_details.filter_by_job_keyword()
-    keyword = page.job_details.job_keyword_name
+    page.info_panel.job_details.filter_by_job_keyword()
+    keyword = page.info_panel.job_details.job_keyword_name
     print keyword
 
     page.select_random_job()
-    assert keyword in page.job_details.job_keyword_name
+    assert keyword in page.info_panel.job_details.job_keyword_name
