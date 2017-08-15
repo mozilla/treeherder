@@ -1,4 +1,6 @@
 dist: trusty
+# The fully visualised "sudo" GCE environments are faster for longer running jobs.
+sudo: required
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
 env:
@@ -9,7 +11,6 @@ env:
     - TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 matrix:
   include:
-    # Each entry here creates another sub-job.
 
     # Job 1: Linters
     - env: python-linters
@@ -34,7 +35,6 @@ matrix:
 
     # Job 2: Nodejs UI tests
     - env: ui-tests
-      sudo: required
       language: node_js
       node_js: "7.10.0"
       cache:
@@ -60,8 +60,6 @@ matrix:
 
     # Job 3: Python Tests Chunk A
     - env: python-tests-main
-      # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
-      sudo: required
       language: python
       python: "2.7.13"
       cache:
@@ -95,8 +93,6 @@ matrix:
 
     # Job 4: Python Tests Chunk B
     - env: python-tests-e2e-etl-logparser
-      # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
-      sudo: required
       language: python
       python: "2.7.13"
       cache:
@@ -124,8 +120,6 @@ matrix:
 
     # Job 5: Python Tests Chunk C
     - env: python-tests-webapp
-      # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
-      sudo: required
       language: python
       python: "2.7.13"
       cache:
@@ -153,8 +147,6 @@ matrix:
 
     # Job 6: Python Tests - Selenium integration
     - env: python-tests-selenium
-      # TODO: Investigate switching back to the container infra, by setting `sudo: false`.
-      sudo: required
       language: python
       python: "2.7.13"
       cache:
