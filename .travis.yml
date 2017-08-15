@@ -1,4 +1,6 @@
 dist: trusty
+# Use the latest Travis images since they are more up to date than the stable release.
+group: edge
 env:
   global:
     - BROKER_URL='amqp://guest:guest@localhost:5672//'
@@ -43,10 +45,6 @@ matrix:
       addons:
         # Not using `latest` since the test run frequently times out with Firefox 55.
         firefox: "54.0.1"
-      before_install:
-        # Required due to: https://github.com/travis-ci/travis-ci/issues/7951
-        - curl -sSfL https://yarnpkg.com/install.sh | bash
-        - export PATH=$HOME/.yarn/bin:$PATH
       install:
         # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
         # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
@@ -179,13 +177,8 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - mkdir -p $HOME/bin
         - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz | tar -zxC $HOME/bin
         - nvm install 7.10.0
-        # Required until Travis makes yarn available in the base image,
-        # since it only installs it for `language: nodejs` currently.
-        - curl -sSfL https://yarnpkg.com/install.sh | bash
-        - export PATH=$HOME/.yarn/bin:$PATH
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
         - yarn install --frozen-lockfile --no-bin-links
