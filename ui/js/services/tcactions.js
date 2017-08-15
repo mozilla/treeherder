@@ -1,54 +1,59 @@
 "use strict";
 
 treeherder.factory('tcactions', [
-    '$http', 'ThJobDetailModel', 'ThResultSetStore',
-    function ($http, ThJobDetailModel, ThResultSetStore) {
+    '$q', '$http', 'thTaskcluster',
+    function ($q, $http, thTaskcluster) {
         const jsone = require('json-e');
+        const tc = thTaskcluster.client();
+        const queue = new tc.Queue();
 
         return {
             render: (template, context) => jsone(template, context),
-            load: (repoName, resultsetId, job) => {
-                let decisionTask = ThResultSetStore.getGeckoDecisionJob(repoName, resultsetId);
-
-                if (!decisionTask) {
+            load: (decisionTaskID, job) => {
+                if (!decisionTaskID) {
                     alert("No decision task, can't find taskcluster actions");
                     return;
                 }
 
-                let originalTaskId = job.taskcluster_metadata.task_id;
-                return $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
-                    function (response) {
-                        const originalTask = response.data;
-                        return ThJobDetailModel.getJobDetails({
-                            job_id: decisionTask.id,
-                            title: 'artifact uploaded',
-                            value: 'actions.json'}).then(function (details) {
-                                if (!details.length) {
-                                    alert("Could not find actions.json");
-                                    return;
-                                }
+                const actionsUrl = queue.buildUrl(
+                    queue.getLatestArtifact,
+                    decisionTaskID,
+                    'public/actions.json'
+                );
 
-                                let actionsUpload = details[0];
-                                return $http.get(actionsUpload.url).then(function (response) {
-                                    if (response.data.version !== 1) {
-                                        alert("Wrong version of actions.json, can't continue");
-                                        return;
-                                    }
-                                    return {
-                                        originalTask,
-                                        staticActionVariables: response.data.variables,
-                                        actions: response.data.actions.filter(function (action) {
-                                            return action.kind === 'task' && (
-                                                !action.context.length || _.some((action.context).map(function (actionContext) {
-                                                    return !Object.keys(actionContext).length || _.every(_.map(actionContext, function (v, k) {
-                                                        return (originalTask.tags[k] === v);
-                                                    }));
-                                                })));
-                                        }),
-                                    };
-                                });
+                return $http.get(actionsUrl).then((response) => {
+                    if (!response.data) {
+                        // This is a push with no actions.json so we should
+                        // allow an implementer to fall back to actions.yaml
+                        return null;
+                    }
+
+                    if (response.data.version !== 1) {
+                        alert("Wrong version of actions.json, can't continue");
+                        return;
+                    }
+
+                    let originalTaskPromise = $q.resolve(null);
+                    if (job) {
+                        let originalTaskId = job.taskcluster_metadata.task_id;
+                        originalTaskPromise = $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
+                            function (response) {
+                                return response.data;
                             });
-                    });
+                    }
+                    return originalTaskPromise.then(originalTask => ({
+                        originalTask,
+                        staticActionVariables: response.data.variables,
+                        actions: response.data.actions.filter(function (action) {
+                            return action.kind === 'task' && (!originalTask || (
+                                !action.context.length || _.some((action.context).map(function (actionContext) {
+                                    return !Object.keys(actionContext).length || _.every(_.map(actionContext, function (v, k) {
+                                        return (originalTask.tags[k] === v);
+                                    }));
+                                }))));
+                        }),
+                    }));
+                });
             },
         };
     }]);

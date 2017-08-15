@@ -55,11 +55,13 @@ treeherder.controller('TCJobActionsCtrl', [
             }
         });
 
-        tcactions.load(repoName, resultsetId, job).then((results) => {
-            originalTask = results.originalTask;
-            $scope.actions = results.actions;
-            $scope.staticActionVariables = results.staticActionVariables;
-            $scope.input.selectedAction = $scope.actions[0];
-            $scope.updateSelectedAction();
+        ThResultSetStore.getGeckoDecisionTaskId(repoName, resultsetId).then((decisionTaskId) => {
+            tcactions.load(decisionTaskId, job).then((results) => {
+                originalTask = results.originalTask;
+                $scope.actions = results.actions;
+                $scope.staticActionVariables = results.staticActionVariables;
+                $scope.input.selectedAction = $scope.actions[0];
+                $scope.updateSelectedAction();
+            });
         });
     }]);

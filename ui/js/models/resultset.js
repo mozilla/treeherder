@@ -1,11 +1,11 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
-    '$q', '$interpolate', 'thUrl', 'thResultStatusObject', 'thEvents',
+    '$q', '$interpolate', 'thUrl', 'thResultStatusObject', 'thEvents', 'tcactions',
     'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster', 'jsyaml',
     function ($rootScope, $http, $location, $q, $interpolate, thUrl,
-        thResultStatusObject, thEvents, thServiceDomain, ThLog, thNotify,
-        ThJobModel, thTaskcluster, jsyaml) {
+        thResultStatusObject, thEvents, tcactions, thServiceDomain, ThLog,
+        thNotify, ThJobModel, thTaskcluster, jsyaml) {
 
         var $log = new ThLog("ThResultSetModel");
 
@@ -232,18 +232,11 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
             triggerNewJobs: function (repoName, resultset_id, buildernames, decisionTaskID) {
                 let tc = thTaskcluster.client();
                 let queue = new tc.Queue();
-                let url;
-                try {
-                    url = queue.buildSignedUrl(queue.getLatestArtifact,
-                        decisionTaskID,
-                        'public/full-task-graph.json');
-                } catch (e) {
-                    let errorMsg = e.message;
-                    if (errorMsg === 'credentials must be given') {
-                        errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
-                    }
-                    return $q.reject(new Error(errorMsg));
-                }
+                let url = queue.buildUrl(
+                    queue.getLatestArtifact,
+                    decisionTaskID,
+                    'public/full-task-graph.json'
+                );
                 return $http.get(url).then(function (resp) {
                     let graph = resp.data;
 
@@ -286,18 +279,39 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             if (tclabels.length === 0) {
                                 return;
                             }
-                            let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
-                            return $http.get(url).then(function (resp) {
-                                let action = resp.data;
-                                let template = $interpolate(action);
-                                let taskLabels = tclabels.join(',');
-                                action = template({
-                                    action: 'add-tasks',
-                                    action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+
+                            return tcactions.load(decisionTaskID).then((results) => {
+                                const actionTaskId = tc.slugid();
+
+                                // In this case we have actions.json tasks
+                                if (results) {
+                                    const addjobstask = _.find(results.actions, {name: 'add-new-jobs'});
+                                    // We'll fall back to actions.yaml if this isn't true
+                                    if (addjobstask) {
+                                        const actionTask = tcactions.render(addjobstask.task, _.defaults({}, {
+                                            taskGroupId: decisionTaskID,
+                                            taskId: null,
+                                            task: null,
+                                            input: {tasks: tclabels},
+                                        }, results.staticActionVariables));
+
+                                        return queue.createTask(actionTaskId, actionTask);
+                                    }
+                                }
+
+                                // Otherwise we'll figure things out with actions.yml
+                                let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                                return $http.get(url).then(function (resp) {
+                                    let action = resp.data;
+                                    let template = $interpolate(action);
+                                    let taskLabels = tclabels.join(',');
+                                    action = template({
+                                        action: 'add-tasks',
+                                        action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+                                    });
+                                    let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                    return queue.createTask(actionTaskId, task);
                                 });
-                                let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                                let taskId = tc.slugid();
-                                return queue.createTask(taskId, task);
                             });
                         }),
                     ]);
