@@ -24,13 +24,16 @@ export DEBIAN_FRONTEND=noninteractive
 # Speeds up pip invocations and reduces output spam.
 export PIP_DISABLE_PIP_VERSION_CHECK='True'
 
+echo '-----> Performing cleanup'
+# Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
+sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
+# Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
+rm -f celerybeat-schedule
+
 echo '-----> Configuring .profile and environment variables'
 ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . /etc/profile.d/treeherder.sh
-
-# Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
-sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
 
 if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
     echo '-----> Adding APT repository for Node.js'
@@ -113,9 +116,5 @@ while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
 echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput
 ./manage.py load_initial_data
-
-echo '-----> Performing cleanup'
-# Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
-rm -f celerybeat-schedule || true
 
 echo '-----> Setup complete!'
