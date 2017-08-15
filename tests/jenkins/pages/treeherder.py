@@ -40,7 +40,7 @@ class TreeherderPage(Base):
     _unclassified_failure_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
 
     def wait_for_page_to_load(self):
-        self.wait.until(lambda s: len(self.result_sets) >= 1)
+        self.wait.until(lambda s: len(self.all_jobs) >= 1)
         return self
 
     @property
