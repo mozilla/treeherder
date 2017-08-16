@@ -8,7 +8,7 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml',
+    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml', 'tcactions',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
@@ -17,7 +17,7 @@ treeherder.controller('PluginCtrl', [
         ThResultSetModel, ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, thTaskcluster, jsyaml) {
+        thServiceDomain, thTaskcluster, jsyaml, tcactions) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -373,71 +373,90 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.backfillJob = function () {
-            if ($scope.canBackfill()) {
-                if ($scope.user.loggedin) {
-                    if ($scope.job.id) {
-                        if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
-                            ThResultSetStore.getGeckoDecisionTaskId(
-                                $scope.repoName,
-                                $scope.resultsetId).then(function (decisionTaskId) {
-                                    let tc = thTaskcluster.client();
-                                    let queue = new tc.Queue();
-                                    let url = "";
-                                    try {
-                                        // buildSignedUrl is documented at
-                                        // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
-                                        // It is necessary here because getLatestArtifact assumes it is getting back
-                                        // JSON as a reponse due to how the client library is constructed. Since this
-                                        // result is yml, we'll fetch it manually using $http and can use the url
-                                        // returned by this method.
-                                        url = queue.buildSignedUrl(
-                                            queue.getLatestArtifact,
-                                            decisionTaskId,
-                                            'public/action.yml'
-                                        );
-                                    } catch (e) {
-                                        let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
-                                        thNotify.send(errorMsg, 'danger', true);
-                                        return;
-                                    }
-                                    $http.get(url).then(function (resp) {
-                                        let action = resp.data;
-                                        let template = $interpolate(action);
-                                        action = template({
-                                            action: 'backfill',
-                                            action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
-                                        });
-                                        let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                                        let taskId = tc.slugid();
-                                        queue.createTask(taskId, task).then(function () {
-                                            $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
-                                        }, function (e) {
-                                            // The full message is too large to fit in a Treeherder
-                                            // notification box.
-                                            $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
-                                        });
+            if (!$scope.canBackfill()) {
+                return;
+            }
+            if (!$scope.user.loggedin) {
+                thNotify.send("Must be logged in to backfill a job", 'danger');
+                return;
+            }
+            if (!$scope.job.id) {
+                thNotify.send("Job not yet loaded for backfill", 'warning');
+                return;
+            }
+
+            if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
+                return ThResultSetStore.getGeckoDecisionTaskId(
+                    $scope.repoName,
+                    $scope.resultsetId).then(function (decisionTaskId) {
+                        return tcactions.load(decisionTaskId).then((results) => {
+                            const tc = thTaskcluster.client();
+                            const queue = new tc.Queue();
+                            const actionTaskId = tc.slugid();
+                            if (results) {
+                                const backfilltask = _.find(results.actions, {name: 'backfill'});
+                                // We'll fall back to actions.yaml if this isn't true
+                                if (backfilltask) {
+                                    const actionTask = tcactions.render(backfilltask.task, _.defaults({}, {
+                                        taskGroupId: decisionTaskId,
+                                        taskId: null,
+                                        task: null,
+                                        input: {},
+                                    }, results.staticActionVariables));
+
+                                    queue.createTask(actionTaskId, actionTask).then(function () {
+                                        $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                    }, function (e) {
+                                        // The full message is too large to fit in a Treeherder
+                                        // notification box.
+                                        $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
                                     });
+                                }
+                            }
+
+                            // Otherwise we'll figure things out with actions.yml
+                            // buildUrl is documented at
+                            // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
+                            // It is necessary here because getLatestArtifact assumes it is getting back
+                            // JSON as a reponse due to how the client library is constructed. Since this
+                            // result is yml, we'll fetch it manually using $http and can use the url
+                            // returned by this method.
+                            let url = queue.buildUrl(
+                                queue.getLatestArtifact,
+                                decisionTaskId,
+                                'public/action.yml'
+                            );
+                            $http.get(url).then(function (resp) {
+                                let action = resp.data;
+                                let template = $interpolate(action);
+                                action = template({
+                                    action: 'backfill',
+                                    action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
                                 });
-                        } else {
-                            ThJobModel.backfill(
-                                $scope.repoName,
-                                $scope.job.id
-                            ).then(function () {
-                                thNotify.send("Request sent to backfill jobs", 'success');
-                            }, function (e) {
-                                // Generic error eg. the user doesn't have LDAP access
-                                thNotify.send(
-                                    ThModelErrors.format(e, "Unable to send backfill"),
-                                    'danger'
-                                );
+                                let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                queue.createTask(actionTaskId, task).then(function () {
+                                    $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                }, function (e) {
+                                    // The full message is too large to fit in a Treeherder
+                                    // notification box.
+                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
+                                });
                             });
-                        }
-                    } else {
-                        thNotify.send("Job not yet loaded for backfill", 'warning');
-                    }
-                } else {
-                    thNotify.send("Must be logged in to backfill a job", 'danger');
-                }
+                        });
+                    });
+            } else {
+                ThJobModel.backfill(
+                    $scope.repoName,
+                    $scope.job.id
+                ).then(function () {
+                    thNotify.send("Request sent to backfill jobs", 'success');
+                }, function (e) {
+                    // Generic error eg. the user doesn't have LDAP access
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to send backfill"),
+                        'danger'
+                    );
+                });
             }
         };
 
