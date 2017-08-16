@@ -199,31 +199,44 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
             triggerAllTalosJobs: function (resultset_id, repoName, times, decisionTaskID) {
                 let uri = resultset_id + '/trigger_all_talos_jobs/?times=' + times;
                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri).then(function () {
-                    // After we trigger the buildbot jobs, we can go ahead and trigger tc
-                    // jobs directly.
-                    let tc = thTaskcluster.client();
-                    let queue = new tc.Queue();
-                    let url = "";
-                    try {
-                        url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
-                    } catch (e) {
-                        let errorMsg = e.message;
-                        if (errorMsg === 'credentials must be given') {
-                            errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
+                    return tcactions.load(decisionTaskID).then((results) => {
+                        // After we trigger the buildbot jobs, we can go ahead and trigger tc
+                        // jobs directly.
+                        const tc = thTaskcluster.client();
+                        const queue = new tc.Queue();
+                        const actionTaskId = tc.slugid();
+
+                        // In this case we have actions.json tasks
+                        if (results) {
+                            const talostask = _.find(results.actions, {name: 'run-all-talos'});
+                            // We'll fall back to actions.yaml if this isn't true
+                            if (talostask) {
+                                const actionTask = tcactions.render(talostask.task, _.defaults({}, {
+                                    taskGroupId: decisionTaskID,
+                                    taskId: null,
+                                    task: null,
+                                    input: {times},
+                                }, results.staticActionVariables));
+
+                                return queue.createTask(actionTaskId, actionTask).then(function () {
+                                    return "Request sent to trigger all talos jobs " + times + " time(s)";
+                                });
+                            }
                         }
-                        throw new Error(errorMsg);
-                    }
-                    return $http.get(url).then(function (resp) {
-                        let action = resp.data;
-                        let template = $interpolate(action);
-                        action = template({
-                            action: 'add-talos',
-                            action_args: '--decision-task-id ' + decisionTaskID + ' --times ' + times,
-                        });
-                        let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                        let taskId = tc.slugid();
-                        return queue.createTask(taskId, task).then(function () {
-                            return "Request sent to trigger all talos jobs " + times + " time(s)";
+
+                        // Otherwise we'll figure things out with actions.yml
+                        const url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                        return $http.get(url).then(function (resp) {
+                            let action = resp.data;
+                            let template = $interpolate(action);
+                            action = template({
+                                action: 'add-talos',
+                                action_args: '--decision-task-id ' + decisionTaskID + ' --times ' + times,
+                            });
+                            let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                            return queue.createTask(actionTaskId, task).then(function () {
+                                return "Request sent to trigger all talos jobs " + times + " time(s)";
+                            });
                         });
                     });
                 });
