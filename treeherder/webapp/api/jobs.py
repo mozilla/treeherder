@@ -611,7 +611,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             # See https://github.com/carltongibson/django-filter/issues/755
             def filter(self, qs, value):
                 if value in django_filters.constants.EMPTY_VALUES:
-                    raise ValueError("Invalid filter on empty value: {}".format(value))
+                    raise ParseError("Invalid filter on empty value: {}".format(value))
 
                 return django_filters.Filter.filter(self, qs, value)
 
