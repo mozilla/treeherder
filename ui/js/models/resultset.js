@@ -191,9 +191,33 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
             },
 
-            triggerMissingJobs: function (resultset_id, repoName) {
+            triggerMissingJobs: function (resultset_id, repoName, decisionTaskID) {
                 var uri = resultset_id + '/trigger_missing_jobs/';
-                return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+                return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri).then(function () {
+                    return tcactions.load(decisionTaskID).then((results) => {
+                        // After we trigger the buildbot jobs, we can go ahead and trigger tc
+                        // jobs directly.
+                        const tc = thTaskcluster.client();
+                        const queue = new tc.Queue();
+                        const actionTaskId = tc.slugid();
+
+                        // In this case we have actions.json tasks
+                        if (results) {
+                            const missingtask = _.find(results.actions, {name: 'run-missing-tests'});
+                            // We'll fall back to actions.yaml if this isn't true
+                            if (missingtask) {
+                                const actionTask = tcactions.render(missingtask.task, _.defaults({}, {
+                                    taskGroupId: decisionTaskID,
+                                    taskId: null,
+                                    task: null,
+                                    input: {},
+                                }, results.staticActionVariables));
+
+                                return queue.createTask(actionTaskId, actionTask);
+                            }
+                        }
+                    });
+                });
             },
 
             triggerAllTalosJobs: function (resultset_id, repoName, times, decisionTaskID) {

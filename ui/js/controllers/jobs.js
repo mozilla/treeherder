@@ -195,13 +195,22 @@ treeherderApp.controller('ResultSetCtrl', [
                 return;
             }
 
-            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function () {
-                thNotify.send("Request sent to trigger missing jobs", "success");
-            }, function (e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
-                    'danger', true
-                );
+            ThResultSetStore.getGeckoDecisionTaskId(
+                $scope.repoName,
+                $scope.resultset.id
+            ).then(function (decisionTaskID) {
+                ThResultSetModel.triggerMissingJobs(
+                    $scope.resultset.id,
+                    $scope.repoName,
+                    decisionTaskID
+                ).then(function () {
+                    thNotify.send("Request sent to trigger missing jobs", "success");
+                }, function (e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
+                        'danger', true
+                    );
+                });
             });
         };
 
