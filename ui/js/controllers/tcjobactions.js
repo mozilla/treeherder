@@ -29,15 +29,15 @@ treeherder.controller('TCJobActionsCtrl', [
             let tc = thTaskcluster.client();
 
             let actionTaskId = tc.slugid();
-            let actionTask = tcactions.render($scope.input.selectedAction.task, _.defaults({}, {
-                taskGroupId: originalTask.taskGroupId,
+            tcactions.submit({
+                action: $scope.input.selectedAction,
+                actionTaskId,
+                decisionTaskId: originalTask.taskGroupId,
                 taskId: job.taskcluster_metadata.task_id,
                 task: originalTask,
                 input: $scope.input.jsonPayload ? JSON.parse($scope.input.jsonPayload) : undefined,
-            }, $scope.staticActionVariables));
-
-            let queue = new tc.Queue();
-            queue.createTask(actionTaskId, actionTask).then(function () {
+                staticActionVariables: $scope.staticActionVariables,
+            }).then(function () {
                 $scope.$apply(thNotify.send("Custom action request sent successfully", 'success'));
                 $scope.triggering = false;
                 $uibModalInstance.close('request sent');

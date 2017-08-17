@@ -9,6 +9,24 @@ treeherder.factory('tcactions', [
 
         return {
             render: (template, context) => jsone(template, context),
+            submit: ({action, actionTaskId, decisionTaskId, taskId,
+                      task, input, staticActionVariables}) => {
+
+                const actionTask = jsone(action.task, _.defaults({}, {
+                    taskGroupId: decisionTaskId,
+                    taskId,
+                    task,
+                    input,
+                }, staticActionVariables));
+
+                return queue.task(decisionTaskId).then((decisionTask) => {
+                    const submitQueue = new tc.Queue({
+                        authorizedScopes: decisionTask.scopes,
+                    });
+
+                    return submitQueue.createTask(actionTaskId, actionTask);
+                });
+            },
             load: (decisionTaskID, job) => {
                 if (!decisionTaskID) {
                     alert("No decision task, can't find taskcluster actions");

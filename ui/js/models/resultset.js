@@ -191,14 +191,13 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
             },
 
-            triggerMissingJobs: function (resultset_id, repoName, decisionTaskID) {
+            triggerMissingJobs: function (resultset_id, repoName, decisionTaskId) {
                 var uri = resultset_id + '/trigger_missing_jobs/';
                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri).then(function () {
-                    return tcactions.load(decisionTaskID).then((results) => {
+                    return tcactions.load(decisionTaskId).then((results) => {
                         // After we trigger the buildbot jobs, we can go ahead and trigger tc
                         // jobs directly.
                         const tc = thTaskcluster.client();
-                        const queue = new tc.Queue();
                         const actionTaskId = tc.slugid();
 
                         // In this case we have actions.json tasks
@@ -206,28 +205,28 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             const missingtask = _.find(results.actions, {name: 'run-missing-tests'});
                             // We'll fall back to actions.yaml if this isn't true
                             if (missingtask) {
-                                const actionTask = tcactions.render(missingtask.task, _.defaults({}, {
-                                    taskGroupId: decisionTaskID,
+                                return tcactions.submit({
+                                    action: missingtask,
+                                    actionTaskId,
+                                    decisionTaskId,
                                     taskId: null,
                                     task: null,
                                     input: {},
-                                }, results.staticActionVariables));
-
-                                return queue.createTask(actionTaskId, actionTask);
+                                    staticActionVariables: results.staticActionVariables,
+                                });
                             }
                         }
                     });
                 });
             },
 
-            triggerAllTalosJobs: function (resultset_id, repoName, times, decisionTaskID) {
+            triggerAllTalosJobs: function (resultset_id, repoName, times, decisionTaskId) {
                 let uri = resultset_id + '/trigger_all_talos_jobs/?times=' + times;
                 return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri).then(function () {
-                    return tcactions.load(decisionTaskID).then((results) => {
+                    return tcactions.load(decisionTaskId).then((results) => {
                         // After we trigger the buildbot jobs, we can go ahead and trigger tc
                         // jobs directly.
                         const tc = thTaskcluster.client();
-                        const queue = new tc.Queue();
                         const actionTaskId = tc.slugid();
 
                         // In this case we have actions.json tasks
@@ -235,27 +234,29 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             const talostask = _.find(results.actions, {name: 'run-all-talos'});
                             // We'll fall back to actions.yaml if this isn't true
                             if (talostask) {
-                                const actionTask = tcactions.render(talostask.task, _.defaults({}, {
-                                    taskGroupId: decisionTaskID,
+                                return tcactions.submit({
+                                    action: talostask,
+                                    actionTaskId,
+                                    decisionTaskId,
                                     taskId: null,
                                     task: null,
                                     input: {times},
-                                }, results.staticActionVariables));
-
-                                return queue.createTask(actionTaskId, actionTask).then(function () {
+                                    staticActionVariables: results.staticActionVariables,
+                                }).then(function () {
                                     return "Request sent to trigger all talos jobs " + times + " time(s)";
                                 });
                             }
                         }
 
                         // Otherwise we'll figure things out with actions.yml
-                        const url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                        const queue = new tc.Queue();
+                        const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                         return $http.get(url).then(function (resp) {
                             let action = resp.data;
                             let template = $interpolate(action);
                             action = template({
                                 action: 'add-talos',
-                                action_args: '--decision-task-id ' + decisionTaskID + ' --times ' + times,
+                                action_args: '--decision-task-id ' + decisionTaskId + ' --times ' + times,
                             });
                             let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(function () {
@@ -266,12 +267,12 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                 });
             },
 
-            triggerNewJobs: function (repoName, resultset_id, buildernames, decisionTaskID) {
+            triggerNewJobs: function (repoName, resultset_id, buildernames, decisionTaskId) {
                 let tc = thTaskcluster.client();
                 let queue = new tc.Queue();
                 let url = queue.buildUrl(
                     queue.getLatestArtifact,
-                    decisionTaskID,
+                    decisionTaskId,
                     'public/full-task-graph.json'
                 );
                 return $http.get(url).then(function (resp) {
@@ -317,7 +318,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                 return;
                             }
 
-                            return tcactions.load(decisionTaskID).then((results) => {
+                            return tcactions.load(decisionTaskId).then((results) => {
                                 const actionTaskId = tc.slugid();
 
                                 // In this case we have actions.json tasks
@@ -325,26 +326,27 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                     const addjobstask = _.find(results.actions, {name: 'add-new-jobs'});
                                     // We'll fall back to actions.yaml if this isn't true
                                     if (addjobstask) {
-                                        const actionTask = tcactions.render(addjobstask.task, _.defaults({}, {
-                                            taskGroupId: decisionTaskID,
+                                        return tcactions.submit({
+                                            action: addjobstask,
+                                            actionTaskId,
+                                            decisionTaskId,
                                             taskId: null,
                                             task: null,
                                             input: {tasks: tclabels},
-                                        }, results.staticActionVariables));
-
-                                        return queue.createTask(actionTaskId, actionTask);
+                                            staticActionVariables: results.staticActionVariables,
+                                        });
                                     }
                                 }
 
                                 // Otherwise we'll figure things out with actions.yml
-                                let url = queue.buildSignedUrl(queue.getLatestArtifact, decisionTaskID, 'public/action.yml');
+                                let url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                                 return $http.get(url).then(function (resp) {
                                     let action = resp.data;
                                     let template = $interpolate(action);
                                     let taskLabels = tclabels.join(',');
                                     action = template({
                                         action: 'add-tasks',
-                                        action_args: `--decision-id ${decisionTaskID} --task-labels ${taskLabels}`,
+                                        action_args: `--decision-id ${decisionTaskId} --task-labels ${taskLabels}`,
                                     });
                                     let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                     return queue.createTask(actionTaskId, task);

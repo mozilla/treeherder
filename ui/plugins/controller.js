@@ -391,20 +391,20 @@ treeherder.controller('PluginCtrl', [
                     $scope.resultsetId).then(function (decisionTaskId) {
                         return tcactions.load(decisionTaskId).then((results) => {
                             const tc = thTaskcluster.client();
-                            const queue = new tc.Queue();
                             const actionTaskId = tc.slugid();
                             if (results) {
                                 const backfilltask = _.find(results.actions, {name: 'backfill'});
                                 // We'll fall back to actions.yaml if this isn't true
                                 if (backfilltask) {
-                                    const actionTask = tcactions.render(backfilltask.task, _.defaults({}, {
-                                        taskGroupId: decisionTaskId,
+                                    return tcactions.submit({
+                                        action: backfilltask,
+                                        actionTaskId,
+                                        decisionTaskId,
                                         taskId: null,
                                         task: null,
                                         input: {},
-                                    }, results.staticActionVariables));
-
-                                    queue.createTask(actionTaskId, actionTask).then(function () {
+                                        staticActionVariables: results.staticActionVariables,
+                                    }).then(function () {
                                         $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
                                     }, function (e) {
                                         // The full message is too large to fit in a Treeherder
@@ -415,6 +415,8 @@ treeherder.controller('PluginCtrl', [
                             }
 
                             // Otherwise we'll figure things out with actions.yml
+                            const queue = new tc.Queue();
+
                             // buildUrl is documented at
                             // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
                             // It is necessary here because getLatestArtifact assumes it is getting back
