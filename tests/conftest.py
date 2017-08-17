@@ -442,6 +442,21 @@ def test_user(request, transactional_db):
 
 
 @pytest.fixture
+def test_ldap_user(request, transactional_db):
+    # a user *without* sheriff/staff permissions
+    from django.contrib.auth.models import User
+    user = User.objects.create(username="mozilla-ldap/user@foo.com",
+                               email='user@foo.com',
+                               is_staff=False)
+
+    def fin():
+        user.delete()
+    request.addfinalizer(fin)
+
+    return user
+
+
+@pytest.fixture
 def test_sheriff(request, transactional_db):
     # a user *with* sheriff/staff permissions
     from django.contrib.auth.models import User
