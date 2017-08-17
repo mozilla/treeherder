@@ -1,5 +1,5 @@
-from treeherder.autoclassify.detectors import (ManualDetector,
-                                               TestFailureDetector)
+from treeherder.autoclassify.detectors import TestFailureDetector as _TestFailureDetector
+from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
                                               ElasticSearchTestMatcher,
                                               PreciseTestMatcher)
@@ -123,7 +123,7 @@ def test_autoclassified_after_manual_classification(test_user,
                                                     test_job_2,
                                                     text_log_errors_failure_lines,
                                                     failure_classifications):
-    register_detectors(ManualDetector, TestFailureDetector)
+    register_detectors(ManualDetector, _TestFailureDetector)
 
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
@@ -152,7 +152,7 @@ def test_autoclassified_after_manual_classification(test_user,
 def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
                                                                 test_user,
                                                                 failure_classifications):
-    register_detectors(ManualDetector, TestFailureDetector)
+    register_detectors(ManualDetector, _TestFailureDetector)
 
     # Line type won't be detected by the detectors we have registered
     lines = [(log_line, {})]
@@ -173,7 +173,7 @@ def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
 
 def test_autoclassified_no_update_after_manual_classification_2(test_user, test_job_2,
                                                                 failure_classifications):
-    register_detectors(ManualDetector, TestFailureDetector)
+    register_detectors(ManualDetector, _TestFailureDetector)
 
     # Too many failure lines
     test_error_lines, test_failure_lines = create_lines(test_job_2,
