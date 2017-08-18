@@ -405,7 +405,7 @@ treeherder.controller('PluginCtrl', [
                                         input: {},
                                         staticActionVariables: results.staticActionVariables,
                                     }).then(function () {
-                                        $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                        $scope.$apply(thNotify.send(`Request sent to backfill job via actions.json (${actionTaskId})`, 'success', true));
                                     }, function (e) {
                                         // The full message is too large to fit in a Treeherder
                                         // notification box.
@@ -435,9 +435,10 @@ treeherder.controller('PluginCtrl', [
                                     action: 'backfill',
                                     action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
                                 });
+
                                 let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                 queue.createTask(actionTaskId, task).then(function () {
-                                    $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
+                                    $scope.$apply(thNotify.send(`Request sent to backfill job via actions.yml (${actionTaskId})`, 'success', true));
                                 }, function (e) {
                                     // The full message is too large to fit in a Treeherder
                                     // notification box.

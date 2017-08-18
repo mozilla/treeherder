@@ -213,7 +213,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                     task: null,
                                     input: {},
                                     staticActionVariables: results.staticActionVariables,
-                                });
+                                }).then(() => `Request sent to trigger missing jobs via actions.json (${actionTaskId})`);
                             }
                         }
                     });
@@ -243,7 +243,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                     input: {times},
                                     staticActionVariables: results.staticActionVariables,
                                 }).then(function () {
-                                    return "Request sent to trigger all talos jobs " + times + " time(s)";
+                                    return `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`;
                                 });
                             }
                         }
@@ -260,7 +260,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             });
                             let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(function () {
-                                return "Request sent to trigger all talos jobs " + times + " time(s)";
+                                return `Request sent to trigger all talos jobs ${times} time(s) via actions.yml (${actionTaskId})` ;
                             });
                         });
                     });
@@ -306,7 +306,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             }
                             let bbdata = {
                                 requested_jobs: bbnames,
-                                decision_task_id: decisionTaskID
+                                decision_task_id: decisionTaskId
                             };
                             return $http.post(
                                 thUrl.getProjectUrl("/resultset/", repoName) + resultset_id + '/trigger_runnable_jobs/',
@@ -334,7 +334,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                             task: null,
                                             input: {tasks: tclabels},
                                             staticActionVariables: results.staticActionVariables,
-                                        });
+                                        }).then(() => `Request sent to trigger new jobs via actions.json (${actionTaskId})`);
                                     }
                                 }
 
@@ -349,7 +349,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                         action_args: `--decision-id ${decisionTaskId} --task-labels ${taskLabels}`,
                                     });
                                     let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                                    return queue.createTask(actionTaskId, task);
+                                    return queue.createTask(actionTaskId, task).then(() => `Request sent to trigger new jobs via actions.yml (${actionTaskId})`);
                                 });
                             });
                         }),
