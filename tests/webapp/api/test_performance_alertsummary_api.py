@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework.test import APIClient
 
@@ -169,9 +168,8 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
 
 
-def test_alert_summary_post(webapp, test_repository,
-                            push_stored,
-                            test_perf_signature):
+def test_alert_summary_post(webapp, test_repository, push_stored,
+                            test_perf_signature, test_user, test_sheriff):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)
     post_blob = {
@@ -188,20 +186,14 @@ def test_alert_summary_post(webapp, test_repository,
 
     # verify that we fail if authenticated, but not staff
     client = APIClient()
-    user = User.objects.create(username="testuser1",
-                               email='foo1@bar.com',
-                               is_staff=False)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_user)
     resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.count() == 0
 
     # verify that we succeed if authenticated + staff
     client = APIClient()
-    user = User.objects.create(username="testuser2",
-                               email='foo2@bar.com',
-                               is_staff=True)
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=test_sheriff)
     resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 200
 
