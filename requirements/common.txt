@@ -108,19 +108,20 @@ mozlog==3.5 \
     --hash=sha256:30fa398c631faf2f6b8cc81d95e35e3ee9f1a6e5bcdf3132fde7ad943273d66e \
     --hash=sha256:2b70acdbdd4385a26083b298ba86f30fce82d5a0e662a07025a2f17553be4fa1
 
-futures==3.1.1 \
+futures==3.1.1; python_version < '3' \
     --hash=sha256:c4884a65654a7c45435063e14ae85280eb1f111d94e542396717ba9828c4337f \
     --hash=sha256:51ecb45f0add83c806c68e4b06106f90db260585b25ef2abfcda0bd95c0132fd
 
 # Required by jsonschema
-functools32==3.2.3-2 --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
+functools32==3.2.3-2; python_version < '3' \
+    --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
 # Required by django-rest-swagger
 coreapi==2.3.1 \
     --hash=sha256:af112b32104d0dbdedbac8e4c22d6068b799efad0c2328204575aad66de8f761 \
     --hash=sha256:af88b5ad7415410de9ef33bd7f7cf605534f1c4cf24de716ebe4453021249714
 coreschema==0.0.4 \
-    --hash=sha256:5e6ef7bf38c1525d5e55a895934ab4273548629f16aed5c0a6caa74ebf45551f
+    --hash=sha256:9503506007d482ab0867ba14724b93c18a33b22b6d19fb419ef2d239dd4a1607
 Jinja2==2.9.6 \
     --hash=sha256:2231bace0dfd8d2bf1e5d7e41239c06c9e0ded46e70cc1094a0aa64b0afeb054
 MarkupSafe==1.0 \
@@ -152,7 +153,7 @@ django-environ==0.4.3 \
 six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1
 
 # Required by hawkrest and requests-hawk
-mohawk==0.3.4 --hash=sha256:b3f85ffa93a5c7d2f9cc591246ef9f8ac4a9fa716bfd5bae0377699a2d89d78c
+mohawk==0.3.4 --hash=sha256:e98b331d9fa9ece7b8be26094cbe2d57613ae882133cc755167268a984bc0ab3
 
 hawkrest==1.0.0 \
     --hash=sha256:a3b9c52ee86b0e437aa16819356e57ea79706e58b52ffa4cb908a02d1ebd4875 \
@@ -208,6 +209,19 @@ slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60
 taskcluster==1.3.4 \
     --hash=sha256:c0bbaa680aed4e502c370d24258c85e6ea7a891fd090ac6af66356e0e9a459fc
 
+# Dependency for Taskcluster
+aiohttp==2.2.5 \
+    --hash=sha256:b80f44b99fa3c9b4530fcfa324a99b84843043c35b084e0b653566049974435d
+
+yarl==0.11 \
+    --hash=sha256:f0fa3a44cc463ddc2257e17d7aa162069c921d662a17b1d7d963f417717ecb31
+
+multidict==2.1.4 \
+    --hash=sha256:62bc16176162cd44d5f912dce1369d0b066885ac3861932758909ced215e2bff
+
+async_timeout==1.2.0 \
+    --hash=sha256:2507257417470f41e40ae9265d0abdbff6d936b6e0d5831132d35714c9cd433d
+
 graphene-django==1.3 \
     --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc
 
@@ -229,4 +243,5 @@ iso8601==0.1.12 \
 graphene==1.4.1 \
     --hash=sha256:36134e026ec987514b240b57e3b6a995d6aed0fc5dece0567e77d5aed0ad0ece
 
-enum34==1.1.6 --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
+enum34==1.1.6; python_version < '3' \
+    --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
