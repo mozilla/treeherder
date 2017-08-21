@@ -3,45 +3,45 @@
 treeherder.factory('thTabs', [
     function () {
         var thTabs = {
-            "tabs": {
-                "jobDetails": {
+            tabs: {
+                jobDetails: {
                     title: "Job Details",
                     description: "additional job information",
                     content: "plugins/job_details/main.html",
                     enabled: true
                 },
-                "failureSummary": {
+                failureSummary: {
                     title: "Failure Summary",
                     description: "failure summary",
                     content: "plugins/failure_summary/main.html",
                     enabled: true
                 },
-                "autoClassification": {
+                autoClassification: {
                     title: "Failure Classification",
                     description: "intermittent classification interface",
                     content: "plugins/auto_classification/main.html",
                     enabled: false
                 },
-                "annotations": {
+                annotations: {
                     title: "Annotations",
                     description: "annotations",
                     content: "plugins/annotations/main.html",
                     enabled: true
                 },
-                "similarJobs": {
+                similarJobs: {
                     title: "Similar Jobs",
                     description: "similar jobs",
                     content: "plugins/similar_jobs/main.html",
                     enabled: true
                 },
-                "perfDetails": {
+                perfDetails: {
                     title: "Performance",
                     description: "performance details",
                     content: "plugins/perf_details/main.html",
                     enabled: false
                 }
             },
-            "tabOrder": [
+            tabOrder: [
                 "jobDetails",
                 "failureSummary",
                 "autoClassification",
@@ -49,8 +49,8 @@ treeherder.factory('thTabs', [
                 "similarJobs",
                 "perfDetails"
             ],
-            "selectedTab": "jobDetails",
-            "showTab" : function (tab, contentId) {
+            selectedTab: "jobDetails",
+            showTab: function (tab, contentId) {
                 thTabs.selectedTab = tab;
                 if (!thTabs.tabs[thTabs.selectedTab].enabled) {
                     thTabs.selectedTab = 'jobDetails';

@@ -165,7 +165,7 @@ perf.controller('AlertsCtrl', [
 
         // can filter by alert statuses or just show everything
         $scope.statuses = _.map(phAlertSummaryStatusMap);
-        $scope.statuses = $scope.statuses.concat({id: -1, text: "all"});
+        $scope.statuses = $scope.statuses.concat({ id: -1, text: "all" });
 
         $scope.changeAlertSummaryStatus = function (alertSummary, open) {
             PhAlerts.changeAlertSummaryStatus(
@@ -368,7 +368,7 @@ perf.controller('AlertsCtrl', [
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
             var summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
-                _.filter(alertSummary.alerts, {'selected': true}),
+                _.filter(alertSummary.alerts, { selected: true }),
                 function (alert) {
                     return _.find($scope.alertSummaries, function (alertSummary) {
                         return alertSummary.id === alert.related_summary_id;
@@ -406,8 +406,7 @@ perf.controller('AlertsCtrl', [
                     [alertSummary.push_id, alertSummary.prev_push_id],
                     function (resultSetId) {
                         // skip nulls
-                        if (resultSetId === null)
-                            return;
+                        if (resultSetId === null) return;
                         var repoMap = resultSetToSummaryMap[alertSummary.repository];
                         // initialize map for this result set, if not already
                         // initialized

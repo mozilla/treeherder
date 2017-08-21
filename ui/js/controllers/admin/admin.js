@@ -98,7 +98,7 @@ admin.controller('AdminCtrl', [
                     }
                 };
 
-                $scope.master_profile = {name: '', exclusions: []};
+                $scope.master_profile = { name: '', exclusions: [] };
 
                 // the promises may not yet have returned, but this just tells
                 // us that we don't need to re-run this function.

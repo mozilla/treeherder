@@ -287,7 +287,7 @@ perf.controller('GraphsCtrl', [
                 opts.min = ranges.yaxis.from;
                 opts.max = ranges.yaxis.to;
             });
-            $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
+            $scope.zoom = { x: [ranges.xaxis.from, ranges.xaxis.to], y: [ranges.yaxis.from, ranges.yaxis.to] };
 
             $scope.plot.setupGrid();
             $scope.plot.draw();
@@ -442,7 +442,7 @@ perf.controller('GraphsCtrl', [
                     {
                         xaxis: { mode: 'time' },
                         series: { shadowSize: 0 },
-                        selection: { mode: 'xy', color: '#97c6e5'},
+                        selection: { mode: 'xy', color: '#97c6e5' },
                         lines: { show: false },
                         points: { show: true },
                         legend: { show: false },
@@ -476,8 +476,7 @@ perf.controller('GraphsCtrl', [
 
                 $("#graph").on("plothover", function (event, pos, item) {
                     // if examining an item, disable this behaviour
-                    if ($scope.selectedDataPoint)
-                        return;
+                    if ($scope.selectedDataPoint) return;
 
                     $('#graph').css({ cursor: item ? 'pointer' : '' });
 
@@ -536,8 +535,9 @@ perf.controller('GraphsCtrl', [
                     $scope.seriesList[0].platform +
                         " (" + $scope.seriesList[0].projectName +
                         ")");
-                if ($scope.seriesList.length > 1)
+                if ($scope.seriesList.length > 1) {
                     window.document.title += " and others";
+                }
             } else {
                 window.document.title = $state.current.title;
             }
@@ -623,7 +623,7 @@ perf.controller('GraphsCtrl', [
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
             return $q.all(partialSeriesList.map(function (partialSeries) {
-                let params = {framework: partialSeries.frameworkId};
+                let params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
                 }
@@ -723,11 +723,11 @@ perf.controller('GraphsCtrl', [
         ThRepositoryModel.load().then(function () {
             if ($stateParams.timerange) {
                 var timeRange = _.find(phTimeRanges,
-                    {'value': parseInt($stateParams.timerange)});
+                    { value: parseInt($stateParams.timerange) });
                 $scope.myTimerange = timeRange;
             } else {
                 $scope.myTimerange = _.find(phTimeRanges,
-                    {'value': phDefaultTimeRangeValue});
+                    { value: phDefaultTimeRangeValue });
             }
             $scope.timeRangeChanged = function () {
                 $scope.loadingGraphs = true;
@@ -746,8 +746,8 @@ perf.controller('GraphsCtrl', [
                 var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
                 var zoomArray = zoomString.split(",");
                 var zoomObject = {
-                    "x": zoomArray.slice(0, 2),
-                    "y": zoomArray.slice(2, 4)
+                    x: zoomArray.slice(0, 2),
+                    y: zoomArray.slice(2, 4)
                 };
                 $scope.zoom = (zoomString) ? zoomObject : [];
             } else {
@@ -778,8 +778,8 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
                     var partialSeriesArray = partialSeriesString.split(",");
                     var partialSeriesObject = {
-                        project:  partialSeriesArray[0],
-                        signature:  partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
+                        project: partialSeriesArray[0],
+                        signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
                         id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
                         visible: partialSeriesArray[2] !== 0,
                         frameworkId: partialSeriesArray[3]
@@ -815,7 +815,7 @@ perf.controller('GraphsCtrl', [
                 }
 
                 if (option !== undefined) {
-                    var series = _.find($scope.seriesList, {signature: seriesSignature});
+                    var series = _.find($scope.seriesList, { signature: seriesSignature });
                     options = { option: option, relatedSeries: series };
                 }
 
@@ -987,7 +987,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             var branchList = [];
             thPerformanceBranches.forEach(function (branch) {
                 if (branch !== originalSeries.projectName) {
-                    branchList.push(_.find($scope.projects, {name: branch}));
+                    branchList.push(_.find($scope.projects, { name: branch }));
                 }
             });
             // get each project's series data from remote and use promise to

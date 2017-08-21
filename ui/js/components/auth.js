@@ -48,7 +48,7 @@ treeherder.component("login", {
             var ctrl = this;
             ctrl.user = {};
             // "clears out" the user when it is detected to be logged out.
-            var loggedOutUser = {is_staff: false, username: "", email: "", loggedin: false};
+            var loggedOutUser = { is_staff: false, username: "", email: "", loggedin: false };
 
             ctrl.userLoggingIn = $location.path() === '/login';
 
@@ -123,7 +123,7 @@ treeherder.component("login", {
                 newUser.loggedin = true;
                 localStorageService.set("user", newUser);
                 ctrl.user = newUser;
-                ctrl.onUserChange({$event: {user: newUser}});
+                ctrl.onUserChange({ $event: { user: newUser } });
 
             };
 
@@ -131,7 +131,7 @@ treeherder.component("login", {
                 localStorageService.set("user", loggedOutUser);
                 localStorageService.set('taskcluster.credentials', {});
                 ctrl.user = loggedOutUser;
-                ctrl.onUserChange({$event: {user: loggedOutUser}});
+                ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };
         }]
 });
@@ -166,7 +166,7 @@ treeherder.component("loginCallback", {
             const results = $location.search();
             if (results.certificate) {
                 results.certificate = JSON.parse(results.certificate);
-                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({"certificate": results.certificate}));
+                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({ certificate: results.certificate }));
             }
 
             const header = hawk.client.header(loginUrl, 'GET', payload);
@@ -174,7 +174,7 @@ treeherder.component("loginCallback", {
             // send a request from client side to TH server signed with TC
             // creds from login.taskcluster.net
             $http.get(loginUrl,
-                      {headers: {"tcauth": header.field}})
+                      { headers: { tcauth: header.field } })
                 .then(function (resp) {
                     var user = resp.data;
                     user.loggedin = true;

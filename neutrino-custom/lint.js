@@ -38,11 +38,16 @@ module.exports = neutrino => {
                     'block-spacing': ['error', 'always'],
                     'comma-spacing': 'error',
                     'comma-style': 'error',
+                    'curly': ['error', 'multi-line', 'consistent'],
                     'eol-last': 'error',
                     'eqeqeq': 'error',
                     'guard-for-in': 'error',
                     'indent': ['error', 4, {
                         'SwitchCase': 1
+                    }],
+                    'key-spacing': ['error', { 
+                        beforeColon: false, 
+                        afterColon: true 
                     }],
                     'keyword-spacing': 'error',
                     'linebreak-style': 'error',
@@ -89,6 +94,7 @@ module.exports = neutrino => {
                     'no-useless-call': 'error',
                     'no-void': 'error',
                     'no-with': 'error',
+                    'object-curly-spacing': ['error', 'always'],
                     'semi': 'error',
                     'space-before-blocks': 'error',
                     'space-before-function-paren': ['error', {
@@ -97,6 +103,11 @@ module.exports = neutrino => {
                         asyncArrow: 'always'
                     }],
                     'strict': ['error', 'global'],
+                    'quote-props': ['error', 'as-needed', { 
+                        keywords: false, 
+                        unnecessary: true, 
+                        numbers: false 
+                    }],
                     'yoda': 'error'
                 },
                 globals: ['angular', '$', '_', 'treeherder', 'perf',
@@ -108,4 +119,3 @@ module.exports = neutrino => {
             }
         }));
 };
-

@@ -2,8 +2,9 @@
 
 treeherder.component('phCompareTable', {
     templateUrl: ['$element', '$attrs', function ($element, $attrs) {
-        if ($attrs.type === 'trend')
+        if ($attrs.type === 'trend') {
             return 'partials/perf/trendtable.html';
+        }
         return 'partials/perf/comparetable.html';
     }],
     bindings: {
@@ -51,8 +52,9 @@ treeherder.component('phCompareTable', {
             return _.filter(results, function (result) {
                 var testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
                 return _.every(ctrl.filterOptions.filter.split(' '), function (matchText) {
-                    if ($attrs.type === 'trend')
+                    if ($attrs.type === 'trend') {
                         return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
+                    }
                     return filter(testCondition, matchText) && shouldBeShown(result);
                 });
             });
@@ -67,7 +69,7 @@ treeherder.component('phCompareTable', {
                 }
             });
             ctrl.filteredResultList = _.map(_.keys(ctrl.filteredResultList), function (testName) {
-                return {'testName': testName, 'results': ctrl.filteredResultList[testName]};
+                return { testName: testName, results: ctrl.filteredResultList[testName] };
             });
         };
 
@@ -110,7 +112,7 @@ treeherder.component('compareError', {
 });
 
 treeherder.component('distributionGraph', {
-    template:`
+    template: `
         <table class = "tooltip-table"> 
             <tr> 
                 <td class="value-column">{{$ctrl.minValue|abbreviatedNumber}}</td> 

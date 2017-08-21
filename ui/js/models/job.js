@@ -102,7 +102,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.get(ThJobModel.get_uri(repoName)+pk+"/",
-                             {timeout:timeout})
+                             { timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });
@@ -121,7 +121,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName)+"retrigger/",
-                              {job_id_list:job_id_list, timeout:timeout})
+                              { job_id_list: job_id_list, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });
@@ -132,7 +132,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName)+pk+"/backfill/",
-                              {timeout:timeout});
+                              { timeout: timeout });
         };
 
         ThJobModel.cancel = function (repoName, jobIds, config) {
@@ -140,7 +140,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName) + "cancel/",
-                              {job_id_list: jobIds, timeout:timeout})
+                              { job_id_list: jobIds, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });

@@ -113,7 +113,7 @@ treeherderApp.controller('FilterPanelCtrl', [
         };
 
         $scope.createFieldFilter = function () {
-            $scope.newFieldFilter = {field: "", value: ""};
+            $scope.newFieldFilter = { field: "", value: "" };
         };
         $scope.cancelFieldFilter = function () {
             $scope.newFieldFilter = null;

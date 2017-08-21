@@ -23,8 +23,7 @@ treeherder.factory('thUrl', [
                 return "index.html#/jobs?" + _.reduce({
                     repo: repo, fromchange: fromChange, tochange: toChange
                 }, function (result, v, k) {
-                    if (result.length)
-                        result += '&';
+                    if (result.length) result += '&';
                     return result + k + '=' + v;
                 }, "");
             },
@@ -73,8 +72,8 @@ treeherder.factory('thCloneHtml', [
 
             templateTxt = document.getElementById(templateId);
             cloneHtmlObjs[templateName] = {
-                interpolator:$interpolate(templateTxt.text),
-                text:templateTxt.text
+                interpolator: $interpolate(templateTxt.text),
+                text: templateTxt.text
             };
         }
 
@@ -83,7 +82,7 @@ treeherder.factory('thCloneHtml', [
         };
 
         return {
-            get:getClone
+            get: getClone
         };
 
     }]);

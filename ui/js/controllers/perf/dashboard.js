@@ -61,7 +61,7 @@ perf.controller('dashCtrl', [
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
-                    framework: $scope.framework}).then(function (seriesList) {
+                    framework: $scope.framework }).then(function (seriesList) {
                         return _.filter(seriesList, function (series) {
                             return filterSeriesByTopic(series);
                         });

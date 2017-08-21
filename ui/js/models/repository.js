@@ -36,7 +36,7 @@ treeherder.factory('ThRepositoryModel', [
             if (!_.size(orderedRepoGroups)) {
                 var groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
                 _.each(groups, function (reposAr, gName) {
-                    orderedRepoGroups[thRepoGroupOrder[gName] || gName] = {name: gName, repos: reposAr};
+                    orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
                 });
             }
             return orderedRepoGroups;
@@ -61,7 +61,7 @@ treeherder.factory('ThRepositoryModel', [
                 return;
             }
             _.extend(repos[name], {
-                treeStatus: {status: "not retrieved yet", message_of_the_day: ""},
+                treeStatus: { status: "not retrieved yet", message_of_the_day: "" },
                 unclassifiedFailureCount: 0,
                 groupName: repos[name].groupName
             });
@@ -89,7 +89,7 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         var get_list = function () {
-            return $http.get(get_uri(), {cache: true});
+            return $http.get(get_uri(), { cache: true });
         };
 
         var load = function (options) {

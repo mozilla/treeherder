@@ -13,7 +13,7 @@ treeherder.factory('ThRunnableJobModel', [
 
         ThRunnableJobModel.get_list = function (repoName, params) {
             return ThJobModel.get_list(
-                repoName, params, {uri: ThRunnableJobModel.get_runnable_uri(repoName)});
+                repoName, params, { uri: ThRunnableJobModel.get_runnable_uri(repoName) });
         };
 
         return ThRunnableJobModel;

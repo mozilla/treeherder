@@ -20,7 +20,7 @@ treeherder.directive('thWatchedRepo', [
         var $log = new ThLog("thWatchedRepo");
 
         var statusInfo = {
-            "open": {
+            open: {
                 icon: "fa-circle-o",
                 color: "tree-open",
                 btnClass: "btn-view-nav"
@@ -30,12 +30,12 @@ treeherder.directive('thWatchedRepo', [
                 color: "tree-approval",
                 btnClass: "btn-view-nav"
             },
-            "closed": {
+            closed: {
                 icon: "fa-times-circle",
                 color: "tree-closed",
                 btnClass: "btn-view-nav-closed"
             },
-            "unsupported": {
+            unsupported: {
                 icon: "fa-question",
                 color: "tree-unavailable",
                 btnClass: "btn-view-nav"
@@ -46,7 +46,7 @@ treeherder.directive('thWatchedRepo', [
                 color: "tree-unavailable",
                 btnClass: "btn-view-nav"
             },
-            "error": {
+            error: {
                 icon: "fa-question",
                 color: "tree-unavailable",
                 btnClass: "btn-view-nav"
@@ -136,7 +136,7 @@ treeherder.directive('thCheckboxDropdownContainer', [
                 });
 
                 $('.checkbox-dropdown-menu').on({
-                    "click": function (ev) {
+                    click: function (ev) {
                         if ($(ev.target).hasClass("dropdown-link") ||
                             $(ev.target).parent().hasClass("dropdown-link")) {
                             scope.closeable = false;

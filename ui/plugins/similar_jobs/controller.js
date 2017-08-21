@@ -90,9 +90,9 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.result_status_info = thResultStatusInfo;
 
         $scope.similar_jobs_filters = {
-            "machine_id": false,
-            "build_platform_id": true,
-            "option_collection_hash": true
+            machine_id: false,
+            build_platform_id: true,
+            option_collection_hash: true
         };
         $scope.button_class = function (job) {
             var resultState = job.result;

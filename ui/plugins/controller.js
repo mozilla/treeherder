@@ -119,15 +119,15 @@ treeherder.controller('PluginCtrl', [
                 $scope.job_details = [];
                 var jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
-                    {timeout: selectJobPromise});
+                    { timeout: selectJobPromise });
 
                 var jobDetailPromise = ThJobDetailModel.getJobDetails(
-                    {job_guid: job.job_guid},
-                    {timeout: selectJobPromise});
+                    { job_guid: job.job_guid },
+                    { timeout: selectJobPromise });
 
                 var jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job.id,
-                    {timeout: selectJobPromise});
+                    { timeout: selectJobPromise });
 
                 var phSeriesPromise = PhSeries.getSeriesData(
                     $scope.repoName, { job_id: job.id });
@@ -161,13 +161,13 @@ treeherder.controller('PluginCtrl', [
                     // incorporate the buildername into the job details if this is a buildbot job
                     // (i.e. it has a buildbot request id)
                     var buildbotRequestIdDetail = _.find($scope.job_details,
-                                                   {title: 'buildbot_request_id'});
+                                                   { title: 'buildbot_request_id' });
                     if (buildbotRequestIdDetail) {
                         $scope.job_details = $scope.job_details.concat({
                             title: "Buildername",
                             value: $scope.job.ref_data_name
                         });
-                        $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
+                        $scope.buildernameIndex = _.findIndex($scope.job_details, { title: "Buildername" });
                     }
 
                     // the third result comes from the jobLogUrl promise
@@ -212,7 +212,7 @@ treeherder.controller('PluginCtrl', [
                             _.forEach(seriesList, function (series) {
                                 // skip series which are subtests of another series
                                 if (series.parentSignature)
-                                    return;
+                                    { return; }
                                 var detail = {
                                     url: thServiceDomain + '/perf.html#/graphs?series=[' + [
                                         $scope.repoName, series.signature, 1,
@@ -247,7 +247,7 @@ treeherder.controller('PluginCtrl', [
                 duration = "";
             // fields that will show in the job detail panel
             $scope.visibleFields = {
-                "Build": $scope.job.build_architecture + " " +
+                Build: $scope.job.build_architecture + " " +
                          $scope.job.build_platform + " " +
                          $scope.job.build_os || undef,
                 "Job name": $scope.job.job_type_name || undef
@@ -351,9 +351,9 @@ treeherder.controller('PluginCtrl', [
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function () {
                     // XXX: Remove this after 1134929 is resolved.
                     return ThJobDetailModel.getJobDetails({
-                        "title": "buildbot_request_id",
-                        "repository": $scope.repoName,
-                        "job_id__in": job_id_list.join(',')
+                        title: "buildbot_request_id",
+                        repository: $scope.repoName,
+                        job_id__in: job_id_list.join(',')
                     }).then(function (data) {
                         var requestIdList = _.map(data, 'value');
                         requestIdList.forEach(function (requestId) {
@@ -581,7 +581,7 @@ treeherder.controller('PluginCtrl', [
         // load the list of existing classifications (including possibly a new one just
         // added).
         $scope.updateClassifications = function () {
-            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function (response) {
+            ThJobClassificationModel.get_list({ job_id: $scope.job.id }).then(function (response) {
                 $scope.classifications = response;
                 $scope.job.note = $scope.classifications[0];
             });
@@ -636,7 +636,7 @@ treeherder.controller('PluginCtrl', [
             // it might in fact not have been
             var jobs = {};
             jobs[$scope.job.id] = $scope.job;
-            $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
+            $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
         });
 
         $scope.pinboard_service = thPinboard;

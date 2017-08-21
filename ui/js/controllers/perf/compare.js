@@ -18,10 +18,11 @@ perf.controller('CompareChooserCtrl', [
             $scope.revisionComparison = false;
 
             var getParameter = function (paramName, defaultValue) {
-                if ($stateParams[paramName])
+                if ($stateParams[paramName]) {
                     return $stateParams[paramName];
-                else if (localStorageService.get(paramName))
+                } else if (localStorageService.get(paramName)) {
                     return localStorageService.get(paramName);
+                }
                 return defaultValue;
             };
 
@@ -94,7 +95,7 @@ perf.controller('CompareChooserCtrl', [
                         $scope.newRevision
                     ).then(function (revision) {
                         return {
-                            revision:revision,
+                            revision: revision,
                             project: $scope.newProject
                         };
                     });
@@ -281,8 +282,9 @@ perf.controller('CompareResultsCtrl', [
                     }
 
                     cmap.name = platform;
-                    if (Object.keys($scope.compareResults).indexOf(testName) < 0)
+                    if (Object.keys($scope.compareResults).indexOf(testName) < 0) {
                         $scope.compareResults[testName] = [];
+                    }
                     $scope.compareResults[testName].push(cmap);
                 });
             });
@@ -309,7 +311,7 @@ perf.controller('CompareResultsCtrl', [
 
                 PhSeries.getSeriesList(
                     $scope.originalProject.name,
-                    {interval: timeRange, subtests: 0,
+                    { interval: timeRange, subtests: 0,
                         framework: $scope.filterOptions.framework.id
                     }).then(
                         function (originalSeriesList) {
@@ -319,7 +321,7 @@ perf.controller('CompareResultsCtrl', [
                                 _.map(originalSeriesList, 'name'));
                             return PhCompare.getResultsMap($scope.originalProject.name,
                                                         originalSeriesList,
-                                                        {pushIDs: resultSetIds});
+                                                        { pushIDs: resultSetIds });
                         }).then(function (resultMaps) {
                             var originalResultsMap = resultMaps[$scope.originalResultSet.id];
                             var newResultsMap = resultMaps[$scope.newResultSet.id];
@@ -345,7 +347,7 @@ perf.controller('CompareResultsCtrl', [
 
                                         return PhCompare.getResultsMap($scope.newProject.name,
                                                                     newSeriesList,
-                                                                    {pushIDs: [$scope.newResultSet.id]});
+                                                                    { pushIDs: [$scope.newResultSet.id] });
                                     }).then(function (resultMaps) {
                                         $scope.dataLoading = false;
                                         displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
@@ -366,7 +368,7 @@ perf.controller('CompareResultsCtrl', [
                     $scope.testList = _.uniq(_.map(originalSeriesList, 'name'));
                     return PhCompare.getResultsMap($scope.originalProject.name,
                                                     originalSeriesList,
-                                                    {interval: $scope.selectedTimeRange});
+                                                    { interval: $scope.selectedTimeRange });
                 }).then(function (resultsMap) {
                     var originalResultsMap = resultsMap;
                     PhSeries.getSeriesList(
@@ -380,7 +382,7 @@ perf.controller('CompareResultsCtrl', [
                                         _.uniq(_.map(newSeriesList, 'name')));
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                                             newSeriesList,
-                                                            {pushIDs: [$scope.newResultSet.id]});
+                                                            { pushIDs: [$scope.newResultSet.id] });
                                 }).then(function (resultMaps) {
                                     var newResultsMap = resultMaps[$scope.newResultSet.id];
                                     $scope.dataLoading = false;
@@ -740,7 +742,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
                                 return PhCompare.getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
-                                    {pushIDs: resultSetIds});
+                                    { pushIDs: resultSetIds });
                             })
                     ]).then(function (results) {
                         var originalSeriesMap = results[1][$scope.originalResultSet.id];
@@ -778,7 +780,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                 return PhCompare.getResultsMap($scope.newProject.name,
                                     newSeriesList,
-                                    {pushIDs: [$scope.newResultSet.id]});
+                                    { pushIDs: [$scope.newResultSet.id] });
                             }).then(function (newSeriesMaps) {
                                 var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
@@ -821,7 +823,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
                                 return PhCompare.getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
-                                    {interval: $scope.selectedTimeRange});
+                                    { interval: $scope.selectedTimeRange });
                             })
                     ]).then(
                         function (originalResults) {
@@ -841,7 +843,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                         newSeriesList,
-                                        {pushIDs: [$scope.newResultSet.id]});
+                                        { pushIDs: [$scope.newResultSet.id] });
                                 }).then(function (newSeriesMaps) {
                                     var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                     // There is a chance that we haven't received data for the given signature/resultSet yet
@@ -894,7 +896,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                     }
                     const numRuns = perfDatumList[subtestSignature].length;
                     let replicatePromises = perfDatumList[subtestSignature].map(
-                        value => PhSeries.getReplicateData({job_id: value.job_id}));
+                        value => PhSeries.getReplicateData({ job_id: value.job_id }));
                     return $q.all(replicatePromises).then((replicateData) => {
                         let replicateValues = replicateData.concat.apply([],
                                 replicateData.map((data) => {
@@ -905,8 +907,8 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                             );
                         //metrics-graphics doesn't accept "0" as x_accesor
                         replicateValues = replicateValues.map((value, index) => ({
-                            "replicate": (index + 1).toString(),
-                            "value": value
+                            replicate: (index + 1).toString(),
+                            value: value
                         }));
                         metricsgraphics.data_graphic({
                             title: `${target} Replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
@@ -942,7 +944,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 $stateParams.originalProject);
             $scope.newProject = ThRepositoryModel.getRepo(
                 $stateParams.newProject);
-            PhSeries.getSeriesList($scope.originalProject.name, {signature: $scope.originalSubtestSignature}).then(
+            PhSeries.getSeriesList($scope.originalProject.name, { signature: $scope.originalSubtestSignature }).then(
                 (seriesData) => {
                     $scope.testSuite = seriesData[0].suite;
                     $scope.subtest = seriesData[0].test;
@@ -955,8 +957,6 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 }).then((result) => {
                     $scope.originalResultSet = result.resultSet;
                     $scope.originalReplicateError = result.replicateDataError;
-                    if ($scope.originalReplicateError)
-                        $scope.noResult = "base";
                     return fetchAndDrawReplicateGraph($scope.newProject.name,
                                               $scope.newRevision,
                                               $scope.newSubtestSignature,
@@ -964,8 +964,6 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 }).then((result) => {
                     $scope.newResultSet = result.resultSet;
                     $scope.newReplicateError = result.replicateDataError;
-                    if ($scope.newReplicateError)
-                        $scope.noResult = "new";
                     window.document.title = `${$scope.platform}: ${$scope.testName}`;
                     $scope.dataLoading = false;
                 });

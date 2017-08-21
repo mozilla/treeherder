@@ -81,7 +81,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         },
         getSeriesData: function (projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
-                             {params: params}).then(function (response) {
+                             { params: params }).then(function (response) {
                                  if (response.data) {
                                      return response.data;
                                  }
@@ -91,7 +91,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         getReplicateData: function (params) {
             params.value = 'perfherder-data.json';
             return $http.get(thServiceDomain + '/api/jobdetail/'
-                , {params: params}).then(
+                , { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {
                             let url = response.data.results[0].url;

@@ -42,15 +42,15 @@ treeherder.provider('thResultStatus', function () {
 treeherder.provider('thResultStatusObject', function () {
     var getResultStatusObject = function () {
         return {
-            'running':0,
-            'pending':0,
-            'completed':0
+            running: 0,
+            pending: 0,
+            completed: 0
         };
     };
 
     this.$get = function () {
         return {
-            getResultStatusObject:getResultStatusObject
+            getResultStatusObject: getResultStatusObject
         };
     };
 });
@@ -286,8 +286,8 @@ treeherder.provider('thAggregateIds', function () {
 
     this.$get = function () {
         return {
-            getPlatformRowId:getPlatformRowId,
-            getResultsetTableId:getResultsetTableId,
+            getPlatformRowId: getPlatformRowId,
+            getResultsetTableId: getResultsetTableId,
             getJobMapKey: getJobMapKey,
             getGroupMapKey: getGroupMapKey,
             escape: escape
