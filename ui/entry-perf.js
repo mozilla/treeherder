@@ -42,6 +42,7 @@ require('./js/models/repository.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');
 require('./js/models/resultset.js');
+require('./js/services/tcactions.js');
 require('./js/models/user.js');
 require('./js/models/error.js');
 require('./js/perf.js');
