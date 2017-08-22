@@ -13,7 +13,7 @@ from treeherder.model.models import (BugJobMap,
                                      MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata)
-from treeherder.model.search import TestFailureLine
+from treeherder.model.search import TestFailureLine as _TestFailureLine
 
 
 def test_get_failure_line(webapp, failure_lines):
@@ -72,7 +72,7 @@ def test_update_failure_line_verify(test_repository,
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = TestFailureLine.get(failure_line.id, routing=failure_line.test)
+    es_line = _TestFailureLine.get(failure_line.id, routing=failure_line.test)
     assert es_line.best_classification == classified_failures[0].id
     assert es_line.best_is_verified
 
