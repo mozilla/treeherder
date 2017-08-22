@@ -5,7 +5,7 @@
      ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
   <div class="progress-bar progress-bar-striped"  role="progressbar" style="width: 100%"></div>
 </div>
-
+<repo />
 <!-- Main resultset template -->
 <div ng-repeat="resultset in result_sets | orderBy:'-push_timestamp' track by resultset.id"
      ng-controller="ResultSetCtrl"
@@ -65,7 +65,7 @@
       <button ng-click="cancelAllJobs(resultset.revision)" class="btn btn-xs btn-danger">Confirm</button>
     </div>
   </div>
-  <result-set resultset="resultset" watch-depth="reference"></result-set>
+  <push push="resultset" watch-depth="reference" />
 </div>
 
 <!-- Resultset load errors -->

@@ -1,4 +1,4 @@
-"use strict";
+import * as aggregateIds from '../job-view/aggregateIds';
 
 treeherder.provider('thServiceDomain', function () {
     this.$get = function () {
@@ -206,8 +206,6 @@ treeherder.provider('thEvents', function () {
 
             deleteRunnableJobs: "delete-runnable-jobs-EVT",
 
-            toggleAllRevisions: "toggle-all-revisions-EVT",
-
             toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
 
             changeSelection: "next-previous-job-EVT",
@@ -253,41 +251,13 @@ treeherder.provider('thEvents', function () {
 });
 
 treeherder.provider('thAggregateIds', function () {
-
-    var escape = function (id) {
-        return id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
-    };
-
-    var getPlatformRowId = function (
-        repoName, resultsetId, platformName, platformOptions) {
-        // ensure there are no invalid characters in the id (like spaces, etc)
-        return escape(repoName +
-                      resultsetId +
-                      platformName +
-                      platformOptions);
-    };
-
-    var getResultsetTableId = function (repoName, resultsetId, revision) {
-        return escape(repoName + resultsetId + revision);
-    };
-
-    var getGroupMapKey = function (result_set_id, grSymbol, grTier, plName, plOpt) {
-        //Build string key for groupMap entries
-        return escape(result_set_id + grSymbol + grTier + plName + plOpt);
-    };
-
-    var getJobMapKey = function (job) {
-        //Build string key for jobMap entries
-        return 'key' + job.id;
-    };
-
     this.$get = function () {
         return {
-            getPlatformRowId: getPlatformRowId,
-            getResultsetTableId: getResultsetTableId,
-            getJobMapKey: getJobMapKey,
-            getGroupMapKey: getGroupMapKey,
-            escape: escape
+            getPlatformRowId: aggregateIds.getPlatformRowId,
+            getResultsetTableId: aggregateIds.getResultsetTableId,
+            getJobMapKey: aggregateIds.getJobMapKey,
+            getGroupMapKey: aggregateIds.getGroupMapKey,
+            escape: aggregateIds.escape
         };
     };
 });

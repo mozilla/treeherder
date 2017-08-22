@@ -93,27 +93,6 @@ treeherder.filter('linkifyBugs', function () {
     };
 });
 
-treeherder.filter('initials', function () {
-    return function (input) {
-        var str = input || '';
-        var words = str.split(' ');
-        var firstLetters = _.map(
-            words,
-            word => word.replace(/[^A-Z]/gi, '')[0]
-        ).filter(firstLetter => typeof firstLetter !== 'undefined');
-        var initials = "";
-
-        if (firstLetters.length === 1) {
-            initials = firstLetters[0];
-        } else if (firstLetters.length > 1) {
-            initials = firstLetters[0] + firstLetters[firstLetters.length - 1];
-        }
-
-        return '<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span>' +
-               '<div class="icon-superscript user-push-initials">' + initials + '</div>';
-    };
-});
-
 treeherder.filter('highlightLogLine', function () {
     return function (logLine) {
         var parts = logLine.split(" | ", 3);

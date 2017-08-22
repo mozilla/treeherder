@@ -333,6 +333,7 @@ treeherder.factory('ThResultSetStore', [
                     var id = resultSet.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
+                        job.push_id = id;
                         job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
                     });
 
@@ -972,6 +973,7 @@ treeherder.factory('ThResultSetStore', [
             } else {
                 selectedRunnableJobs.splice(jobIndex, 1);
             }
+            return selectedRunnableJobs;
         };
 
         var isRunnableJobSelected = function (repoName, resultsetId, buildername) {

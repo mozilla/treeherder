@@ -1,5 +1,4 @@
-'use strict';
-const PropTypes = require('prop-types');
+import PropTypes from 'prop-types';
 
 // using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {
@@ -293,13 +292,13 @@ JobDetailsPane.propTypes = {
     repoName: PropTypes.string
 };
 
-module.exports = {
-    JobStatusPane,
-    JobDetailsListItem,
-    JobDetailsPane,
-    JobDetailsList,
-    ClassificationsPane
-};
+// module.exports = {
+//     JobStatusPane,
+//     JobDetailsListItem,
+//     JobDetailsPane,
+//     JobDetailsList,
+//     ClassificationsPane
+// };
 
 treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>
 reactDirective(JobDetailsPane, undefined, {}, { $injector })]);

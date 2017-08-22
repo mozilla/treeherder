@@ -31,9 +31,6 @@ treeherderApp.controller('MainCtrl', [
         // Ensure user is available on initial page load
         $rootScope.user = {};
 
-        // UI toggle for communicating between angular and react
-        $rootScope.showRevisions = true;
-
         thClassificationTypes.load();
 
         var checkServerRevision = function () {
@@ -143,6 +140,7 @@ treeherderApp.controller('MainCtrl', [
 
         $rootScope.$on(thEvents.jobClick, function (ev, job) {
             $location.search(QS_SELECTED_JOB, job.id);
+            ThResultSetStore.setSelectedJob($rootScope.repoName, job);
         });
 
         $rootScope.$on(thEvents.clearSelectedJob, function () {
@@ -203,13 +201,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.allCollapsed = function (cls) {
             var visibleList = $("." + cls + ":visible");
             return visibleList.length === 0;
-        };
-
-        $scope.toggleAllRevisions = function (collapse) {
-            collapse = collapse || $scope.allCollapsed("revision-list");
-            $rootScope.$emit(
-                thEvents.toggleAllRevisions, collapse
-            );
         };
 
         $scope.getGroupState = function () {
