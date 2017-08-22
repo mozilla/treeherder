@@ -19,3 +19,6 @@ sql_mode="NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES"
 # Unhelpfully MySQL uses a different (undocumented) variable name if set via config file:
 # https://bugs.mysql.com/bug.php?id=70008
 transaction-isolation=READ-COMMITTED
+
+# Vagrant/Travis only: Speed up I/O by reducing data-loss protection.
+innodb_flush_log_at_trx_commit="0"
