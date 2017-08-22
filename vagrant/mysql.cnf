@@ -5,9 +5,6 @@
 # https://github.com/mozilla-platform-ops/devservices-aws/blob/master/treeherder/rds.tf
 
 [mysqld]
-# Allow connections from the Vagrant host and not just the loopback interface.
-bind-address="0.0.0.0"
-
 character_set_server="utf8"
 collation_server="utf8_bin"
 
