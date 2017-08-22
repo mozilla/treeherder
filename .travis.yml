@@ -43,8 +43,7 @@ matrix:
         directories:
           - node_modules
       addons:
-        # Not using `latest` since the test run frequently times out with Firefox 55.
-        firefox: "54.0.1"
+        firefox: latest
       install:
         # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
         # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
@@ -172,8 +171,7 @@ matrix:
           - ~/venv
           - node_modules
       addons:
-        # Not using `latest` since the test run frequently times out with Firefox 55.
-        firefox: "54.0.1"
+        firefox: latest
       services:
         - rabbitmq
       before_install:
