@@ -71,6 +71,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -104,6 +110,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -131,6 +143,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -162,6 +180,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
