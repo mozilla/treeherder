@@ -8,10 +8,6 @@
 character_set_server="utf8"
 collation_server="utf8_bin"
 
-log_output="FILE"
-long_query_time="2"
-slow_query_log="1"
-
 # Ensure operations involving astral characters fail loudly,
 # rather than mysql silently replacing each each byte of the
 # original character with a U+FFFD replacement character.
