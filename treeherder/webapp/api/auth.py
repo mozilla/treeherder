@@ -40,14 +40,9 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
         """
         Verify credentials with Taskcluster
         """
-        auth_header = request.META.get("HTTP_TCAUTH", None)
-        host = request.get_host().split(":")[0]
-        port = request.get_port()
-
         try:
-            user = authenticate(auth_header=auth_header,
-                                host=host,
-                                port=int(port))
+            user = authenticate(request)
+
             if not user:
                 raise AuthenticationFailed("User not authenticated.")
 
