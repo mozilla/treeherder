@@ -202,7 +202,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
 
                         // In this case we have actions.json tasks
                         if (results) {
-                            const missingtask = _.find(results.actions, {name: 'run-missing-tests'});
+                            const missingtask = _.find(results.actions, { name: 'run-missing-tests' });
                             // We'll fall back to actions.yaml if this isn't true
                             if (missingtask) {
                                 return tcactions.submit({
@@ -231,7 +231,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
 
                         // In this case we have actions.json tasks
                         if (results) {
-                            const talostask = _.find(results.actions, {name: 'run-all-talos'});
+                            const talostask = _.find(results.actions, { name: 'run-all-talos' });
                             // We'll fall back to actions.yaml if this isn't true
                             if (talostask) {
                                 return tcactions.submit({
@@ -240,7 +240,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                     decisionTaskId,
                                     taskId: null,
                                     task: null,
-                                    input: {times},
+                                    input: { times },
                                     staticActionVariables: results.staticActionVariables,
                                 }).then(function () {
                                     return `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`;
@@ -323,7 +323,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
 
                                 // In this case we have actions.json tasks
                                 if (results) {
-                                    const addjobstask = _.find(results.actions, {name: 'add-new-jobs'});
+                                    const addjobstask = _.find(results.actions, { name: 'add-new-jobs' });
                                     // We'll fall back to actions.yaml if this isn't true
                                     if (addjobstask) {
                                         return tcactions.submit({
@@ -332,7 +332,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                             decisionTaskId,
                                             taskId: null,
                                             task: null,
-                                            input: {tasks: tclabels},
+                                            input: { tasks: tclabels },
                                             staticActionVariables: results.staticActionVariables,
                                         }).then(() => `Request sent to trigger new jobs via actions.json (${actionTaskId})`);
                                     }

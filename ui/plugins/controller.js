@@ -393,7 +393,7 @@ treeherder.controller('PluginCtrl', [
                             const tc = thTaskcluster.client();
                             const actionTaskId = tc.slugid();
                             if (results) {
-                                const backfilltask = _.find(results.actions, {name: 'backfill'});
+                                const backfilltask = _.find(results.actions, { name: 'backfill' });
                                 // We'll fall back to actions.yaml if this isn't true
                                 if (backfilltask) {
                                     return tcactions.submit({

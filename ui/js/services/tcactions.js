@@ -9,8 +9,8 @@ treeherder.factory('tcactions', [
 
         return {
             render: (template, context) => jsone(template, context),
-            submit: ({action, actionTaskId, decisionTaskId, taskId,
-                      task, input, staticActionVariables}) => {
+            submit: ({ action, actionTaskId, decisionTaskId, taskId,
+                      task, input, staticActionVariables }) => {
 
                 const actionTask = jsone(action.task, _.defaults({}, {
                     taskGroupId: decisionTaskId,
