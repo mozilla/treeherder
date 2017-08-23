@@ -227,9 +227,9 @@ treeherder.controller('BugFilerCtrl', [
                         $scope.searching = "DXR & Mercurial";
                         const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${$uibModalInstance.possibleFilename}&redirect=false&limit=5`;
                         // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
-                        $http.get(dxrlink, {"headers": {
-                            "Accept": "application/json"
-                        }}).then((secondRequest) => {
+                        $http.get(dxrlink, { headers: {
+                            Accept: "application/json"
+                        } }).then((secondRequest) => {
                             const results = secondRequest.data.results;
                             var resultsCount = results.length;
                             // If the search returns too many results, this probably isn't a good search term, so bail
@@ -375,19 +375,19 @@ treeherder.controller('BugFilerCtrl', [
                             "Content-Type": "application/json; charset=utf-8"
                         },
                         data: {
-                            "product": productString,
-                            "component": componentString,
-                            "summary": summarystring,
-                            "keywords": keywords,
-                            "version": version.name,
-                            "blocks": blocks,
-                            "depends_on": dependsOn,
-                            "see_also": seeAlso,
-                            "crash_signature": crashSignature,
-                            "severity": severity,
-                            "priority": priority,
-                            "comment": descriptionStrings,
-                            "comment_tags": "treeherder"
+                            product: productString,
+                            component: componentString,
+                            summary: summarystring,
+                            keywords: keywords,
+                            version: version.name,
+                            blocks: blocks,
+                            depends_on: dependsOn,
+                            see_also: seeAlso,
+                            crash_signature: crashSignature,
+                            severity: severity,
+                            priority: priority,
+                            comment: descriptionStrings,
+                            comment_tags: "treeherder"
                         }
                     });
                 })

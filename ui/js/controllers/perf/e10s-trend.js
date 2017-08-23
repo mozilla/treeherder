@@ -47,7 +47,7 @@ perf.controller('e10sTrendCtrl', [
                             if (!$scope.compareResults[baseTestName]) {
                                 $scope.compareResults[baseTestName] = [];
                             }
-                            $scope.compareResults[baseTestName].push({baseResult: baseResult, newResult: newResult, trendResult: trendResult});
+                            $scope.compareResults[baseTestName].push({ baseResult: baseResult, newResult: newResult, trendResult: trendResult });
                         }
                     }
                 });
@@ -298,7 +298,7 @@ perf.controller('e10sTrendSubtestCtrl', [
                             if (!$scope.compareResults[baseTestName]) {
                                 $scope.compareResults[baseTestName] = [];
                             }
-                            $scope.compareResults[baseTestName].push({baseResult: baseResult, newResult: newResult, trendResult: trendResult});
+                            $scope.compareResults[baseTestName].push({ baseResult: baseResult, newResult: newResult, trendResult: trendResult });
                         }
                     }
                 });

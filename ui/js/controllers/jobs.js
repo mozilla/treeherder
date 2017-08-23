@@ -178,8 +178,7 @@ treeherderApp.controller('ResultSetCtrl', [
 
         $scope.cancelAllJobs = function (revision) {
             $scope.showConfirmCancelAll = false;
-            if (!$scope.canCancelJobs())
-                return;
+            if (!$scope.canCancelJobs()) return;
 
             ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function () {
                 return thBuildApi.cancelAll($scope.repoName, revision);

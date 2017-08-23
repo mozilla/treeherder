@@ -22,7 +22,7 @@ treeherder.factory('ThJobLogUrlModel', [
             config = config || {};
             var timeout = config.timeout || null;
 
-            var params = {job_id: job_id};
+            var params = { job_id: job_id };
             return $http.get(ThJobLogUrlModel.get_uri(), {
                 params: params,
                 timeout: timeout

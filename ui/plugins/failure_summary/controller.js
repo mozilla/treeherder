@@ -142,7 +142,7 @@ treeherder.controller('BugsPluginCtrl', [
                         return function (data) {
                             // Auto-classify this failure now that the bug has been filed
                             // and we have a bug number
-                            thPinboard.addBug({id: data.success});
+                            thPinboard.addBug({ id: data.success });
                             $rootScope.$evalAsync(
                                 $rootScope.$emit(
                                     thEvents.saveClassification));

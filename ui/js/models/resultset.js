@@ -274,8 +274,8 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                 return;
                             }
                             let bbdata = {
-                                "requested_jobs": bbnames,
-                                "decision_task_id": decisionTaskID
+                                requested_jobs: bbnames,
+                                decision_task_id: decisionTaskID
                             };
                             return $http.post(
                                 thUrl.getProjectUrl("/resultset/", repoName) + resultset_id + '/trigger_runnable_jobs/',

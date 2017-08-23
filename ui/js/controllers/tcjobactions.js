@@ -64,7 +64,7 @@ treeherder.controller('TCJobActionsCtrl', [
                     ThJobDetailModel.getJobDetails({
                         job_id: decisionTask.id,
                         title: 'artifact uploaded',
-                        value: 'actions.json'}).then(function (details) {
+                        value: 'actions.json' }).then(function (details) {
                             if (!details.length) {
                                 alert("Could not find actions.json");
                                 return;

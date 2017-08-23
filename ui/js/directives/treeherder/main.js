@@ -8,7 +8,7 @@ treeherder.directive('ngRightClick', [
             element.on('contextmenu', function (event) {
                 scope.$apply(function () {
                     event.preventDefault();
-                    fn(scope, {$event:event});
+                    fn(scope, { $event: event });
                 });
             });
         };

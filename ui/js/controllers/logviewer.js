@@ -122,15 +122,15 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
 
                     // set the result value and shading color class
-                    $scope.result = {label: 'Result', value: job.result};
+                    $scope.result = { label: 'Result', value: job.result };
                     $scope.resultStatusShading = $scope.getShadingClass(job.result);
 
                     // other properties, in order of appearance
                     $scope.logProperties = [
-                        {label: 'Job', value: $scope.logViewerTitle},
-                        {label: 'Machine', value: job.machine_name},
-                        {label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat)},
-                        {label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat)}
+                        { label: 'Job', value: $scope.logViewerTitle },
+                        { label: 'Machine', value: job.machine_name },
+                        { label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat) },
+                        { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) }
                     ];
 
                     // Test to disable successful steps checkbox on taskcluster jobs
@@ -150,10 +150,10 @@ logViewerApp.controller('LogviewerCtrl', [
                     ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
                         const revision = data.data.revision;
 
-                        $scope.logProperties.push({label: 'Revision', value: revision});
+                        $scope.logProperties.push({ label: 'Revision', value: revision });
                     });
 
-                    ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then((jobDetails) => {
+                    ThJobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
                         $scope.job_details = jobDetails;
                     });
                 }, () => {

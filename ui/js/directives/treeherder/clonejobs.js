@@ -773,7 +773,7 @@ treeherder.directive('thCloneJobs', [
 
                     //Add platforms
                     platformTdEl = $(platformInterpolator(
-                        {'name':platformName, 'option':option, 'id':platformId}
+                        { name: platformName, option: option, id: platformId }
                     ));
 
                     rowEl.append(platformTdEl);
@@ -810,7 +810,7 @@ treeherder.directive('thCloneJobs', [
                     scrollOffset = -200;
                 }
                 if (!isOnScreen(el)) {
-                    $('.th-global-content').scrollTo(el, duration, {offset: scrollOffset});
+                    $('.th-global-content').scrollTo(el, duration, { offset: scrollOffset });
                 }
             }
 
@@ -975,15 +975,15 @@ treeherder.directive('thCloneJobs', [
 
                 // We first determine whether the row has some visible element
                 var anyVisible = _.some(platform.groups, function (jobGroup) {
-                    return _.some(jobGroup.jobs, {visible: true});
+                    return _.some(jobGroup.jobs, { visible: true });
                 });
                 var display_style = anyVisible ? "table-row" : "none";
                 var rowHtml = '<tr id="' + platformId + '" style="display: ' + display_style + ';">';
                 //Add platforms
                 rowHtml += platformInterpolator(
                     {
-                        'name':thPlatformName(platform.name), 'option':platform.option,
-                        'id':thAggregateIds.getPlatformRowId(
+                        name: thPlatformName(platform.name), option: platform.option,
+                        id: thAggregateIds.getPlatformRowId(
                             resultset.id,
                             platform.name,
                             platform.option
@@ -1015,7 +1015,7 @@ treeherder.directive('thCloneJobs', [
             );
 
             var targetEl = $(
-                tableInterpolator({ aggregateId:resultsetAggregateId })
+                tableInterpolator({ aggregateId: resultsetAggregateId })
             );
 
             addRevisions(scope, targetEl);
@@ -1036,15 +1036,15 @@ treeherder.directive('thCloneJobs', [
             }
 
             return {
-                link:linker,
-                replace:true
+                link: linker,
+                replace: true
             };
 
         };
 
         return {
-            link:linker,
-            replace:true
+            link: linker,
+            replace: true
         };
     }
 ]);

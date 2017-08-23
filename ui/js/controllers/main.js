@@ -677,7 +677,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.changeRepo = function (repo_name) {
             // preserves filter params as the user changes repos and revisions
             $location.search(_.extend({
-                "repo": repo_name
+                repo: repo_name
             }, thJobFilters.getActiveFilters()));
         };
 

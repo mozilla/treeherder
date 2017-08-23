@@ -281,7 +281,7 @@ treeherder.controller('PinboardCtrl', [
                 } else if (/^[0-9]*$/.test($scope.newEnteredBugNumber)) {
                     $log.debug("new bug number to be saved: ",
                                $scope.newEnteredBugNumber);
-                    thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                    thPinboard.addBug({ id: $scope.newEnteredBugNumber });
                     $scope.toggleEnterBugNumber(false);
                     return true;
                 }

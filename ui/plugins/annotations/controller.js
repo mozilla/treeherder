@@ -50,7 +50,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
                         // classification state (in case one was added or removed).
                         ThResultSetStore.fetchJobs($scope.repoName, [$scope.job.id]);
 
-                        $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
+                        $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
                     },
                     function () {
                         thNotify.send("Classification deletion failed", "danger", true);
@@ -66,7 +66,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
                         var jobs = {};
                         jobs[$scope.selectedJob.id] = $scope.selectedJob;
 
-                        $rootScope.$emit(thEvents.bugsAssociated, {jobs: jobs});
+                        $rootScope.$emit(thEvents.bugsAssociated, { jobs: jobs });
                     },
                     function () {
                         thNotify.send("Association to bug " + bug.bug_id + " deletion failed", "danger", true);
