@@ -592,7 +592,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                     //replicate distribution is added only for talos
                     if ($scope.filterOptions.framework === '1') {
                         cmap.links.push({
-                            title: 'replicate',
+                            title: 'replicates',
                             href: 'perf.html#/comparesubtestdistribution?' + $httpParamSerializer({
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
@@ -909,7 +909,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                             "value": value
                         }));
                         metricsgraphics.data_graphic({
-                            title: `${target} Replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
+                            title: `${target} replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
                             chart_type: "bar",
                             data: replicateValues,
                             y_accessor: "value",
