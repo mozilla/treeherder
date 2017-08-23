@@ -139,20 +139,17 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     machine, _ = Machine.objects.get_or_create(
         name=job_datum.get('machine', 'unknown'))
 
-    # if a job with this symbol and name exists, always
-    # use its default group (even if that group is different
-    # from that specified)
     job_type, _ = JobType.objects.get_or_create(
         symbol=job_datum.get('job_symbol') or 'unknown',
         name=job_datum.get('name') or 'unknown')
-    if job_type.job_group:
-        job_group = job_type.job_group
-    else:
-        job_group, _ = JobGroup.objects.get_or_create(
-            name=job_datum.get('group_name') or 'unknown',
-            symbol=job_datum.get('group_symbol') or 'unknown')
-        job_type.job_group = job_group
-        job_type.save(update_fields=['job_group'])
+
+    job_group, _ = JobGroup.objects.get_or_create(
+        name=job_datum.get('group_name') or 'unknown',
+        symbol=job_datum.get('group_symbol') or 'unknown')
+
+    # TODO: Remove in last PR for Bug 1215587
+    job_type.job_group = job_group
+    job_type.save(update_fields=['job_group'])
 
     product_name = job_datum.get('product_name', 'unknown')
     if len(product_name.strip()) == 0:
@@ -266,6 +263,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
                 "machine": machine,
                 "option_collection_hash": option_collection_hash,
                 "job_type": job_type,
+                "job_group": job_group,
                 "product": product,
                 "failure_classification": default_failure_classification,
                 "who": who,
@@ -308,6 +306,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         machine=machine,
         option_collection_hash=option_collection_hash,
         job_type=job_type,
+        job_group=job_group,
         product=product,
         failure_classification=default_failure_classification,
         who=who,
