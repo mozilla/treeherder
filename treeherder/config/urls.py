@@ -3,6 +3,7 @@ from django.conf.urls import (include,
                               url)
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
 from rest_framework_swagger.views import get_swagger_view
 
 from treeherder.credentials.urls import urlpatterns as credentials_patterns
@@ -17,6 +18,10 @@ urlpatterns = [
    url(r'^admin/', include(admin.site.urls)),
    url(r'^docs/', get_swagger_view(title='Treeherder API')),
    url(r'^credentials/', include(credentials_patterns)),
+   url(r'^maintenance/',
+       TemplateView.as_view(template_name='maintenance_mode.html'),
+       name="maintenance"),
+
 ]
 
 if settings.DEBUG:
