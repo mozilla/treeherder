@@ -1,8 +1,8 @@
 "use strict";
 
 treeherder.factory('tcactions', [
-    '$q', '$http', 'thTaskcluster',
-    function ($q, $http, thTaskcluster) {
+    '$q', '$http', 'thTaskcluster', 'thNotify',
+    function ($q, $http, thTaskcluster, thNotify) {
         const jsone = require('json-e');
         const tc = thTaskcluster.client();
         const queue = new tc.Queue();
@@ -29,7 +29,7 @@ treeherder.factory('tcactions', [
             },
             load: (decisionTaskID, job) => {
                 if (!decisionTaskID) {
-                    alert("No decision task, can't find taskcluster actions");
+                    thNotify.send("No decision task, can't find taskcluster actions", "danger", true);
                     return;
                 }
 
@@ -47,7 +47,7 @@ treeherder.factory('tcactions', [
                     }
 
                     if (response.data.version !== 1) {
-                        alert("Wrong version of actions.json, can't continue");
+                        thNotify.send("Wrong version of actions.json, can't continue", "danger", true);
                         return;
                     }
 
