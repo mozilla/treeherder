@@ -4,10 +4,15 @@
     <meta charset="utf-8">
     <title ng-bind="::logViewerTitle">Log viewer</title>
     <link id="favicon" type="image/png" rel="shortcut icon" href="img/logviewerIcon.png">
+    <style>
+      [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+        display: none !important;
+      }
+    </style>
   </head>
   <body class="body-logviewer">
     <!-- Logviewer navbar -->
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default" role="navigation" ng-cloak>
       <div class="container-fluid">
         <ul class="nav navbar-nav">
 
