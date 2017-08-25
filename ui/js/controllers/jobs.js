@@ -195,13 +195,22 @@ treeherderApp.controller('ResultSetCtrl', [
                 return;
             }
 
-            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function () {
-                thNotify.send("Request sent to trigger missing jobs", "success");
-            }, function (e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
-                    'danger', true
-                );
+            ThResultSetStore.getGeckoDecisionTaskId(
+                $scope.repoName,
+                $scope.resultset.id
+            ).then(function (decisionTaskID) {
+                ThResultSetModel.triggerMissingJobs(
+                    $scope.resultset.id,
+                    $scope.repoName,
+                    decisionTaskID
+                ).then(function (msg) {
+                    thNotify.send(msg, "success", true);
+                }, function (e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
+                        'danger', true
+                    );
+                });
             });
         };
 
@@ -225,7 +234,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     times,
                     decisionTaskID
                 ).then(function (msg) {
-                    thNotify.send(msg, "success");
+                    thNotify.send(msg, "success", true);
                 }, function (e) {
                     thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
                 });
@@ -245,8 +254,8 @@ treeherderApp.controller('ResultSetCtrl', [
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
                 ThResultSetStore.getGeckoDecisionTaskId($rootScope.repoName, $scope.resultset.id).then(function (decisionTaskID) {
-                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function () {
-                        thNotify.send("Trigger request sent", "success");
+                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function (results) {
+                        thNotify.send(results[1], "success", true);
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                     }, function (e) {
                         thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
