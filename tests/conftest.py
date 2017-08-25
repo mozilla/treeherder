@@ -38,7 +38,7 @@ def pytest_runtest_setup(item):
     """
     Per-test setup.
     - Add an option to run those tests marked as 'slow'
-    - Provide cache isolation incrementing the cache key prefix
+    - Clear the django cache between runs
     """
 
     if 'slow' in item.keywords and not item.config.getoption("--runslow"):
@@ -47,20 +47,8 @@ def pytest_runtest_setup(item):
     if 'selenium' in item.keywords and not item.config.getoption("--runselenium"):
         pytest.skip("need --runselenium option to run selenium tests")
 
-    increment_cache_key_prefix()
-
-
-def increment_cache_key_prefix():
-    """Increment a cache prefix to effectively clear the cache."""
     from django.core.cache import cache
-    cache.key_prefix = ""
-    prefix_counter_cache_key = "treeherder-tests-key-prefix-counter"
-    try:
-        key_prefix_counter = cache.incr(prefix_counter_cache_key)
-    except ValueError:
-        key_prefix_counter = 0
-        cache.set(prefix_counter_cache_key, key_prefix_counter)
-    cache.key_prefix = "t{0}".format(key_prefix_counter)
+    cache.clear()
 
 
 @pytest.fixture(scope="session", autouse=True)
