@@ -330,9 +330,6 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
     """
     The job_type and job_group for a job is independent of any other job_type
     and job_group combination.
-
-    Until the second PR of Bug 1215587, this will also update the value of
-    job_type.job_group
     """
     first_job_datum = sample_data.job_data[0]
     first_job_datum["job"]["group_name"] = "first group name"
@@ -357,9 +354,6 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
 
     assert second_job.job_group.name == second_job_datum["job"]["group_name"]
     assert first_job.job_group.name == first_job_datum["job"]["group_name"]
-    # TODO: Remove in last PR for Bug 1215587
-    assert second_job.job_type.job_group.name == second_job_datum["job"]["group_name"]
-    assert first_job.job_type.job_group.name == second_job_datum["job"]["group_name"]
 
 
 def test_ingest_job_with_revision_hash(test_repository,
