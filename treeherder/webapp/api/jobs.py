@@ -4,8 +4,7 @@ import django_filters
 from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
-from rest_framework import (filters,
-                            viewsets)
+from rest_framework import viewsets
 from rest_framework.decorators import (detail_route,
                                        list_route)
 from rest_framework.exceptions import ParseError
@@ -603,7 +602,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     serializer_class = serializers.JobDetailSerializer
 
-    class JobDetailFilter(filters.FilterSet):
+    class JobDetailFilter(django_filters.rest_framework.FilterSet):
 
         class NumberInFilter(django_filters.filters.BaseInFilter,
                              django_filters.NumberFilter):
@@ -630,7 +629,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
                       'value', 'push_id', 'repository']
 
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filter_class = JobDetailFilter
 
     # using a custom pagination size of 2000 to avoid breaking mozscreenshots
