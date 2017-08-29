@@ -50,7 +50,12 @@ class TaskclusterAuthBackend(object):
         raise NoEmailException(
             "No email found in clientId: '{}'".format(client_id))
 
-    def authenticate(self, auth_header=None, host=None, port=None):
+    def authenticate(self, request):
+
+        auth_header = request.META.get("HTTP_TCAUTH", None)
+        host = request.get_host().split(":")[0]
+        port = int(request.get_port())
+
         if not auth_header:
             # Doesn't have the right params for this backend.  So just
             # skip and let another backend have a try at it.

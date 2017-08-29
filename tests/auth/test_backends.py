@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth.models import User
+from rest_framework.test import APIRequestFactory
 from taskcluster import Auth
 
 from treeherder.auth.backends import (NoEmailException,
@@ -61,11 +62,12 @@ def test_existing_email_create_user(test_user, monkeypatch, result,
     def authenticateHawk_mock(selfless, obj):
         return result
     monkeypatch.setattr(Auth, "authenticateHawk", authenticateHawk_mock)
+    factory = APIRequestFactory()
 
+    request = factory.get('/endpoint/', HTTP_TCAUTH='meh', host="fleh", port=3)
     existing_user = User.objects.create(username="email/foo@bar.net", email=email)
-
     tca = TaskclusterAuthBackend()
-    new_user = tca.authenticate(auth_header="meh", host="fleh", port=3)
+    new_user = tca.authenticate(request)
     assert new_user.username == exp_username
     if exp_create_user:
         assert new_user.id != existing_user.id

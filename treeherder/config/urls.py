@@ -14,7 +14,7 @@ admin.site.login_template = 'webapp/admin_login.html'
 urlpatterns = [
    url(r'^api/', include(api_urls)),
    url(r'^embed/', include(embed_urls)),
-   url(r'^admin/', include(admin.site.urls)),
+   url(r'^admin/', admin.site.urls),
    url(r'^docs/', get_swagger_view(title='Treeherder API')),
    url(r'^credentials/', include(credentials_patterns)),
 ]
