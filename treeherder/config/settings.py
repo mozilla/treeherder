@@ -631,7 +631,7 @@ KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 # This code handles the memcachier service on heroku.
 # TODO: Stop special-casing Heroku and use newer best practices from:
 # https://www.memcachier.com/documentation#django.
-if env.bool('IS_HEROKU', default=False):
+if 'DYNO' in env:
     # Prefs taken from:
     # https://github.com/rdegges/django-heroku-memcacheify/blob/v1.0.0/memcacheify.py#L30-L39
     CACHES['default'].update({
