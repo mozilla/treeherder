@@ -433,7 +433,7 @@ treeherder.controller('PluginCtrl', [
                                 let template = $interpolate(action);
                                 action = template({
                                     action: 'backfill',
-                                    action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
+                                    action_args: '--project=' + $scope.repoName + ' --job=' + $scope.job.id,
                                 });
 
                                 let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
