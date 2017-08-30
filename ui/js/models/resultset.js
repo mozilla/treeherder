@@ -256,7 +256,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             let template = $interpolate(action);
                             action = template({
                                 action: 'add-talos',
-                                action_args: '--decision-task-id ' + decisionTaskId + ' --times ' + times,
+                                action_args: '--decision-task-id=' + decisionTaskId + ' --times=' + times,
                             });
                             let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(function () {
@@ -346,7 +346,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                                     let taskLabels = tclabels.join(',');
                                     action = template({
                                         action: 'add-tasks',
-                                        action_args: `--decision-id ${decisionTaskId} --task-labels ${taskLabels}`,
+                                        action_args: `--decision-id=${decisionTaskId} --task-labels=${taskLabels}`,
                                     });
                                     let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                     return queue.createTask(actionTaskId, task).then(() => `Request sent to trigger new jobs via actions.yml (${actionTaskId})`);
