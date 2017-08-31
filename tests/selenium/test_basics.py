@@ -25,7 +25,7 @@ def test_treeherder_main(initial_data, live_server, selenium):
     '''
     selenium.get(live_server.url)
     repo_button = WebDriverWait(selenium, 10).until(
-        EC.presence_of_element_located((By.ID, 'repoLabel'))
+        EC.visibility_of_element_located((By.ID, 'repoLabel'))
     )
     repo_button.click()
     assert selenium.find_element_by_id('repo-dropdown').is_displayed()
@@ -37,7 +37,7 @@ def test_perfherder_main(initial_data, live_server, selenium):
     '''
     selenium.get(live_server.url + '/perf.html')
     add_test_button = WebDriverWait(selenium, 20).until(
-        EC.presence_of_element_located((By.ID, 'add-test-data-button'))
+        EC.visibility_of_element_located((By.ID, 'add-test-data-button'))
     )
     add_test_button.click()
     WebDriverWait(selenium, 20).until(
@@ -62,6 +62,6 @@ def test_treeherder_single_commit_titles(initial_data, live_server, selenium):
     selenium.get(live_server.url + '/#/jobs?repo=mozilla-central&revision=4c45a777949168d16c03a4cba167678b7ab65f76')
 
     WebDriverWait(selenium, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME, 'revision-comment'))
+        EC.visibility_of_element_located((By.CLASS_NAME, 'revision-comment'))
     )
     assert selenium.title == "[0] mozilla-central: Bug 12345 - This is a message"
