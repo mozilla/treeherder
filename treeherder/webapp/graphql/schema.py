@@ -128,7 +128,7 @@ class PushGraph(DjangoObjectType):
             "buildPlatform": ("build_platform", "select"),
             "jobLog": ("job_log", "prefetch"),
             "jobType": ("job_type", "select"),
-            "jobGroup": ("job_type__job_group", "select"),
+            "jobGroup": ("job_group", "select"),
             "failureClassification": ("failure_classification", "prefetch"),
             "failureLine": ("job_log__failure_line", "prefetch"),
             "group": ("job_log__failure_line__group", "prefetch"),

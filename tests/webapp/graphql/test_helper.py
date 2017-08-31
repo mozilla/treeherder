@@ -23,10 +23,10 @@ def test_optimize(query_node, push_stored):
     qs = Push.objects.filter(revision=push_stored[0]["revision"])
     field_map = {
         "jobType": ("job_type", "select"),
-        "jobGroup": ("job_type__job_group", "select"),
+        "jobGroup": ("job_group", "select"),
         "failureClassification": ("failure_classification", "prefetch"),
     }
     qs = helpers.optimize(qs, query_node, field_map)
 
     assert ('failure_classification',) == qs._prefetch_related_lookups
-    assert {'job_type': {'job_group': {}}} == qs.query.select_related
+    assert {'job_type': {}, 'job_group': {}} == qs.query.select_related
