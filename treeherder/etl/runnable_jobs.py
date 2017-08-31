@@ -23,7 +23,7 @@ from treeherder.model.models import (BuildPlatform,
 logger = logging.getLogger(__name__)
 
 
-class AllthethingsTransformerMixin:
+class RunnableJobsTransformerMixin:
 
     def transform(self, extracted_content):
         logger.info('About to import allthethings.json builder data.')
@@ -40,7 +40,7 @@ class AllthethingsTransformerMixin:
         return jobs_per_branch
 
 
-class RunnableJobsProcess(AllthethingsTransformerMixin):
+class RunnableJobsProcess(RunnableJobsTransformerMixin):
 
     # XXX: Copied from refdata.py. What is the best place for this?
     def get_option_collection_hash(self, options):
