@@ -1171,7 +1171,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "snippets-service",
-        "url": "https://github.com/mozmar/snippets-service",
+        "url": "https://github.com/mozmeao/snippets-service",
         "branch": "master",
         "active_status": "active",
         "codebase": "snippets-service",
