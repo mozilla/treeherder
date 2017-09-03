@@ -221,8 +221,18 @@ aiohttp==2.2.5; python_version >= '3' \
 yarl==0.11; python_version >= '3' \
     --hash=sha256:6c49b2217d27dde1519dd0c71911495f27827840d42bb8df47b7d7fef7a117ee
 
-multidict==2.1.4; python_version >= '3' \
-    --hash=sha256:a77aa8c9f68846c3b5db43ff8ed2a7a884dbe845d01f55113a3fba78518c4cd7
+multidict==3.1.3; python_version >= '3' \
+    --hash=sha256:974df422dd16d183a68efacd5f68396ce733ae183545157ce66687141d6941bd \
+    --hash=sha256:247f4d2cae0d38efa53f6e3cd3e26c5eb3fdf704679972a1db4c7b74bd0c1b8d \
+    --hash=sha256:476f0f8fee5e68298c28cf49b40af57f8d14db40fbdfb67261e2f4fdb6a321bc \
+    --hash=sha256:5c176bb980bbb8221c0876d18dabb263e78394de02172a3582d2dd461faa9422 \
+    --hash=sha256:2f8657b1280dd8f0f1f8648c11a9acecd6942c80e7d9a5256a51ffd4d8d81269 \
+    --hash=sha256:504137abc2ac6a6a8d19c00f0d451885cc36f047d9dc9aaf11238f9a3c63e95e \
+    --hash=sha256:111dd636cb2746fcad2628f067ddf244d15887526d58d3cba48db8868e836cb0 \
+    --hash=sha256:2edbef18399a93e34c8a12c5477c2494c7663859457a7e783bf597be0fa87f04 \
+    --hash=sha256:94d77e7090791ddff7afc83995004e718d5f93880e2db11079b2b28ea86d83d2 \
+    --hash=sha256:0fd1803328017d7cbce4ed45dadef0304b34dde9e90613e53b9b56f6a2bf22a2 \
+    --hash=sha256:875f80a046e7799b40df4b015b8fc5dae91697936872a8d7362c909a02ec6d12
 
 async_timeout==1.2.0; python_version >= '3' \
     --hash=sha256:2507257417470f41e40ae9265d0abdbff6d936b6e0d5831132d35714c9cd433d
