@@ -224,8 +224,9 @@ yarl==0.11; python_version >= '3' \
 multidict==2.1.4; python_version >= '3' \
     --hash=sha256:a77aa8c9f68846c3b5db43ff8ed2a7a884dbe845d01f55113a3fba78518c4cd7
 
-async_timeout==1.2.0; python_version >= '3' \
-    --hash=sha256:2507257417470f41e40ae9265d0abdbff6d936b6e0d5831132d35714c9cd433d
+async_timeout==1.3.0; python_version >= '3' \
+    --hash=sha256:087a26de8b926d41087c56bb7f70d9b5480c119e4b56589d431206d24508a131 \
+    --hash=sha256:f4651f122a9877049930ce31a8422bc202a47937627295fe5e411b2c2083481f
 
 graphene-django==1.3 \
     --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc
