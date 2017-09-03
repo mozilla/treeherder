@@ -13,7 +13,7 @@ matrix:
   include:
 
     # Job 1: Linters
-    - env: python-linters
+    - env: python2-linters
       sudo: false
       language: python
       python: "2.7.13"
@@ -33,7 +33,25 @@ matrix:
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
-    # Job 2: Nodejs UI tests
+    # Job 2: Linters
+    - env: python3-linters
+      sudo: false
+      language: python
+      python: "3.6.2"
+      cache:
+        directories:
+          - ~/venv
+      before_install:
+        # Create a clean virtualenv rather than using the one given to us,
+        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
+        - source ~/venv/bin/activate
+      install:
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      script:
+        - pip check
+
+    # Job 3: Nodejs UI tests
     - env: ui-tests
       language: node_js
       node_js: "8.4.0"
@@ -58,7 +76,7 @@ matrix:
         - yarn test
         - yarn build
 
-    # Job 3: Python Tests Chunk A
+    # Job 4: Python Tests Chunk A
     - env: python-tests-main
       language: python
       python: "2.7.13"
@@ -91,7 +109,7 @@ matrix:
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
         - pytest tests/ --runslow --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/api/ --ignore=tests/selenium/ --ignore=tests/jenkins/
 
-    # Job 4: Python Tests Chunk B
+    # Job 5: Python Tests Chunk B
     - env: python-tests-etl-logparser
       language: python
       python: "2.7.13"
@@ -118,7 +136,7 @@ matrix:
       script:
         - pytest tests/etl/ tests/log_parser/ --runslow
 
-    # Job 5: Python Tests Chunk C
+    # Job 6: Python Tests Chunk C
     - env: python-tests-rest-api
       language: python
       python: "2.7.13"
@@ -145,7 +163,7 @@ matrix:
       script:
         - pytest tests/webapp/api/ --runslow
 
-    # Job 6: Python Tests - Selenium integration
+    # Job 7: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
       python: "2.7.13"
@@ -185,4 +203,4 @@ matrix:
 notifications:
   email:
     on_success: never
-    on_failure: always
+on_failure: always
