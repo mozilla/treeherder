@@ -254,7 +254,7 @@ CELERY_QUEUES = [
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
-    Queue('fetch_allthethings', Exchange('default'), routing_key='fetch_allthethings'),
+    Queue('fetch_runnablejobs', Exchange('default'), routing_key='fetch_runnablejobs'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
     Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
@@ -332,12 +332,12 @@ CELERYBEAT_SCHEDULE = {
             "queue": "buildapi_4hr"
         }
     },
-    'fetch-allthethings-every-day': {
-        'task': 'fetch-allthethings',
+    'fetch-runnablejobs-every-day': {
+        'task': 'fetch-runnablejobs',
         'schedule': timedelta(hours=4),
         'relative': True,
         'options': {
-            'queue': "fetch_allthethings"
+            'queue': "fetch_runnablejobs"
         }
     },
     'cycle-data-every-day': {

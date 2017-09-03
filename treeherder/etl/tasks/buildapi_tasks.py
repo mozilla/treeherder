@@ -36,10 +36,10 @@ def fetch_buildapi_build4h():
     Builds4hJobsProcess().run()
 
 
-@task(name='fetch-allthethings', soft_time_limit=15 * 60)
-def fetch_allthethings():
+@task(name='fetch-runnablejobs', soft_time_limit=15 * 60)
+def fetch_runnablejobs():
     """
-    Fetches possible jobs from allthethings and load them
+    Fetches possible jobs from allthethings.json and load them
     """
     RunnableJobsProcess().run()
 
