@@ -214,13 +214,13 @@ taskcluster==1.3.4 \
 
 # Required by Taskcluster
 aiohttp==2.2.5; python_version >= '3' \
-    --hash=sha256:b80f44b99fa3c9b4530fcfa324a99b84843043c35b084e0b653566049974435d
+    --hash=sha256:c67e105ec74b85c8cb666b6877569dee6f55b9548f982983b9bee80b3d47e6f3
 
 yarl==0.11; python_version >= '3' \
-    --hash=sha256:f0fa3a44cc463ddc2257e17d7aa162069c921d662a17b1d7d963f417717ecb31
+    --hash=sha256:6c49b2217d27dde1519dd0c71911495f27827840d42bb8df47b7d7fef7a117ee
 
 multidict==2.1.4; python_version >= '3' \
-    --hash=sha256:62bc16176162cd44d5f912dce1369d0b066885ac3861932758909ced215e2bff
+    --hash=sha256:a77aa8c9f68846c3b5db43ff8ed2a7a884dbe845d01f55113a3fba78518c4cd7
 
 async_timeout==1.2.0; python_version >= '3' \
     --hash=sha256:2507257417470f41e40ae9265d0abdbff6d936b6e0d5831132d35714c9cd433d
