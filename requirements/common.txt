@@ -121,6 +121,7 @@ coreapi==2.3.1 \
     --hash=sha256:af112b32104d0dbdedbac8e4c22d6068b799efad0c2328204575aad66de8f761 \
     --hash=sha256:af88b5ad7415410de9ef33bd7f7cf605534f1c4cf24de716ebe4453021249714
 coreschema==0.0.4 \
+    --hash=sha256:5e6ef7bf38c1525d5e55a895934ab4273548629f16aed5c0a6caa74ebf45551f \
     --hash=sha256:9503506007d482ab0867ba14724b93c18a33b22b6d19fb419ef2d239dd4a1607
 Jinja2==2.9.6 \
     --hash=sha256:2231bace0dfd8d2bf1e5d7e41239c06c9e0ded46e70cc1094a0aa64b0afeb054
@@ -153,7 +154,9 @@ django-environ==0.4.3 \
 six==1.10.0 --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1
 
 # Required by hawkrest and requests-hawk
-mohawk==0.3.4 --hash=sha256:e98b331d9fa9ece7b8be26094cbe2d57613ae882133cc755167268a984bc0ab3
+mohawk==0.3.4 \
+    --hash=sha256:b3f85ffa93a5c7d2f9cc591246ef9f8ac4a9fa716bfd5bae0377699a2d89d78c \
+    --hash=sha256:e98b331d9fa9ece7b8be26094cbe2d57613ae882133cc755167268a984bc0ab3
 
 hawkrest==1.0.0 \
     --hash=sha256:a3b9c52ee86b0e437aa16819356e57ea79706e58b52ffa4cb908a02d1ebd4875 \
@@ -209,17 +212,17 @@ slugid==1.0.7 --hash=sha256:6dab3c7eef0bb423fb54cb7752e0f466ddd0ee495b78b763be60
 taskcluster==1.3.4 \
     --hash=sha256:c0bbaa680aed4e502c370d24258c85e6ea7a891fd090ac6af66356e0e9a459fc
 
-# Dependency for Taskcluster
-aiohttp==2.2.5 \
+# Required by Taskcluster
+aiohttp==2.2.5; python_version >= '3' \
     --hash=sha256:b80f44b99fa3c9b4530fcfa324a99b84843043c35b084e0b653566049974435d
 
-yarl==0.11 \
+yarl==0.11; python_version >= '3' \
     --hash=sha256:f0fa3a44cc463ddc2257e17d7aa162069c921d662a17b1d7d963f417717ecb31
 
-multidict==2.1.4 \
+multidict==2.1.4; python_version >= '3' \
     --hash=sha256:62bc16176162cd44d5f912dce1369d0b066885ac3861932758909ced215e2bff
 
-async_timeout==1.2.0 \
+async_timeout==1.2.0; python_version >= '3' \
     --hash=sha256:2507257417470f41e40ae9265d0abdbff6d936b6e0d5831132d35714c9cd433d
 
 graphene-django==1.3 \
