@@ -203,6 +203,16 @@ treeherder.factory('jsyaml', [
         return require('js-yaml');
     }]);
 
+treeherder.factory('Ajv', [
+    function () {
+        return require('ajv');
+    }]);
+
+treeherder.factory('jsonSchemaDefaults', [
+    function () {
+        return require('json-schema-defaults');
+    }]);
+
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
     function () {
