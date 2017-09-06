@@ -22,6 +22,7 @@ require('mousetrap');
 require('js-yaml');
 require('ngreact');
 require('angular-ui-bootstrap');
+require('angular-marked');
 require('../../../ui/vendor/resizer.js');
 
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);

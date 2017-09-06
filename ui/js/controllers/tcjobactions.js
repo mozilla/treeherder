@@ -4,13 +4,15 @@ treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$http', '$uibModalInstance', 'ThResultSetStore',
     'ThJobDetailModel', 'thTaskcluster', 'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
+    'jsyaml', 'Ajv', 'jsonSchemaDefaults',
     function ($scope, $http, $uibModalInstance, ThResultSetStore,
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
-             job, repoName, resultsetId, tcactions) {
-        let jsonSchemaDefaults = require('json-schema-defaults');
+             job, repoName, resultsetId, tcactions, jsyaml, Ajv, jsonSchemaDefaults) {
+        const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
         let decisionTaskId;
         let originalTaskId;
         let originalTask;
+        let validate;
         $scope.input = {};
 
         $scope.cancel = function () {
@@ -19,9 +21,13 @@ treeherder.controller('TCJobActionsCtrl', [
 
         $scope.updateSelectedAction = function () {
             if ($scope.input.selectedAction.schema) {
-                $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
+                $scope.schema = jsyaml.safeDump($scope.input.selectedAction.schema);
+                $scope.input.payload = jsyaml.safeDump(jsonSchemaDefaults($scope.input.selectedAction.schema));
+                validate = ajv.compile($scope.input.selectedAction.schema);
             } else {
-                $scope.input.jsonPayload = undefined;
+                $scope.input.payload = undefined;
+                $scope.schema = undefined;
+                validate = undefined;
             }
         };
 
@@ -30,6 +36,23 @@ treeherder.controller('TCJobActionsCtrl', [
 
             let tc = thTaskcluster.client();
 
+            let input = null;
+            if (validate && $scope.input.payload) {
+                try {
+                    input = jsyaml.safeLoad($scope.input.payload);
+                } catch (e) {
+                    $scope.triggering = false;
+                    thNotify.send(`YAML Error: ${e.message}`, 'danger');
+                    return;
+                }
+                const valid = validate(input);
+                if (!valid) {
+                    $scope.triggering = false;
+                    thNotify.send(ajv.errorsText(validate.errors), 'danger');
+                    return;
+                }
+            }
+
             let actionTaskId = tc.slugid();
             tcactions.submit({
                 action: $scope.input.selectedAction,
@@ -37,11 +60,23 @@ treeherder.controller('TCJobActionsCtrl', [
                 decisionTaskId,
                 taskId: originalTaskId,
                 task: originalTask,
-                input: $scope.input.jsonPayload ? JSON.parse($scope.input.jsonPayload) : undefined,
+                input,
                 staticActionVariables: $scope.staticActionVariables,
             }).then(function () {
-                $scope.$apply(thNotify.send("Custom action request sent successfully", 'success'));
                 $scope.triggering = false;
+                let message = 'Custom action request sent successfully:';
+                let url = `https://tools.taskcluster.net/tasks/${actionTaskId}`;
+
+                // For the time being, we are redirecting specific actions to
+                // specific urls that are different than usual. At this time, we are
+                // only directing loaner tasks to the loaner UI in the tools site.
+                // It is possible that we may make this a part of the spec later.
+                const loaners = ['docker-worker-linux-loaner', 'generic-worker-windows-loaner'];
+                if (_.includes(loaners, $scope.input.selectedAction.name)) {
+                    message = 'Visit Taskcluster Tools site to access loaner:';
+                    url = `${url}/connect`;
+                }
+                $scope.$apply(thNotify.send(message, 'success', true, 'Open in Taskcluster', url));
                 $uibModalInstance.close('request sent');
             }, function (e) {
                 $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));

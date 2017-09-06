@@ -10,9 +10,11 @@
     "node": "8.5.0"
   },
   "dependencies": {
+    "ajv": "^5.2.2",
     "angular": "1.5.11",
     "angular-cookies": "1.5.11",
     "angular-local-storage": "0.5.2",
+    "angular-marked": "^1.2.2",
     "angular-resource": "1.5.11",
     "angular-route": "1.5.11",
     "angular-sanitize": "1.5.11",
@@ -29,6 +31,7 @@
     "json-e": "2.2.1",
     "json-schema-defaults": "0.3.0",
     "lodash": "4.17.4",
+    "marked": "^0.3.6",
     "metrics-graphics": "2.11.0",
     "mousetrap": "1.6.1",
     "neutrino": "4.3.1",

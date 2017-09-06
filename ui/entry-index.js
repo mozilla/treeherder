@@ -30,6 +30,7 @@ require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('mousetrap');
 require('js-yaml');
+require('angular-marked');
 require('react-dom');
 require('ngreact');
 require('jquery.scrollto');

@@ -352,3 +352,13 @@ kbd {
   height: 1px;
   padding: 0px;
 }
+
+/*
+ * Fonts
+ *
+ * Styles for modifying basic font styles
+ */
+
+.pre {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}

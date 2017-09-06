@@ -35,6 +35,10 @@
     <li><a target="_blank" data-ignore-job-clear-on-click
            href="https://bugherder.mozilla.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
            title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
+    <li><a target="_blank" data-ignore-job-clear-on-click
+           href=""
+           ng-click="customPushAction()"
+           title="View/Edit/Submit Action tasks for this push">Custom Push Action...</a></li>
     <li><a target="_blank" title="Prototype of a Treeherder UI centered on tests, rather than jobs"
            href="{{testBasedUIHost}}?repo={{repoName}}&revision={{resultset.revision}}"><strong>Experimental:</strong> Test-Centric UI</a></li>
     <li><a target="_blank"
