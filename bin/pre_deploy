@@ -27,9 +27,14 @@ echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
 # eg: "v750: Deploy 5d6b1f0"
 DESCRIPTION="$HEROKU_RELEASE_VERSION: $HEROKU_SLUG_DESCRIPTION"
 # Use the revision from the live site rather than a local file generated during
-# buildpack compile, so that in the case of deploy failures it's up to date.
-OLD_REVISION="$(curl --silent --show-error --fail --retry 5 --retry-max-time 15 $SITE_URL/revision.txt)"
-CHANGELOG="https://github.com/mozilla/treeherder/compare/$OLD_REVISION...$HEROKU_SLUG_COMMIT"
+# buildpack compile, so that in the case of prior deploy failures it's up to date.
+# The curl command is allowed to fail so that deploys work in maintenance mode.
+OLD_REVISION="$(curl -sSf --retry 5 --retry-max-time 15 "${SITE_URL}/revision.txt" || true)"
+if [[ -n "$OLD_REVISION" ]]; then
+    CHANGELOG="https://github.com/mozilla/treeherder/compare/${OLD_REVISION}...${HEROKU_SLUG_COMMIT}"
+else
+    CHANGELOG="Unknown changelog due to error fetching revision.txt!"
+fi
 # The author of the deploy isn't currently available to us. Have filed:
 # https://help.heroku.com/tickets/343783
 USER="Heroku"
