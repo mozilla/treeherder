@@ -83,6 +83,24 @@ To connect to Treeherder you need Heroku permissions. Run this from a treeherder
 
    heroku run --app treeherder-prod -- bash
 
+Sometimes, before you can adjust priorities of the jobs, you need to make sure they make it into the JobPriority table.
+In order to do so we need to:
+
+* Make sure the scheduling changes have made it into mozilla-inbound
+
+  * SETA uses mozilla-inbound as a reference for jobs for all trunk trees
+* Make sure the job shows up on the runnable jobs table
+
+  * You can check the `API <https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/>`_, however, it can time out
+  * You can update the table with ``export TREEHERDER_DEBUG=True && ./manage.py update_runnable_jobs`` (it will take several minutes)
+* Update the job priority table from the shell:
+
+.. code-block:: bash
+
+  from treeherder.seta.update_job_priority import update_job_priority_table
+  update_job_priority_table()
+  
+
 If you want to remove the 2 week grace period and make the job low priority (priority=5) do somthing similar to this:
 
 .. code-block:: bash
