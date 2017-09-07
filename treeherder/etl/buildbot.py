@@ -762,6 +762,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'_updates'), "name": "Release Promotion Updates"},
     {"regex": re.compile(r'_version_bump'), "name": "Version Bump"},
     {"regex": re.compile(r'_bouncer_aliases'), "name": "Bouncer Aliases"},
+    {"regex": re.compile(r'_schedule_publishing_in_balrog'), "name": "Schedule Publishing in Balrog"},
 
 ]
 
@@ -948,6 +949,7 @@ GROUP_NAMES = {
     "Release Promotion Updates": "Release Promotion",
     "Version Bump": "Release Promotion",
     "Bouncer Aliases": "Release Promotion",
+    "Schedule Publishing in Balrog": "Schedule Publishing in Balrog",
 }
 
 # symbols displayed in the UI for all jobs and job groups
@@ -1211,6 +1213,7 @@ SYMBOLS = {
     "Bouncer Aliases": "Ba",
     "Version Bump": "Vb",
     "Release Promotion Updates": "Up",
+    "Schedule Publishing in Balrog": "Spb",
 
 
     # Sort unknown jobs after all others.
