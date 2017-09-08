@@ -21,6 +21,36 @@ CACHE_KEYS = {
     'complete': 'processed_buildapi_complete',
 }
 
+# Signature sets are for
+# autoland
+# mozilla-beta
+# mozilla-central
+# mozilla-esr52
+# mozilla-inbound
+# mozilla-release
+# try
+# and all project repos
+TIER_SIGNATURES = {
+    # mozilla-central
+    '49f148889483d2b918968dc58a3dc128e0cf3bad': 2,
+    'eca4450a7589f585abb6417e2ec50ec9f9222f30': 2,
+    'a639fc8e9c851c23d8757ca4cc0bdf4f47191a8d': 2,
+    'ece1657e1df7a7eccfad512ec42ca95c737c9967': 2,
+    'd5d4966a6291e0d5038feb53706ce94815f2940f': 2,
+    '168c3f4f8b6e86fa6c72a90a7594ca740773754a': 2,
+    '68a10491197ebdb2e1fe7421948602e610756648': 2,
+    '42e9a1ff1501fbd9c5bfc4ee2db3014ef9e03764': 2,
+    'a4cc9dc681d9dee8d2b2e12473bd108e567f9a6e': 2,
+    'd727b862b1e0d15051c2cf70d433b98405b9d24e': 2,
+    '7910e346829fdaf579fba02e7bdd5bdb484b3328': 2,
+    # mozilla-esr52
+    '4226b6b3015e09de57c2d553584eba5057b7425e': 3,
+    '4df5d64f9501123193b0b3cf4d2e9b3c84bc2076': 3,
+    # mozilla-release
+    '285c5e0ad301703887bde886e4fb539e34678692': 3,
+    'effdff3f7ec01e57e53e97cdda9e3bbf0f243e44': 3,
+}
+
 
 class Builds4hTransformerMixin(object):
 
@@ -448,7 +478,8 @@ def store_jobs(job_collections, chunk_size):
                 repository = Repository.objects.get(
                     name=repository_name)
                 collection.validate()
-                store_job_data(repository, collection.get_collection_data())
+                store_job_data(repository, collection.get_collection_data(),
+                               TIER_SIGNATURES)
             except Exception:
                 newrelic.agent.record_exception()
                 errors.append({

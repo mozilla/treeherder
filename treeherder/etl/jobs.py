@@ -12,7 +12,6 @@ from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
 from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (BuildPlatform,
-                                     ExclusionProfile,
                                      FailureClassification,
                                      Job,
                                      JobDuration,
@@ -28,8 +27,6 @@ from treeherder.model.models import (BuildPlatform,
                                      ReferenceDataSignatures,
                                      TaskclusterMetadata)
 
-LOWER_TIERS = [2, 3]
-
 logger = logging.getLogger(__name__)
 
 
@@ -38,28 +35,6 @@ def _get_number(s):
         return long(s)
     except (ValueError, TypeError):
         return 0
-
-
-def _get_lower_tier_signatures(repository):
-    # get the lower tier data signatures for this project.
-    # if there are none, then just return an empty list
-    # this keeps track of them order (2, then 3) so that the latest
-    # will have precedence.  If a job signature is in both Tier-2 and
-    # Tier-3, then it will end up in Tier-3.
-    lower_tier_signatures = []
-    for tier_num in LOWER_TIERS:
-        try:
-            signatures = ExclusionProfile.objects.get_signatures_for_project(
-                repository.name, "Tier-{}".format(tier_num))
-            lower_tier_signatures.append({
-                'tier': tier_num,
-                'signatures': signatures
-            })
-        except ExclusionProfile.DoesNotExist:
-            # no exclusion profile for this tier
-            pass
-
-    return lower_tier_signatures
 
 
 def _remove_existing_jobs(data):
@@ -207,24 +182,15 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
             'option_collection_hash': option_collection_hash
         })
 
-    if created:
-        # A new ReferenceDataSignature has been added, so we need
-        # to reload lower tier exclusions
-        lower_tier_signatures = _get_lower_tier_signatures(repository)
-
     tier = job_datum.get('tier') or 1
-    # job tier signatures override the setting from the job structure
-    # Check the signatures list for any supported lower tiers that have
-    # an active exclusion profile.
 
     result = job_datum.get('result', 'unknown')
 
-    # As stated elsewhere, a job will end up in the lowest tier where its
-    # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
-    # will end up in 3.
-    for tier_info in lower_tier_signatures:
-        if signature_hash in tier_info["signatures"]:
-            tier = tier_info["tier"]
+    # Job tier signatures override the setting from the job structure
+    # Check the signatures list for any supported lower tiers that have
+    # an active exclusion profile.
+    if lower_tier_signatures and signature_hash in lower_tier_signatures:
+        tier = lower_tier_signatures[signature_hash]
 
     try:
         duration = JobDuration.objects.values_list(
@@ -416,7 +382,7 @@ def _schedule_log_parsing(job, job_logs, result):
                            args=[job.id, job_log_ids, priority])
 
 
-def store_job_data(repository, data):
+def store_job_data(repository, data, lower_tier_signatures=None):
     """
     Store job data instances into jobs db
 
@@ -483,8 +449,6 @@ def store_job_data(repository, data):
         return
 
     coalesced_job_guid_placeholders = []
-
-    lower_tier_signatures = _get_lower_tier_signatures(repository)
 
     for datum in data:
         try:
