@@ -314,12 +314,6 @@ Warning: With the latest volume of jobs and pushes, anything greater than a sing
 
     **Expected**: pushes loaded should continue to honor that range.
 
-Modify Exclusion Profiles in the Sheriff panel
-------
-Open the Sheriffing panel in the top navbar, and change the Default exclusion to any other exclusion profile (eg. Test, Tier-2), by clicking on Make Default. Close the panel and reload the page.
-
-    **Expected**: Jobs present in that new profile should be excluded from the Job table, when the Show/Hide excluded job button is in its On (open square) state.
-
 Show/Hide excluded jobs
 ------
 Click the open rounded-square button in the top navbar to Show/Hide excluded jobs.

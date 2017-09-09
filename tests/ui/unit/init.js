@@ -27,7 +27,6 @@ require('../../../ui/vendor/resizer.js');
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
 window.treeherder = jsContext('./treeherder.js');
 window.treeherderApp = jsContext('./treeherder_app.js');
-window.admin = jsContext('./admin.js');
 window.perf = jsContext('./perf.js');
 window.failureViewerApp = jsContext('./failureviewer.js');
 window.logViewerApp = jsContext('./logviewer.js');

@@ -62,8 +62,6 @@ require('./js/models/bug_job_map.js');
 require('./js/models/classification.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');
-require('./js/models/job_exclusion.js');
-require('./js/models/exclusion_profile.js');
 require('./js/models/build_platform.js');
 require('./js/models/job_type.js');
 require('./js/models/job_group.js');

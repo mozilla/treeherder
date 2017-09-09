@@ -45,9 +45,9 @@ module.exports = neutrino => {
                     'indent': ['error', 4, {
                         'SwitchCase': 1
                     }],
-                    'key-spacing': ['error', { 
-                        beforeColon: false, 
-                        afterColon: true 
+                    'key-spacing': ['error', {
+                        beforeColon: false,
+                        afterColon: true
                     }],
                     'keyword-spacing': 'error',
                     'linebreak-style': 'error',
@@ -103,16 +103,16 @@ module.exports = neutrino => {
                         asyncArrow: 'always'
                     }],
                     'strict': ['error', 'global'],
-                    'quote-props': ['error', 'as-needed', { 
-                        keywords: false, 
-                        unnecessary: true, 
-                        numbers: false 
+                    'quote-props': ['error', 'as-needed', {
+                        keywords: false,
+                        unnecessary: true,
+                        numbers: false
                     }],
                     'yoda': 'error'
                 },
                 globals: ['angular', '$', '_', 'treeherder', 'perf',
                     'treeherderApp', 'failureViewerApp', 'logViewerApp',
-                    'userguideApp', 'admin', 'Mousetrap', 'jQuery', 'React',
+                    'userguideApp', 'Mousetrap', 'jQuery', 'React',
                     'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN', 'numeral',
                     'metrics-graphics'
                 ]

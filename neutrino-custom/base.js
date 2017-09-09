@@ -10,7 +10,6 @@ const SRC = path.join(CWD, 'src'); // neutrino's default source directory
 const UI = path.join(CWD, 'ui');
 const DIST = path.join(CWD, 'dist');
 const INDEX_TEMPLATE = path.join(UI, 'index.html');
-const ADMIN_TEMPLATE = path.join(UI, 'admin.html');
 const PERF_TEMPLATE = path.join(UI, 'perf.html');
 const LOGVIEWER_TEMPLATE = path.join(UI, 'logviewer.html');
 const FAILUREVIEWER_TEMPLATE = path.join(UI, 'failureviewer.html');
@@ -50,10 +49,6 @@ module.exports = neutrino => {
         .end();
     // Add several other treeherder entry points:
     neutrino.config
-        .entry('admin')
-        .add(path.join(UI, 'entry-admin.js'))
-        .end();
-    neutrino.config
         .entry('perf')
         .add(path.join(UI, 'entry-perf.js'))
         .end();
@@ -82,7 +77,7 @@ module.exports = neutrino => {
         .rule('html')
         ._exclude
         .add([USERGUIDE_TEMPLATE, PERF_TEMPLATE, LOGVIEWER_TEMPLATE,
-            INDEX_TEMPLATE, ADMIN_TEMPLATE, FAILUREVIEWER_TEMPLATE]);
+            INDEX_TEMPLATE, FAILUREVIEWER_TEMPLATE]);
 
     // Don't use file loader for html...
     neutrino.config
@@ -106,16 +101,6 @@ module.exports = neutrino => {
             inject: 'body',
             template: INDEX_TEMPLATE,
             chunks: ['index', 'vendor', 'manifest'],
-            minify: HTML_MINIFY_OPTIONS
-        });
-
-    neutrino.config
-        .plugin('html-admin')
-        .use(HtmlPlugin, {
-            inject: 'body',
-            filename: 'admin.html',
-            template: ADMIN_TEMPLATE,
-            chunks: ['admin', 'vendor', 'manifest'],
             minify: HTML_MINIFY_OPTIONS
         });
 
@@ -186,7 +171,6 @@ module.exports = neutrino => {
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),
             treeherderApp: require.resolve(path.join(UI, 'js/treeherder_app.js')),
             perf: require.resolve(path.join(UI, 'js/perf.js')),
-            admin: require.resolve(path.join(UI, 'js/admin.js')),
             failureViewerApp: require.resolve(path.join(UI, 'js/failureviewer.js')),
             logViewerApp: require.resolve(path.join(UI, 'js/logviewer.js')),
             userguideApp: require.resolve(path.join(UI, 'js/userguide.js'))
