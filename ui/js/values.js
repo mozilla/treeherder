@@ -321,10 +321,6 @@ treeherder.value("thPerformanceBranches", [
     "autoland", "mozilla-inbound"
 ]);
 
-treeherder.value("strReloadTreeherder",
-    "Reload Treeherder windows to see changes reflected."
-);
-
 treeherder.value("phDashboardValues",
     {
         e10s: {

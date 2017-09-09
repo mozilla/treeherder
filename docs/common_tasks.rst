@@ -163,6 +163,20 @@ Releasing a new version of the Python client
   and wheel releases (plus any new dependent packages) be added to the
   internal PyPI mirror. For an example, see `bug 1236965`_.
 
+Hide Jobs with Tiers
+--------------------
+
+To hide jobs we use the job's ``tier`` setting.  Jobs with ``tier`` of 3 are
+hidden by default.  There are two ways to set a job to be hidden in Treeherder:
+
+* TaskCluster - Edit the task definition to include the ``tier`` setting in
+  the Treeherder section.
+* BuildBot - You must get the signature hash of the job from the UI and add that
+  signature hash to the ``buildapi.py`` file in the Treeherder repo.  To get
+  the signature, click the job and then click the ``sig`` link in the Job
+  Details Panel.  That will place the signature hash in the filter field.
+
+
 .. _client Git log: https://github.com/mozilla/treeherder/commits/master/treeherder/client
 .. _client.py: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
 .. _bug 1236965: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965
