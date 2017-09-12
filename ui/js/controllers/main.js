@@ -193,16 +193,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.getFilteredUnclassifiedFailureCount = ThResultSetStore.getFilteredUnclassifiedFailureCount;
         $scope.getAllUnclassifiedFailureCount = ThResultSetStore.getAllUnclassifiedFailureCount;
 
-        $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
-
-        $scope.toggleExcludedJobs = function () {
-            if ($location.search().exclusion_profile === 'false') {
-                $location.search('exclusion_profile', null);
-            } else {
-                $location.search('exclusion_profile', 'false');
-            }
-        };
-
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
         $scope.toggleInProgress = function () {

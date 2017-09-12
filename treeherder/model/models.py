@@ -10,7 +10,6 @@ from hashlib import sha1
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
@@ -125,20 +124,13 @@ class Push(models.Model):
         return "{0} {1}".format(
             self.repository.name, self.revision)
 
-    def get_status(self, exclusion_profile="default"):
+    def get_status(self):
         '''
         Gets a summary of what passed/failed for the push
         '''
         jobs = Job.objects.filter(push=self).filter(
             Q(failure_classification__isnull=True) |
             Q(failure_classification__name='not classified')).exclude(tier=3)
-        if exclusion_profile:
-            try:
-                signature_list = ExclusionProfile.objects.get_signatures_for_project(
-                    self.repository.name, exclusion_profile)
-                jobs.exclude(signature__signature__in=signature_list)
-            except ExclusionProfile.DoesNotExist:
-                pass
 
         status_dict = {}
         total_num_coalesced = 0
@@ -344,7 +336,7 @@ class FailureClassification(NamedModel):
         db_table = 'failure_classification'
 
 
-# exclusion profiles models
+# TODO: Remove these as final phase of Bug 1387640
 
 class JobExclusion(models.Model):
 
@@ -358,44 +350,8 @@ class JobExclusion(models.Model):
     info = JSONField()
     author = models.ForeignKey(User)
 
-    def save(self, *args, **kwargs):
-        super(JobExclusion, self).save(*args, **kwargs)
-
-        # trigger the save method on all the profiles related to this exclusion
-        for profile in self.profiles.all():
-            profile.save()
-
     class Meta:
         db_table = 'job_exclusion'
-
-
-class ExclusionProfileManager(models.Manager):
-    """
-    Convenience functions for operations on groups of exclusion profiles
-    """
-
-    def get_signatures_for_project(self, repository_name,
-                                   exclusion_profile_name):
-        cache_key = ExclusionProfile.get_signature_cache_key(
-            exclusion_profile_name, repository_name)
-        cached_signatures = cache.get(cache_key)
-        if cached_signatures is not None:
-            return cached_signatures
-
-        signatures = set([])
-        try:
-            if exclusion_profile_name == "default":
-                profile = self.get(is_default=True)
-            else:
-                profile = self.get(name=exclusion_profile_name)
-            signatures = set(profile.get_flat_exclusions(repository_name))
-        except KeyError:
-            # this repo/project has no hidden signatures
-            pass
-
-        cache.set(cache_key, signatures)
-
-        return signatures
 
 
 class ExclusionProfile(models.Model):
@@ -408,65 +364,6 @@ class ExclusionProfile(models.Model):
     exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
     author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
     modified = models.DateTimeField(auto_now=True)
-
-    objects = ExclusionProfileManager()
-
-    @staticmethod
-    def get_signature_cache_key(exclusion_profile_name, repository_name):
-        return "exclusion-profile-signatures-{}-{}".format(
-            exclusion_profile_name, repository_name)
-
-    def save(self, *args, **kwargs):
-        super(ExclusionProfile, self).save(*args, **kwargs)
-
-        # update the old default profile
-        if self.is_default:
-            ExclusionProfile.objects.filter(is_default=True).exclude(
-                id=self.id).update(is_default=False)
-
-        # invalidate any existing exclusion profile cache lookups
-        cache_entries_to_delete = [
-            self.get_signature_cache_key(self.name, repository.name)
-            for repository in Repository.objects.all()
-        ]
-        cache.delete_many(cache_entries_to_delete)
-
-    def get_flat_exclusions(self, repository_name):
-        # this is necessary because the ``job_types`` come back in the form of
-        # ``Mochitest (18)`` or ``Reftest IPC (Ripc)`` so we must split these
-        # back out.
-        # same deal for ``platforms``
-        # todo: update if/when chunking policy changes
-        # when we change chunking, we will likely only get back the name,
-        # so we'll just compare that to the ``job_type_name`` field.
-        def split_combo(combos):
-            list1 = []
-            list2 = []
-            for combo in combos:
-                first, sep, second = combo.rpartition(' (')
-                list1.append(first)
-                list2.append(second.rstrip(')'))
-            return list1, list2
-
-        query = None
-        for exclusion in self.exclusions.all():
-            info = exclusion.info
-            option_collection_hashes = info['option_collection_hashes']
-            job_type_names, job_type_symbols = split_combo(info['job_types'])
-            platform_names, platform_arch = split_combo(info['platforms'])
-            new_query = Q(repository__in=info['repos'],
-                          machine_platform__in=platform_names,
-                          job_type_name__in=job_type_names,
-                          job_type_symbol__in=job_type_symbols,
-                          option_collection_hash__in=option_collection_hashes)
-            query = (query | new_query) if query else new_query
-
-        if not query:
-            return []
-
-        return ReferenceDataSignatures.objects.filter(
-            query, repository=repository_name).values_list(
-                'signature', flat=True)
 
     class Meta:
         db_table = 'exclusion_profile'
@@ -486,6 +383,8 @@ class UserExclusionProfile(models.Model):
     class Meta:
         db_table = 'user_exclusion_profile'
         unique_together = ('user', 'exclusion_profile')
+
+# TODO: End of what to remove as final phase of Bug 1387640
 
 
 class ReferenceDataSignatures(models.Model):
@@ -519,19 +418,6 @@ class ReferenceDataSignatures(models.Model):
         # Remove if/when the model is renamed to 'ReferenceDataSignature'.
         verbose_name_plural = 'reference data signatures'
         unique_together = ('name', 'signature', 'build_system_type', 'repository')
-
-    def save(self, *args, **kwargs):
-        super(ReferenceDataSignatures, self).save(*args, **kwargs)
-
-        # if we got this far, it indicates we added or changed something,
-        # so we need to invalidate any existing exclusion profile
-        # cache lookups corresponding to this reference data signature's
-        # repository
-        cache_entries_to_delete = [
-            ExclusionProfile.get_signature_cache_key(name, self.repository)
-            for name in ExclusionProfile.objects.values_list('name', flat=True)
-        ]
-        cache.delete_many(cache_entries_to_delete)
 
 
 class JobDuration(models.Model):

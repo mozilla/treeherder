@@ -16,8 +16,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (ExclusionProfile,
-                                     FailureLine,
+from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobDetail,
                                      JobLog,
@@ -310,10 +309,6 @@ class JobsViewSet(viewsets.ViewSet):
                         "Invalid value for offset or count",
                         status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
-        exclusion_profile = filter_params.get("exclusion_profile", "default")
-        visibility = filter_params.get("visibility", "included")
-        if exclusion_profile in ('false', 'null'):
-            exclusion_profile = None
 
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
@@ -329,36 +324,6 @@ class JobsViewSet(viewsets.ViewSet):
                          queryset=Job.objects.filter(
                              repository=repository).select_related(
                                  *self._default_select_related)).qs
-
-        if exclusion_profile:
-            try:
-                signatures = ExclusionProfile.objects.get_signatures_for_project(
-                    project, exclusion_profile)
-                if signatures:
-                    # NOT here means "not part of the exclusion profile"
-                    if visibility == "included":
-                        jobs = jobs.exclude(
-                            signature__signature__in=signatures)
-                    else:
-                        jobs = jobs.filter(
-                            signature__signature__in=signatures)
-                else:
-                    # this repo/project has no hidden signatures
-                    # if ``visibility`` is set to ``included`` then it's
-                    # meaningless to add any of these limiting params to the
-                    # query, just run it and give the user everything for the
-                    # project.
-                    #
-                    # If ``visibility`` is ``excluded`` then we only want to
-                    # include jobs that were excluded by this profile.  Since
-                    # no jobs are excluded for this project, we should return
-                    # an empty queryset and skip the query altogether.
-                    if visibility == "excluded":
-                        jobs = jobs.none()
-            except ExclusionProfile.DoesNotExist:
-                # Either there's no default profile setup or the profile
-                # specified is not available
-                pass
 
         response_body = self._get_job_list_response(jobs, offset, count,
                                                     return_type)

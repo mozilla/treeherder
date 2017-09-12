@@ -20,47 +20,11 @@ class NoOpSerializer(serializers.Serializer):
         return value
 
 
-class UserExclusionProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.UserExclusionProfile
-        fields = ["is_default", "exclusion_profile"]
-
-
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "is_superuser", "is_staff", "email", "exclusion_profiles"]
-
-
-class JobExclusionSerializer(serializers.ModelSerializer):
-    info = NoOpSerializer()
-
-    class Meta:
-        model = models.JobExclusion
-        fields = '__all__'
-
-    # We need to override .create and .update because ModelSerializer raises an error
-    # if it finds nested resources. A JSONField instance is either a dict or a list
-    # which makes it look like a nested relationship.
-    def create(self, validated_data):
-        instance = models.JobExclusion.objects.create(**validated_data)
-        instance.save()
-        return instance
-
-    def update(self, instance, validated_data):
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-        instance.save()
-        return instance
-
-
-class ExclusionProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.ExclusionProfile
-        fields = '__all__'
+        fields = ["username", "is_superuser", "is_staff", "email"]
 
 
 class RepositoryGroupSerializer(serializers.ModelSerializer):

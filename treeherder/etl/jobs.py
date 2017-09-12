@@ -187,8 +187,8 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     result = job_datum.get('result', 'unknown')
 
     # Job tier signatures override the setting from the job structure
-    # Check the signatures list for any supported lower tiers that have
-    # an active exclusion profile.
+    # Check the signatures list for any supported lower tiers that should
+    # have an overridden tier.
     if lower_tier_signatures and signature_hash in lower_tier_signatures:
         tier = lower_tier_signatures[signature_hash]
 
