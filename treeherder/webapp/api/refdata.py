@@ -4,8 +4,6 @@ from rest_framework.response import Response
 
 from treeherder.model import models
 from treeherder.webapp.api import serializers as th_serializers
-from treeherder.webapp.api.permissions import (IsOwnerOrReadOnly,
-                                               IsStaffOrReadOnly)
 
 #####################
 # Refdata ViewSets
@@ -85,7 +83,7 @@ class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = th_serializers.FailureClassificationSerializer
 
 #############################
-# User and exclusion profiles
+# User profiles
 #############################
 
 
@@ -93,52 +91,12 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     """
     Info about a logged-in user.
-    Used by Treeherder's UI to inspect user properties like the exclusion profile
+    Used by Treeherder's UI to inspect user properties
     """
     serializer_class = th_serializers.UserSerializer
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
-
-
-class UserExclusionProfileViewSet(viewsets.ModelViewSet):
-    queryset = models.UserExclusionProfile.objects.all()
-    permission_classes = (IsOwnerOrReadOnly,)
-    serializer_class = th_serializers.UserExclusionProfileSerializer
-
-
-class JobExclusionViewSet(viewsets.ModelViewSet):
-    queryset = models.JobExclusion.objects.all()
-    permission_classes = (IsStaffOrReadOnly,)
-    serializer_class = th_serializers.JobExclusionSerializer
-
-    def create(self, request, *args, **kwargs):
-        """
-        Overrides the default Viewset to set the current user
-        as the author of this filter
-        """
-        if "author" not in request.data:
-            request.data["author"] = request.user.id
-        return super(JobExclusionViewSet, self).create(request, *args, **kwargs)
-
-
-class ExclusionProfileViewSet(viewsets.ModelViewSet):
-
-    """
-
-    """
-    queryset = models.ExclusionProfile.objects.all()
-    permission_classes = (IsStaffOrReadOnly,)
-    serializer_class = th_serializers.ExclusionProfileSerializer
-
-    def create(self, request, *args, **kwargs):
-        """
-        Overrides the default Viewset to set the current user
-        as the author of this exclusion profile
-        """
-        if "author" not in request.data:
-            request.data["author"] = request.user.id
-        return super(ExclusionProfileViewSet, self).create(request, *args, **kwargs)
 
 
 class MatcherViewSet(viewsets.ReadOnlyModelViewSet):

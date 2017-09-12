@@ -306,19 +306,13 @@ Add a revision range to the URL in the format, eg:
 
 &startdate=2015-09-28&enddate=2015-09-28
 
-Warning: With the latest volume of jobs and pushes, anything greater than a single day window risks loading too much data for the browser with Treeherder default filter and exclusion settings.
+Warning: With the latest volume of jobs and pushes, anything greater than a single day window risks loading too much data for the browser with Treeherder default filter settings.
 
     **Expected**: pushes loaded should honor that range.
 
 (Optional) Wait for new pushes to that repo.
 
     **Expected**: pushes loaded should continue to honor that range.
-
-Show/Hide excluded jobs
-------
-Click the open rounded-square button in the top navbar to Show/Hide excluded jobs.
-
-    **Expected**: Confirm that jobs currently in the default exclusion profile appear when the icon is solid white (on) and disappear when off. Those jobs range from some Tier-2 jobs, Autophone, and other jobs specified in the default Exclusion Profile UI.
 
 Perfherder Graphs
 ------

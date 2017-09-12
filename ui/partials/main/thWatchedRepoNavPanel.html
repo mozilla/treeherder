@@ -59,26 +59,13 @@
           </ul>
         </span>
 
-        <!--Hidden Jobs Button-->
-        <span class="btn btn-view-nav btn-sm"
-              title="{{ !isSkippingExclusionProfiles ? 'Click to show excluded jobs' : 'Click to hide excluded jobs'}}"
-              tabindex="0" role="button"
-              ng-click="toggleExcludedJobs()">
-          <span class="btn-toggle-excluded"
-             ng-class="{ 'btn-excluded': !isSkippingExclusionProfiles }">
-            <i class="fa"
-               ng-class="{ 'fa-eye-slash': !isSkippingExclusionProfiles,
-                           'fa-eye': isSkippingExclusionProfiles }"></i>
-          </span>
-        </span>
-
         <!-- Toggle Duplicate Jobs -->
         <span class="btn btn-view-nav btn-sm btn-toggle-duplicate-jobs"
               tabindex="1" role="button"
               title="{{ showDuplicateJobs ? 'Hide Duplicate Jobs' : 'Show Duplicate Jobs' }}"
               ng-click="groupState !== 'expanded' && toggleShowDuplicateJobs()"
               ng-disabled="groupState === 'expanded'"
-              ng-class="{ 'btn-excluded': !showDuplicateJobs }">
+              ng-class="{ 'strikethrough': !showDuplicateJobs }">
         </span>
 
         <!--Toggle Revisions Button-->

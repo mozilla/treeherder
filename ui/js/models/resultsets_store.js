@@ -54,7 +54,6 @@ treeherder.factory('ThResultSetStore', [
             'tochange',
             'startdate',
             'enddate',
-            'exclusion_profile',
             'nojobs'
         ];
 
@@ -134,15 +133,13 @@ treeherder.factory('ThResultSetStore', [
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
                     resultSetIdList,
-                    $rootScope.repoName,
-                    _.pick($location.search(), ["exclusion_profile", "visibility"])
+                    $rootScope.repoName
                 ));
             } else {
                 jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
                     resultSetIdList,
                     $rootScope.repoName,
-                    lastJobUpdate,
-                    _.pick($location.search(), ["exclusion_profile", "visibility"]));
+                    lastJobUpdate);
             }
             lastPolltime = Date.now();
             jobUpdatesPromise
@@ -1037,8 +1034,7 @@ treeherder.factory('ThResultSetStore', [
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         _.map(resultsets.results, 'id'),
-                        repoName,
-                        _.pick($location.search(), ["exclusion_profile", "visibility"])
+                        repoName
                     );
                     $q.all(jobsPromiseList)
                         .then((resultSetJobList) => {

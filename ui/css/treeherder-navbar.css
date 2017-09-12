@@ -366,10 +366,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 @media (min-width: 960px) {
-  .btn-toggle-excluded::after {
-    content: " Excluded Jobs";
-  }
-  .btn-excluded::after {
+  .strikethrough::after {
     text-decoration: line-through;
   }
 

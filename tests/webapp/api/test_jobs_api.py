@@ -6,9 +6,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.test import APIClient
 
-from treeherder.model.models import (ExclusionProfile,
-                                     Job,
-                                     JobExclusion,
+from treeherder.model.models import (Job,
                                      TaskclusterMetadata,
                                      TextLogError,
                                      TextLogStep)
@@ -193,58 +191,6 @@ def test_job_list_in_filter(webapp, eleven_jobs_stored, test_repository):
 
     resp = webapp.get(final_url).json
     assert len(resp['results']) == 2
-
-
-def test_job_list_excluded(webapp, eleven_jobs_stored, sample_data,
-                           test_repository, test_sheriff):
-    """
-    retrieve a job list of only jobs excluded by specified profile
-    """
-    job = sample_data.job_data[1]
-    platform = job["job"]["machine_platform"]["platform"]
-    arch = job["job"]["machine_platform"]["architecture"]
-
-    job_exclusion = JobExclusion.objects.create(
-        name="jobex",
-        info={
-            "platforms": ["{} ({})".format(platform, arch)],
-            "repos": [test_repository.name],
-            "option_collections": ["opt"],
-            "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
-            "job_types": ["B2G Emulator Image Build (B)"]},
-        author=test_sheriff,
-    )
-    exclusion_profile = ExclusionProfile.objects.create(
-        name="exprof",
-        is_default=False,
-        author=test_sheriff,
-    )
-    exclusion_profile.exclusions.add(job_exclusion)
-    exclusion_profile.save()
-
-    resp = webapp.get(reverse(
-        "jobs-list", kwargs={"project": test_repository.name}) +
-        "?exclusion_profile=exprof&visibility=excluded").json
-    assert len(resp['results']) == 1
-    assert resp['results'][0]['job_guid'] == '9abb6f7d54a49d763c584926377f09835c5e1a32'
-
-
-def test_job_list_no_signatures(webapp, test_repository, test_sheriff):
-    """
-    test retrieving jobs in case of no signatures of exclusion
-    profile.
-    """
-    ExclusionProfile.objects.create(
-        name="no_profile",
-        is_default=False,
-        author=test_sheriff,
-    )
-
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
-    final_url = url + "?exclusion_profile=no_profile&visibility=excluded"
-    resp = webapp.get(final_url).json
-    assert resp['results'] == []
 
 
 def test_job_detail(webapp, test_job):
