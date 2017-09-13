@@ -52,8 +52,17 @@ treeherder.factory('tcactions', [
                     }
 
                     let originalTaskPromise = $q.resolve(null);
+                    let originalTaskId;
                     if (job) {
-                        let originalTaskId = job.taskcluster_metadata.task_id;
+                        if (job.taskcluster_metadata) {
+                            originalTaskId = job.taskcluster_metadata.task_id;
+                        } else {
+                            // This is a bbb job in this case. We'll try our best.
+                            const match = job.reason.match(/Created by BBB for task (.{22})/);
+                            if (match) {
+                                originalTaskId = match[1];
+                            }
+                        }
                         originalTaskPromise = $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
                             function (response) {
                                 return response.data;
@@ -61,6 +70,7 @@ treeherder.factory('tcactions', [
                     }
                     return originalTaskPromise.then(originalTask => ({
                         originalTask,
+                        originalTaskId,
                         staticActionVariables: response.data.variables,
                         actions: response.data.actions.filter(function (action) {
                             return action.kind === 'task' && (!originalTask || (
