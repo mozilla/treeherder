@@ -389,7 +389,7 @@ treeherder.controller('PluginCtrl', [
                 ThResultSetStore.getGeckoDecisionTaskId(
                     $scope.repoName,
                     $scope.resultsetId).then(function (decisionTaskId) {
-                        return tcactions.load(decisionTaskId).then((results) => {
+                        return tcactions.load(decisionTaskId, $scope.job).then((results) => {
                             const tc = thTaskcluster.client();
                             const actionTaskId = tc.slugid();
                             if (results) {
@@ -400,8 +400,8 @@ treeherder.controller('PluginCtrl', [
                                         action: backfilltask,
                                         actionTaskId,
                                         decisionTaskId,
-                                        taskId: null,
-                                        task: null,
+                                        taskId: results.originalTaskId,
+                                        task: results.originalTask,
                                         input: {},
                                         staticActionVariables: results.staticActionVariables,
                                     }).then(function () {

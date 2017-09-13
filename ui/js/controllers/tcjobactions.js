@@ -8,6 +8,8 @@ treeherder.controller('TCJobActionsCtrl', [
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, tcactions) {
         let jsonSchemaDefaults = require('json-schema-defaults');
+        let decisionTaskId;
+        let originalTaskId;
         let originalTask;
         $scope.input = {};
 
@@ -32,8 +34,8 @@ treeherder.controller('TCJobActionsCtrl', [
             tcactions.submit({
                 action: $scope.input.selectedAction,
                 actionTaskId,
-                decisionTaskId: originalTask.taskGroupId,
-                taskId: job.taskcluster_metadata.task_id,
+                decisionTaskId,
+                taskId: originalTaskId,
                 task: originalTask,
                 input: $scope.input.jsonPayload ? JSON.parse($scope.input.jsonPayload) : undefined,
                 staticActionVariables: $scope.staticActionVariables,
@@ -55,9 +57,11 @@ treeherder.controller('TCJobActionsCtrl', [
             }
         });
 
-        ThResultSetStore.getGeckoDecisionTaskId(repoName, resultsetId).then((decisionTaskId) => {
+        ThResultSetStore.getGeckoDecisionTaskId(repoName, resultsetId).then((dtId) => {
+            decisionTaskId = dtId;
             tcactions.load(decisionTaskId, job).then((results) => {
                 originalTask = results.originalTask;
+                originalTaskId = results.originalTaskId;
                 $scope.actions = results.actions;
                 $scope.staticActionVariables = results.staticActionVariables;
                 $scope.input.selectedAction = $scope.actions[0];
