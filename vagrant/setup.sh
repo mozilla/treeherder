@@ -103,7 +103,11 @@ pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt 
 echo '-----> Running yarn install'
 # We have to use `--no-bin-links` to work around symlink issues with Windows hosts.
 # TODO: Switch the flag to a global yarn pref once yarn adds support.
-yarn install --no-bin-links
+# The node version isn't pinned in Vagrant (unlike Heroku/Travis) so we have to use
+# --ignore-engines to prevent failures when there's a new release. This will be fixed
+# as part of the move to a Docker based development environment, where the non-APT approach
+# is much simpler.
+yarn install --no-bin-links --ignore-engines
 
 echo '-----> Initialising MySQL database'
 # Re-enable blank password root logins, which are disabled by default in MySQL 5.7.
