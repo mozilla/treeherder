@@ -14,6 +14,37 @@
     </span>
 
     <span class="navbar-right">
+      <!-- Notifications Menu -->
+      <span class="dropdown" ng-controller="NotificationCtrl">
+        <button id="notificationLabel" title="Recent notifications" role="button"
+                data-toggle="dropdown"
+                class="btn btn-view-nav btn-right-navbar nav-menu-btn">
+          <span class="fa fa-bell-o lightgray"></span>
+        </button>
+        <ul id="notification-dropdown" class="dropdown-menu" role="menu" aria-labelledby="notificationLabel">
+          <li role="presentation" class="dropdown-header" title="Notifications">
+            Recent notifications
+            <span class="label label-default" ng-show="notifications().length" ng-click="clear()">Clear all</span>
+          </li>
+          <li ng-show="!notifications().length">
+            <a class="text-muted">No recent notifications</a>
+          </li>
+          <li ng-repeat="notification in notifications()" ng-switch on="notification.severity">
+            <a target="_blank" ng-href="{{notification.url}}" title="{{::notification.message}} {{::notification.linkText}}">
+              <span ng-switch-when="danger" class="fa fa-ban text-danger"></span>
+              <span ng-switch-when="warning" class="fa fa-warning text-warning"></span>
+              <span ng-switch-when="info" class="fa fa-info-circle text-info"></span>
+              <span ng-switch-when="success" class="fa fa-check text-success"></span>
+              <span ng-switch-default></span>
+              <small class="text-muted">{{::notification.created | date:'short'}}</small>
+              {{::notification.message}}
+              <u>{{::notification.linkText}}</u>
+              <span ng-if="notification.url" class="fa fa-link text-muted"></span>
+            </a>
+          </li>
+        </ul>
+      </span>
+
       <!-- Infra Menu -->
       <span class="dropdown">
         <button id="infraLabel" title="Infrastructure status" role="button"
