@@ -91,14 +91,11 @@ class JobLoader:
             revision = Push.objects.values_list('revision', flat=True).get(
                 repository=repository,
                 revision_hash=pulse_job["origin"]["revision_hash"])
-            logger.warning(
-                "Pulse job had revision_hash instead of revision: {}:{}".format(
-                    pulse_job["origin"]["project"],
-                    pulse_job["origin"]["revision_hash"]
-                ))
             params = {
                 "project": pulse_job["origin"]["project"],
-                "revision_hash": pulse_job["origin"]["revision_hash"]
+                "taskId": pulse_job["taskId"],
+                "buildSystem": pulse_job["buildSystem"],
+                "jobName": pulse_job["display"]["jobName"],
             }
             newrelic.agent.record_custom_event("revision_hash_usage", params=params)
 
