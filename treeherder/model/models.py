@@ -21,7 +21,6 @@ from django.db.models import (Case,
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from jsonfield import JSONField
 
 from .search import (TestFailureLine,
                      es_connected)
@@ -334,57 +333,6 @@ class FailureClassification(NamedModel):
 
     class Meta:
         db_table = 'failure_classification'
-
-
-# TODO: Remove these as final phase of Bug 1387640
-
-class JobExclusion(models.Model):
-
-    """
-    A filter represents a collection of properties
-    that you want to filter jobs on. These properties along with their values
-    are kept in the info field in json format
-    """
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True)
-    info = JSONField()
-    author = models.ForeignKey(User)
-
-    class Meta:
-        db_table = 'job_exclusion'
-
-
-class ExclusionProfile(models.Model):
-
-    """
-    An exclusion profile represents a list of job exclusions that can be associated with a user profile.
-    """
-    name = models.CharField(max_length=255, unique=True)
-    is_default = models.BooleanField(default=False, db_index=True)
-    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
-    author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'exclusion_profile'
-
-
-class UserExclusionProfile(models.Model):
-
-    """
-    An extension to the standard user model that keeps the exclusion
-    profile relationship.
-    """
-
-    user = models.ForeignKey(User, related_name="exclusion_profiles")
-    exclusion_profile = models.ForeignKey(ExclusionProfile, blank=True, null=True)
-    is_default = models.BooleanField(default=True, db_index=True)
-
-    class Meta:
-        db_table = 'user_exclusion_profile'
-        unique_together = ('user', 'exclusion_profile')
-
-# TODO: End of what to remove as final phase of Bug 1387640
 
 
 class ReferenceDataSignatures(models.Model):
