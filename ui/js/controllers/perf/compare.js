@@ -412,7 +412,7 @@ perf.controller('CompareResultsCtrl', [
             var params = {
                 framework: $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
-                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? undefined : 0,
+                showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
             };
 
