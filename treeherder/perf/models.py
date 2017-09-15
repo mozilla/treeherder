@@ -37,15 +37,15 @@ class PerformanceSignature(models.Model):
                                           MinLengthValidator(SIGNATURE_HASH_LENGTH)
                                       ])
 
-    repository = models.ForeignKey(Repository)
-    framework = models.ForeignKey(PerformanceFramework)
-    platform = models.ForeignKey(MachinePlatform)
-    option_collection = models.ForeignKey(OptionCollection)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
+    platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
+    option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
-    parent_signature = models.ForeignKey('self', related_name='subtests',
+    parent_signature = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtests',
                                          null=True, blank=True)
     has_subtests = models.BooleanField()
 
@@ -138,15 +138,15 @@ class PerformanceDatum(models.Model):
 
     objects = PerformanceDatumManager()
 
-    repository = models.ForeignKey(Repository)
-    signature = models.ForeignKey(PerformanceSignature)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
     push_timestamp = models.DateTimeField()
 
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None,
                             on_delete=models.SET_NULL)
-    push = models.ForeignKey(Push)
+    push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
     # the following properties are obsolete and should be removed at some
     # point
@@ -179,11 +179,11 @@ class PerformanceAlertSummary(models.Model):
     See also the :ref:`PerformanceAlert` class below.
     '''
     id = models.AutoField(primary_key=True)
-    repository = models.ForeignKey(Repository)
-    framework = models.ForeignKey(PerformanceFramework)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
 
-    prev_push = models.ForeignKey(Push, related_name='+')
-    push = models.ForeignKey(Push, related_name='+')
+    prev_push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='+')
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='+')
 
     manually_created = models.BooleanField(default=False)
 
@@ -288,13 +288,15 @@ class PerformanceAlert(models.Model):
     '''
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(PerformanceAlertSummary,
+                                on_delete=models.CASCADE,
                                 related_name='alerts')
     related_summary = models.ForeignKey(PerformanceAlertSummary,
+                                        on_delete=models.CASCADE,
                                         related_name='related_alerts',
                                         null=True)
-    series_signature = models.ForeignKey(PerformanceSignature)
+    series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
-    classifier = models.ForeignKey(User, null=True)  # null if autoclassified
+    classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -364,7 +366,7 @@ class PerformanceBugTemplate(models.Model):
     '''
     Template for filing a bug or issue associated with a performance alert
     '''
-    framework = models.OneToOneField(PerformanceFramework)
+    framework = models.OneToOneField(PerformanceFramework, on_delete=models.CASCADE)
 
     keywords = models.CharField(max_length=255)
     status_whiteboard = models.CharField(max_length=255)
