@@ -209,7 +209,7 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz | tar -zxC $HOME/bin
+        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz | tar -zxC $HOME/bin
         - nvm install 8.5.0
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
