@@ -16,7 +16,7 @@
 
         <!--Unclassified Failures Button-->
         <span class="btn btn-sm"
-              title="Loaded failures / Toggle filtering for unclassified failures"
+              title="Loaded failures / toggle filtering for unclassified failures"
               tabindex="0" role="button"
               ng-class="{'btn-unclassified-failures': getAllUnclassifiedFailureCount(repoName),
                          'btn-view-nav': getAllUnclassifiedFailureCount(repoName)===0}"
@@ -62,7 +62,7 @@
         <!-- Toggle Duplicate Jobs -->
         <span class="btn btn-view-nav btn-sm btn-toggle-duplicate-jobs"
               tabindex="1" role="button"
-              title="{{ showDuplicateJobs ? 'Hide Duplicate Jobs' : 'Show Duplicate Jobs' }}"
+              title="{{ showDuplicateJobs ? 'Hide duplicate jobs' : 'Show duplicate jobs' }}"
               ng-click="groupState !== 'expanded' && toggleShowDuplicateJobs()"
               ng-disabled="groupState === 'expanded'"
               ng-class="{ 'strikethrough': !showDuplicateJobs }">
@@ -83,13 +83,10 @@
           <!--Toggle Group State Button-->
           <span class="btn btn-view-nav btn-sm btn-toggle-group-state"
                 tabindex="0" role="button"
+                title="{{ groupState === 'collapsed' ? 'Expand job groups' : 'Collapse job groups' }}"
                 ng-click="toggleGroupState()">(
-            <span ng-if="groupState === 'collapsed'"
-                  class="group-state-nav-icon"
-                  title="Expand job groups">+</span>
-            <span ng-if="groupState !== 'collapsed'"
-                  class="group-state-nav-icon"
-                  title="Collapse job groups">-</span>
+            <span class="group-state-nav-icon">
+              {{ groupState === 'collapsed' ? "+" : "-" }}</span>
           )</span>
         </span>
 
