@@ -79,6 +79,7 @@ require('./js/models/perf/series.js');
 require('./js/controllers/main.js');
 require('./js/controllers/settings.js');
 require('./js/controllers/repository.js');
+require('./js/controllers/notification.js');
 require('./js/controllers/filters.js');
 require('./js/controllers/jobs.js');
 require('./js/controllers/bugfiler.js');

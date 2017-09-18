@@ -109,8 +109,8 @@ treeherder.factory('ThPaginator', function () {
 });
 
 treeherder.factory('thNotify', [
-    '$timeout', 'ThLog',
-    function ($timeout, ThLog) {
+    '$timeout', 'ThLog', 'localStorageService',
+    function ($timeout, ThLog, localStorageService) {
         //a growl-like notification system
 
         var $log = new ThLog("thNotify");
@@ -118,6 +118,9 @@ treeherder.factory('thNotify', [
         var thNotify = {
             // message queue
             notifications: [],
+
+            // Long-term storage for notifications
+            storedNotifications: (localStorageService.get('notifications') || []),
 
             /*
              * send a message to the notification queue
@@ -130,13 +133,18 @@ treeherder.factory('thNotify', [
                 severity = severity || 'info';
                 sticky = sticky || false;
                 var maxNsNotifications = 5;
-                thNotify.notifications.push({
+                var notification = {
                     message: message,
                     severity: severity,
                     sticky: sticky,
                     linkText: linkText,
-                    url: url
-                });
+                    url: url,
+                    created: Date.now()
+                };
+                thNotify.notifications.unshift(notification);
+                thNotify.storedNotifications.unshift(notification);
+                thNotify.storedNotifications.splice(40);
+                localStorageService.set('notifications', thNotify.storedNotifications);
 
                 if (!sticky) {
                     if (thNotify.notifications.length > maxNsNotifications) {
@@ -163,6 +171,14 @@ treeherder.factory('thNotify', [
              */
             remove: function (index) {
                 thNotify.notifications.splice(index, 1);
+            },
+
+            /*
+             * Clear the list of stored notifications
+             */
+            clear: function () {
+                thNotify.storedNotifications = [];
+                localStorageService.set('notifications', thNotify.storedNotifications);
             }
         };
         return thNotify;

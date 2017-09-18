@@ -379,6 +379,21 @@ fieldset[disabled] .btn-view-nav-closed.active {
   cursor: default;
 }
 
+#notification-dropdown {
+  width: 25em;
+  max-height: 20em;
+  overflow-y: scroll;
+}
+
+#notification-dropdown .dropdown-header .label {
+  cursor: pointer;
+}
+
+#notification-dropdown li a {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
 .dropdown.open > #repo-dropdown {
   width: 420px;
   display: inline-grid;
