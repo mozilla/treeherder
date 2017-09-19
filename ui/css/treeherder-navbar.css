@@ -380,18 +380,29 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #notification-dropdown {
-  width: 25em;
+  min-width: 25em;
   max-height: 20em;
   overflow-y: scroll;
+  padding-left: 20px;
+  padding-right: 14px;
+  white-space: nowrap;
 }
 
-#notification-dropdown .dropdown-header .label {
-  cursor: pointer;
+#notification-dropdown .dropdown-header {
+  padding-left: 0px;
+  padding-bottom: 4px;
 }
 
-#notification-dropdown li a {
+.notification-dropdown-line {
+  padding-top: 3px;
+  padding-bottom: 3px;
   overflow-x: hidden;
   text-overflow: ellipsis;
+}
+
+.notification-dropdown-btn {
+  margin-left: 4px;
+  font-size: 10px;
 }
 
 .dropdown.open > #repo-dropdown {
