@@ -24,13 +24,15 @@
         <ul id="notification-dropdown" class="dropdown-menu" role="menu" aria-labelledby="notificationLabel">
           <li role="presentation" class="dropdown-header" title="Notifications">
             Recent notifications
-            <span class="label label-default" ng-show="notifications().length" ng-click="clear()">Clear all</span>
+            <button class="btn btn-xs btn-default notification-dropdown-btn" title="Clear all notifications"
+                  ng-show="notifications().length" ng-click="clear()">Clear all</button>
           </li>
           <li ng-show="!notifications().length">
-            <a class="text-muted">No recent notifications</a>
+            <span>No recent notifications</span>
           </li>
-          <li ng-repeat="notification in notifications()" ng-switch on="notification.severity">
-            <a target="_blank" ng-href="{{notification.url}}" title="{{::notification.message}} {{::notification.linkText}}">
+          <li class="notification-dropdown-line" ng-repeat="notification in notifications()"
+              ng-switch on="notification.severity">
+            <span title="{{::notification.message}} {{::notification.linkText}}">
               <span ng-switch-when="danger" class="fa fa-ban text-danger"></span>
               <span ng-switch-when="warning" class="fa fa-warning text-warning"></span>
               <span ng-switch-when="info" class="fa fa-info-circle text-info"></span>
@@ -38,9 +40,9 @@
               <span ng-switch-default></span>
               <small class="text-muted">{{::notification.created | date:'short'}}</small>
               {{::notification.message}}
-              <u>{{::notification.linkText}}</u>
-              <span ng-if="notification.url" class="fa fa-link text-muted"></span>
-            </a>
+              <a ng-if="true" target="_blank"
+                 ng-href="{{notification.url}}">{{::notification.linkText}}</a>
+            </span>
           </li>
         </ul>
       </span>
