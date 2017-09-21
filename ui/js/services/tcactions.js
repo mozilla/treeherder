@@ -30,7 +30,7 @@ treeherder.factory('tcactions', [
             },
             load: (decisionTaskID, job) => {
                 if (!decisionTaskID) {
-                    thNotify.send("No decision task, can't find taskcluster actions", "danger", true);
+                    thNotify.send("No decision task, can't find taskcluster actions", "danger", { sticky: true });
                     return;
                 }
 
@@ -65,7 +65,7 @@ treeherder.factory('tcactions', [
                         return null;
                     }
                     if (response.data.version !== 1) {
-                        thNotify.send("Wrong version of actions.json, can't continue", "danger", true);
+                        thNotify.send("Wrong version of actions.json, can't continue", "danger", { sticky: true });
                         return;
                     }
 

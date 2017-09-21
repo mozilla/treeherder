@@ -18,7 +18,7 @@ treeherder.factory('thBuildApi', [
             } else if (status === 202 || status === 200) {
                 thNotify.send(action + " SUCCESS");
             } else {
-                thNotify.send(action + " FAILED " + status, "danger", true);
+                thNotify.send(action + " FAILED " + status, "danger", { sticky: true });
             }
 
 

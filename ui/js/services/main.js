@@ -125,38 +125,24 @@ treeherder.factory('thNotify', [
             /*
              * send a message to the notification queue
              * @severity can be one of success|info|warning|danger
-             * @sticky is a boolean indicating if you want the message to disappear
-             * after a while or not
+             * @opts is an object with up to three entries:
+             *   sticky -- Keeps notification visible until cleared if true
+             *   linkText -- Text to display as a link if exists
+             *   url -- Location the link should point to if exists
              */
             send: function (message, severity, opts) {
+                if (!_.isPlainObject(opts)) {
+                    throw new Error('Must pass an object as last argument to thNotify.send!');
+                }
                 $log.debug("received message", message);
                 opts = opts || {};
                 severity = severity || 'info';
-                var sticky = opts.sticky || false;
-
-                if (!_.isPlainObject(opts)) {
-                    // In this case a developer has passed in an old-style
-                    // sticky arg. We will notify them during development that
-                    // there is a new way of doing this but still display the
-                    // original notification they wanted to display.
-                    thNotify.notifications.unshift({
-                        message: 'You are using an old notification style!',
-                        severity: 'danger',
-                        sticky: true,
-                        linkText: 'Check bug 1402062 for the new style',
-                        url: 'https://bugzilla.mozilla.org/show_bug.cgi?id=1402062',
-                        created: Date.now(),
-                    });
-                    sticky = opts;
-                }
 
                 var maxNsNotifications = 5;
                 var notification = {
-                    message: message,
-                    severity: severity,
-                    sticky: sticky,
-                    linkText: opts.linkText,
-                    url: opts.url,
+                    ...opts,
+                    message,
+                    severity,
                     created: Date.now()
                 };
                 thNotify.notifications.unshift(notification);
@@ -164,7 +150,7 @@ treeherder.factory('thNotify', [
                 thNotify.storedNotifications.splice(40);
                 localStorageService.set('notifications', thNotify.storedNotifications);
 
-                if (!sticky) {
+                if (!opts.sticky) {
                     if (thNotify.notifications.length > maxNsNotifications) {
                         $timeout(thNotify.shift);
                         return;

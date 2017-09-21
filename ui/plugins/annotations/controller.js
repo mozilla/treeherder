@@ -42,7 +42,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
             classification.delete()
                 .then(
                     function () {
-                        thNotify.send("Classification successfully deleted", "success", false);
+                        thNotify.send("Classification successfully deleted", "success");
                         var jobs = {};
                         jobs[$scope.selectedJob.id] = $scope.selectedJob;
 
@@ -53,7 +53,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
                         $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
                     },
                     function () {
-                        thNotify.send("Classification deletion failed", "danger", true);
+                        thNotify.send("Classification deletion failed", "danger", { sticky: true });
                     }
                 );
         };
@@ -62,14 +62,14 @@ treeherder.controller('AnnotationsPluginCtrl', [
             bug.delete()
                 .then(
                     function () {
-                        thNotify.send("Association to bug " + bug.bug_id + " successfully deleted", "success", false);
+                        thNotify.send("Association to bug " + bug.bug_id + " successfully deleted", "success");
                         var jobs = {};
                         jobs[$scope.selectedJob.id] = $scope.selectedJob;
 
                         $rootScope.$emit(thEvents.bugsAssociated, { jobs: jobs });
                     },
                     function () {
-                        thNotify.send("Association to bug " + bug.bug_id + " deletion failed", "danger", true);
+                        thNotify.send("Association to bug " + bug.bug_id + " deletion failed", "danger", { sticky: true });
                     }
                 );
         };

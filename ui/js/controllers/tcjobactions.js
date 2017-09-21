@@ -76,10 +76,13 @@ treeherder.controller('TCJobActionsCtrl', [
                     message = 'Visit Taskcluster Tools site to access loaner:';
                     url = `${url}/connect`;
                 }
-                $scope.$apply(thNotify.send(message, 'success', true, 'Open in Taskcluster', url));
+                $scope.$apply(thNotify.send(message, 'success', {
+                    linkText: 'Open in Taskcluster',
+                    url,
+                }));
                 $uibModalInstance.close('request sent');
             }, function (e) {
-                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
+                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
             });
