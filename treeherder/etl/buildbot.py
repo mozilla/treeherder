@@ -755,6 +755,7 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'[ _]l10n'), "name": "L10n Repack"},
     {"regex": re.compile(r'_partner_repacks'), "name": "Partner Repack"},
     {"regex": re.compile(r'_update_verify'), "name": "Update Verify"},
+    {"regex": re.compile(r'periodic file update'), "name": "Periodic File Update"},
     # Release Promotion Related Jobs
     {"regex": re.compile(r'_uptake_monitoring'), "name": "Uptake Monitoring"},
     {"regex": re.compile(r'_chcksms'), "name": "Checksums Builder"},
@@ -1149,6 +1150,7 @@ SYMBOLS = {
     "Media Tests MSE YouTube Playback": "b-y",
     "Updates": "Up",
     "Update Verify": "Uv",
+    "Periodic File Update": "pfu",
     "XPCShell": "X",
     "Mozmill": "Z",
 
