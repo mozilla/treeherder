@@ -23,6 +23,7 @@ class JobLoader:
         "fail": "testfailed",
         "exception": "exception",
         "canceled": "usercancel",
+        "superseded": "superseded",
         "unknown": "unknown"
     }
     BUILD_RESULT_MAP = {
@@ -30,6 +31,7 @@ class JobLoader:
         "fail": "busted",
         "exception": "exception",
         "canceled": "usercancel",
+        "superseded": "superseded",
         "unknown": "unknown"
     }
     TIME_FIELD_MAP = {
@@ -131,7 +133,7 @@ class JobLoader:
                 "log_references": self._get_log_references(pulse_job),
                 "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
-            "coalesced": pulse_job.get("coalesced", []),
+            "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"]
         }
 
