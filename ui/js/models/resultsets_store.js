@@ -1136,8 +1136,8 @@ treeherder.factory('ThResultSetStore', [
                 jobList,
                 function (memo, job) {
 
-                    // don't count coalesced
-                    if (!job.job_coalesced_to_guid) {
+                    // don't count superseded
+                    if (job.result !== 'superseded') {
                         memo[job.state]++;
                     }
                     return memo;

@@ -509,7 +509,11 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             continue
 
     # Update the coalesced_to_guid columns for any superseded job found.
+    # Also update state and result.
+    # TODO: Consider removing this in Bug 1402992.
     if superseded_job_guid_placeholders:
         for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
+                result='superseded',
+                state='completed',
                 coalesced_to_guid=job_guid)

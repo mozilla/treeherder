@@ -164,7 +164,6 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
             'ref_data_name': label,
             'state': 'runnable',
             'result': 'runnable',
-            'job_coalesced_to_guid': None
             })
 
     return ret
@@ -209,7 +208,6 @@ def _buildbot_runnable_jobs(project):
             'platform_option': options,
             'result': 'runnable',
             'state': 'runnable',
-            'job_coalesced_to_guid': None
             })
 
     return ret

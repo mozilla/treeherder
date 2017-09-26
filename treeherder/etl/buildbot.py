@@ -7,7 +7,8 @@ RESULT_DICT = {
     3: "skipped",
     4: "exception",
     5: "retry",
-    6: "usercancel"
+    6: "usercancel",
+    7: "superseded"
 }
 
 ####
@@ -1317,6 +1318,5 @@ def get_symbols_and_platforms(buildername):
             extract_build_type(buildername): True
         },
         'platform': platform_info.get('os_platform', ''),
-        'job_coalesced_to_guid': None
     }
     return job

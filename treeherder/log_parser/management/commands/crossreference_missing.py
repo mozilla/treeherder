@@ -52,7 +52,7 @@ class Command(BaseCommand):
                       ON text_log_step.id = text_log_error.step_id
                     WHERE text_log_step.job_id = job.id) AND
                   job.id > %s AND
-                  job.result NOT IN ('success', 'skipped', 'retry', 'usercancel', 'unknown')
+                  job.result NOT IN ('success', 'skipped', 'retry', 'usercancel', 'unknown', 'superseded')
                 GROUP BY job.id
                 ORDER BY job.id DESC;""", [job_id])
                 rows = c.fetchall()
