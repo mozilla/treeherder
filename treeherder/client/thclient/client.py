@@ -152,7 +152,7 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
 
     def add_coalesced_guid(self, guids):
         if guids:
-            self.data['coalesced'].extend(guids)
+            self.data['superseded'].extend(guids)
 
     def add_project(self, project):
         self.data['project'] = project
@@ -335,11 +335,11 @@ class TreeherderJob(TreeherderData, ValidatorMixin):
                 'artifacts': []
             },
 
-            # List of job_guids that were coallesced to this job
+            # List of job_guids that were superseded by this job
             # Stored in project_jobs_1.job.coalesced_job_guid
             # Where the value of coalesced_job_guid is set to job_guid
-            # for the list of job_guids provided in coalesced
-            'coalesced': []
+            # for the list of job_guids provided in superseded
+            'superseded': []
             }
 
 

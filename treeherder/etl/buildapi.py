@@ -93,16 +93,16 @@ class Builds4hTransformerMixin(object):
                     prop["branch"], build))
                 raise
 
-        job_guid_data = {'job_guid': '', 'coalesced': []}
+        job_guid_data = {'job_guid': '', 'superseded': []}
 
-        # If request_ids contains more than one element, then jobs were coalesced into
+        # If request_ids contains more than one element, then jobs were superseded by
         # this one. In that case, the last element corresponds to the request id of
         # the job that actually ran (ie this one), and the rest are for the pending
-        # jobs that were coalesced. We must generate guids for these coalesced jobs,
-        # so they can be marked as coalesced, and not left as orphaned pending jobs.
-        coalesced_requests = request_ids[:-1]
-        for coalesced_request_id in coalesced_requests:
-            job_guid_data['coalesced'].append(common.generate_job_guid(coalesced_request_id, buildername))
+        # jobs that were superseded. We must generate guids for these superseded jobs,
+        # so they can be marked as superseded, and not left as orphaned pending jobs.
+        superseded_requests = request_ids[:-1]
+        for superseded_request_id in superseded_requests:
+            job_guid_data['superseded'].append(common.generate_job_guid(superseded_request_id, buildername))
 
         job_guid_data['job_guid'] = common.generate_job_guid(request_id, buildername, endtime)
 
@@ -182,7 +182,7 @@ class Builds4hTransformerMixin(object):
             treeherder_data = {
                 'revision': prop['revision'],
                 'project': project,
-                'coalesced': []
+                'superseded': []
             }
 
             log_reference = []
@@ -211,12 +211,12 @@ class Builds4hTransformerMixin(object):
                 # request_ids is mandatory, but can be found in several places.
                 request_ids = prop.get('request_ids', build['request_ids'])
                 # The last element in request_ids corresponds to the request id of this job,
-                # the others are for the requests that were coalesced into this one.
+                # the others are for the requests that were superseded by this one.
                 request_id = request_ids[-1]
             except KeyError:
                 continue
 
-            treeherder_data['coalesced'] = job_guid_data['coalesced']
+            treeherder_data['superseded'] = job_guid_data['superseded']
 
             job = {
                 'job_guid': job_guid_data['job_guid'],
@@ -355,7 +355,7 @@ class PendingRunningTransformerMixin(object):
                         request_id = job['id']
                     elif source == 'running':
                         # The last element in request_ids corresponds to the request id of this job,
-                        # the others are for the requests that were coalesced into this one.
+                        # the others are for the requests that were superseded by this one.
                         request_id = job['request_ids'][-1]
 
                     new_job = {
