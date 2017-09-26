@@ -102,7 +102,7 @@ class TreeherderJobTest(DataSetup, unittest.TestCase):
 
             tj.add_revision(job['revision'])
             tj.add_project(job['project'])
-            tj.add_coalesced_guid(job['coalesced'])
+            tj.add_coalesced_guid(job['superseded'])
             tj.add_job_guid(job['job']['job_guid'])
             tj.add_job_name(job['job']['name'])
             tj.add_job_symbol(job['job']['job_symbol'])

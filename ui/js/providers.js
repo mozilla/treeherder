@@ -9,7 +9,7 @@ treeherder.provider('thServiceDomain', function () {
 
 treeherder.provider('thResultStatusList', function () {
     var all = function () {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced', 'runnable'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
     };
 
     var defaultFilters = function () {
@@ -120,10 +120,10 @@ treeherder.provider('thResultStatusInfo', function () {
                         countText: "pending"
                     };
                     break;
-                case "coalesced":
+                case "superseded":
                     resultStatusInfo = {
                         btnClass: "btn-ltblue",
-                        countText: "coalesced"
+                        countText: "superseded"
                     };
                     break;
             }

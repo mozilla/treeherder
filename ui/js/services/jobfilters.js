@@ -384,11 +384,11 @@ treeherder.factory('thJobFilters', [
         }
 
         /**
-         * Set the non-field filters so that we only view coalesced jobs
+         * Set the non-field filters so that we only view superseded jobs
          */
-        function setOnlyCoalesced() {
+        function setOnlySuperseded() {
             const locationSearch = _.clone($location.search());
-            locationSearch[QS_RESULT_STATUS] = "coalesced";
+            locationSearch[QS_RESULT_STATUS] = "superseded";
             locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
         }
@@ -576,7 +576,7 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
-            setOnlyCoalesced: setOnlyCoalesced,
+            setOnlySuperseded: setOnlySuperseded,
             getActiveFilters: getActiveFilters,
 
             // filter data read-only accessors

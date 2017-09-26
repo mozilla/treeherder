@@ -433,7 +433,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
                     blob:""
                 }],
             },
-            "coalesced": []
+            "superseded": []
         },
         ...
     ]
@@ -448,7 +448,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
     if not data:
         return
 
-    coalesced_job_guid_placeholders = []
+    superseded_job_guid_placeholders = []
 
     for datum in data:
         try:
@@ -459,7 +459,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             # job consumer, then the data will always be vetted with a
             # JSON schema before we get to this point.
             job = datum['job']
-            coalesced = datum.get('coalesced', [])
+            superseded = datum.get('superseded', [])
 
             # For a time, we need to backward support jobs submited with either a
             # ``revision_hash`` or a ``revision``.  Eventually, we will
@@ -488,10 +488,10 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             (job_guid, reference_data_signature) = _load_job(
                 repository, job, push_id, lower_tier_signatures)
 
-            for coalesced_guid in coalesced:
-                coalesced_job_guid_placeholders.append(
-                    # coalesced to guid, coalesced guid
-                    [job_guid, coalesced_guid]
+            for superseded_guid in superseded:
+                superseded_job_guid_placeholders.append(
+                    # superseded by guid, superseded guid
+                    [job_guid, superseded_guid]
                 )
         except Exception as e:
             # we should raise the exception if DEBUG is true, or if
@@ -508,9 +508,8 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             # skip any jobs that hit errors in these stages.
             continue
 
-    # set the job_coalesced_to_guid column for any coalesced
-    # job found
-    if coalesced_job_guid_placeholders:
-        for (job_guid, coalesced_to_guid) in coalesced_job_guid_placeholders:
-            Job.objects.filter(guid=coalesced_to_guid).update(
+    # Update the coalesced_to_guid columns for any superseded job found.
+    if superseded_job_guid_placeholders:
+        for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
+            Job.objects.filter(guid=superseded_by_guid).update(
                 coalesced_to_guid=job_guid)

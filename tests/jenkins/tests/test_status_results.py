@@ -12,7 +12,7 @@ def test_default_status(base_url, selenium):
     assert page.nav_filter_success_is_selected
     assert page.nav_filter_retry_is_selected
     assert page.nav_filter_usercancel_is_selected
-    assert not page.nav_filter_coalesced_is_selected
+    assert not page.nav_filter_superseded_is_selected
     assert page.nav_filter_in_progress_is_selected
 
 
@@ -56,17 +56,17 @@ def test_status_results_retry(base_url, selenium):
 
 
 @pytest.mark.nondestructive
-def test_status_results_coalesced(base_url, selenium):
-    """Open resultset page and verify job status coalesced filter displays correctly."""
+def test_status_results_superseded(base_url, selenium):
+    """Open resultset page and verify job status superseded filter displays correctly."""
     page = TreeherderPage(selenium, base_url).open()
     page.filter_job_failures()
     page.filter_job_successes()
     page.filter_job_retries()
     page.filter_job_usercancel()
-    page.filter_job_coalesced()
+    page.filter_job_superseded()
     page.filter_job_in_progress()
 
-    assert all(map(lambda job: 'coalesced' in job.title, page.all_jobs))
+    assert all(map(lambda job: 'superseded' in job.title, page.all_jobs))
 
 
 @pytest.mark.nondestructive
