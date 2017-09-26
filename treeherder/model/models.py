@@ -13,11 +13,9 @@ from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
-from django.db.models import (Case,
-                              Count,
+from django.db.models import (Count,
                               F,
-                              Q,
-                              When)
+                              Q)
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -132,19 +130,16 @@ class Push(models.Model):
             Q(failure_classification__name='not classified')).exclude(tier=3)
 
         status_dict = {}
-        total_num_coalesced = 0
-        for (state, result, total, num_coalesced) in jobs.values_list(
+        for (state, result, total) in jobs.values_list(
                 'state', 'result').annotate(
-                    total=Count('result')).annotate(
-                        num_coalesced=Count(Case(When(
-                            coalesced_to_guid__isnull=False, then=1)))):
-            total_num_coalesced += num_coalesced
+                    total=Count('result')):
             if state == 'completed':
-                status_dict[result] = total - num_coalesced
+                status_dict[result] = total
             else:
                 status_dict[state] = total
-        if total_num_coalesced:
-            status_dict['coalesced'] = total_num_coalesced
+        if 'superseded' in status_dict:
+            # backward compatability for API consumers
+            status_dict['coalesced'] = status_dict['superseded']
 
         return status_dict
 
@@ -480,7 +475,7 @@ class Job(models.Model):
     This class represents a build or test job in Treeherder
     """
     INCOMPLETE_STATES = ["running", "pending"]
-    STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+    STATES = INCOMPLETE_STATES + ["completed"]
 
     objects = JobManager()
 
@@ -1336,6 +1331,7 @@ class TextLogStep(models.Model):
     RETRY = 5
     USERCANCEL = 6
     UNKNOWN = 7
+    SUPERSEDED = 8
 
     RESULTS = ((SUCCESS, 'success'),
                (TEST_FAILED, 'testfailed'),
@@ -1344,7 +1340,8 @@ class TextLogStep(models.Model):
                (EXCEPTION, 'exception'),
                (RETRY, 'retry'),
                (USERCANCEL, 'usercancel'),
-               (UNKNOWN, 'unknown'))
+               (UNKNOWN, 'unknown'),
+               (SUPERSEDED, 'superseded'))
 
     name = models.CharField(max_length=200)
     started = models.DateTimeField(null=True)

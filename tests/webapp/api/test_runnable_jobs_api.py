@@ -30,7 +30,6 @@ def test_runnable_jobs_api(taskcluster_runnable_jobs, webapp, test_job):
             'build_platform': 'b2g-emu-jb',
             'build_platform_id': 1,
             'build_system_type': 'buildbot',
-            'job_coalesced_to_guid': None,
             'job_group_description': '',
             'job_group_id': 1,
             'job_group_name': 'unknown',
