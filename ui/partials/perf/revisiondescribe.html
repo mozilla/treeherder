@@ -1,14 +1,14 @@
 <ul class="list-inline push-information">
-  <li ng-if = "$ctrl.originalRevision">
+  <li ng-if = "$ctrl.originalRevision" class="list-inline-item">
     <strong>Base</strong> - <a href="{{$ctrl.originalRevision | getRevisionUrl:$ctrl.originalProject.name}}">{{$ctrl.originalRevision | limitTo: 12}}</a>
     ({{$ctrl.originalProject.name}}) - {{$ctrl.originalResultSet.author}} -
     <span>{{$ctrl.originalResultSet.comments}}</span>
   </li>
-  <li ng-if = "$ctrl.selectedTimeRange">
+  <li ng-if = "$ctrl.selectedTimeRange" class="list-inline-item">
     <strong>Base</strong> - <a href="{{$ctrl.originalRevision | getRevisionUrl:$ctrl.originalProject.name}}">{{$ctrl.originalRevision | limitTo: 12}}</a>
     {{$ctrl.originalProject.name}} - {{$ctrl.selectedTimeRange.text}}
   </li>
-  <li>
+  <li class="list-inline-item">
     <strong>New</strong> - <a href="{{$ctrl.newRevision | getRevisionUrl:$ctrl.newProject.name}}">{{$ctrl.newRevision | limitTo: 12}}</a> ({{$ctrl.newProject.name}}) - {{$ctrl.newResultSet.author}} -
     <span>{{$ctrl.newResultSet.comments}}</span>
   </li>

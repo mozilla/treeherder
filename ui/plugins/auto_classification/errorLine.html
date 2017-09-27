@@ -2,13 +2,13 @@
 
 <div ng-if="line.verified">
   <a ng-if="!line.verifiedIgnore"
-     class="label label-xs label-primary"
+     class="badge badge-xs badge-primary"
      title="This line is verified"
      target="_blank"
      ng-href="/failureviewer.html#/?classified_failure_id={{line.data.classifiedFailureId}}">Verified</a>
 
   <span ng-if="line.verifiedIgnore"
-        class="label label-xs label-ignored"
+        class="badge badge-xs badge-ignored"
         title="This line is ignored">Ignored</span>
 </div>
 
@@ -59,7 +59,7 @@
   </div>
 
   <div ng-if="line.verified && !line.verifiedIgnore">
-    <span class="glyphicon glyphicon-star best-classification-star"></span>
+    <span class="fa fa-star best-classification-star"></span>
     <span class="line-option-text" ng-if="line.bugNumber">
       <a href="{{ ::getBugUrl(line.bugNumber) }}"
          target="_blank">Bug {{ ::line.bugNumber }} -

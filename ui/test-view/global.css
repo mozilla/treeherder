@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css?family=Anonymous+Pro:700|Fira+Sans+Extra+Condensed:400,500,600,700');
+
+body {
+  font-family: "Fira Sans Extra Condensed", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  padding-top: 3.5rem;
+}
+
+input[type=text] {
+  font-family: "Fira Sans Extra Condensed", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+.nav-item {
+  margin-right: 1rem;
+}
+
+main .navbar-text {
+  font-size: 1rem;
+  padding-top: .5rem;
+  margin-right: .5rem;
+}
+
+main .navbar-text .badge {
+  font-weight: 400;
+  font-size: .9rem;
+  margin-right: .1rem;
+}
+
+main .navbar-text code {
+  font-size: .75rem;
+  vertical-align: text-bottom;
+  color: #5d707f;
+  border: 1px solid #cdced0;
+  box-sizing: border-box;
+  text-shadow: 0 1px 1px #fff;
+}
+
+main .table-container {
+  margin-top: 5rem;
+}
+
+table caption {
+  padding-right: 1rem;
+  text-align: right;
+  caption-side: top;
+}
+
+main .progress {
+  border-radius: 0;
+  height: .5rem;
+}
+
+.badge-success, .bg-success, .btn-success {
+  background-color: #1d9862!important;
+}
+
+.badge-warning, .bg-warning, .btn-warning {
+  background-color: #d78236!important;
+}
+
+.badge-info, .bg-info, .btn-info {
+  background-color: #1d7dbb!important;
+}
+
+.badge-default, .bg-default, .btn-default {
+  background-color: #5d707f!important;
+}
+
+.badge-danger, .bg-danger, .btn-danger {
+  background-color: #db3737!important;
+}
+
+.btn-success {
+  border-color: #1d9862!important;
+}
+
+.btn-warning {
+  border-color: #d78236!important;
+}
+
+.btn-info {
+  border-color: #1d7dbb!important;
+}
+
+.btn-default {
+  border-color: #5d707f!important;
+}
+
+.btn-danger {
+  border-color: #db3737!important;
+}
+
+.badge-clear {
+  background-color: #fff!important;
+  color: #1d7dbb;
+}
+
+.badge-infra {
+  background-color: #d78236;
+}
+
+.badge-intermittent {
+  background-color: #d78236;
+}
+
+.toggle-count {
+  cursor: pointer;
+}
+
+.toggle-count .fa {
+  padding-right: .25em;
+}
+
+:disabled:hover {
+  cursor: not-allowed;
+}
+
+.test {
+  cursor: pointer;
+}
+
+td.bug-count{
+  min-width: 8rem;
+  font-size: 1rem;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
+
+td.test-table {
+  width: 100%;
+  font-size: .8rem;
+  line-height: 1.6rem;
+  border: none;
+}
+
+.platform-list {
+  margin-left: .25rem;
+}
+
+.test-detail-list {
+  margin: 1rem 0 1rem 1rem;
+  padding-left: .25rem;
+
+}
+
+.bottom-separator {
+  border-bottom: 1px solid lightgrey;
+}
+
+.platform {
+  margin: 2px;
+  font-size: 100%;
+  font-weight: 400;
+  background-color: #bfd3e480;
+}
+
+.tier {
+  margin: 2px;
+  font-size: 100%;
+  font-weight: 400;
+  background-color: #bdbdbd;
+}
+
+.platform a:link, .platform a:visited {
+  color: black;
+}
+
+.failure-line {
+  font-family: monospace;
+  font-size: 8pt;
+}
+
+.classified {
+  vertical-align: middle;
+  margin-right: .3rem;
+}
+
+.classified-intermittent {
+  color: #d78236;
+}
+
+.classified-infra {
+  color: #db3737;
+}
+
+.logviewer-icon {
+  max-width: 16px;
+  vertical-align: center;
+}

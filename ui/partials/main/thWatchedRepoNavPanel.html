@@ -1,8 +1,8 @@
-<div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar clearfix">
+<div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar">
 
-  <th-watched-repo ng-repeat="watchedRepo in repoModel.watchedRepos"></th-watched-repo>
-
-  <div class="navbar-right">
+  <span class="watched-repo-list">
+    <th-watched-repo ng-repeat="watchedRepo in repoModel.watchedRepos"></th-watched-repo>
+  </span>
     <span>
       <form role="search" class="form-inline">
 
@@ -108,7 +108,7 @@
               id="quick-filter-parent"
               class="form-group form-inline">
           <input id="quick-filter"
-                 class="form-control input-sm" required
+                 class="form-control form-control-sm" required
                  title="Click to enter filter values"
                  ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
                  placeholder="Filter platforms & jobs"
@@ -120,5 +120,4 @@
         </span>
       </form>
     </span>
-  </div>
 </div>

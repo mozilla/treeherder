@@ -21,6 +21,7 @@ require('angular-ui-router');
 require('angular-sanitize');
 require('angular-local-storage');
 require('mousetrap');
+require('popper.js/dist/umd/popper');
 require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('./vendor/angular-clipboard.js');

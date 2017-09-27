@@ -11,7 +11,7 @@
 <div id="info-panel-content">
   <div id="job-details-panel">
     <div id="job-details-actionbar">
-      <nav class="navbar info-panel-navbar">
+      <nav class="navbar navbar-dark info-panel-navbar">
         <ul class="nav navbar-nav actionbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
@@ -75,7 +75,7 @@
                    title="Add this job to the pinboard"
                    class="icon-blue"
                    ng-click="pinboard_service.pinJob(selectedJob)">
-                  <span class="glyphicon glyphicon-pushpin"></span>
+                  <span class="fa fa-thumb-tack"></span>
                 </a>
               </li>
             </ul>
@@ -258,7 +258,7 @@
         <ul class="nav navbar-nav tab-headers">
           <li ng-repeat="tabName in tabService.tabOrder"
               ng-if="tabService.tabs[tabName].enabled"
-              ng-class="{'active': tabService.selectedTab == tabName}">
+              ng-class="{'table-active': tabService.selectedTab == tabName}">
             <a title="Show {{ tabService.tabs[tabName].description }}"
                href=""
                ng-click="tabService.showTab(tabName, job.id)">

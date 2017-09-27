@@ -1,5 +1,5 @@
 <nav id="th-global-navbar" class="navbar navbar-inverse">
-  <div id="th-global-navbar-top" class="navbar-collapse collapse">
+  <div id="th-global-navbar-top">
 
     <!-- Logo Menu -->
     <span class="dropdown">
@@ -24,7 +24,7 @@
         <ul id="notification-dropdown" class="dropdown-menu" role="menu" aria-labelledby="notificationLabel">
           <li role="presentation" class="dropdown-header" title="Notifications">
             Recent notifications
-            <button class="btn btn-xs btn-default notification-dropdown-btn" title="Clear all notifications"
+            <button class="btn btn-sm btn-secondary notification-dropdown-btn" title="Clear all notifications"
                   ng-show="notifications().length" ng-click="clear()">Clear all</button>
           </li>
           <li ng-show="!notifications().length">
@@ -54,7 +54,7 @@
                 class="btn btn-view-nav btn-right-navbar nav-menu-btn">Infra
           <span class="fa fa-angle-down lightgray"></span>
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="infraLabel"
+        <ul id="infra-dropdown" class="dropdown-menu container" role="menu" aria-labelledby="infraLabel"
             ng-include="'partials/main/thInfraMenu.html'">
         </ul>
       </span>
@@ -64,19 +64,24 @@
         <span th-checkbox-dropdown-container class="dropdown">
           <button id="repoLabel" title="Watch a repo" role="button"
                   data-toggle="dropdown"
+                  type="button"
                   class="btn btn-view-nav btn-right-navbar nav-menu-btn">Repos
             <span class="fa fa-angle-down lightgray"></span>
           </button>
-          <ul id="repo-dropdown" class="dropdown-menu checkbox-dropdown-menu"
-              role="menu" aria-labelledby="repoLabel">
-            <span class="repogroup {{$even ? 'even' : 'odd'}}" ng-repeat="(group_order, group) in groupedRepos()">
-              <li role="presentation" class="dropdown-header" title="{{::group.repos[0].repository_group.description}}">
-                  {{::group.name}}
-                  <span ng-show="group.repos[0].repository_group.description" class="fa fa-info-circle"></span>
-              </li>
-              <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
-            </span>
-          </ul>
+          <span id="repo-dropdown" class="dropdown-menu dropdown-menu-right container">
+            <ul class="checkbox-dropdown-menu row"
+                role="menu" aria-labelledby="repoLabel"
+                aria-haspopup="true" aria-expanded="false">
+              <span class="repogroup dropdown-item col" ng-repeat="(group_order, group) in groupedRepos()">
+                <li role="presentation" class="dropdown-header" title="{{::group.repos[0].repository_group.description}}">
+                    {{::group.name}}
+                    <span ng-show="group.repos[0].repository_group.description" class="fa fa-info-circle"></span>
+                </li>
+                <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
+                <div ng-if=$odd class="w-100"></div>
+              </span>
+            </ul>
+          </span>
         </span>
       </span>
 

@@ -79,11 +79,18 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   border: 1px solid transparent;
   color: #CED3D9;
   display: flex;
+  flex-direction: row;
   z-index: 100;
+  height: 33px;
 }
 
 .info-panel-navbar-tabs {
   justify-content: space-between;
+  flex-direction: row;
+}
+
+.tab-headers {
+  flex-direction: row;
 }
 
 .info-panel-navbar-controls {
@@ -164,6 +171,10 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 @keyframes action-bar-spin {
   0% { transform: rotate(0turn); }
   100% { transform: rotate(1turn); }
+}
+
+.actionbar-nav {
+  flex-direction: row;
 }
 
 .actionbar-nav > li {
@@ -625,7 +636,7 @@ th-error-line.ignored {
   color: darkgrey;
 }
 
-th-error-line .label-ignored {
+th-error-line .badge-ignored {
   background-color: lightgrey;
 }
 

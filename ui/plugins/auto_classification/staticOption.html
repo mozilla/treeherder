@@ -1,6 +1,6 @@
 <div class="classification-icon">
   <span ng-if="::option.isBest"
-        class="glyphicon glyphicon-star-empty"
+        class="fa fa-star-o"
         title="Autoclassifier best match"></span>
   <span ng-if="::!option.isBest"
         class="classification-no-icon">&nbsp;</span>
@@ -8,10 +8,10 @@
 
 <span class="line-option-text" ng-if="option.bugNumber">
   <button ng-if="!$ctrl.canClassify || thPinboard.isPinned($ctrl.thJob)"
-          class="btn btn-xs btn-default"
+          class="btn btn-xs btn-secondary"
           ng-click="thPinboard.addBug({id: option.bugNumber}, $ctrl.thJob)"
           title="add to list of bugs to associate with all pinned jobs">
-    <i class="glyphicon glyphicon-pushpin"></i>
+    <i class="fa fa-thumb-tack"></i>
   </button>
   <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
   <a href="{{ ::getBugUrl(option.bugNumber) }}"
