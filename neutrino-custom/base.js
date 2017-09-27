@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const lintPreset = require('./lint');
 const reactPreset = require('neutrino-preset-react');
 const HtmlPlugin = require('html-webpack-plugin');
+const htmlTemplate = require('html-webpack-template');
 
 const CWD = process.cwd();
 const SRC = path.join(CWD, 'src'); // neutrino's default source directory
@@ -64,6 +65,10 @@ module.exports = neutrino => {
     neutrino.config
         .entry('userguide')
         .add(path.join(UI, 'entry-userguide.js'))
+        .end();
+    neutrino.config
+        .entry('testview')
+        .add(path.join(UI, 'test-view', 'index.js'))
         .end();
 
     // Likewise, we must modify the include paths for the compile rule to look in ui/ instead of src/:
@@ -145,6 +150,30 @@ module.exports = neutrino => {
             minify: HTML_MINIFY_OPTIONS
         });
 
+    neutrino.config
+        .plugin('html-testview')
+        .use(HtmlPlugin, {
+            inject: false,
+            template: htmlTemplate,
+            filename: 'testview.html',
+            chunks: ['testview', 'vendor', 'manifest'],
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: "Treeherder TestGroup - Experimental",
+            meta: [
+                {
+                    "name": "description",
+                    "content": "Treeherder TestGroup - Experimental"
+                },
+                {
+                    "name": "author",
+                    "content": "Mozilla Treeherder"
+                }
+            ]
+        });
+
     // Adjust babel env to loosen up browser compatibility requirements
     neutrino.config
         .module
@@ -156,6 +185,10 @@ module.exports = neutrino => {
                 'last 1 Edge versions',
                 'last 1 Safari versions'
             ];
+            // Work around a transform-regenerator bug that causes "Cannot read property '0' of null"
+            // when encountering usages of async. See:
+            // https://github.com/babel/babel/issues/4759
+            options.presets[0][1].include = options.presets[0][1].include.filter(e => e !== 'transform-regenerator');
             return options;
         });
 

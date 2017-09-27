@@ -18,7 +18,7 @@ module.exports = neutrino => {
                 plugins: ['react'],
                 envs: ['browser', 'es6', 'node'],
                 parserOptions: {
-                    sourceType: 'script',
+                    sourceType: 'module',
                     ecmaFeatures: {
                         es6: true,
                         jsx: true,
