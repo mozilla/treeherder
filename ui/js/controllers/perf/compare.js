@@ -51,13 +51,13 @@ perf.controller('CompareChooserCtrl', [
                 });
             };
 
-            $scope.updateOriginalgRevisionTips = function () {
+            $scope.updateOriginalRevisionTips = function () {
                 getRevisionTips($scope.originalProject.name, $scope.originalTipList);
             };
             $scope.updateNewRevisionTips = function () {
                 getRevisionTips($scope.newProject.name, $scope.newTipList);
             };
-            $scope.updateOriginalgRevisionTips();
+            $scope.updateOriginalRevisionTips();
             $scope.updateNewRevisionTips();
 
             $scope.getOriginalTipRevision = function (tip) {
