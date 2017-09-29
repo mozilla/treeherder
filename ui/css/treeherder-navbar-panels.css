@@ -57,23 +57,8 @@
     margin: 1px 0 0 -16px;
 }
 
-.field-filter-form {
-    border-top: 2px solid lightgray;
-    margin-top: 5px;
-    padding: 3px;
-    background-color: lightgray;
-}
-
-.field-filter {
-    margin: 3px;
-}
-
-.field-filter a, .th-option-heading a {
+.th-option-heading a {
     color: white;
-    cursor: pointer;
-}
-
-.field-filter-placeholder a {
     cursor: pointer;
 }
 
@@ -91,4 +76,5 @@
  */
 .active-filters-bar {
     padding: 0px 15px 0px 15px;
+    border: 1px solid transparent;
 }
