@@ -1,14 +1,13 @@
 <!-- Show this certain filters are active in Treeherder -->
-<div class="alert alert-info active-filters-bar" ng-show="showActiveFiltersBar()" ng-cloak>
+<div class="alert alert-info active-filters-bar" ng-show="filterBarFilters.length" ng-cloak>
   <i class="fa fa-info-circle" aria-hidden="true"></i>
   <span><b>Active Filters</b></span>
 
-  <span ng-repeat="filter in activeFiltersBarProperties" class="btn btn-sm"
-        ng-show="search()[filter]"
-        title="Click to clear the {{ filter }} filter"
-        ng-click="dropLocationSearchParam(filter)">
-      <span ng-if="filter == 'author'">{{ filter }}: {{search()[filter].split('@')[0] | limitTo: 20}}</span>
-      <span ng-if="filter !== 'author'">{{ filter }}: {{search()[filter] | limitTo: 12}}</span>
+  <span ng-repeat="filter in filterBarFilters" class="btn btn-sm"
+        title="Click to clear the {{ filter.field }} filter"
+        ng-click="jobFilters.removeFilter(filter.key, filter.value)">
+      <span ng-if="filter.field == 'author'">{{ filter.field }}: {{filter.value.split('@')[0] | limitTo: 20}}</span>
+      <span ng-if="filter !== 'author'">{{ filter.field }}: {{filter.value | limitTo: 12}}</span>
       <i class="fa fa-times-circle"></i>
   </span>
 </div>
