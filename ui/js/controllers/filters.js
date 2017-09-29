@@ -9,8 +9,6 @@ treeherderApp.controller('FilterPanelCtrl', [
         thResultStatusList, thEvents, thJobFilters,
         ThResultSetStore, thPinboard, thNotify, thFailureResults) {
 
-        var $log = new ThLog(this.constructor.name);
-
         $scope.filterOptions = thResultStatusList.all();
 
         $scope.filterGroups = {
@@ -37,11 +35,6 @@ treeherderApp.controller('FilterPanelCtrl', [
             $scope.filterGroups.nonfailures.resultStatuses,
             "in progress"
         ]);
-
-        // field filters
-        $scope.newFieldFilter = null;
-        $scope.fieldFilters = [];
-        $scope.fieldChoices = thJobFilters.getFieldChoices();
 
         /**
          * Handle checking the "all" button for a result status group
@@ -112,74 +105,6 @@ treeherderApp.controller('FilterPanelCtrl', [
             func(thJobFilters.classifiedState, 'unclassified');
         };
 
-        $scope.createFieldFilter = function () {
-            $scope.newFieldFilter = { field: "", value: "" };
-        };
-        $scope.cancelFieldFilter = function () {
-            $scope.newFieldFilter = null;
-        };
-
-        // we have to set the field match type here so that the UI can either
-        // show a text field for entering a value, or switch to a drop-down select.
-        $scope.setFieldMatchType = function () {
-            $scope.newFieldFilter.matchType=$scope.fieldChoices[$scope.newFieldFilter.field].matchType;
-            $scope.newFieldFilter.choices=$scope.fieldChoices[$scope.newFieldFilter.field].choices;
-
-        };
-
-        // for most match types we want to show just the raw value.  But for
-        // choice value type, we want to show the string representation of the
-        // value.  For example, failure_classification_id is an int, but we
-        // want to show the text.
-        $scope.getFilterValue = function (field, value) {
-            if ($scope.fieldChoices[field].matchType === 'choice' &&
-                $scope.fieldChoices[field].choices[value]) {
-                return $scope.fieldChoices[field].choices[value].name;
-            }
-            return value;
-        };
-
-        var updateFieldFilterChicklets = function () {
-            $scope.fieldFilters = thJobFilters.getFieldFiltersArray();
-        };
-
-        $scope.addFieldFilter = function () {
-            $log.debug("adding filter", $scope.newFieldFilter.field);
-
-            if (!$scope.newFieldFilter) {
-                return;
-            }
-
-            var value = $scope.newFieldFilter.value;
-            var field = $scope.newFieldFilter.field;
-
-            if (field === "" || value === "") {
-                return;
-            }
-
-            thJobFilters.addFilter(field, value);
-
-            // Hide the new field filter form.
-            $scope.newFieldFilter = null;
-            updateFieldFilterChicklets();
-        };
-
-        $scope.removeAllFieldFilters = function () {
-            $scope.fieldFilters = [];
-            thJobFilters.removeAllFieldFilters();
-        };
-
-        $scope.removeFilter = function (index) {
-            $log.debug("removing index", index,
-                       $scope.fieldFilters[index].field,
-                       $scope.fieldFilters[index].value);
-
-            thJobFilters.removeFilter(
-                $scope.fieldFilters[index].field,
-                $scope.fieldFilters[index].value
-            );
-        };
-
         $scope.pinAllShownJobs = function () {
             if (!thPinboard.spaceRemaining()) {
                 thNotify.send("Pinboard is full.  Can not pin any more jobs.",
@@ -223,11 +148,9 @@ treeherderApp.controller('FilterPanelCtrl', [
         };
 
         updateToggleFilters();
-        updateFieldFilterChicklets();
 
         $rootScope.$on(thEvents.globalFilterChanged, function () {
             updateToggleFilters();
-            updateFieldFilterChicklets();
         });
     }
 ]);

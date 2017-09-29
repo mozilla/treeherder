@@ -95,6 +95,14 @@
             <ng-include src="'partials/main/thFilterChicklets.html'"></ng-include>
         </span>
 
+        <span>
+          <span class="btn btn-view-nav btn-sm"
+                ng-click="startNewFieldFilter()"
+                title="Filter by a job field">
+            <i class="fa fa-filter" />
+          </span>
+        </span>
+
         <!--Quick Filter Field-->
         <span ng-controller="SearchCtrl"
               id="quick-filter-parent"

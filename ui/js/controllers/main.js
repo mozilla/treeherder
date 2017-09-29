@@ -577,6 +577,57 @@ treeherderApp.controller('MainCtrl', [
             return [ ...thJobFilters.getNonFieldFiltersArray(), ...thJobFilters.getFieldFiltersArray() ];
         };
 
+        // field filters
+        $scope.newFieldFilter = null;
+        $scope.fieldFilters = [];
+        $scope.fieldChoices = thJobFilters.getFieldChoices();
+
+        $scope.startNewFieldFilter = function () {
+            $scope.newFieldFilter = { field: "", value: "" };
+        };
+        $scope.cancelNewFieldFilter = function () {
+            $scope.newFieldFilter = null;
+        };
+
+        // we have to set the field match type here so that the UI can either
+        // show a text field for entering a value, or switch to a drop-down select.
+        $scope.setFieldMatchType = function () {
+            $scope.newFieldFilter.matchType=$scope.fieldChoices[$scope.newFieldFilter.field].matchType;
+            $scope.newFieldFilter.choices=$scope.fieldChoices[$scope.newFieldFilter.field].choices;
+
+        };
+
+        // for most match types we want to show just the raw value.  But for
+        // choice value type, we want to show the string representation of the
+        // value.  For example, failure_classification_id is an int, but we
+        // want to show the text.
+        $scope.getFilterValue = function (field, value) {
+            if ($scope.fieldChoices[field].matchType === 'choice' &&
+                $scope.fieldChoices[field].choices[value]) {
+                return $scope.fieldChoices[field].choices[value].name;
+            }
+            return value;
+        };
+
+        $scope.addNewFieldFilter = function () {
+            $log.debug("adding filter", $scope.newFieldFilter.field);
+
+            if (!$scope.newFieldFilter) {
+                return;
+            }
+
+            const { value, field } = $scope.newFieldFilter;
+
+            if (field === "" || value === "") {
+                return;
+            }
+
+            thJobFilters.addFilter(field, value);
+
+            // Hide the new field filter form.
+            $scope.newFieldFilter = null;
+        };
+
         $scope.fromChangeValue = function () {
             let url = window.location.href;
             url = url.replace("&fromchange=" + $location.search()["fromchange"], "");
