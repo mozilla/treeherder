@@ -50,6 +50,9 @@ treeherder.factory('thJobFilters', [
             tier: ["1", "2"]
         };
 
+        let NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
+            'nojobs', 'startdate', 'enddate', 'revision'];
+
         // failure classification ids that should be shown in "unclassified" mode
         const UNCLASSIFIED_IDS = [1, 7];
 
@@ -172,7 +175,9 @@ treeherder.factory('thJobFilters', [
         }
 
         function _getFiltersOrDefaults(field) {
-            const filters = _.clone($location.search()[_withPrefix(field)]);
+            // NON_FIELD_FILTERS are filer params that don't have the prefix
+            const qsField = NON_FIELD_FILTERS.includes(field) ? _withoutPrefix(field) : _withPrefix(field);
+            const filters = _.clone($location.search()[qsField]);
             if (filters) {
                 return _toArray(filters);
             } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
@@ -409,13 +414,20 @@ treeherder.factory('thJobFilters', [
                         if (fieldName !== QS_SEARCH_STR) {
                             fieldFilters.push({
                                 field: _withoutPrefix(fieldName),
-                                value: val
+                                value: val,
+                                key: fieldName
                             });
                         }
                     });
                 }
             });
             return fieldFilters;
+        }
+
+        function getNonFieldFiltersArray() {
+            return Object.entries($location.search()).reduce((acc, [key, value]) => (
+                NON_FIELD_FILTERS.includes(key) ? [ ...acc, { field: key, key, value } ]: acc
+            ), []);
         }
 
         function getFieldChoices() {
@@ -492,6 +504,7 @@ treeherder.factory('thJobFilters', [
 
         function _matchesDefaults(field, values) {
             $log.debug("_matchesDefaults", field, values);
+            field = _withoutPrefix(field);
             if (DEFAULTS.hasOwnProperty(field)) {
                 return values.length === DEFAULTS[field].length &&
                     _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
@@ -500,7 +513,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function _withPrefix(field) {
-            return (!field.startsWith(PREFIX)) ? PREFIX+field : field;
+            return (!field.startsWith(PREFIX) && !NON_FIELD_FILTERS.includes(field)) ? PREFIX+field : field;
         }
 
         function _withoutPrefix(field) {
@@ -568,6 +581,7 @@ treeherder.factory('thJobFilters', [
 
             // filter data read-only accessors
             getClassifiedStateArray: getClassifiedStateArray,
+            getNonFieldFiltersArray: getNonFieldFiltersArray,
             getFieldFiltersArray: getFieldFiltersArray,
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,

@@ -589,17 +589,6 @@ treeherderApp.controller('MainCtrl', [
             return url;
         };
 
-        $scope.dropLocationSearchParam = function (param) {
-            var url = $location.url();
-            url = url.replace("&" + param + "=" + $location.search()[param], "");
-            url = url.replace("&" + param, "");
-            $location.url(url);
-        };
-
-        $scope.setLocationSearchParam = function (param, value) {
-            $location.search(param, value);
-        };
-
         $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
@@ -617,6 +606,8 @@ treeherderApp.controller('MainCtrl', [
 
             // used to avoid bad urls when the app redirects internally
             $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+
+            $scope.filterBarFilters = $scope.getFiltersForBar();
 
             var newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
