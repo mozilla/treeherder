@@ -870,8 +870,8 @@ treeherder.factory('ThResultSetStore', [
             if (rs && rs.revisions.length === 0) {
                 $log.debug("loadRevisions: check out to load revisions", rs, repoName);
                 // these revisions have never been loaded; do so now.
-                return ThResultSetModel.get(rs.revisions_uri).
-                    success(function (data) {
+                return ThResultSetModel.get(rs.revisions_uri)
+                    .success(function (data) {
 
                         if (rs.revisions.length === 0) {
                             Array.prototype.push.apply(rs.revisions, data);

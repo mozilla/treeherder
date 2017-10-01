@@ -46,11 +46,11 @@ treeherder.factory('thBuildApi', [
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     withCredentials: true
-                }).
-                    success(function (data, status) {
+                })
+                    .success(function (data, status) {
                         notify(status, "cancel");
-                    }).
-                    error(function (data, status) {
+                    })
+                    .error(function (data, status) {
                         notify(status, "cancel");
                     });
             },
@@ -64,11 +64,11 @@ treeherder.factory('thBuildApi', [
                     },
                     withCredentials: true
 
-                }).
-                    success(function (data, status) {
+                })
+                    .success(function (data, status) {
                         notify(status, "cancel all jobs");
-                    }).
-                    error(function (data, status) {
+                    })
+                    .error(function (data, status) {
                         notify(status, "cancel all jobs");
                     });
             }

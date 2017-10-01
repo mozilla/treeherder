@@ -63,8 +63,8 @@ treeherder.factory('ThJobModel', [
             return $http.get(uri, {
                 params: options,
                 timeout: timeout
-            }).
-                then(function (response) {
+            })
+                .then(function (response) {
                     var item_list;
                     var next_pages_jobs = [];
                     // if the number of elements returned equals the page size, fetch the next pages

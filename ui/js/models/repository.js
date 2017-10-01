@@ -102,8 +102,8 @@ treeherder.factory('ThRepositoryModel', [
                 $interval(updateTreeStatus, 2 * 60 * 1000);
 
                 // return the promise of getting the repos
-                return get_list().
-                    success(function (data) {
+                return get_list()
+                    .success(function (data) {
                         // FIXME: only supporting github + hg for now for pushlog
                         // + revision info (we also assume dvcs_type git===github)
                         function Repo(props) {

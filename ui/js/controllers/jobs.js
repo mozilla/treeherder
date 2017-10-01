@@ -19,8 +19,8 @@ treeherderApp.controller('JobsCtrl', [
                 $location.search('revision', null);
                 $location.search('tochange', revision);
             }
-            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
-                then(function () {
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters)
+                .then(function () {
 
                     // since we fetched more resultsets, we need to persist the
                     // resultset state in the URL.

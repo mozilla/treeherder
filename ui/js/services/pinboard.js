@@ -23,8 +23,8 @@ treeherder.factory('thPinboard', [
                 ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
                 classification.job_id = job.id;
-                classification.create().
-                    success(function () {
+                classification.create()
+                    .success(function () {
                         thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function (data) {
                         var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
@@ -44,8 +44,8 @@ treeherder.factory('thPinboard', [
                     job_id: job.id,
                     type: 'annotation'
                 });
-                bjm.create().
-                    success(function () {
+                bjm.create()
+                    .success(function () {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function (data) {
                         var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
