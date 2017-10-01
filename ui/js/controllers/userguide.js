@@ -1,6 +1,6 @@
 "use strict";
 
 userguideApp.controller('UserguideCtrl',
-	function () {
-}
+    function () {
+    }
 );
