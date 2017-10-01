@@ -176,7 +176,7 @@ treeherder.controller('ThClassificationOptionController', [
                     search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
                     fullLog: () => logUrl,
                     parsedLog: () => location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
-                    reftest: () => thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : "",
+                    reftest: () => (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
                     selectedJob: () => ctrl.thJob,
                     allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
                     crashSignatures: () => crashSignatures,
@@ -1099,7 +1099,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
             var minIndex = selectable.length ?
                     selectableIndexes
-                    .reduce((min, idx) => idx < min ? idx : min, $scope.errorLines.length) :
+                    .reduce((min, idx) => (idx < min ? idx : min), $scope.errorLines.length) :
                 null;
 
             var selected = $scope.selectedLines();
