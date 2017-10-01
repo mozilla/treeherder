@@ -62,7 +62,7 @@ treeherder.factory('thJobFilters', [
         // job field.
         const MATCH_TYPE = {
             exactstr: 'exactstr',
-            substr: 'substr',       // returns true if any values match the substring
+            substr: 'substr', // returns true if any values match the substring
             searchStr: 'searchStr', // returns true only if ALL the values match the substring
             choice: 'choice'
         };
