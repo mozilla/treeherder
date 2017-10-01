@@ -729,7 +729,7 @@ treeherder.directive('thCloneJobs', [
                     if (orderedPlatforms[p] === platformName) {
                         //Target row for appending should be one less
                         //than the position of the platform name
-                        $(tableRows[ p - 1 ]).after(rowEl);
+                        $(tableRows[p - 1]).after(rowEl);
                         break;
                     }
                 }

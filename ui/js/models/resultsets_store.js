@@ -661,7 +661,7 @@ treeherder.factory('ThResultSetStore', [
             platformName = job.platform;
             platformOption = job.platform_option;
 
-            if (_.isEmpty(repositories[repoName].rsMap[ resultsetId ])) {
+            if (_.isEmpty(repositories[repoName].rsMap[resultsetId])) {
                 //We don't have this resultset
                 return;
             }
