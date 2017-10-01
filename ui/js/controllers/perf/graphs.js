@@ -11,7 +11,7 @@ perf.controller('GraphsCtrl', [
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
-        $scope.highlightedRevisions = [ undefined, undefined ];
+        $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
 

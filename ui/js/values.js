@@ -187,7 +187,7 @@ treeherder.value("phTimeRanges", [
       { value: 2592000, text: "Last 30 days" },
       { value: 5184000, text: "Last 60 days" },
       { value: 7776000, text: "Last 90 days" },
-      { value: 31536000, text: "Last year" } ]);
+      { value: 31536000, text: "Last year" }]);
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 

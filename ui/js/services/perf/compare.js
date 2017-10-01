@@ -281,7 +281,7 @@ treeherder.factory('PhCompare', [
                         return [
                             series.projectName,
                             series.signature, 1,
-                            series.frameworkId ];
+                            series.frameworkId];
                     }),
                     highlightedRevisions: _.map(resultSets, function (resultSet) {
                         return resultSet.revision.slice(0, 12);

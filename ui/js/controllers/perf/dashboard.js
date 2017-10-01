@@ -255,13 +255,13 @@ perf.controller('dashSubtestCtrl', [
                     $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            parent_signature: [ baseSignature, variantSignature ],
+                            parent_signature: [baseSignature, variantSignature],
                             framework: $scope.framework
                         });
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
-                    parent_signature: [ baseSignature, variantSignature ],
+                    parent_signature: [baseSignature, variantSignature],
                     framework: $scope.framework
                 });
             }

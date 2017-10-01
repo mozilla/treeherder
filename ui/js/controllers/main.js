@@ -574,7 +574,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.getFiltersForBar = function () {
-            return [ ...thJobFilters.getNonFieldFiltersArray(), ...thJobFilters.getFieldFiltersArray() ];
+            return [...thJobFilters.getNonFieldFiltersArray(), ...thJobFilters.getFieldFiltersArray()];
         };
 
         // field filters

@@ -427,7 +427,7 @@ treeherder.factory('thJobFilters', [
 
         function getNonFieldFiltersArray() {
             return Object.entries($location.search()).reduce((acc, [key, value]) => (
-                NON_FIELD_FILTERS.includes(key) ? [ ...acc, { field: key, key, value } ]: acc
+                NON_FIELD_FILTERS.includes(key) ? [...acc, { field: key, key, value }]: acc
             ), []);
         }
 
