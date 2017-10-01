@@ -150,7 +150,8 @@ perf.controller('dashCtrl', [
                                         $scope.compareResults[testName].push(cmap);
                                     }
                                 }
-                            } });
+                            }
+                        });
                     });
                 });
             });

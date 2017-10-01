@@ -300,8 +300,7 @@ treeherder.factory('PhCompare', [
                                                   resultSet.push_timestamp) < t;
                                       });
                               }));
-                    }
-                    else {
+                    } else {
                         graphsLink += '&timerange=' + timeRange;
                     }
                 }

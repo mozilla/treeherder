@@ -678,8 +678,7 @@ treeherder.controller('ThErrorLineController', [
 
             if (!ctrl.canClassify) {
                 $scope.status = 'classification-disabled';
-            }
-            else if (line.verified) {
+            } else if (line.verified) {
                 $scope.status = 'verified';
             } else if (option.type === 'ignore') {
                 $scope.status = 'unverified-ignore';
@@ -877,8 +876,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         function build() {
             if (ctrl.thJob.state === "pending" || ctrl.thJob.state === "running") {
                 ctrl.loadStatus = "job_pending";
-            }
-            else if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
+            } else if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
                 ctrl.loadStatus = "pending";
             } else if (ctrl.logParsingFailed) {
                 ctrl.loadStatus = "failed";
@@ -963,7 +961,8 @@ treeherder.controller('ThAutoclassifyPanelController', [
             linesById = lines
                 .reduce((byId, line) => {
                     byId.set(line.id, new ThErrorLineData(line));
-                    return byId; }, linesById);
+                    return byId;
+                }, linesById);
             $scope.errorLines = Array.from(linesById.values());
             // Resort the lines to allow for in-place updates
             $scope.errorLines.sort((a, b) => a.data.id - b.data.id);

@@ -103,8 +103,7 @@ perf.controller('CompareChooserCtrl', [
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision
                             });
-                        }
-                        else {
+                        } else {
                             $state.go('compare', {
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
@@ -135,8 +134,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.titles = {};
             if ($scope.originalRevision) {
                 window.document.title = `Comparison between ${$scope.originalRevision} (${$scope.originalProject.name}) and ${$scope.newRevision} (${$scope.newProject.name})`;
-            }
-            else {
+            } else {
                 window.document.title = `Comparison between ${$scope.originalProject.name} and ${$scope.newRevision} (${$scope.newProject.name})`;
             }
 
@@ -188,9 +186,7 @@ perf.controller('CompareResultsCtrl', [
                             }), [$scope.originalResultSet,
                                 $scope.newResultSet])
                         });
-                    }
-
-                    else {
+                    } else {
                         if (testName.indexOf("summary") > 0) {
                             var detailsLink = 'perf.html#/comparesubtest?';
                             detailsLink += $httpParamSerializer({
@@ -293,8 +289,7 @@ perf.controller('CompareResultsCtrl', [
                                         displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
                                     });
                         });
-            }
-            else {
+            } else {
                 // using a range of data for baseline comparison
                 var originalSeriesList;
                 originalSeriesList = PhSeries.getSeriesList($scope.originalProject.name, {
@@ -420,8 +415,7 @@ perf.controller('CompareResultsCtrl', [
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
-            }
-            else {
+            } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
                     value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
@@ -545,9 +539,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             })
                         });
                     }
-                }
-
-                else {
+                } else {
                     cmap.links = [{
                         title: 'graph',
                         href: PhCompare.getGraphsLink(_.map(_.uniq([
@@ -598,8 +590,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
-            }
-            else {
+            } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
                     value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
@@ -736,14 +727,12 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.dataLoading = false;
                                 displayResults(originalSeriesMap, newSeriesMap);
                             });
-                        }
-                        else {
+                        } else {
                             $scope.dataLoading = false;
                             displayResults(originalSeriesMap, {});
                         }
                     });
-                }
-                else {
+                } else {
                     $q.all([
                         PhSeries.getSeriesList(
                             $scope.originalProject.name, {
@@ -799,8 +788,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     $scope.dataLoading = false;
                                     displayResults(originalSeriesMap, newSeriesMap);
                                 });
-                            }
-                            else {
+                            } else {
                                 $scope.dataLoading = false;
                                 displayResults(originalSeriesMap, {});
                             }

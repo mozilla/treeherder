@@ -626,8 +626,7 @@ perf.controller('GraphsCtrl', [
                 let params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
-                }
-                else {
+                } else {
                     params.signature = partialSeries.signature;
                 }
                 return PhSeries.getSeriesList(
