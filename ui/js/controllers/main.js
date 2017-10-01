@@ -90,7 +90,7 @@ treeherderApp.controller('MainCtrl', [
             // repoName is undefined for the first few title update attempts, show something sensible
             var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
 
-            if (params["revision"]) {
+            if (params.revision) {
                 var desc = getSingleRevisionTitleString();
                 var revtitle = desc[0] ? ": " + desc[0] : "";
                 var percentage = desc[1] ? desc[1] + "% - " : "";
@@ -630,13 +630,13 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.fromChangeValue = function () {
             let url = window.location.href;
-            url = url.replace("&fromchange=" + $location.search()["fromchange"], "");
+            url = url.replace("&fromchange=" + $location.search().fromchange, "");
             return url;
         };
 
         $scope.toChangeValue = function () {
             let url = window.location.href;
-            url = url.replace("&tochange=" + $location.search()["tochange"], "");
+            url = url.replace("&tochange=" + $location.search().tochange, "");
             return url;
         };
 

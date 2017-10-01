@@ -40,14 +40,14 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return {
-            id: signatureProps['id'],
+            id: signatureProps.id,
             name: _getSeriesName(signatureProps, optionCollectionMap),
             testName: _getTestName(signatureProps), // unadorned with platform/option info
-            suite: signatureProps['suite'],
-            test: signatureProps['test'] || null,
+            suite: signatureProps.suite,
+            test: signatureProps.test || null,
             signature: signature,
-            hasSubtests: signatureProps['has_subtests'] || false,
-            parentSignature: signatureProps['parent_signature'] || null,
+            hasSubtests: signatureProps.has_subtests || false,
+            parentSignature: signatureProps.parent_signature || null,
             projectName: projectName,
             platform: platform,
             options: options,

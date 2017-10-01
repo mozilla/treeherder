@@ -220,7 +220,7 @@ treeherder.controller('PluginCtrl', [
                                         series.frameworkId
                                     ] + ']&selected=[' + [
                                         $scope.repoName, series.signature,
-                                        $scope.job['result_set_id'], $scope.job['id']
+                                        $scope.job.result_set_id, $scope.job.id
                                     ] + ']',
                                     value: performanceData[series.signature][0].value,
                                     title: series.name

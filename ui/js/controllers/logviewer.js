@@ -111,7 +111,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 project_specific_id: $scope.job_id
             }).then(function (jobList) {
                 if (jobList.length > 0) {
-                    $scope.job_id = jobList[0]['id'];
+                    $scope.job_id = jobList[0].id;
                 }
                 ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
                     // set the title of the browser window/tab

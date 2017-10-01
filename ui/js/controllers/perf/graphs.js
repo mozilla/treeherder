@@ -143,7 +143,7 @@ perf.controller('GraphsCtrl', [
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
-                    retriggers: (retriggerNum['retrigger'] - 1),
+                    retriggers: (retriggerNum.retrigger - 1),
                     alertSummary: alertSummary,
                     revisionInfoAvailable: true,
                     alert: alert
@@ -336,27 +336,27 @@ perf.controller('GraphsCtrl', [
 
         function zoomGraph() {
             // If either x or y exists then there is zoom set in the variable
-            if ($scope.zoom['x']) {
+            if ($scope.zoom.x) {
                 if (_.find($scope.seriesList, function (series) { return series.visible; })) {
                     $.each($scope.plot.getXAxes(), function (_, axis) {
                         var opts = axis.options;
-                        opts.min = $scope.zoom['x'][0];
-                        opts.max = $scope.zoom['x'][1];
+                        opts.min = $scope.zoom.x[0];
+                        opts.max = $scope.zoom.x[1];
                     });
                     $.each($scope.plot.getYAxes(), function (_, axis) {
                         var opts = axis.options;
-                        opts.min = $scope.zoom['y'][0];
-                        opts.max = $scope.zoom['y'][1];
+                        opts.min = $scope.zoom.y[0];
+                        opts.max = $scope.zoom.y[1];
                     });
                     $scope.plot.setupGrid();
                     $scope.overviewPlot.setSelection({
                         xaxis: {
-                            from: $scope.zoom['x'][0],
-                            to: $scope.zoom['x'][1]
+                            from: $scope.zoom.x[0],
+                            to: $scope.zoom.x[1]
                         },
                         yaxis: {
-                            from: $scope.zoom['y'][0],
-                            to: $scope.zoom['y'][1]
+                            from: $scope.zoom.y[0],
+                            to: $scope.zoom.y[1]
                         }
                     }, true);
                     $scope.overviewPlot.draw();
@@ -558,8 +558,8 @@ perf.controller('GraphsCtrl', [
                     if ((typeof $scope.zoom.x !== "undefined")
                         && (typeof $scope.zoom.y !== "undefined")
                         && ($scope.zoom.x !== 0 && $scope.zoom.y !== 0)) {
-                        var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
-                                + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
+                        var modifiedZoom = ("[" + ($scope.zoom.x.toString()
+                                + ',' + $scope.zoom.y.toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
                         return modifiedZoom;
                     }
                     $scope.zoom = [];
