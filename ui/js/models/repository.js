@@ -128,14 +128,14 @@ treeherder.factory('ThRepositoryModel', [
                             getPushLogHref: function (arg) {
                                 if (this.dvcs_type === 'git') {
                                     // if git, assume github
-                                    if (typeof(arg) === 'string') {
+                                    if (typeof (arg) === 'string') {
                                         return this.getRevisionHref(arg);
                                     } else if (arg && arg.from && arg.to) {
                                         return this.url + '/compare/' + arg.from + '...' +
                                             arg.to;
                                     }
                                 } else if (this.dvcs_type === 'hg') {
-                                    if (typeof(arg) === 'string') {
+                                    if (typeof (arg) === 'string') {
                                         return this.pushlogURL + '?changeset=' + arg;
                                     } else if (arg && arg.from && arg.to) {
                                         return this.pushlogURL + '?fromchange=' +

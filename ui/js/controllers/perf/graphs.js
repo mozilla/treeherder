@@ -773,7 +773,7 @@ perf.controller('GraphsCtrl', [
                     $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
                 }
                 if ($stateParams.highlightedRevisions) {
-                    if (typeof($stateParams.highlightedRevisions) === 'string') {
+                    if (typeof ($stateParams.highlightedRevisions) === 'string') {
                         $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
                     } else {
                         $scope.highlightedRevisions = $stateParams.highlightedRevisions;

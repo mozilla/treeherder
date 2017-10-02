@@ -6,7 +6,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         var suiteName = signatureProps.suite;
         var testName = signatureProps.test;
 
-        if (! (displayOptions && displayOptions.abbreviate)) {
+        if (!(displayOptions && displayOptions.abbreviate)) {
             // "summary" may appear for non-abbreviated output
             testName = testName || "summary";
         }
