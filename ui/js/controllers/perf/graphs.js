@@ -259,7 +259,7 @@ perf.controller('GraphsCtrl', [
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
                     $scope.selectedDataPoint.id);
-                flotDataPoint = flotDataPoint ? flotDataPoint : selectedSeries.flotSeries.resultSetData.indexOf(
+                flotDataPoint = flotDataPoint || selectedSeries.flotSeries.resultSetData.indexOf(
                     $scope.selectedDataPoint.resultSetId);
                 $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
             }
@@ -893,7 +893,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = _.find(projects, {
-            name: defaultProjectName ? defaultProjectName : thDefaultRepo
+            name: defaultProjectName || thDefaultRepo
         });
         $scope.includeSubtests = false;
         $scope.loadingTestData = false;
