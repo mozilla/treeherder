@@ -982,7 +982,8 @@ treeherder.directive('thCloneJobs', [
                 //Add platforms
                 rowHtml += platformInterpolator(
                     {
-                        name: thPlatformName(platform.name), option: platform.option,
+                        name: thPlatformName(platform.name),
+                        option: platform.option,
                         id: thAggregateIds.getPlatformRowId(
                             resultset.id,
                             platform.name,

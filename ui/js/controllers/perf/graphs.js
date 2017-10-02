@@ -198,12 +198,23 @@ perf.controller('GraphsCtrl', [
                     // get new tip position after transform
                     tipPosition = getTipPosition(tip, x, y, 10);
                     if (tip.css('visibility') === 'hidden') {
-                        tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
-                            top: tipPosition.top + 10 });
-                        tip.animate({ opacity: 1, left: tipPosition.left,
-                            top: tipPosition.top }, 250);
+                        tip.css({
+                            opacity: 0,
+                            visibility: 'visible',
+                            left: tipPosition.left,
+                            top: tipPosition.top + 10,
+                        });
+                        tip.animate({
+                            opacity: 1,
+                            left: tipPosition.left,
+                            top: tipPosition.top
+                        }, 250);
                     } else {
-                        tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
+                        tip.css({
+                            opacity: 1,
+                            left: tipPosition.left,
+                            top: tipPosition.top,
+                        });
                     }
                 });
             }, 250);
@@ -1086,7 +1097,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     }
                     PhSeries.getSeriesList(
                         $scope.selectedProject.name,
-                        { interval: $scope.timeRange, platform: $scope.selectedPlatform,
+                        { interval: $scope.timeRange,
+                            platform: $scope.selectedPlatform,
                             framework: $scope.selectedFramework.id,
                             subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
                                 $scope.unselectedTestList = _.sortBy(
