@@ -270,7 +270,8 @@ treeherder.factory('thJobFilters', [
             const oldQsVal = _getFiltersOrDefaults(field);
             let newQsVal = null;
 
-            if (oldQsVal) {
+            // All filters support multiple values except NON_FIELD_FILTERS.
+            if (oldQsVal && !NON_FIELD_FILTERS.includes(field)) {
                 // set the value to an array
                 newQsVal = _toArray(oldQsVal);
                 newQsVal.push(value);
