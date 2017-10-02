@@ -260,7 +260,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                             });
                             let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(function () {
-                                return `Request sent to trigger all talos jobs ${times} time(s) via actions.yml (${actionTaskId})` ;
+                                return `Request sent to trigger all talos jobs ${times} time(s) via actions.yml (${actionTaskId})`;
                             });
                         });
                     });
