@@ -269,7 +269,7 @@ treeherder.directive('thCloneJobs', [
             jobStatus.title = getHoverText(job);
             jobStatus.extraClasses = "";
             jobStatus.extraClasses += job.visible ? " filter-shown" : "";
-            if ( !_.isEmpty(lastJobSelected.job) &&
+            if (!_.isEmpty(lastJobSelected.job) &&
                 (lastJobSelected.job.id === job.id)) {
                 jobStatus.extraClasses += " " + largeBtnCls + " " + selectedBtnCls;
             } else {
@@ -710,17 +710,17 @@ treeherder.directive('thCloneJobs', [
                 //Rows already exist, insert the new one in
                 //alphabetical order
                 var orderedPlatforms = [];
-                orderedPlatforms.push( platformName );
+                orderedPlatforms.push(platformName);
 
                 var td, platformSpan, spanPlatformName, r, p;
 
                 //Generate a list of platform names that have
                 //been added to the html table, use this for sorting
                 for (r=0; r<tableRows.length; r++) {
-                    td = $( tableRows[r] ).find('td');
-                    platformSpan = $( td[0] ).find('span');
+                    td = $(tableRows[r]).find('td');
+                    platformSpan = $(td[0]).find('span');
                     spanPlatformName = $(platformSpan).text();
-                    orderedPlatforms.push( spanPlatformName );
+                    orderedPlatforms.push(spanPlatformName);
                 }
 
                 orderedPlatforms.sort();
@@ -778,7 +778,7 @@ treeherder.directive('thCloneJobs', [
 
                     rowEl.append(platformTdEl);
 
-                    jobTdEl = $( thCloneHtml.get('jobTdClone').text );
+                    jobTdEl = $(thCloneHtml.get('jobTdClone').text);
 
                     renderJobTableRow(rowEl, jobTdEl, value.jobGroups);
 

@@ -46,9 +46,9 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.pulsePinCount = function () {
-            $( ".pin-count-group" ).addClass( "pin-count-pulse" );
+            $(".pin-count-group").addClass("pin-count-pulse");
             $timeout(function () {
-                $( ".pin-count-group" ).removeClass( "pin-count-pulse" );
+                $(".pin-count-group").removeClass("pin-count-pulse");
             }, 700);
         };
 

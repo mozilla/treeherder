@@ -14,7 +14,7 @@ treeherder.factory('ThJobModel', [
         ThJobModel.prototype.running_time_remaining = function () {
             var timestampNow = new Date().getTime()/1000;
             var current_duration = timestampNow - parseInt(this.start_timestamp);
-            return Math.round( (parseInt(this.running_eta) - current_duration) / 60);
+            return Math.round((parseInt(this.running_eta) - current_duration) / 60);
         };
 
         ThJobModel.prototype.get_average_duration = function () {
