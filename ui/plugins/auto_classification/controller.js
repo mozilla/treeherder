@@ -369,7 +369,7 @@ treeherder.controller('ThErrorLineController', [
             var bugSuggestionOptions = bugSuggestions
                     .filter(bug => !autoclassifiedBugs.has(bug.id))
                     .map(bugSuggestion => new ThClassificationOption("unstructuredBug",
-                                                                       line.id + "-" + "ub-" + bugSuggestion.id,
+                                                                       line.id + "-ub-" + bugSuggestion.id,
                                                                        null,
                                                                        bugSuggestion.id,
                                                                        bugSuggestion.summary,
