@@ -575,7 +575,7 @@ perf.controller('GraphsCtrl', [
                     }
                     $scope.zoom = [];
                     return $scope.zoom;
-                })(),
+                }()),
                 selected: (function () {
                     return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
                         $scope.selectedDataPoint.signature,
@@ -583,7 +583,7 @@ perf.controller('GraphsCtrl', [
                         $scope.selectedDataPoint.id,
                         $scope.selectedDataPoint.frameworkId]
                         + "]" : undefined;
-                })()
+                }())
             }, {
                 location: true,
                 inherit: true,
