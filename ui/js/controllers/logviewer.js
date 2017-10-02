@@ -182,7 +182,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                 // load the first failure step line else load the head
                 if (allErrors.length) {
-                    $scope.css = $scope.css + errorLinesCss(allErrors);
+                    $scope.css += errorLinesCss(allErrors);
 
                     if (!q.lineNumber) {
                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: $scope.css });
@@ -263,7 +263,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 if (!workerReady) {
                     workerReady = true;
 
-                    $scope.css = $scope.css + logCss();
+                    $scope.css += logCss();
                     $scope.logPostMessage({ customStyle: $scope.css });
                 }
 

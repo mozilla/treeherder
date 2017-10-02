@@ -246,7 +246,7 @@ treeherder.controller('BugFilerCtrl', [
                                             addProduct(suggested[0] + " :: " + suggested[1]);
                                         }
                                         // Only get rid of the throbber when all of these searches have completed
-                                        resultsCount = resultsCount - 1;
+                                        resultsCount -= 1;
                                         if (resultsCount === 0) {
                                             $scope.searching = false;
                                             injectProducts(failurePath);
