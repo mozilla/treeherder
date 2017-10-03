@@ -16,7 +16,7 @@ matrix:
     - env: python2-linters
       sudo: false
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -78,7 +78,7 @@ matrix:
     # Job 4: Python Tests Chunk A
     - env: python-tests-main
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -117,7 +117,7 @@ matrix:
     # Job 5: Python Tests Chunk B
     - env: python-tests-etl-logparser
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -150,7 +150,7 @@ matrix:
     # Job 6: Python Tests Chunk C
     - env: python-tests-rest-api
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -183,7 +183,7 @@ matrix:
     # Job 7: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
