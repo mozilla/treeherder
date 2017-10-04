@@ -9,26 +9,31 @@ def test_filter_by_test_status(base_url, selenium):
     verify results"""
     page = TreeherderPage(selenium, base_url).open()
     page.filter_unclassified_jobs()
-    page.click_on_filters_panel()
 
     # Test 'testfailed' unclassified failures
+    page.click_on_filters_panel()
     page.deselect_busted_failures()
     page.deselect_exception_failures()
+    page.click_on_filters_panel()  # close filter panel to avoid bug 1405666
     if len(page.all_jobs) > 0:
         page.open_next_unclassified_failure()
         assert 'testfailed' == page.info_panel.job_details.job_result_status
 
     # Test 'busted' unclassified failures
+    page.click_on_filters_panel()
     page.select_busted_failures()
     page.deselect_testfailed_failures()
+    page.click_on_filters_panel()  # close filter panel to avoid bug 1405666
     if len(page.all_jobs) > 0:
         page.close_the_job_panel()
         page.open_next_unclassified_failure()
         assert 'busted' == page.info_panel.job_details.job_result_status
 
     # Test 'exception' unclassified failures
+    page.click_on_filters_panel()
     page.select_exception_failures()
     page.deselect_busted_failures()
+    page.click_on_filters_panel()  # close filter panel to avoid bug 1405666
     if len(page.all_jobs) > 0:
         page.close_the_job_panel()
         page.open_next_unclassified_failure()
