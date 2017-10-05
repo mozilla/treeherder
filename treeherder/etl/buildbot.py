@@ -72,6 +72,14 @@ PLATFORMS_BUILDERNAME = [
          }
     },
     {
+        'regex': re.compile(r'Windows 10 64-bit.*stylo-disabled.*test.*', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows10-64-stylo-disabled',
+            'arch': 'x86_64',
+        }
+    },
+    {
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Stylo-sequential', re.IGNORECASE),
         'attributes': {
             'os': 'linux',
@@ -302,6 +310,14 @@ PLATFORMS_BUILDERNAME = [
         'attributes': {
             'os': 'win',
             'os_platform': 'windows7-32-devedition',
+            'arch': 'x86',
+        }
+    },
+    {
+        'regex': re.compile(r'Windows 7 32-bit.*stylo-disabled.*test.*', re.IGNORECASE),
+        'attributes': {
+            'os': 'win',
+            'os_platform': 'windows7-32-stylo-disabled',
             'arch': 'x86',
         }
     },
