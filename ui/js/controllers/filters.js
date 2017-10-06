@@ -1,10 +1,10 @@
 "use strict";
 
-treeherderApp.controller('FilterPanelCtrl', [
+treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'thResultStatusList', 'thEvents', 'thJobFilters',
     'ThResultSetStore', 'thPinboard', 'thNotify', 'thFailureResults',
-    function FilterPanelCtrl(
+    function JobFilterCtrl(
         $scope, $rootScope, $route, $routeParams, $location, ThLog,
         thResultStatusList, thEvents, thJobFilters,
         ThResultSetStore, thPinboard, thNotify, thFailureResults) {
@@ -35,22 +35,6 @@ treeherderApp.controller('FilterPanelCtrl', [
             $scope.filterGroups.nonfailures.resultStatuses,
             "in progress"
         ]);
-
-        /**
-         * Handle checking the "all" button for a result status group
-         */
-        $scope.toggleResultStatusGroup = function (group) {
-            var check = function (rs) {
-                $scope.resultStatusFilters[rs] = group.allChecked;
-            };
-
-            _.each(group.resultStatuses, check);
-            thJobFilters.toggleFilters(
-                thJobFilters.resultStatus,
-                group.resultStatuses,
-                group.allChecked
-            );
-        };
 
         /**
          * Handle toggling one of the individual result status filters in
@@ -140,11 +124,6 @@ treeherderApp.controller('FilterPanelCtrl', [
             var classifiedState = thJobFilters.getClassifiedStateArray();
             $scope.classifiedFilter = _.includes(classifiedState, 'classified');
             $scope.unClassifiedFilter = _.includes(classifiedState, 'unclassified');
-
-            // update "all checked" boxes for groups
-            _.each($scope.filterGroups, function (group) {
-                group.allChecked = _.difference(group.resultStatuses, thJobFilters.getResultStatusArray()).length === 0;
-            });
         };
 
         updateToggleFilters();

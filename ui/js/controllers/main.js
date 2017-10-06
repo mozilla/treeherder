@@ -433,7 +433,6 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: escape closes any open panels and clears selected job
             ['escape', function () {
-                $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
@@ -721,11 +720,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.setOnscreenShortcutsShowing = function (tf) {
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
-        };
-
-        $scope.isFilterPanelShowing = false;
-        $scope.setFilterPanelShowing = function (tf) {
-            $scope.isFilterPanelShowing = tf;
         };
 
         $scope.isSettingsPanelShowing = false;

@@ -11,70 +11,19 @@
     font-size: 12px;
 }
 
-.th-top-nav-options-panel .th-option-heading {
-    padding: 3px 10px;
-    background-color: #354048;;
-    color: white;
-}
-
-.th-inline-option-group {
-    display: inline-block;
-}
-
-.th-option-group {
-    margin-right: 5px;
-    border: 1px solid #101010;
-    border-radius: 5px;
-}
-
-.th-option-heading .th-panel-heading {
-    padding: 5px 10px;
-    background-color: #354048;
-}
-
-/*
- * Filter panel
- */
-
-#job-filter-value {
-    width: 150px;
-}
-
-#job-filter-choice-value {
-    width: 150px;
-}
-
-#job-filter-field {
-    width: 200px;
-}
-
-/* Will remove these when we redo the Filter panel layout in bug 1202003 */
-#filter .th-option-heading input {
-    margin: 0;
-}
-
-#filter .checkbox-inline input {
-    margin: 1px 0 0 -16px;
-}
-
-.th-option-heading a {
-    color: white;
-    cursor: pointer;
-}
-
 /*
  * Update notification panel
  */
 
 .update-alert-panel {
-    border-radius: 0px;
-    margin-bottom: 0px;
+    border-radius: 0;
+    margin-bottom: 0;
 }
 
 /*
  *  Active Filters panel
  */
 .active-filters-bar {
-    padding: 0px 15px 0px 15px;
+    padding: 0 15px 0 15px;
     border: 1px solid transparent;
 }
