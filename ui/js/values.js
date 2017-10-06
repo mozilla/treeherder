@@ -59,7 +59,7 @@ treeherder.value("thPlatformMap", {
     "windows10-64-devedition": "Windows 10 x64 DevEdition",
     "windows10-64-nightly": "Windows 10 x64 Nightly",
     "windows10-64-stylo": "Windows 10 x64 Stylo",
-    "windows10-64-stylo-disabled": "Windows 10 x64 Stylo-Disabled",
+    "windows10-64-stylo-disabled": "Windows 10 x64 Stylo Disabled",
     "windows2012-32": "Windows 2012",
     "windows2012-32-qr": "Windows 2012 QuantumRender",
     "windows2012-32-add-on-devel": "Windows 2012 addon",
