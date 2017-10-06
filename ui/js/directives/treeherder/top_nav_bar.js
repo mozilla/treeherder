@@ -1,18 +1,5 @@
 'use strict';
 
-treeherder.directive('thFilterCheckbox', [
-    'thResultStatusInfo',
-    function (thResultStatusInfo) {
-
-        return {
-            restrict: "E",
-            link: function (scope) {
-                scope.checkClass = thResultStatusInfo(scope.filterName).btnClass + "-count-classified";
-            },
-            templateUrl: 'partials/main/thFilterCheckbox.html'
-        };
-    }]);
-
 treeherder.directive('thWatchedRepo', [
     'ThLog', 'ThRepositoryModel',
     function (ThLog, ThRepositoryModel) {
