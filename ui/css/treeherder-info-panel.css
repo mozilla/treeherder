@@ -84,6 +84,10 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   height: 33px;
 }
 
+.info-panel-navbar li {
+  align-self: center;
+}
+
 .info-panel-navbar-tabs {
   justify-content: space-between;
   flex-direction: row;

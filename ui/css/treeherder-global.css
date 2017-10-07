@@ -226,6 +226,14 @@ a:visited {
   color: #fff;
 }
 
+.btn-xs {
+  padding: 3px 6px 3px 6px;
+}
+
+.btn-light-bordered {
+  border: 1px solid darkgrey;
+}
+
 /*
  * Colors
  */
