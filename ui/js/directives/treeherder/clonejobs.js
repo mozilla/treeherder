@@ -416,10 +416,8 @@ treeherder.directive('thCloneJobs', [
                         //Left mouse button pressed
                         if (ev.ctrlKey || ev.metaKey) {
                             _.bind(togglePinJobCb, this, ev, el, job)();
-                        } else {
-                            _.bind(clickJobCb, this, ev, el, job)();
                         }
-
+                        _.bind(clickJobCb, this, ev, el, job)();
                         break;
 
                     case 2:
