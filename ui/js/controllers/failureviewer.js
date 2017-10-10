@@ -14,7 +14,7 @@ failureViewerApp.controller('FailureViewerCtrl', [
         if (query_string.classified_failure_id) {
             $scope.classifiedFailureId = query_string.classified_failure_id;
         } else {
-            thNotify.send("No classified_failure_id specified", "danger", true);
+            thNotify.send("No classified_failure_id specified", "danger", { sticky: true });
         }
         $scope.init = function () {
             if ($scope.classifiedFailureId) {

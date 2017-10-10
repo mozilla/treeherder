@@ -159,7 +159,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }, () => {
                     $scope.loading = false;
                     $scope.jobExists = false;
-                    thNotify.send('The job does not exist or has expired', 'danger', true);
+                    thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
                 });
             });
         };

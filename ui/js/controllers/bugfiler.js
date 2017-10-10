@@ -395,7 +395,7 @@ treeherder.controller('BugFilerCtrl', [
                     var data = response.data;
                     if (data.failure) {
                         var error = JSON.parse(data.failure.join(""));
-                        thNotify.send("Bugzilla error: " + error.message, "danger", true);
+                        thNotify.send("Bugzilla error: " + error.message, "danger", { sticky: true });
                         $scope.toggleForm(false);
                     } else {
                         successCallback(data);

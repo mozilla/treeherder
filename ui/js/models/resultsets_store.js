@@ -1021,7 +1021,7 @@ treeherder.factory('ThResultSetStore', [
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendResultSets(repoName, resultsets),
                      (data) => {
-                         thNotify.send("Error retrieving resultset data!", "danger", true);
+                         thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
                          $log.error(data);
                          appendResultSets(repoName, { results: [] });
                      })
@@ -1116,7 +1116,7 @@ treeherder.factory('ThResultSetStore', [
                     }, function () {
                         // the job wasn't found in the db.  Either never existed,
                         // or was expired and deleted.
-                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", true);
+                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", { sticky: true });
                     });
                 }
             }

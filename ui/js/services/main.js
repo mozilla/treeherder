@@ -125,20 +125,24 @@ treeherder.factory('thNotify', [
             /*
              * send a message to the notification queue
              * @severity can be one of success|info|warning|danger
-             * @sticky is a boolean indicating if you want the message to disappear
-             * after a while or not
+             * @opts is an object with up to three entries:
+             *   sticky -- Keeps notification visible until cleared if true
+             *   linkText -- Text to display as a link if exists
+             *   url -- Location the link should point to if exists
              */
-            send: function (message, severity, sticky, linkText, url) {
+            send: function (message, severity, opts) {
+                if (!_.isPlainObject(opts)) {
+                    throw new Error('Must pass an object as last argument to thNotify.send!');
+                }
                 $log.debug("received message", message);
+                opts = opts || {};
                 severity = severity || 'info';
-                sticky = sticky || false;
+
                 var maxNsNotifications = 5;
                 var notification = {
-                    message: message,
-                    severity: severity,
-                    sticky: sticky,
-                    linkText: linkText,
-                    url: url,
+                    ...opts,
+                    message,
+                    severity,
                     created: Date.now()
                 };
                 thNotify.notifications.unshift(notification);
@@ -146,7 +150,7 @@ treeherder.factory('thNotify', [
                 thNotify.storedNotifications.splice(40);
                 localStorageService.set('notifications', thNotify.storedNotifications);
 
-                if (!sticky) {
+                if (!opts.sticky) {
                     if (thNotify.notifications.length > maxNsNotifications) {
                         $timeout(thNotify.shift);
                         return;

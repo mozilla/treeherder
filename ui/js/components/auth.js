@@ -115,7 +115,7 @@ treeherder.component("login", {
                     .then(function () {
                         ctrl.setLoggedOut();
                     }, function (data) {
-                        thNotify.send(`Logout failed: ${data.data}`, "danger", true);
+                        thNotify.send(`Logout failed: ${data.data}`, "danger", { sticky: true });
                     });
             };
 
