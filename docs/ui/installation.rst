@@ -100,7 +100,7 @@ To run eslint by itself, you may run the lint task:
 Running the unit tests
 ======================
 
-The unit tests for the UI are run with Karma_ and Jasmine_. React components are tested with enzyme_. To run the tests:
+The unit tests for the UI are run with Karma_ and Jasmine_. React components are tested with enzyme_. At this time, these tests cannot be run inside of a Vagrant VM. To run the tests:
 
 * If you haven't already done so, install local dependencies by running ``yarn install --no-bin-links`` from the project root.
 * Then run the following command to execute the tests:
