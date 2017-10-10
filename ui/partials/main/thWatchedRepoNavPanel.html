@@ -1,4 +1,4 @@
-<div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar">
+<div id="watched-repo-navbar" class="th-context-navbar navbar-dark bg-dark watched-repo-navbar">
 
   <span class="watched-repo-list">
     <th-watched-repo ng-repeat="watchedRepo in repoModel.watchedRepos"></th-watched-repo>
@@ -38,21 +38,18 @@
           <span id="tierLabel" role="button"
                   title="Show/hide job tiers"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
-            <span class="fa fa-angle-down lightgray"></span>
+                  class="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle">Tiers
           </span>
           <ul class="dropdown-menu checkbox-dropdown-menu"
-              role="menu">
-            <li ng-repeat="tier in jobFilters.tiers">
-              <div class="checkbox dropdown-link">
+              role="menu" aria-labelledby="tierLabel">
+            <li ng-repeat="tier in jobFilters.tiers" class="dropdown-item">
+              <div class="checkbox">
                 <label title="{{(isSingleTierSelected() && tiers[tier] == true) ? 'Must have at least one tier selected at all times' : ''}}">
                   <input id="tier-checkbox"
                          type="checkbox"
-                         class="dropdown-checkboxk"
                          ng-model="tiers[tier]"
                          ng-disabled="isSingleTierSelected() && tiers[tier] == true"
-                         ng-change="tierToggled(tier)">
-                  tier {{::tier}}
+                         ng-change="tierToggled(tier)">tier {{::tier}}
                 </label>
               </div>
             </li>

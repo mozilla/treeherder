@@ -24,6 +24,10 @@ a:visited {
   color: purple;
 }
 
+a {
+  color: #337ab7;
+}
+
 #global-container {
   display: flex;
   flex-direction: column;
@@ -46,10 +50,10 @@ a:visited {
 }
 
 /* Presently Tier menu, Similar Jobs panel */
-.checkbox {
-  min-height: 20px;
-  padding-left: 4px;
-}
+/*.checkbox {*/
+  /*min-height: 20px;*/
+  /*padding-left: 4px;*/
+/*}*/
 
 .dropdown-menu > li > a {
   cursor: pointer;
@@ -65,9 +69,9 @@ a:visited {
   cursor: not-allowed;
 }
 
-/* Spacing for menus with adjacent checkboxes */
-.checkbox-dropdown-menu {
-  padding-left: 8px;
+.dropdown-menu-right {
+    left: inherit;
+    right: 0;
 }
 
 /* Spacing for menus with adjacent icons */
