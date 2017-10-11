@@ -42,10 +42,16 @@ div#info-panel .navbar-nav > ul {
   height: 32px;
 }
 
-div#info-panel .navbar-nav > li > a,
-div#info-panel .navbar-nav > li > button {
-  padding: 6px 15px;
-  line-height: 19px;
+div#info-panel .navbar-nav.actionbar-nav > li > a,
+div#info-panel .navbar-nav.actionbar-nav > li > button {
+  padding: 8px 15px;
+  line-height: 16px;
+}
+
+div#info-panel .navbar-nav.tab-headers > li > a,
+div#info-panel .navbar-nav.tab-headers > li > button {
+  padding: 8px 15px;
+  line-height: 30px;
 }
 
 div#info-panel .navbar-nav > li > button {
@@ -192,10 +198,11 @@ div#info-panel .info-panel-navbar > li.active a:focus {
 
 .actionbar-menu {
   /* We have to override non-responsive bootstrap for correct styling */
-  margin-top: 1px !important;
+  margin-top: 23px;
   margin-left: 6px;
-  border-radius: 4px !important;
+  border-radius: 4px;
   padding: 5px 10px 5px 10px;
+  top: 0;
 }
 
 #actionbar-menu-btn {
