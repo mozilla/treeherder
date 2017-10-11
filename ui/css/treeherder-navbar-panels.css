@@ -24,6 +24,19 @@
  *  Active Filters panel
  */
 .active-filters-bar {
-    padding: 0 15px 0 15px;
-    border: 1px solid transparent;
+    padding: 5px 25px 5px 30px;
+}
+
+.active-filters-title {
+    padding-right: 15px;
+}
+
+.filtersbar-filter {
+    font-size: 12px;
+    padding-right: 12px;
+    display: inline-block;
+}
+
+.new-filter-input {
+    margin-top: 5px;
 }
