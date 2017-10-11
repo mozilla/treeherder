@@ -18,7 +18,7 @@ div#info-panel {
 }
 
 div#info-panel .navbar {
-  border-radius: 0px;
+  border-radius: 0;
   border-style: solid;
   border-color: #42484F;
   border-width: 1px 0;
@@ -103,6 +103,7 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
 
 .info-panel-navbar .navbar-nav {
   display: flex;
+  flex-direction: row;
 }
 
 .info-panel-navbar .navbar-nav > li {
@@ -141,7 +142,10 @@ div#info-panel .navbar-nav > li > button.disabled:active
 
 div#info-panel .info-panel-navbar .navbar-nav > li.active a,
 div#info-panel .info-panel-navbar .navbar-nav > li.active a:hover,
-div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
+div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus,
+div#info-panel .info-panel-navbar > li.active a,
+div#info-panel .info-panel-navbar > li.active a:hover,
+div#info-panel .info-panel-navbar > li.active a:focus {
   background-color: #1A4666;
   color: #EEF0F2;
 }
@@ -191,6 +195,20 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
   margin-top: 1px !important;
   margin-left: 6px;
   border-radius: 4px !important;
+  padding: 5px 10px 5px 10px;
+}
+
+#actionbar-menu-btn {
+  padding: 8px 13px;
+}
+
+#actionbar-menu-btn:hover {
+  background-color: #262626;
+}
+
+/* Remove the caret from the ellipses */
+#actionbar-menu-btn.dropdown-toggle::after {
+    display:none
 }
 
 /*
@@ -208,14 +226,14 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 }
 
 #job-details-panel ul li {
-  padding: 0px 0px 0px 5px;
+  padding: 0 0 0 5px;
   line-height: 15px;
   word-wrap: break-word;
 }
 
 #job-details-panel ul li label {
   padding: 0;
-  margin: 2px 0px;
+  margin: 2px 0;
 }
 
 /*
@@ -268,8 +286,8 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 }
 
 #job-details-pane > ul {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   line-height: 12px;
 }
 
@@ -294,12 +312,12 @@ div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus {
 }
 
 .job-tabs-content {
-  padding: 2px 4px 0px;
+  padding: 2px 4px 0;
 }
 
 #job-tabs-panel {
   flex: 1 6;
-  padding: 0px;
+  padding: 0;
   min-width: 565px;
 }
 
@@ -344,13 +362,13 @@ ul.failure-summary-list li .btn-xs {
 }
 
 .failure-summary-line-empty {
-  padding: 2px 4px 0px;
+  padding: 2px 4px 0;
   font-size: 12px;
   background: #ffffff;
 }
 
 .failure-summary-bugs {
-  padding: 0px 0px 0px 18px;
+  padding: 0 0 0 18px;
 }
 
 /* We override global anchor color to replicate TBPL here */
@@ -368,7 +386,7 @@ ul.failure-summary-list li .btn-xs {
 
 /* We override global anchor color to replicate TBPL here */
 .show-hide-more {
-  padding: 0px 0px 0px 37px;
+  padding: 0 0 0 37px;
   color: #0000ee;
 }
 
@@ -437,6 +455,7 @@ ul.failure-summary-list li .btn-xs {
 .btn-similar-jobs {
   background: #fff;
   cursor: default;
+  font-size: 12px;
 }
 
 .similar_jobs {
@@ -457,7 +476,7 @@ div.similar_jobs .right_panel form {
 }
 
 div.similar_jobs .right_panel form .checkbox input[type="checkbox"] {
-  margin-left: 0px;
+  margin-left: 0;
   position: relative;
 }
 

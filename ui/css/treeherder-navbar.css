@@ -4,7 +4,7 @@
 
 #global-navbar-container {
     background-color: #273038;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     flex: none;
 }
 
@@ -395,7 +395,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #notification-dropdown .dropdown-header {
-  padding-left: 0px;
+  padding-left: 0;
   padding-bottom: 4px;
 }
 

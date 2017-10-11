@@ -107,28 +107,30 @@
             </a>
           </li>
         </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <button id="actionbar-menu-btn"
+        <ul class="nav navbar-right">
+          <li class="dropdown">
+            <span id="actionbar-menu-btn"
                title="Other job actions"
-               data-toggle="dropdown">
+               data-toggle="dropdown"
+               type="button"
+               class="dropdown-toggle">
               <span class="fa fa-ellipsis-h" aria-hidden="true"></span>
-            </button>
-            <ul class="dropdown-menu actionbar-menu" role="menu">
+            </span>
+            <ul class="dropdown-menu actionbar-menu dropdown-menu-right" role="menu">
               <li class="{{ canBackfill() ? '' : 'disabled' }}">
                 <a ng-attr-title="{{ backfillButtonTitle() }}"
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
-              <li ng-if-start="job.taskcluster_metadata">
+              <li ng-if-start="job.taskcluster_metadata" class="dropdown-item">
                 <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
-              <li>
+              <li class="dropdown-item">
                 <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
               </li>
-              <li>
+              <li class="dropdown-item">
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
-              </li>
-              <li ng-if-end>
+              </li class="dropdown-item">
+              <li ng-if-end class="dropdown-item">
                 <a ng-click="customJobAction()">Custom Action...</a>
               </li>
             </ul>
@@ -257,7 +259,7 @@
         <ul class="nav navbar-nav tab-headers">
           <li ng-repeat="tabName in tabService.tabOrder"
               ng-if="tabService.tabs[tabName].enabled"
-              ng-class="{'table-active': tabService.selectedTab == tabName}">
+              ng-class="{'active': tabService.selectedTab == tabName}">
             <a title="Show {{ tabService.tabs[tabName].description }}"
                href=""
                ng-click="tabService.showTab(tabName, job.id)">
@@ -267,10 +269,10 @@
         </ul>
 
         <ul class="nav navbar-nav info-panel-navbar-controls">
-          <li>
-            <a href="" ng-click="togglePinboardVisibility()"
-               class="pinboard-btn">
-              <div ng-attr-title="{{isPinboardVisible ? 'Close the pinboard' : 'Open the pinboard'}}">Pinboard
+          <li ng-click="togglePinboardVisibility()"
+              id="pinboard-btn">
+              <div ng-attr-title="{{isPinboardVisible ? 'Close the pinboard' : 'Open the pinboard'}}"
+                   class="pinboard-btn-text">Pinboard
                 <div ng-if="pinboard_service.count.numPinnedJobs"
                      title="{{getCountPinnedTitle()}}"
                      class="pin-count-group"
@@ -281,7 +283,6 @@
                 </div>
                 <span class="fa" ng-class="isPinboardVisible ? 'fa-angle-down' : 'fa-angle-up'"></span>
               </div>
-            </a>
           </li>
           <li>
             <a title="Close the job panel" href="" ng-click="closeJob()">

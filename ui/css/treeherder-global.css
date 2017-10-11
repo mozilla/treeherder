@@ -354,10 +354,10 @@ kbd {
 
 #clipboard-container {
   position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 0px;
-  height: 0px;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
   z-index: 100;
   display: none;
   opacity: 0;
@@ -366,7 +366,7 @@ kbd {
 #clipboard {
   width: 1px;
   height: 1px;
-  padding: 0px;
+  padding: 0;
 }
 
 /*
