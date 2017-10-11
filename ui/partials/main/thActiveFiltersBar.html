@@ -1,20 +1,27 @@
 <!-- Show this certain filters are active in Treeherder -->
-<div class="alert-info active-filters-bar">
+<div ng-if="newFieldFilter || filterBarFilters.length"
+     class="alert-info active-filters-bar">
     <div ng-show="filterBarFilters.length" ng-cloak>
-      <i class="fa fa-info-circle" aria-hidden="true"></i>
-      <span><b>Active Filters</b></span>
-
-      <span ng-repeat="filter in filterBarFilters" class="btn btn-sm"
-            title="Click to clear the {{ filter.field }} filter"
-            ng-click="jobFilters.removeFilter(filter.key, filter.value)">
-          <span ng-if="filter.field == 'author'">{{ filter.field }}: {{filter.value.split('@')[0] | limitTo: 20}}</span>
-          <span ng-if="filter !== 'author'">{{ filter.field }}: {{filter.value | limitTo: 12}}</span>
-          <i class="fa fa-times-circle"></i>
+      <span class="active-filters-title">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        <b>Active Filters</b>
+      </span>
+      <span ng-repeat="filter in filterBarFilters"
+            class="filtersbar-filter">
+          <span title="Filter by {{ filter.field}}: {{ filter.value }}"
+                ng-if="filter.field == 'author'"><b>{{ filter.field }}:</b> {{filter.value.split('@')[0] | limitTo: 20}}</span>
+          <span title="Filter by {{ filter.field}}: {{ filter.value }}"
+                ng-if="filter !== 'author'"><b>{{ filter.field }}:</b> {{filter.value | limitTo: 12}}</span>
+          <span class="pointable"
+                title="Click to clear {{ filter.field }}"
+                ng-click="jobFilters.removeFilter(filter.key, filter.value)">
+            <i class="fa fa-times-circle"></i>
+          </span>
       </span>
     </div>
     <div ng-if="newFieldFilter">
       <form novalidate class="form-inline" role="form">
-        <div class="form-group input-group-sm">
+        <div class="form-group input-group-sm new-filter-input">
           <label class="sr-only" for="job-filter-field">Field</label>
           <select id="job-filter-field"
                   class="form-control"
@@ -32,7 +39,7 @@
                  ng-model="newFieldFilter.value"
                  id="job-filter-value"
                  type="text"
-                 placeholder="filter value">
+                 placeholder="enter filter value">
           <label class="sr-only" for="job-filter-choice-value">Value</label>
           <select ng-show="newFieldFilter.matchType==='choice'"
                   class="form-control"
