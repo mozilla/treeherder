@@ -1,5 +1,5 @@
 <!-- Show this certain filters are active in Treeherder -->
-<div ng-if="newFieldFilter || filterBarFilters.length"
+<div ng-if="isFieldFilterVisible || filterBarFilters.length"
      class="alert-info active-filters-bar">
     <div ng-show="filterBarFilters.length" ng-cloak>
       <span class="active-filters-title">
@@ -20,7 +20,7 @@
           </span>
       </span>
     </div>
-    <div ng-if="newFieldFilter">
+    <div ng-if="isFieldFilterVisible">
       <form novalidate class="form-inline" role="form">
         <div class="form-group input-group-sm new-filter-input">
           <label class="sr-only" for="job-filter-field">Field</label>
