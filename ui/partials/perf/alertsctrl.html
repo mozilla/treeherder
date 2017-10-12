@@ -3,7 +3,7 @@
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
-    <span ng-if="!alertId" ng-cloak>
+    <span ng-if="!alertId" ng-cloak class="alert-selects">
       <div class="form-group">
         <select ng-model="filterOptions.status"
                 ng-options="status.text for status in statuses track by status.id"
@@ -37,8 +37,8 @@
   <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
-  <div class="panel panel-default alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <div class="panel-heading alert-summary-heading">
+  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
+    <div class="card-header alert-summary-heading">
       <div class="alert-summary-header-element">
         <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
       </div>
@@ -183,7 +183,7 @@
         </td>
       </tr>
     </table>
-    <div class="panel-body" ng-show="alertSummary.downstreamSummaryIds.length">
+    <div class="card-body" ng-show="alertSummary.downstreamSummaryIds.length">
       <p class="text-muted">
         Downstream alert summaries:
         <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds" >
@@ -196,26 +196,26 @@
         </span>
       </p>
     </div>
-    <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
+    <div class="card-body" uib-collapse="!anySelected(alertSummary.alerts)">
       <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
               ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
         Reset
       </button>
       <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
           <span class="fa fa-check"></span> Acknowledge
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
           <span class="fa fa-ban"></span> Mark invalid
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsDownstream(alertSummary)"
                 title="Mark selected alerts as downstream from an alert summary on another branch">
           <span class="fa fa-level-down"></span> Mark downstream
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="reassignAlerts(alertSummary)"
                 title="Reassign selected alerts to another alert summary on the same branch">
           <span class="fa fa-arrow-circle-o-right"></span> Reassign

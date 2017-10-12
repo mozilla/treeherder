@@ -166,6 +166,7 @@ module.exports = neutrino => {
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
+            Popper: ['popper.js', 'default'],
             React: require.resolve('react'),
             _: require.resolve('lodash'),
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),

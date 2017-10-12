@@ -174,7 +174,7 @@ treeherder.factory('ThResultSetStore', [
             if (!lastPolltime) {
                 lastPolltime = Date.now();
             }
-            schedulePoll();
+            // schedulePoll();
         };
 
         var schedulePoll = function () {

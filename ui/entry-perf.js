@@ -8,6 +8,7 @@ require('./js/config');
 // Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
+require('./css/treeherder-global.css');
 require('./css/treeherder-navbar.css');
 require('./css/perf.css');
 require('./css/treeherder-loading-overlay.css');
@@ -21,6 +22,7 @@ require('angular-ui-router');
 require('angular-sanitize');
 require('angular-local-storage');
 require('mousetrap');
+require('popper.js/dist/umd/popper');
 require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('./vendor/angular-clipboard.js');

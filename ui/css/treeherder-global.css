@@ -12,14 +12,21 @@
 html, body {
   height: 100%;
   overflow: hidden;
+
 }
 
 body {
   line-height: inherit;
+  font-size: 14px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 a:visited {
   color: purple;
+}
+
+a {
+  color: #337ab7;
 }
 
 #global-container {
@@ -34,7 +41,7 @@ a:visited {
   overflow-y: auto;
 }
 
-.pagination, .carousel, .panel-title a {
+.pagination, .panel-title a {
   cursor: pointer;
 }
 
@@ -47,6 +54,8 @@ a:visited {
 .checkbox {
   min-height: 20px;
   padding-left: 4px;
+  padding-top: 4px;
+  justify-content: center;
 }
 
 .dropdown-menu > li > a {
@@ -63,9 +72,10 @@ a:visited {
   cursor: not-allowed;
 }
 
-/* Spacing for menus with adjacent checkboxes */
-.checkbox-dropdown-menu {
-  padding-left: 8px;
+.dropdown-menu-right {
+    left: inherit;
+    right: 0;
+    width: auto;
 }
 
 /* Spacing for menus with adjacent icons */
@@ -224,6 +234,20 @@ a:visited {
   color: #fff;
 }
 
+.btn-xs {
+  padding: 3px 6px 3px 6px;
+}
+
+.btn-light-bordered {
+  border: 1px solid darkgrey;
+}
+
+.btn-primary-soft {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+
 /*
  * Colors
  */
@@ -338,10 +362,10 @@ kbd {
 
 #clipboard-container {
   position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 0px;
-  height: 0px;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
   z-index: 100;
   display: none;
   opacity: 0;
@@ -350,7 +374,7 @@ kbd {
 #clipboard {
   width: 1px;
   height: 1px;
-  padding: 0px;
+  padding: 0;
 }
 
 /*

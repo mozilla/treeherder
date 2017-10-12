@@ -59,13 +59,13 @@ treeherder.directive('thFailureClassification', [
                     if (scope.failureId) {
                         scope.classification = thClassificationTypes.classifications[scope.failureId];
                         scope.hoverText=scope.classification.name;
-                        scope.iconCls = (scope.failureId === 7 ? "glyphicon-star-empty" : "glyphicon glyphicon-star") +
+                        scope.iconCls = (scope.failureId === 7 ? "fa-star-o" : "fa fa-star") +
                                          " star-" + scope.jobResult;
                     }
                 });
             },
             template: '<span title="{{hoverText}}">' +
-                '<i class="glyphicon {{iconCls}}"></i>' +
+                '<i class="fa {{iconCls}}"></i>' +
                 '</span> {{hoverText}}'
         };
     }]);
