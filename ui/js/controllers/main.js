@@ -581,11 +581,16 @@ treeherderApp.controller('MainCtrl', [
         $scope.fieldFilters = [];
         $scope.fieldChoices = thJobFilters.getFieldChoices();
 
-        $scope.startNewFieldFilter = function () {
-            $scope.newFieldFilter = { field: "", value: "" };
+        $scope.toggleFieldFilterVisibility = function () {
+            if ($scope.newFieldFilter === null) {
+                $scope.newFieldFilter = { field: "", value: "" };
+            }
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
+
         $scope.cancelNewFieldFilter = function () {
             $scope.newFieldFilter = null;
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
 
         // we have to set the field match type here so that the UI can either
@@ -623,8 +628,9 @@ treeherderApp.controller('MainCtrl', [
 
             thJobFilters.addFilter(field, value);
 
-            // Hide the new field filter form.
-            $scope.newFieldFilter = null;
+            // Clear the values and close the input form group
+            $scope.newFieldFilter = { field: "", value: "" };
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
 
         $scope.fromChangeValue = function () {
