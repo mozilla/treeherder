@@ -18,10 +18,11 @@
 }
 
 #notification-box button.close {
-  position: relative;
-  top: -4px;
-  right: -8px;
   color: inherit;
+  line-height: 13px;
+  font-size: 18px;
+  padding-left: 10px;
+  margin-right: -7px;
 }
 
 /* Notification icon */

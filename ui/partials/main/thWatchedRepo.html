@@ -6,7 +6,7 @@
           title="{{titleText|stripHtml}}">
     <i class="fa {{statusIcon}} {{statusIconClass}} {{statusColor}}"></i> {{::watchedRepo}}
   </button>
-  <button class="watched-repo-info-btn btn btn-sm {{btnClass}} dropdown-toggle"
+  <button class="watched-repo-info-btn btn btn-sm {{btnClass}}"
           ng-class="{'active': watchedRepo===repoName}"
           ng-click="setDropDownPull($event)"
           type="button"

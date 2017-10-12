@@ -6,7 +6,7 @@
   <h3 class="modal-title">{{title}}</h3>
 </div>
 <div class="modal-body">
-      <div class="form-group" ng-class="{'has-error': modifyAlert.newId.$invalid}">
+      <div class="form-group" ng-class="{'has-danger': modifyAlert.newId.$invalid}">
         <input class="form-control"
                ng-model="newId"
                ng-pattern="/^[1-9]+[0-9]*$/"
@@ -20,7 +20,7 @@
   </div>
 </div>
 <div class="modal-footer">
-      <button class="btn btn-primary" ng-click="update()" ng-disabled="modifying || !newId.length || !modifyAlert.newId.$valid">
+      <button class="btn btn-primary-soft" ng-click="update()" ng-disabled="modifying || !newId.length || !modifyAlert.newId.$valid">
         <span ng-if="!modifying">Assign</span>
         <span ng-if="modifying">Assigning...</span>
       </button>

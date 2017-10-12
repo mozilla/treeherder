@@ -28,7 +28,7 @@
       <div class="test-loading-placeholder" ng-show="loadingTestData">
         <p class="blink">Loading series data...</p>
       </div>
-      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
+      <input class="form-control form-control-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
       <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control choose-test-list" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature" title="{{::testElem.name}}">
           {{::testElem.name}}
@@ -42,11 +42,11 @@
     </div>
   </div>
   <div class="btn-group-vertical">
-    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!testsToAdd.length">
-      <span class="glyphicon glyphicon-chevron-left"></span>
+    <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-sm btn-light-bordered" ng-disabled="!testsToAdd.length">
+      <span class="fa fa-chevron-left"></span>
     </button>
-    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!unselectedTestList.length">
-      <span class="glyphicon glyphicon-chevron-right"></span>
+    <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-sm btn-light-bordered" ng-disabled="!unselectedTestList.length">
+      <span class="fa fa-chevron-right"></span>
     </button>
   </div>
   <div class="test-list-container">
@@ -63,5 +63,5 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+  <button class="btn btn-primary-soft" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="fa fa-plus" aria-hidden="true"></span> Add</button>
 </div>

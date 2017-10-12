@@ -4,56 +4,68 @@
 
 #global-navbar-container {
     background-color: #273038;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     flex: none;
 }
 
 #th-global-navbar-top {
     padding-left: 0;
     border-bottom: 1px solid black;
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    background-color: #222;
 }
 
 .navbar {
-    min-height: 36px;
-    margin-bottom: 0px;
-    border-radius: 0px;
+    padding: 0;
 }
 
-.navbar .dropdown-menu {
-    max-height: 600px;
-    min-width: 80px;
-    overflow: auto;
-    margin-top: 10px;
-    padding-bottom: 8px;
+#th-global-navbar-top .dropdown-menu {
+    top: inherit;
+}
+
+.dropdown-menu {
+    min-width: inherit;
+}
+
+.dropdown-menu > li > a {
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #262626;
+    text-decoration: none;
+}
+
+label.dropdown-item {
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+.dropdown-item input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 #th-logo {
     padding-left: 14px;
     border-left: 0;
-}
-
-.btn-right-navbar {
-   font-size: 13px;
+    font-size: 14px;
 }
 
 /*
  * Right hand upper navbar
  */
 
-.navbar-right {
-    /* Override bootstrap 3.3.5 which doesn't work with the way we align our navbar */
-    margin-right: 0px;
-}
-
-.navbar-collapse {
-    /* Override bootstrap for flush right navbar menus */
-    padding-right: 0;
-}
-
 .nav-menu-btn {
     margin-right: -4px;
     padding-left: 14px;
     padding-right: 14px;
+    font-size: 13px;
 }
 
 .nav-help-btn {
@@ -92,7 +104,7 @@
     padding-right: 14px;
 }
 
-.th-context-navbar {
+#watched-repo-navbar {
     background-color: #354048;
     overflow: visible;
 }
@@ -111,7 +123,7 @@
 }
 
 .watched-repo-dropdown-item {
-    margin: 0px 10px;
+    margin: 0 10px;
 }
 
 .watched-repo-dropdown-item > a {
@@ -120,6 +132,10 @@
 
 .watched-repo-navbar {
     overflow: visible;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    display: flex;
 }
 
 .tree-closed {
@@ -138,32 +154,21 @@
     color: lightgray;
 }
 
-th-watched-repo {
-    /* Required for Chrome */
-    float: left;
-}
-
 /*
  * Right hand lower navbar
  */
-
-.revision-collapsed {
-    color: grey;
-}
 
 .group-state-nav-icon {
     width: 7px;
     display: inline-block;
 }
 
-.btn-collapse-resultsets {
-   margin-top: -1px;
-   margin-bottom: -1px;
-   font-size: 14px;
-}
-
 .btn-nav-filter {
     padding: 7px 2px;
+}
+
+#filter-chicklets .btn {
+    font-size: 14px;
 }
 
 .btn.btn-view-nav.btn-orange-filter-chicklet,
@@ -225,6 +230,7 @@ th-watched-repo {
     width: 150px;
     display: inherit;
     transition: width 0.2s;
+    font-size: 12px;
 }
 
 #quick-filter-parent {
@@ -277,10 +283,10 @@ th-watched-repo {
 .btn-unclassified-failures.disabled:focus,
 .btn-unclassified-failures.disabled:active,
 .btn-unclassified-failures.disabled.active,
-.btn-unclassified-failures[disabled]:hover,
-.btn-unclassified-failures[disabled]:focus,
-.btn-unclassified-failures[disabled]:active,
-.btn-unclassified-failures[disabled].active,
+.btn-unclassified-failures:disabled:hover,
+.btn-unclassified-failures:disabled:focus,
+.btn-unclassified-failures:disabled:active,
+.btn-unclassified-failures:disabled.active,
 fieldset[disabled] .btn-unclassified-failures:hover,
 fieldset[disabled] .btn-unclassified-failures:focus,
 fieldset[disabled] .btn-unclassified-failures:active,
@@ -301,6 +307,7 @@ fieldset[disabled] .btn-unclassified-failures.active {
   border-bottom: 0;
   border-top: 0;
   border-right: 0;
+  font-size: 13px;
 }
 
 .btn-view-nav:hover,
@@ -315,10 +322,10 @@ fieldset[disabled] .btn-unclassified-failures.active {
 .btn-view-nav.disabled:focus,
 .btn-view-nav.disabled:active,
 .btn-view-nav.disabled.active,
-.btn-view-nav[disabled]:hover,
-.btn-view-nav[disabled]:focus,
-.btn-view-nav[disabled]:active,
-.btn-view-nav[disabled].active,
+.btn-view-nav:disabled:hover,
+.btn-view-nav:disabled:focus,
+.btn-view-nav:disabled:active,
+.btn-view-nav:disabled.active,
 fieldset[disabled] .btn-view-nav:hover,
 fieldset[disabled] .btn-view-nav:focus,
 fieldset[disabled] .btn-view-nav:active,
@@ -348,16 +355,20 @@ fieldset[disabled] .btn-view-nav.active {
 .btn-view-nav-closed.disabled:focus,
 .btn-view-nav-closed.disabled:active,
 .btn-view-nav-closed.disabled.active,
-.btn-view-nav-closed[disabled]:hover,
-.btn-view-nav-closed[disabled]:focus,
-.btn-view-nav-closed[disabled]:active,
-.btn-view-nav-closed[disabled].active,
+.btn-view-nav-closed:disabled:hover,
+.btn-view-nav-closed:disabled:focus,
+.btn-view-nav-closed:disabled:active,
+.btn-view-nav-closed:disabled.active,
 fieldset[disabled] .btn-view-nav-closed:hover,
 fieldset[disabled] .btn-view-nav-closed:focus,
 fieldset[disabled] .btn-view-nav-closed:active,
 fieldset[disabled] .btn-view-nav-closed.active {
   color: #e0e0e0;
   border-color: #e0e0e0;
+}
+
+.watched-repo-navbar .btn {
+    font-size: 12px;
 }
 
 @media (min-width: 960px) {
@@ -384,7 +395,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #notification-dropdown .dropdown-header {
-  padding-left: 0px;
+  padding-left: 0;
   padding-bottom: 4px;
 }
 
@@ -400,48 +411,35 @@ fieldset[disabled] .btn-view-nav-closed.active {
   font-size: 10px;
 }
 
-.dropdown.open > #repo-dropdown {
-  width: 420px;
-  display: inline-grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 10px;
-  grid-auto-rows: minmax(150px, auto);
+#repo-dropdown {
+    min-width: 27rem;
+    max-height: 35rem;
+    overflow-x: hidden;
 }
 
-#repo-dropdown > .repogroup.even {
-  grid-column: 1;
-}
-
-#repo-dropdown > .repogroup.odd {
-  grid-column: 2;
-}
-
-#repo-dropdown .repogroup {
-  margin-left: 15px;
-  margin-top: 5px;
-}
-
-#filter-dropdown {
-    padding: 0 10px 10px 10px;
-}
-
-#filter-dropdown .dropdown-header {
-    padding-top: 10px;
-}
-#filter-dropdown .dropdown-item {
+.dropdown-menu li {
     list-style: none;
-    cursor: pointer;
-    padding-top: 6px;
-    margin: 0 0 1px 0;
-    font-weight: inherit;
 }
 
-#filter-dropdown .dropdown-item:hover {
+.dropdown-header {
+    font-size: 12px;
+    /*padding: 0 0 5px 0;*/
+}
+
+.dropdown-link, .dropdown-link > a {
+    font-size: 14px;
+    color: #212529cc;
+    padding-top: .5rem;
+}
+
+#infra-dropdown {
+    min-width: 11rem;
+}
+
+.checkbox-dropdown-menu .repogroup {
+    padding-left: 0;
+}
+
+.dropdown-item:hover {
     background-color: #d3d3d34d;
-}
-
-#filter-dropdown .dropdown-divider {
-    border-top: 1px solid #a9a9a980;
-    padding-bottom: 5px;
-    margin-top: 7px;
 }
