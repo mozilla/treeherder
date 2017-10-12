@@ -611,6 +611,8 @@ JOB_NAME_BUILDERNAME = [
     {"regex": re.compile(r'talos tp6-stylo-threads-e10s$'), "name": "Talos Stylo sequential tp6 e10s"},
     {"regex": re.compile(r'talos speedometer-e10s$'), "name": "Talos speedometer e10s"},
     {"regex": re.compile(r'talos speedometer-stylo-disabled-e10s$'), "name": "Talos Stylo disabled speedometer e10s"},
+    {"regex": re.compile(r'talos h1-e10s$'), "name": "Talos h1 e10s"},
+    {"regex": re.compile(r'talos h2-e10s$'), "name": "Talos h2 e10s"},
     # ** Unit tests **
     {"regex": re.compile(r'mozbase$'), "name": "Mozbase Unit Tests"},
     {"regex": re.compile(r'mochitest-csb'), "name": "Mochitest csb"},
@@ -964,6 +966,8 @@ GROUP_NAMES = {
     "Talos Stylo sequential tp6 e10s": "Talos Stylo sequential Performance e10s",
     "Talos speedometer e10s": "Talos Performance e10s",
     "Talos Stylo disabled speedometer e10s": "Talos Stylo disabled Performance e10s",
+    "Talos h1 e10s": "Talos Performance e10s",
+    "Talos h2 e10s": "Talos Performance e10s",
     "Update Verify": "Release Promotion",
     "Uptake Monitoring": "Release Promotion",
     "Checksums Builder": "Release Promotion",
@@ -1230,6 +1234,8 @@ SYMBOLS = {
     "Talos Stylo sequential tp6 e10s": "tp6",
     "Talos speedometer e10s": "sp",
     "Talos Stylo disabled speedometer e10s": "sp",
+    "Talos h1 e10s": "h1",
+    "Talos h2 e10s": "h2",
     # Release Promotion Related Jobs
     "Release Promotion": "Release",
     "Uptake Monitoring": "up-m",
