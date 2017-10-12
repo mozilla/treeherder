@@ -711,7 +711,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.clearFilterBox = function () {
             thJobFilters.removeFilter("searchStr");
-            $("#quick-filter").val("").focus();
         };
 
         $scope.onscreenOverlayShowing = false;
