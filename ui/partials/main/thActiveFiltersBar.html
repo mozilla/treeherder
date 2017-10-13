@@ -31,6 +31,7 @@
                   required>
             <option value="" disabled selected>select filter field</option>
             <option ng-repeat="(field, obj) in fieldChoices"
+                    ng-if="obj.name !== 'tier'"
                     value="{{::field}}">{{::obj.name}}</option>
           </select>
           <label class="sr-only" for="job-filter-value">Value</label>
