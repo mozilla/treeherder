@@ -11,7 +11,7 @@
     "yarn": "^1.2.1"
   },
   "dependencies": {
-    "ajv": "5.2.2",
+    "ajv": "5.2.3",
     "angular": "1.5.11",
     "angular-cookies": "1.5.11",
     "angular-local-storage": "0.5.2",
