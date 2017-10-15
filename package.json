@@ -7,7 +7,7 @@
   },
   "license": "MPL-2.0",
   "engines": {
-    "node": "8.6.0"
+    "node": "8.7.0"
   },
   "dependencies": {
     "ajv": "^5.2.2",
