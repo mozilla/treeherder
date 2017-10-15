@@ -32,7 +32,6 @@
     "json-e": "2.2.1",
     "json-schema-defaults": "0.3.0",
     "lodash": "4.17.4",
-    "marked": "^0.3.6",
     "metrics-graphics": "2.11.0",
     "mousetrap": "1.6.1",
     "neutrino": "4.3.1",
