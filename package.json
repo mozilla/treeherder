@@ -37,7 +37,7 @@
     "neutrino": "4.3.1",
     "neutrino-lint-base": "4.3.1",
     "neutrino-preset-react": "4.2.3",
-    "ngreact": "0.4.1",
+    "ngreact": "0.5.0",
     "numeral": "2.0.6",
     "raw-loader": "0.5.1",
     "react": "15.3.2",
