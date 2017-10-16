@@ -62,6 +62,9 @@ matrix:
           - node_modules
       addons:
         firefox: latest
+      before_install:
+        # Use newer yarn than that pre-installed in the Travis image.
+        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
         # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
         # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
@@ -211,6 +214,8 @@ matrix:
         - source ~/venv/bin/activate
         - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz | tar -zxC $HOME/bin
         - nvm install 8.7.0
+        # Use newer yarn than that pre-installed in the Travis image.
+        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
         - yarn install --frozen-lockfile --no-bin-links
