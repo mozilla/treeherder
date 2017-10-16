@@ -286,8 +286,7 @@ class TreeherderPage(Base):
         _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
         _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _email_locator = (By.CSS_SELECTOR, '.result-set-title-left > th-author > span > a')
-        _expanded_group_content_locator = (By.CSS_SELECTOR, '.group-job-list[style="display: inline;"]')
-        _group_content_locator = (By.CSS_SELECTOR, 'span.group-count-list .btn')
+        _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _platform_locator = (By.CLASS_NAME, 'platform')
@@ -311,16 +310,12 @@ class TreeherderPage(Base):
             return self.find_element(*self._email_locator).text
 
         @property
-        def find_expanded_group_content(self):
-            return self.is_element_displayed(*self._expanded_group_content_locator)
+        def job_groups(self):
+            return [self.JobGroup(self.page, root=el) for el in self.find_elements(*self._job_groups_locator)]
 
         @property
         def jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
-
-        def expand_group_count(self):
-            self.find_element(*self._group_content_locator).click()
-            self.wait.until(lambda s: self.is_element_displayed(*self._expanded_group_content_locator))
 
         def pin_all_jobs(self):
             return self.find_element(*self._pin_all_jobs_locator).click()
@@ -373,6 +368,24 @@ class TreeherderPage(Base):
             def click(self):
                 self.root.click()
                 self.wait.until(lambda _: self.page.info_panel.job_details.job_result_status)
+
+        class JobGroup(Region):
+
+            _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
+            _expand_locator = (By.CSS_SELECTOR, '.group-btn')
+
+            def expand(self):
+                assert not self.expanded
+                self.find_element(*self._expand_locator).click()
+                self.wait.until(lambda s: self.expanded)
+
+            @property
+            def expanded(self):
+                return not self.is_element_present(*self._expand_locator)
+
+            @property
+            def jobs(self):
+                return [TreeherderPage.ResultSet.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
 
     class InfoPanel(Region):
 
