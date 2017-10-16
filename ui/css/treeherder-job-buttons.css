@@ -63,7 +63,7 @@
 
 .group-content::after {
   content: ")";
-  margin-left: =-1;
+  margin-left: -1px;
 }
 
 .group-job-list {
