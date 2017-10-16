@@ -14,16 +14,6 @@ yarn build
 # collectstatic, and so does not affect files in the `dist/` directory.
 python -m whitenoise.compress dist
 
-# Add environment variables to the profile script run on Dyno startup.
-# https://devcenter.heroku.com/articles/dynos#the-profile-file
-# Only variables that are rarely changed and not site-specific should
-# be set here. Set everything else using Heroku's CLI / dashboard.
-
-# Override the hostname displayed in New Relic, so the Dyno name (eg "web.1")
-# is shown, rather than "Dynamic Hostname". Single quotes are used to so that
-# `$DYNO` is expanded at app runtime, rather than now.
-echo 'export NEW_RELIC_PROCESS_HOST_DISPLAY_NAME="${DYNO}"' >> .profile
-
 # Remove nodejs files to reduce slug size (and avoid environment variable
 # pollution from the nodejs profile script), since they are no longer
 # required once `yarn build` has run. The buildpack cache will still
