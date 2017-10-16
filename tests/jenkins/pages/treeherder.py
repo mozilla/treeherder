@@ -296,7 +296,7 @@ class TreeherderPage(Base):
 
         @property
         def builds(self):
-            return [self.Build(self.page, root=el) for el in self.find_elements(*self._platform_locator)]
+            return [self.Build(self.page, root=el) for el in self.find_elements(*self._platform_locator) if el.is_displayed()]
 
         @property
         def datestamp(self):
