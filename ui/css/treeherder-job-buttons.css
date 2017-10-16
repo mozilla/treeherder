@@ -53,14 +53,12 @@
 
 .group-content {
   margin: 0 0;
-  white-space: nowrap;
-  
+  white-space: nowrap;  
 }
 
 .group-content::before {
   content: "(";
   padding-left: 1px;
-
 }
 
 .group-content::after {
