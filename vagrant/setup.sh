@@ -57,7 +57,6 @@ sudo -E apt-get -yqq update
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
-    git \
     libmemcached-dev \
     libmysqlclient-dev \
     memcached \
