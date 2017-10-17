@@ -6,6 +6,13 @@ treeherder
 [![Node devDependencies Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder?type=dev)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
 
+Table of Content (ToC)
+======================
+
+* [Description](#description)
+* [Instances](#instances)
+* [Installation](#installation)
+* [Links](#links)
 
 #### Description
 [Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. The Treeherder service manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
