@@ -131,7 +131,7 @@ treeherder.factory('thNotify', [
              *   url -- Location the link should point to if exists
              */
             send: function (message, severity, opts) {
-                if (!_.isPlainObject(opts)) {
+                if (opts !== undefined && !_.isPlainObject(opts)) {
                     throw new Error('Must pass an object as last argument to thNotify.send!');
                 }
                 $log.debug("received message", message);
