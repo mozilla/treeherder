@@ -40,7 +40,10 @@
     <li class="dropdown-item">
         <a target="_blank" data-ignore-job-clear-on-click
            href=""
-           ng-click="customPushAction()"
+           data-repo-name="{{repoName}}"
+           data-resultset-id="{{resultset.id}}"
+           data-toggle="modal"
+           data-target=".tc-job-actions-modal"
            title="View/Edit/Submit Action tasks for this push">Custom Push Action...</a></li>
     <li class="dropdown-item">
         <a target="_blank"

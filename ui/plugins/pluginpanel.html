@@ -124,9 +124,14 @@
               </li>
               <li class="dropdown-item">
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
-              </li class="dropdown-item">
+              </li>
               <li ng-if-end class="dropdown-item">
-                <a ng-click="customJobAction()">Custom Action...</a>
+                  <a href=""
+                     data-job="{{job}}"
+                     data-repo-name="{{repoName}}"
+                     data-resultset-id="{{resultsetId}}"
+                     data-toggle="modal"
+                     data-target=".tc-job-actions-modal">Custom Push Action...</a>
               </li>
             </ul>
           </li>
@@ -297,3 +302,4 @@
   </div>
 </div>
 <div id="clipboard-container"><textarea id="clipboard"></textarea></div>
+<bug-filer></bug-filer>

@@ -1108,9 +1108,7 @@ treeherder.factory('ThResultSetStore', [
                             // provide a message and link to load the right resultset
                             thNotify.send("Selected job id: " + selectedJobId + " not within current push range.",
                                           "danger",
-                                          true,
-                                          "Load push",
-                                          url);
+                                          { sticky: true, linkText: "Load push", url });
 
                         });
                     }, function () {

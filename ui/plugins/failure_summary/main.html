@@ -6,8 +6,15 @@
                 <a class="btn btn-xs btn-light-bordered"
                    prevent-default-on-left-click
                    ng-show="(filerInAddress || user.is_staff)"
-                   ng-click="fileBug($index)"
+                   data-selected-job="{{selectedJob}}"
+                   data-suggestion="{{suggestion}}"
+                   data-all-suggestions="{{suggestions}}"
+                   data-full-log="{{job_log_urls[0].url}}"
+                   data-parsed-log="{{lvFullUrl}}"
+                   data-toggle="modal"
+                   data-target="#bugfiler-modal"
                    title="file a bug for this failure">
+
                   <i class="fa fa-bug"></i>
                 </a>
                 <span>{{::suggestion.search}}</span>
