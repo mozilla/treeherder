@@ -12,7 +12,7 @@
     <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
     <p><a href="perf.html#/compare?originalProject={{originalProject.name}}&originalRevision={{originalRevision}}&newProject={{newProject.name}}&newRevision={{newRevision}}">Show all tests and platforms</a></p>
     <div class="form-group" ng-if="!originalRevision">
-        Time range to sample:
+        Time range to sample (before push):
         <select ng-model="selectedTimeRange"
                 ng-options="timeRange.text for timeRange in timeRanges track by timeRange.value"
                 ng-change="timeRangeChanged(selectedTimeRange)">
