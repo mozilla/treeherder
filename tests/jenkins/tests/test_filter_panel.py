@@ -42,23 +42,14 @@ def test_filter_by_test_status(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_filter_panel_reset_button(base_url, selenium):
-    """Open Treeherder page, open Filters Panel, disable all failures,
-    check that all checkboxes are not selected, check that there
-    are no failures, click reset button and verify that default checkboxes
-    are selected"""
+    """Open Treeherder page, hide jobs in progress, reset filters button and
+    verify in progress jobs are displayed"""
     page = TreeherderPage(selenium, base_url).open()
-    all_jobs = len(page.all_jobs)
-
+    assert any(j for j in page.all_jobs if j.in_progress)
+    page.filter_job_in_progress()
+    assert not page.nav_filter_in_progress_is_selected
+    assert not any(j for j in page.all_jobs if j.in_progress)
     page.click_on_filters_panel()
-    page.deselect_all_failures()
-    assert not page.checkbox_testfailed_is_selected
-    assert not page.checkbox_busted_is_selected
-    assert not page.checkbox_exception_is_selected
-
-    filtered_jobs = len(page.all_jobs)
-    assert not all_jobs == filtered_jobs
-
     page.reset_filters()
-    assert page.checkbox_testfailed_is_selected
-    assert page.checkbox_busted_is_selected
-    assert page.checkbox_exception_is_selected
+    assert page.nav_filter_in_progress_is_selected
+    assert any(j for j in page.all_jobs if j.in_progress)
