@@ -293,9 +293,13 @@ perf.controller('CompareResultsCtrl', [
                 }).then((originalSeriesList) => {
                     $scope.platformList = _.uniq(_.map(originalSeriesList, 'platform'));
                     $scope.testList = _.uniq(_.map(originalSeriesList, 'name'));
+                    const startDateMs = ($scope.newResultSet.push_timestamp -
+                                         $scope.selectedTimeRange.value) * 1000;
+                    const endDateMs = $scope.newResultSet.push_timestamp * 1000;
                     return PhCompare.getResultsMap(
                         $scope.originalProject.name, originalSeriesList, {
-                            interval: $scope.selectedTimeRange.value
+                            start_date: new Date(startDateMs).toISOString().slice(0, -5),
+                            end_date: new Date(endDateMs).toISOString().slice(0, -5)
                         });
                 }).then((originalResultsMap) => {
                     PhSeries.getSeriesList($scope.newProject.name, {
@@ -745,9 +749,15 @@ perf.controller('CompareSubtestResultsCtrl', [
                             }).then(function (originalSubtestList) {
                                 $scope.pageList = _.map(originalSubtestList, 'name');
                                 $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
-                                return PhCompare.getResultsMap($scope.originalProject.name,
-                                    originalSubtestList,
-                                    { interval: $scope.selectedTimeRange });
+                                const startDateMs = ($scope.newResultSet.push_timestamp -
+                                                     $scope.selectedTimeRange.value) * 1000;
+                                const endDateMs = $scope.newResultSet.push_timestamp * 1000;
+                                return PhCompare.getResultsMap(
+                                    $scope.originalProject.name,
+                                    originalSubtestList, {
+                                        start_date: new Date(startDateMs).toISOString().slice(0, -5),
+                                        end_date: new Date(endDateMs).toISOString().slice(0, -5)
+                                    });
                             })
                     ]).then(
                         function (originalResults) {
