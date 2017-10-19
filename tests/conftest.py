@@ -348,7 +348,7 @@ def failure_lines(test_job, elasticsearch):
 @pytest.fixture
 def failure_classifications(transactional_db):
     from treeherder.model.models import FailureClassification
-    for name in ["not classified", "fixed by commit", "expected fail",
+    for name in ["fixed by commit", "expected fail",
                  "intermittent", "infra", "intermittent needs filing",
                  "autoclassified intermittent"]:
         FailureClassification(name=name).save()
