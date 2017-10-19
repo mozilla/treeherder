@@ -143,9 +143,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
     reference_data_name = job_datum.get('reference_data_name', None)
 
-    default_failure_classification = FailureClassification.objects.get(
-        name='not classified')
-
     sh = sha1()
     sh.update(''.join(
         map(lambda x: str(x),
