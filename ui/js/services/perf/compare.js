@@ -217,62 +217,52 @@ treeherder.factory('PhCompare', [
                 return errors;
             },
 
-            getResultsMap: function (projectName, seriesList, params) {
-                var resultsMap = {};
-                return $q.all(_.chunk(seriesList, 20).map(function (seriesChunk) {
-                    if (params.pushIDs) {
-                        return PhSeries.getSeriesData(
-                            projectName, {
-                                signatures: _.map(seriesChunk, 'signature'),
-                                framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
-                                push_id: params.pushIDs }
-                        ).then(function (seriesData) {
-                            params.pushIDs.forEach(function (resultSetId) {
-                                if (resultsMap[resultSetId] === undefined) {
-                                    resultsMap[resultSetId] = {};
+            getResultsMap: (projectName, seriesList, params) => {
+                let resultsMap = {};
+                return $q.all(_.chunk(seriesList, 20).map(
+                    seriesChunk => PhSeries.getSeriesData(
+                        projectName, {
+                            signatures: _.map(seriesChunk, 'signature'),
+                            framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
+                            ...params
+                        }).then((seriesData) => {
+                            // Aggregates data from the server on a single group of values which
+                            // will be compared later to another group. Ends up with an object
+                            // with description (name/platform) and values.
+                            // The values are later processed at getCounterMap as the data arguments.
+                            _.forIn(seriesData, (data, signatureHash) => {
+                                const signature = _.find(seriesList, { signature: signatureHash });
+                                if (signature) {
+                                    // helper method to either return the push
+                                    // index (if getting per-push results) or
+                                    // just the main results map object otherwise
+                                    const _getResultMapEntry = (datum) => {
+                                        if (params.push_id) {
+                                            if (!resultsMap[datum.push_id]) {
+                                                resultsMap[datum.push_id] = {};
+                                            }
+                                            return resultsMap[datum.push_id];
+                                        }
+                                        return resultsMap;
+                                    };
+                                    data.forEach((datum) => {
+                                        const entry = _getResultMapEntry(datum);
+                                        if (!entry[signatureHash]) {
+                                            entry[signatureHash] = {
+                                                platform: signature.platform,
+                                                name: signature.name,
+                                                lowerIsBetter: signature.lowerIsBetter,
+                                                frameworkId: signature.frameworkId,
+                                                values: [datum.value]
+                                            };
+                                        } else {
+                                            entry[signatureHash].values.push(datum.value);
+                                        }
+                                    });
                                 }
-                                _.forIn(seriesData, function (data, signature) {
-                                    // Aggregates data from the server on a single group of values which
-                                    // will be compared later to another group. Ends up with an object
-                                    // with description (name/platform) and values.
-                                    // The values are later processed at getCounterMap as the data arguments.
-                                    var values = data
-                                        .filter(datum => datum.push_id === resultSetId)
-                                        .map(datum => datum.value);
-                                    var seriesData = _.find(seriesList, { signature: signature });
-                                    if (seriesData) {
-                                        resultsMap[resultSetId][signature] = {
-                                            platform: seriesData.platform,
-                                            name: seriesData.name,
-                                            lowerIsBetter: seriesData.lowerIsBetter,
-                                            frameworkId: seriesData.frameworkId,
-                                            values: values
-                                        };
-                                    }
-                                });
                             });
-                        });
-                    }
-                    return PhSeries.getSeriesData(
-                            projectName, {
-                                signatures: _.map(seriesChunk, 'signature'),
-                                framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
-                                interval: params.interval.value }
-                        ).then(function (seriesData) {
-                            _.forIn(seriesData, function (data, signature) {
-                                var series = _.find(seriesChunk, { signature: signature });
-                                resultsMap[signature] = {
-                                    platform: series.platform,
-                                    name: series.name,
-                                    lowerIsBetter: series.lowerIsBetter,
-                                    frameworkId: series.frameworkId,
-                                    values: _.map(data, 'value')
-                                };
-                            });
-                        });
-                })).then(function () {
-                    return resultsMap;
-                });
+                        })
+                )).then(() => resultsMap);
             },
 
             getGraphsLink: function (seriesList, resultSets, timeRange) {
