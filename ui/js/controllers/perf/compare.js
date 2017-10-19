@@ -237,103 +237,87 @@ perf.controller('CompareResultsCtrl', [
             $scope.platformList = [];
 
             if ($scope.originalRevision) {
-                var timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
-                var resultSetIds = [$scope.originalResultSet.id];
-
+                const timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                 // Optimization - if old/new branches are the same collect data in one pass
-                if (_.isEqual($scope.originalProject, $scope.newProject)) {
-                    resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
-                }
+                const resultSetIds = (_.isEqual($scope.originalProject, $scope.newProject)) ?
+                      [$scope.originalResultSet.id, $scope.newResultSet.id] : [$scope.originalResultSet.id];
 
-                PhSeries.getSeriesList(
-                    $scope.originalProject.name,
-                    {
+                PhSeries.getSeriesList($scope.originalProject.name, {
+                    interval: timeRange,
+                    subtests: 0,
+                    framework: $scope.filterOptions.framework.id,
+                }).then((originalSeriesList) => {
+                    $scope.platformList = _.uniq(
+                        _.map(originalSeriesList, 'platform'));
+                    $scope.testList = _.uniq(
+                        _.map(originalSeriesList, 'name'));
+                    return PhCompare.getResultsMap($scope.originalProject.name,
+                                                   originalSeriesList,
+                                                   { push_id: resultSetIds });
+                }).then((resultMaps) => {
+                    const originalResultsMap = resultMaps[$scope.originalResultSet.id];
+                    const newResultsMap = resultMaps[$scope.newResultSet.id];
+
+                    // Optimization - we collected all data in a single pass
+                    if (newResultsMap) {
+                        $scope.dataLoading = false;
+                        displayResults(originalResultsMap, newResultsMap);
+                        return;
+                    }
+
+                    PhSeries.getSeriesList($scope.newProject.name, {
                         interval: timeRange,
                         subtests: 0,
                         framework: $scope.filterOptions.framework.id,
-                    }).then(
-                        function (originalSeriesList) {
-                            $scope.platformList = _.uniq(
-                                _.map(originalSeriesList, 'platform'));
-                            $scope.testList = _.uniq(
-                                _.map(originalSeriesList, 'name'));
-                            return PhCompare.getResultsMap($scope.originalProject.name,
-                                                        originalSeriesList,
-                                                        { pushIDs: resultSetIds });
-                        }).then(function (resultMaps) {
-                            var originalResultsMap = resultMaps[$scope.originalResultSet.id];
-                            var newResultsMap = resultMaps[$scope.newResultSet.id];
-
-                            // Optimization - we collected all data in a single pass
-                            if (newResultsMap) {
-                                $scope.dataLoading = false;
-                                displayResults(originalResultsMap, newResultsMap);
-                                return;
-                            }
-
-                            PhSeries.getSeriesList(
-                                $scope.newProject.name,
-                                {
-                                    interval: timeRange,
-                                    subtests: 0,
-                                    framework: $scope.filterOptions.framework.id,
-                                }).then(
-                                    function (newSeriesList) {
-                                        $scope.platformList = _.union(
-                                            $scope.platformList,
-                                            _.uniq(_.map(newSeriesList, 'platform')));
-                                        $scope.testList = _.union(
-                                            $scope.testList,
-                                            _.uniq(_.map(newSeriesList, 'name')));
-
-                                        return PhCompare.getResultsMap($scope.newProject.name,
-                                                                    newSeriesList,
-                                                                    { pushIDs: [$scope.newResultSet.id] });
-                                    }).then(function (resultMaps) {
-                                        $scope.dataLoading = false;
-                                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
-                                    });
-                        });
+                    }).then((newSeriesList) => {
+                        $scope.platformList = _.union(
+                            $scope.platformList,
+                            _.uniq(_.map(newSeriesList, 'platform')));
+                        $scope.testList = _.union(
+                            $scope.testList,
+                            _.uniq(_.map(newSeriesList, 'name')));
+                        return PhCompare.getResultsMap($scope.newProject.name,
+                                                       newSeriesList,
+                                                       { push_id: [$scope.newResultSet.id] });
+                    }).then((resultMaps) => {
+                        $scope.dataLoading = false;
+                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
+                    });
+                });
             } else {
                 // using a range of data for baseline comparison
-                var originalSeriesList;
-                originalSeriesList = PhSeries.getSeriesList($scope.originalProject.name, {
+                PhSeries.getSeriesList($scope.originalProject.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
                     framework: $scope.filterOptions.framework.id
-                });
-
-                originalSeriesList.then(function (originalSeriesList) {
+                }).then((originalSeriesList) => {
                     $scope.platformList = _.uniq(_.map(originalSeriesList, 'platform'));
                     $scope.testList = _.uniq(_.map(originalSeriesList, 'name'));
-                    return PhCompare.getResultsMap($scope.originalProject.name,
-                                                    originalSeriesList,
-                                                    { interval: $scope.selectedTimeRange });
-                }).then(function (resultsMap) {
-                    var originalResultsMap = resultsMap;
-                    PhSeries.getSeriesList(
-                        $scope.newProject.name,
-                        {
-                            interval: $scope.selectedTimeRange.value,
-                            subtests: 0,
-                            framework: $scope.filterOptions.framework.id,
-                        }).then(function (newSeriesList) {
-                            $scope.platformList = _.union(
-                                $scope.platformList,
-                                _.uniq(_.map(newSeriesList, 'platform'))
-                            );
-                            $scope.testList = _.union(
-                                $scope.testList,
-                                _.uniq(_.map(newSeriesList, 'name'))
-                            );
-                            return PhCompare.getResultsMap($scope.newProject.name,
-                                                            newSeriesList,
-                                                            { pushIDs: [$scope.newResultSet.id] });
-                        }).then(function (resultMaps) {
-                            var newResultsMap = resultMaps[$scope.newResultSet.id];
-                            $scope.dataLoading = false;
-                            displayResults(originalResultsMap, newResultsMap);
+                    return PhCompare.getResultsMap(
+                        $scope.originalProject.name, originalSeriesList, {
+                            interval: $scope.selectedTimeRange.value
                         });
+                }).then((originalResultsMap) => {
+                    PhSeries.getSeriesList($scope.newProject.name, {
+                        interval: $scope.selectedTimeRange.value,
+                        subtests: 0,
+                        framework: $scope.filterOptions.framework.id
+                    }).then((newSeriesList) => {
+                        $scope.platformList = _.union(
+                            $scope.platformList,
+                            _.uniq(_.map(newSeriesList, 'platform'))
+                        );
+                        $scope.testList = _.union(
+                            $scope.testList,
+                            _.uniq(_.map(newSeriesList, 'name'))
+                        );
+                        return PhCompare.getResultsMap($scope.newProject.name,
+                                                       newSeriesList,
+                                                       { push_id: [$scope.newResultSet.id] });
+                    }).then((resultMaps) => {
+                        $scope.dataLoading = false;
+                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
+                    });
                 });
             }
         }
@@ -684,7 +668,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
                                 return PhCompare.getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
-                                    { pushIDs: resultSetIds });
+                                    { push_id: resultSetIds });
                             })
                     ]).then(function (results) {
                         var originalSeriesMap = results[1][$scope.originalResultSet.id];
@@ -722,7 +706,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                 return PhCompare.getResultsMap($scope.newProject.name,
                                     newSeriesList,
-                                    { pushIDs: [$scope.newResultSet.id] });
+                                    { push_id: [$scope.newResultSet.id] });
                             }).then(function (newSeriesMaps) {
                                 var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
@@ -783,7 +767,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                         newSeriesList,
-                                        { pushIDs: [$scope.newResultSet.id] });
+                                        { push_id: [$scope.newResultSet.id] });
                                 }).then(function (newSeriesMaps) {
                                     var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                     // There is a chance that we haven't received data for the given signature/resultSet yet
