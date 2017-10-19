@@ -79,8 +79,6 @@ def test_graphql_push_with_jobs(webapp, sample_push, eleven_jobs_stored, test_re
     response_dict = resp.json
     expected = {'data': {'allPushes': {'edges': [{'node': {'jobs': {
         'edges': [{'node': {'buildPlatform': {'platform': 'b2g-emu-jb'},
-                            'failureClassification': {
-                                'name': 'not classified'},
                             'guid': 'f1c75261017c7c5ce3000931dce4c442fe0a1297',
                             'jobGroup': {'symbol': '?'},
                             'jobLog': [{'failureLine': []}],
