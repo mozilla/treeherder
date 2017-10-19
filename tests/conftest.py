@@ -38,7 +38,7 @@ def pytest_runtest_setup(item):
     """
     Per-test setup.
     - Add an option to run those tests marked as 'slow'
-    - Provide cache isolation incrementing the cache key prefix
+    - Clear the django cache between runs
     """
 
     if 'slow' in item.keywords and not item.config.getoption("--runslow"):
@@ -47,20 +47,8 @@ def pytest_runtest_setup(item):
     if 'selenium' in item.keywords and not item.config.getoption("--runselenium"):
         pytest.skip("need --runselenium option to run selenium tests")
 
-    increment_cache_key_prefix()
-
-
-def increment_cache_key_prefix():
-    """Increment a cache prefix to effectively clear the cache."""
     from django.core.cache import cache
-    cache.key_prefix = ""
-    prefix_counter_cache_key = "treeherder-tests-key-prefix-counter"
-    try:
-        key_prefix_counter = cache.incr(prefix_counter_cache_key)
-    except ValueError:
-        key_prefix_counter = 0
-        cache.set(prefix_counter_cache_key, key_prefix_counter)
-    cache.key_prefix = "t{0}".format(key_prefix_counter)
+    cache.clear()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -442,6 +430,21 @@ def test_user(request, transactional_db):
 
 
 @pytest.fixture
+def test_ldap_user(request, transactional_db):
+    # a user *without* sheriff/staff permissions
+    from django.contrib.auth.models import User
+    user = User.objects.create(username="mozilla-ldap/user@foo.com",
+                               email='user@foo.com',
+                               is_staff=False)
+
+    def fin():
+        user.delete()
+    request.addfinalizer(fin)
+
+    return user
+
+
+@pytest.fixture
 def test_sheriff(request, transactional_db):
     # a user *with* sheriff/staff permissions
     from django.contrib.auth.models import User
@@ -620,8 +623,7 @@ def generic_reference_data(test_repository):
         architecture="x86")
     r.machine = Machine.objects.create(name='mymachine')
     r.job_group = JobGroup.objects.create(symbol='S', name='myjobgroup')
-    r.job_type = JobType.objects.create(job_group=r.job_group,
-                                        symbol='j', name='myjob')
+    r.job_type = JobType.objects.create(symbol='j', name='myjob')
     r.product = Product.objects.create(name='myproduct')
     r.signature = ReferenceDataSignatures.objects.create(
         name='myreferencedatasignaeture',

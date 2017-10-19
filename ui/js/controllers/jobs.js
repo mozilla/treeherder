@@ -19,8 +19,8 @@ treeherderApp.controller('JobsCtrl', [
                 $location.search('revision', null);
                 $location.search('tochange', revision);
             }
-            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters).
-                then(function () {
+            ThResultSetStore.fetchResultSets($scope.repoName, count, keepFilters)
+                .then(function () {
 
                     // since we fetched more resultsets, we need to persist the
                     // resultset state in the URL.
@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors',
+    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
-        ThJobModel, ThTaskclusterErrors) {
+        ThJobModel, ThTaskclusterErrors, $uibModal) {
 
         $scope.getCountClass = function (resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -178,8 +178,7 @@ treeherderApp.controller('ResultSetCtrl', [
 
         $scope.cancelAllJobs = function (revision) {
             $scope.showConfirmCancelAll = false;
-            if (!$scope.canCancelJobs())
-                return;
+            if (!$scope.canCancelJobs()) return;
 
             ThResultSetModel.cancelAll($scope.resultset.id, $scope.repoName).then(function () {
                 return thBuildApi.cancelAll($scope.repoName, revision);
@@ -191,18 +190,44 @@ treeherderApp.controller('ResultSetCtrl', [
             });
         };
 
+        $scope.customPushAction = function () {
+            $uibModal.open({
+                templateUrl: 'partials/main/tcjobactions.html',
+                controller: 'TCJobActionsCtrl',
+                size: 'lg',
+                resolve: {
+                    job: () => null,
+                    repoName: function () {
+                        return $scope.repoName;
+                    },
+                    resultsetId: function () {
+                        return $scope.resultset.id;
+                    }
+                }
+            });
+        };
+
         $scope.triggerMissingJobs = function (revision) {
             if (!window.confirm('This will trigger all missing jobs for revision ' + revision + '!\n\nClick "OK" if you want to proceed.')) {
                 return;
             }
 
-            ThResultSetModel.triggerMissingJobs($scope.resultset.id, $scope.repoName).then(function () {
-                thNotify.send("Request sent to trigger missing jobs", "success");
-            }, function (e) {
-                thNotify.send(
-                    ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
-                    'danger', true
-                );
+            ThResultSetStore.getGeckoDecisionTaskId(
+                $scope.repoName,
+                $scope.resultset.id
+            ).then(function (decisionTaskID) {
+                ThResultSetModel.triggerMissingJobs(
+                    $scope.resultset.id,
+                    $scope.repoName,
+                    decisionTaskID
+                ).then(function (msg) {
+                    thNotify.send(msg, "success");
+                }, function (e) {
+                    thNotify.send(
+                        ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
+                        'danger', true
+                    );
+                });
             });
         };
 
@@ -228,7 +253,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 ).then(function (msg) {
                     thNotify.send(msg, "success");
                 }, function (e) {
-                    thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
+                    thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                 });
             });
         };
@@ -246,11 +271,11 @@ treeherderApp.controller('ResultSetCtrl', [
             if ($scope.user.loggedin) {
                 var buildernames = ThResultSetStore.getSelectedRunnableJobs($rootScope.repoName, $scope.resultset.id);
                 ThResultSetStore.getGeckoDecisionTaskId($rootScope.repoName, $scope.resultset.id).then(function (decisionTaskID) {
-                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function () {
-                        thNotify.send("Trigger request sent", "success");
+                    ThResultSetModel.triggerNewJobs($scope.repoName, $scope.resultset.id, buildernames, decisionTaskID).then(function (results) {
+                        thNotify.send(results[1], "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                     }, function (e) {
-                        thNotify.send(ThTaskclusterErrors.format(e), 'danger', true);
+                        thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                     });
                 });
             } else {

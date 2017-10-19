@@ -218,8 +218,8 @@ characters at most. A job collection has the following data structure.
                     'blob': { my json content here}
                 }],
 
-                # List of job guids that were coalesced to this job
-                'coalesced': []
+                # List of job guids that were superseded by this job
+                'superseded': []
             },
             ...
     ]
@@ -246,7 +246,7 @@ structures to send, do something like this:
 
         tj.add_revision( data['revision'] )
         tj.add_project( data['project'] )
-        tj.add_coalesced_guid( data['coalesced'] )
+        tj.add_coalesced_guid( data['superseded'] )
         tj.add_job_guid( data['job_guid'] )
         tj.add_job_name( data['name'] )
         tj.add_job_symbol( data['job_symbol'] )

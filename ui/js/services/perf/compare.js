@@ -97,8 +97,9 @@ treeherder.factory('PhCompare', [
                 var hasOrig = originalData && originalData.values.length;
                 var hasNew = newData && newData.values.length;
 
-                if (!hasOrig && !hasNew)
+                if (!hasOrig && !hasNew) {
                     return cmap; // No data for either side
+                }
 
                 cmap.isEmpty = false;
 
@@ -121,8 +122,9 @@ treeherder.factory('PhCompare', [
                     cmap.newRuns = [];
                 }
 
-                if (!hasOrig || !hasNew)
+                if (!hasOrig || !hasNew) {
                     return cmap; // No comparison, just display for one side.
+                }
 
                 // keep the framework id so we can filter by that later, if necessary
                 cmap.frameworkId = originalData.frameworkId;
@@ -204,11 +206,13 @@ treeherder.factory('PhCompare', [
                 }
 
                 $http.get(thServiceDomain + '/api/repository/').then(function (response) {
-                    if (!_.find(response.data, {'name': originalProject}))
+                    if (!_.find(response.data, { name: originalProject })) {
                         errors.push("Invalid project, doesn't exist: " + originalProject);
+                    }
 
-                    if (!_.find(response.data, {'name': newProject}))
+                    if (!_.find(response.data, { name: newProject })) {
                         errors.push("Invalid project, doesn't exist: " + newProject);
+                    }
                 });
                 return errors;
             },
@@ -235,7 +239,7 @@ treeherder.factory('PhCompare', [
                                     var values = data
                                         .filter(datum => datum.push_id === resultSetId)
                                         .map(datum => datum.value);
-                                    var seriesData = _.find(seriesList, {'signature': signature});
+                                    var seriesData = _.find(seriesList, { signature: signature });
                                     if (seriesData) {
                                         resultsMap[resultSetId][signature] = {
                                             platform: seriesData.platform,
@@ -253,7 +257,7 @@ treeherder.factory('PhCompare', [
                             projectName, {
                                 signatures: _.map(seriesChunk, 'signature'),
                                 framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
-                                interval: params.interval.value}
+                                interval: params.interval.value }
                         ).then(function (seriesData) {
                             _.forIn(seriesData, function (data, signature) {
                                 var series = _.find(seriesChunk, { signature: signature });
@@ -277,7 +281,7 @@ treeherder.factory('PhCompare', [
                         return [
                             series.projectName,
                             series.signature, 1,
-                            series.frameworkId ];
+                            series.frameworkId];
                     }),
                     highlightedRevisions: _.map(resultSets, function (resultSet) {
                         return resultSet.revision.slice(0, 12);
@@ -296,8 +300,7 @@ treeherder.factory('PhCompare', [
                                                   resultSet.push_timestamp) < t;
                                       });
                               }));
-                    }
-                    else {
+                    } else {
                         graphsLink += '&timerange=' + timeRange;
                     }
                 }
@@ -324,8 +327,9 @@ treeherder.factory('PhCompare', [
                 var trendMap = { isEmpty: true };
 
                 // It's possible to get an object with empty values, so check for that too.
-                if (!baseData.delta && !newData.delta)
+                if (!baseData.delta && !newData.delta) {
                     return trendMap; // No data for either side
+                }
 
                 trendMap.isEmpty = false;
                 trendMap.name = baseData.name;

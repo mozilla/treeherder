@@ -11,84 +11,32 @@
     font-size: 12px;
 }
 
-.th-top-nav-options-panel .th-option-heading {
-    padding: 3px 10px;
-    background-color: #354048;;
-    color: white;
-}
-
-.th-inline-option-group {
-    display: inline-block;
-}
-
-.th-option-group {
-    margin-right: 5px;
-    border: 1px solid #101010;
-    border-radius: 5px;
-}
-
-.th-option-heading .th-panel-heading {
-    padding: 5px 10px;
-    background-color: #354048;
-}
-
-/*
- * Filter panel
- */
-
-#job-filter-value {
-    width: 150px;
-}
-
-#job-filter-choice-value {
-    width: 150px;
-}
-
-#job-filter-field {
-    width: 200px;
-}
-
-/* Will remove these when we redo the Filter panel layout in bug 1202003 */
-#filter .th-option-heading input {
-    margin: 0;
-}
-
-#filter .checkbox-inline input {
-    margin: 1px 0 0 -16px;
-}
-
-.field-filter-form {
-    border-top: 2px solid lightgray;
-    margin-top: 5px;
-    padding: 3px;
-    background-color: lightgray;
-}
-
-.field-filter {
-    margin: 3px;
-}
-
-.field-filter a, .th-option-heading a {
-    color: white;
-    cursor: pointer;
-}
-
-.field-filter-placeholder a {
-    cursor: pointer;
-}
-
 /*
  * Update notification panel
  */
 
 .update-alert-panel {
-    border-radius: 0px;
-    margin-bottom: 0px;
+    border-radius: 0;
+    margin-bottom: 0;
 }
 
 /*
  *  Active Filters panel
  */
 .active-filters-bar {
-    padding: 0px 15px 0px 15px;
+    padding: 5px 25px 5px 30px;
+}
+
+.active-filters-title {
+    padding-right: 15px;
+}
+
+.filtersbar-filter {
+    font-size: 12px;
+    padding-right: 12px;
+    display: inline-block;
+}
+
+.new-filter-input {
+    margin-top: 5px;
 }

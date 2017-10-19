@@ -201,7 +201,7 @@ a:visited {
   border-color: rgb(251, 216, 144);
 }
 
-.result-status-shading-coalesced {
+.result-status-shading-superseded {
   background-color: white;
 }
 
@@ -351,4 +351,14 @@ kbd {
   width: 1px;
   height: 1px;
   padding: 0px;
+}
+
+/*
+ * Fonts
+ *
+ * Styles for modifying basic font styles
+ */
+
+.pre {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }

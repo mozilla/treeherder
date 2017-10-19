@@ -14,7 +14,7 @@ treeherder.factory('ThJobModel', [
         ThJobModel.prototype.running_time_remaining = function () {
             var timestampNow = new Date().getTime()/1000;
             var current_duration = timestampNow - parseInt(this.start_timestamp);
-            return Math.round( (parseInt(this.running_eta) - current_duration) / 60);
+            return Math.round((parseInt(this.running_eta) - current_duration) / 60);
         };
 
         ThJobModel.prototype.get_average_duration = function () {
@@ -63,8 +63,8 @@ treeherder.factory('ThJobModel', [
             return $http.get(uri, {
                 params: options,
                 timeout: timeout
-            }).
-                then(function (response) {
+            })
+                .then(function (response) {
                     var item_list;
                     var next_pages_jobs = [];
                     // if the number of elements returned equals the page size, fetch the next pages
@@ -102,7 +102,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.get(ThJobModel.get_uri(repoName)+pk+"/",
-                             {timeout:timeout})
+                             { timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });
@@ -121,7 +121,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName)+"retrigger/",
-                              {job_id_list:job_id_list, timeout:timeout})
+                              { job_id_list: job_id_list, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });
@@ -132,7 +132,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName)+pk+"/backfill/",
-                              {timeout:timeout});
+                              { timeout: timeout });
         };
 
         ThJobModel.cancel = function (repoName, jobIds, config) {
@@ -140,7 +140,7 @@ treeherder.factory('ThJobModel', [
             var timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri(repoName) + "cancel/",
-                              {job_id_list: jobIds, timeout:timeout})
+                              { job_id_list: jobIds, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
                 });

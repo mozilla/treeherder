@@ -119,7 +119,7 @@ treeherder.component('thStaticClassificationOption', {
         optionData: '<',
         selectedOption: '<',
         numOptions: '<',
-        canClassify:  '<',
+        canClassify: '<',
         onExpandOptions: '&'
     }
 });
@@ -176,8 +176,8 @@ treeherder.controller('ThClassificationOptionController', [
                     search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
                     fullLog: () => logUrl,
                     parsedLog: () => location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
-                    reftest: () => thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : "",
-                    selectedJob:() => ctrl.thJob,
+                    reftest: () => (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
+                    selectedJob: () => ctrl.thJob,
                     allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
                     crashSignatures: () => crashSignatures,
                     successCallback: () => (data) => {
@@ -369,7 +369,7 @@ treeherder.controller('ThErrorLineController', [
             var bugSuggestionOptions = bugSuggestions
                     .filter(bug => !autoclassifiedBugs.has(bug.id))
                     .map(bugSuggestion => new ThClassificationOption("unstructuredBug",
-                                                                       line.id + "-" + "ub-" + bugSuggestion.id,
+                                                                       line.id + "-ub-" + bugSuggestion.id,
                                                                        null,
                                                                        bugSuggestion.id,
                                                                        bugSuggestion.summary,
@@ -678,8 +678,7 @@ treeherder.controller('ThErrorLineController', [
 
             if (!ctrl.canClassify) {
                 $scope.status = 'classification-disabled';
-            }
-            else if (line.verified) {
+            } else if (line.verified) {
                 $scope.status = 'verified';
             } else if (option.type === 'ignore') {
                 $scope.status = 'unverified-ignore';
@@ -690,7 +689,7 @@ treeherder.controller('ThErrorLineController', [
                 $scope.status = 'unverified';
             }
             if (oldStatus !== $scope.status) {
-                ctrl.onStatusChange({status: $scope.status});
+                ctrl.onStatusChange({ status: $scope.status });
             }
         }, true);
 
@@ -731,10 +730,10 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
         $scope.lineStatuses = new Map();
 
         $scope.titles = {
-            'verified': "Verified Line",
+            verified: "Verified Line",
             'unverified-ignore': "Unverified line, ignored",
             'unverified-no-bug': "Unverified line missing a bug number",
-            'unverified': "Unverified line",
+            unverified: "Unverified line",
             'classification-disabled': ""
         };
 
@@ -752,7 +751,7 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
                 }
                 elem = elem.parent();
             }
-            ctrl.onToggleSelect({lineIds: [id], clear: !event.ctrlKey});
+            ctrl.onToggleSelect({ lineIds: [id], clear: !event.ctrlKey });
         };
     }
 ]);
@@ -877,8 +876,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
         function build() {
             if (ctrl.thJob.state === "pending" || ctrl.thJob.state === "running") {
                 ctrl.loadStatus = "job_pending";
-            }
-            else if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
+            } else if (!ctrl.logsParsed || ctrl.autoclassifyStatus === "pending") {
                 ctrl.loadStatus = "pending";
             } else if (ctrl.logParsingFailed) {
                 ctrl.loadStatus = "failed";
@@ -948,9 +946,9 @@ treeherder.controller('ThAutoclassifyPanelController', [
             requestPromise = $q.defer();
 
             return $q.all({
-                "matchers": ThMatcherModel.by_id(),
-                "error_lines": ThTextLogErrorsModel.getList(ctrl.thJob.id,
-                                                            {timeout: requestPromise})
+                matchers: ThMatcherModel.by_id(),
+                error_lines: ThTextLogErrorsModel.getList(ctrl.thJob.id,
+                                                            { timeout: requestPromise })
             });
         }
 
@@ -963,7 +961,8 @@ treeherder.controller('ThAutoclassifyPanelController', [
             linesById = lines
                 .reduce((byId, line) => {
                     byId.set(line.id, new ThErrorLineData(line));
-                    return byId; }, linesById);
+                    return byId;
+                }, linesById);
             $scope.errorLines = Array.from(linesById.values());
             // Resort the lines to allow for in-place updates
             $scope.errorLines.sort((a, b) => a.data.id - b.data.id);
@@ -999,7 +998,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
             var jobs = {};
             jobs[ctrl.thJob.id] = ctrl.thJob;
             // Emit this event to get the main UI to update
-            $rootScope.$emit(thEvents.autoclassifyVerified, {jobs: jobs});
+            $rootScope.$emit(thEvents.autoclassifyVerified, { jobs: jobs });
         }
 
         /**
@@ -1100,7 +1099,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
             var minIndex = selectable.length ?
                     selectableIndexes
-                    .reduce((min, idx) => idx < min ? idx : min, $scope.errorLines.length) :
+                    .reduce((min, idx) => (idx < min ? idx : min), $scope.errorLines.length) :
                 null;
 
             var selected = $scope.selectedLines();

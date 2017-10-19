@@ -23,6 +23,7 @@ class JobLoader:
         "fail": "testfailed",
         "exception": "exception",
         "canceled": "usercancel",
+        "superseded": "superseded",
         "unknown": "unknown"
     }
     BUILD_RESULT_MAP = {
@@ -30,6 +31,7 @@ class JobLoader:
         "fail": "busted",
         "exception": "exception",
         "canceled": "usercancel",
+        "superseded": "superseded",
         "unknown": "unknown"
     }
     TIME_FIELD_MAP = {
@@ -91,14 +93,11 @@ class JobLoader:
             revision = Push.objects.values_list('revision', flat=True).get(
                 repository=repository,
                 revision_hash=pulse_job["origin"]["revision_hash"])
-            logger.warning(
-                "Pulse job had revision_hash instead of revision: {}:{}".format(
-                    pulse_job["origin"]["project"],
-                    pulse_job["origin"]["revision_hash"]
-                ))
             params = {
                 "project": pulse_job["origin"]["project"],
-                "revision_hash": pulse_job["origin"]["revision_hash"]
+                "taskId": pulse_job["taskId"],
+                "buildSystem": pulse_job["buildSystem"],
+                "jobName": pulse_job["display"]["jobName"],
             }
             newrelic.agent.record_custom_event("revision_hash_usage", params=params)
 
@@ -134,7 +133,7 @@ class JobLoader:
                 "log_references": self._get_log_references(pulse_job),
                 "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
-            "coalesced": pulse_job.get("coalesced", []),
+            "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"]
         }
 

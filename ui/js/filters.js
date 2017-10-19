@@ -71,10 +71,10 @@ treeherder.filter('linkifyBugs', function () {
         // Settings
         var bug_title = 'bugzilla.mozilla.org';
         var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
-            'data-bugid="$1" ' + 'title="' + bug_title + '">$1</a>';
+            'data-bugid="$1" title="' + bug_title + '">$1</a>';
         var pr_title = 'github.com';
         var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
-            'data-prid="$1" ' + 'title="' + pr_title + '">$1</a>';
+            'data-prid="$1" title="' + pr_title + '">$1</a>';
 
         if (bug_matches) {
             // Separate passes to preserve prefix
@@ -145,12 +145,12 @@ treeherder.filter('highlightCommonTerms', function () {
 treeherder.filter('escapeHTML', function () {
     return function (text) {
         if (text) {
-            return text.
-                replace(/&/g, '&amp;').
-                replace(/</g, '&lt;').
-                replace(/>/g, '&gt;').
-                replace(/'/g, '&#39;').
-                replace(/"/g, '&quot;');
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/'/g, '&#39;')
+                .replace(/"/g, '&quot;');
         }
         return '';
     };
@@ -195,5 +195,5 @@ treeherder.filter('absoluteValue', function () {
 
 treeherder.filter('abbreviatedNumber', ['numeral', function (numeral) {
     return input =>
-        (input.toString().length <= 5) ? input : numeral(input).format('0.0a');
+        ((input.toString().length <= 5) ? input : numeral(input).format('0.0a'));
 }]);

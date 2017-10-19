@@ -4,14 +4,10 @@ import pytest
 
 from tests import test_utils
 from tests.sample_data_generator import job_data
-from treeherder.etl.jobs import (_get_lower_tier_signatures,
-                                 _remove_existing_jobs,
+from treeherder.etl.jobs import (_remove_existing_jobs,
                                  store_job_data)
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (ExclusionProfile,
-                                     Job,
-                                     JobExclusion,
-                                     JobGroup,
+from treeherder.model.models import (Job,
                                      JobLog,
                                      Push)
 
@@ -274,44 +270,30 @@ def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_clas
     assert Job.objects.count() == 1
 
 
-def test_new_job_in_exclusion_profile(test_repository, failure_classifications, sample_data,
-                                      sample_push, mock_log_parser,
-                                      test_sheriff, push_stored):
-    for job in sample_data.job_data[:2]:
-        job["revision"] = push_stored[0]["revision"]
+def test_ingest_buildbot_tier1_job(test_repository, sample_data, sample_push,
+                                   failure_classifications, mock_log_parser):
+    """Tier is set to 1 if no lower_tier_signatures is used (ie: TaskCluster)"""
+    job_data = sample_data.job_data[:1]
+    store_push_data(test_repository, sample_push)
+    store_job_data(test_repository, job_data)
+    job = Job.objects.all().first()
+    assert job.tier == 1
 
-    job = sample_data.job_data[1]
-    platform = job["job"]["machine_platform"]["platform"]
-    arch = job["job"]["machine_platform"]["architecture"]
 
-    job_exclusion = JobExclusion.objects.create(
-        name="jobex",
-        info={
-            "platforms": ["{} ({})".format(platform, arch)],
-            "repos": [test_repository.name],
-            "option_collections": ["opt"],
-            "option_collection_hashes": ["102210fe594ee9b33d82058545b1ed14f4c8206e"],
-            "job_types": ["B2G Emulator Image Build (B)"]},
-        author=test_sheriff,
-    )
-    exclusion_profile = ExclusionProfile.objects.create(
-        name="Tier-2",
-        is_default=False,
-        author=test_sheriff,
-    )
-    exclusion_profile.exclusions.add(job_exclusion)
-    store_job_data(test_repository, sample_data.job_data[:2])
-
-    # We check all the jobs applying the exclusion profile
-    # If we find the excluded job, there is a problem
-    excluded_signatures = ExclusionProfile.objects.get_signatures_for_project(
-        test_repository.name, exclusion_profile.name)
-    obtained = Job.objects.all().exclude(
-        signature__signature__in=excluded_signatures)
-    assert job['job']['job_guid'] not in [ob.guid for ob in obtained]
-    lower_tier_signatures = _get_lower_tier_signatures(test_repository)
-    assert len(lower_tier_signatures) == 1
-    assert lower_tier_signatures[0]['tier'] == 2
+def test_ingest_buildbot_tier2_job(test_repository, sample_data, sample_push,
+                                   failure_classifications, mock_log_parser):
+    """Tier is set to 2 if it matches the signature object"""
+    job_data = sample_data.job_data[:1]
+    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
+    job = Job.objects.all().first()
+    lower_tier_signatures = {
+            job.signature.signature: 2
+    }
+    job_data_2 = copy.deepcopy(job_data)
+    job_data_2[0]['job']['job_guid'] = "foo"
+    store_job_data(test_repository, job_data_2, lower_tier_signatures)
+    job2 = Job.objects.get(guid="foo")
+    assert job2.tier == 2
 
 
 def test_ingesting_skip_existing(test_repository, failure_classifications, sample_data,
@@ -329,19 +311,21 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
                                            sample_data, mock_log_parser,
                                            push_stored):
     """
-    When a job_type is associated with a job group on data ingestion,
-    that association will not updated ingesting a new job with the same
-    job_type but different job_group
+    The job_type and job_group for a job is independent of any other job_type
+    and job_group combination.
     """
     first_job_datum = sample_data.job_data[0]
     first_job_datum["job"]["group_name"] = "first group name"
     first_job_datum["job"]["group_symbol"] = "1"
+    first_job_guid = "first-unique-job-guid"
+    first_job_datum["job"]["job_guid"] = first_job_guid
     first_job_datum["revision"] = push_stored[0]["revision"]
     store_job_data(test_repository, [first_job_datum])
+    first_job = Job.objects.get(guid=first_job_guid)
 
     second_job_datum = copy.deepcopy(first_job_datum)
     # create a new guid to ingest the job again
-    second_job_guid = "a-unique-job-guid"
+    second_job_guid = "second-unique-job-guid"
     second_job_datum["job"]["job_guid"] = second_job_guid
     second_job_datum["job"]["group_name"] = "second group name"
     second_job_datum["job"]["group_symbol"] = "2"
@@ -351,14 +335,8 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
 
     second_job = Job.objects.get(guid=second_job_guid)
 
-    first_job_group_name = first_job_datum["job"]["group_name"]
-    second_job_group_name = second_job.job_type.job_group.name
-
-    assert first_job_group_name == second_job_group_name
-
-    # make sure also we didn't create a new job group
-    with pytest.raises(JobGroup.DoesNotExist):
-        JobGroup.objects.get(name="second group name")
+    assert second_job.job_group.name == second_job_datum["job"]["group_name"]
+    assert first_job.job_group.name == first_job_datum["job"]["group_name"]
 
 
 def test_ingest_job_with_revision_hash(test_repository,

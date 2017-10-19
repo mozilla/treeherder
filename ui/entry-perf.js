@@ -1,4 +1,5 @@
 'use strict';
+
 // Webpack entry point for perf.html
 // Scripts and styles included here are automatically included on the page at build time
 
@@ -42,6 +43,7 @@ require('./js/models/repository.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');
 require('./js/models/resultset.js');
+require('./js/services/tcactions.js');
 require('./js/models/user.js');
 require('./js/models/error.js');
 require('./js/perf.js');

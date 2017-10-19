@@ -54,7 +54,6 @@ treeherder.factory('ThResultSetStore', [
             'tochange',
             'startdate',
             'enddate',
-            'exclusion_profile',
             'nojobs'
         ];
 
@@ -134,15 +133,13 @@ treeherder.factory('ThResultSetStore', [
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
                     resultSetIdList,
-                    $rootScope.repoName,
-                    _.pick($location.search(), ["exclusion_profile", "visibility"])
+                    $rootScope.repoName
                 ));
             } else {
                 jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
                     resultSetIdList,
                     $rootScope.repoName,
-                    lastJobUpdate,
-                    _.pick($location.search(), ["exclusion_profile", "visibility"]));
+                    lastJobUpdate);
             }
             lastPolltime = Date.now();
             jobUpdatesPromise
@@ -194,7 +191,7 @@ treeherder.factory('ThResultSetStore', [
                 // so we can pick the result_set_id from the first job
                 var resultSetId = jobList[0].result_set_id;
                 var resultSet = _.find(repositories[repoName].resultSets,
-                                       {id: resultSetId});
+                                       { id: resultSetId });
                 if (_.isUndefined(resultSet)) { return $q.defer().resolve(); }
                 if (_.has(resultSet, 'jobList')) {
                     // get the new job ids
@@ -258,7 +255,7 @@ treeherder.factory('ThResultSetStore', [
                 );
                 repositories[repoName] = {
 
-                    name:repoName,
+                    name: repoName,
 
                     // This keeps track of the selected job.  The selected job,
                     // when rendered, will be given a class of ``selected-job``,
@@ -267,20 +264,20 @@ treeherder.factory('ThResultSetStore', [
                     // selected job is being re-rendered, knowing which one is
                     // selected here in the model will allow us to apply the
                     // correct styling to it.
-                    lastJobObjSelected:{},
+                    lastJobObjSelected: {},
 
                     // maps to help finding objects to update/add
-                    rsMap:{},
-                    jobMap:{},
-                    grpMap:{},
+                    rsMap: {},
+                    jobMap: {},
+                    grpMap: {},
                     unclassifiedFailureMap: {},
                     // count of unclassified for the currently enabled tiers
                     unclassifiedFailureCountForTiers: 0,
                     // count of unclassified jobs within enabled tiers and filtered out
                     filteredUnclassifiedFailureCount: 0,
                     //used as the offset in paging
-                    rsMapOldestTimestamp:null,
-                    resultSets:[],
+                    rsMapOldestTimestamp: null,
+                    resultSets: [],
 
                     // this is "watchable" by the controller now to update its scope.
                     loadingStatus: {
@@ -317,7 +314,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getSelectedJob = function (repoName) {
             return {
-                job:repositories[repoName].lastJobObjSelected
+                job: repositories[repoName].lastJobObjSelected
             };
         };
 
@@ -338,7 +335,7 @@ treeherder.factory('ThResultSetStore', [
                 if (repoName !== "try") {
                     decisionTaskId = "";
                 }
-                return ThRunnableJobModel.get_list(repoName, {"decision_task_id": decisionTaskId}).then(function (jobList) {
+                return ThRunnableJobModel.get_list(repoName, { decision_task_id: decisionTaskId }).then(function (jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
@@ -664,7 +661,7 @@ treeherder.factory('ThResultSetStore', [
             platformName = job.platform;
             platformOption = job.platform_option;
 
-            if (_.isEmpty(repositories[repoName].rsMap[ resultsetId ])) {
+            if (_.isEmpty(repositories[repoName].rsMap[resultsetId])) {
                 //We don't have this resultset
                 return;
             }
@@ -696,14 +693,14 @@ treeherder.factory('ThResultSetStore', [
                     }
 
                     platformData[platformAggregateId] = {
-                        platformName:platformName,
-                        revision:revision,
-                        platformOrder:repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
-                        resultsetId:resultsetId,
-                        resultsetAggregateId:resultsetAggregateId,
-                        platformOption:platformOption,
-                        jobGroups:jobGroups,
-                        jobs:[]
+                        platformName: platformName,
+                        revision: revision,
+                        platformOrder: repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
+                        resultsetId: resultsetId,
+                        resultsetAggregateId: resultsetAggregateId,
+                        platformOption: platformOption,
+                        jobGroups: jobGroups,
+                        jobs: []
                     };
                 }
             }
@@ -873,8 +870,8 @@ treeherder.factory('ThResultSetStore', [
             if (rs && rs.revisions.length === 0) {
                 $log.debug("loadRevisions: check out to load revisions", rs, repoName);
                 // these revisions have never been loaded; do so now.
-                return ThResultSetModel.get(rs.revisions_uri).
-                    success(function (data) {
+                return ThResultSetModel.get(rs.revisions_uri)
+                    .success(function (data) {
 
                         if (rs.revisions.length === 0) {
                             Array.prototype.push.apply(rs.revisions, data);
@@ -934,13 +931,13 @@ treeherder.factory('ThResultSetStore', [
         var getGeckoDecisionJob = function (repoName, resultsetId) {
             let resultSet = getResultSet(repoName, resultsetId);
             let platform = _.find(resultSet.platforms, {
-                "name": "gecko-decision",
-                "groups": [{"jobs": [{"state": "completed", "job_type_symbol": "D"}]}]});
+                name: "gecko-decision",
+                groups: [{ jobs: [{ state: "completed", job_type_symbol: "D" }] }] });
             if (platform) {
                 // Gecko Decision Task has been completed.
                 // Let's fetch the URL of full-tasks-graph.json
                 // This extra search is important to avoid confusion with Action Tasks
-                return _.find(platform.groups[0].jobs, {"job_type_symbol": "D"});
+                return _.find(platform.groups[0].jobs, { job_type_symbol: "D" });
             }
 
             return undefined;
@@ -1024,9 +1021,9 @@ treeherder.factory('ThResultSetStore', [
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendResultSets(repoName, resultsets),
                      (data) => {
-                         thNotify.send("Error retrieving resultset data!", "danger", true);
+                         thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
                          $log.error(data);
-                         appendResultSets(repoName, {results: []});
+                         appendResultSets(repoName, { results: [] });
                      })
                 .then(() => {
                     // if ``nojobs`` is on the query string, then don't load jobs.
@@ -1037,8 +1034,7 @@ treeherder.factory('ThResultSetStore', [
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         _.map(resultsets.results, 'id'),
-                        repoName,
-                        _.pick($location.search(), ["exclusion_profile", "visibility"])
+                        repoName
                     );
                     $q.all(jobsPromiseList)
                         .then((resultSetJobList) => {
@@ -1089,7 +1085,7 @@ treeherder.factory('ThResultSetStore', [
             var selectedJobEl, key;
 
             if (selectedJobId) {
-                key = thAggregateIds.getJobMapKey({id: selectedJobId});
+                key = thAggregateIds.getJobMapKey({ id: selectedJobId });
                 selectedJobEl = repositories[repoName].jobMap[key];
 
                 // select the job in question
@@ -1120,7 +1116,7 @@ treeherder.factory('ThResultSetStore', [
                     }, function () {
                         // the job wasn't found in the db.  Either never existed,
                         // or was expired and deleted.
-                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", true);
+                        thNotify.send("Unable to find job with id " + selectedJobId, "danger", { sticky: true });
                     });
                 }
             }
@@ -1140,8 +1136,8 @@ treeherder.factory('ThResultSetStore', [
                 jobList,
                 function (memo, job) {
 
-                    // don't count coalesced
-                    if (!job.job_coalesced_to_guid) {
+                    // don't count superseded
+                    if (job.result !== 'superseded') {
                         memo[job.state]++;
                     }
                     return memo;
@@ -1163,7 +1159,7 @@ treeherder.factory('ThResultSetStore', [
                 }
                 tier = job.tier;
             }
-            return {name: name, tier: tier, symbol: symbol, mapKey: mapKey};
+            return { name: name, tier: tier, symbol: symbol, mapKey: mapKey };
         };
 
         /*
@@ -1173,7 +1169,7 @@ treeherder.factory('ThResultSetStore', [
          */
         var groupJobByPlatform = function (jobList) {
             var groupedJobs = {
-                platforms:[],
+                platforms: [],
                 job_counts: getJobCount(jobList)
             };
 

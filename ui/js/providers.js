@@ -9,7 +9,7 @@ treeherder.provider('thServiceDomain', function () {
 
 treeherder.provider('thResultStatusList', function () {
     var all = function () {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'coalesced', 'runnable'];
+        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
     };
 
     var defaultFilters = function () {
@@ -30,10 +30,6 @@ treeherder.provider('thResultStatus', function () {
             if (job.state === "completed") {
                 return job.result;
             }
-            // Coalesced jobs are marked as pending by the API, this will be fixed by bug 1132546.
-            if (job.job_coalesced_to_guid !== null) {
-                return 'coalesced';
-            }
             return job.state;
         };
     };
@@ -42,15 +38,15 @@ treeherder.provider('thResultStatus', function () {
 treeherder.provider('thResultStatusObject', function () {
     var getResultStatusObject = function () {
         return {
-            'running':0,
-            'pending':0,
-            'completed':0
+            running: 0,
+            pending: 0,
+            completed: 0
         };
     };
 
     this.$get = function () {
         return {
-            getResultStatusObject:getResultStatusObject
+            getResultStatusObject: getResultStatusObject
         };
     };
 });
@@ -120,10 +116,10 @@ treeherder.provider('thResultStatusInfo', function () {
                         countText: "pending"
                     };
                     break;
-                case "coalesced":
+                case "superseded":
                     resultStatusInfo = {
                         btnClass: "btn-ltblue",
-                        countText: "coalesced"
+                        countText: "superseded"
                     };
                     break;
             }
@@ -131,7 +127,7 @@ treeherder.provider('thResultStatusInfo', function () {
             // handle if a job is classified
             var classificationId = parseInt(failure_classification_id, 10);
             if (classificationId > 1) {
-                resultStatusInfo.btnClass = resultStatusInfo.btnClass + "-classified";
+                resultStatusInfo.btnClass += "-classified";
                 // autoclassification-only case
                 if (classificationId === 7) {
                     resultStatusInfo.btnClass += " autoclassified";
@@ -286,8 +282,8 @@ treeherder.provider('thAggregateIds', function () {
 
     this.$get = function () {
         return {
-            getPlatformRowId:getPlatformRowId,
-            getResultsetTableId:getResultsetTableId,
+            getPlatformRowId: getPlatformRowId,
+            getResultsetTableId: getResultsetTableId,
             getJobMapKey: getJobMapKey,
             getGroupMapKey: getGroupMapKey,
             escape: escape

@@ -1,4 +1,5 @@
 'use strict';
+
 // Webpack entry point for logviewer.html
 // Scripts and styles included here are automatically included on the page at build time
 require('./js/config');
@@ -32,6 +33,7 @@ require('./js/models/job_detail.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');
 require('./js/models/resultset.js');
+require('./js/services/tcactions.js');
 require('./js/models/text_log_step.js');
 require('./js/filters.js');
 require('./js/controllers/logviewer.js');

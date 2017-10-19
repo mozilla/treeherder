@@ -111,7 +111,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 project_specific_id: $scope.job_id
             }).then(function (jobList) {
                 if (jobList.length > 0) {
-                    $scope.job_id = jobList[0]['id'];
+                    $scope.job_id = jobList[0].id;
                 }
                 ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
                     // set the title of the browser window/tab
@@ -122,15 +122,15 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
 
                     // set the result value and shading color class
-                    $scope.result = {label: 'Result', value: job.result};
+                    $scope.result = { label: 'Result', value: job.result };
                     $scope.resultStatusShading = $scope.getShadingClass(job.result);
 
                     // other properties, in order of appearance
                     $scope.logProperties = [
-                        {label: 'Job', value: $scope.logViewerTitle},
-                        {label: 'Machine', value: job.machine_name},
-                        {label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat)},
-                        {label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat)}
+                        { label: 'Job', value: $scope.logViewerTitle },
+                        { label: 'Machine', value: job.machine_name },
+                        { label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat) },
+                        { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) }
                     ];
 
                     // Test to disable successful steps checkbox on taskcluster jobs
@@ -150,16 +150,16 @@ logViewerApp.controller('LogviewerCtrl', [
                     ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
                         const revision = data.data.revision;
 
-                        $scope.logProperties.push({label: 'Revision', value: revision});
+                        $scope.logProperties.push({ label: 'Revision', value: revision });
                     });
 
-                    ThJobDetailModel.getJobDetails({job_guid: job.job_guid}).then((jobDetails) => {
+                    ThJobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
                         $scope.job_details = jobDetails;
                     });
                 }, () => {
                     $scope.loading = false;
                     $scope.jobExists = false;
-                    thNotify.send('The job does not exist or has expired', 'danger', true);
+                    thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
                 });
             });
         };
@@ -182,7 +182,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                 // load the first failure step line else load the head
                 if (allErrors.length) {
-                    $scope.css = $scope.css + errorLinesCss(allErrors);
+                    $scope.css += errorLinesCss(allErrors);
 
                     if (!q.lineNumber) {
                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: $scope.css });
@@ -248,8 +248,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
             if (highlightStart !== highlightEnd) {
                 $location.search('lineNumber', `${highlightStart}-${highlightEnd}`).replace();
-            }
-            else if (highlightStart) {
+            } else if (highlightStart) {
                 $location.search('lineNumber', highlightStart).replace();
             } else {
                 $location.search('lineNumber', lineNumber).replace();
@@ -264,7 +263,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 if (!workerReady) {
                     workerReady = true;
 
-                    $scope.css = $scope.css + logCss();
+                    $scope.css += logCss();
                     $scope.logPostMessage({ customStyle: $scope.css });
                 }
 

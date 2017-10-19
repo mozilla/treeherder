@@ -1,4 +1,5 @@
 'use strict';
+
 // This is a run block which, when used on an angular module, loads all
 // of the partials in /ui/partials and /ui/plugins into the Angular
 // template cache. This means that ng-includes and templateUrls will not

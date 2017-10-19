@@ -6,7 +6,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         var suiteName = signatureProps.suite;
         var testName = signatureProps.test;
 
-        if (! (displayOptions && displayOptions.abbreviate)) {
+        if (!(displayOptions && displayOptions.abbreviate)) {
             // "summary" may appear for non-abbreviated output
             testName = testName || "summary";
         }
@@ -15,7 +15,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
     };
 
     var _getSeriesOptions = function (signatureProps, optionCollectionMap) {
-        var options = [ optionCollectionMap[signatureProps.option_collection_hash] ];
+        var options = [optionCollectionMap[signatureProps.option_collection_hash]];
         if (signatureProps.extra_options) {
             options = options.concat(signatureProps.extra_options);
         }
@@ -40,14 +40,14 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         var options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return {
-            id: signatureProps['id'],
+            id: signatureProps.id,
             name: _getSeriesName(signatureProps, optionCollectionMap),
             testName: _getTestName(signatureProps), // unadorned with platform/option info
-            suite: signatureProps['suite'],
-            test: signatureProps['test'] || null,
+            suite: signatureProps.suite,
+            test: signatureProps.test || null,
             signature: signature,
-            hasSubtests: signatureProps['has_subtests'] || false,
-            parentSignature: signatureProps['parent_signature'] || null,
+            hasSubtests: signatureProps.has_subtests || false,
+            parentSignature: signatureProps.parent_signature || null,
             projectName: projectName,
             platform: platform,
             options: options,
@@ -81,7 +81,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         },
         getSeriesData: function (projectName, params) {
             return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
-                             {params: params}).then(function (response) {
+                             { params: params }).then(function (response) {
                                  if (response.data) {
                                      return response.data;
                                  }
@@ -91,7 +91,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         getReplicateData: function (params) {
             params.value = 'perfherder-data.json';
             return $http.get(thServiceDomain + '/api/jobdetail/'
-                , {params: params}).then(
+                , { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {
                             let url = response.data.results[0].url;

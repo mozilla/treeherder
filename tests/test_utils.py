@@ -39,7 +39,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
     products_ref = set()
     pushes_ref = set()
     log_urls_ref = set()
-    coalesced_job_guids = {}
+    superseded_job_guids = {}
     artifacts_ref = {}
 
     blobs = []
@@ -96,9 +96,9 @@ def do_job_ingestion(test_repository, job_data, sample_push,
             if artifact_name:
                 artifacts_ref[artifact_name] = job.get('artifact')
 
-            coalesced = blob.get('coalesced', [])
-            if coalesced:
-                coalesced_job_guids[job_guid] = coalesced
+            superseded = blob.get('superseded', [])
+            if superseded:
+                superseded_job_guids[job_guid] = superseded
 
     # Store the modified json blobs
     store_job_data(test_repository, blobs)
@@ -113,7 +113,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
         verify_products(products_ref)
         verify_pushes(test_repository, pushes_ref)
         verify_log_urls(test_repository, log_urls_ref)
-        verify_coalesced(coalesced_job_guids)
+        verify_superseded(superseded_job_guids)
 
 
 def verify_build_platforms(build_platforms_ref):
@@ -183,23 +183,24 @@ def verify_log_urls(test_repository, log_urls_ref):
     assert log_urls_ref.issubset(log_urls)
 
 
-def verify_coalesced(coalesced_job_guids):
+def verify_superseded(superseded_job_guids):
 
-    coalesced_job_guid_list = coalesced_job_guids.keys()
+    superseded_job_guid_list = superseded_job_guids.keys()
 
-    if coalesced_job_guid_list:
-        coalesced_guids = models.Job.objects.filter(
-            coalesced_to_guid__in=coalesced_job_guid_list).values_list(
+    if superseded_job_guid_list:
+        superseded_guids = models.Job.objects.filter(
+            result='superseded',
+            coalesced_to_guid__in=superseded_job_guid_list).values_list(
                 'guid', 'coalesced_to_guid')
-        coalesced_job_guids_stored = {}
-        for (guid, coalesced_guid) in coalesced_guids:
-            if coalesced_guid not in coalesced_job_guids_stored:
-                coalesced_job_guids_stored[coalesced_guid] = []
-            coalesced_job_guids_stored[coalesced_guid].append(
+        superseded_job_guids_stored = {}
+        for (guid, superseded_guid) in superseded_guids:
+            if superseded_guid not in superseded_job_guids_stored:
+                superseded_job_guids_stored[superseded_guid] = []
+            superseded_job_guids_stored[superseded_guid].append(
                 guid
             )
 
-        assert coalesced_job_guids_stored == coalesced_job_guids
+        assert superseded_job_guids_stored == superseded_job_guids
 
 
 def load_exp(filename):
@@ -232,6 +233,7 @@ def create_generic_job(guid, repository, push_id, project_specific_id,
         machine=generic_reference_data.machine,
         option_collection_hash=generic_reference_data.option_collection_hash,
         job_type=generic_reference_data.job_type,
+        job_group=generic_reference_data.job_group,
         product=generic_reference_data.product,
         failure_classification_id=1,
         who='testuser@foo.com',

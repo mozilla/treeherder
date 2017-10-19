@@ -23,7 +23,7 @@ from treeherder.model.models import (BuildPlatform,
 logger = logging.getLogger(__name__)
 
 
-class AllthethingsTransformerMixin:
+class RunnableJobsTransformerMixin:
 
     def transform(self, extracted_content):
         logger.info('About to import allthethings.json builder data.')
@@ -40,7 +40,7 @@ class AllthethingsTransformerMixin:
         return jobs_per_branch
 
 
-class RunnableJobsProcess(AllthethingsTransformerMixin):
+class RunnableJobsProcess(RunnableJobsTransformerMixin):
 
     # XXX: Copied from refdata.py. What is the best place for this?
     def get_option_collection_hash(self, options):
@@ -86,7 +86,6 @@ class RunnableJobsProcess(AllthethingsTransformerMixin):
                 job_type, _ = JobType.objects.get_or_create(
                     name=datum['job_type_name'],
                     symbol=datum['job_type_symbol'],
-                    defaults={'job_group': job_group}
                 )
 
                 option_collection_hash = self.get_option_collection_hash(
@@ -165,7 +164,6 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
             'ref_data_name': label,
             'state': 'runnable',
             'result': 'runnable',
-            'job_coalesced_to_guid': None
             })
 
     return ret
@@ -180,7 +178,7 @@ def _buildbot_runnable_jobs(project):
     runnable_jobs = RunnableJob.objects.filter(
         repository=repository
     ).select_related('build_platform', 'machine_platform',
-                     'job_type', 'job_type__job_group')
+                     'job_type', 'job_group')
 
     # Adding buildbot jobs
     for datum in runnable_jobs:
@@ -196,10 +194,10 @@ def _buildbot_runnable_jobs(project):
             'platform': datum.machine_platform.platform,
             'machine_platform_os': datum.machine_platform.os_name,
             'machine_platform_architecture': datum.machine_platform.architecture,
-            'job_group_id': datum.job_type.job_group.id,
-            'job_group_name': datum.job_type.job_group.name,
-            'job_group_symbol': datum.job_type.job_group.symbol,
-            'job_group_description': datum.job_type.job_group.description,
+            'job_group_id': datum.job_group.id,
+            'job_group_name': datum.job_group.name,
+            'job_group_symbol': datum.job_group.symbol,
+            'job_group_description': datum.job_group.description,
             'job_type_id': datum.job_type.id,
             'job_type_name': datum.job_type.name,
             'job_type_symbol': datum.job_type.symbol,
@@ -210,7 +208,6 @@ def _buildbot_runnable_jobs(project):
             'platform_option': options,
             'result': 'runnable',
             'state': 'runnable',
-            'job_coalesced_to_guid': None
             })
 
     return ret

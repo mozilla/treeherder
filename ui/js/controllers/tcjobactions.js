@@ -3,12 +3,16 @@
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$http', '$uibModalInstance', 'ThResultSetStore',
     'ThJobDetailModel', 'thTaskcluster', 'ThTaskclusterErrors',
-    'thNotify', 'job', 'repoName', 'resultsetId', 'actionsRender',
+    'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
+    'jsyaml', 'Ajv', 'jsonSchemaDefaults',
     function ($scope, $http, $uibModalInstance, ThResultSetStore,
              ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
-             job, repoName, resultsetId, actionsRender) {
-        let jsonSchemaDefaults = require('json-schema-defaults');
+             job, repoName, resultsetId, tcactions, jsyaml, Ajv, jsonSchemaDefaults) {
+        const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
+        let decisionTaskId;
+        let originalTaskId;
         let originalTask;
+        let validate;
         $scope.input = {};
 
         $scope.cancel = function () {
@@ -17,9 +21,13 @@ treeherder.controller('TCJobActionsCtrl', [
 
         $scope.updateSelectedAction = function () {
             if ($scope.input.selectedAction.schema) {
-                $scope.input.jsonPayload = JSON.stringify(jsonSchemaDefaults($scope.input.selectedAction.schema), null, 4);
+                $scope.schema = jsyaml.safeDump($scope.input.selectedAction.schema);
+                $scope.input.payload = jsyaml.safeDump(jsonSchemaDefaults($scope.input.selectedAction.schema));
+                validate = ajv.compile($scope.input.selectedAction.schema);
             } else {
-                $scope.input.jsonPayload = undefined;
+                $scope.input.payload = undefined;
+                $scope.schema = undefined;
+                validate = undefined;
             }
         };
 
@@ -28,21 +36,53 @@ treeherder.controller('TCJobActionsCtrl', [
 
             let tc = thTaskcluster.client();
 
-            let actionTaskId = tc.slugid();
-            let actionTask = actionsRender($scope.input.selectedAction.task, _.defaults({}, {
-                taskGroupId: originalTask.taskGroupId,
-                taskId: job.taskcluster_metadata.task_id,
-                task: originalTask,
-                input: $scope.input.jsonPayload ? JSON.parse($scope.input.jsonPayload) : undefined,
-            }, $scope.staticActionVariables));
+            let input = null;
+            if (validate && $scope.input.payload) {
+                try {
+                    input = jsyaml.safeLoad($scope.input.payload);
+                } catch (e) {
+                    $scope.triggering = false;
+                    thNotify.send(`YAML Error: ${e.message}`, 'danger');
+                    return;
+                }
+                const valid = validate(input);
+                if (!valid) {
+                    $scope.triggering = false;
+                    thNotify.send(ajv.errorsText(validate.errors), 'danger');
+                    return;
+                }
+            }
 
-            let queue = new tc.Queue();
-            queue.createTask(actionTaskId, actionTask).then(function () {
-                $scope.$apply(thNotify.send("Custom action request sent successfully", 'success'));
+            let actionTaskId = tc.slugid();
+            tcactions.submit({
+                action: $scope.input.selectedAction,
+                actionTaskId,
+                decisionTaskId,
+                taskId: originalTaskId,
+                task: originalTask,
+                input,
+                staticActionVariables: $scope.staticActionVariables,
+            }).then(function () {
                 $scope.triggering = false;
+                let message = 'Custom action request sent successfully:';
+                let url = `https://tools.taskcluster.net/tasks/${actionTaskId}`;
+
+                // For the time being, we are redirecting specific actions to
+                // specific urls that are different than usual. At this time, we are
+                // only directing loaner tasks to the loaner UI in the tools site.
+                // It is possible that we may make this a part of the spec later.
+                const loaners = ['docker-worker-linux-loaner', 'generic-worker-windows-loaner'];
+                if (_.includes(loaners, $scope.input.selectedAction.name)) {
+                    message = 'Visit Taskcluster Tools site to access loaner:';
+                    url = `${url}/connect`;
+                }
+                $scope.$apply(thNotify.send(message, 'success', {
+                    linkText: 'Open in Taskcluster',
+                    url,
+                }));
                 $uibModalInstance.close('request sent');
             }, function (e) {
-                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
+                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
             });
@@ -55,45 +95,15 @@ treeherder.controller('TCJobActionsCtrl', [
             }
         });
 
-        let decisionTask = ThResultSetStore.getGeckoDecisionJob(repoName, resultsetId);
-        if (decisionTask) {
-            let originalTaskId = job.taskcluster_metadata.task_id;
-            $http.get('https://queue.taskcluster.net/v1/task/' + originalTaskId).then(
-                function (response) {
-                    originalTask = response.data;
-                    ThJobDetailModel.getJobDetails({
-                        job_id: decisionTask.id,
-                        title: 'artifact uploaded',
-                        value: 'actions.json'}).then(function (details) {
-                            if (!details.length) {
-                                alert("Could not find actions.json");
-                                return;
-                            }
-
-                            let actionsUpload = details[0];
-                            return $http.get(actionsUpload.url).then(function (response) {
-                                if (response.data.version !== 1) {
-                                    alert("Wrong version of actions.json, can't continue");
-                                    return;
-                                }
-                                $scope.staticActionVariables = response.data.variables;
-                                // only display actions which should be displayed
-                                // in this task's context
-                                $scope.actions = response.data.actions.filter(function (action) {
-                                    return action.kind === 'task' && (
-                                        !action.context.length || _.some((action.context).map(function (actionContext) {
-                                            return !Object.keys(actionContext).length || _.every(_.map(actionContext, function (v, k) {
-                                                return (originalTask.tags[k] === v);
-                                            }));
-                                        })));
-                                });
-                                $scope.input.selectedAction = $scope.actions[0];
-                                $scope.updateSelectedAction();
-                            });
-                        });
-                });
-        } else {
-            alert("No decision task, can't find taskcluster actions");
-        }
-
+        ThResultSetStore.getGeckoDecisionTaskId(repoName, resultsetId).then((dtId) => {
+            decisionTaskId = dtId;
+            tcactions.load(decisionTaskId, job).then((results) => {
+                originalTask = results.originalTask;
+                originalTaskId = results.originalTaskId;
+                $scope.actions = results.actions;
+                $scope.staticActionVariables = results.staticActionVariables;
+                $scope.input.selectedAction = $scope.actions[0];
+                $scope.updateSelectedAction();
+            });
+        });
     }]);

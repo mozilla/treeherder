@@ -23,8 +23,8 @@ treeherder.factory('ThJobTypeModel', [
             return $http.get(ThJobTypeModel.get_uri(), {
                 cache: true,
                 params: options
-            }).
-                then(function (response) {
+            })
+                .then(function (response) {
                     var item_list = [];
                     angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobTypeModel(elem));

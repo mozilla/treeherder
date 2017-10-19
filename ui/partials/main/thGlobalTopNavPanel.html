@@ -14,12 +14,38 @@
     </span>
 
     <span class="navbar-right">
-      <!-- Admin Button -->
-      <a class="btn btn-view-nav btn-right-navbar"
-            tabindex="0"
-            href="admin.html" target="_blank"
-            role="button"><span class="fa fa-wrench"></span> <span>Admin</span>
-      </a>
+      <!-- Notifications Menu -->
+      <span class="dropdown" ng-controller="NotificationCtrl">
+        <button id="notificationLabel" title="Recent notifications" role="button"
+                data-toggle="dropdown"
+                class="btn btn-view-nav btn-right-navbar nav-menu-btn">
+          <span class="fa fa-bell-o lightgray"></span>
+        </button>
+        <ul id="notification-dropdown" class="dropdown-menu" role="menu" aria-labelledby="notificationLabel">
+          <li role="presentation" class="dropdown-header" title="Notifications">
+            Recent notifications
+            <button class="btn btn-xs btn-default notification-dropdown-btn" title="Clear all notifications"
+                  ng-show="notifications().length" ng-click="clear()">Clear all</button>
+          </li>
+          <li ng-show="!notifications().length">
+            <span>No recent notifications</span>
+          </li>
+          <li class="notification-dropdown-line" ng-repeat="notification in notifications()"
+              ng-switch on="notification.severity">
+            <span title="{{::notification.message}} {{::notification.linkText}}">
+              <span ng-switch-when="danger" class="fa fa-ban text-danger"></span>
+              <span ng-switch-when="warning" class="fa fa-warning text-warning"></span>
+              <span ng-switch-when="info" class="fa fa-info-circle text-info"></span>
+              <span ng-switch-when="success" class="fa fa-check text-success"></span>
+              <span ng-switch-default></span>
+              <small class="text-muted">{{::notification.created | date:'short'}}</small>
+              {{::notification.message}}
+              <a ng-if="true" target="_blank"
+                 ng-href="{{notification.url}}">{{::notification.linkText}}</a>
+            </span>
+          </li>
+        </ul>
+      </span>
 
       <!-- Infra Menu -->
       <span class="dropdown">
@@ -54,17 +80,60 @@
         </span>
       </span>
 
-      <!-- Global Filter Button -->
-      <span class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-            title="Global job filters"
-            ng-class="{'active': (isFilterPanelShowing)}"
-            ng-click="setFilterPanelShowing(!isFilterPanelShowing)"
-            tabindex="0"
-            role="button"><span>Filters</span>
-        <i class="fa fa-angle-down lightgray"
-           ng-hide="isFilterPanelShowing"></i>
-        <i class="fa fa-angle-up lightgray"
-           ng-show="isFilterPanelShowing"></i>
+      <!-- Filters Menu -->
+      <span ng-controller="JobFilterCtrl" >
+        <span th-checkbox-dropdown-container class="dropdown">
+          <button id="filterLabel" title="Set filters" role="button"
+                  data-toggle="dropdown"
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn">Filters
+            <span class="fa fa-angle-down lightgray"></span>
+          </button>
+          <ul id="filter-dropdown"
+              class="dropdown-menu checkbox-dropdown-menu"
+              role="menu" aria-labelledby="filterLabel">
+            <span class="filtergroup" ng-repeat="(group_order, group) in filterGroups">
+              <li role="presentation" class="dropdown-header">
+                  {{::group.name}}
+                  <span class="fa fa-info-circle"></span>
+              </li>
+              <span ng-repeat="filterName in group.resultStatuses" >
+                <label class="{{::checkClass}} dropdown-item">
+                  <input type="checkbox"
+                         id="{{::filterName}}"
+                         ng-model="resultStatusFilters[filterName]"
+                         ng-change="toggleResultStatusFilter(filterName)"> {{::filterName}}
+                  </label>
+              </span>
+              <li class="dropdown-divider separator"></li>
+            </span>
+
+
+            <label class="dropdown-item">
+              <input type="checkbox"
+                     id="classified"
+                     ng-model="classifiedFilter"
+                     ng-click="toggleClassifiedFilter()"> classified
+            </label>
+            <label class="dropdown-item">
+              <input type="checkbox"
+                     id="unclassified"
+                     ng-model="unClassifiedFilter"
+                     ng-click="toggleUnClassifiedFilter()"> un-classified
+            </label>
+
+            <li class="dropdown-divider separator"></li>
+
+            <li title="Pin all jobs that pass the global filters"
+                class="dropdown-item"
+                ng-click="pinAllShownJobs()">Pin all showing</li>
+            <li title="Show only superseded jobs"
+                class="dropdown-item"
+                ng-click="thJobFilters.setOnlySuperseded()">Superseded only</li>
+            <li title="Reset to default status filters"
+                class="dropdown-item"
+                ng-click="thJobFilters.resetNonFieldFilters()">Reset</li>
+          </ul>
+        </span>
       </span>
 
       <!-- Help Menu -->
@@ -99,5 +168,4 @@
 
   </div>
   <ng-include class="watched-repo-navbar" src="'partials/main/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
-  <ng-include src="'partials/main/thFilterPanel.html'" ng-show="isFilterPanelShowing"></ng-include>
 </nav>

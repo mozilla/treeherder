@@ -1,4 +1,5 @@
 'use strict';
+
 // Webpack entry point for index.html
 // Scripts and styles included here are automatically included on the page at build time
 require('./js/config');
@@ -30,6 +31,7 @@ require('bootstrap/dist/js/bootstrap');
 require('angular-ui-bootstrap');
 require('mousetrap');
 require('js-yaml');
+require('angular-marked');
 require('react-dom');
 require('ngreact');
 require('jquery.scrollto');
@@ -62,8 +64,6 @@ require('./js/models/bug_job_map.js');
 require('./js/models/classification.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');
-require('./js/models/job_exclusion.js');
-require('./js/models/exclusion_profile.js');
 require('./js/models/build_platform.js');
 require('./js/models/job_type.js');
 require('./js/models/job_group.js');
@@ -81,6 +81,7 @@ require('./js/models/perf/series.js');
 require('./js/controllers/main.js');
 require('./js/controllers/settings.js');
 require('./js/controllers/repository.js');
+require('./js/controllers/notification.js');
 require('./js/controllers/filters.js');
 require('./js/controllers/jobs.js');
 require('./js/controllers/bugfiler.js');

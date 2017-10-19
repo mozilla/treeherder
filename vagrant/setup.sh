@@ -37,10 +37,10 @@ ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . /etc/profile.d/treeherder.sh
 
-if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
+if ! grep -qs 'node_8.x' /etc/apt/sources.list.d/nodesource.list; then
     echo '-----> Adding APT repository for Node.js'
     curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    echo 'deb https://deb.nodesource.com/node_7.x xenial main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+    echo 'deb https://deb.nodesource.com/node_8.x xenial main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/yarn.list ]]; then
@@ -57,7 +57,6 @@ sudo -E apt-get -yqq update
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
-    git \
     libmemcached-dev \
     libmysqlclient-dev \
     memcached \
@@ -103,7 +102,11 @@ pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt 
 echo '-----> Running yarn install'
 # We have to use `--no-bin-links` to work around symlink issues with Windows hosts.
 # TODO: Switch the flag to a global yarn pref once yarn adds support.
-yarn install --no-bin-links
+# The node version isn't pinned in Vagrant (unlike Heroku/Travis) so we have to use
+# --ignore-engines to prevent failures when there's a new release. This will be fixed
+# as part of the move to a Docker based development environment, where the non-APT approach
+# is much simpler.
+yarn install --no-bin-links --ignore-engines
 
 echo '-----> Initialising MySQL database'
 # Re-enable blank password root logins, which are disabled by default in MySQL 5.7.

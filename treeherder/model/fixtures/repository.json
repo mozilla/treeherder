@@ -304,7 +304,7 @@
         "dvcs_type": "hg",
         "name": "date",
         "url": "https://hg.mozilla.org/projects/date",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -395,7 +395,7 @@
         "dvcs_type": "hg",
         "name": "maple",
         "url": "https://hg.mozilla.org/projects/maple",
-        "active_status": "onhold",
+        "active_status": "active",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -925,7 +925,7 @@
         "dvcs_type": "hg",
         "name": "mozilla-esr45",
         "url": "https://hg.mozilla.org/releases/mozilla-esr45",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 2,
         "description": ""
@@ -938,7 +938,7 @@
         "dvcs_type": "hg",
         "name": "comm-esr45",
         "url": "https://hg.mozilla.org/releases/comm-esr45",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "comm",
         "repository_group": 8,
         "description": ""
@@ -1171,7 +1171,7 @@
     "fields": {
         "dvcs_type": "git",
         "name": "snippets-service",
-        "url": "https://github.com/mozmar/snippets-service",
+        "url": "https://github.com/mozmeao/snippets-service",
         "branch": "master",
         "active_status": "active",
         "codebase": "snippets-service",

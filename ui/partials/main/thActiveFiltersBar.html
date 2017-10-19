@@ -1,14 +1,62 @@
 <!-- Show this certain filters are active in Treeherder -->
-<div class="alert alert-info active-filters-bar" ng-show="showActiveFiltersBar()" ng-cloak>
-  <i class="fa fa-info-circle" aria-hidden="true"></i>
-  <span><b>Active Filters</b></span>
-
-  <span ng-repeat="filter in activeFiltersBarProperties" class="btn btn-sm"
-        ng-show="search()[filter]"
-        title="Click to clear the {{ filter }} filter"
-        ng-click="dropLocationSearchParam(filter)">
-      <span ng-if="filter == 'author'">{{ filter }}: {{search()[filter].split('@')[0] | limitTo: 20}}</span>
-      <span ng-if="filter !== 'author'">{{ filter }}: {{search()[filter] | limitTo: 12}}</span>
-      <i class="fa fa-times-circle"></i>
-  </span>
+<div ng-if="isFieldFilterVisible || filterBarFilters.length"
+     class="alert-info active-filters-bar">
+    <div ng-show="filterBarFilters.length" ng-cloak>
+      <span class="active-filters-title">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        <b>Active Filters</b>
+      </span>
+      <span ng-repeat="filter in filterBarFilters"
+            class="filtersbar-filter">
+          <span title="Filter by {{ filter.field}}: {{ filter.value }}">
+            <b>{{ filter.field }}:</b>
+            <span ng-if="filter.field === 'author'"> {{filter.value.split('@')[0] | limitTo: 20}}</span>
+            <span ng-if="filter.field !== 'author'"> {{filter.value | limitTo: 12}}</span>
+          </span>
+          <span class="pointable"
+                title="Click to clear {{ filter.field }}"
+                ng-click="jobFilters.removeFilter(filter.key, filter.value)">
+            <i class="fa fa-times-circle"></i>
+          </span>
+      </span>
+    </div>
+    <div ng-if="isFieldFilterVisible">
+      <form novalidate class="form-inline" role="form">
+        <div class="form-group input-group-sm new-filter-input">
+          <label class="sr-only" for="job-filter-field">Field</label>
+          <select id="job-filter-field"
+                  class="form-control"
+                  ng-model="newFieldFilter.field"
+                  ng-change="setFieldMatchType()"
+                  placeholder="filter field"
+                  required>
+            <option value="" disabled selected>select filter field</option>
+            <option ng-repeat="(field, obj) in fieldChoices"
+                    ng-if="obj.name !== 'tier'"
+                    value="{{::field}}">{{::obj.name}}</option>
+          </select>
+          <label class="sr-only" for="job-filter-value">Value</label>
+          <input ng-show="newFieldFilter.matchType!=='choice'"
+                 class="form-control"
+                 ng-model="newFieldFilter.value"
+                 id="job-filter-value"
+                 type="text"
+                 placeholder="enter filter value">
+          <label class="sr-only" for="job-filter-choice-value">Value</label>
+          <select ng-show="newFieldFilter.matchType==='choice'"
+                  class="form-control"
+                  ng-model="newFieldFilter.value"
+                  id="job-filter-choice-value">
+            <option value="" disabled selected>select value</option>
+            <option ng-repeat="(fci, fci_obj) in newFieldFilter.choices"
+                    value="{{::fci}}">{{::fci_obj.name}}</option>
+          </select>
+          <button type="submit"
+                  class="btn btn-default btn-sm"
+                  ng-click="addNewFieldFilter()">add</button>
+          <button class="btn btn-default btn-sm"
+                  ng-click="cancelNewFieldFilter()">cancel</button>
+        </div>
+      </form>
+    </div>
 </div>

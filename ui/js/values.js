@@ -1,17 +1,20 @@
 'use strict';
 
 treeherder.value("thPlatformMap", {
-    "linux32": "Linux",
+    linux32: "Linux",
     "linux32-devedition": "Linux DevEdition",
     "linux32-qr": "Linux QuantumRender",
     "linux32-nightly": "Linux Nightly",
-    "linux64": "Linux x64",
+    "linux32-stylo": "Linux Stylo",
+    "linux32-stylo-disabled": "Linux Stylo Disabled",
+    linux64: "Linux x64",
     "linux64-asan": "Linux x64 asan",
     "linux64-add-on-devel": "Linux x64 addon",
     "linux64-devedition": "Linux x64 DevEdition",
     "linux64-qr": "Linux x64 QuantumRender",
     "linux64-nightly": "Linux x64 Nightly",
     "linux64-stylo": "Linux x64 Stylo",
+    "linux64-stylo-disabled": "Linux x64 Stylo Disabled",
     "linux64-stylo-sequential": "Linux x64 Stylo-Seq",
     "linux64-ccov": "Linux x64 CCov",
     "linux64-jsdcov": "Linux x64 JSDCov",
@@ -34,15 +37,18 @@ treeherder.value("thPlatformMap", {
     "osx-cross-add-on-devel": "OS X Cross Compiled addon",
     "osx-cross-devedition": "OS X Cross Compiled DevEdition",
     "macosx64-stylo": "OS X 10.10 Stylo",
+    "macosx64-stylo-disabled": "OS X 10.10 Stylo Disabled",
     "macosx64-devedition": "OS X 10.10 DevEdition",
     "macosx64-nightly": "OS X 10.10 Nightly",
-    "windowsxp": "Windows XP",
+    windowsxp: "Windows XP",
     "windowsxp-devedition": "Windows XP DevEdition",
     "windows7-32": "Windows 7",
     "windows7-32-vm": "Windows 7 VM",
     "windows7-32-devedition": "Windows 7 DevEdition",
+    "windows7-32-stylo-disabled": "Windows 7 Stylo Disabled",
     "windows7-32-vm-devedition": "Windows 7 VM DevEdition",
     "windows7-32-nightly": "Windows 7 VM Nightly",
+    "windows7-32-stylo": "Windows 7 VM Stylo",
     "windows7-64": "Windows 7 x64",
     "windows8-32": "Windows 8",
     "windows8-64": "Windows 8 x64",
@@ -52,6 +58,8 @@ treeherder.value("thPlatformMap", {
     "windows10-64-vm": "Windows 10 x64 VM",
     "windows10-64-devedition": "Windows 10 x64 DevEdition",
     "windows10-64-nightly": "Windows 10 x64 Nightly",
+    "windows10-64-stylo": "Windows 10 x64 Stylo",
+    "windows10-64-stylo-disabled": "Windows 10 x64 Stylo Disabled",
     "windows2012-32": "Windows 2012",
     "windows2012-32-qr": "Windows 2012 QuantumRender",
     "windows2012-32-add-on-devel": "Windows 2012 addon",
@@ -82,6 +90,7 @@ treeherder.value("thPlatformMap", {
     "android-4-2": "Android 4.2",
     "android-4-2-armv7-api11": "Android 4.2 API11+",
     "android-4-2-armv7-api15": "Android 4.2 API15+",
+    "android-4-2-armv7-api16": "Android 4.2 API16+",
     "android-4-3": "Android 4.3",
     "android-4-3-armv7-api11": "Android 4.3 API11+",
     "android-4-3-armv7-api15": "Android 4.3 API15+",
@@ -89,20 +98,24 @@ treeherder.value("thPlatformMap", {
     "android-4-4": "Android 4.4",
     "android-4-4-armv7-api11": "Android 4.4 API11+",
     "android-4-4-armv7-api15": "Android 4.4 API15+",
+    "android-4-4-armv7-api16": "Android 4.4 API16+",
     "android-5-0-aarch64": "Android 5.0 AArch64",
     "android-5-0-armv7-api11": "Android 5.0 API11+",
     "android-5-0-armv7-api15": "Android 5.0 API15+",
     "android-5-0-armv8-api15": "Android 5.0 API15+",
+    "android-5-0-armv8-api16": "Android 5.0 API16+",
     "android-5-1-armv7-api15": "Android 5.1 API15+",
     "android-6-0-armv8-api15": "Android 6.0 API15+",
+    "android-6-0-armv8-api16": "Android 6.0 API16+",
     "android-7-1-armv8-api15": "Android 7.1 API15+",
+    "android-7-1-armv8-api16": "Android 7.1 API16+",
     "b2gdroid-4-0-armv7-api11": "B2GDroid 4.0 API11+",
     "b2gdroid-4-0-armv7-api15": "B2GDroid 4.0 API15+",
     "android-4-0-armv7-api11-partner1": "Android API11+ partner1",
     "android-4-0-armv7-api15-partner1": "Android API15+ partner1",
     "android-api-15-gradle": "Android API15+ Gradle",
     "android-api-16-gradle": "Android API16+ Gradle",
-    "Android": "Android",
+    Android: "Android",
 
     "b2g-linux32": "B2G Desktop Linux",
     "b2g-linux64": "B2G Desktop Linux x64",
@@ -113,9 +126,9 @@ treeherder.value("thPlatformMap", {
     "b2g-emu-kk": "B2G KK Emulator",
     "b2g-emu-x86-kk": "B2G KK Emulator x86",
     "b2g-emu-l": "B2G L Emulator",
-    "b2g-device-image" : "B2G Device Image",
-    "mulet-linux32" : "Mulet Linux",
-    "mulet-linux64" : "Mulet Linux x64",
+    "b2g-device-image": "B2G Device Image",
+    "mulet-linux32": "Mulet Linux",
+    "mulet-linux64": "Mulet Linux x64",
     "mulet-osx": "Mulet OS X",
     "mulet-win32": "Mulet Windows",
 
@@ -127,19 +140,19 @@ treeherder.value("thPlatformMap", {
     "horizon-win64": "Horizon Windows x64",
 
     "gecko-decision": "Gecko Decision Task",
-    "lint": "Linting",
+    lint: "Linting",
     "release-mozilla-release-": "Balrog Publishing",
-    "other": "Other"
+    other: "Other"
 });
 
 treeherder.value("thOptionOrder", {
-    "opt": 0,
-    "pgo": 1,
-    "asan": 2,
-    "tsan": 3,
-    "debug": 4,
-    "cc": 5,
-    "addon": 6
+    opt: 0,
+    pgo: 1,
+    asan: 2,
+    tsan: 3,
+    debug: 4,
+    cc: 5,
+    addon: 6
 });
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
@@ -147,20 +160,20 @@ treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
 treeherder.value("thTitleSuffixLimit", 70);
 
 treeherder.value("thFavicons", {
-    "closed": "img/tree_closed.png",
-    "open": "img/tree_open.png",
+    closed: "img/tree_closed.png",
+    open: "img/tree_open.png",
     "approval required": "img/tree_open.png",
-    "unavailable": "img/tree_open.png"
+    unavailable: "img/tree_open.png"
 });
 
 treeherder.value("thRepoGroupOrder", {
-    "development": 1,
+    development: 1,
     "release-stabilization": 2,
     "project repositories": 3,
     "comm-repositories": 4,
     "qa automation tests": 5,
-    "try": 6,
-    "taskcluster": 7
+    try: 6,
+    taskcluster: 7
 });
 
 treeherder.value("thDefaultRepo", "mozilla-inbound");
@@ -172,14 +185,14 @@ treeherder.value("phCompareDefaultOriginalRepo", "mozilla-central");
 treeherder.value("phCompareDefaultNewRepo", "try");
 
 treeherder.value("phTimeRanges", [
-      { "value":86400, "text": "Last day" },
-      { "value":86400*2, "text": "Last 2 days" },
-      { "value":604800, "text": "Last 7 days" },
-      { "value":1209600, "text": "Last 14 days" },
-      { "value":2592000, "text": "Last 30 days" },
-      { "value":5184000, "text": "Last 60 days" },
-      { "value":7776000, "text": "Last 90 days" },
-      { "value":31536000, "text": "Last year" } ]);
+      { value: 86400, text: "Last day" },
+      { value: 86400*2, text: "Last 2 days" },
+      { value: 604800, text: "Last 7 days" },
+      { value: 1209600, text: "Last 14 days" },
+      { value: 2592000, text: "Last 30 days" },
+      { value: 5184000, text: "Last 60 days" },
+      { value: 7776000, text: "Last 90 days" },
+      { value: 31536000, text: "Last year" }]);
 
 treeherder.value("phDefaultTimeRangeValue", 1209600);
 
@@ -188,11 +201,11 @@ treeherder.value("phTimeRangeValues", {
 });
 
 treeherder.value("phComparisonDate", [
-    { "value":0, "text": "Today" },
-    { "value":604800, "text": "1 week ago" },
-    { "value":1209600, "text": "2 weeks ago" },
-    { "value":2419200, "text": "4 weeks ago" },
-    { "value":3628800, "text": "6 weeks ago" }
+    { value: 0, text: "Today" },
+    { value: 604800, text: "1 week ago" },
+    { value: 1209600, text: "2 weeks ago" },
+    { value: 2419200, text: "4 weeks ago" },
+    { value: 3628800, text: "6 weeks ago" }
 ]);
 
 treeherder.value("phBlockers", {
@@ -202,8 +215,8 @@ treeherder.value("phBlockers", {
     "dromaeo_dom summary": 2.0,
     "glterrain summary": 5.0,
     "kraken summary": 2.0,
-    "sessionrestore": 5.0,
-    "sessionrestore_no_auto_restore": 5.0,
+    sessionrestore: 5.0,
+    sessionrestore_no_auto_restore: 5.0,
     "tart summary": 5.0,
     "tcanvasmark summary": 5.0,
     "tp5o % Processor Time": 2.0,
@@ -214,11 +227,11 @@ treeherder.value("phBlockers", {
     "tp5o responsiveness": 2.0,
     "tp5o summary": 5.0,
     "tp5o_scroll summary": 2.0,
-    "tpaint": 5.0,
+    tpaint: 5.0,
     "tps summary": 5.0,
-    "tresize": 5.0,
-    "ts_paint": 2.0,
-    "tscrollx": 2.0,
+    tresize: 5.0,
+    ts_paint: 2.0,
+    tscrollx: 2.0,
     "tsvgr_opacity summary": 5.0,
     "tsvgx summary": 5.0
 });
@@ -246,30 +259,30 @@ treeherder.value("phAlertStatusMap", {
 });
 
 treeherder.value("phTalosDocumentationMap", {
-    "a11yr": "a11y",
-    "cart": "TART.2FCART",
-    "damp": "DAMP",
-    "dromaeo_css": "Dromaeo_Tests",
-    "dromaeo_dom": "Dromaeo_Tests",
-    "sessionrestore": "sessionrestore.2Fsessionrestore_no_auto_restore",
-    "sessionrestore_no_auto_restore": "sessionrestore.2Fsessionrestore_no_auto_restore",
-    "tart": "TART.2FCART",
-    "tcanvasmark": "CanvasMark",
-    "tp5n_main_normal_fileio": "xperf",
-    "tp5n_main_normal_netio": "xperf",
-    "tp5n_main_startup_fileio": "xperf",
-    "tp5n_main_startup_netio": "xperf",
-    "tp5n_nonmain_normal_fileio": "xperf",
-    "tp5n_nonmain_normal_netio": "xperf",
-    "tp5n_nonmain_startup_fileio": "xperf",
-    "tp5o": "tp5",
+    a11yr: "a11y",
+    cart: "TART.2FCART",
+    damp: "DAMP",
+    dromaeo_css: "Dromaeo_Tests",
+    dromaeo_dom: "Dromaeo_Tests",
+    sessionrestore: "sessionrestore.2Fsessionrestore_no_auto_restore",
+    sessionrestore_no_auto_restore: "sessionrestore.2Fsessionrestore_no_auto_restore",
+    tart: "TART.2FCART",
+    tcanvasmark: "CanvasMark",
+    tp5n_main_normal_fileio: "xperf",
+    tp5n_main_normal_netio: "xperf",
+    tp5n_main_startup_fileio: "xperf",
+    tp5n_main_startup_netio: "xperf",
+    tp5n_nonmain_normal_fileio: "xperf",
+    tp5n_nonmain_normal_netio: "xperf",
+    tp5n_nonmain_startup_fileio: "xperf",
+    tp5o: "tp5",
     "tp5o_% processor time": ".25_CPU",
-    "tp5o_main_rss": "RSS_.28Resident_Set_Size.29",
+    tp5o_main_rss: "RSS_.28Resident_Set_Size.29",
     "tp5o_modified page list bytes": "Modified_Page_List_Bytes",
     "tp5o_private bytes": "Private_Bytes",
-    "tp5o_xres": "Xres_.28X_Resource_Monitoring.29",
-    "tsvgr_opacity": "tsvg-opacity",
-    "v8_7": "V8.2C_version_7"
+    tp5o_xres: "Xres_.28X_Resource_Monitoring.29",
+    tsvgr_opacity: "tsvg-opacity",
+    v8_7: "V8.2C_version_7"
 });
 
 treeherder.value("phTrySyntaxBuildPlatformMap", {
@@ -277,7 +290,7 @@ treeherder.value("phTrySyntaxBuildPlatformMap", {
     "osx-10-10": "macosx64",
     "windows7-32": "win32",
     "windows8-64": "win64",
-    "windowsxp": "win32"
+    windowsxp: "win32"
 });
 
 treeherder.value("phTrySyntaxTalosModifierMap", {
@@ -285,7 +298,7 @@ treeherder.value("phTrySyntaxTalosModifierMap", {
     "osx-10-10": "10.10",
     "windows7-32": "Windows 7",
     "windows8-64": "Windows 8",
-    "windowsxp": "Windows XP"
+    windowsxp: "Windows XP"
 });
 
 treeherder.value('mcTalosConfigUrl',
@@ -312,10 +325,6 @@ treeherder.value("thJobNavSelectors",
 treeherder.value("thPerformanceBranches", [
     "autoland", "mozilla-inbound"
 ]);
-
-treeherder.value("strReloadTreeherder",
-    "Reload Treeherder windows to see changes reflected."
-);
 
 treeherder.value("phDashboardValues",
     {

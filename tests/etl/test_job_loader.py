@@ -199,6 +199,15 @@ def test_transition_running_pending_stays_running(first_job,
     change_state_result(first_job, jl, "pending", "unknown", "running", "unknown")
 
 
+def test_transition_running_superseded(first_job,
+                                       failure_classifications,
+                                       mock_log_parser):
+    jl = JobLoader()
+
+    change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
+    change_state_result(first_job, jl, "completed", "superseded", "completed", "superseded")
+
+
 def test_transition_pending_retry_fail_stays_retry(first_job,
                                                    failure_classifications,
                                                    mock_log_parser):

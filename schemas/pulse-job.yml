@@ -178,6 +178,7 @@ properties:
       - fail
       - exception
       - canceled
+      - superseded
       - unknown
   jobKind:
     type: "string"

@@ -118,7 +118,7 @@ treeherder.controller('BugFilerCtrl', [
             summary = summary.replace(re, "");
             re = /jetpack-package\//gi;
             summary = summary.replace(re, "");
-            re = /xpcshell([-a-zA-Z]+)?.ini:/gi;
+            re = /xpcshell([-a-zA-Z0-9]+)?.ini:/gi;
             summary = summary.replace(re, "");
             summary = summary.replace("/_mozilla/", "mozilla/tests/");
             // We don't want to include "REFTEST" when it's an unexpected pass
@@ -227,9 +227,9 @@ treeherder.controller('BugFilerCtrl', [
                         $scope.searching = "DXR & Mercurial";
                         const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${$uibModalInstance.possibleFilename}&redirect=false&limit=5`;
                         // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
-                        $http.get(dxrlink, {"headers": {
-                            "Accept": "application/json"
-                        }}).then((secondRequest) => {
+                        $http.get(dxrlink, { headers: {
+                            Accept: "application/json"
+                        } }).then((secondRequest) => {
                             const results = secondRequest.data.results;
                             var resultsCount = results.length;
                             // If the search returns too many results, this probably isn't a good search term, so bail
@@ -246,7 +246,7 @@ treeherder.controller('BugFilerCtrl', [
                                             addProduct(suggested[0] + " :: " + suggested[1]);
                                         }
                                         // Only get rid of the throbber when all of these searches have completed
-                                        resultsCount = resultsCount - 1;
+                                        resultsCount -= 1;
                                         if (resultsCount === 0) {
                                             $scope.searching = false;
                                             injectProducts(failurePath);
@@ -375,19 +375,19 @@ treeherder.controller('BugFilerCtrl', [
                             "Content-Type": "application/json; charset=utf-8"
                         },
                         data: {
-                            "product": productString,
-                            "component": componentString,
-                            "summary": summarystring,
-                            "keywords": keywords,
-                            "version": version.name,
-                            "blocks": blocks,
-                            "depends_on": dependsOn,
-                            "see_also": seeAlso,
-                            "crash_signature": crashSignature,
-                            "severity": severity,
-                            "priority": priority,
-                            "comment": descriptionStrings,
-                            "comment_tags": "treeherder"
+                            product: productString,
+                            component: componentString,
+                            summary: summarystring,
+                            keywords: keywords,
+                            version: version.name,
+                            blocks: blocks,
+                            depends_on: dependsOn,
+                            see_also: seeAlso,
+                            crash_signature: crashSignature,
+                            severity: severity,
+                            priority: priority,
+                            comment: descriptionStrings,
+                            comment_tags: "treeherder"
                         }
                     });
                 })
@@ -395,7 +395,7 @@ treeherder.controller('BugFilerCtrl', [
                     var data = response.data;
                     if (data.failure) {
                         var error = JSON.parse(data.failure.join(""));
-                        thNotify.send("Bugzilla error: " + error.message, "danger", true);
+                        thNotify.send("Bugzilla error: " + error.message, "danger", { sticky: true });
                         $scope.toggleForm(false);
                     } else {
                         successCallback(data);

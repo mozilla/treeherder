@@ -23,8 +23,8 @@ treeherder.factory('thPinboard', [
                 ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
 
                 classification.job_id = job.id;
-                classification.create().
-                    success(function () {
+                classification.create()
+                    .success(function () {
                         thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function (data) {
                         var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
@@ -40,12 +40,12 @@ treeherder.factory('thPinboard', [
         var saveBugs = function (job) {
             _.forEach(relatedBugs, function (bug) {
                 var bjm = new ThBugJobMapModel({
-                    bug_id : bug.id,
+                    bug_id: bug.id,
                     job_id: job.id,
                     type: 'annotation'
                 });
-                bjm.create().
-                    success(function () {
+                bjm.create()
+                    .success(function () {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
                     }).error(function (data) {
                         var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
@@ -134,10 +134,10 @@ treeherder.factory('thPinboard', [
                 }
 
                 _.each(pinnedJobs, _.bind(saveClassification, classification));
-                $rootScope.$emit(thEvents.jobsClassified, {jobs: pinnedJobsClone});
+                $rootScope.$emit(thEvents.jobsClassified, { jobs: pinnedJobsClone });
 
                 _.each(pinnedJobs, saveBugs);
-                $rootScope.$emit(thEvents.bugsAssociated, {jobs: pinnedJobsClone});
+                $rootScope.$emit(thEvents.bugsAssociated, { jobs: pinnedJobsClone });
 
                 api.unPinAll();
             },
@@ -145,13 +145,13 @@ treeherder.factory('thPinboard', [
             // save the classification only on all pinned jobs
             saveClassificationOnly: function (classification) {
                 _.each(pinnedJobs, _.bind(saveClassification, classification));
-                $rootScope.$emit(thEvents.jobsClassified, {jobs: pinnedJobs});
+                $rootScope.$emit(thEvents.jobsClassified, { jobs: pinnedJobs });
             },
 
             // save bug associations only on all pinned jobs
             saveBugsOnly: function () {
                 _.each(pinnedJobs, saveBugs);
-                $rootScope.$emit(thEvents.bugsAssociated, {jobs: pinnedJobs});
+                $rootScope.$emit(thEvents.bugsAssociated, { jobs: pinnedJobs });
             },
 
             hasPinnedJobs: function () {

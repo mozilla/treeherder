@@ -8,13 +8,13 @@ treeherder.factory('thClassificationTypes', [
         var classificationOptions = [];
 
         var classificationColors = {
-            1: "",                 // not classified
-            2: "label-info",       // expected fail",
-            3: "label-success",    // fixed by backout",
-            4: "label-warning",    // intermittent",
-            5: "label-default",    // infra",
-            6: "label-danger",     // intermittent needs filing",
-            7: "label-warning"     // autoclassified intermittent
+            1: "", // not classified
+            2: "label-info", // expected fail",
+            3: "label-success", // fixed by backout",
+            4: "label-warning", // intermittent",
+            5: "label-default", // infra",
+            6: "label-danger", // intermittent needs filing",
+            7: "label-warning" // autoclassified intermittent
         };
 
         var addClassification = function (cl) {
@@ -26,8 +26,8 @@ treeherder.factory('thClassificationTypes', [
         };
 
         var load = function () {
-            return $http.get(thUrl.getRootUrl("/failureclassification/"), {cache: true}).
-                success(function (data) {
+            return $http.get(thUrl.getRootUrl("/failureclassification/"), { cache: true })
+                .success(function (data) {
                     _.forEach(data, addClassification);
                 });
         };

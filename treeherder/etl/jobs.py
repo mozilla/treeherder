@@ -12,7 +12,6 @@ from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
 from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (BuildPlatform,
-                                     ExclusionProfile,
                                      FailureClassification,
                                      Job,
                                      JobDuration,
@@ -28,8 +27,6 @@ from treeherder.model.models import (BuildPlatform,
                                      ReferenceDataSignatures,
                                      TaskclusterMetadata)
 
-LOWER_TIERS = [2, 3]
-
 logger = logging.getLogger(__name__)
 
 
@@ -38,28 +35,6 @@ def _get_number(s):
         return long(s)
     except (ValueError, TypeError):
         return 0
-
-
-def _get_lower_tier_signatures(repository):
-    # get the lower tier data signatures for this project.
-    # if there are none, then just return an empty list
-    # this keeps track of them order (2, then 3) so that the latest
-    # will have precedence.  If a job signature is in both Tier-2 and
-    # Tier-3, then it will end up in Tier-3.
-    lower_tier_signatures = []
-    for tier_num in LOWER_TIERS:
-        try:
-            signatures = ExclusionProfile.objects.get_signatures_for_project(
-                repository.name, "Tier-{}".format(tier_num))
-            lower_tier_signatures.append({
-                'tier': tier_num,
-                'signatures': signatures
-            })
-        except ExclusionProfile.DoesNotExist:
-            # no exclusion profile for this tier
-            pass
-
-    return lower_tier_signatures
 
 
 def _remove_existing_jobs(data):
@@ -139,20 +114,13 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     machine, _ = Machine.objects.get_or_create(
         name=job_datum.get('machine', 'unknown'))
 
-    # if a job with this symbol and name exists, always
-    # use its default group (even if that group is different
-    # from that specified)
     job_type, _ = JobType.objects.get_or_create(
         symbol=job_datum.get('job_symbol') or 'unknown',
         name=job_datum.get('name') or 'unknown')
-    if job_type.job_group:
-        job_group = job_type.job_group
-    else:
-        job_group, _ = JobGroup.objects.get_or_create(
-            name=job_datum.get('group_name') or 'unknown',
-            symbol=job_datum.get('group_symbol') or 'unknown')
-        job_type.job_group = job_group
-        job_type.save(update_fields=['job_group'])
+
+    job_group, _ = JobGroup.objects.get_or_create(
+        name=job_datum.get('group_name') or 'unknown',
+        symbol=job_datum.get('group_symbol') or 'unknown')
 
     product_name = job_datum.get('product_name', 'unknown')
     if len(product_name.strip()) == 0:
@@ -214,24 +182,15 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
             'option_collection_hash': option_collection_hash
         })
 
-    if created:
-        # A new ReferenceDataSignature has been added, so we need
-        # to reload lower tier exclusions
-        lower_tier_signatures = _get_lower_tier_signatures(repository)
-
     tier = job_datum.get('tier') or 1
-    # job tier signatures override the setting from the job structure
-    # Check the signatures list for any supported lower tiers that have
-    # an active exclusion profile.
 
     result = job_datum.get('result', 'unknown')
 
-    # As stated elsewhere, a job will end up in the lowest tier where its
-    # signature belongs.  So if a signature is in Tier-2 and Tier-3, it
-    # will end up in 3.
-    for tier_info in lower_tier_signatures:
-        if signature_hash in tier_info["signatures"]:
-            tier = tier_info["tier"]
+    # Job tier signatures override the setting from the job structure
+    # Check the signatures list for any supported lower tiers that should
+    # have an overridden tier.
+    if lower_tier_signatures and signature_hash in lower_tier_signatures:
+        tier = lower_tier_signatures[signature_hash]
 
     try:
         duration = JobDuration.objects.values_list(
@@ -266,6 +225,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
                 "machine": machine,
                 "option_collection_hash": option_collection_hash,
                 "job_type": job_type,
+                "job_group": job_group,
                 "product": product,
                 "failure_classification": default_failure_classification,
                 "who": who,
@@ -308,6 +268,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         machine=machine,
         option_collection_hash=option_collection_hash,
         job_type=job_type,
+        job_group=job_group,
         product=product,
         failure_classification=default_failure_classification,
         who=who,
@@ -421,7 +382,7 @@ def _schedule_log_parsing(job, job_logs, result):
                            args=[job.id, job_log_ids, priority])
 
 
-def store_job_data(repository, data):
+def store_job_data(repository, data, lower_tier_signatures=None):
     """
     Store job data instances into jobs db
 
@@ -472,7 +433,7 @@ def store_job_data(repository, data):
                     blob:""
                 }],
             },
-            "coalesced": []
+            "superseded": []
         },
         ...
     ]
@@ -487,9 +448,7 @@ def store_job_data(repository, data):
     if not data:
         return
 
-    coalesced_job_guid_placeholders = []
-
-    lower_tier_signatures = _get_lower_tier_signatures(repository)
+    superseded_job_guid_placeholders = []
 
     for datum in data:
         try:
@@ -500,7 +459,7 @@ def store_job_data(repository, data):
             # job consumer, then the data will always be vetted with a
             # JSON schema before we get to this point.
             job = datum['job']
-            coalesced = datum.get('coalesced', [])
+            superseded = datum.get('superseded', [])
 
             # For a time, we need to backward support jobs submited with either a
             # ``revision_hash`` or a ``revision``.  Eventually, we will
@@ -529,10 +488,10 @@ def store_job_data(repository, data):
             (job_guid, reference_data_signature) = _load_job(
                 repository, job, push_id, lower_tier_signatures)
 
-            for coalesced_guid in coalesced:
-                coalesced_job_guid_placeholders.append(
-                    # coalesced to guid, coalesced guid
-                    [job_guid, coalesced_guid]
+            for superseded_guid in superseded:
+                superseded_job_guid_placeholders.append(
+                    # superseded by guid, superseded guid
+                    [job_guid, superseded_guid]
                 )
         except Exception as e:
             # we should raise the exception if DEBUG is true, or if
@@ -549,9 +508,12 @@ def store_job_data(repository, data):
             # skip any jobs that hit errors in these stages.
             continue
 
-    # set the job_coalesced_to_guid column for any coalesced
-    # job found
-    if coalesced_job_guid_placeholders:
-        for (job_guid, coalesced_to_guid) in coalesced_job_guid_placeholders:
-            Job.objects.filter(guid=coalesced_to_guid).update(
+    # Update the coalesced_to_guid columns for any superseded job found.
+    # Also update state and result.
+    # TODO: Consider removing this in Bug 1402992.
+    if superseded_job_guid_placeholders:
+        for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
+            Job.objects.filter(guid=superseded_by_guid).update(
+                result='superseded',
+                state='completed',
                 coalesced_to_guid=job_guid)

@@ -8,7 +8,7 @@ treeherder.controller('PluginCtrl', [
     'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml',
+    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml', 'tcactions',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
@@ -17,7 +17,7 @@ treeherder.controller('PluginCtrl', [
         ThResultSetModel, ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, thTaskcluster, jsyaml) {
+        thServiceDomain, thTaskcluster, jsyaml, tcactions) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -119,15 +119,15 @@ treeherder.controller('PluginCtrl', [
                 $scope.job_details = [];
                 var jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
-                    {timeout: selectJobPromise});
+                    { timeout: selectJobPromise });
 
                 var jobDetailPromise = ThJobDetailModel.getJobDetails(
-                    {job_guid: job.job_guid},
-                    {timeout: selectJobPromise});
+                    { job_guid: job.job_guid },
+                    { timeout: selectJobPromise });
 
                 var jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job.id,
-                    {timeout: selectJobPromise});
+                    { timeout: selectJobPromise });
 
                 var phSeriesPromise = PhSeries.getSeriesData(
                     $scope.repoName, { job_id: job.id });
@@ -161,13 +161,13 @@ treeherder.controller('PluginCtrl', [
                     // incorporate the buildername into the job details if this is a buildbot job
                     // (i.e. it has a buildbot request id)
                     var buildbotRequestIdDetail = _.find($scope.job_details,
-                                                   {title: 'buildbot_request_id'});
+                                                   { title: 'buildbot_request_id' });
                     if (buildbotRequestIdDetail) {
                         $scope.job_details = $scope.job_details.concat({
                             title: "Buildername",
                             value: $scope.job.ref_data_name
                         });
-                        $scope.buildernameIndex = _.findIndex($scope.job_details, {title: "Buildername"});
+                        $scope.buildernameIndex = _.findIndex($scope.job_details, { title: "Buildername" });
                     }
 
                     // the third result comes from the jobLogUrl promise
@@ -211,15 +211,16 @@ treeherder.controller('PluginCtrl', [
                         })).then(function () {
                             _.forEach(seriesList, function (series) {
                                 // skip series which are subtests of another series
-                                if (series.parentSignature)
+                                if (series.parentSignature) {
                                     return;
+                                }
                                 var detail = {
                                     url: thServiceDomain + '/perf.html#/graphs?series=[' + [
                                         $scope.repoName, series.signature, 1,
                                         series.frameworkId
                                     ] + ']&selected=[' + [
                                         $scope.repoName, series.signature,
-                                        $scope.job['result_set_id'], $scope.job['id']
+                                        $scope.job.result_set_id, $scope.job.id
                                     ] + ']',
                                     value: performanceData[series.signature][0].value,
                                     title: series.name
@@ -247,7 +248,7 @@ treeherder.controller('PluginCtrl', [
                 duration = "";
             // fields that will show in the job detail panel
             $scope.visibleFields = {
-                "Build": $scope.job.build_architecture + " " +
+                Build: $scope.job.build_architecture + " " +
                          $scope.job.build_platform + " " +
                          $scope.job.build_os || undef,
                 "Job name": $scope.job.job_type_name || undef
@@ -351,9 +352,9 @@ treeherder.controller('PluginCtrl', [
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function () {
                     // XXX: Remove this after 1134929 is resolved.
                     return ThJobDetailModel.getJobDetails({
-                        "title": "buildbot_request_id",
-                        "repository": $scope.repoName,
-                        "job_id__in": job_id_list.join(',')
+                        title: "buildbot_request_id",
+                        repository: $scope.repoName,
+                        job_id__in: job_id_list.join(',')
                     }).then(function (data) {
                         var requestIdList = _.map(data, 'value');
                         requestIdList.forEach(function (requestId) {
@@ -373,71 +374,93 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.backfillJob = function () {
-            if ($scope.canBackfill()) {
-                if ($scope.user.loggedin) {
-                    if ($scope.job.id) {
-                        if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
-                            ThResultSetStore.getGeckoDecisionTaskId(
-                                $scope.repoName,
-                                $scope.resultsetId).then(function (decisionTaskId) {
-                                    let tc = thTaskcluster.client();
-                                    let queue = new tc.Queue();
-                                    let url = "";
-                                    try {
-                                        // buildSignedUrl is documented at
-                                        // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
-                                        // It is necessary here because getLatestArtifact assumes it is getting back
-                                        // JSON as a reponse due to how the client library is constructed. Since this
-                                        // result is yml, we'll fetch it manually using $http and can use the url
-                                        // returned by this method.
-                                        url = queue.buildSignedUrl(
-                                            queue.getLatestArtifact,
-                                            decisionTaskId,
-                                            'public/action.yml'
-                                        );
-                                    } catch (e) {
-                                        let errorMsg = 'Missing Taskcluster credentials! Please log out and back in again.';
-                                        thNotify.send(errorMsg, 'danger', true);
-                                        return;
-                                    }
-                                    $http.get(url).then(function (resp) {
-                                        let action = resp.data;
-                                        let template = $interpolate(action);
-                                        action = template({
-                                            action: 'backfill',
-                                            action_args: '--project ' + $scope.repoName + ' --job ' + $scope.job.id,
-                                        });
-                                        let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-                                        let taskId = tc.slugid();
-                                        queue.createTask(taskId, task).then(function () {
-                                            $scope.$apply(thNotify.send("Request sent to backfill jobs", 'success'));
-                                        }, function (e) {
-                                            // The full message is too large to fit in a Treeherder
-                                            // notification box.
-                                            $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', true));
-                                        });
+            if (!$scope.canBackfill()) {
+                return;
+            }
+            if (!$scope.user.loggedin) {
+                thNotify.send("Must be logged in to backfill a job", 'danger');
+                return;
+            }
+            if (!$scope.job.id) {
+                thNotify.send("Job not yet loaded for backfill", 'warning');
+                return;
+            }
+
+            if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
+                ThResultSetStore.getGeckoDecisionTaskId(
+                    $scope.repoName,
+                    $scope.resultsetId).then(function (decisionTaskId) {
+                        return tcactions.load(decisionTaskId, $scope.job).then((results) => {
+                            const tc = thTaskcluster.client();
+                            const actionTaskId = tc.slugid();
+                            if (results) {
+                                const backfilltask = _.find(results.actions, { name: 'backfill' });
+                                // We'll fall back to actions.yaml if this isn't true
+                                if (backfilltask) {
+                                    return tcactions.submit({
+                                        action: backfilltask,
+                                        actionTaskId,
+                                        decisionTaskId,
+                                        taskId: results.originalTaskId,
+                                        task: results.originalTask,
+                                        input: {},
+                                        staticActionVariables: results.staticActionVariables,
+                                    }).then(function () {
+                                        $scope.$apply(thNotify.send(`Request sent to backfill job via actions.json (${actionTaskId})`, 'success'));
+                                    }, function (e) {
+                                        // The full message is too large to fit in a Treeherder
+                                        // notification box.
+                                        $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                                     });
+                                }
+                            }
+
+                            // Otherwise we'll figure things out with actions.yml
+                            const queue = new tc.Queue();
+
+                            // buildUrl is documented at
+                            // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
+                            // It is necessary here because getLatestArtifact assumes it is getting back
+                            // JSON as a reponse due to how the client library is constructed. Since this
+                            // result is yml, we'll fetch it manually using $http and can use the url
+                            // returned by this method.
+                            let url = queue.buildUrl(
+                                queue.getLatestArtifact,
+                                decisionTaskId,
+                                'public/action.yml'
+                            );
+                            $http.get(url).then(function (resp) {
+                                let action = resp.data;
+                                let template = $interpolate(action);
+                                action = template({
+                                    action: 'backfill',
+                                    action_args: '--project=' + $scope.repoName + ' --job=' + $scope.job.id,
                                 });
-                        } else {
-                            ThJobModel.backfill(
-                                $scope.repoName,
-                                $scope.job.id
-                            ).then(function () {
-                                thNotify.send("Request sent to backfill jobs", 'success');
-                            }, function (e) {
-                                // Generic error eg. the user doesn't have LDAP access
-                                thNotify.send(
-                                    ThModelErrors.format(e, "Unable to send backfill"),
-                                    'danger'
-                                );
+
+                                let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                queue.createTask(actionTaskId, task).then(function () {
+                                    $scope.$apply(thNotify.send(`Request sent to backfill job via actions.yml (${actionTaskId})`, 'success'));
+                                }, function (e) {
+                                    // The full message is too large to fit in a Treeherder
+                                    // notification box.
+                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                                });
                             });
-                        }
-                    } else {
-                        thNotify.send("Job not yet loaded for backfill", 'warning');
-                    }
-                } else {
-                    thNotify.send("Must be logged in to backfill a job", 'danger');
-                }
+                        });
+                    });
+            } else {
+                ThJobModel.backfill(
+                    $scope.repoName,
+                    $scope.job.id
+                ).then(function () {
+                    thNotify.send("Request sent to backfill jobs", 'success');
+                }, function (e) {
+                    // Generic error eg. the user doesn't have LDAP access
+                    thNotify.send(
+                        ThModelErrors.format(e, "Unable to send backfill"),
+                        'danger'
+                    );
+                });
             }
         };
 
@@ -581,7 +604,7 @@ treeherder.controller('PluginCtrl', [
         // load the list of existing classifications (including possibly a new one just
         // added).
         $scope.updateClassifications = function () {
-            ThJobClassificationModel.get_list({job_id: $scope.job.id}).then(function (response) {
+            ThJobClassificationModel.get_list({ job_id: $scope.job.id }).then(function (response) {
                 $scope.classifications = response;
                 $scope.job.note = $scope.classifications[0];
             });
@@ -636,7 +659,7 @@ treeherder.controller('PluginCtrl', [
             // it might in fact not have been
             var jobs = {};
             jobs[$scope.job.id] = $scope.job;
-            $rootScope.$emit(thEvents.jobsClassified, {jobs: jobs});
+            $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
         });
 
         $scope.pinboard_service = thPinboard;

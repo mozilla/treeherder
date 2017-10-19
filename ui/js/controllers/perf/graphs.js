@@ -11,7 +11,7 @@ perf.controller('GraphsCtrl', [
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
-        $scope.highlightedRevisions = [ undefined, undefined ];
+        $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
 
@@ -143,7 +143,7 @@ perf.controller('GraphsCtrl', [
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
-                    retriggers: (retriggerNum['retrigger'] - 1),
+                    retriggers: (retriggerNum.retrigger - 1),
                     alertSummary: alertSummary,
                     revisionInfoAvailable: true,
                     alert: alert
@@ -198,12 +198,23 @@ perf.controller('GraphsCtrl', [
                     // get new tip position after transform
                     tipPosition = getTipPosition(tip, x, y, 10);
                     if (tip.css('visibility') === 'hidden') {
-                        tip.css({ opacity: 0, visibility: 'visible', left: tipPosition.left,
-                            top: tipPosition.top + 10 });
-                        tip.animate({ opacity: 1, left: tipPosition.left,
-                            top: tipPosition.top }, 250);
+                        tip.css({
+                            opacity: 0,
+                            visibility: 'visible',
+                            left: tipPosition.left,
+                            top: tipPosition.top + 10,
+                        });
+                        tip.animate({
+                            opacity: 1,
+                            left: tipPosition.left,
+                            top: tipPosition.top
+                        }, 250);
                     } else {
-                        tip.css({ opacity: 1, left: tipPosition.left, top: tipPosition.top });
+                        tip.css({
+                            opacity: 1,
+                            left: tipPosition.left,
+                            top: tipPosition.top,
+                        });
                     }
                 });
             }, 250);
@@ -259,7 +270,7 @@ perf.controller('GraphsCtrl', [
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
                     $scope.selectedDataPoint.id);
-                flotDataPoint = flotDataPoint ? flotDataPoint : selectedSeries.flotSeries.resultSetData.indexOf(
+                flotDataPoint = flotDataPoint || selectedSeries.flotSeries.resultSetData.indexOf(
                     $scope.selectedDataPoint.resultSetId);
                 $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
             }
@@ -287,7 +298,7 @@ perf.controller('GraphsCtrl', [
                 opts.min = ranges.yaxis.from;
                 opts.max = ranges.yaxis.to;
             });
-            $scope.zoom = {'x': [ranges.xaxis.from, ranges.xaxis.to], 'y': [ranges.yaxis.from, ranges.yaxis.to]};
+            $scope.zoom = { x: [ranges.xaxis.from, ranges.xaxis.to], y: [ranges.yaxis.from, ranges.yaxis.to] };
 
             $scope.plot.setupGrid();
             $scope.plot.draw();
@@ -336,27 +347,27 @@ perf.controller('GraphsCtrl', [
 
         function zoomGraph() {
             // If either x or y exists then there is zoom set in the variable
-            if ($scope.zoom['x']) {
+            if ($scope.zoom.x) {
                 if (_.find($scope.seriesList, function (series) { return series.visible; })) {
                     $.each($scope.plot.getXAxes(), function (_, axis) {
                         var opts = axis.options;
-                        opts.min = $scope.zoom['x'][0];
-                        opts.max = $scope.zoom['x'][1];
+                        opts.min = $scope.zoom.x[0];
+                        opts.max = $scope.zoom.x[1];
                     });
                     $.each($scope.plot.getYAxes(), function (_, axis) {
                         var opts = axis.options;
-                        opts.min = $scope.zoom['y'][0];
-                        opts.max = $scope.zoom['y'][1];
+                        opts.min = $scope.zoom.y[0];
+                        opts.max = $scope.zoom.y[1];
                     });
                     $scope.plot.setupGrid();
                     $scope.overviewPlot.setSelection({
                         xaxis: {
-                            from: $scope.zoom['x'][0],
-                            to: $scope.zoom['x'][1]
+                            from: $scope.zoom.x[0],
+                            to: $scope.zoom.x[1]
                         },
                         yaxis: {
-                            from: $scope.zoom['y'][0],
-                            to: $scope.zoom['y'][1]
+                            from: $scope.zoom.y[0],
+                            to: $scope.zoom.y[1]
                         }
                     }, true);
                     $scope.overviewPlot.draw();
@@ -442,7 +453,7 @@ perf.controller('GraphsCtrl', [
                     {
                         xaxis: { mode: 'time' },
                         series: { shadowSize: 0 },
-                        selection: { mode: 'xy', color: '#97c6e5'},
+                        selection: { mode: 'xy', color: '#97c6e5' },
                         lines: { show: false },
                         points: { show: true },
                         legend: { show: false },
@@ -476,8 +487,7 @@ perf.controller('GraphsCtrl', [
 
                 $("#graph").on("plothover", function (event, pos, item) {
                     // if examining an item, disable this behaviour
-                    if ($scope.selectedDataPoint)
-                        return;
+                    if ($scope.selectedDataPoint) return;
 
                     $('#graph').css({ cursor: item ? 'pointer' : '' });
 
@@ -536,8 +546,9 @@ perf.controller('GraphsCtrl', [
                     $scope.seriesList[0].platform +
                         " (" + $scope.seriesList[0].projectName +
                         ")");
-                if ($scope.seriesList.length > 1)
+                if ($scope.seriesList.length > 1) {
                     window.document.title += " and others";
+                }
             } else {
                 window.document.title = $state.current.title;
             }
@@ -558,13 +569,13 @@ perf.controller('GraphsCtrl', [
                     if ((typeof $scope.zoom.x !== "undefined")
                         && (typeof $scope.zoom.y !== "undefined")
                         && ($scope.zoom.x !== 0 && $scope.zoom.y !== 0)) {
-                        var modifiedZoom = ("[" + ($scope.zoom['x'].toString()
-                                + ',' + $scope.zoom['y'].toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
+                        var modifiedZoom = ("[" + ($scope.zoom.x.toString()
+                                + ',' + $scope.zoom.y.toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
                         return modifiedZoom;
                     }
                     $scope.zoom = [];
                     return $scope.zoom;
-                })(),
+                }()),
                 selected: (function () {
                     return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
                         $scope.selectedDataPoint.signature,
@@ -572,7 +583,7 @@ perf.controller('GraphsCtrl', [
                         $scope.selectedDataPoint.id,
                         $scope.selectedDataPoint.frameworkId]
                         + "]" : undefined;
-                })()
+                }())
             }, {
                 location: true,
                 inherit: true,
@@ -623,11 +634,10 @@ perf.controller('GraphsCtrl', [
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
             return $q.all(partialSeriesList.map(function (partialSeries) {
-                let params = {framework: partialSeries.frameworkId};
+                let params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
-                }
-                else {
+                } else {
                     params.signature = partialSeries.signature;
                 }
                 return PhSeries.getSeriesList(
@@ -723,11 +733,11 @@ perf.controller('GraphsCtrl', [
         ThRepositoryModel.load().then(function () {
             if ($stateParams.timerange) {
                 var timeRange = _.find(phTimeRanges,
-                    {'value': parseInt($stateParams.timerange)});
+                    { value: parseInt($stateParams.timerange) });
                 $scope.myTimerange = timeRange;
             } else {
                 $scope.myTimerange = _.find(phTimeRanges,
-                    {'value': phDefaultTimeRangeValue});
+                    { value: phDefaultTimeRangeValue });
             }
             $scope.timeRangeChanged = function () {
                 $scope.loadingGraphs = true;
@@ -746,8 +756,8 @@ perf.controller('GraphsCtrl', [
                 var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
                 var zoomArray = zoomString.split(",");
                 var zoomObject = {
-                    "x": zoomArray.slice(0, 2),
-                    "y": zoomArray.slice(2, 4)
+                    x: zoomArray.slice(0, 2),
+                    y: zoomArray.slice(2, 4)
                 };
                 $scope.zoom = (zoomString) ? zoomObject : [];
             } else {
@@ -763,7 +773,7 @@ perf.controller('GraphsCtrl', [
                     $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
                 }
                 if ($stateParams.highlightedRevisions) {
-                    if (typeof($stateParams.highlightedRevisions) === 'string') {
+                    if (typeof ($stateParams.highlightedRevisions) === 'string') {
                         $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
                     } else {
                         $scope.highlightedRevisions = $stateParams.highlightedRevisions;
@@ -778,8 +788,8 @@ perf.controller('GraphsCtrl', [
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
                     var partialSeriesArray = partialSeriesString.split(",");
                     var partialSeriesObject = {
-                        project:  partialSeriesArray[0],
-                        signature:  partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
+                        project: partialSeriesArray[0],
+                        signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
                         id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
                         visible: partialSeriesArray[2] !== 0,
                         frameworkId: partialSeriesArray[3]
@@ -815,7 +825,7 @@ perf.controller('GraphsCtrl', [
                 }
 
                 if (option !== undefined) {
-                    var series = _.find($scope.seriesList, {signature: seriesSignature});
+                    var series = _.find($scope.seriesList, { signature: seriesSignature });
                     options = { option: option, relatedSeries: series };
                 }
 
@@ -894,7 +904,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = _.find(projects, {
-            name: defaultProjectName ? defaultProjectName : thDefaultRepo
+            name: defaultProjectName || thDefaultRepo
         });
         $scope.includeSubtests = false;
         $scope.loadingTestData = false;
@@ -987,7 +997,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
             var branchList = [];
             thPerformanceBranches.forEach(function (branch) {
                 if (branch !== originalSeries.projectName) {
-                    branchList.push(_.find($scope.projects, {name: branch}));
+                    branchList.push(_.find($scope.projects, { name: branch }));
                 }
             });
             // get each project's series data from remote and use promise to
@@ -1087,7 +1097,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     }
                     PhSeries.getSeriesList(
                         $scope.selectedProject.name,
-                        { interval: $scope.timeRange, platform: $scope.selectedPlatform,
+                        { interval: $scope.timeRange,
+                            platform: $scope.selectedPlatform,
                             framework: $scope.selectedFramework.id,
                             subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
                                 $scope.unselectedTestList = _.sortBy(

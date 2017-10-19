@@ -10,19 +10,15 @@ from hashlib import sha1
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
-from django.db.models import (Case,
-                              Count,
+from django.db.models import (Count,
                               F,
-                              Q,
-                              When)
+                              Q)
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from jsonfield import JSONField
 
 from .search import (TestFailureLine,
                      es_connected)
@@ -80,7 +76,7 @@ class RepositoryGroup(NamedModel):
 @python_2_unicode_compatible
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
-    repository_group = models.ForeignKey('RepositoryGroup')
+    repository_group = models.ForeignKey('RepositoryGroup', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True, db_index=True)
     dvcs_type = models.CharField(max_length=25, db_index=True)
     url = models.CharField(max_length=255)
@@ -109,7 +105,7 @@ class Push(models.Model):
     A push should contain one or more commit objects, representing
     the changesets that were part of the push
     '''
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     revision_hash = models.CharField(max_length=50, null=True)  # legacy
     # revision can be null if revision_hash defined ^^
     revision = models.CharField(max_length=40, null=True)
@@ -125,35 +121,25 @@ class Push(models.Model):
         return "{0} {1}".format(
             self.repository.name, self.revision)
 
-    def get_status(self, exclusion_profile="default"):
+    def get_status(self):
         '''
         Gets a summary of what passed/failed for the push
         '''
         jobs = Job.objects.filter(push=self).filter(
             Q(failure_classification__isnull=True) |
             Q(failure_classification__name='not classified')).exclude(tier=3)
-        if exclusion_profile:
-            try:
-                signature_list = ExclusionProfile.objects.get_signatures_for_project(
-                    self.repository.name, exclusion_profile)
-                jobs.exclude(signature__signature__in=signature_list)
-            except ExclusionProfile.DoesNotExist:
-                pass
 
         status_dict = {}
-        total_num_coalesced = 0
-        for (state, result, total, num_coalesced) in jobs.values_list(
+        for (state, result, total) in jobs.values_list(
                 'state', 'result').annotate(
-                    total=Count('result')).annotate(
-                        num_coalesced=Count(Case(When(
-                            coalesced_to_guid__isnull=False, then=1)))):
-            total_num_coalesced += num_coalesced
+                    total=Count('result')):
             if state == 'completed':
-                status_dict[result] = total - num_coalesced
+                status_dict[result] = total
             else:
                 status_dict[state] = total
-        if total_num_coalesced:
-            status_dict['coalesced'] = total_num_coalesced
+        if 'superseded' in status_dict:
+            # backward compatability for API consumers
+            status_dict['coalesced'] = status_dict['superseded']
 
         return status_dict
 
@@ -163,7 +149,7 @@ class Commit(models.Model):
     '''
     A single commit in a push
     '''
-    push = models.ForeignKey(Push, related_name='commits')
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='commits')
     revision = models.CharField(max_length=40)
     author = models.CharField(max_length=150)
     comments = models.TextField()
@@ -301,7 +287,7 @@ class OptionCollectionManager(models.Manager):
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40)
-    option = models.ForeignKey(Option, db_index=True)
+    option = models.ForeignKey(Option, on_delete=models.CASCADE, db_index=True)
 
     objects = OptionCollectionManager()
 
@@ -325,7 +311,6 @@ class OptionCollection(models.Model):
 @python_2_unicode_compatible
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
-    job_group = models.ForeignKey(JobGroup, null=True, blank=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -343,150 +328,6 @@ class FailureClassification(NamedModel):
 
     class Meta:
         db_table = 'failure_classification'
-
-
-# exclusion profiles models
-
-class JobExclusion(models.Model):
-
-    """
-    A filter represents a collection of properties
-    that you want to filter jobs on. These properties along with their values
-    are kept in the info field in json format
-    """
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True)
-    info = JSONField()
-    author = models.ForeignKey(User)
-
-    def save(self, *args, **kwargs):
-        super(JobExclusion, self).save(*args, **kwargs)
-
-        # trigger the save method on all the profiles related to this exclusion
-        for profile in self.profiles.all():
-            profile.save()
-
-    class Meta:
-        db_table = 'job_exclusion'
-
-
-class ExclusionProfileManager(models.Manager):
-    """
-    Convenience functions for operations on groups of exclusion profiles
-    """
-
-    def get_signatures_for_project(self, repository_name,
-                                   exclusion_profile_name):
-        cache_key = ExclusionProfile.get_signature_cache_key(
-            exclusion_profile_name, repository_name)
-        cached_signatures = cache.get(cache_key)
-        if cached_signatures is not None:
-            return cached_signatures
-
-        signatures = set([])
-        try:
-            if exclusion_profile_name == "default":
-                profile = self.get(is_default=True)
-            else:
-                profile = self.get(name=exclusion_profile_name)
-            signatures = set(profile.get_flat_exclusions(repository_name))
-        except KeyError:
-            # this repo/project has no hidden signatures
-            pass
-
-        cache.set(cache_key, signatures)
-
-        return signatures
-
-
-class ExclusionProfile(models.Model):
-
-    """
-    An exclusion profile represents a list of job exclusions that can be associated with a user profile.
-    """
-    name = models.CharField(max_length=255, unique=True)
-    is_default = models.BooleanField(default=False, db_index=True)
-    exclusions = models.ManyToManyField(JobExclusion, related_name="profiles")
-    author = models.ForeignKey(User, related_name="exclusion_profiles_authored", db_index=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    objects = ExclusionProfileManager()
-
-    @staticmethod
-    def get_signature_cache_key(exclusion_profile_name, repository_name):
-        return "exclusion-profile-signatures-{}-{}".format(
-            exclusion_profile_name, repository_name)
-
-    def save(self, *args, **kwargs):
-        super(ExclusionProfile, self).save(*args, **kwargs)
-
-        # update the old default profile
-        if self.is_default:
-            ExclusionProfile.objects.filter(is_default=True).exclude(
-                id=self.id).update(is_default=False)
-
-        # invalidate any existing exclusion profile cache lookups
-        cache_entries_to_delete = [
-            self.get_signature_cache_key(self.name, repository.name)
-            for repository in Repository.objects.all()
-        ]
-        cache.delete_many(cache_entries_to_delete)
-
-    def get_flat_exclusions(self, repository_name):
-        # this is necessary because the ``job_types`` come back in the form of
-        # ``Mochitest (18)`` or ``Reftest IPC (Ripc)`` so we must split these
-        # back out.
-        # same deal for ``platforms``
-        # todo: update if/when chunking policy changes
-        # when we change chunking, we will likely only get back the name,
-        # so we'll just compare that to the ``job_type_name`` field.
-        def split_combo(combos):
-            list1 = []
-            list2 = []
-            for combo in combos:
-                first, sep, second = combo.rpartition(' (')
-                list1.append(first)
-                list2.append(second.rstrip(')'))
-            return list1, list2
-
-        query = None
-        for exclusion in self.exclusions.all():
-            info = exclusion.info
-            option_collection_hashes = info['option_collection_hashes']
-            job_type_names, job_type_symbols = split_combo(info['job_types'])
-            platform_names, platform_arch = split_combo(info['platforms'])
-            new_query = Q(repository__in=info['repos'],
-                          machine_platform__in=platform_names,
-                          job_type_name__in=job_type_names,
-                          job_type_symbol__in=job_type_symbols,
-                          option_collection_hash__in=option_collection_hashes)
-            query = (query | new_query) if query else new_query
-
-        if not query:
-            return []
-
-        return ReferenceDataSignatures.objects.filter(
-            query, repository=repository_name).values_list(
-                'signature', flat=True)
-
-    class Meta:
-        db_table = 'exclusion_profile'
-
-
-class UserExclusionProfile(models.Model):
-
-    """
-    An extension to the standard user model that keeps the exclusion
-    profile relationship.
-    """
-
-    user = models.ForeignKey(User, related_name="exclusion_profiles")
-    exclusion_profile = models.ForeignKey(ExclusionProfile, blank=True, null=True)
-    is_default = models.BooleanField(default=True, db_index=True)
-
-    class Meta:
-        db_table = 'user_exclusion_profile'
-        unique_together = ('user', 'exclusion_profile')
 
 
 class ReferenceDataSignatures(models.Model):
@@ -521,19 +362,6 @@ class ReferenceDataSignatures(models.Model):
         verbose_name_plural = 'reference data signatures'
         unique_together = ('name', 'signature', 'build_system_type', 'repository')
 
-    def save(self, *args, **kwargs):
-        super(ReferenceDataSignatures, self).save(*args, **kwargs)
-
-        # if we got this far, it indicates we added or changed something,
-        # so we need to invalidate any existing exclusion profile
-        # cache lookups corresponding to this reference data signature's
-        # repository
-        cache_entries_to_delete = [
-            ExclusionProfile.get_signature_cache_key(name, self.repository)
-            for name in ExclusionProfile.objects.values_list('name', flat=True)
-        ]
-        cache.delete_many(cache_entries_to_delete)
-
 
 class JobDuration(models.Model):
     """
@@ -542,7 +370,7 @@ class JobDuration(models.Model):
     These are updated periodically by the calculate_durations task.
     """
     signature = models.CharField(max_length=50)
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     average_duration = models.PositiveIntegerField()
 
     class Meta:
@@ -647,7 +475,7 @@ class Job(models.Model):
     This class represents a build or test job in Treeherder
     """
     INCOMPLETE_STATES = ["running", "pending"]
-    STATES = INCOMPLETE_STATES + ["completed", "coalesced"]
+    STATES = INCOMPLETE_STATES + ["completed"]
 
     objects = JobManager()
 
@@ -665,21 +493,22 @@ class Job(models.Model):
                              (SKIPPED, 'skipped'),
                              (FAILED, 'failed'))
 
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     guid = models.CharField(max_length=50, unique=True)
     project_specific_id = models.PositiveIntegerField(null=True)
     autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
-    signature = models.ForeignKey(ReferenceDataSignatures)
-    build_platform = models.ForeignKey(BuildPlatform, related_name='jobs')
-    machine_platform = models.ForeignKey(MachinePlatform)
-    machine = models.ForeignKey(Machine)
+    signature = models.ForeignKey(ReferenceDataSignatures, on_delete=models.CASCADE)
+    build_platform = models.ForeignKey(BuildPlatform, on_delete=models.CASCADE, related_name='jobs')
+    machine_platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     option_collection_hash = models.CharField(max_length=64)
-    job_type = models.ForeignKey(JobType, related_name='jobs')
-    product = models.ForeignKey(Product)
-    failure_classification = models.ForeignKey(FailureClassification, related_name='jobs')
+    job_type = models.ForeignKey(JobType, on_delete=models.CASCADE, related_name='jobs')
+    job_group = models.ForeignKey(JobGroup, on_delete=models.CASCADE, related_name='jobs')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    failure_classification = models.ForeignKey(FailureClassification, on_delete=models.CASCADE, related_name='jobs')
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
@@ -692,7 +521,7 @@ class Job(models.Model):
     running_eta = models.PositiveIntegerField(null=True, default=None)
     tier = models.PositiveIntegerField()
 
-    push = models.ForeignKey(Push, related_name='jobs')
+    push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='jobs')
 
     class Meta:
         db_table = 'job'
@@ -852,7 +681,7 @@ class JobDetail(models.Model):
     '''
 
     id = models.BigAutoField(primary_key=True)
-    job = models.ForeignKey(Job, related_name="job_details")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="job_details")
     title = models.CharField(max_length=70, null=True)
     value = models.CharField(max_length=125)
     url = models.URLField(null=True, max_length=512)
@@ -883,7 +712,7 @@ class JobLog(models.Model):
                 (PARSED, 'parsed'),
                 (FAILED, 'failed'))
 
-    job = models.ForeignKey(Job, related_name="job_log")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="job_log")
     name = models.CharField(max_length=50)
     url = models.URLField(max_length=255)
     status = models.IntegerField(choices=STATUSES, default=PENDING)
@@ -912,10 +741,10 @@ class BugJobMap(models.Model):
     '''
     id = models.BigAutoField(primary_key=True)
 
-    job = models.ForeignKey(Job)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
     bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
-    user = models.ForeignKey(User, null=True)  # null if autoclassified
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     class Meta:
         db_table = "bug_job_map"
@@ -1003,9 +832,9 @@ class JobNote(models.Model):
     '''
     id = models.BigAutoField(primary_key=True)
 
-    job = models.ForeignKey(Job)
-    failure_classification = models.ForeignKey(FailureClassification)
-    user = models.ForeignKey(User, null=True)  # null if autoclassified
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    failure_classification = models.ForeignKey(FailureClassification, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
     text = models.TextField()
     created = models.DateTimeField(default=timezone.now)
 
@@ -1090,8 +919,8 @@ class FailureLine(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
-    repository = models.ForeignKey(Repository)
-    job_log = models.ForeignKey(JobLog, null=True, related_name="failure_line")
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    job_log = models.ForeignKey(JobLog, on_delete=models.CASCADE, null=True, related_name="failure_line")
     action = models.CharField(max_length=11, choices=ACTION_CHOICES)
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
@@ -1442,7 +1271,7 @@ class FailureMatch(models.Model):
                                            related_name="matches",
                                            on_delete=models.CASCADE)
 
-    matcher = models.ForeignKey(Matcher)
+    matcher = models.ForeignKey(Matcher, on_delete=models.CASCADE)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     # TODO: add indexes once we know which queries will be typically executed
@@ -1462,13 +1291,14 @@ class FailureMatch(models.Model):
 @python_2_unicode_compatible
 class RunnableJob(models.Model):
     id = models.AutoField(primary_key=True)
-    build_platform = models.ForeignKey(BuildPlatform)
-    machine_platform = models.ForeignKey(MachinePlatform)
-    job_type = models.ForeignKey(JobType)
+    build_platform = models.ForeignKey(BuildPlatform, on_delete=models.CASCADE)
+    machine_platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
+    job_type = models.ForeignKey(JobType, on_delete=models.CASCADE)
+    job_group = models.ForeignKey(JobGroup, on_delete=models.CASCADE, default=2)
     option_collection_hash = models.CharField(max_length=64)
     ref_data_name = models.CharField(max_length=255)
     build_system_type = models.CharField(max_length=25)
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     last_touched = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -1489,7 +1319,7 @@ class TextLogStep(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
 
-    job = models.ForeignKey(Job, related_name="text_log_step")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="text_log_step")
 
     # these are presently based off of buildbot results
     # (and duplicated in treeherder/etl/buildbot.py)
@@ -1501,6 +1331,7 @@ class TextLogStep(models.Model):
     RETRY = 5
     USERCANCEL = 6
     UNKNOWN = 7
+    SUPERSEDED = 8
 
     RESULTS = ((SUCCESS, 'success'),
                (TEST_FAILED, 'testfailed'),
@@ -1509,7 +1340,8 @@ class TextLogStep(models.Model):
                (EXCEPTION, 'exception'),
                (RETRY, 'retry'),
                (USERCANCEL, 'usercancel'),
-               (UNKNOWN, 'unknown'))
+               (UNKNOWN, 'unknown'),
+               (SUPERSEDED, 'superseded'))
 
     name = models.CharField(max_length=200)
     started = models.DateTimeField(null=True)
@@ -1556,7 +1388,7 @@ class TextLogError(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
 
-    step = models.ForeignKey(TextLogStep, related_name='errors')
+    step = models.ForeignKey(TextLogStep, on_delete=models.CASCADE, related_name='errors')
     line = models.TextField()
     line_number = models.PositiveIntegerField()
 
@@ -1675,6 +1507,7 @@ class TextLogErrorMetadata(models.Model):
                                           on_delete=models.CASCADE)
 
     failure_line = models.OneToOneField(FailureLine,
+                                        on_delete=models.CASCADE,
                                         related_name="text_log_error_metadata",
                                         null=True)
 
@@ -1704,7 +1537,7 @@ class TextLogErrorMatch(models.Model):
                                            related_name="error_matches",
                                            on_delete=models.CASCADE)
 
-    matcher = models.ForeignKey(Matcher)
+    matcher = models.ForeignKey(Matcher, on_delete=models.CASCADE)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     class Meta:

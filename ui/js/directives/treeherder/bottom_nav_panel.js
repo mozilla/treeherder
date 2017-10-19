@@ -84,12 +84,12 @@ treeherder.directive('thSimilarJobs', [
                 });
                 scope.similar_jobs = [];
                 scope.similar_jobs_filters = {
-                    "machine_id": true,
-                    "job_type_id": true,
-                    "build_platform_id": true
+                    machine_id: true,
+                    job_type_id: true,
+                    build_platform_id: true
                 };
                 scope.update_similar_jobs = function (job) {
-                    var options = {result_set_id__ne: job.result_set_id};
+                    var options = { result_set_id__ne: job.result_set_id };
                     angular.forEach(scope.similar_jobs_filters, function (elem, key) {
                         if (elem) {
                             options[key] = job[key];

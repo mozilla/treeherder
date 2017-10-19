@@ -23,8 +23,7 @@ treeherder.factory('thUrl', [
                 return "index.html#/jobs?" + _.reduce({
                     repo: repo, fromchange: fromChange, tochange: toChange
                 }, function (result, v, k) {
-                    if (result.length)
-                        result += '&';
+                    if (result.length) result += '&';
                     return result + k + '=' + v;
                 }, "");
             },
@@ -73,8 +72,8 @@ treeherder.factory('thCloneHtml', [
 
             templateTxt = document.getElementById(templateId);
             cloneHtmlObjs[templateName] = {
-                interpolator:$interpolate(templateTxt.text),
-                text:templateTxt.text
+                interpolator: $interpolate(templateTxt.text),
+                text: templateTxt.text
             };
         }
 
@@ -83,7 +82,7 @@ treeherder.factory('thCloneHtml', [
         };
 
         return {
-            get:getClone
+            get: getClone
         };
 
     }]);
@@ -110,8 +109,8 @@ treeherder.factory('ThPaginator', function () {
 });
 
 treeherder.factory('thNotify', [
-    '$timeout', 'ThLog',
-    function ($timeout, ThLog) {
+    '$timeout', 'ThLog', 'localStorageService',
+    function ($timeout, ThLog, localStorageService) {
         //a growl-like notification system
 
         var $log = new ThLog("thNotify");
@@ -120,26 +119,38 @@ treeherder.factory('thNotify', [
             // message queue
             notifications: [],
 
+            // Long-term storage for notifications
+            storedNotifications: (localStorageService.get('notifications') || []),
+
             /*
              * send a message to the notification queue
              * @severity can be one of success|info|warning|danger
-             * @sticky is a boolean indicating if you want the message to disappear
-             * after a while or not
+             * @opts is an object with up to three entries:
+             *   sticky -- Keeps notification visible until cleared if true
+             *   linkText -- Text to display as a link if exists
+             *   url -- Location the link should point to if exists
              */
-            send: function (message, severity, sticky, linkText, url) {
+            send: function (message, severity, opts) {
+                if (opts !== undefined && !_.isPlainObject(opts)) {
+                    throw new Error('Must pass an object as last argument to thNotify.send!');
+                }
                 $log.debug("received message", message);
+                opts = opts || {};
                 severity = severity || 'info';
-                sticky = sticky || false;
-                var maxNsNotifications = 5;
-                thNotify.notifications.push({
-                    message: message,
-                    severity: severity,
-                    sticky: sticky,
-                    linkText: linkText,
-                    url: url
-                });
 
-                if (!sticky) {
+                var maxNsNotifications = 5;
+                var notification = {
+                    ...opts,
+                    message,
+                    severity,
+                    created: Date.now()
+                };
+                thNotify.notifications.unshift(notification);
+                thNotify.storedNotifications.unshift(notification);
+                thNotify.storedNotifications.splice(40);
+                localStorageService.set('notifications', thNotify.storedNotifications);
+
+                if (!opts.sticky) {
                     if (thNotify.notifications.length > maxNsNotifications) {
                         $timeout(thNotify.shift);
                         return;
@@ -152,7 +163,7 @@ treeherder.factory('thNotify', [
              * Delete the first non-sticky element from the notifications queue
              */
             shift: function () {
-                for (var i=0;i<thNotify.notifications.length; i++) {
+                for (var i=0; i<thNotify.notifications.length; i++) {
                     if (!thNotify.notifications[i].sticky) {
                         thNotify.remove(i);
                         return;
@@ -164,6 +175,14 @@ treeherder.factory('thNotify', [
              */
             remove: function (index) {
                 thNotify.notifications.splice(index, 1);
+            },
+
+            /*
+             * Clear the list of stored notifications
+             */
+            clear: function () {
+                thNotify.storedNotifications = [];
+                localStorageService.set('notifications', thNotify.storedNotifications);
             }
         };
         return thNotify;
@@ -186,6 +205,16 @@ treeherder.factory('thPlatformName', [
 treeherder.factory('jsyaml', [
     function () {
         return require('js-yaml');
+    }]);
+
+treeherder.factory('Ajv', [
+    function () {
+        return require('ajv');
+    }]);
+
+treeherder.factory('jsonSchemaDefaults', [
+    function () {
+        return require('json-schema-defaults');
     }]);
 
 treeherder.factory('thExtendProperties', [

@@ -41,13 +41,13 @@ perf.controller('e10sTrendCtrl', [
                 baseResults[baseTestName].forEach(function (baseResult) {
                     if (newResults[baseTestName]) {
                         var newResult = newResults[baseTestName];
-                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult['name']; });
+                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult.name; });
                         if (match) {
                             var trendResult = PhCompare.getTrendMap(baseTestName, baseResult, newResult);
                             if (!$scope.compareResults[baseTestName]) {
                                 $scope.compareResults[baseTestName] = [];
                             }
-                            $scope.compareResults[baseTestName].push({baseResult: baseResult, newResult: newResult, trendResult: trendResult});
+                            $scope.compareResults[baseTestName].push({ baseResult: baseResult, newResult: newResult, trendResult: trendResult });
                         }
                     }
                 });
@@ -111,19 +111,19 @@ perf.controller('e10sTrendCtrl', [
                     testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
                         platformList.forEach(function (platform) {
-                            var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
-                                return resultsMap['base'][sig].name === testName &&
-                                    resultsMap['base'][sig].platform === platform;
+                            var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                                return resultsMap.base[sig].name === testName &&
+                                    resultsMap.base[sig].platform === platform;
                             });
-                            var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
-                                return resultsMap['e10s'][sig].name === testName &&
-                                    resultsMap['e10s'][sig].platform === platform;
+                            var e10sSig = _.find(Object.keys(resultsMap.e10s), function (sig) {
+                                return resultsMap.e10s[sig].name === testName &&
+                                    resultsMap.e10s[sig].platform === platform;
                             });
                             if (e10sSig && baseSig) {
                                 var cmap = PhCompare.getCounterMap(
-                                    testName, resultsMap['base'][baseSig],
-                                    resultsMap['e10s'][e10sSig], phBlockers);
-                                cmap.name = platform + ' ' + resultsMap['base'][baseSig].option;
+                                    testName, resultsMap.base[baseSig],
+                                    resultsMap.e10s[e10sSig], phBlockers);
+                                cmap.name = platform + ' ' + resultsMap.base[baseSig].option;
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
@@ -135,7 +135,7 @@ perf.controller('e10sTrendCtrl', [
                                             };
                                         }))
                                 }];
-                                if (resultsMap['base'][baseSig].hasSubTests) {
+                                if (resultsMap.base[baseSig].hasSubTests) {
                                     var params = {
                                         repo: $scope.selectedRepo.name,
                                         basedate: $scope.selectedBaseDate.value,
@@ -292,13 +292,13 @@ perf.controller('e10sTrendSubtestCtrl', [
                 baseResults[baseTestName].forEach(function (baseResult) {
                     if (newResults[baseTestName]) {
                         var newResult = newResults[baseTestName];
-                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult['name']; });
+                        newResult = _.find(newResult, function (obj) { return obj.name === baseResult.name; });
                         if (match) {
                             var trendResult = PhCompare.getTrendMap(baseTestName, baseResult, newResult);
                             if (!$scope.compareResults[baseTestName]) {
                                 $scope.compareResults[baseTestName] = [];
                             }
-                            $scope.compareResults[baseTestName].push({baseResult: baseResult, newResult: newResult, trendResult: trendResult});
+                            $scope.compareResults[baseTestName].push({ baseResult: baseResult, newResult: newResult, trendResult: trendResult });
                         }
                     }
                 });
@@ -356,21 +356,21 @@ perf.controller('e10sTrendSubtestCtrl', [
                         });
                     });
                 })).then(function () {
-                    var subtestNames = _.map(resultsMap['base'],
+                    var subtestNames = _.map(resultsMap.base,
                                              function (results) {
                                                  return results.name;
                                              });
                     _.forEach(subtestNames, function (subtestName) {
-                        var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
-                            return resultsMap['base'][sig].name === subtestName;
+                        var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                            return resultsMap.base[sig].name === subtestName;
                         });
-                        var e10sSig = _.find(Object.keys(resultsMap['e10s']), function (sig) {
-                            return resultsMap['e10s'][sig].name === subtestName;
+                        var e10sSig = _.find(Object.keys(resultsMap.e10s), function (sig) {
+                            return resultsMap.e10s[sig].name === subtestName;
                         });
                         if (e10sSig && baseSig) {
                             var cmap = PhCompare.getCounterMap(
-                                subtestName, resultsMap['base'][baseSig],
-                                resultsMap['e10s'][e10sSig]);
+                                subtestName, resultsMap.base[baseSig],
+                                resultsMap.e10s[e10sSig]);
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',

@@ -46,9 +46,9 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.pulsePinCount = function () {
-            $( ".pin-count-group" ).addClass( "pin-count-pulse" );
+            $(".pin-count-group").addClass("pin-count-pulse");
             $timeout(function () {
-                $( ".pin-count-group" ).removeClass( "pin-count-pulse" );
+                $(".pin-count-group").removeClass("pin-count-pulse");
             }, 700);
         };
 
@@ -281,7 +281,7 @@ treeherder.controller('PinboardCtrl', [
                 } else if (/^[0-9]*$/.test($scope.newEnteredBugNumber)) {
                     $log.debug("new bug number to be saved: ",
                                $scope.newEnteredBugNumber);
-                    thPinboard.addBug({id:$scope.newEnteredBugNumber});
+                    thPinboard.addBug({ id: $scope.newEnteredBugNumber });
                     $scope.toggleEnterBugNumber(false);
                     return true;
                 }

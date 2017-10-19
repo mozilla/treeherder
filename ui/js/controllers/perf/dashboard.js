@@ -61,7 +61,7 @@ perf.controller('dashCtrl', [
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
-                    framework: $scope.framework}).then(function (seriesList) {
+                    framework: $scope.framework }).then(function (seriesList) {
                         return _.filter(seriesList, function (series) {
                             return filterSeriesByTopic(series);
                         });
@@ -104,19 +104,19 @@ perf.controller('dashCtrl', [
                     $scope.testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
                         $scope.platformList.forEach(function (platform) {
-                            var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
-                                return resultsMap['base'][sig].name === testName &&
-                                    resultsMap['base'][sig].platform === platform;
+                            var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                                return resultsMap.base[sig].name === testName &&
+                                    resultsMap.base[sig].platform === platform;
                             });
-                            var variantSig = _.find(Object.keys(resultsMap['variant']), function (sig) {
-                                return resultsMap['variant'][sig].name === testName &&
-                                    resultsMap['variant'][sig].platform === platform;
+                            var variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
+                                return resultsMap.variant[sig].name === testName &&
+                                    resultsMap.variant[sig].platform === platform;
                             });
                             if (variantSig && baseSig) {
                                 var cmap = PhCompare.getCounterMap(
-                                    testName, resultsMap['base'][baseSig],
-                                    resultsMap['variant'][variantSig], phBlockers);
-                                cmap.name = platform + ' ' + resultsMap['base'][baseSig].option;
+                                    testName, resultsMap.base[baseSig],
+                                    resultsMap.variant[variantSig], phBlockers);
+                                cmap.name = platform + ' ' + resultsMap.base[baseSig].option;
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
@@ -128,7 +128,7 @@ perf.controller('dashCtrl', [
                                             };
                                         }))
                                 }];
-                                if (resultsMap['base'][baseSig].hasSubTests) {
+                                if (resultsMap.base[baseSig].hasSubTests) {
                                     var params = {
                                         topic: $stateParams.topic,
                                         baseSignature: baseSig,
@@ -150,7 +150,8 @@ perf.controller('dashCtrl', [
                                         $scope.compareResults[testName].push(cmap);
                                     }
                                 }
-                            } });
+                            }
+                        });
                     });
                 });
             });
@@ -255,13 +256,13 @@ perf.controller('dashSubtestCtrl', [
                     $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            parent_signature: [ baseSignature, variantSignature ],
+                            parent_signature: [baseSignature, variantSignature],
                             framework: $scope.framework
                         });
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
-                    parent_signature: [ baseSignature, variantSignature ],
+                    parent_signature: [baseSignature, variantSignature],
                     framework: $scope.framework
                 });
             }
@@ -298,21 +299,21 @@ perf.controller('dashSubtestCtrl', [
                         });
                 })).then(function () {
                     $scope.dataLoading = false;
-                    var subtestNames = _.map(resultsMap['base'],
+                    var subtestNames = _.map(resultsMap.base,
                                              function (results) {
                                                  return results.name;
                                              });
                     _.forEach(subtestNames, function (subtestName) {
-                        var baseSig = _.find(Object.keys(resultsMap['base']), function (sig) {
-                            return resultsMap['base'][sig].name === subtestName;
+                        var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                            return resultsMap.base[sig].name === subtestName;
                         });
-                        var variantSig = _.find(Object.keys(resultsMap['variant']), function (sig) {
-                            return resultsMap['variant'][sig].name === subtestName;
+                        var variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
+                            return resultsMap.variant[sig].name === subtestName;
                         });
                         if (variantSig && baseSig) {
                             var cmap = PhCompare.getCounterMap(
-                                subtestName, resultsMap['base'][baseSig],
-                                resultsMap['variant'][variantSig]);
+                                subtestName, resultsMap.base[baseSig],
+                                resultsMap.variant[variantSig]);
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',

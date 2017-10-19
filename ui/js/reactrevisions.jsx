@@ -97,4 +97,4 @@ module.exports = {
 };
 
 treeherder.directive('revisions', ['reactDirective', '$injector', (reactDirective, $injector) =>
-    reactDirective(RevisionList, undefined, {}, {$injector})]);
+    reactDirective(RevisionList, undefined, {}, { $injector })]);

@@ -97,11 +97,6 @@
     overflow: visible;
 }
 
-.nav-panel-help-text {
-    color: #2b393f;
-    margin-bottom: 10px;
-}
-
 /*
  * Left hand lower navbar
  */
@@ -366,10 +361,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 @media (min-width: 960px) {
-  .btn-toggle-excluded::after {
-    content: " Excluded Jobs";
-  }
-  .btn-excluded::after {
+  .strikethrough::after {
     text-decoration: line-through;
   }
 
@@ -380,6 +372,32 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .navbar-badge.badge * {
   cursor: default;
+}
+
+#notification-dropdown {
+  min-width: 25em;
+  max-height: 20em;
+  overflow-y: scroll;
+  padding-left: 20px;
+  padding-right: 14px;
+  white-space: nowrap;
+}
+
+#notification-dropdown .dropdown-header {
+  padding-left: 0px;
+  padding-bottom: 4px;
+}
+
+.notification-dropdown-line {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-dropdown-btn {
+  margin-left: 4px;
+  font-size: 10px;
 }
 
 .dropdown.open > #repo-dropdown {
@@ -401,4 +419,29 @@ fieldset[disabled] .btn-view-nav-closed.active {
 #repo-dropdown .repogroup {
   margin-left: 15px;
   margin-top: 5px;
+}
+
+#filter-dropdown {
+    padding: 0 10px 10px 10px;
+}
+
+#filter-dropdown .dropdown-header {
+    padding-top: 10px;
+}
+#filter-dropdown .dropdown-item {
+    list-style: none;
+    cursor: pointer;
+    padding-top: 6px;
+    margin: 0 0 1px 0;
+    font-weight: inherit;
+}
+
+#filter-dropdown .dropdown-item:hover {
+    background-color: #d3d3d34d;
+}
+
+#filter-dropdown .dropdown-divider {
+    border-top: 1px solid #a9a9a980;
+    padding-bottom: 5px;
+    margin-top: 7px;
 }

@@ -50,7 +50,7 @@ treeherder.factory('ThClassifiedFailuresModel', [
 
         ThClassifiedFailuresModel.create = function (bug_number) {
             return $http.post(ThClassifiedFailuresModel.get_url(),
-                              {bug_number: bug_number}
+                              { bug_number: bug_number }
             );
         };
 
@@ -65,7 +65,7 @@ treeherder.factory('ThClassifiedFailuresModel', [
             var classified_failure = this;
             classified_failure.bug_number = bug_number;
             return $http.put(ThClassifiedFailuresModel.get_url() + classified_failure.id + "/",
-                             {bug_number: bug_number});
+                             { bug_number: bug_number });
         };
 
         ThClassifiedFailuresModel.updateMany = function (data) {

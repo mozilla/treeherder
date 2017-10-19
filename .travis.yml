@@ -13,10 +13,10 @@ matrix:
   include:
 
     # Job 1: Linters
-    - env: python-linters
+    - env: python2-linters
       sudo: false
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -33,18 +33,38 @@ matrix:
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
-    # Job 2: Nodejs UI tests
+    # Job 2: Linters
+    - env: python3-linters
+      sudo: false
+      language: python
+      python: "3.6.2"
+      cache:
+        directories:
+          - ~/venv
+      before_install:
+        # Create a clean virtualenv rather than using the one given to us,
+        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
+        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
+        - source ~/venv/bin/activate
+      install:
+        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+      script:
+        - pip check
+
+    # Job 3: Nodejs UI tests
     - env: ui-tests
       language: node_js
-      node_js: "7.10.0"
+      node_js: "8.7.0"
       cache:
         # Note: This won't re-use the same cache as the linters job,
         # since caches are tied to the language/version combination.
         directories:
           - node_modules
       addons:
-        # Not using `latest` since the test run frequently times out with Firefox 55.
-        firefox: "54.0.1"
+        firefox: latest
+      before_install:
+        # Use newer yarn than that pre-installed in the Travis image.
+        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
         # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
         # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
@@ -58,10 +78,10 @@ matrix:
         - yarn test
         - yarn build
 
-    # Job 3: Python Tests Chunk A
+    # Job 4: Python Tests Chunk A
     - env: python-tests-main
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -71,6 +91,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -91,10 +117,10 @@ matrix:
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
         - pytest tests/ --runslow --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/api/ --ignore=tests/selenium/ --ignore=tests/jenkins/
 
-    # Job 4: Python Tests Chunk B
+    # Job 5: Python Tests Chunk B
     - env: python-tests-etl-logparser
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -104,6 +130,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -118,10 +150,10 @@ matrix:
       script:
         - pytest tests/etl/ tests/log_parser/ --runslow
 
-    # Job 5: Python Tests Chunk C
+    # Job 6: Python Tests Chunk C
     - env: python-tests-rest-api
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
@@ -131,6 +163,12 @@ matrix:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -145,23 +183,28 @@ matrix:
       script:
         - pytest tests/webapp/api/ --runslow
 
-    # Job 6: Python Tests - Selenium integration
+    # Job 7: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
-      python: "2.7.13"
+      python: "2.7.14"
       cache:
         directories:
           - ~/venv
           - node_modules
       addons:
-        # Not using `latest` since the test run frequently times out with Firefox 55.
-        firefox: "54.0.1"
+        firefox: latest
       services:
         - rabbitmq
       before_install:
         - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
         - sudo service elasticsearch restart
         - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
+        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
+        - sudo mkdir /mnt/ramdisk
+        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
+        - sudo stop mysql
+        - sudo mv /var/lib/mysql /mnt/ramdisk
+        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
         - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
         - sudo -E apt-get -yqq update
         - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
@@ -169,8 +212,10 @@ matrix:
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
         - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
         - source ~/venv/bin/activate
-        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz | tar -zxC $HOME/bin
-        - nvm install 7.10.0
+        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz | tar -zxC $HOME/bin
+        - nvm install 8.7.0
+        # Use newer yarn than that pre-installed in the Travis image.
+        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
         - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
         - yarn install --frozen-lockfile --no-bin-links
@@ -185,4 +230,4 @@ matrix:
 notifications:
   email:
     on_success: never
-    on_failure: always
+on_failure: always

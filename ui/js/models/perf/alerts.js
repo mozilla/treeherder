@@ -10,10 +10,10 @@ treeherder.factory('PhAlerts', [
             _.assign(this, alertData);
             this.title = PhSeries.getSeriesName(
                 this.series_signature, optionCollectionMap,
-                {includePlatformInName: true});
+                { includePlatformInName: true });
         };
         Alert.prototype.getStatusText = function () {
-            return _.result(_.find(phAlertStatusMap, {id: this.status}),
+            return _.result(_.find(phAlertStatusMap, { id: this.status }),
                             'text');
         };
         Alert.prototype.getGraphsURL = function (timeRange, alertRepository,
@@ -75,10 +75,12 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
             var resultStr = "";
             var improved = _.sortBy(_.filter(this.alerts, function (alert) {
-                return !alert.is_regression && alert.visible; }),
+                return !alert.is_regression && alert.visible;
+            }),
             'amount_pct').reverse();
             var regressed = _.sortBy(_.filter(this.alerts, function (alert) {
-                return alert.is_regression && alert.visible && !alert.isInvalid(); }),
+                return alert.is_regression && alert.visible && !alert.isInvalid();
+            }),
             'amount_pct').reverse();
 
             var formatAlert = function (alert, alertList) {
@@ -184,7 +186,7 @@ treeherder.factory('PhAlerts', [
             // add test info
             title += " " + _.uniq(
                 _.map(alertsInSummary, function (a) {
-                    return PhSeries.getTestName(a.series_signature, { abbreviate:true });
+                    return PhSeries.getTestName(a.series_signature, { abbreviate: true });
                 })).sort().join(' / ');
             // add platform info
             title += " (" + _.uniq(
@@ -204,7 +206,7 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.modifySelectedAlerts = function (modification) {
             this.allSelected = false;
 
-            return $q.all(_.filter(this.alerts, {'selected': true}).map(
+            return $q.all(_.filter(this.alerts, { selected: true }).map(
                 function (selectedAlert) {
                     selectedAlert.selected = false;
                     return selectedAlert.modify(modification);
@@ -222,7 +224,7 @@ treeherder.factory('PhAlerts', [
             var promise = ThOptionCollectionModel.getMap().then(
                 function (optionCollectionMap) {
                     return $http.get(thServiceDomain + '/api/performance/alertsummary/' + id + '/',
-                                    {timeout : canceller.promise}).then(
+                                    { timeout: canceller.promise }).then(
                                         function (response) {
                                             return new AlertSummary(response.data,
                                                                     optionCollectionMap);

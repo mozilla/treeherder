@@ -33,27 +33,84 @@ APIs
   * This API shows job failures that have been annotated with "fixed by commit"
 
 Local set up
-------------
+============
 After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and follow these steps:
 
 1st tab
 -------
-./manage.py runserver
+.. code-block:: bash
+
+   ./manage.py runserver
 
 2nd tab
 -------
-yarn install --no-bin-links
-yarn start:local
+.. code-block:: bash
+
+   yarn install --no-bin-links
+   yarn start:local
 
 3rd tab
 -------
-./manage.py initialize_seta
+.. code-block:: bash
 
-* Test the different APIs:
+   ./manage.py initialize_seta
 
-  * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
-  * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
-  * http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-types/
-  * http://localhost:8000/api/seta/v1/failures-fixed-by-commit/ 
+Try out the various APIs
+------------------------
 
-    * This one won't work until https://bugzilla.mozilla.org/show_bug.cgi?id=1389123 is fixed
+* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
+* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
+* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-types/
+* http://localhost:8000/api/seta/v1/failures-fixed-by-commit/ 
+
+  * This one won't work until https://bugzilla.mozilla.org/show_bug.cgi?id=1389123 is fixed
+
+Maintenance
+===========
+
+Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority)
+when adding new platforms (e.g. stylo).
+Instead of investing more on accomodating for various scenarios we’ve decided to document how to make changes in the DB when we have to.
+
+If you want to inspect the priorities for various jobs and platforms you can query the JobPriority table from reDash:
+Use this a starting query: https://sql.telemetry.mozilla.org/queries/14771/source#table
+
+Steps for adjusting jobs
+------------------------
+To connect to Treeherder you need Heroku permissions. Run this from a treeherder checkout:
+
+.. code-block:: bash
+
+   heroku run --app treeherder-prod -- bash
+
+Sometimes, before you can adjust priorities of the jobs, you need to make sure they make it into the JobPriority table.
+In order to do so we need to:
+
+* Make sure the scheduling changes have made it into mozilla-inbound
+
+  * SETA uses mozilla-inbound as a reference for jobs for all trunk trees
+* Make sure the job shows up on the runnable jobs table
+
+  * You can check the `API <https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/>`_, however, it can time out
+  * You can update the table with ``export TREEHERDER_DEBUG=True && ./manage.py update_runnable_jobs`` (it will take several minutes)
+* Update the job priority table from the shell:
+
+.. code-block:: bash
+
+  from treeherder.seta.update_job_priority import update_job_priority_table
+  update_job_priority_table()
+  
+
+If you want to remove the 2 week grace period and make the job low priority (priority=5) do somthing similar to this:
+
+.. code-block:: bash
+
+  ./manage.py shell
+  from treeherder.seta.models import JobPriority;
+  # Inspect the jobs you want to change
+  # Change the values appropriately
+  JobPriority.objects.filter(platform="windows7-32-stylo", priority=1)
+  JobPriority.objects.filter(platform="windows7-32-stylo", expiration_date__isnull=False)
+  # Once satisfied
+  JobPriority.objects.filter(platform="windows7-32-stylo", priority=1).update(priority=5);
+  JobPriority.objects.filter(platform="windows7-32-stylo", expiration_date__isnull=False).update(expiration_date=None)

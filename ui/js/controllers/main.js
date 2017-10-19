@@ -4,14 +4,14 @@ treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$routeParams', '$location', '$timeout', '$q',
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
-    'ThExclusionProfileModel', 'thJobFilters', 'ThResultSetStore',
+    'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window, thNotify,
-        ThExclusionProfileModel, thJobFilters, ThResultSetStore,
+        thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
         $httpParamSerializer) {
         var $log = new ThLog("MainCtrl");
@@ -90,7 +90,7 @@ treeherderApp.controller('MainCtrl', [
             // repoName is undefined for the first few title update attempts, show something sensible
             var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
 
-            if (params["revision"]) {
+            if (params.revision) {
                 var desc = getSingleRevisionTitleString();
                 var revtitle = desc[0] ? ": " + desc[0] : "";
                 var percentage = desc[1] ? desc[1] + "% - " : "";
@@ -192,16 +192,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.getFilteredUnclassifiedFailureCount = ThResultSetStore.getFilteredUnclassifiedFailureCount;
         $scope.getAllUnclassifiedFailureCount = ThResultSetStore.getAllUnclassifiedFailureCount;
-
-        $scope.isSkippingExclusionProfiles = $location.search().exclusion_profile === 'false';
-
-        $scope.toggleExcludedJobs = function () {
-            if ($location.search().exclusion_profile === 'false') {
-                $location.search('exclusion_profile', null);
-            } else {
-                $location.search('exclusion_profile', 'false');
-            }
-        };
 
         $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
 
@@ -443,7 +433,6 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: escape closes any open panels and clears selected job
             ['escape', function () {
-                $scope.$evalAsync($scope.setFilterPanelShowing(false));
                 $scope.$evalAsync($scope.setSettingsPanelShowing(false));
                 $scope.$evalAsync($scope.closeJob());
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
@@ -583,42 +572,77 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
-        $scope.search = function () {
-            return $location.search();
+        $scope.getFiltersForBar = function () {
+            return [...thJobFilters.getNonFieldFiltersArray(), ...thJobFilters.getFieldFiltersArray()];
         };
 
-        // query parameters that will be shown in activefiltersbar when set
-        $scope.activeFiltersBarProperties = ['fromchange', 'tochange', 'author',
-            'nojobs', 'startdate', 'enddate', 'revision'];
+        // field filters
+        $scope.newFieldFilter = null;
+        $scope.fieldFilters = [];
+        $scope.fieldChoices = thJobFilters.getFieldChoices();
 
-        $scope.showActiveFiltersBar = function () {
-            return $scope.search().fromchange || $scope.search().tochange ||
-                   $scope.search().author || $scope.search().nojobs ||
-                   $scope.search().startdate || $scope.search().enddate ||
-                   $scope.search().revision;
+        $scope.toggleFieldFilterVisibility = function () {
+            if ($scope.newFieldFilter === null) {
+                $scope.newFieldFilter = { field: "", value: "" };
+            }
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
+        };
+
+        $scope.cancelNewFieldFilter = function () {
+            $scope.newFieldFilter = null;
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
+        };
+
+        // we have to set the field match type here so that the UI can either
+        // show a text field for entering a value, or switch to a drop-down select.
+        $scope.setFieldMatchType = function () {
+            $scope.newFieldFilter.matchType=$scope.fieldChoices[$scope.newFieldFilter.field].matchType;
+            $scope.newFieldFilter.choices=$scope.fieldChoices[$scope.newFieldFilter.field].choices;
+
+        };
+
+        // for most match types we want to show just the raw value.  But for
+        // choice value type, we want to show the string representation of the
+        // value.  For example, failure_classification_id is an int, but we
+        // want to show the text.
+        $scope.getFilterValue = function (field, value) {
+            if ($scope.fieldChoices[field].matchType === 'choice' &&
+                $scope.fieldChoices[field].choices[value]) {
+                return $scope.fieldChoices[field].choices[value].name;
+            }
+            return value;
+        };
+
+        $scope.addNewFieldFilter = function () {
+            $log.debug("adding filter", $scope.newFieldFilter.field);
+
+            if (!$scope.newFieldFilter) {
+                return;
+            }
+
+            const { value, field } = $scope.newFieldFilter;
+
+            if (field === "" || value === "") {
+                return;
+            }
+
+            thJobFilters.addFilter(field, value);
+
+            // Clear the values and close the input form group
+            $scope.newFieldFilter = { field: "", value: "" };
+            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
 
         $scope.fromChangeValue = function () {
-            var url = window.location.href;
-            url = url.replace("&fromchange=" + $location.search()["fromchange"], "");
+            let url = window.location.href;
+            url = url.replace("&fromchange=" + $location.search().fromchange, "");
             return url;
         };
 
         $scope.toChangeValue = function () {
-            var url = window.location.href;
-            url = url.replace("&tochange=" + $location.search()["tochange"], "");
+            let url = window.location.href;
+            url = url.replace("&tochange=" + $location.search().tochange, "");
             return url;
-        };
-
-        $scope.dropLocationSearchParam = function (param) {
-            var url = $location.url();
-            url = url.replace("&" + param + "=" + $location.search()[param], "");
-            url = url.replace("&" + param, "");
-            $location.url(url);
-        };
-
-        $scope.setLocationSearchParam = function (param, value) {
-            $location.search(param, value);
         };
 
         $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
@@ -638,6 +662,8 @@ treeherderApp.controller('MainCtrl', [
 
             // used to avoid bad urls when the app redirects internally
             $rootScope.urlBasePath = $location.absUrl().split('?')[0];
+
+            $scope.filterBarFilters = $scope.getFiltersForBar();
 
             var newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
@@ -677,7 +703,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.changeRepo = function (repo_name) {
             // preserves filter params as the user changes repos and revisions
             $location.search(_.extend({
-                "repo": repo_name
+                repo: repo_name
             }, thJobFilters.getActiveFilters()));
         };
 
@@ -691,7 +717,6 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.clearFilterBox = function () {
             thJobFilters.removeFilter("searchStr");
-            $("#quick-filter").val("").focus();
         };
 
         $scope.onscreenOverlayShowing = false;
@@ -700,11 +725,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.setOnscreenShortcutsShowing = function (tf) {
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
-        };
-
-        $scope.isFilterPanelShowing = false;
-        $scope.setFilterPanelShowing = function (tf) {
-            $scope.isFilterPanelShowing = tf;
         };
 
         $scope.isSettingsPanelShowing = false;

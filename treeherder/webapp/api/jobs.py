@@ -4,8 +4,7 @@ import django_filters
 from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
-from rest_framework import (filters,
-                            viewsets)
+from rest_framework import viewsets
 from rest_framework.decorators import (detail_route,
                                        list_route)
 from rest_framework.exceptions import ParseError
@@ -17,8 +16,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (ExclusionProfile,
-                                     FailureLine,
+from treeherder.model.models import (FailureLine,
                                      Job,
                                      JobDetail,
                                      JobLog,
@@ -58,11 +56,11 @@ class JobFilter(django_filters.FilterSet):
     build_system_type = django_filters.CharFilter(
         name='signature__build_system_type')
     job_group_id = django_filters.NumberFilter(
-        name='job_type__job_group_id')
+        name='job_group_id')
     job_group_name = django_filters.CharFilter(
-        name='job_type__job_group__name')
+        name='job_group__name')
     job_group_symbol = django_filters.CharFilter(
-        name='job_type__job_group__symbol')
+        name='job_group__symbol')
     job_type_name = django_filters.CharFilter(
         name='job_type__name')
     job_type_symbol = django_filters.CharFilter(
@@ -87,6 +85,7 @@ class JobFilter(django_filters.FilterSet):
             'build_platform_id': ['exact'],
             'failure_classification_id': ['exact'],
             'job_type_id': ['exact'],
+            'job_group_id': ['exact'],
             'project_specific_id': ['exact'],
             'reason': ['exact'],
             'state': ['exact'],
@@ -121,7 +120,7 @@ class JobsViewSet(viewsets.ViewSet):
     _default_select_related = [
         'build_platform',
         'job_type',
-        'job_type__job_group',
+        'job_group',
         'machine_platform',
         'machine',
         'signature',
@@ -138,10 +137,10 @@ class JobsViewSet(viewsets.ViewSet):
         ('failure_classification_id', 'failure_classification_id', None),
         ('id', 'id', None),
         ('job_coalesced_to_guid', 'coalesced_to_guid', None),
-        ('job_group_description', 'job_type__job_group__description', None),
-        ('job_group_id', 'job_type__job_group_id', None),
-        ('job_group_name', 'job_type__job_group__name', None),
-        ('job_group_symbol', 'job_type__job_group__symbol', None),
+        ('job_group_description', 'job_group__description', None),
+        ('job_group_id', 'job_group_id', None),
+        ('job_group_name', 'job_group__name', None),
+        ('job_group_symbol', 'job_group__symbol', None),
         ('job_guid', 'guid', None),
         ('job_type_description', 'job_type__description', None),
         ('job_type_id', 'job_type_id', None),
@@ -310,10 +309,6 @@ class JobsViewSet(viewsets.ViewSet):
                         "Invalid value for offset or count",
                         status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
-        exclusion_profile = filter_params.get("exclusion_profile", "default")
-        visibility = filter_params.get("visibility", "included")
-        if exclusion_profile in ('false', 'null'):
-            exclusion_profile = None
 
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
@@ -329,36 +324,6 @@ class JobsViewSet(viewsets.ViewSet):
                          queryset=Job.objects.filter(
                              repository=repository).select_related(
                                  *self._default_select_related)).qs
-
-        if exclusion_profile:
-            try:
-                signatures = ExclusionProfile.objects.get_signatures_for_project(
-                    project, exclusion_profile)
-                if signatures:
-                    # NOT here means "not part of the exclusion profile"
-                    if visibility == "included":
-                        jobs = jobs.exclude(
-                            signature__signature__in=signatures)
-                    else:
-                        jobs = jobs.filter(
-                            signature__signature__in=signatures)
-                else:
-                    # this repo/project has no hidden signatures
-                    # if ``visibility`` is set to ``included`` then it's
-                    # meaningless to add any of these limiting params to the
-                    # query, just run it and give the user everything for the
-                    # project.
-                    #
-                    # If ``visibility`` is ``excluded`` then we only want to
-                    # include jobs that were excluded by this profile.  Since
-                    # no jobs are excluded for this project, we should return
-                    # an empty queryset and skip the query altogether.
-                    if visibility == "excluded":
-                        jobs = jobs.none()
-            except ExclusionProfile.DoesNotExist:
-                # Either there's no default profile setup or the profile
-                # specified is not available
-                pass
 
         response_body = self._get_job_list_response(jobs, offset, count,
                                                     return_type)
@@ -602,7 +567,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     serializer_class = serializers.JobDetailSerializer
 
-    class JobDetailFilter(filters.FilterSet):
+    class JobDetailFilter(django_filters.rest_framework.FilterSet):
 
         class NumberInFilter(django_filters.filters.BaseInFilter,
                              django_filters.NumberFilter):
@@ -611,7 +576,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             # See https://github.com/carltongibson/django-filter/issues/755
             def filter(self, qs, value):
                 if value in django_filters.constants.EMPTY_VALUES:
-                    raise ValueError("Invalid filter on empty value: {}".format(value))
+                    raise ParseError("Invalid filter on empty value: {}".format(value))
 
                 return django_filters.Filter.filter(self, qs, value)
 
@@ -629,7 +594,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
             fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
                       'value', 'push_id', 'repository']
 
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filter_class = JobDetailFilter
 
     # using a custom pagination size of 2000 to avoid breaking mozscreenshots

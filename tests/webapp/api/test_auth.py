@@ -104,7 +104,7 @@ def test_post_no_auth():
 
 # TC Auth Login and Logout Tests
 
-def test_ldap_login_and_logout(test_user, webapp, monkeypatch):
+def test_ldap_login_and_logout(test_ldap_user, webapp, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
@@ -120,7 +120,7 @@ def test_ldap_login_and_logout(test_user, webapp, monkeypatch):
     session = Session.objects.get(session_key=session_key)
     session_data = session.get_decoded()
     user = User.objects.get(id=session_data.get('_auth_user_id'))
-    assert user.id == test_user.id
+    assert user.id == test_ldap_user.id
 
     webapp.get(reverse("auth-logout"), status=200)
     assert "sessionid" not in webapp.cookies
@@ -217,17 +217,17 @@ def test_login_no_email(test_user, webapp, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_login_not_active(test_user, webapp, monkeypatch):
+def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     """LDAP login, user not active"""
     def mock_auth(selfless, payload):
         return {"status": "auth-success",
-                "clientId": "email/user@foo.com",
+                "clientId": "mozilla-ldap/user@foo.com",
                 "scopes": ["assume:mozilla-user:user@foo.com"]
                 }
     monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
 
-    test_user.is_active = False
-    test_user.save()
+    test_ldap_user.is_active = False
+    test_ldap_user.save()
 
     resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
     assert resp.json["detail"] == "This user has been disabled."

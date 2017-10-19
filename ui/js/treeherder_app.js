@@ -2,7 +2,8 @@
 
 var treeherderApp = angular.module('treeherder.app',
     ['treeherder', 'ui.bootstrap', 'ngRoute',
-        'mc.resizer', 'angular-toArrayFilter', 'react']);
+        'mc.resizer', 'angular-toArrayFilter', 'react',
+        'hc.marked']);
 
 treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
     '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
@@ -27,23 +28,23 @@ treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.useApplyAsync(true);
 
-        $routeProvider.
-        when('/jobs', {
-            controller: 'JobsCtrl',
-            templateUrl: 'partials/main/jobs.html',
-            // see controllers/filters.js ``skipNextSearchChangeReload`` for
-            // why we set this to false.
-            reloadOnSearch: false
-        }).
-        when('/jobs/:tree', {
-            controller: 'JobsCtrl',
-            templateUrl: 'partials/main/jobs.html',
-            reloadOnSearch: false
-        }).
-        when('/login', {
-            template: '<login-callback/>'
-        }).
-        otherwise({redirectTo: '/jobs'});
+        $routeProvider
+            .when('/jobs', {
+                controller: 'JobsCtrl',
+                templateUrl: 'partials/main/jobs.html',
+                // see controllers/filters.js ``skipNextSearchChangeReload`` for
+                // why we set this to false.
+                reloadOnSearch: false
+            })
+            .when('/jobs/:tree', {
+                controller: 'JobsCtrl',
+                templateUrl: 'partials/main/jobs.html',
+                reloadOnSearch: false
+            })
+            .when('/login', {
+                template: '<login-callback/>'
+            })
+            .otherwise({ redirectTo: '/jobs' });
     }]).run(require('./cache-templates'));
 
 module.exports = treeherderApp;

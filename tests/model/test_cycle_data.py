@@ -14,8 +14,8 @@ from treeherder.model.models import (FailureLine,
                                      JobType,
                                      Machine,
                                      Push)
-from treeherder.model.search import (TestFailureLine,
-                                     refresh_all)
+from treeherder.model.search import TestFailureLine as _TestFailureLine
+from treeherder.model.search import refresh_all
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
@@ -45,7 +45,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert JobLog.objects.count() == 0
 
     # There should be nothing in elastic search after cycling
-    assert TestFailureLine.search().count() == 0
+    assert _TestFailureLine.search().count() == 0
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
@@ -96,7 +96,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         assert (set(item.id for item in object_type.objects.all()) ==
                 set(item.id for item in objects))
 
-    assert set(int(item.meta.id) for item in TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
+    assert set(int(item.meta.id) for item in _TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
 
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
@@ -116,7 +116,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
 
-    assert TestFailureLine.search().count() > 0
+    assert _TestFailureLine.search().count() > 0
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
     refresh_all()
@@ -125,7 +125,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
-    assert TestFailureLine.search().count() == 0
+    assert _TestFailureLine.search().count() == 0
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,
@@ -142,7 +142,7 @@ def test_cycle_job_model_reference_data(test_repository, failure_classifications
     # create a bunch of job model data that should be cycled, since they don't
     # reference any current jobs
     jg = JobGroup.objects.create(symbol='moo', name='moo')
-    jt = JobType.objects.create(job_group=jg, symbol='mu', name='mu')
+    jt = JobType.objects.create(symbol='mu', name='mu')
     m = Machine.objects.create(name='machine_with_no_job')
     (jg_id, jt_id, m_id) = (jg.id, jt.id, m.id)
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)

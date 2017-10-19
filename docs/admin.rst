@@ -26,15 +26,12 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.build_platform to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.classified_failure to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.commit to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.exclusion_profile to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.exclusion_profile_exclusions to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_classification to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_line to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_match to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_detail to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_duration to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.job_exclusion to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_group to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_log to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_note to 'myuser' REQUIRE SSL;
@@ -64,7 +61,6 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.text_log_step to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_summary to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_summary_line to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.user_exclusion_profile to 'myuser' REQUIRE SSL;
 
 If new tables are added, you can generate a new set of grant
 statements using the following SQL:

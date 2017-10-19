@@ -36,7 +36,7 @@ treeherder.factory('ThRepositoryModel', [
             if (!_.size(orderedRepoGroups)) {
                 var groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
                 _.each(groups, function (reposAr, gName) {
-                    orderedRepoGroups[thRepoGroupOrder[gName] || gName] = {name: gName, repos: reposAr};
+                    orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
                 });
             }
             return orderedRepoGroups;
@@ -61,7 +61,7 @@ treeherder.factory('ThRepositoryModel', [
                 return;
             }
             _.extend(repos[name], {
-                treeStatus: {status: "not retrieved yet", message_of_the_day: ""},
+                treeStatus: { status: "not retrieved yet", message_of_the_day: "" },
                 unclassifiedFailureCount: 0,
                 groupName: repos[name].groupName
             });
@@ -89,7 +89,7 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         var get_list = function () {
-            return $http.get(get_uri(), {cache: true});
+            return $http.get(get_uri(), { cache: true });
         };
 
         var load = function (options) {
@@ -102,8 +102,8 @@ treeherder.factory('ThRepositoryModel', [
                 $interval(updateTreeStatus, 2 * 60 * 1000);
 
                 // return the promise of getting the repos
-                return get_list().
-                    success(function (data) {
+                return get_list()
+                    .success(function (data) {
                         // FIXME: only supporting github + hg for now for pushlog
                         // + revision info (we also assume dvcs_type git===github)
                         function Repo(props) {
@@ -128,14 +128,14 @@ treeherder.factory('ThRepositoryModel', [
                             getPushLogHref: function (arg) {
                                 if (this.dvcs_type === 'git') {
                                     // if git, assume github
-                                    if (typeof(arg) === 'string') {
+                                    if (typeof (arg) === 'string') {
                                         return this.getRevisionHref(arg);
                                     } else if (arg && arg.from && arg.to) {
                                         return this.url + '/compare/' + arg.from + '...' +
                                             arg.to;
                                     }
                                 } else if (this.dvcs_type === 'hg') {
-                                    if (typeof(arg) === 'string') {
+                                    if (typeof (arg) === 'string') {
                                         return this.pushlogURL + '?changeset=' + arg;
                                     } else if (arg && arg.from && arg.to) {
                                         return this.pushlogURL + '?fromchange=' +

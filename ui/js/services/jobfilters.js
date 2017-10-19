@@ -29,43 +29,46 @@ treeherder.factory('thJobFilters', [
         thResultStatus, thClassificationTypes, ThRepositoryModel,
         thPlatformName) {
 
-        var $log = new ThLog("thJobFilters");
+        const $log = new ThLog("thJobFilters");
 
         // prefix for all filter query string params
-        var PREFIX = "filter-";
+        const PREFIX = "filter-";
 
         // constants for specific types of filters
-        var CLASSIFIED_STATE = "classifiedState";
-        var RESULT_STATUS = "resultStatus";
-        var SEARCH_STR = "searchStr";
+        const CLASSIFIED_STATE = "classifiedState";
+        const RESULT_STATUS = "resultStatus";
+        const SEARCH_STR = "searchStr";
 
-        var QS_CLASSIFIED_STATE = PREFIX + CLASSIFIED_STATE;
-        var QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
-        var QS_SEARCH_STR = PREFIX + SEARCH_STR;
+        const QS_CLASSIFIED_STATE = PREFIX + CLASSIFIED_STATE;
+        const QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
+        const QS_SEARCH_STR = PREFIX + SEARCH_STR;
 
         // default filter values, when a filter is not specified in the query string
-        var DEFAULTS = {
+        const DEFAULTS = {
             resultStatus: thResultStatusList.defaultFilters(),
             classifiedState: ['classified', 'unclassified'],
             tier: ["1", "2"]
         };
 
-        // failure classification ids that should be shown in "unclassified" mode
-        var UNCLASSIFIED_IDS = [1, 7];
+        let NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
+            'nojobs', 'startdate', 'enddate', 'revision'];
 
-        var TIERS = ["1", "2", "3"];
+        // failure classification ids that should be shown in "unclassified" mode
+        const UNCLASSIFIED_IDS = [1, 7];
+
+        const TIERS = ["1", "2", "3"];
 
         // used with field-filters to determine how to match the value against the
         // job field.
-        var MATCH_TYPE = {
+        const MATCH_TYPE = {
             exactstr: 'exactstr',
-            substr: 'substr',       // returns true if any values match the substring
+            substr: 'substr', // returns true if any values match the substring
             searchStr: 'searchStr', // returns true only if ALL the values match the substring
             choice: 'choice'
         };
 
         // choices available for the field filters
-        var FIELD_CHOICES = {
+        const FIELD_CHOICES = {
             ref_data_name: {
                 name: "buildername/jobname",
                 matchType: MATCH_TYPE.substr
@@ -116,10 +119,10 @@ treeherder.factory('thJobFilters', [
 
         // filter caches so that we only collect them when the filter params
         // change in the query string
-        var cachedResultStatusFilters = {};
-        var cachedClassifiedStateFilters = {};
-        var cachedFieldFilters = {};
-        var cachedFilterParams;
+        let cachedResultStatusFilters = {};
+        let cachedClassifiedStateFilters = {};
+        let cachedFieldFilters = {};
+        let cachedFilterParams;
 
         /**
          * Checks for a filter change and, if detected, updates the cached filter
@@ -128,7 +131,7 @@ treeherder.factory('thJobFilters', [
          */
         $rootScope.$on('$locationChangeSuccess', function () {
 
-            var newFilterParams = getNewFilterParams();
+            const newFilterParams = getNewFilterParams();
             if (!_.isEqual(cachedFilterParams, newFilterParams)) {
                 cachedFilterParams = newFilterParams;
                 _refreshFilterCaches();
@@ -137,23 +140,23 @@ treeherder.factory('thJobFilters', [
 
         });
 
-        var getNewFilterParams = function () {
+        function getNewFilterParams() {
             return _.pickBy($location.search(), function (value, field) {
                 return field.startsWith(PREFIX);
             });
-        };
+        }
 
-        var _refreshFilterCaches = function () {
+        function _refreshFilterCaches() {
             cachedResultStatusFilters = _getFiltersOrDefaults(RESULT_STATUS);
             cachedClassifiedStateFilters = _getFiltersOrDefaults(CLASSIFIED_STATE);
             cachedFieldFilters = getFieldFiltersObj();
-        };
+        }
 
-        var getFieldFiltersObj = function () {
-            var fieldFilters = {};
+        function getFieldFiltersObj() {
+            let fieldFilters = {};
             // get the search params and lay any defaults over it so we test
             // against those as well.
-            var locationSearch = _.defaults(_.clone($location.search()),
+            const locationSearch = _.defaults(_.clone($location.search()),
                                             _.mapKeys(DEFAULTS, function (value, key) {
                                                 return _withPrefix(key);
                                             }));
@@ -163,24 +166,25 @@ treeherder.factory('thJobFilters', [
                         // we cache this one a little differently
                         fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     } else {
-                        var lowerVals = _.map(_toArray(values),
-                                              function (v) { return String(v).toLowerCase(); });
-                        fieldFilters[_withoutPrefix(field)] = lowerVals;
+                        fieldFilters[_withoutPrefix(field)] = _.map(
+                            _toArray(values), v => String(v).toLowerCase());
                     }
                 }
             });
             return fieldFilters;
-        };
+        }
 
-        var _getFiltersOrDefaults = function (field) {
-            var filters = _.clone($location.search()[_withPrefix(field)]);
+        function _getFiltersOrDefaults(field) {
+            // NON_FIELD_FILTERS are filer params that don't have the prefix
+            const qsField = NON_FIELD_FILTERS.includes(field) ? _withoutPrefix(field) : _withPrefix(field);
+            const filters = _.clone($location.search()[qsField]);
             if (filters) {
                 return _toArray(filters);
             } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
                 return DEFAULTS[_withoutPrefix(field)].slice();
             }
             return [];
-        };
+        }
 
         /**
          * Whether or not this job should be shown based on the current
@@ -188,7 +192,7 @@ treeherder.factory('thJobFilters', [
          *
          * @param job - the job we are checking against the filters
          */
-        var showJob = function (job) {
+        function showJob(job) {
             // when runnable jobs have been added to a resultset, they should be
             // shown regardless of settings for classified or result state
             if (job.result !== "runnable") {
@@ -203,26 +207,25 @@ treeherder.factory('thJobFilters', [
             // runnable or not, we still want to apply the field filters like
             // for symbol, platform, search str, etc...
             return _checkFieldFilters(job);
-        };
+        }
 
-        var _checkClassifiedStateFilters = function (job) {
-            var isClassified = _isJobClassified(job);
-            if (!_.includes(cachedClassifiedStateFilters, 'unclassified') && !isClassified) {
+        function _checkClassifiedStateFilters(job) {
+            const isClassified = _isJobClassified(job);
+            if (!cachedClassifiedStateFilters.includes('unclassified') && !isClassified) {
                 return false;
             }
-            if (!_.includes(cachedClassifiedStateFilters, 'classified') && isClassified) {
-                return false;
-            }
-            return true;
-        };
+            // If the filters say not to include classified, but it IS
+            // classified, then return false, otherwise, true.
+            return !(!cachedClassifiedStateFilters.includes('classified') && isClassified);
+        }
 
-        var _checkFieldFilters = function (job) {
+        function _checkFieldFilters(job) {
 
-            for (var field in cachedFieldFilters) {
+            for (let field in cachedFieldFilters) {
                 if (cachedFieldFilters.hasOwnProperty(field)) {
 
-                    var values = cachedFieldFilters[field];
-                    var jobFieldValue = _getJobFieldValue(job, field);
+                    const values = cachedFieldFilters[field];
+                    let jobFieldValue = _getJobFieldValue(job, field);
 
                     if (!_.isUndefined(jobFieldValue)) {
                         // if a filter is added somehow, but the job object doesn't
@@ -260,14 +263,15 @@ treeherder.factory('thJobFilters', [
             }
 
             return true;
-        };
+        }
 
-        var addFilter = function (field, value) {
+        function addFilter(field, value) {
             //check for existing value
-            var oldQsVal = _getFiltersOrDefaults(field);
-            var newQsVal = null;
+            const oldQsVal = _getFiltersOrDefaults(field);
+            let newQsVal = null;
 
-            if (oldQsVal) {
+            // All filters support multiple values except NON_FIELD_FILTERS.
+            if (oldQsVal && !NON_FIELD_FILTERS.includes(field)) {
                 // set the value to an array
                 newQsVal = _toArray(oldQsVal);
                 newQsVal.push(value);
@@ -280,14 +284,14 @@ treeherder.factory('thJobFilters', [
             }
             $log.debug("add set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
             $location.search(_withPrefix(field), newQsVal);
-        };
+        }
 
-        var removeFilter = function (field, value) {
+        function removeFilter(field, value) {
             // default to just removing the param completely
-            var newQsVal = null;
+            let newQsVal = null;
 
             if (value) {
-                var oldQsVal = _getFiltersOrDefaults(field);
+                const oldQsVal = _getFiltersOrDefaults(field);
                 if (oldQsVal && oldQsVal.length) {
                     newQsVal = _.without(oldQsVal, value);
                 }
@@ -297,31 +301,31 @@ treeherder.factory('thJobFilters', [
                 $log.debug("remove set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
             }
             $location.search(_withPrefix(field), newQsVal);
-        };
+        }
 
-        var replaceFilter = function (field, value) {
+        function replaceFilter(field, value) {
             //check for existing value
             $log.debug("add set " + _withPrefix(field) + " to " + value);
             $location.search(_withPrefix(field), value);
-        };
+        }
 
-        var removeAllFieldFilters = function () {
-            var locationSearch = $location.search();
+        function removeAllFieldFilters() {
+            const locationSearch = $location.search();
             _stripFieldFilters(locationSearch);
             $location.search(locationSearch);
-        };
+        }
 
         /**
          * reset the non-field (checkbox in the ui) filters to the default state
          * so the user sees everything.  Doesn't affect the field filters.  This
          * is used to undo the call to ``setOnlyUnclassifiedFailures``.
          */
-        var resetNonFieldFilters = function () {
-            var locationSearch = _.clone($location.search());
+        function resetNonFieldFilters() {
+            const locationSearch = _.clone($location.search());
             delete locationSearch[QS_RESULT_STATUS];
             delete locationSearch[QS_CLASSIFIED_STATE];
             $location.search(locationSearch);
-        };
+        }
 
         /**
          * used mostly for resultStatus doing group toggles
@@ -330,23 +334,21 @@ treeherder.factory('thJobFilters', [
          * @param values - an array of values for the field
          * @param add - true if adding, false if removing
          */
-        var toggleFilters = function (field, values, add) {
+        function toggleFilters(field, values, add) {
             $log.debug("toggling to ", add);
-            var action = add? api.addFilter: api.removeFilter;
-            for (var i = 0; i < values.length; i++) {
-                action(field, values[i]);
-            }
+            const action = add ? addFilter : removeFilter;
+            values.map(value => action(field, value));
             // Don't emit the filter changed state here: we'll
             // do that when the URL change signal gets fired (see
             // the locationChangeSuccess event, above)
-        };
+        }
 
-        var toggleInProgress = function () {
+        function toggleInProgress() {
             toggleResultStatuses(['pending', 'running']);
-        };
+        }
 
-        var toggleResultStatuses = function (resultStatuses) {
-            var rsValues = _getFiltersOrDefaults(RESULT_STATUS);
+        function toggleResultStatuses(resultStatuses) {
+            let rsValues = _getFiltersOrDefaults(RESULT_STATUS);
             if (_.difference(resultStatuses, rsValues).length === 0) {
                 rsValues = _.difference(rsValues, resultStatuses);
             } else {
@@ -357,117 +359,124 @@ treeherder.factory('thJobFilters', [
                 rsValues = null;
             }
             $location.search(QS_RESULT_STATUS, rsValues);
-        };
+        }
 
-        var toggleUnclassifiedFailures = function () {
+        function toggleUnclassifiedFailures() {
             $log.debug("toggleUnclassifiedFailures");
             if (_isUnclassifiedFailures()) {
                 resetNonFieldFilters();
             } else {
                 setOnlyUnclassifiedFailures();
             }
-        };
+        }
 
-        var isFilterSetToShow = function (field, value) {
+        function isFilterSetToShow(field, value) {
             return _.includes(_getFiltersOrDefaults(field), String(value));
-        };
+        }
 
         /**
          * Set the non-field filters so that we only view unclassified failures
          */
-        var setOnlyUnclassifiedFailures = function () {
-            var locationSearch = _.clone($location.search());
+        function setOnlyUnclassifiedFailures() {
+            const locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = thFailureResults.slice();
             locationSearch[QS_CLASSIFIED_STATE] = ['unclassified'];
             $location.search(locationSearch);
-        };
+        }
 
         /**
-         * Set the non-field filters so that we only view coalesced jobs
+         * Set the non-field filters so that we only view superseded jobs
          */
-        var setOnlyCoalesced = function () {
-            var locationSearch = _.clone($location.search());
-            locationSearch[QS_RESULT_STATUS] = "coalesced";
+        function setOnlySuperseded() {
+            const locationSearch = _.clone($location.search());
+            locationSearch[QS_RESULT_STATUS] = "superseded";
             locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
-        };
+        }
 
-        var getClassifiedStateArray = function () {
-            var arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
+        function getClassifiedStateArray() {
+            const arr = _toArray($location.search()[QS_CLASSIFIED_STATE]) ||
                 DEFAULTS.classifiedState;
             return arr.slice();
-        };
+        }
 
         /**
          * Used externally to display the field filters.  Internally, we treat
          * the ``searchStr`` as a field filter, but the we don't want to expose
          * that outside of this class in this function.
          */
-        var getFieldFiltersArray = function () {
-            var fieldFilters = [];
+        function getFieldFiltersArray() {
+            const fieldFilters = [];
 
             _.each($location.search(), function (values, fieldName) {
                 if (_isFieldFilter(fieldName)) {
-                    var valArr = _toArray(values);
+                    const valArr = _toArray(values);
                     _.each(valArr, function (val) {
                         if (fieldName !== QS_SEARCH_STR) {
                             fieldFilters.push({
                                 field: _withoutPrefix(fieldName),
-                                value: val
+                                value: val,
+                                key: fieldName
                             });
                         }
                     });
                 }
             });
             return fieldFilters;
-        };
+        }
 
-        var getFieldChoices = function () {
-            var choices = _.clone(FIELD_CHOICES);
+        function getNonFieldFiltersArray() {
+            return Object.entries($location.search()).reduce((acc, [key, value]) => (
+                NON_FIELD_FILTERS.includes(key) ? [...acc, { field: key, key, value }]: acc
+            ), []);
+        }
+
+        function getFieldChoices() {
+            const choices = _.clone(FIELD_CHOICES);
             delete choices.searchStr;
             return choices;
-        };
+        }
 
-        var getResultStatusArray = function () {
-            var arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
+        function getResultStatusArray() {
+            const arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
                 DEFAULTS.resultStatus;
             return arr.slice();
-        };
+        }
 
-        var isJobUnclassifiedFailure = function (job) {
+        function isJobUnclassifiedFailure(job) {
             return (_.includes(thFailureResults, job.result) &&
                     !_isJobClassified(job));
-        };
+        }
 
-        var _isJobClassified = function (job) {
+        function _isJobClassified(job) {
             return !_.includes(UNCLASSIFIED_IDS, job.failure_classification_id);
-        };
+        }
 
-        var stripFiltersFromQueryString = function (locationSearch) {
+        function stripFiltersFromQueryString(locationSearch) {
             delete locationSearch[QS_CLASSIFIED_STATE];
             delete locationSearch[QS_RESULT_STATUS];
 
             _stripFieldFilters(locationSearch);
             return locationSearch;
-        };
+        }
 
         /**
          * Removes field filters from the passed-in locationSearch without
          * actually setting it in the location bar
          */
-        var _stripFieldFilters = function (locationSearch) {
+        function _stripFieldFilters(locationSearch) {
             _.forEach(locationSearch, function (val, field) {
                 if (_isFieldFilter(field)) {
                     delete locationSearch[field];
                 }
             });
             return locationSearch;
-        };
+        }
 
-        var _isFieldFilter = function (field) {
+        function _isFieldFilter(field) {
             return field.startsWith(PREFIX) &&
                 !_.includes(['resultStatus', 'classifiedState'], _withoutPrefix(field));
-        };
+        }
 
         /**
          * Get the field from the job.  In most cases, this is very simple.  But
@@ -475,7 +484,7 @@ treeherder.factory('thJobFilters', [
          * shows to the user as a different string than what is stored in the job
          * object.
          */
-        var _getJobFieldValue = function (job, field) {
+        function _getJobFieldValue(job, field) {
             if (field === 'platform') {
                 return thPlatformName(job[field]) + " " + job.platform_option;
             } else if (field === 'searchStr') {
@@ -484,56 +493,48 @@ treeherder.factory('thJobFilters', [
             }
 
             return job[field];
-        };
+        }
 
         /**
          * check if we're in the state of showing only unclassified failures
          */
-        var _isUnclassifiedFailures = function () {
+        function _isUnclassifiedFailures() {
             return (_.isEqual(_toArray($location.search()[QS_RESULT_STATUS]), thFailureResults) &&
                     _.isEqual(_toArray($location.search()[QS_CLASSIFIED_STATE]), ['unclassified']));
-        };
+        }
 
-        var _matchesDefaults = function (field, values) {
+        function _matchesDefaults(field, values) {
             $log.debug("_matchesDefaults", field, values);
+            field = _withoutPrefix(field);
             if (DEFAULTS.hasOwnProperty(field)) {
                 return values.length === DEFAULTS[field].length &&
                     _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
             }
             return false;
-        };
+        }
 
-        var _withPrefix = function (field) {
-            return (!field.startsWith(PREFIX)) ? PREFIX+field : field;
-        };
+        function _withPrefix(field) {
+            return (!field.startsWith(PREFIX) && !NON_FIELD_FILTERS.includes(field)) ? PREFIX+field : field;
+        }
 
-        var _withoutPrefix = function (field) {
+        function _withoutPrefix(field) {
             return field.startsWith(PREFIX) ? field.replace(PREFIX, '') : field;
-        };
+        }
 
         /**
          * Check the array if any elements contain a match for the ``val`` as a
-         * substring.
+         * substring.  These functions exist so we aren't creating functions
+         * in a loop.
          */
-        var _containsSubstr = function (arr, val) {
-            for (var i = 0; i < arr.length; i++) {
-                if (val.indexOf(arr[i]) >= 0) {
-                    return true;
-                }
-            }
-            return false;
-        };
+        function _containsSubstr(arr, val) {
+            return arr.some(arVal => val.includes(arVal));
+        }
 
-        var _containsAllSubstr = function (arr, val) {
-            for (var i = 0; i < arr.length; i++) {
-                if (val.indexOf(arr[i]) === -1) {
-                    return false;
-                }
-            }
-            return true;
-        };
+        function _containsAllSubstr(arr, val) {
+            return arr.every(arVal => val.includes(arVal));
+        }
 
-        var _toArray = function (value) {
+        function _toArray(value) {
             if (_.isUndefined(value)) {
                 return value;
             }
@@ -541,28 +542,28 @@ treeherder.factory('thJobFilters', [
                 return [value];
             }
             return value;
-        };
+        }
 
         // initialize caches on initial load
         cachedFilterParams = getNewFilterParams();
         _refreshFilterCaches();
 
         // returns active filters starting with the prefix
-        var getActiveFilters = function () {
-            var filters = {};
+        function getActiveFilters() {
+            const filters = {};
             Object.keys($location.search()).forEach(function (key) {
                 if (key.startsWith(PREFIX)) {
                     filters[key] = $location.search()[key];
                 }
             });
             return filters;
-        };
+        }
 
         /*********************************
          * Externally available API fields
          */
 
-        var api = {
+        return {
             // check a job against the filters
             showJob: showJob,
 
@@ -576,11 +577,12 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
-            setOnlyCoalesced: setOnlyCoalesced,
+            setOnlySuperseded: setOnlySuperseded,
             getActiveFilters: getActiveFilters,
 
             // filter data read-only accessors
             getClassifiedStateArray: getClassifiedStateArray,
+            getNonFieldFiltersArray: getNonFieldFiltersArray,
             getFieldFiltersArray: getFieldFiltersArray,
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
@@ -594,5 +596,4 @@ treeherder.factory('thJobFilters', [
             resultStatus: RESULT_STATUS,
             tiers: TIERS
         };
-        return api;
     }]);
