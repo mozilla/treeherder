@@ -126,8 +126,7 @@ class Push(models.Model):
         Gets a summary of what passed/failed for the push
         '''
         jobs = Job.objects.filter(push=self).filter(
-            Q(failure_classification__isnull=True) |
-            Q(failure_classification__name='not classified')).exclude(tier=3)
+            Q(failure_classification__isnull=True)).exclude(tier=3)
 
         status_dict = {}
         for (state, result, total) in jobs.values_list(
@@ -854,9 +853,6 @@ class JobNote(models.Model):
         note = JobNote.objects.filter(job=self.job).order_by('-created').first()
         if note:
             self.job.failure_classification_id = note.failure_classification.id
-        else:
-            self.job.failure_classification_id = FailureClassification.objects.values_list(
-                'id', flat=True).get(name='not classified')
         self.job.save()
 
         # if a manually filed job, update the autoclassification information
