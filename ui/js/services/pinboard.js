@@ -2,10 +2,10 @@
 
 treeherder.factory('thPinboard', [
     '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
-    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'pinboardError',
+    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'thPinboardCountError',
     function (
         $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
-        ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore, pinboardError) {
+        ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore, thPinboardCountError) {
 
         var $log = new ThLog("thPinboard");
 
@@ -72,7 +72,7 @@ treeherder.factory('thPinboard', [
                     api.count.numPinnedJobs = _.size(pinnedJobs);
                     $rootScope.$emit(thEvents.pulsePinCount);
                 } else {
-                    thNotify.send(pinboardError, "danger");
+                    thNotify.send(thPinboardCountError, 'danger');
                 }
             },
 

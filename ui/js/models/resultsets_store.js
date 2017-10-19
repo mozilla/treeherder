@@ -301,7 +301,7 @@ treeherder.factory('ThResultSetStore', [
                     shownJobs.push(jMap.job_obj);
                 }
                 if (_.size(shownJobs) === spaceRemaining) {
-                    thNotify.send(errorMessage, "danger");
+                    thNotify.send(errorMessage, 'danger');
                     return true;
                 }
                 return false;
