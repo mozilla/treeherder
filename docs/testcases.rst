@@ -166,7 +166,7 @@ Pin all visible jobs in push
 ------
 Click on the Pin 'all' pin-icon in the right hand side of any push bar.
 
-    **Expected**: Up to a maximum of 500 jobs should be pinned, and a matching notification warning should appear if exceeded.
+    **Expected**: Up to a maximum of 500 jobs should be pinned, and a matching notification warning should appear if that limit is reached.
 
 Click in the pinboard on the extreme right hand drop down menu, and select 'Clear all'.
 
