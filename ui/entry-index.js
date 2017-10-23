@@ -47,6 +47,7 @@ require('./js/directives/treeherder/clonejobs.js');
 require('./js/directives/treeherder/resultsets.js');
 require('./js/directives/treeherder/top_nav_bar.js');
 require('./js/directives/treeherder/bottom_nav_panel.js');
+require('./js/plugins/job_details_pane.jsx');
 require('./js/reactrevisions.jsx');
 require('./js/services/main.js');
 require('./js/services/buildapi.js');

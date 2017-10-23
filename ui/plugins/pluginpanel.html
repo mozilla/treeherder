@@ -138,41 +138,8 @@
       </nav>
     </div>
     <div id="job-details-pane">
-      <ul ng-if="classifications.length > 0 || bugs.length > 0"
-          class="list-unstyled content-spacer">
-        <li ng-if="classifications.length > 0">
-          <span th-failure-classification failure-id="classifications[0].failure_classification_id"
-                job-result="job.result"></span>
-          <a target="_blank" ng-repeat="bug in bugs"
-             href="{{ getBugUrl(bug.bug_id) }}"
-             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
-        </li>
-        <li ng-if="classifications[0].text.length > 0"><em ng-bind-html="classifications[0].text|linkifyURLs|linkifyClassifications:repoName"></em></li>
-        <li class="revision-comment">
-          {{classifications[0].created|date:'EEE MMM d, H:mm:ss'}}</li>
-        <li class="revision-comment">
-          {{classifications[0].who}}</li>
-      </ul>
-      <ul class="list-unstyled">
-        <li id="result-status-pane" class="small {{resultStatusShading}}">
-          <div>
-            <label>Result:</label>
-            <span>{{ job.result }}</span>
-          </div>
-          <div>
-            <label>State:</label>
-            <span>{{ job.state }}</span>
-          </div>
-          <div ng-if="job.state =='running'">
-            <span ng-if="eta > 0">Time remaining: ~{{eta}} minutes</span>
-            <span ng-if="eta < 0">{{eta_abs}} mins overdue, typically takes ~{{average_duration}} mins</span>
-            <span ng-if="eta == 0">Due any minute now, typically takes ~{{average_duration}} mins</span>
-          </div>
-          <div ng-if="job.state =='pending'">
-            <span>Typically takes ~{{average_duration}} mins once started</span>
-          </div>
-        </li>
-      </ul>
+      <job-details-pane name="JobDetailsPane" classifications="classifications" result="job.result" 
+      jobState="job.state" resultStatusShading="resultStatusShading"></job-details-pane>      
       <ul class="content-spacer">
         <li class="small">
           <label>Job </label>
