@@ -56,12 +56,12 @@
     "react-addons-test-utils": "15.3.2"
   },
   "scripts": {
-    "build": "./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
-    "lint": "./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
-    "start": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
-    "start:local": "./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/local-watch.js",
-    "start:stage": "SERVICE_DOMAIN=https://treeherder.allizom.org ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
-    "test": "./node_modules/neutrino/bin/neutrino test --presets ./neutrino-custom/test.js",
-    "test:watch": "./node_modules/neutrino/bin/neutrino test --watch --presets ./neutrino-custom/test.js"
+    "build": "node ./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
+    "lint": "node ./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
+    "start": "node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
+    "start:local": "node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/local-watch.js",
+    "start:stage": "SERVICE_DOMAIN=https://treeherder.allizom.org node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
+    "test": "node ./node_modules/neutrino/bin/neutrino test --presets ./neutrino-custom/test.js",
+    "test:watch": "node ./node_modules/neutrino/bin/neutrino test --watch --presets ./neutrino-custom/test.js"
   }
 }
