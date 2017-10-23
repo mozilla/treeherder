@@ -91,7 +91,7 @@ treeherderApp.controller('JobFilterCtrl', [
 
         $scope.pinAllShownJobs = function () {
             if (!thPinboard.spaceRemaining()) {
-                thNotify.send(thPinboardCountError, 'danger', true);
+                thNotify.send(thPinboardCountError, 'danger', { sticky: true });
                 return;
             }
             var shownJobs = ThResultSetStore.getAllShownJobs(
