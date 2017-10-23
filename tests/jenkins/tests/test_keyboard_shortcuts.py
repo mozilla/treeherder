@@ -4,21 +4,14 @@ from pages.treeherder import TreeherderPage
 
 
 def test_close_open_panels(base_url, selenium):
-    """Open Treeherder, verify shortcut: 'Esc' closes filter and job panel.
-    Open Treeherder page, open Filters panel, select random job, close all
-    panels using 'esc' button, verify if all panels are closed.
+    """Open Treeherder, verify shortcut: 'Esc' closes job panel.
+    Open Treeherder page, select random job, close all panels using 'esc'
+    button, verify if all panels are closed.
     """
     page = TreeherderPage(selenium, base_url).open()
-
-    page.click_on_filters_panel()
     page.select_random_job()
-
-    assert page.filter_panel_is_open
     assert page.info_panel.is_open
-
     page.close_all_panels()
-
-    assert not page.filter_panel_is_open
     assert not page.info_panel.is_open
 
 
