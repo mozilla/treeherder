@@ -15,7 +15,6 @@ class TreeherderPage(Base):
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _close_the_job_panel_locator = (By.CSS_SELECTOR, '.info-panel-navbar-controls > li:nth-child(2)')
     _filter_panel_all_failures_locator = (By.CSS_SELECTOR, '.pull-right input')
-    _filter_panel_body_locator = (By.CSS_SELECTOR, '.th-top-nav-options-panel')
     _filter_panel_busted_failures_locator = (By.ID, 'busted')
     _filter_panel_exception_failures_locator = (By.ID, 'exception')
     _filter_panel_locator = (By.CSS_SELECTOR, 'span.navbar-right > span:nth-child(4)')
@@ -66,11 +65,6 @@ class TreeherderPage(Base):
     @property
     def checkbox_testfailed_is_selected(self):
         return self.find_element(*self._filter_panel_testfailed_failures_locator).is_selected()
-
-    @property
-    def filter_panel_is_open(self):
-        el = self.find_element(*self._filter_panel_body_locator)
-        return el.is_displayed()
 
     @property
     def info_panel(self):
