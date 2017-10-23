@@ -28,9 +28,9 @@ class TreeherderPage(Base):
     _nav_filter_retry_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=retry]')
     _nav_filter_successes_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=success]')
     _nav_filter_usercancel_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=usercancel]')
-    _next_ten_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(1)')
-    _next_twenty_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
-    _next_fifty_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
+    _get_next_10_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(1)')
+    _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
+    _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
     _quick_filter_locator = (By.ID, 'quick-filter')
     _repos_menu_locator = (By.ID, 'repoLabel')
     _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
@@ -197,17 +197,20 @@ class TreeherderPage(Base):
     def filter_unclassified_jobs(self):
         self.find_element(*self._unclassified_failure_filter_locator).click()
 
-    def get_next_ten_results(self):
-        self.find_element(*self._next_ten_locator).click()
-        self.wait.until(lambda s: len(self.result_sets) == 20)
+    def _get_next(self, count):
+        before = len(self.result_sets)
+        locator = getattr(self, '_get_next_{}_locator'.format(count))
+        self.find_element(*locator).click()
+        self.wait.until(lambda s: len(self.result_sets) == before + count)
 
-    def get_next_twenty_results(self):
-        self.find_element(*self._next_twenty_locator).click()
-        self.wait.until(lambda s: len(self.result_sets) == 30)
+    def get_next_10(self):
+        self._get_next(10)
 
-    def get_next_fifty_results(self):
-        self.find_element(*self._next_fifty_locator).click()
-        self.wait.until(lambda s: len(self.result_sets) == 60)
+    def get_next_20(self):
+        self._get_next(20)
+
+    def get_next_50(self):
+        self._get_next(50)
 
     def open_next_unclassified_failure(self):
         el = self.find_element(*self._result_sets_locator)
