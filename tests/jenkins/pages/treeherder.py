@@ -47,6 +47,11 @@ class TreeherderPage(Base):
         return self.find_element(*self._active_watched_repo_locator).text
 
     @property
+    def all_builds(self):
+        return list(itertools.chain.from_iterable(
+            r.builds for r in self.result_sets))
+
+    @property
     def all_emails(self):
         return list(itertools.chain.from_iterable([r.emails for r in self.result_sets]))
 
