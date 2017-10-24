@@ -14,11 +14,10 @@ class TreeherderPage(Base):
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _close_the_job_panel_locator = (By.CSS_SELECTOR, '.info-panel-navbar-controls > li:nth-child(2)')
-    _filter_panel_all_failures_locator = (By.CSS_SELECTOR, '.pull-right input')
     _filter_panel_busted_failures_locator = (By.ID, 'busted')
     _filter_panel_exception_failures_locator = (By.ID, 'exception')
     _filter_panel_locator = (By.CSS_SELECTOR, 'span.navbar-right > span:nth-child(4)')
-    _filter_panel_reset_locator = (By.CSS_SELECTOR, '.pull-right span:nth-child(3)')
+    _filter_panel_reset_locator = (By.CSS_SELECTOR, '#filter-dropdown > li:last-child')
     _filter_panel_testfailed_failures_locator = (By.ID, 'testfailed')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
     _mozilla_central_repo_locator = (By.CSS_SELECTOR, '#th-global-navbar-top a[href*="mozilla-central"]')
@@ -147,10 +146,6 @@ class TreeherderPage(Base):
 
     def close_all_panels(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ESCAPE)
-
-    def deselect_all_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_all_failures_locator).click()
 
     def deselect_busted_failures(self):
         """Filters Panel must be opened"""
@@ -349,6 +344,11 @@ class TreeherderPage(Base):
                 self.root.click()
 
         class Job(Region):
+
+            @property
+            def in_progress(self):
+                classes = self.root.get_attribute('class').split()
+                return any(c in ('btn-dkgray', 'btn-ltgray') for c in classes)
 
             @property
             def selected(self):
