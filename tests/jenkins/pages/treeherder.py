@@ -228,9 +228,7 @@ class TreeherderPage(Base):
         self.find_element(*self._repos_menu_locator).click()
 
     def pin_using_spacebar(self):
-        el = self.find_element(*self._result_sets_locator)
-        self.wait.until(EC.visibility_of(el))
-        el.send_keys(Keys.SPACE)
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.SPACE)
         self.wait.until(lambda _: self.pinboard.is_pinboard_open)
 
     def reset_filters(self):
