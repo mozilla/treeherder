@@ -318,13 +318,19 @@ class TreeherderPage(Base):
             return self.find_element(*self._pin_all_jobs_locator).click()
 
         def set_as_bottom_of_range(self):
+            # TODO workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            el = self.page.find_element(By.CSS_SELECTOR, 'body')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_bottom_of_range_locator).click()
+            self.wait.until(EC.staleness_of(el))
             self.page.wait_for_page_to_load()
 
         def set_as_top_of_range(self):
+            # TODO workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            el = self.page.find_element(By.CSS_SELECTOR, 'body')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_top_of_range_locator).click()
+            self.wait.until(EC.staleness_of(el))
             self.page.wait_for_page_to_load()
 
         def view(self):
