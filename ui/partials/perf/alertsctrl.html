@@ -84,7 +84,9 @@
               <a ng-click="fileBug(alertSummary)">File bug</a>
             </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
-              <a ng-click="linkToBug(alertSummary)">Link to bug</a>
+              <a data-alert-summary="alertSummary"
+                 data-target=#modify-alerts-modal
+                 data-toggle="modal">Link to bug</a>
             </li>
             <li role="menuitem" ng-show="alertSummary.bug_number && user.is_staff">
               <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
@@ -211,12 +213,16 @@
           <span class="fa fa-ban"></span> Mark invalid
         </button>
         <button class="btn btn-default" role="button"
-                ng-click="markAlertsDownstream(alertSummary)"
+                data-alert-summary="alertSummary"
+                data-target=#mark-downstream-alerts-modal
+                data-toggle="modal"
                 title="Mark selected alerts as downstream from an alert summary on another branch">
           <span class="fa fa-level-down"></span> Mark downstream
         </button>
         <button class="btn btn-default" role="button"
-                ng-click="reassignAlerts(alertSummary)"
+                data-alert-summary="alertSummary"
+                data-target=#reassign-alerts-modal
+                data-toggle="modal"
                 title="Reassign selected alerts to another alert summary on the same branch">
           <span class="fa fa-arrow-circle-o-right"></span> Reassign
         </button>
@@ -234,3 +240,8 @@
                     total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
                     rotate="false" boundary-link-numbers="true"></uib-pagination>
 </div>
+<modify-alert-summary update-alert-visibility="$ctrl.updateAlertVisibility"></modify-alert-summary>
+<mark-downstream-alerts all-alert-summaries="alertSummaries"
+                        update-alert-visibility="$ctrl.updateAlertVisibility"></mark-downstream-alerts>
+<reassign-alerts all-alert-summaries="alertSummaries"
+                 update-alert-visibility="$ctrl.updateAlertVisibility"></reassign-alerts>
