@@ -1,5 +1,4 @@
 import pytest
-import random
 
 from pages.treeherder import TreeherderPage
 
@@ -24,11 +23,7 @@ def test_status_results_failures(base_url, selenium):
     page.filter_job_retries()
     page.filter_job_usercancel()
     page.filter_job_in_progress()
-
-    all_jobs = page.all_jobs
-    job = random.choice(all_jobs)
-    unclassified = ['testfailed', 'exception', 'busted']
-    assert any(status in job.title for status in unclassified)
+    assert 0 < len(page.all_jobs) == len(page.all_failed_jobs)
 
 
 @pytest.mark.nondestructive
@@ -39,8 +34,7 @@ def test_status_results_success(base_url, selenium):
     page.filter_job_retries()
     page.filter_job_usercancel()
     page.filter_job_in_progress()
-
-    assert all(map(lambda job: 'success' in job.title, page.all_jobs))
+    assert 0 < len(page.all_jobs) == len(page.all_successful_jobs)
 
 
 @pytest.mark.nondestructive
@@ -51,11 +45,11 @@ def test_status_results_retry(base_url, selenium):
     page.filter_job_successes()
     page.filter_job_usercancel()
     page.filter_job_in_progress()
-
-    assert all(map(lambda job: 'retry' in job.title, page.all_jobs))
+    assert 0 < len(page.all_jobs) == len(page.all_restarted_jobs)
 
 
 @pytest.mark.nondestructive
+@pytest.mark.xfail(reason='Superseded jobs rarely occur', run=False)
 def test_status_results_superseded(base_url, selenium):
     """Open resultset page and verify job status superseded filter displays correctly."""
     page = TreeherderPage(selenium, base_url).open()
@@ -65,8 +59,7 @@ def test_status_results_superseded(base_url, selenium):
     page.filter_job_usercancel()
     page.filter_job_superseded()
     page.filter_job_in_progress()
-
-    assert all(map(lambda job: 'superseded' in job.title, page.all_jobs))
+    assert 0 < len(page.all_jobs) == len(page.all_superseded_jobs)
 
 
 @pytest.mark.nondestructive
@@ -77,8 +70,4 @@ def test_status_results_in_progress(base_url, selenium):
     page.filter_job_successes()
     page.filter_job_retries()
     page.filter_job_usercancel()
-
-    all_jobs = page.all_jobs
-    job = random.choice(all_jobs)
-    runnable = ['running', 'pending']
-    assert any(status in job.title for status in runnable)
+    assert 0 < len(page.all_jobs) == len(page.all_in_progress_jobs)

@@ -52,16 +52,38 @@ class TreeherderPage(Base):
 
     @property
     def all_emails(self):
-        return list(itertools.chain.from_iterable([r.emails for r in self.result_sets]))
+        return list(itertools.chain.from_iterable(
+            r.emails for r in self.result_sets))
 
     @property
-    def all_jobs(self):
-        return list(itertools.chain.from_iterable([r.jobs for r in self.result_sets]))
+    def all_failed_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.failed_jobs for r in self.result_sets))
 
     @property
     def all_in_progress_jobs(self):
         return list(itertools.chain.from_iterable(
             r.in_progress_jobs for r in self.result_sets))
+
+    @property
+    def all_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.jobs for r in self.result_sets))
+
+    @property
+    def all_restarted_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.restarted_jobs for r in self.result_sets))
+
+    @property
+    def all_successful_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.successful_jobs for r in self.result_sets))
+
+    @property
+    def all_superseded_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.superseded_jobs for r in self.result_sets))
 
     @property
     def checkbox_busted_is_selected(self):
@@ -288,21 +310,31 @@ class TreeherderPage(Base):
 
     class ResultSet(Region):
 
+        _busted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-red')
         _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
         _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _email_locator = (By.CSS_SELECTOR, '.result-set-title-left > th-author > span > a')
+        _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _platform_locator = (By.CLASS_NAME, 'platform')
+        _restarted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkblue')
         _running_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkgray')
         _set_bottom_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(9) > a')
         _set_top_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(8) > a')
+        _successful_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-green')
+        _superseded_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltblue')
+        _tests_failed_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-orange')
 
         @property
         def builds(self):
             return [self.Build(self.page, root=el) for el in self.find_elements(*self._platform_locator) if el.is_displayed()]
+
+        @property
+        def busted_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._busted_jobs_locator)]
 
         @property
         def datestamp(self):
@@ -315,6 +347,14 @@ class TreeherderPage(Base):
         @property
         def email_name(self):
             return self.find_element(*self._email_locator).text
+
+        @property
+        def exception_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._exception_jobs_locator)]
+
+        @property
+        def failed_jobs(self):
+            return self.busted_jobs + self.exception_jobs + self.tests_failed_jobs
 
         @property
         def in_progress_jobs(self):
@@ -336,6 +376,10 @@ class TreeherderPage(Base):
             return self.find_element(*self._pin_all_jobs_locator).click()
 
         @property
+        def restarted_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._restarted_jobs_locator)]
+
+        @property
         def running_jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._running_jobs_locator)]
 
@@ -354,6 +398,18 @@ class TreeherderPage(Base):
             self.find_element(*self._set_top_of_range_locator).click()
             self.wait.until(EC.staleness_of(el))
             self.page.wait_for_page_to_load()
+
+        @property
+        def successful_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._successful_jobs_locator)]
+
+        @property
+        def superseded_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._superseded_jobs_locator)]
+
+        @property
+        def tests_failed_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._tests_failed_jobs_locator)]
 
         def view(self):
             # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
