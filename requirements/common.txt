@@ -271,8 +271,9 @@ async_timeout==1.4.0; python_version >= '3' \
     --hash=sha256:5b5c855783f65dfda72fc15ca538070188776ece811408867e64dd3cce53371d \
     --hash=sha256:983891535b1eca6ba82b9df671c8abff53c804fce3fa630058da5bbbda500340
 
-graphene-django==1.3 \
-    --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc
+graphene-django==2.0.0 \
+    --hash=sha256:5cabf46b59f242a533fe1df1912c87d5ad6606246937609be2e6c9086cfdf7a4 \
+    --hash=sha256:70d9358bc48c806b6a9458e8344f0a1211cd1f1ef923a092aa55e6bcacc2c3fc
 
 # Used by graphene-django
 graphql-core==1.1 \
