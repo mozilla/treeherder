@@ -59,6 +59,11 @@ class TreeherderPage(Base):
         return list(itertools.chain.from_iterable([r.jobs for r in self.result_sets]))
 
     @property
+    def all_in_progress_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.in_progress_jobs for r in self.result_sets))
+
+    @property
     def checkbox_busted_is_selected(self):
         return self.find_element(*self._filter_panel_busted_failures_locator).is_selected()
 
@@ -288,8 +293,10 @@ class TreeherderPage(Base):
         _email_locator = (By.CSS_SELECTOR, '.result-set-title-left > th-author > span > a')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
+        _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _platform_locator = (By.CLASS_NAME, 'platform')
+        _running_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkgray')
         _set_bottom_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(9) > a')
         _set_top_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(8) > a')
 
@@ -310,6 +317,10 @@ class TreeherderPage(Base):
             return self.find_element(*self._email_locator).text
 
         @property
+        def in_progress_jobs(self):
+            return self.pending_jobs + self.running_jobs
+
+        @property
         def job_groups(self):
             return [self.JobGroup(self.page, root=el) for el in self.find_elements(*self._job_groups_locator)]
 
@@ -317,8 +328,16 @@ class TreeherderPage(Base):
         def jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
 
+        @property
+        def pending_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._pending_jobs_locator)]
+
         def pin_all_jobs(self):
             return self.find_element(*self._pin_all_jobs_locator).click()
+
+        @property
+        def running_jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._running_jobs_locator)]
 
         def set_as_bottom_of_range(self):
             # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
