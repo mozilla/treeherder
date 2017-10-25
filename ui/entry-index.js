@@ -88,6 +88,7 @@ require('./js/controllers/bugfiler.js');
 require('./js/controllers/tcjobactions.js');
 require('./plugins/tabs.js');
 require('./plugins/controller.js');
+require('./plugins/job_details_pane.jsx');
 require('./plugins/pinboard.js');
 require('./plugins/annotations/controller.js');
 require('./plugins/failure_summary/controller.js');
