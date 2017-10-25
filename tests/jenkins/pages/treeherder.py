@@ -143,7 +143,10 @@ class TreeherderPage(Base):
         self.find_element(*self._filter_panel_locator).click()
 
     def click_on_active_watched_repo(self):
+        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+        el = self.find_element(By.CSS_SELECTOR, 'body')
         self.find_element(*self._active_watched_repo_locator).click()
+        self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
 
     def close_the_job_panel(self):
@@ -256,8 +259,10 @@ class TreeherderPage(Base):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_LEFT)
 
     def select_random_email(self):
-        random_email = random.choice(self.all_emails)
-        random_email.click()
+        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+        el = self.find_element(By.CSS_SELECTOR, 'body')
+        random.choice(self.all_emails).click()
+        self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
 
     def select_random_job(self):
@@ -316,7 +321,7 @@ class TreeherderPage(Base):
             return self.find_element(*self._pin_all_jobs_locator).click()
 
         def set_as_bottom_of_range(self):
-            # TODO workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
             el = self.page.find_element(By.CSS_SELECTOR, 'body')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_bottom_of_range_locator).click()
@@ -324,7 +329,7 @@ class TreeherderPage(Base):
             self.page.wait_for_page_to_load()
 
         def set_as_top_of_range(self):
-            # TODO workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
             el = self.page.find_element(By.CSS_SELECTOR, 'body')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_top_of_range_locator).click()
