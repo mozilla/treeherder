@@ -113,11 +113,11 @@ treeherder.component('compareError', {
 
 treeherder.component('distributionGraph', {
     template: `
-        <table class = "tooltip-table"> 
-            <tr> 
-                <td class="value-column">{{$ctrl.minValue|abbreviatedNumber}}</td> 
-                <td class="distribution-column"><canvas id="distribution-graph-new" width="190" height="30"></canvas></td>  
-                <td class="value-column">{{$ctrl.maxValue|abbreviatedNumber}}</td> 
+        <table class="tooltip-table">
+            <tr>
+                <td class="value-column">{{$ctrl.minValue|abbreviatedNumber}}</td>
+                <td class="distribution-column"><canvas id="distribution-graph-new" width="190" height="30"></canvas></td>
+                <td class="value-column">{{$ctrl.maxValue|abbreviatedNumber}}</td>
             </tr>
         </table>`,
     bindings: {
