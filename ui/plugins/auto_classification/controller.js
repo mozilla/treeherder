@@ -128,13 +128,14 @@ treeherder.component('thStaticClassificationOption', {
  * Editable option component controller
  */
 treeherder.controller('ThClassificationOptionController', [
-    '$scope', '$uibModal', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl',
+    '$scope', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl',
     'thReftestStatus', 'ThLog',
-    function ($scope, $uibModal, highlightCommonTerms, escapeHTML, thPinboard, thUrl, thReftestStatus,
+    function ($scope, highlightCommonTerms, escapeHTML, thPinboard, thUrl, thReftestStatus,
               ThLog) {
-        var ctrl = this;
+        const ctrl = this;
+        $scope.errorLine = ctrl.errorLine;
 
-        var log = new ThLog('ThClassificationOptionController');
+        const log = new ThLog('ThClassificationOptionController');
 
         $scope.getBugUrl = thUrl.getBugUrl;
         $scope.thPinboard = thPinboard;
@@ -149,47 +150,32 @@ treeherder.controller('ThClassificationOptionController', [
             ctrl.onChange();
         };
 
-        $scope.fileBug = function () {
-            var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
+        $scope.bugfilerDialogInit = function () {
+            const reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-            var logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"));
+            let logUrl = ctrl.thJob.logs.filter(x => x.name.endsWith("_json"));
             logUrl = logUrl[0] ? logUrl[0].url : ctrl.thJob.logs[0];
 
-            var crashSignatures = [];
-            var crashRegex = /application crashed \[@ (.+)\]$/g;
+            return {
+                summary: ctrl.errorLine.data.bug_suggestions.search,
+                search_terms: ctrl.errorLine.data.bug_suggestions.search_terms,
+                fullLog: logUrl,
+                parsedLog: location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
+                reftest: (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
+                selectedJob: ctrl.thJob,
+                allFailures: [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
+            };
+        };
 
-            var crash = ctrl.errorLine.data.bug_suggestions.search.match(crashRegex);
-            if (crash) {
-                var signature = crash[0].split("application crashed ")[1];
-                if (!crashSignatures.includes(signature)) {
-                    crashSignatures.push(signature);
-                }
-            }
+        $scope.bugfilerSuccessCallback = (data) => {
+            const bugId = data.success;
+            $scope.ctrl.selectedOption.manualBugNumber = bugId;
+            window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + bugId);
+            $scope.ctrl.onChange();
+        };
 
-            var modalInstance = $uibModal.open({
-                templateUrl: 'partials/main/intermittent.html',
-                controller: 'BugFilerCtrl',
-                size: 'lg',
-                openedClass: "filer-open",
-                resolve: {
-                    summary: () => ctrl.errorLine.data.bug_suggestions.search,
-                    search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
-                    fullLog: () => logUrl,
-                    parsedLog: () => location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
-                    reftest: () => (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
-                    selectedJob: () => ctrl.thJob,
-                    allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
-                    crashSignatures: () => crashSignatures,
-                    successCallback: () => (data) => {
-                        var bugId = data.success;
-                        ctrl.selectedOption.manualBugNumber = bugId;
-                        window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + bugId);
-                        ctrl.onChange();
-                    }
-                }
-            });
+        $scope.fileBug = function () {
             ctrl.selectedOption.id = ctrl.optionData.id;
-            modalInstance.opened.then(() => modalInstance.initiate());
         };
     }
 ]);
