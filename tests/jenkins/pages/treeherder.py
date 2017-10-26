@@ -46,11 +46,6 @@ class TreeherderPage(Base):
         return self.find_element(*self._active_watched_repo_locator).text
 
     @property
-    def all_builds(self):
-        return list(itertools.chain.from_iterable(
-            r.builds for r in self.result_sets))
-
-    @property
     def all_emails(self):
         return list(itertools.chain.from_iterable(
             r.emails for r in self.result_sets))
@@ -319,7 +314,6 @@ class TreeherderPage(Base):
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
-        _platform_locator = (By.CLASS_NAME, 'platform')
         _restarted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkblue')
         _running_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkgray')
         _set_bottom_of_range_locator = (By.CSS_SELECTOR, '.open ul > li:nth-child(9) > a')
@@ -327,10 +321,6 @@ class TreeherderPage(Base):
         _successful_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-green')
         _superseded_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltblue')
         _tests_failed_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-orange')
-
-        @property
-        def builds(self):
-            return [self.Build(self.page, root=el) for el in self.find_elements(*self._platform_locator) if el.is_displayed()]
 
         @property
         def busted_jobs(self):
@@ -355,6 +345,10 @@ class TreeherderPage(Base):
         @property
         def failed_jobs(self):
             return self.busted_jobs + self.exception_jobs + self.tests_failed_jobs
+
+        def contains_platform(self, value):
+            locator = (By.CSS_SELECTOR, '.job-list tr[style=\'display: table-row;\'] .platform > span[title~={} i]'.format(value))
+            return any(self.find_elements(*locator))
 
         @property
         def in_progress_jobs(self):
@@ -417,14 +411,6 @@ class TreeherderPage(Base):
             self.find_element(*self._datestamp_locator).click()
             self.wait.until(EC.staleness_of(el))
             self.page.wait_for_page_to_load()
-
-        class Build(Region):
-
-            _platform_name_locator = (By.CSS_SELECTOR, 'td:nth-child(1) > span:nth-child(1)')
-
-            @property
-            def platform_name(self):
-                return self.find_element(*self._platform_name_locator).text
 
         class Email(Region):
 
