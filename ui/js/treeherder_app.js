@@ -1,7 +1,7 @@
 'use strict';
 
 var treeherderApp = angular.module('treeherder.app',
-    ['treeherder', 'ui.bootstrap', 'ngRoute',
+    ['treeherder', 'ngRoute',
         'mc.resizer', 'angular-toArrayFilter', 'react',
         'hc.marked']);
 
