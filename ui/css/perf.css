@@ -1,3 +1,9 @@
+body {
+  line-height: inherit;
+  font-size: 14px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 .blink {
 animation: blink 1s ease-in-out infinite alternate;
 }
@@ -16,6 +22,14 @@ to { opacity: 0; }
     border: none;
     color: #555;
     background: #f8f8f8;
+}
+
+.navbar-right {
+    flex-direction: row;
+}
+
+login {
+    align-self: center;
 }
 
 #graph-chooser { flex: none; width: 240px; padding: 8px; }
@@ -234,7 +248,8 @@ to { opacity: 0; }
 }
 
 .centered-element {
-  flex: none;
+  flex: 2;
+  margin-left: 16px
 }
 
 .compare-form {
@@ -243,13 +258,17 @@ to { opacity: 0; }
   flex-flow: column;
 }
 
+.compare-form.centered-element {
+    margin: 0 20px 0 20px;
+}
+
 .compare-form .form-group {
   display: flex;
   flex-flow: row;
   flex: none;
 }
 
-.compare-form .form-group .panel {
+.compare-form .form-group .card {
   flex: none;
   width: 360px;
   height: 250px;
@@ -368,6 +387,10 @@ span.compare-notsure {
 .alerts-container {
     padding-left: 90px;
     padding-right: 90px;
+}
+
+.alerts-container .alert-selects {
+    display: flex;
 }
 
 .alert-summary a {

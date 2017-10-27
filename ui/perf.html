@@ -17,12 +17,11 @@
         <span class="dropdown">
           <button id="th-logo"
                   title="Treeherder services" role="button"
-                  class="btn btn-view-nav"
+                  class="btn btn-view-nav dropdown-toggle"
                   data-toggle="dropdown">Perfherder
-            <span class="fa fa-angle-down lightgray"></span>
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
-            <li><a href="/">Treeherder</a></li>
+            <li class="dropdown-item"><a href="/">Treeherder</a></li>
           </ul>
         </span>
         <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
@@ -32,26 +31,24 @@
         <span class="dropdown">
           <button id="dashboardLabel" title="Dashboard" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav">Dashboard
-            <span class="fa fa-angle-down lightgray"></span>
+                  class="btn btn-view-nav dropdown-toggle">Dashboard
           </button>
           <ul class="dropdown-menu icon-menu" role="menu">
-            <li><a ui-sref="dashboard({topic: 'e10s'})"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
-            <li><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-trend</a></li>
-            <li><a ui-sref="dashboard({topic: 'hasal', repo: 'mozilla-central'})"><span class="fa fa-bar-chart midgray"></span> hasal</a></li>
+            <li class="dropdown-item"><a ui-sref="dashboard({topic: 'e10s'})"><span class="fa fa-bar-chart midgray"></span> e10s</a></li>
+            <li class="dropdown-item"><a ui-sref="e10s_trend"><span class="fa fa-line-chart midgray"></span> e10s-trend</a></li>
+            <li class="dropdown-item"><a ui-sref="dashboard({topic: 'hasal', repo: 'mozilla-central'})"><span class="fa fa-bar-chart midgray"></span> hasal</a></li>
           </ul>
         </span>
       </span>
-      <div class="nav navbar-nav navbar-right">
+      <div class="nav navbar-right">
         <!-- Help Menu -->
         <span class="dropdown">
           <button id="helpLabel" title="Perfherder help" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-right-navbar nav-help-btn">
+                  class="btn btn-view-nav btn-right-navbar nav-help-btn dropdown-toggle">
             <span class="fa fa-question-circle lightgray nav-help-icon"></span>
-            <span class="fa fa-angle-down lightgray"></span>
           </button>
-          <ul class="dropdown-menu icon-menu" role="menu" aria-labelledby="helpLabel"
+          <ul class="dropdown-menu dropdown-menu-right icon-menu container" role="menu" aria-labelledby="helpLabel"
               ng-include="'partials/perf/helpMenu.html'">
           </ul>
         </span>

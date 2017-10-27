@@ -34,6 +34,8 @@
 .result-set-body {
   padding-left: 15px;
   padding-right: 25px;
+  display: flex;
+  flex-direction: row;
 }
 
 .result-set {
@@ -42,7 +44,14 @@
   margin-top: 2px;
   white-space: normal;
   width: 100%;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  /*position: relative;*/
+}
+
+.result-set-revisions-jobs {
+  display: flex;
+  flex-direction: row;
 }
 
 .result-counts {
@@ -63,6 +72,8 @@
 .btn-resultset {
   color: #666;
   background-color: transparent;
+  padding-left: 6px;
+  padding-right: 10px;
 }
 
 .btn-resultset:hover {
@@ -73,9 +84,9 @@
 .btn-resultset.disabled:hover,
 .btn-resultset.disabled:active,
 .btn-resultset.disabled.active,
-.btn-resultset[disabled]:hover,
-.btn-resultset[disabled]:active,
-.btn-resultset[disabled].active,
+.btn-resultset:disabled:hover,
+.btn-resultset:disabled:active,
+.btn-resultset:disabled.active,
 fieldset[disabled] .btn-resultset:hover {
   background-color: #7c7a7d;
   border-color: #7c7a7d;
@@ -109,9 +120,16 @@ fieldset[disabled] .btn-resultset:hover {
  * Revision list
  */
 
+revisions {
+  width: 42%;
+  overflow: hidden;
+  margin-right: 9px;
+}
+
 .revision-list {
   overflow: hidden;
   white-space: nowrap;
+  flex: 50%;
 }
 
 .revision-list .fa-external-link-square {
@@ -177,6 +195,10 @@ fieldset[disabled] .btn-resultset:hover {
   word-break: normal;
 }
 
+.job-list {
+  flex: 50%;
+}
+
 .job-list table {
   width: 100%;
 }
@@ -187,4 +209,20 @@ fieldset[disabled] .btn-resultset:hover {
 
 .job-list table tr:nth-child(even) {
   background: #f8f8f8;
+}
+
+.get-next {
+  flex-direction: row;
+  font-size: 14px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+}
+
+.get-next > span {
+  align-self: center;
+  padding-right: 8px;
+}
+
+.get-next .btn {
+  font-size: 12px;
 }

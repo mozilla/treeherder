@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal',
+    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
-        ThJobModel, ThTaskclusterErrors, $uibModal) {
+        ThJobModel, ThTaskclusterErrors) {
 
         $scope.getCountClass = function (resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -187,23 +187,6 @@ treeherderApp.controller('ResultSetCtrl', [
                     ThModelErrors.format(e, "Failed to cancel all jobs"),
                     'danger', true
                 );
-            });
-        };
-
-        $scope.customPushAction = function () {
-            $uibModal.open({
-                templateUrl: 'partials/main/tcjobactions.html',
-                controller: 'TCJobActionsCtrl',
-                size: 'lg',
-                resolve: {
-                    job: () => null,
-                    repoName: function () {
-                        return $scope.repoName;
-                    },
-                    resultsetId: function () {
-                        return $scope.resultset.id;
-                    }
-                }
             });
         };
 

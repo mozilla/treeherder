@@ -38,7 +38,7 @@
   </div>
 </form>
 <hr/>
-<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
+<table class="table table-sm compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
@@ -83,7 +83,7 @@
       </td>
       <td ng-class="$ctrl.getCompareClasses(compareResult)">
         <span ng-if="compareResult.delta  && compareResult.newIsBetter" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayNumber}} (= {{compareResult.deltaPercentage|absoluteValue|displayNumber}}% better)">
-          {{compareResult.deltaPercentage|displayNumber}}%  
+          {{compareResult.deltaPercentage|displayNumber}}%
         </span>
         <span ng-if="compareResult.delta  && !compareResult.newIsBetter" class="detail-hint" uib-tooltip="Mean difference: {{compareResult.delta|displayNumber}} (= {{compareResult.deltaPercentage|absoluteValue|displayNumber}}% worse)">
           {{compareResult.deltaPercentage|displayNumber}}%
@@ -135,7 +135,7 @@
                not confident in a change, more are unlikely to help)
           -->
         <span ng-if="compareResult.needsMoreRuns"
-              class="glyphicon glyphicon-warning-sign text-warning"
+              class="fa fa-warning-sign text-warning"
               uib-tooltip="More base / new runs recommended for increased confidence in comparison"
               tooltip-placement="left"
               style="cursor:default"></span>

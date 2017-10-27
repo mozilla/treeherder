@@ -21,8 +21,23 @@
           </td>
         </tr>
       </table>
-      <button id="add-test-data-button" class="btn btn-primary" ng-click="addTestData()">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
+
+
+
+
+            <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Launch demo modal
+      </button>
+      <button id="add-test-data-button" class="btn btn-primary-soft" ng-click="addTestData()" data-target=#exampleModal data-toggle="modal">
+        <span class="fa fa-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
+
+      <ng-include src="'partials/perf/testdatachooser.html'"></ng-include>
+
+
+
+
+
     </div>
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">

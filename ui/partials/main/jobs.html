@@ -42,7 +42,7 @@
             title="Pin all available jobs in this push"
             data-ignore-job-clear-on-click
             ng-click="pinAllShownJobs()">
-        <span class="glyphicon glyphicon-pushpin"
+        <span class="fa fa-thumb-tack"
               data-ignore-job-clear-on-click></span>
       </button>
       <button class="btn btn-sm btn-resultset trigger-new-jobs-btn"
@@ -62,7 +62,7 @@
       <span class="fa fa-exclamation-triangle"/> This action will cancel all pending and running jobs for this push.
       <i>It cannot be undone!</i>
       &nbsp;
-      <button ng-click="cancelAllJobs(resultset.revision)" class="btn btn-xs btn-danger">Confirm</button>
+      <button ng-click="cancelAllJobs(resultset.revision)" class="btn btn-sm btn-danger">Confirm</button>
     </div>
   </div>
   <!-- Job table -->
@@ -122,10 +122,10 @@
 </div>
 
 <!-- Get next resultsets footer -->
-<div class="well">
-     get next:
+<div class="card card-body get-next">
+  <span>get next:</span>
   <div class="btn-group">
-    <div class="btn btn-default btn-sm"
+    <div class="btn btn-light-bordered"
          ng-click="getNextResultSets(count, true)"
          ng-repeat="count in [10, 20, 50]">{{::count}}</div>
   </div>

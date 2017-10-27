@@ -14,7 +14,7 @@
     <!-- Logviewer navbar -->
     <nav class="navbar navbar-default" role="navigation" ng-cloak>
       <div class="container-fluid">
-        <ul class="nav navbar-nav">
+        <ul class="navbar-nav mr-auto navbar-row">
 
           <!-- Logo menu button -->
           <li>
@@ -82,50 +82,51 @@
     </nav>
 
     <!-- Job header and steps navigation -->
-    <div class="run-data">
-      <div class="col-md-6" >
-        <div class="job-header">
-          <table class="table table-condensed" >
-            <tr ng-repeat="property in logProperties">
-              <th ng-cloak>{{property.label}}</th>
-              <td ng-if="property.label == 'Revision'" class="break-word">
-                <a href="{{::property.value | getRevisionUrl:repoName}}&selectedJob={{job_id}}"
-                   title="Open push"
-                   ng-cloak>{{property.value}}</a>
-              </td>
-              <td ng-if="property.label != 'Revision'"
-                  ng-cloak class="break-word">{{property.value}}</td>
-            </tr>
-            <tr ng-if="taskId" ng-cloak>
-              <th>
-                Task
-              </th>
-              <td>
-                <a href="{{ getInspectTaskUrl(taskId) }}">
-                  {{ taskId }}
-                </a>
-              </td>
-            </tr>
-            <tr ng-repeat="line in job_details | orderBy:'title'">
-              <th ng-cloak>
-                <span ng-if="line.title">
-                  {{line.title}}:
-                </span>
-              </th>
-              <td ng-cloak>
-                <a ng-if="line.url" title="{{line.value}}"
-                   href="{{line.url}}" target="_blank">{{line.value}}</a>
-                <span ng-if="!line.url" ng-bind-html="line.value"></span>
-              </td>
-            </tr>
-          </table>
+    <div class="run-data container-fluid">
+      <div class="row">
+        <div class="col" >
+          <div class="job-header">
+            <table class="table table-sm" >
+              <tr ng-repeat="property in logProperties">
+                <th ng-cloak>{{property.label}}</th>
+                <td ng-if="property.label == 'Revision'" class="break-word">
+                  <a href="{{::property.value | getRevisionUrl:repoName}}&selectedJob={{job_id}}"
+                     title="Open push"
+                     ng-cloak>{{property.value}}</a>
+                </td>
+                <td ng-if="property.label != 'Revision'"
+                    ng-cloak class="break-word">{{property.value}}</td>
+              </tr>
+              <tr ng-if="taskId" ng-cloak>
+                <th>
+                  Task
+                </th>
+                <td>
+                  <a href="{{ getInspectTaskUrl(taskId) }}">
+                    {{ taskId }}
+                  </a>
+                </td>
+              </tr>
+              <tr ng-repeat="line in job_details | orderBy:'title'">
+                <th ng-cloak>
+                  <span ng-if="line.title">
+                    {{line.title}}:
+                  </span>
+                </th>
+                <td ng-cloak>
+                  <a ng-if="line.url" title="{{line.value}}"
+                     href="{{line.url}}" target="_blank">{{line.value}}</a>
+                  <span ng-if="!line.url" ng-bind-html="line.value"></span>
+                </td>
+              </tr>
+            </table>
+          </div>
         </div>
+        <div class="col" lv-log-steps></div>
       </div>
-      <div class="col-md-6" lv-log-steps></div>
     </div>
 
     <th-log-viewer class="logview-container"></th-log-viewer>
-
     <th-notification-box></th-notification-box>
 
   </body>

@@ -11,7 +11,7 @@
 <div id="info-panel-content">
   <div id="job-details-panel">
     <div id="job-details-actionbar">
-      <nav class="navbar info-panel-navbar">
+      <nav class="navbar navbar-dark info-panel-navbar">
         <ul class="nav navbar-nav actionbar-nav">
 
           <li ng-repeat="job_log_url in job_log_urls">
@@ -68,17 +68,12 @@
             </a>
           </li>
           <li>
-            <!--the first 3 items are in the same box-->
-            <ul class="nav navbar-nav">
-              <li>
-                <a id="pin-job-btn" href=""
-                   title="Add this job to the pinboard"
-                   class="icon-blue"
-                   ng-click="pinboard_service.pinJob(selectedJob)">
-                  <span class="glyphicon glyphicon-pushpin"></span>
-                </a>
-              </li>
-            </ul>
+            <a id="pin-job-btn" href=""
+               title="Add this job to the pinboard"
+               class="icon-blue"
+               ng-click="pinboard_service.pinJob(selectedJob)">
+              <span class="fa fa-thumb-tack"></span>
+            </a>
           </li>
           <li>
             <button id="retrigger-btn" href=""
@@ -107,30 +102,36 @@
             </a>
           </li>
         </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <button id="actionbar-menu-btn"
+        <ul class="nav navbar-right">
+          <li class="dropdown">
+            <span id="actionbar-menu-btn"
                title="Other job actions"
-               class="dropdown-toggle"
-               data-toggle="dropdown">
+               data-toggle="dropdown"
+               type="button"
+               class="dropdown-toggle">
               <span class="fa fa-ellipsis-h" aria-hidden="true"></span>
-            </button>
-            <ul class="dropdown-menu actionbar-menu" role="menu">
+            </span>
+            <ul class="dropdown-menu actionbar-menu dropdown-menu-right" role="menu">
               <li class="{{ canBackfill() ? '' : 'disabled' }}">
                 <a ng-attr-title="{{ backfillButtonTitle() }}"
                    ng-click="!canBackfill() || backfillJob()">Backfill</a>
               </li>
-              <li ng-if-start="job.taskcluster_metadata">
+              <li ng-if-start="job.taskcluster_metadata" class="dropdown-item">
                 <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
-              <li>
+              <li class="dropdown-item">
                 <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
               </li>
-              <li>
+              <li class="dropdown-item">
                 <a target="_blank" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
               </li>
-              <li ng-if-end>
-                <a ng-click="customJobAction()">Custom Action...</a>
+              <li ng-if-end class="dropdown-item">
+                  <a href=""
+                     data-job="{{job}}"
+                     data-repo-name="{{repoName}}"
+                     data-resultset-id="{{resultsetId}}"
+                     data-toggle="modal"
+                     data-target=".tc-job-actions-modal">Custom Push Action...</a>
               </li>
             </ul>
           </li>
@@ -268,10 +269,10 @@
         </ul>
 
         <ul class="nav navbar-nav info-panel-navbar-controls">
-          <li>
-            <a href="" ng-click="togglePinboardVisibility()"
-               class="pinboard-btn">
-              <div ng-attr-title="{{isPinboardVisible ? 'Close the pinboard' : 'Open the pinboard'}}">Pinboard
+          <li ng-click="togglePinboardVisibility()"
+              id="pinboard-btn">
+              <div ng-attr-title="{{isPinboardVisible ? 'Close the pinboard' : 'Open the pinboard'}}"
+                   class="pinboard-btn-text">Pinboard
                 <div ng-if="pinboard_service.count.numPinnedJobs"
                      title="{{getCountPinnedTitle()}}"
                      class="pin-count-group"
@@ -282,7 +283,6 @@
                 </div>
                 <span class="fa" ng-class="isPinboardVisible ? 'fa-angle-down' : 'fa-angle-up'"></span>
               </div>
-            </a>
           </li>
           <li>
             <a title="Close the job panel" href="" ng-click="closeJob()">
@@ -302,3 +302,4 @@
   </div>
 </div>
 <div id="clipboard-container"><textarea id="clipboard"></textarea></div>
+<bug-filer></bug-filer>
