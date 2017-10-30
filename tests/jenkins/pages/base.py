@@ -4,6 +4,9 @@ from selenium.webdriver.common.by import By
 
 class Base(Page):
 
+    def __init__(self, driver, base_url=None, timeout=20, **url_kwargs):
+        super(Base, self).__init__(driver, base_url, timeout, **url_kwargs)
+
     @property
     def header(self):
         return self.Header(self)
