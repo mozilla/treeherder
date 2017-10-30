@@ -269,9 +269,11 @@ class TreeherderPage(Base):
         self.find_element(*self._filter_panel_exception_failures_locator).click()
 
     def select_mozilla_central_repo(self):
-        # Fix me: https://github.com/mozilla/treeherder-tests/issues/43
         self.open_repos_menu()
+        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+        el = self.find_element(By.CSS_SELECTOR, 'body')
         self.find_element(*self._mozilla_central_repo_locator).click()
+        self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
 
     def select_next_job(self):
