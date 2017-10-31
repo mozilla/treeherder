@@ -41,4 +41,4 @@ def test_pin_all_jobs(base_url, selenium):
     page = TreeherderPage(selenium, base_url).open()
     result_set = next(r for r in page.result_sets if len(r.jobs) > 1)
     result_set.pin_all_jobs()
-    assert len(result_set.jobs) <= len(page.pinboard.jobs) < 500
+    assert len(result_set.jobs) <= len(page.pinboard.jobs) <= 500
