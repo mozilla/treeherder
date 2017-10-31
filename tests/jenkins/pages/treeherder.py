@@ -238,10 +238,8 @@ class TreeherderPage(Base):
         self._get_next(50)
 
     def open_next_unclassified_failure(self):
-        el = self.find_element(*self._result_sets_locator)
-        self.wait.until(EC.visibility_of(el))
-        el.send_keys('n')
-        self.wait.until(lambda s: self.info_panel.job_details.job_result_status)
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
+        self.wait.until(lambda _: self.info_panel.is_open)
 
     def open_perfherder_page(self):
         self.header.switch_page_using_dropdown()
@@ -444,7 +442,7 @@ class TreeherderPage(Base):
 
             def click(self):
                 self.root.click()
-                self.wait.until(lambda _: self.page.info_panel.job_details.job_result_status)
+                self.wait.until(lambda _: self.page.info_panel.is_open)
 
         class JobGroup(Region):
 
@@ -466,11 +464,13 @@ class TreeherderPage(Base):
 
     class InfoPanel(Region):
 
-        _root_locator = (By.ID, 'info-panel-content')
+        _root_locator = (By.ID, 'info-panel')
+        _loading_locator = (By.CSS_SELECTOR, '.overlay')
 
         @property
         def is_open(self):
-            return self.root.is_displayed()
+            return self.root.is_displayed() and \
+                not any(self.find_elements(*self._loading_locator))
 
         @property
         def job_details(self):
@@ -503,9 +503,8 @@ class TreeherderPage(Base):
                 return LogviewerPage(self.selenium, self.page.base_url).wait_for_page_to_load()
 
             def pin_job(self):
-                el = self.find_element(*self._job_keyword_locator)
-                self.wait.until(EC.visibility_of(el))
                 self.find_element(*self._pin_job_locator).click()
+                self.wait.until(lambda _: self.page.pinboard.is_pinboard_open)
 
     class Pinboard(Region):
 
