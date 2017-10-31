@@ -43,7 +43,7 @@ def match_errors(job):
     try:
         matches, all_matched = find_matches(unmatched_errors)
         update_db(job, matches, all_matched)
-    except:
+    except Exception:
         logger.error("Autoclassification of job %s failed" % job.id)
         job.autoclassify_status = Job.FAILED
         raise

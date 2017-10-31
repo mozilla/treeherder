@@ -196,7 +196,7 @@ class ElasticSearchTestMatcher(Matcher):
         try:
             self.calls += 1
             resp = search.execute()
-        except:
+        except Exception:
             logger.error("Elastic search lookup failed: %s %s %s %s %s",
                          failure_line.test, failure_line.subtest, failure_line.status,
                          failure_line.expected, failure_line.message)

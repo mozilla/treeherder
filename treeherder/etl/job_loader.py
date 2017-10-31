@@ -165,7 +165,8 @@ class JobLoader:
                 "taskcluster_task_id": real_task_id,
                 "taskcluster_retry_id": int(retry_id)
             })
-        except:
+        # TODO: Figure out what exception types we actually expect here.
+        except Exception:
             pass
 
         return x
