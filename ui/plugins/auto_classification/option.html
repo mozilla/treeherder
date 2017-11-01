@@ -46,6 +46,9 @@
                      ng-model="$ctrl.selectedOption.manualBugNumber"/>
                 <a class="btn btn-xs btn-default"
                    prevent-default-on-left-click
+                   data-suggestion="{{errorLine.data.bug_suggestions}}"
+                   data-toggle="modal"
+                   data-target="#failure-classification-bugfiler"
                    ng-click="fileBug()"
                    title="File a bug for this failure">
                   <i class="fa fa-bug"></i>
@@ -78,3 +81,6 @@
      ng-href="/failureviewer.html#/?classified_failure_id={{option.classifiedFailureId}}"
      target="_blank">Other matching failures...</a>
 </div>
+<bug-filer modal-selector="failure-classification-bugfiler"
+           init-function="bugfilerDialogInit"
+           success-callback="bugfilerSuccessCallback"></bug-filer>

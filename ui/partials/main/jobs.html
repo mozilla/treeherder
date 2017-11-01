@@ -57,7 +57,7 @@
     </span>
   </div>
   <div class="result-set-body-divider"></div>
-  <div class="cancel-all-jobs-confirm animate-show" uib-collapse="!showConfirmCancelAll">
+  <div class="cancel-all-jobs-confirm animate-show" ng-class="{'collapse': !showConfirmCancelAll}">
     <div uib-alert class="alert-danger" close="hideConfirmCancelAll()">
       <span class="fa fa-exclamation-triangle"/> This action will cancel all pending and running jobs for this push.
       <i>It cannot be undone!</i>

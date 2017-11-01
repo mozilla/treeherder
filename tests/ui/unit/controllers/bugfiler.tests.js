@@ -1,13 +1,12 @@
 'use strict';
 
-/* jasmine specs for controllers go here */
-
 describe('BugFilerCtrl', function() {
-    var $httpBackend, controller, bugFilerScope, $uibModalInstance;
+    var $httpBackend, $componentController, bugFilerScope;
 
     beforeEach(angular.mock.module('treeherder.app'));
 
-    beforeEach(inject(function ($injector, $rootScope, $controller) {
+    beforeEach(inject(function ($injector, $rootScope, _$componentController_) {
+        $componentController = _$componentController_;
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
 
@@ -16,21 +15,21 @@ describe('BugFilerCtrl', function() {
             "bug_component_counts": [
               [
                 [
-                  "Firefox", 
+                  "Firefox",
                   "Search"
-                ], 
+                ],
                 1
               ]
-            ], 
+            ],
             "recommended_bug_component": [
-              "Firefox", 
+              "Firefox",
               "Search"
             ]
-          }, 
+          },
           "files": {
             "browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js": {
               "bug_component": [
-                "Firefox", 
+                "Firefox",
                 "Search"
               ]
             }
@@ -136,19 +135,16 @@ describe('BugFilerCtrl', function() {
 
         bugFilerScope = $rootScope.$new();
         bugFilerScope.suggestedProducts = [];
-        $controller('BugFilerCtrl', {
-          '$scope': bugFilerScope,
-          '$uibModalInstance': modalInstance,
-          'summary': summary,
-          'search_terms': search_terms,
-          'fullLog': fullLog,
-          'parsedLog': parsedLog,
-          'reftest': reftest,
-          'selectedJob': selectedJob,
-          'allFailures': allFailures,
-          'crashSignatures': crashSignatures,
-          'successCallback': successCallback,
-        });
+        bugFilerScope.summary = summary;
+        bugFilerScope.search_terms = search_terms;
+        bugFilerScope.fullLog = fullLog;
+        bugFilerScope.parsedLog = parsedLog;
+        bugFilerScope.reftest = reftest;
+        bugFilerScope.selectedJob = selectedJob;
+        bugFilerScope.allFailures = allFailures;
+        bugFilerScope.crashSignatures = crashSignatures;
+        bugFilerScope.successCallback = successCallback;
+        $componentController('bugFiler', { $scope: bugFilerScope }, {});
     }));
 
     /*

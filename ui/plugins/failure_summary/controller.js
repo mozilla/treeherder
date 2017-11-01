@@ -3,10 +3,11 @@
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents', '$q',
-    'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
+    'thTabs', '$timeout', 'thUrl', '$location', 'thReftestStatus',
     function BugsPluginCtrl(
         $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,
-        thPinboard, thEvents, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
+        thPinboard, thEvents, $q, thTabs, $timeout, thUrl, $location,
+        thReftestStatus) {
 
         var $log = new ThLog(this.constructor.name);
 
@@ -85,7 +86,7 @@ treeherder.controller('BugsPluginCtrl', [
             }
         };
 
-        var showBugFilerButton = function () {
+        const showBugFilerButton = function () {
             $scope.filerInAddress = $location.search().bugfiler === true;
         };
         showBugFilerButton();
@@ -93,70 +94,27 @@ treeherder.controller('BugsPluginCtrl', [
             showBugFilerButton();
         });
 
-        $scope.fileBug = function (index) {
-            var summary = $scope.suggestions[index].search;
-            var allFailures = [];
-            var crashSignatures = [];
-            var crashRegex = /application crashed \[@ (.+)\]$/g;
-            var crash = summary.match(crashRegex);
-            if (crash) {
-                var signature = crash[0].split("application crashed ")[1];
-                crashSignatures.push(signature);
-            }
+        $scope.bugfilerDialogInit = function (suggestion) {
+            return {
+                search_terms: suggestion.search_terms,
+                fullLog: $scope.job_log_urls[0].url,
+                parsedLog: $scope.lvFullUrl,
+                reftest: thReftestStatus($scope.selectedJob) ? $scope.reftestUrl : "",
+                selectedJob: $scope.selectedJob,
+                allFailures: $scope.suggestions.map(sug => sug.search.split(" | "))
+            };
+        };
 
-            for (var i=0; i<$scope.suggestions.length; i++) {
-                allFailures.push($scope.suggestions[i].search.split(" | "));
-            }
-
-            var modalInstance = $uibModal.open({
-                templateUrl: 'partials/main/intermittent.html',
-                controller: 'BugFilerCtrl',
-                size: 'lg',
-                openedClass: "filer-open",
-                resolve: {
-                    summary: function () {
-                        return summary;
-                    },
-                    search_terms: function () {
-                        return $scope.suggestions[index].search_terms;
-                    },
-                    fullLog: function () {
-                        return $scope.job_log_urls[0].url;
-                    },
-                    parsedLog: function () {
-                        return $scope.lvFullUrl;
-                    },
-                    reftest: function () {
-                        return $scope.isReftest() ? $scope.reftestUrl : "";
-                    },
-                    selectedJob: function () {
-                        return $scope.selectedJob;
-                    },
-                    allFailures: function () {
-                        return allFailures;
-                    },
-                    crashSignatures: function () {
-                        return crashSignatures;
-                    },
-                    successCallback: function () {
-                        return function (data) {
-                            // Auto-classify this failure now that the bug has been filed
-                            // and we have a bug number
-                            thPinboard.addBug({ id: data.success });
-                            $rootScope.$evalAsync(
-                                $rootScope.$emit(
-                                    thEvents.saveClassification));
-                            // Open the newly filed bug in a new tab or window for further editing
-                            window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + data.success);
-                        };
-                    }
-                }
-            });
+        $scope.bugfilerSuccessCallback = function (data) {
+            // Auto-classify this failure now that the bug has been filed
+            // and we have a bug number
             thPinboard.pinJob($scope.selectedJob);
-
-            modalInstance.opened.then(function () {
-                window.setTimeout(() => modalInstance.initiate(), 0);
-            });
+            thPinboard.addBug({ id: data.success });
+            $rootScope.$evalAsync(
+                $rootScope.$emit(
+                    thEvents.saveClassification));
+            // Open the newly filed bug in a new tab or window for further editing
+            window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + data.success);
         };
     }
 ]);

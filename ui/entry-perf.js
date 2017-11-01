@@ -22,7 +22,6 @@ require('angular-sanitize');
 require('angular-local-storage');
 require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
-require('angular-ui-bootstrap');
 require('./vendor/angular-clipboard.js');
 // The jquery flot package does not seem to be updated on npm, so we use a local version:
 require('./vendor/jquery.flot.js');
@@ -58,6 +57,8 @@ require('./js/controllers/perf/alerts.js');
 require('./js/controllers/perf/dashboard.js');
 require('./js/controllers/perf/e10s-trend.js');
 require('./js/components/perf/compare.js');
+require('./js/components/perf/graphs.js');
+require('./js/components/perf/alerts.js');
 require('./js/components/auth.js');
 require('./js/components/loading.js');
 require('./js/perfapp.js');

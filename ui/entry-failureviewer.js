@@ -20,7 +20,6 @@ require('angular-cookies');
 require('angular-sanitize');
 require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
-require('angular-ui-bootstrap');
 require('./vendor/resizer.js');
 
 // Failureviewer JS

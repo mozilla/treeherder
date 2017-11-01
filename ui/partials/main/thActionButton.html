@@ -35,9 +35,13 @@
     <li><a target="_blank" data-ignore-job-clear-on-click
            href="https://bugherder.mozilla.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
            title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
-    <li><a target="_blank" data-ignore-job-clear-on-click
+    <li class="dropdown-item">
+        <a target="_blank" data-ignore-job-clear-on-click
            href=""
-           ng-click="customPushAction()"
+           data-repo-name="{{repoName}}"
+           data-resultset-id="{{resultset.id}}"
+           data-toggle="modal"
+           data-target=".tc-job-actions-modal"
            title="View/Edit/Submit Action tasks for this push">Custom Push Action...</a></li>
     <li><a target="_blank"
            href="{{toChangeValue()}}&tochange={{resultset.revision}}" prevent-default-on-left-click

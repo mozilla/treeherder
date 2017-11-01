@@ -36,120 +36,14 @@ perf.factory('PhBugs', [
         };
     }]);
 
-perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
-        function ($scope, $uibModalInstance, alertSummary) {
-            $scope.title = "Link to bug";
-            $scope.placeholder = "Bug #";
-
-            $scope.update = function () {
-                var newId = parseInt(
-                    $scope.modifyAlert.newId.$modelValue);
-
-                $scope.modifying = true;
-                alertSummary.assignBug(newId).then(function () {
-                    $scope.modifying = false;
-                    $uibModalInstance.close('assigned');
-                });
-            };
-
-            $scope.cancel = function () {
-                $uibModalInstance.dismiss('cancel');
-            };
-            $scope.$on('modal.closing', function (event) {
-                if ($scope.modifying) {
-                    event.preventDefault();
-                }
-            });
-        }]);
-
-perf.controller(
-    'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$http', '$q', 'alertSummary',
-        'allAlertSummaries', 'PhAlerts', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries,
-                 PhAlerts, phAlertStatusMap) {
-            $scope.title = "Mark alerts downstream";
-            $scope.placeholder = "Alert #";
-
-            $scope.update = function () {
-                var newId = parseInt(
-                    $scope.modifyAlert.newId.$modelValue);
-
-                alertSummary.modifySelectedAlerts({
-                    status: phAlertStatusMap.DOWNSTREAM.id,
-                    related_summary_id: newId
-                }).then(
-                    function () {
-                        var summariesToUpdate = [alertSummary].concat(
-                            _.find(allAlertSummaries, function (alertSummary) {
-                                return alertSummary.id === newId;
-                            }) || []);
-                        $q.all(_.map(summariesToUpdate, function (alertSummary) {
-                            return alertSummary.update();
-                        })).then(function () {
-                            $uibModalInstance.close('downstreamed');
-                        });
-                    });
-            };
-            $scope.cancel = function () {
-                $uibModalInstance.dismiss('cancel');
-            };
-            $scope.$on('modal.closing', function (event) {
-                if ($scope.modifying) {
-                    event.preventDefault();
-                }
-            });
-        }]);
-
-perf.controller(
-    'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$http', '$q', 'alertSummary',
-        'allAlertSummaries', 'PhAlerts', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries, PhAlerts, phAlertStatusMap) {
-
-            $scope.title = "Reassign alerts";
-            $scope.placeholder = "Alert #";
-
-            $scope.update = function () {
-
-                var newId = parseInt(
-                    $scope.modifyAlert.newId.$modelValue);
-
-                // FIXME: validate that new summary id is on same repository?
-                alertSummary.modifySelectedAlerts({
-                    status: phAlertStatusMap.REASSIGNED.id,
-                    related_summary_id: newId
-                }).then(function () {
-                    // FIXME: duplication with downstream alerts controller
-                    var summariesToUpdate = [alertSummary].concat(
-                        _.find(allAlertSummaries, function (alertSummary) {
-                            return alertSummary.id === newId;
-                        }) || []);
-                    $q.all(_.map(summariesToUpdate, function (alertSummary) {
-                        return alertSummary.update();
-                    })).then(function () {
-                        $uibModalInstance.close('downstreamed');
-                    });
-                });
-            };
-            $scope.cancel = function () {
-                $uibModalInstance.dismiss('cancel');
-            };
-            $scope.$on('modal.closing', function (event) {
-                if ($scope.modifying) {
-                    event.preventDefault();
-                }
-            });
-        }]);
-
 perf.controller('AlertsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$uibModal',
+    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhSeries', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
     'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
-                        $uibModal,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhSeries, PhAlerts, PhBugs, phTimeRanges,
@@ -288,56 +182,9 @@ perf.controller('AlertsCtrl', [
         $scope.fileBug = function (alertSummary) {
             PhBugs.fileBug(alertSummary);
         };
-        $scope.linkToBug = function (alertSummary) {
-            $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
-                controller: 'ModifyAlertSummaryCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    }
-                }
-            }).result.then(function () {
-                updateAlertVisibility();
-            });
-        };
+
         $scope.unlinkBug = function (alertSummary) {
             alertSummary.assignBug(null).then(function () {
-                updateAlertVisibility();
-            });
-        };
-        $scope.markAlertsDownstream = function (alertSummary) {
-            $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
-                controller: 'MarkDownstreamAlertsCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                    allAlertSummaries: function () {
-                        return $scope.alertSummaries;
-                    }
-                }
-            }).result.then(function () {
-                updateAlertVisibility();
-            });
-        };
-        $scope.reassignAlerts = function (alertSummary) {
-            $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
-                controller: 'ReassignAlertsCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                    allAlertSummaries: function () {
-                        return $scope.alertSummaries;
-                    }
-                }
-            }).result.then(function () {
                 updateAlertVisibility();
             });
         };

@@ -6,7 +6,9 @@
                 <a class="btn btn-xs btn-default"
                    prevent-default-on-left-click
                    ng-show="(filerInAddress || user.is_staff)"
-                   ng-click="fileBug($index)"
+                   data-suggestion="{{suggestion}}"
+                   data-toggle="modal"
+                   data-target="#failure-summary-bugfiler"
                    title="file a bug for this failure">
                   <i class="fa fa-bug"></i>
                 </a>
@@ -125,4 +127,7 @@
             <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
         </div>
     </div>
+    <bug-filer modal-selector="failure-summary-bugfiler"
+               init-function="bugfilerDialogInit"
+               success-callback="bugfilerSuccessCallback"></bug-filer>
 </div>
