@@ -290,7 +290,7 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getAllShownJobs = function (repoName, spaceRemaining, maxSize, resultsetId) {
+        var getAllShownJobs = function (repoName, spaceRemaining, errorMessage, resultsetId) {
             var shownJobs = [];
 
             var addIfShown = function (jMap) {
@@ -301,8 +301,7 @@ treeherder.factory('ThResultSetStore', [
                     shownJobs.push(jMap.job_obj);
                 }
                 if (_.size(shownJobs) === spaceRemaining) {
-                    thNotify.send("Max pinboard size of " + maxSize + " reached.",
-                                  "danger");
+                    thNotify.send(errorMessage, 'danger');
                     return true;
                 }
                 return false;

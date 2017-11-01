@@ -90,13 +90,13 @@ treeherderApp.controller('ResultSetCtrl', [
     'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal',
+    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal', 'thPinboardCountError',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
         thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
-        ThJobModel, ThTaskclusterErrors, $uibModal) {
+        ThJobModel, ThTaskclusterErrors, $uibModal, thPinboardCountError) {
 
         $scope.getCountClass = function (resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;
@@ -129,14 +129,13 @@ treeherderApp.controller('ResultSetCtrl', [
          */
         $scope.pinAllShownJobs = function () {
             if (!thPinboard.spaceRemaining()) {
-                thNotify.send("Pinboard is full.  Can not pin any more jobs.",
-                              "danger");
+                thNotify.send(thPinboardCountError, 'danger');
                 return;
             }
             var shownJobs = ThResultSetStore.getAllShownJobs(
                 $rootScope.repoName,
                 thPinboard.spaceRemaining(),
-                thPinboard.maxNumPinned,
+                thPinboardCountError,
                 $scope.resultset.id
             );
             thPinboard.pinJobs(shownJobs);
