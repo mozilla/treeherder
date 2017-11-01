@@ -9,7 +9,7 @@ from pages.treeherder import TreeherderPage
 def test_open_single_result(base_url, selenium):
     page = TreeherderPage(selenium, base_url).open()
     assert len(page.result_sets) > 1
-    result_set = random.choice(page.result_sets)
+    result_set = random.choice([r for r in page.result_sets if r.jobs])
     datestamp = result_set.datestamp
     result_set.view()
     assert 1 == len(page.result_sets)
