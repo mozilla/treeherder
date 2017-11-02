@@ -1,3 +1,15 @@
+h1 {
+    margin-top: 20px;
+}
+
+.table {
+    margin-bottom: 20px;
+}
+
+.checkbox label {
+    font-weight: normal;
+}
+
 .blink {
 animation: blink 1s ease-in-out infinite alternate;
 }

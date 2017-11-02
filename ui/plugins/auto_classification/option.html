@@ -17,7 +17,7 @@
          ng-hide="!$ctrl.canClassify"/>
   <span class="line-option-text" ng-if="option.bugNumber">
     <button ng-if="!$ctrl.canClassify || thPinboard.isPinned($ctrl.thJob)"
-            class="btn btn-xs btn-default"
+            class="btn btn-xs btn-light-bordered"
             ng-click="thPinboard.addBug({id: option.bugNumber}, $ctrl.thJob)"
             title="add to list of bugs to associate with all pinned jobs">
       <i class="fa fa-thumb-tack"></i>
@@ -44,7 +44,7 @@
                      placeholder="Number"
                      ng-change="onChange()"
                      ng-model="$ctrl.selectedOption.manualBugNumber"/>
-                <a class="btn btn-xs btn-default"
+                <a class="btn btn-xs btn-light-bordered"
                    prevent-default-on-left-click
                    ng-click="fileBug()"
                    title="File a bug for this failure">

@@ -76,12 +76,12 @@
 <div id="pinboard-controls" class="btn-group-vertical"
      title="{{!hasPinnedJobs() ? 'No pinned jobs' : ''}}">
   <div class="btn-group">
-    <button class="btn btn-default btn-xs save-btn"
+    <button class="btn btn-light-bordered btn-xs save-btn"
             title="{{ saveUITitle('classification') }}"
             ng-click="save()"
             ng-disabled="!user.loggedin || !canSaveClassifications()">save
     </button>
-    <button class="btn btn-default btn-xs dropdown-toggle save-btn-dropdown"
+    <button class="btn btn-light-bordered btn-xs dropdown-toggle save-btn-dropdown"
             title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
             ng-disabled="!hasPinnedJobs()"
             data-toggle="dropdown">
