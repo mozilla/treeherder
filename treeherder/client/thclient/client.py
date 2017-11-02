@@ -671,7 +671,7 @@ class TreeherderClient(object):
         Returns get_pushes for backwards compatibility
         """
         logger.warn("DEPRECATED: TreeherderClient.get_resultsets(), please use get_pushes() instead.")
-        return self.get_pushes(project)
+        return self.get_pushes(project, **params)
 
     def get_jobs(self, project, **params):
         """
