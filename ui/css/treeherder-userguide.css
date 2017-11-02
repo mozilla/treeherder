@@ -1,5 +1,5 @@
 #userguide {
-    padding: 10px 10px 0px;
+    padding: 10px 10px 0;
     overflow: auto;
 }
 
@@ -17,7 +17,7 @@
 
 .ug-btn-sm tr > th > button {
     font-size: 13px;
-    padding: 0px 2px;
+    padding: 0 2px;
     margin-top: 1px;
     border: 1px solid;
     border-radius: 3px;
