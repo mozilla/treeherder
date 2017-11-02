@@ -254,20 +254,14 @@ yarl==0.13.0; python_version >= '3' \
     --hash=sha256:bfb4256496da1b1475a72e669464db539eca7b0fc3bddd231a64cf8afadb7efb \
     --hash=sha256:25fe681a982f2cec567df8abac7cbd2ac27016e4aec89193945cab0643bfdb42
 
-multidict==3.3.1; python_version >= '3' \
-    --hash=sha256:15b5ce5320eacad3ddd98c3437f696c6059fa2a0c5312727338fd2f9046aab0a \
-    --hash=sha256:25ddd2a5ca2c4e3c234d4b702be70a60561a1efadad63b6890c30a87c5536b84 \
-    --hash=sha256:109b0f531d8a6071b6a109a6fc762baeaddad4a38c8abb3d5a69b90b909f4f6c \
-    --hash=sha256:653a8cdfd950d85e683d359a92b12bb901127e2c5649adb2b992d356056adae3 \
-    --hash=sha256:b3b84c79d8cb8db525971e0c489d91fb3cbc30ff8195df8ff281c8c02b9faca0 \
-    --hash=sha256:d398fcda80b8a4509cc56f48208ff748694cfcfe66c0fec0dced8aa725500991 \
-    --hash=sha256:ba2cd5528c46d10e0405340bab8add78cde1afff9a5f7c04fd3d6da6105b5a54 \
-    --hash=sha256:ed1b732c912b9ed625822a33ac4a7f2411bfaa0fac40a08cdbc90bbbe943f5bb \
-    --hash=sha256:1f311908a749f341c3b0adb348231a4530f054c5cec28935dcfda5f9c93937be \
-    --hash=sha256:35c72678176d8ffe736f85fc0fe2c6241fde79cb2ef765de67a940706f4ab7be \
-    --hash=sha256:630032d10e11df92d53acafb07985967fbd32f634c9ca0b3d81807c24711426b \
-    --hash=sha256:4d6ab5a9bb5a50dbec6af871e565fd77ba38609bb6075787d9f50039549f2e5a \
-    --hash=sha256:c926066aab40f2cdc834f481f6ada0b1a4fdb486565182dfe3ce7679d52d125a
+multidict==3.3.2; python_version >= '3' \
+    --hash=sha256:8eb59892040198741944eafca0c34be4da6b58be7fddf6e491a2d9e7e1767548 \
+    --hash=sha256:24ec0d645ca70981e1c84e97e48c874b47f4970a173c8c751be9c213a8658e40 \
+    --hash=sha256:ebf1ba2af62dbaa37cf3db346830bb43d40d05a5f1f1966888a620f9b795e7c7 \
+    --hash=sha256:3f513f3bf933d7cb6f5741f6676d4fac1e96aa634161c071974f9bb86a7bbac9 \
+    --hash=sha256:fa04df1503fae7045883c57db47ba0c07de2ebe4a91c3e64d56f20d3d99e5dc8 \
+    --hash=sha256:bce16633f3ee88863e4c9bcd7e037a6133c56fd9e7e7c0776bbaeeddcf154ac4 \
+    --hash=sha256:f82e61c7408ed0dce1862100db55595481911f159d6ddec0b375d35b6449509b
 
 async_timeout==1.4.0; python_version >= '3' \
     --hash=sha256:5b5c855783f65dfda72fc15ca538070188776ece811408867e64dd3cce53371d \
