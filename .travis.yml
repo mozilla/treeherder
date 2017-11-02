@@ -3,12 +3,6 @@ dist: trusty
 sudo: required
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
-env:
-  global:
-    - BROKER_URL='amqp://guest:guest@localhost:5672//'
-    - DATABASE_URL='mysql://root@localhost/test_treeherder'
-    - ELASTICSEARCH_URL='http://127.0.0.1:9200'
-    - TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 matrix:
   include:
 
@@ -20,20 +14,15 @@ matrix:
       cache:
         directories:
           - ${HOME}/venv
-      before_install:
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
       install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+        - source ./bin/travis-setup.sh python_env
       script:
         - pip check
         - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
 
-    # Job 2: Linters
+    # Job 2: Python 3 linters
     - env: python3-linters
       sudo: false
       language: python
@@ -41,13 +30,8 @@ matrix:
       cache:
         directories:
           - ${HOME}/venv
-      before_install:
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
       install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
+        - source ./bin/travis-setup.sh python_env
       script:
         - pip check
 
@@ -58,20 +42,8 @@ matrix:
       cache:
         directories:
           - node_modules
-      addons:
-        firefox: latest
-      before_install:
-        # Use newer yarn than that pre-installed in the Travis image.
-        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
-        # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
-        # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
-        # that the package.json scripts aren't relying on symlinks that won't exist elsewhere.
-        - yarn install --frozen-lockfile --no-bin-links
-      before_script:
-        # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
+        - source ./bin/travis-setup.sh js_env
       script:
         - yarn test
         - yarn build
@@ -83,31 +55,10 @@ matrix:
       cache:
         directories:
           - ${HOME}/venv
-      services:
-        - rabbitmq
-      before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
-        - sudo service elasticsearch restart
-        - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
-        - sudo mkdir /mnt/ramdisk
-        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
-        - sudo stop mysql
-        - sudo mv /var/lib/mysql /mnt/ramdisk
-        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
-        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
-        - sudo -E apt-get -yqq update
-        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
+      install:
+        - source ./bin/travis-setup.sh services python_env
         # Create the test database for `manage.py check --deploy`.
         - mysql -u root -e 'create database test_treeherder;'
-      install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
-      before_script:
-        - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -122,29 +73,8 @@ matrix:
       cache:
         directories:
           - ${HOME}/venv
-      services:
-        - rabbitmq
-      before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
-        - sudo service elasticsearch restart
-        - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
-        - sudo mkdir /mnt/ramdisk
-        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
-        - sudo stop mysql
-        - sudo mv /var/lib/mysql /mnt/ramdisk
-        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
-        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
-        - sudo -E apt-get -yqq update
-        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
       install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
-      before_script:
-        - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
+        - source ./bin/travis-setup.sh services python_env
       script:
         - pytest tests/etl/ tests/log_parser/ --runslow
 
@@ -155,29 +85,8 @@ matrix:
       cache:
         directories:
           - ${HOME}/venv
-      services:
-        - rabbitmq
-      before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
-        - sudo service elasticsearch restart
-        - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
-        - sudo mkdir /mnt/ramdisk
-        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
-        - sudo stop mysql
-        - sudo mv /var/lib/mysql /mnt/ramdisk
-        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
-        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
-        - sudo -E apt-get -yqq update
-        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
       install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
-      before_script:
-        - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
+        - source ./bin/travis-setup.sh services python_env
       script:
         - pytest tests/webapp/api/ --runslow
 
@@ -189,38 +98,9 @@ matrix:
         directories:
           - ${HOME}/venv
           - node_modules
-      addons:
-        firefox: latest
-      services:
-        - rabbitmq
-      before_install:
-        - curl -sSo ~/elasticsearch.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb && sudo dpkg -i --force-confold ~/elasticsearch.deb
-        - sudo service elasticsearch restart
-        - sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-        # Using tmpfs to improve MySQL performance reduces pytest runtime by 30%.
-        - sudo mkdir /mnt/ramdisk
-        - sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
-        - sudo stop mysql
-        - sudo mv /var/lib/mysql /mnt/ramdisk
-        - sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
-        - echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
-        - sudo -E apt-get -yqq update
-        - sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
-        # Create a clean virtualenv rather than using the one given to us,
-        # to work around: https://github.com/travis-ci/travis-ci/issues/4873
-        - if [[ ! -f ~/venv/bin/activate ]]; then virtualenv -p python ~/venv; fi
-        - source ~/venv/bin/activate
-        - curl -sSfL https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz | tar -zxC $HOME/bin
-        - nvm install 8.9.0
-        # Use newer yarn than that pre-installed in the Travis image.
-        - curl -sSfL https://yarnpkg.com/latest.tar.gz | tar -xz --strip-components=1 -C "$HOME"
       install:
-        - pip install --disable-pip-version-check --require-hashes -r requirements/common.txt -r requirements/dev.txt
-        - yarn install --frozen-lockfile --no-bin-links
-      before_script:
-        - while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
-        - "export DISPLAY=:99.0"
-        - "sh -e /etc/init.d/xvfb start"
+        - nvm install 8.9.0
+        - source ./bin/travis-setup.sh services python_env geckodriver js_env
       script:
         - yarn build
         - py.test tests/selenium/ --runselenium --driver Firefox
