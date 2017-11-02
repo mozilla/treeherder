@@ -559,11 +559,7 @@ perf.controller('GraphsCtrl', [
                 series: $scope.seriesList.map(series => `${series.projectName},${series.id},${series.visible ? 1 : 0},${series.frameworkId}`),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
-                highlightedRevisions: _.filter($scope.highlightedRevisions,
-                    function (highlight) {
-                        return (highlight &&
-                            highlight.length >= 12);
-                    }),
+                highlightedRevisions: $scope.highlightedRevision.filter(highlight => highlight && highlight.length >= 12),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function () {
                     if ((typeof $scope.zoom.x !== "undefined")
@@ -885,11 +881,9 @@ perf.filter('testNameContainsWords', function () {
         }
 
         var filters = textFilter.split(/\s+/);
-        return _.filter(tests, function (test) {
-            return _.every(filters, function (filter) {
-                return test.name.toLowerCase().indexOf(filter) !== -1;
-            });
-        });
+        return tests.filter(test => _.every(filters, function (filter) {
+            return test.name.toLowerCase().indexOf(filter) !== -1;
+        }));
     };
 });
 
@@ -978,14 +972,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId
                 }).then(function (seriesList) {
-                    $scope.testsToAdd = _.clone(_.filter(seriesList, function (series) {
-                        return series.platform !== originalSeries.platform &&
-                            series.name === originalSeries.name &&
-                            !_.some(testsDisplayed, {
-                                projectName: series.projectName,
-                                signature: series.signature
-                            });
-                    }));
+                    $scope.testsToAdd = _.clone(seriesList.filter(series =>
+                        series.platform !== originalSeries.platform &&
+                        series.name === originalSeries.name &&
+                        !_.some(testsDisplayed, {
+                            projectName: series.projectName,
+                            signature: series.signature
+                        })
+                    ));
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
@@ -1014,12 +1008,10 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                 seriesList = _.flatten(seriesList);
 
                 // filter out tests which are already displayed
-                $scope.testsToAdd = _.filter(seriesList, function (series) {
-                    return !_.some(testsDisplayed, {
-                        projectName: series.projectName,
-                        signature: series.signature
-                    });
-                });
+                $scope.testsToAdd = seriesList.filter(series => !_.some(testsDisplayed, {
+                    projectName: series.projectName,
+                    signature: series.signature
+                }));
             }).then(function () {
                 loadingExtraDataPromise.resolve($scope.testsToAdd.length);
             });
@@ -1031,11 +1023,11 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId
                 }).then(function (seriesList) {
-                    $scope.testsToAdd = _.clone(_.filter(seriesList, function (series) {
-                        return series.platform === originalSeries.platform &&
-                            series.testName === originalSeries.testName &&
-                            series.name !== originalSeries.name;
-                    }));
+                    $scope.testsToAdd = _.clone(seriesList.filter(series =>
+                        series.platform === originalSeries.platform &&
+                        series.testName === originalSeries.testName &&
+                        series.name !== originalSeries.name
+                    ));
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
@@ -1102,8 +1094,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                             framework: $scope.selectedFramework.id,
                             subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
                                 $scope.unselectedTestList = _.sortBy(
-                                    _.filter(seriesList,
-                                    { platform: $scope.selectedPlatform }), 'name');
+                                    seriesList.filter(series => series.platform === $scope.selectedPlatform),
+                                    'name'
+                                );
                                 // filter out tests which are already displayed or are
                                 // already selected
                                 _.forEach(_.union(testsDisplayed, $scope.testsToAdd),

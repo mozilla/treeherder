@@ -197,9 +197,7 @@ treeherder.factory('ThResultSetStore', [
                     // get the new job ids
                     var jobIds = _.map(jobList, 'id');
                     // remove the elements that need to be updated
-                    resultSet.jobList = _.filter(resultSet.jobList, function (job) {
-                        return _.indexOf(jobIds, job.id) === -1;
-                    });
+                    resultSet.jobList = resultSet.jobList.filter(job => _.indexOf(jobIds, job.id) === -1);
                     resultSet.jobList = resultSet.jobList.concat(jobList);
                 } else {
                     resultSet.jobList = jobList;

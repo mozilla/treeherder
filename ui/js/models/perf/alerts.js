@@ -74,14 +74,14 @@ treeherder.factory('PhAlerts', [
         });
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
             var resultStr = "";
-            var improved = _.sortBy(_.filter(this.alerts, function (alert) {
-                return !alert.is_regression && alert.visible;
-            }),
-            'amount_pct').reverse();
-            var regressed = _.sortBy(_.filter(this.alerts, function (alert) {
-                return alert.is_regression && alert.visible && !alert.isInvalid();
-            }),
-            'amount_pct').reverse();
+            var improved = _.sortBy(
+                this.alerts.filter(alert => !alert.is_regression && alert.visible),
+                'amount_pct'
+            ).reverse();
+            var regressed = _.sortBy(
+                this.alerts.filter(alert => alert.is_regression && alert.visible && !alert.isInvalid()),
+                'amount_pct'
+            ).reverse();
 
             var formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
@@ -162,17 +162,17 @@ treeherder.factory('PhAlerts', [
 
             // we should never include downstream alerts in the description
             var alertSummary = this;
-            var alertsInSummary = _.filter(this.alerts, function (alert) {
-                return (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
-                        alert.summary_id === alertSummary.id);
-            });
+            var alertsInSummary = this.alerts.filter(alert =>
+                (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
+                        alert.summary_id === alertSummary.id)
+            );
 
             // figure out if there are any regressions -- if there are,
             // the summary should only incorporate those. if there
             // aren't, then use all of them (that aren't downstream,
             // see above)
             if (_.some(_.map(alertsInSummary, 'is_regression'))) {
-                alertsInSummary = _.filter(alertsInSummary, 'is_regression');
+                alertsInSummary = alertsInSummary.filter(alert => alert.is_regression);
             }
 
             if (alertsInSummary.length > 1) {
@@ -206,7 +206,7 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.modifySelectedAlerts = function (modification) {
             this.allSelected = false;
 
-            return $q.all(_.filter(this.alerts, { selected: true }).map(
+            return $q.all(this.alerts.filter(alert => alert.selected).map(
                 function (selectedAlert) {
                     selectedAlert.selected = false;
                     return selectedAlert.modify(modification);

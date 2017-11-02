@@ -62,9 +62,7 @@ perf.controller('dashCtrl', [
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
                     framework: $scope.framework }).then(function (seriesList) {
-                        return _.filter(seriesList, function (series) {
-                            return filterSeriesByTopic(series);
-                        });
+                        return seriesList.filter(series => filterSeriesByTopic(series));
                     });
             }
 

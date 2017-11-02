@@ -75,11 +75,11 @@ perf.controller('e10sTrendCtrl', [
                     base: {}
                 };
 
-                var seriesToMeasure = _.filter(seriesList, function (series) {
-                    return series.options.indexOf('pgo') >= 0 ||
+                var seriesToMeasure = seriesList.filter(series =>
+                    series.options.indexOf('pgo') >= 0 ||
                         (series.platform === 'osx-10-10' &&
-                         series.options.indexOf('opt') >= 0);
-                });
+                            series.options.indexOf('opt') >= 0)
+                );
 
                 platformList = _.uniq(_.map(seriesToMeasure, 'platform'));
                 // we just use the unadorned suite name to distinguish tests in this view
@@ -328,11 +328,11 @@ perf.controller('e10sTrendSubtestCtrl', [
                 var summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
                 $scope.titles[summaryTestName] = summaryTestName;
 
-                var seriesToMeasure = _.filter(seriesList, function (series) {
-                    return series.options.indexOf('pgo') >= 0 ||
+                var seriesToMeasure = seriesList.filter(series =>
+                    series.options.indexOf('pgo') >= 0 ||
                         (series.platform === 'osx-10-10' &&
-                         series.options.indexOf('opt') >= 0);
-                });
+                         series.options.indexOf('opt') >= 0)
+                );
 
                 $q.all(_.chunk(seriesToMeasure, 20).map(function (seriesChunk) {
                     var params = {

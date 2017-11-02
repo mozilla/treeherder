@@ -67,7 +67,7 @@ treeherder.service('JsonPushes', ['$http', '$q', function ($http, $q) {
             });
             return $q.all(promises).then(
                 function (results) {
-                    results = _.filter(results);
+                    results = results.filter(result => typeof result !== 'undefined');
                     if (results.length === 0) {
                         // nothing found - try with the parent of the parent
                         setTimeout(function () {
