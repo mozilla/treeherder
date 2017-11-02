@@ -36,11 +36,11 @@
         </div>
       </div>
       <label id="modalSummarylabel" for="modalSummary">Summary:</label>
-      <input id="modalSummary" type="text" placeholder="Intermittent..." pattern=".{0,255}" 
+      <input id="modalSummary" type="text" placeholder="Intermittent..." pattern=".{0,255}"
              ng-model="modalSummary" ng-model-options="{allowInvalid:true}" />
       <span id="modalSummaryLength" ng-bind="modalSummary.length" />
       <a ng-class="{'filersummary-open-btn': isFilerSummaryVisible}" prevent-default-on-left-click>
-        <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible" 
+        <i ng-click="toggleFilerSummaryVisibility()" ng-hide="isFilerSummaryVisible"
            class="fa fa-chevron-right" uib-tooltip="Show all failure lines for this job">
         </i>
         <span ng-show="isFilerSummaryVisible">

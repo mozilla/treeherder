@@ -4,7 +4,7 @@
 
 .result-set-bar {
   border-top: 1px solid black;
-  padding: 2px 0px 0px 34px;
+  padding: 2px 0 0 34px;
   white-space: nowrap;
   display: flex;
   flex-flow: row nowrap;
@@ -37,7 +37,7 @@
 }
 
 .result-set {
-  padding-bottom: 0px;
+  padding-bottom: 0;
   margin-left: 0;
   margin-top: 2px;
   white-space: normal;
@@ -102,7 +102,7 @@ fieldset[disabled] .btn-resultset:hover {
 }
 
 .result-set .cancel-all-jobs-confirm {
-  padding: 8px 34px 0px 34px;
+  padding: 8px 34px 0 34px;
 }
 
 /*
@@ -163,8 +163,7 @@ fieldset[disabled] .btn-resultset:hover {
 
 .platform {
   font-size: 12px;
-  padding-left: 0;
-  padding-right: 5px;
+  padding: 0 5px 0 0;
   width: 14.5em;
   min-width: 14.5em;
   overflow: hidden;

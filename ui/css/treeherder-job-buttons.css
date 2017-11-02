@@ -39,7 +39,7 @@
 .group-symbol {
   background: transparent;
   padding: 0 0 0 2px;
-  border: 0px;
+  border: 0;
   vertical-align: 0;
   line-height: 1.32;
   cursor: pointer;
@@ -53,7 +53,7 @@
 
 .group-content {
   margin: 0;
-  white-space: nowrap;  
+  white-space: nowrap;
 }
 
 .group-content::before {
@@ -80,16 +80,16 @@
     vertical-align: 0;
     line-height: 1.32;
     font-size: 12px;
-    border-radius: 0px;
+    border-radius: 0;
     text-align: center;
     white-space: nowrap;
 }
 
 .runnable-job-btn-selected {
     border: 1px solid;
-    padding: 0 -1;
+    padding: 0 -1px;
     border-radius: 3px;
-    margin: 0px -3px 1px 0px;
+    margin: 0 -3px 1px 0;
     overflow: visible;
 }
 
