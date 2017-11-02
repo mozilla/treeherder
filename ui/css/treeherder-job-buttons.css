@@ -175,19 +175,19 @@
 .btn-pink-classified-count::after,
 .btn-purple-classified::after,
 .btn-purple-classified-count::after {
-  font-family: 'Glyphicons Halflings';
+  font-family: 'FontAwesome';
   font-weight: 400;
   line-height: 1;
-  content: "\e006";
+  content: "\f005";
   font-size: 75%;
   vertical-align: super;
 }
 
 .autoclassified::after {
-  font-family: 'Glyphicons Halflings';
+  font-family: 'FontAwesome';
   font-weight: 400;
   line-height: 1;
-  content: "\e007";
+  content: "\f006";
   font-size: 75%;
   vertical-align: super;
 }

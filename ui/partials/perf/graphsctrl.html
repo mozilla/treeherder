@@ -22,7 +22,7 @@
         </tr>
       </table>
       <button id="add-test-data-button" class="btn btn-primary" ng-click="addTestData()">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
+        <span class="fa fa-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
     </div>
     <div id="data-display">
       <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
