@@ -56,8 +56,6 @@ matrix:
       language: node_js
       node_js: "8.9.0"
       cache:
-        # Note: This won't re-use the same cache as the linters job,
-        # since caches are tied to the language/version combination.
         directories:
           - node_modules
       addons:
