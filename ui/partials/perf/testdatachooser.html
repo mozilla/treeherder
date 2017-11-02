@@ -43,10 +43,10 @@
   </div>
   <div class="btn-group-vertical">
     <button id="unselect-test" ng-click="unselectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!testsToAdd.length">
-      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="fa fa-chevron-left"></span>
     </button>
     <button id="select-test" ng-click="selectTest()" type="button" class="btn btn-xs btn-default" ng-disabled="!unselectedTestList.length">
-      <span class="glyphicon glyphicon-chevron-right"></span>
+      <span class="fa fa-chevron-right"></span>
     </button>
   </div>
   <div class="test-list-container">
@@ -63,5 +63,5 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>
+  <button class="btn btn-primary" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="fa fa-plus" aria-hidden="true"></span> Add</button>
 </div>

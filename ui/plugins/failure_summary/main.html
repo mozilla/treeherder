@@ -19,7 +19,7 @@
                     <button class="btn btn-xs btn-default"
                             ng-click="pinboard_service.addBug(bug, selectedJob)"
                             title="add to list of bugs to associate with all pinned jobs">
-                      <i class="glyphicon glyphicon-pushpin"></i>
+                      <i class="fa fa-thumb-tack"></i>
                     </button>
                     <a href="{{:: getBugUrl(bug.id) }}"
                        target="_blank">{{::bug.id}}
@@ -42,7 +42,7 @@
                     <button class="btn btn-xs btn-default"
                             ng-click="pinboard_service.addBug(bug, selectedJob)"
                             title="add to list of bugs to associate with all pinned jobs">
-                      <i class="glyphicon glyphicon-pushpin"></i>
+                      <i class="fa fa-thumb-tack"></i>
                     </button>
                     <a ng-if="bug.resolution === ''"
                        href="{{:: getBugUrl(bug.id) }}"
