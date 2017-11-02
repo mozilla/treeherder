@@ -31,21 +31,21 @@ treeherder.factory('ThJobModel', [
                 this.job_group_symbol;
             symbolInfo += "(" + this.job_type_symbol + ")";
 
-            return _.filter([
+            return [
                 thPlatformName(this.platform),
                 this.platform_option,
                 (this.job_group_name === 'unknown') ? undefined : this.job_group_name,
                 this.job_type_name,
                 symbolInfo
-            ]).join(' ');
+            ].filter(item => typeof item !== 'undefined').join(' ');
         };
 
         ThJobModel.prototype.get_search_str = function () {
-            return _.filter([
+            return [
                 this.get_title(),
                 this.ref_data_name,
                 (this.signature !== this.ref_data_name) ? this.signature : undefined
-            ]).join(' ');
+            ].filter(item => typeof item !== 'undefined').join(' ');
         };
 
         ThJobModel.get_uri = function (repoName) { return thUrl.getProjectUrl("/jobs/", repoName); };

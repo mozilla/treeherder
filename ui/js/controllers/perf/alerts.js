@@ -212,7 +212,7 @@ perf.controller('AlertsCtrl', [
                     $scope.selectNoneOrSelectAll(alertSummary);
                 }
             });
-            $scope.numFilteredAlertSummaries = _.filter($scope.alertSummaries, { anyVisible: false }).length;
+            $scope.numFilteredAlertSummaries = $scope.alertSummaries.filter(summary => !summary.anyVisible).length;
 
         }
 
@@ -368,7 +368,7 @@ perf.controller('AlertsCtrl', [
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
             var summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
-                _.filter(alertSummary.alerts, { selected: true }),
+                alertSummary.alerts.filter(alert => alert.selected),
                 function (alert) {
                     return _.find($scope.alertSummaries, function (alertSummary) {
                         return alertSummary.id === alert.related_summary_id;

@@ -97,7 +97,10 @@ treeherder.filter('initials', function () {
     return function (input) {
         var str = input || '';
         var words = str.split(' ');
-        var firstLetters = _.filter(_.map(words, function (word) { return word.replace(/[^A-Z]/gi, '')[0]; }));
+        var firstLetters = _.map(
+            words,
+            word => word.replace(/[^A-Z]/gi, '')[0]
+        ).filter(firstLetter => typeof firstLetter !== 'undefined');
         var initials = "";
 
         if (firstLetters.length === 1) {

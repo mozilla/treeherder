@@ -298,7 +298,7 @@ treeherder.factory('ThRepositoryModel', [
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
-            repoNames = _.filter(repoNames, function (repo) {
+            repoNames = repoNames.filter((repo) => {
                 if (_.includes(watchedRepos, repo) && repos[repo].treeStatus.status !== 'unsupported') {
                     return repo;
                 }

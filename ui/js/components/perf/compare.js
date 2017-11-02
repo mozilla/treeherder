@@ -49,7 +49,7 @@ treeherder.component('phCompareTable', {
             if (_.isUndefined(ctrl.filterOptions.filter)) {
                 return results;
             }
-            return _.filter(results, function (result) {
+            return results.filter((result) => {
                 var testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
                 return _.every(ctrl.filterOptions.filter.split(' '), function (matchText) {
                     if ($attrs.type === 'trend') {
