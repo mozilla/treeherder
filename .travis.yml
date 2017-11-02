@@ -37,7 +37,7 @@ matrix:
     - env: python3-linters
       sudo: false
       language: python
-      python: "3.6.2"
+      python: "3.6.3"
       cache:
         directories:
           - ~/venv
