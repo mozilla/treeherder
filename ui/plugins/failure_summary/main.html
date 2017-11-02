@@ -3,7 +3,7 @@
 
         <li ng-repeat="suggestion in suggestions">
             <div class="job-tabs-content">
-                <a class="btn btn-xs btn-default"
+                <a class="btn btn-xs btn-light-bordered"
                    prevent-default-on-left-click
                    ng-show="(filerInAddress || user.is_staff)"
                    ng-click="fileBug($index)"
@@ -16,7 +16,7 @@
             <ul ng-if="suggestion.valid_open_recent"
                 class="list-unstyled failure-summary-bugs">
                 <li ng-repeat="bug in suggestion.bugs.open_recent">
-                    <button class="btn btn-xs btn-default"
+                    <button class="btn btn-xs btn-light-bordered"
                             ng-click="pinboard_service.addBug(bug, selectedJob)"
                             title="add to list of bugs to associate with all pinned jobs">
                       <i class="fa fa-thumb-tack"></i>
@@ -39,7 +39,7 @@
             <ul ng-if="suggestion.valid_all_others && (suggestion.clicked_show_more || !suggestion.valid_open_recent)"
                 class="list-unstyled failure-summary-bugs">
                 <li ng-repeat="bug in suggestion.bugs.all_others">
-                    <button class="btn btn-xs btn-default"
+                    <button class="btn btn-xs btn-light-bordered"
                             ng-click="pinboard_service.addBug(bug, selectedJob)"
                             title="add to list of bugs to associate with all pinned jobs">
                       <i class="fa fa-thumb-tack"></i>

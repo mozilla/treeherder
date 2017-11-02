@@ -166,6 +166,10 @@ th-watched-repo {
     padding: 7px 2px;
 }
 
+#filter-chicklets .btn {
+    font-size: 14px;
+}
+
 .btn.btn-view-nav.btn-orange-filter-chicklet,
 .btn.btn-view-nav.btn-orange-filter-chicklet:hover {
     color: #dd6602;

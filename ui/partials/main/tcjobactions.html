@@ -24,7 +24,7 @@
   </div>
 </div>
 <div class="modal-footer">
-  <button ng-if="user.loggedin" class="btn btn-primary" ng-click="triggerAction()" ng-attr-title="{{user.loggedin ? 'Trigger this action' : 'Not logged in'}}" ng-disabled="triggering">
+  <button ng-if="user.loggedin" class="btn btn-primary-soft" ng-click="triggerAction()" ng-attr-title="{{user.loggedin ? 'Trigger this action' : 'Not logged in'}}" ng-disabled="triggering">
     <span class="fa fa-check-square-o" aria-hidden="true"></span>
     <span ng-if="triggering">Triggering</span>
     <span ng-if="!triggering">Trigger</span>

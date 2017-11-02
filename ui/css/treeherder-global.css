@@ -11,15 +11,21 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.42;
 }
 
 body {
   line-height: inherit;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 a:visited {
   color: purple;
+}
+
+a {
+  color: #337ab7;
 }
 
 #global-container {
@@ -32,6 +38,7 @@ a:visited {
   flex: 1;
   position: relative; /* Required to position inner content */
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .pagination, .carousel, .panel-title a {
@@ -47,6 +54,12 @@ a:visited {
 .checkbox {
   min-height: 20px;
   padding-left: 4px;
+  padding-top: 4px;
+  justify-content: center;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 .dropdown-menu > li > a {
@@ -212,6 +225,10 @@ a:visited {
  * potentially used elsewhere.
  */
 
+.btn {
+  cursor: pointer;
+}
+
 .th-action-button span.dropdown:hover ul.dropdown-menu {
   display: block;
 }
@@ -222,6 +239,28 @@ a:visited {
 
 .label[href] {
   color: #fff;
+}
+
+.btn-link {
+    font-weight: normal;
+    color: #337ab7;
+    border-radius: 0;
+}
+
+.btn-xs {
+  padding: 3px 6px 3px 6px;
+  font-size: 12px;
+}
+
+.btn-light-bordered {
+  border: 1px solid darkgrey;
+  background-color: white;
+}
+
+.btn-primary-soft {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
 }
 
 /*
@@ -279,6 +318,18 @@ kbd {
   text-overflow: ellipsis;
 }
 
+.help-block {
+    color: #737373;
+}
+
+label {
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 18px;
+}
+
 /*
  * Tables and panels
  */
@@ -307,6 +358,10 @@ kbd {
 
 .panel-spacing table tr {
   border-bottom: 1px dotted lightgrey;
+}
+
+.modal-lg {
+  max-width: 890px;
 }
 
 /*

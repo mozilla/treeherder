@@ -202,20 +202,20 @@
         Reset
       </button>
       <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
           <span class="fa fa-check"></span> Acknowledge
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
           <span class="fa fa-ban"></span> Mark invalid
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="markAlertsDownstream(alertSummary)"
                 title="Mark selected alerts as downstream from an alert summary on another branch">
           <span class="fa fa-level-down"></span> Mark downstream
         </button>
-        <button class="btn btn-default" role="button"
+        <button class="btn btn-light-bordered" role="button"
                 ng-click="reassignAlerts(alertSummary)"
                 title="Reassign selected alerts to another alert summary on the same branch">
           <span class="fa fa-arrow-circle-o-right"></span> Reassign
