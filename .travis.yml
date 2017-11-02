@@ -19,7 +19,7 @@ matrix:
       python: "2.7.14"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
       before_install:
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
@@ -40,7 +40,7 @@ matrix:
       python: "3.6.3"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
       before_install:
         # Create a clean virtualenv rather than using the one given to us,
         # to work around: https://github.com/travis-ci/travis-ci/issues/4873
@@ -84,7 +84,7 @@ matrix:
       python: "2.7.14"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
       services:
         - rabbitmq
       before_install:
@@ -123,7 +123,7 @@ matrix:
       python: "2.7.14"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
       services:
         - rabbitmq
       before_install:
@@ -156,7 +156,7 @@ matrix:
       python: "2.7.14"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
       services:
         - rabbitmq
       before_install:
@@ -189,7 +189,7 @@ matrix:
       python: "2.7.14"
       cache:
         directories:
-          - ~/venv
+          - ${HOME}/venv
           - node_modules
       addons:
         firefox: latest
