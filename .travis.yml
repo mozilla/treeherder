@@ -21,6 +21,7 @@ matrix:
         - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
+        - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
 
     # Job 2: Python 3 linters
     - env: python3-linters

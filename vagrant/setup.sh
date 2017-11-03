@@ -18,6 +18,8 @@ cd "$SRC_DIR"
 ELASTICSEARCH_VERSION="5.5.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="9.0.1"
+# Keep in sync with the version pre-installed on Travis.
+SHELLCHECK_VERSION="0.4.6"
 
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
@@ -107,6 +109,12 @@ echo '-----> Running yarn install'
 # as part of the move to a Docker based development environment, where the non-APT approach
 # is much simpler.
 yarn install --no-bin-links --ignore-engines
+
+if [[ "$(shellcheck --version 2>&1)" != *"version: ${SHELLCHECK_VERSION}"* ]]; then
+    echo '-----> Installing shellcheck'
+    curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+        | sudo tar -Jx --strip-components=1 -C /usr/local/bin
+fi
 
 echo '-----> Initialising MySQL database'
 # Re-enable blank password root logins, which are disabled by default in MySQL 5.7.
