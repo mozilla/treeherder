@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export PATH="/home/vagrant/python/bin:$PATH"
 
 export ENABLE_LOCAL_SETTINGS_FILE='True'

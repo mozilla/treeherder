@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+# Make non-zero exit codes & other errors fatal.
+set -euo pipefail
 
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd $SRC_DIR
