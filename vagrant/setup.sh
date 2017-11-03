@@ -35,7 +35,7 @@ rm -f celerybeat-schedule
 echo '-----> Configuring .profile and environment variables'
 ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
-. /etc/profile.d/treeherder.sh
+. vagrant/env.sh
 
 if ! grep -qs 'node_8.x' /etc/apt/sources.list.d/nodesource.list; then
     echo '-----> Adding APT repository for Node.js'

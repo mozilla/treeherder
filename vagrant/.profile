@@ -4,6 +4,7 @@
 set -euo pipefail
 
 # Source .bashrc, since the default .profile we're replacing did so.
+# shellcheck source=/dev/null
 . "$HOME/.bashrc"
 
 # Hack to avoid servers having to bind to 0.0.0.0 to be accessible from the VM host (bug 1362443).
