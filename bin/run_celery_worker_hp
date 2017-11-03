@@ -6,7 +6,7 @@ set -euo pipefail
 SRC_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 cd "$SRC_DIR"
 
-source /etc/profile.d/treeherder.sh
+source vagrant/env.sh
 
 exec newrelic-admin run-program celery -A treeherder worker -c 1 \
      -Q classification_mirroring,publish_to_pulse -E \
