@@ -83,7 +83,7 @@ if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     sudo systemctl restart mysql.service
 fi
 
-if [[ "$($PYTHON_DIR/bin/python --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
+if [[ "$("${PYTHON_DIR}/bin/python" --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
     echo "-----> Installing Python"
     rm -rf "$PYTHON_DIR"
     mkdir -p "$PYTHON_DIR"
@@ -91,7 +91,7 @@ if [[ "$($PYTHON_DIR/bin/python --version 2>&1)" != *"$PYTHON_VERSION" ]]; then
     curl -sSf "https://lang-python.s3.amazonaws.com/heroku-16/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
 fi
 
-if [[ "$($PYTHON_DIR/bin/pip --version 2>&1)" != *"$PIP_VERSION"* ]]; then
+if [[ "$("${PYTHON_DIR}/bin/pip" --version 2>&1)" != *"$PIP_VERSION"* ]]; then
     echo "-----> Installing pip"
     curl -sSf https://bootstrap.pypa.io/get-pip.py | python - "pip==$PIP_VERSION"
 fi

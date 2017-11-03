@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # Make the current Git revision accessible at <site-root>/revision.txt
-echo $SOURCE_VERSION > ui/revision.txt
+echo "$SOURCE_VERSION" > ui/revision.txt
 
 # Create a `dist/` directory containing built/minified versions of the `ui/` assets.
 # Uses the node binaries/packages installed by the nodejs buildpack previously.
