@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+# Make non-zero exit codes & other errors fatal.
+set -euo pipefail
+
 # Source .bashrc, since the default .profile we're replacing did so.
 . "$HOME/.bashrc"
 
