@@ -1117,7 +1117,7 @@
         "name": "addon-tests",
         "url": "https://github.com/mozilla/Addon-Tests",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "addon-tests",
         "repository_group": 5,
         "description": "Tests for Add-ons"
