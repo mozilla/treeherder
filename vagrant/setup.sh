@@ -16,7 +16,7 @@ PYTHON_DIR="$HOME/python"
 cd "$SRC_DIR"
 
 ELASTICSEARCH_VERSION="5.5.0"
-PYTHON_VERSION="$(cat runtime.txt | sed 's/python-//')"
+PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="9.0.1"
 
 # Suppress prompts during apt-get invocations.
