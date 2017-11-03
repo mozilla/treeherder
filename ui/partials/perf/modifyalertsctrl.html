@@ -1,12 +1,12 @@
 <form name="modifyAlert" ng-submit="modify()">
 <div class="modal-header">
+  <h3 class="modal-title">{{title}}</h3>
   <button type="button" class="close" ng-model="closeButton" ng-show="!modifying" ng-click="cancel()">
     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
   </button>
-  <h3 class="modal-title">{{title}}</h3>
 </div>
 <div class="modal-body">
-      <div class="form-group" ng-class="{'has-error': modifyAlert.newId.$invalid}">
+      <div class="form-group" ng-class="{'has-danger': modifyAlert.newId.$invalid}">
         <input class="form-control"
                ng-model="newId"
                ng-pattern="/^[1-9]+[0-9]*$/"

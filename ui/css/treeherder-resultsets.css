@@ -42,7 +42,6 @@
   margin-top: 2px;
   white-space: normal;
   width: 100%;
-  position: relative;
 }
 
 .result-counts {
@@ -63,6 +62,13 @@
 .btn-resultset {
   color: #666;
   background-color: transparent;
+  padding-left: 9px;
+  padding-right: 10px;
+}
+
+.btn-resultset.btn:focus {
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
 }
 
 .btn-resultset:hover {
@@ -73,13 +79,18 @@
 .btn-resultset.disabled:hover,
 .btn-resultset.disabled:active,
 .btn-resultset.disabled.active,
-.btn-resultset[disabled]:hover,
-.btn-resultset[disabled]:active,
-.btn-resultset[disabled].active,
+.btn-resultset:disabled:hover,
+.btn-resultset:disabled:active,
+.btn-resultset:disabled.active,
 fieldset[disabled] .btn-resultset:hover {
   background-color: #7c7a7d;
   border-color: #7c7a7d;
   color: white;
+}
+
+th-action-button .btn-resultset {
+  padding-left: 6px;
+  font-size: 14px;
 }
 
 /* Encompasses unknown push,resultset,repo */
@@ -109,8 +120,11 @@ fieldset[disabled] .btn-resultset:hover {
  * Revision list
  */
 
-.revision-list {
+revisions {
   overflow: hidden;
+}
+
+.revision-list {
   white-space: nowrap;
 }
 
@@ -164,6 +178,7 @@ fieldset[disabled] .btn-resultset:hover {
 .platform {
   font-size: 12px;
   padding: 0 5px 0 0;
+  line-height: 15px;
   width: 14.5em;
   min-width: 14.5em;
   overflow: hidden;
@@ -172,8 +187,11 @@ fieldset[disabled] .btn-resultset:hover {
 
 .job-row {
   display: table-cell;
+  line-height: 15px;
   white-space: normal;
   word-break: normal;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .job-list table {
@@ -186,4 +204,20 @@ fieldset[disabled] .btn-resultset:hover {
 
 .job-list table tr:nth-child(even) {
   background: #f8f8f8;
+}
+
+.get-next {
+  flex-direction: row;
+  font-size: 14px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+}
+
+.get-next > span {
+  align-self: center;
+  padding-right: 8px;
+}
+
+.get-next .btn {
+  font-size: 12px;
 }

@@ -1,6 +1,6 @@
 <div class="modal-header">
-  <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
   <h4 class="modal-title">Add test data</h4>
+  <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 </div>
 <div class="modal-body" ng-show="!loadingRelatedSignatures">
     <p class="blink" >Getting related test information ...</p>
@@ -28,7 +28,7 @@
       <div class="test-loading-placeholder" ng-show="loadingTestData">
         <p class="blink">Loading series data...</p>
       </div>
-      <input class="form-control input-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
+      <input class="form-control form-control-sm" type="text" ng-model="testFilter" placeholder="Filter tests" ng-model-options="{debounce: 250}" ng-hide="loadingTestData"/>
       <select ng-hide="loadingPlatformList || loadingTestData" multiple class="form-control choose-test-list" ng-model="selectedTestSignatures" ng-hide="loadingTestData">
         <option value="{{::testElem.signature}}" ng-repeat="testElem in unselectedTestList| testNameContainsWords: testFilter track by testElem.signature" title="{{::testElem.name}}">
           {{::testElem.name}}

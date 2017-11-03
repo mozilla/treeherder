@@ -1,10 +1,7 @@
-<div id="watched-repo-navbar" class="th-context-navbar watched-repo-navbar clearfix">
-
-  <th-watched-repo ng-repeat="watchedRepo in repoModel.watchedRepos"></th-watched-repo>
-
-  <div class="navbar-right">
-    <span>
-      <form role="search" class="form-inline">
+<div id="watched-repo-navbar" class="th-context-navbar navbar-dark watched-repo-navbar">
+  <span class="justify-content-between w-100 d-flex flex-wrap">
+    <span class="d-flex"><th-watched-repo ng-repeat="watchedRepo in repoModel.watchedRepos" /></span>
+    <form role="search" class="form-inline flex-row">
 
         <span class="btn btn-sm btn-view-nav nav-menu-btn"
               ng-show="serverChanged" ng-cloak
@@ -38,17 +35,16 @@
           <span id="tierLabel" role="button"
                   title="Show/hide job tiers"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-sm nav-menu-btn">Tiers
-            <span class="fa fa-angle-down lightgray"></span>
+                  class="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle">Tiers
           </span>
           <ul class="dropdown-menu checkbox-dropdown-menu"
               role="menu">
             <li ng-repeat="tier in jobFilters.tiers">
-              <div class="checkbox dropdown-link">
-                <label title="{{(isSingleTierSelected() && tiers[tier] == true) ? 'Must have at least one tier selected at all times' : ''}}">
+              <div>
+                <label title="{{(isSingleTierSelected() && tiers[tier] == true) ? 'Must have at least one tier selected at all times' : ''}}"
+                       class="dropdown-item">
                   <input id="tier-checkbox"
                          type="checkbox"
-                         class="dropdown-checkboxk"
                          ng-model="tiers[tier]"
                          ng-disabled="isSingleTierSelected() && tiers[tier] == true"
                          ng-change="tierToggled(tier)">tier {{::tier}}
@@ -107,7 +103,7 @@
               id="quick-filter-parent"
               class="form-group form-inline">
           <input id="quick-filter"
-                 class="form-control input-sm" required
+                 class="form-control form-control-sm" required
                  title="Click to enter filter values"
                  ng-model="searchQueryStr" ng-keydown="search($event)" type="text"
                  placeholder="Filter platforms & jobs"
@@ -117,7 +113,6 @@
                 title="Clear this filter"
                 ng-click="clearFilterBox()"></span>
         </span>
-      </form>
-    </span>
-  </div>
+    </form>
+  </span>
 </div>

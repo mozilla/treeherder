@@ -21,7 +21,7 @@ require('angular-toarrayfilter');
 require('mousetrap');
 require('js-yaml');
 require('ngreact');
-require('angular-ui-bootstrap');
+require('angular1-ui-bootstrap4');
 require('angular-marked');
 require('../../../ui/vendor/resizer.js');
 

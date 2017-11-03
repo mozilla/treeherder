@@ -33,7 +33,7 @@ module.exports = neutrino => {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
             'angular', 'angular-cookies', 'angular-local-storage', 'angular-resource',
-            'angular-route', 'angular-sanitize', 'angular-toarrayfilter', 'angular-ui-bootstrap',
+            'angular-route', 'angular-sanitize', 'angular-toarrayfilter', 'angular1-ui-bootstrap4',
             'angular-ui-router', 'bootstrap/dist/js/bootstrap', 'hawk', 'jquery', 'jquery.scrollto',
             'js-yaml', 'mousetrap', 'react', 'react-dom', 'taskcluster-client', 'numeral', 'metrics-graphics'];
         jsDeps.map(dep =>
@@ -166,6 +166,8 @@ module.exports = neutrino => {
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
+            // Required by Bootstrap 4: https://getbootstrap.com/docs/4.0/getting-started/webpack/
+            Popper: ['popper.js', 'default'],
             React: require.resolve('react'),
             _: require.resolve('lodash'),
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),

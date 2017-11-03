@@ -1,9 +1,9 @@
 <!-- Load progress bar -->
 <span class="hidden" ng-class="{'ready':jobsReady}"></span>
 
-<div class="progress progress-striped active"
+<div class="progress active"
      ng-show="isLoadingRsBatch.prepending && result_sets.length === 0">
-  <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+  <div class="progress-bar progress-bar-striped"  role="progressbar" style="width: 100%"></div>
 </div>
 
 <!-- Main resultset template -->
@@ -66,7 +66,7 @@
     </div>
   </div>
   <!-- Job table -->
-  <div class="result-set-body" th-clone-jobs ></div>
+  <div class="result-set-body row" th-clone-jobs ></div>
 </div>
 
 <!-- Resultset load errors -->
@@ -116,14 +116,14 @@
 <!-- End resultset clone target -->
 
 <!-- New resultsets progress bar -->
-<div class="progress progress-striped active"
+<div class="progress active"
      ng-show="isLoadingRsBatch.appending">
-  <div class="progress-bar"  role="progressbar" style="width: 100%"></div>
+  <div class="progress-bar progress-bar-striped "  role="progressbar" style="width: 100%"></div>
 </div>
 
 <!-- Get next resultsets footer -->
-<div class="well">
-     get next:
+<div class="card card-body get-next">
+  <span>get next:</span>
   <div class="btn-group">
     <div class="btn btn-light-bordered"
          ng-click="getNextResultSets(count, true)"

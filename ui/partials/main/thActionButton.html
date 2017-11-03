@@ -1,9 +1,10 @@
-<span class="btn-group" uib-dropdown>
+<span class="btn-group dropdown" uib-dropdown>
   <button uib-dropdown-toggle
           class="btn btn-sm btn-resultset dropdown-toggle"
           type="button"
           title="Action menu"
           data-hover="dropdown"
+          data-toggle="dropdown"
           data-delay="1000"
           data-ignore-job-clear-on-click>
     <span class="caret" data-ignore-job-clear-on-click></span>
@@ -14,35 +15,35 @@
         class="{{user.loggedin ? '' : 'disabled'}}">
         <a target="_blank" data-ignore-job-clear-on-click
            title="Add new jobs to this push"
-           href=""
+           href="" class="dropdown-item"
            ng-hide="resultset.isRunnableVisible"
            ng-click="showRunnableJobs()">Add new jobs</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
            title="Hide Runnable Jobs"
-           href=""
+           href="" class="dropdown-item"
            ng-show="resultset.isRunnableVisible"
            ng-click="deleteRunnableJobs()">Hide Runnable Jobs</a></li>
-    <li><a target="_blank" data-ignore-job-clear-on-click
+    <li><a target="_blank" data-ignore-job-clear-on-click class="dropdown-item"
            href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
-           href=""
+           href="" class="dropdown-item"
            ng-show="user.is_staff && triggerMissingRepos.includes(currentRepo.name)"
            ng-click="triggerMissingJobs(resultset.revision)">Trigger missing jobs</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
-           href=""
+           href="" class="dropdown-item"
            ng-show="user.is_staff"
            ng-click="triggerAllTalosJobs(resultset.revision)">Trigger all Talos jobs</a></li>
-    <li><a target="_blank" data-ignore-job-clear-on-click
+    <li><a target="_blank" data-ignore-job-clear-on-click class="dropdown-item"
            href="https://bugherder.mozilla.org/?cset={{::resultset.revision}}&amp;tree={{::repoName}}"
            title="Use Bugherder to mark the bugs in this push">Mark with Bugherder</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
-           href=""
+           href="" class="dropdown-item"
            ng-click="customPushAction()"
            title="View/Edit/Submit Action tasks for this push">Custom Push Action...</a></li>
-    <li><a target="_blank"
+    <li><a target="_blank" class="dropdown-item"
            href="{{toChangeValue()}}&tochange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="jobFilters.addFilter('tochange', resultset.revision)">Set as top of range</a></li>
-    <li><a target="_blank"
+    <li><a target="_blank" class="dropdown-item"
            href="{{fromChangeValue()}}&fromchange={{resultset.revision}}" prevent-default-on-left-click
            ng-click="jobFilters.addFilter('fromchange', resultset.revision)">Set as bottom of range</a></li>
   </ul>
