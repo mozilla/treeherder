@@ -92,8 +92,7 @@ treeherder.factory('PhAlerts', [
             // add summary header if getting text for clipboard only
             if (copySummary) {
                 var lastUpdated = new Date(this.last_updated);
-                resultStr += "== Change summary for alert #" + this.id +
-                             " (as of " + lastUpdated.toLocaleFormat("%B %d %Y %H:%M UTC") + ") ==\n";
+                resultStr += `== Change summary for alert #${this.id} (as of ${lastUpdated.toUTCString()}) ==\n`;
             }
             if (regressed.length > 0) {
                 // add a newline if we displayed the header
