@@ -7,7 +7,6 @@ require('./js/config');
 // Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
-require('./vendor/css/bootstrap-non-responsive.css');
 require('./css/treeherder-global.css');
 require('./css/treeherder-navbar.css');
 require('./css/treeherder-navbar-panels.css');
@@ -28,7 +27,7 @@ require('angular-sanitize');
 require('angular-toarrayfilter');
 require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
-require('angular-ui-bootstrap');
+require('angular1-ui-bootstrap4');
 require('mousetrap');
 require('js-yaml');
 require('angular-marked');

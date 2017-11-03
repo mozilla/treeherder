@@ -1,15 +1,14 @@
-<nav id="th-global-navbar" class="navbar navbar-inverse">
-  <div id="th-global-navbar-top" class="navbar-collapse collapse">
+<nav id="th-global-navbar" class="navbar navbar-dark">
+  <div id="th-global-navbar-top">
 
     <!-- Logo Menu -->
     <span class="dropdown">
       <button id="th-logo" title="Treeherder services" role="button"
               data-toggle="dropdown"
-              class="btn btn-view-nav">Treeherder
-        <span class="fa fa-angle-down lightgray"></span>
+              class="btn btn-view-nav dropdown-toggle">Treeherder
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="th-logo">
-        <li><a href="perf.html">Perfherder</a></li>
+        <li><a href="perf.html" class="dropdown-item">Perfherder</a></li>
       </ul>
     </span>
 
@@ -21,7 +20,7 @@
                 class="btn btn-view-nav btn-right-navbar nav-menu-btn">
           <span class="fa fa-bell-o lightgray"></span>
         </button>
-        <ul id="notification-dropdown" class="dropdown-menu" role="menu" aria-labelledby="notificationLabel">
+        <ul id="notification-dropdown" class="dropdown-menu nav-dropdown-menu-right" role="menu" aria-labelledby="notificationLabel">
           <li role="presentation" class="dropdown-header" title="Notifications">
             Recent notifications
             <button class="btn btn-xs btn-light-bordered notification-dropdown-btn" title="Clear all notifications"
@@ -51,10 +50,9 @@
       <span class="dropdown">
         <button id="infraLabel" title="Infrastructure status" role="button"
                 data-toggle="dropdown"
-                class="btn btn-view-nav btn-right-navbar nav-menu-btn">Infra
-          <span class="fa fa-angle-down lightgray"></span>
+                class="btn btn-view-nav btn-right-navbar nav-menu-btn dropdown-toggle">Infra
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="infraLabel"
+        <ul id="infra-dropdown" class="dropdown-menu nav-dropdown-menu-right container" role="menu" aria-labelledby="infraLabel"
             ng-include="'partials/main/thInfraMenu.html'">
         </ul>
       </span>
@@ -64,19 +62,22 @@
         <span th-checkbox-dropdown-container class="dropdown">
           <button id="repoLabel" title="Watch a repo" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-right-navbar nav-menu-btn">Repos
-            <span class="fa fa-angle-down lightgray"></span>
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn dropdown-toggle">Repos
           </button>
-          <ul id="repo-dropdown" class="dropdown-menu checkbox-dropdown-menu"
-              role="menu" aria-labelledby="repoLabel">
-            <span class="repogroup {{$even ? 'even' : 'odd'}}" ng-repeat="(group_order, group) in groupedRepos()">
-              <li role="presentation" class="dropdown-header" title="{{::group.repos[0].repository_group.description}}">
-                  {{::group.name}}
-                  <span ng-show="group.repos[0].repository_group.description" class="fa fa-info-circle"></span>
-              </li>
-              <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
-            </span>
-          </ul>
+          <span id="repo-dropdown" class="dropdown-menu nav-dropdown-menu-right container">
+            <ul class="checkbox-dropdown-menu row"
+                role="menu" aria-labelledby="repoLabel"
+                aria-haspopup="true" aria-expanded="false">
+              <span class="repogroup dropdown-item col" ng-repeat="(group_order, group) in groupedRepos()">
+                <li role="presentation" class="dropdown-header" title="{{::group.repos[0].repository_group.description}}">
+                    {{::group.name}}
+                    <span ng-show="group.repos[0].repository_group.description" class="fa fa-info-circle"></span>
+                </li>
+                <th-repo-menu-item ng-repeat="repo in group.repos | orderBy : 'name'" ></th-repo-menu-item>
+                <div ng-if=$odd class="w-100"></div>
+              </span>
+            </ul>
+          </span>
         </span>
       </span>
 
@@ -85,11 +86,10 @@
         <span th-checkbox-dropdown-container class="dropdown">
           <button id="filterLabel" title="Set filters" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-right-navbar nav-menu-btn">Filters
-            <span class="fa fa-angle-down lightgray"></span>
+                  class="btn btn-view-nav btn-right-navbar nav-menu-btn dropdown-toggle">Filters
           </button>
           <ul id="filter-dropdown"
-              class="dropdown-menu checkbox-dropdown-menu"
+              class="dropdown-menu nav-dropdown-menu-right checkbox-dropdown-menu"
               role="menu" aria-labelledby="filterLabel">
             <span class="filtergroup" ng-repeat="(group_order, group) in filterGroups">
               <li role="presentation" class="dropdown-header">
@@ -112,13 +112,13 @@
               <input type="checkbox"
                      id="classified"
                      ng-model="classifiedFilter"
-                     ng-click="toggleClassifiedFilter()">classified
+                     ng-click="toggleClassifiedFilter()"> classified
             </label>
             <label class="dropdown-item">
               <input type="checkbox"
                      id="unclassified"
                      ng-model="unClassifiedFilter"
-                     ng-click="toggleUnClassifiedFilter()">un-classified
+                     ng-click="toggleUnClassifiedFilter()"> un-classified
             </label>
 
             <li class="dropdown-divider separator"></li>
@@ -137,14 +137,13 @@
       </span>
 
       <!-- Help Menu -->
-      <span class="dropdown">
+      <span id="help-menu" class="dropdown">
         <button id="helpLabel" title="Treeherder help" role="button"
                 data-toggle="dropdown"
-                class="btn btn-view-nav btn-right-navbar nav-help-btn">
+                class="btn btn-view-nav btn-right-navbar nav-help-btn dropdown-toggle">
           <span class="fa fa-question-circle lightgray nav-help-icon"></span>
-          <span class="fa fa-angle-down lightgray"></span>
         </button>
-        <ul class="dropdown-menu icon-menu" role="menu" aria-labelledby="helpLabel"
+        <ul class="dropdown-menu nav-dropdown-menu-right icon-menu" role="menu" aria-labelledby="helpLabel"
             ng-include="'partials/main/thHelpMenu.html'">
         </ul>
       </span>

@@ -24,7 +24,7 @@
  *  Active Filters panel
  */
 .active-filters-bar {
-    padding: 5px 25px 5px 30px;
+    padding: 4px 25px 4px 30px;
 }
 
 .active-filters-title {
@@ -39,4 +39,12 @@
 
 .new-filter-input {
     margin-top: 5px;
+}
+
+.new-filter-input button,
+.new-filter-input input,
+.new-filter-input select {
+    margin-right: 5px;
+    padding-top: 3px;
+    border: 1px solid #ced4da;
 }

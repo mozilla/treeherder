@@ -1,7 +1,14 @@
-.pinboard-btn {
-  margin-top: -1px;
-  background-color: #e6eef5 !important;
-  color: #252c33 !important;
+#job-tabs-navbar .info-panel-navbar #pinboard-btn {
+  margin-top: -2px;
+  background-color: #e6eef5;
+  color: #252c33;
+  line-height: 30px;
+  cursor: pointer;
+}
+
+.pinboard-btn-text {
+  margin: 0 15px;
+  font-size: 12px;
 }
 
 .pin-count-group {
@@ -198,12 +205,27 @@
   width: 70px;
 }
 
+.save-btn-group {
+  margin-top: -22px;
+}
+
 .save-btn {
   width: 81px;
 }
 
 .save-btn-dropdown {
   width: 18px;
+}
+
+.save-btn-dropdown > .caret {
+  margin-left: -4px;
+}
+
+.save-btn-dropdown-menu {
+  right: 0;
+  left: -88px !important;
+  transform: inherit !important;
+  top: 22px !important;
 }
 
 .btn-group + .btn + .save-btn-dropdown {

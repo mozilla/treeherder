@@ -17,13 +17,17 @@ body {
     margin-bottom: 10px; /* Breathing space for run-data */
 }
 
-.navbar > li > a, .navbar-default > li > a, .navbar-nav > li > a {
+.nav li {
+    padding-right: 20px;
+}
+
+.navbar > li > a, .navbar-light > li > a, .navbar-nav > li > a {
     padding: 0;
     line-height: inherit;
 }
 
 #fv-logo {
-    padding: 14px 15px 0 15px;
+    padding: 6px 15px 0 10px;
     border: none;
     background: #f8f8f8;
 }

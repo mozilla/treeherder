@@ -65,7 +65,7 @@ const RevisionList = (props) => {
     const linkifyBugsFilter = props.$injector.get('$filter')('linkifyBugs');
     const hasMore = props.resultset.revision_count > props.resultset.revisions.length;
     return (
-        <span className="revision-list col-xs-5">
+        <span className="revision-list col">
             <ul className="list-unstyled">
                 {props.resultset.revisions.map((revision, i) =>
                     <RevisionItem

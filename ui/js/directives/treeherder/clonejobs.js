@@ -22,9 +22,9 @@ treeherder.directive('thCloneJobs', [
         var selectedCountCls = 'selected-count';
         var largeBtnCls = 'btn-lg-xform';
 
-        var col5Cls = 'col-xs-5';
-        var col7Cls = 'col-xs-7';
-        var col12Cls = 'col-xs-12';
+        var col5Cls = 'col-5';
+        var col7Cls = 'col-7';
+        var col12Cls = 'col-12';
         var jobListNoPadCls = 'job-list-nopad';
         var jobListPadCls = 'job-list-pad';
 
@@ -455,7 +455,7 @@ treeherder.directive('thCloneJobs', [
                 var ulEl = element.find('.revision-list');
 
                 _.extend(scope, { repo: $rootScope.currentRepo });
-                var revisionList = $compile('<revisions watch-depth="reference" resultset="resultset" repo="repo"></revisions>')(scope);
+                var revisionList = $compile('<revisions watch-depth="reference" resultset="resultset" repo="repo" class="col-5"></revisions>')(scope);
                 $(ulEl).replaceWith(revisionList);
 
             }

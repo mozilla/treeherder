@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <title>Treeherder User Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
 </head>
 
 <body ng-controller="UserguideCtrl" id="userguide">
   <!-- Content panel -->
-  <div class="panel panel-default">
+  <div class="card">
     <!-- Header -->
-    <div class="panel-heading">
+    <div class="card-header">
       <h1>Treeherder User Guide</h1>
       <h5>Want to contribute?
         <a href="https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&amp;component=Treeherder">
@@ -28,15 +29,15 @@
     </div>
 
     <!-- Start of interior panels -->
-    <div class="panel-body">
+    <div class="card-body">
       <div class="row">
         <!-- Job Notation table -->
-        <div class="col-xs-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header">
               <h3>Job notation</h3>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
               <table id="legend-other">
                 <tr>
                   <th>
@@ -128,16 +129,16 @@
         </div>
 
         <!-- Shortcuts table -->
-        <div class="col-xs-6">
+        <div class="col-6">
           <ng-include id="th-shortcut-table"
                       src="'partials/main/thShortcutTable.html'"></ng-include>
         </div>
 
             <!-- Copy values on hover table -->
-        <div class="col-xs-6">
-          <div class="panel panel-default">
-            <div class="panel-heading"><h3>Copy values on hover</h3></div>
-            <div class="panel-body panel-spacing">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header"><h3>Copy values on hover</h3></div>
+            <div class="card-body panel-spacing">
               <table id="shortcuts">
                 <tr>
                   <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
@@ -169,12 +170,12 @@
 
       <div class="row">
         <!-- Builds table -->
-        <div class="col-xs-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header">
               <h3>Builds</h3>
             </div>
-            <div class="panel-body panel-spacing">
+            <div class="card-body panel-spacing">
               <table id="legend-builds" class="ug-btn-sm ug-btn-desc">
                 <tr><th><button>B</button></th>
                   <td>Build</td></tr>
@@ -274,12 +275,12 @@
         </div>
 
         <!-- Tests table -->
-        <div class="col-xs-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="col-6">
+          <div class="card">
+            <div class="card-header">
               <h3>Tests</h3>
             </div>
-            <div class="panel-body panel-spacing">
+            <div class="card-body panel-spacing">
               <table id="legend-tests" class="ug-btn-sm ug-btn-desc">
                 <tr><th><button>Mb</button></th>
                   <td>Mozbase Unit Tests</td></tr>
@@ -407,12 +408,12 @@
 
       <!-- Query string params -->
       <div class="row">
-        <div class="col-xs-12">
-          <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
               <h3>URL Query String Parameters</h3>
             </div>
-            <div class="panel-body panel-spacing">
+            <div class="card-body panel-spacing">
               <table id="queryparams">
                 <tr>
                   <td><span class="queryparam">nojobs</span></td>
@@ -449,8 +450,8 @@
     </div>
 
     <!-- Credits and Whats Deployed -->
-    <div class="panel-footer ug-footer">
-      <div class="col-xs-6">
+    <div class="card-footer ug-footer row">
+      <div class="col-6">
         <div>Some icons by
           <a href="http://www.freepik.com" title="Freepik">Freepik</a> from
           <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> licensed under
@@ -458,8 +459,8 @@
              title="Creative Commons BY 3.0">CC BY 3.0</a>
         </div>
       </div>
-      <div class="col-xs-6">
-        <a class="midgray pull-right"
+      <div class="col-6 float-right">
+        <a class="midgray float-right"
            href="http://whatsdeployed.io/?owner=mozilla&amp;repo=treeherder&amp;name[]=Stage&amp;url[]=https://treeherder.allizom.org/revision.txt&amp;name[]=Prod&amp;url[]=https://treeherder.mozilla.org/revision.txt">What's Deployed?</a>
       </div>
     </div>

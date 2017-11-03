@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title ng-bind="getWindowTitle()">Treeherder</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
         <th-favicon-link></th-favicon-link>
     </head>
@@ -13,7 +13,7 @@
                  ng-click="setOnscreenShortcutsShowing(false)">
                <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing"
                     stop-propagation-on-left-click>
-                 <div class="col-xs-8">
+                 <div class="col-8">
                     <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
                  </div>
                </div>
@@ -46,10 +46,10 @@
         <script type="'text/ng-template'" id="resultsetClone.html">
             <div class="clearfix"></div>
             <div class="row result-set">
-                <span style="display:block;" class="revision-list col-xs-5">
+                <span style="display:block;" class="revision-list col-5">
                     <ul class="list-unstyled"></ul>
                 </span>
-                <span class="job-list col-xs-7 job-list-pad">
+                <span class="job-list col-7 job-list-pad">
                     <span class="fa fa-spinner fa-pulse th-spinner"></span>
                     <table id="{{ aggregateId }}" class="table-hover"></table>
                 </span>

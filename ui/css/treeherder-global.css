@@ -13,6 +13,7 @@ html, body {
   height: 100%;
   font-size: 14px;
   line-height: 1.42;
+  overflow-x: hidden;
 }
 
 body {
@@ -20,12 +21,20 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-a:visited {
+a:visited, .link-style:visited {
   color: purple;
 }
 
 a {
   color: #337ab7;
+  cursor: pointer;
+}
+
+/* Bootstrap 4 will not show <a> as a link style if it has no href.
+   This adds that style back. */
+.link-style {
+  color: #337ab7 !important;
+  cursor: pointer;
 }
 
 #global-container {
@@ -41,7 +50,7 @@ a {
   overflow-x: hidden;
 }
 
-.pagination, .carousel, .panel-title a {
+.pagination, .panel-title a {
   cursor: pointer;
 }
 
@@ -50,11 +59,11 @@ a {
   visibility: hidden;
 }
 
-/* Presently Tier menu, Similar Jobs panel */
+/* Similar Jobs panel */
 .checkbox {
   min-height: 20px;
   padding-left: 4px;
-  padding-top: 4px;
+  padding-top: 2px;
   justify-content: center;
 }
 
@@ -76,14 +85,25 @@ input[type="checkbox"] {
   cursor: not-allowed;
 }
 
-/* Spacing for menus with adjacent checkboxes */
-.checkbox-dropdown-menu {
-  padding-left: 8px;
+/* For cases where the base Bootstrap 4 equivalent doesn't
+   work, due to our special uses.*/
+.nav-dropdown-menu-right {
+    left: auto;
+    right: 0;
+}
+
+.form-control:focus {
+    border: 1px solid #ced4da;
+    box-shadow: none;
 }
 
 /* Spacing for menus with adjacent icons */
 .icon-menu li a span {
   width: 20px;
+}
+
+.modal-header .close:hover {
+  cursor: pointer;
 }
 
 /*
@@ -250,6 +270,12 @@ input[type="checkbox"] {
 .btn-xs {
   padding: 3px 6px 3px 6px;
   font-size: 12px;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .btn-light-bordered {

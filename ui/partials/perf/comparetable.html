@@ -38,7 +38,7 @@
   </div>
 </form>
 <hr/>
-<table class="table table-condensed compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
+<table class="table table-sm compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
   <tbody>
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->

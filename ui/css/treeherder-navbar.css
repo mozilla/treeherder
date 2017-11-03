@@ -10,21 +10,44 @@
 
 #th-global-navbar-top {
     padding-left: 0;
+    padding-top: 1px;
     border-bottom: 1px solid black;
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    background-color: #222;
 }
 
 .navbar {
-    min-height: 36px;
-    margin-bottom: 0px;
-    border-radius: 0px;
+    padding: 0;
 }
 
-.navbar .dropdown-menu {
-    max-height: 600px;
-    min-width: 80px;
-    overflow: auto;
-    margin-top: 10px;
-    padding-bottom: 8px;
+#th-global-navbar-top .dropdown-menu {
+    top: inherit;
+}
+
+.dropdown-menu {
+    min-width: inherit;
+}
+
+.dropdown-menu > li > a {
+    font-weight: normal;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #262626;
+    text-decoration: none;
+}
+
+label.dropdown-item {
+    margin-bottom: 0;
+}
+
+.dropdown-item input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 #th-logo {
@@ -32,28 +55,24 @@
     border-left: 0;
 }
 
-.btn-right-navbar {
-   font-size: 13px;
-}
-
 /*
  * Right hand upper navbar
  */
 
-.navbar-right {
-    /* Override bootstrap 3.3.5 which doesn't work with the way we align our navbar */
-    margin-right: 0px;
-}
-
-.navbar-collapse {
-    /* Override bootstrap for flush right navbar menus */
-    padding-right: 0;
-}
+ .navbar-right {
+    display: flex;
+    justify-content: flex-end;
+ }
 
 .nav-menu-btn {
     margin-right: -4px;
     padding-left: 14px;
     padding-right: 14px;
+    font-size: 13px;
+}
+
+.nav-menu-btn:after {
+    font-size: 14px;
 }
 
 .nav-help-btn {
@@ -85,6 +104,8 @@
 .nav-login-btn {
     padding-left: 22px;
     padding-right: 27px;
+    color: lightgrey;
+    cursor: pointer;
 }
 
 .nav-logged-in-btn {
@@ -95,6 +116,11 @@
 .th-context-navbar {
     background-color: #354048;
     overflow: visible;
+}
+
+login {
+    align-items: center;
+    display: flex;
 }
 
 /*
@@ -120,6 +146,11 @@
 
 .watched-repo-navbar {
     overflow: visible;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    display: flex;
+    background-color: #354048;
 }
 
 .tree-closed {
@@ -138,28 +169,13 @@
     color: lightgray;
 }
 
-th-watched-repo {
-    /* Required for Chrome */
-    float: left;
-}
-
 /*
  * Right hand lower navbar
  */
 
-.revision-collapsed {
-    color: grey;
-}
-
 .group-state-nav-icon {
     width: 7px;
     display: inline-block;
-}
-
-.btn-collapse-resultsets {
-   margin-top: -1px;
-   margin-bottom: -1px;
-   font-size: 14px;
 }
 
 .btn-nav-filter {
@@ -168,6 +184,7 @@ th-watched-repo {
 
 #filter-chicklets .btn {
     font-size: 14px;
+    padding: 3px 2px 2px 2px;
 }
 
 .btn.btn-view-nav.btn-orange-filter-chicklet,
@@ -281,10 +298,10 @@ th-watched-repo {
 .btn-unclassified-failures.disabled:focus,
 .btn-unclassified-failures.disabled:active,
 .btn-unclassified-failures.disabled.active,
-.btn-unclassified-failures[disabled]:hover,
-.btn-unclassified-failures[disabled]:focus,
-.btn-unclassified-failures[disabled]:active,
-.btn-unclassified-failures[disabled].active,
+.btn-unclassified-failures:disabled:hover,
+.btn-unclassified-failures:disabled:focus,
+.btn-unclassified-failures:disabled:active,
+.btn-unclassified-failures:disabled.active,
 fieldset[disabled] .btn-unclassified-failures:hover,
 fieldset[disabled] .btn-unclassified-failures:focus,
 fieldset[disabled] .btn-unclassified-failures:active,
@@ -319,10 +336,10 @@ fieldset[disabled] .btn-unclassified-failures.active {
 .btn-view-nav.disabled:focus,
 .btn-view-nav.disabled:active,
 .btn-view-nav.disabled.active,
-.btn-view-nav[disabled]:hover,
-.btn-view-nav[disabled]:focus,
-.btn-view-nav[disabled]:active,
-.btn-view-nav[disabled].active,
+.btn-view-nav:disabled:hover,
+.btn-view-nav:disabled:focus,
+.btn-view-nav:disabled:active,
+.btn-view-nav:disabled.active,
 fieldset[disabled] .btn-view-nav:hover,
 fieldset[disabled] .btn-view-nav:focus,
 fieldset[disabled] .btn-view-nav:active,
@@ -352,10 +369,10 @@ fieldset[disabled] .btn-view-nav.active {
 .btn-view-nav-closed.disabled:focus,
 .btn-view-nav-closed.disabled:active,
 .btn-view-nav-closed.disabled.active,
-.btn-view-nav-closed[disabled]:hover,
-.btn-view-nav-closed[disabled]:focus,
-.btn-view-nav-closed[disabled]:active,
-.btn-view-nav-closed[disabled].active,
+.btn-view-nav-closed:disabled:hover,
+.btn-view-nav-closed:disabled:focus,
+.btn-view-nav-closed:disabled:active,
+.btn-view-nav-closed:disabled.active,
 fieldset[disabled] .btn-view-nav-closed:hover,
 fieldset[disabled] .btn-view-nav-closed:focus,
 fieldset[disabled] .btn-view-nav-closed:active,
@@ -404,48 +421,33 @@ fieldset[disabled] .btn-view-nav-closed.active {
   font-size: 10px;
 }
 
-.dropdown.open > #repo-dropdown {
-  width: 420px;
-  display: inline-grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 10px;
-  grid-auto-rows: minmax(150px, auto);
+#repo-dropdown {
+    min-width: 30rem;
+    max-height: 35rem;
+    overflow-x: hidden;
 }
 
-#repo-dropdown > .repogroup.even {
-  grid-column: 1;
-}
-
-#repo-dropdown > .repogroup.odd {
-  grid-column: 2;
-}
-
-#repo-dropdown .repogroup {
-  margin-left: 15px;
-  margin-top: 5px;
-}
-
-#filter-dropdown {
-    padding: 0 10px 10px 10px;
-}
-
-#filter-dropdown .dropdown-header {
-    padding-top: 10px;
-}
-#filter-dropdown .dropdown-item {
+.dropdown-menu li {
     list-style: none;
-    cursor: pointer;
-    padding-top: 6px;
-    margin: 0 0 1px 0;
-    font-weight: inherit;
 }
 
-#filter-dropdown .dropdown-item:hover {
+.dropdown-header {
+    font-size: 12px;
+}
+
+.dropdown-link, .dropdown-link > a {
+    color: #212529cc;
+    padding-top: .5rem;
+}
+
+#infra-dropdown {
+    min-width: 11rem;
+}
+
+.checkbox-dropdown-menu .repogroup {
+    padding-left: 0;
+}
+
+.dropdown-item:hover {
     background-color: #d3d3d34d;
-}
-
-#filter-dropdown .dropdown-divider {
-    border-top: 1px solid #a9a9a980;
-    padding-bottom: 5px;
-    margin-top: 7px;
 }

@@ -3,7 +3,7 @@
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
-    <span ng-if="!alertId" ng-cloak>
+    <span ng-if="!alertId" ng-cloak class="alert-selects d-flex">
       <div class="form-group">
         <select ng-model="filterOptions.status"
                 ng-options="status.text for status in statuses track by status.id"
@@ -37,8 +37,8 @@
   <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
-  <div class="panel panel-default alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <div class="panel-heading alert-summary-heading">
+  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
+    <div class="card-header alert-summary-heading">
       <div class="alert-summary-header-element">
         <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
       </div>
@@ -50,12 +50,12 @@
         {{alertSummary.resultSetMetadata.dateStr}}
         ·
         <span ng-if="alertSummary.resultSetMetadata && alertSummary.resultSetMetadata" title="{{alertSummary.resultSetMetadata.comments}}" uib-dropdown>
-          <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle>
-            {{alertSummary.resultSetMetadata.revision | limitTo: 12}}<span class="caret"></span>
+          <button id="push-dropdown" class="btn btn-link dropdown" uib-dropdown-toggle data-toggle="dropdown">
+            {{alertSummary.resultSetMetadata.revision | limitTo: 12}}
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="push-dropdown">
-            <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank">Jobs</a></li>
-            <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank">Pushlog</a></li>
+            <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank" class="dropdown-item">Jobs</a></li>
+            <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank" class="dropdown-item">Pushlog</a></li>
           </ul>
         </span>
         <span ng-show="alertSummary.bug_number"> ·
@@ -72,37 +72,36 @@
       </div>
       <div class="alert-summary-header-element alert-summary-date">
         <div class="btn-group" uib-dropdown>
-          <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle>
+          <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle data-toggle="dropdown">
 {{alertSummary.getStatusText()}}
-            <span class="caret"></span>
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="status-dropdown">
             <li role="menuitem">
-              <a ng-click="copyTextToClipboard(alertSummary)">Copy Summary</a>
+              <a ng-click="copyTextToClipboard(alertSummary)" class="dropdown-item">Copy Summary</a>
             </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number">
-              <a ng-click="fileBug(alertSummary)">File bug</a>
+              <a ng-click="fileBug(alertSummary)" class="dropdown-item">File bug</a>
             </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
-              <a ng-click="linkToBug(alertSummary)">Link to bug</a>
+              <a ng-click="linkToBug(alertSummary)" class="dropdown-item">Link to bug</a>
             </li>
             <li role="menuitem" ng-show="alertSummary.bug_number && user.is_staff">
-              <a ng-click="unlinkBug(alertSummary)">Unlink from bug</a>
+              <a ng-click="unlinkBug(alertSummary)" class="dropdown-item">Unlink from bug</a>
             </li>
             <li role="menuitem" ng-show="user.is_staff" ng-if="alertSummary.isResolved()">
-              <a ng-click="alertSummary.markInvestigating()">Re-open</a>
+              <a ng-click="alertSummary.markInvestigating()" class="dropdown-item">Re-open</a>
             </li>
             <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
-              <a ng-click="alertSummary.markWontfix()">Mark as "won't fix"</a>
+              <a ng-click="alertSummary.markWontfix()" class="dropdown-item">Mark as "won't fix"</a>
             </li>
             <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
-              <a ng-click="alertSummary.markBackedout()">Mark as backed out</a>
+              <a ng-click="alertSummary.markBackedout()" class="dropdown-item">Mark as backed out</a>
             </li>
             <li role="menuitem" ng-show="user.is_staff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
-              <a ng-click="alertSummary.markFixed()">Mark as fixed</a>
+              <a ng-click="alertSummary.markFixed()" class="dropdown-item">Mark as fixed</a>
             </li>
           </ul>
         </div>
@@ -183,7 +182,7 @@
         </td>
       </tr>
     </table>
-    <div class="panel-body" ng-show="alertSummary.downstreamSummaryIds.length">
+    <div class="card-body" ng-show="alertSummary.downstreamSummaryIds.length">
       <p class="text-muted">
         Downstream alert summaries:
         <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds" >
@@ -196,7 +195,7 @@
         </span>
       </p>
     </div>
-    <div class="panel-body" uib-collapse="!anySelected(alertSummary.alerts)">
+    <div class="card-body" uib-collapse="!anySelected(alertSummary.alerts)">
       <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
               ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
         Reset
@@ -227,10 +226,9 @@
     {{numFilteredAlertSummaries}} alerts not displayed because they had no changes matching filter criteria
   </p>
 </div>
-
-<div class="text-center">
-    <uib-pagination ng-model="alertSummaryCurrentPage" ng-change="getAlertSummariesPage()"
-                    ng-show="alertSummaryCount > alertSummaryPageSize" max-size="10"
-                    total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
-                    rotate="false" boundary-link-numbers="true"></uib-pagination>
+<div class="d-flex justify-content-center md-18">
+    <ul uib-pagination ng-model="alertSummaryCurrentPage" ng-change="getAlertSummariesPage()"
+        ng-show="alertSummaryCount > alertSummaryPageSize" max-size="10"
+        total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
+        rotate="false" boundary-link-numbers="true"></ul>
 </div>

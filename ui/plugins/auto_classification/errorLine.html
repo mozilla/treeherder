@@ -2,13 +2,13 @@
 
 <div ng-if="line.verified">
   <a ng-if="!line.verifiedIgnore"
-     class="label label-xs label-primary"
+     class="badge badge-xs badge-primary"
      title="This line is verified"
      target="_blank"
      ng-href="/failureviewer.html#/?classified_failure_id={{line.data.classifiedFailureId}}">Verified</a>
 
   <span ng-if="line.verifiedIgnore"
-        class="label label-xs label-ignored"
+        class="badge badge-xs badge-ignored"
         title="This line is ignored">Ignored</span>
 </div>
 
@@ -93,6 +93,7 @@
       <li>
         <a ng-if="hasHidden(options)"
            ng-click="$parent.showHidden = !$parent.showHidden"
+           class="link-style"
            role="button">
           <!-- note we have to use ng-hide rather than ng-if here otherwise the
                node gets taken out of the dom which interferes with the did-we-click-a-link

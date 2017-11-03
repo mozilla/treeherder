@@ -8,6 +8,7 @@ require('./js/config');
 // Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
+require('./css/treeherder-global.css');
 require('./css/treeherder-navbar.css');
 require('./css/perf.css');
 require('./css/treeherder-loading-overlay.css');
@@ -22,7 +23,7 @@ require('angular-sanitize');
 require('angular-local-storage');
 require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
-require('angular-ui-bootstrap');
+require('angular1-ui-bootstrap4');
 require('./vendor/angular-clipboard.js');
 // The jquery flot package does not seem to be updated on npm, so we use a local version:
 require('./vendor/jquery.flot.js');

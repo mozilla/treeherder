@@ -1,5 +1,5 @@
 <div ng-controller="AnnotationsPluginCtrl" class="annotations-panel">
-    <div class="col-xs-10 classifications-pane job-tabs-content">
+    <div class="col-sm-10 classifications-pane job-tabs-content">
         <table class="table-super-condensed table-hover">
             <thead ng-hide="classifications.length < 1">
                 <tr><th>Classified</th><th>Author</th><th>Classification</th><th>Comment</th></tr>
@@ -30,7 +30,7 @@
         </table>
         <div ng-show="classifications.length < 1">This job has not been classified</div>
     </div>
-    <div class="col-xs-2 bug-list-pane">
+    <div class="col-sm-2 bug-list-pane">
         <div class="annotations-bug-header" ng-hide="classifications.length < 1"><strong>Bugs</strong></div>
         <ul class="annotations-bug-list">
             <li ng-repeat="bug in bugs">

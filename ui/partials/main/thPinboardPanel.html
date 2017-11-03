@@ -75,7 +75,7 @@
 <!-- Save UI -->
 <div id="pinboard-controls" class="btn-group-vertical"
      title="{{!hasPinnedJobs() ? 'No pinned jobs' : ''}}">
-  <div class="btn-group">
+  <div class="btn-group save-btn-group dropdown">
     <button class="btn btn-light-bordered btn-xs save-btn"
             title="{{ saveUITitle('classification') }}"
             ng-click="save()"
@@ -84,24 +84,25 @@
     <button class="btn btn-light-bordered btn-xs dropdown-toggle save-btn-dropdown"
             title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
             ng-disabled="!hasPinnedJobs()"
+            type="button"
             data-toggle="dropdown">
       <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu pull-right" role="menu">
+    <ul class="dropdown-menu save-btn-dropdown-menu">
       <li class="{{ !user.loggedin || !canSaveClassifications() ? 'disabled' : '' }}"
           title="{{ saveUITitle('classification') }}">
-        <a ng-click="!user.loggedin || !canSaveClassifications() || saveClassificationOnly()">Save classification only</a></li>
+        <a class="dropdown-item" ng-click="!user.loggedin || !canSaveClassifications() || saveClassificationOnly()">Save classification only</a></li>
       <li class="{{ !user.loggedin || !hasRelatedBugs() ? 'disabled' : '' }}"
           title="{{ saveUITitle('bug') }}">
-        <a ng-click="!user.loggedin || !canSaveClassifications() || !hasRelatedBugs() || saveBugsOnly()">Save bugs only</a></li>
+        <a class="dropdown-item" ng-click="!user.loggedin || !canSaveClassifications() || !hasRelatedBugs() || saveBugsOnly()">Save bugs only</a></li>
       <li class="{{ !user.loggedin ? 'disabled' : '' }}"
           title="{{ !user.loggedin ? 'Not logged in' : 'Repeat the pinned jobs'}}">
-        <a ng-click="!user.loggedin || retriggerAllPinnedJobs()">Retrigger all</a></li>
-        <li class="{{ canCancelAllPinnedJobs() ? '' : 'disabled' }}"
-            title="{{ cancelAllPinnedJobsTitle() }}">
-          <a ng-click="canCancelAllPinnedJobs() && cancelAllPinnedJobs()">Cancel all</a>
-        </li>
-      <li><a ng-click="unPinAll()">Clear all</a></li>
+        <a class="dropdown-item" ng-click="!user.loggedin || retriggerAllPinnedJobs()">Retrigger all</a></li>
+      <li class="{{ canCancelAllPinnedJobs() ? '' : 'disabled' }}"
+          title="{{ cancelAllPinnedJobsTitle() }}">
+        <a class="dropdown-item" ng-click="canCancelAllPinnedJobs() && cancelAllPinnedJobs()">Cancel all</a>
+      </li>
+      <li><a class="dropdown-item" ng-click="unPinAll()">Clear all</a></li>
     </ul>
   </div>
 </div>
