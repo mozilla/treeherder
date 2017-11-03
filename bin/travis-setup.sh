@@ -58,12 +58,8 @@ setup_js_env() {
     echo '-----> Installing Firefox'
     curl -sSfL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | tar -jxC "${HOME}"
     export PATH="${HOME}/firefox:${PATH}"
-
-    echo '-----> Starting xvfb'
-    # Required for Karma tests (http://docs.travis-ci.com/user/gui-and-headless-browsers/)
-    # Remove when we switch to using Firefox in headless mode.
-    export DISPLAY=':99.0'
-    sh -e /etc/init.d/xvfb start
+    # Enable Firefox headless mode, avoiding the need for xvfb.
+    export MOZ_HEADLESS=1
 
     echo '-----> Installing yarn'
     curl -sSfL 'https://yarnpkg.com/latest.tar.gz' | tar -xz --strip-components=1 -C "${HOME}"
