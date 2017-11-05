@@ -56,7 +56,7 @@ setup_geckodriver() {
 
 setup_js_env() {
     echo '-----> Installing Firefox'
-    curl -sSfL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | tar -jxC "${HOME}"
+    curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' | tar -jxC "${HOME}"
     export PATH="${HOME}/firefox:${PATH}"
     # Enable Firefox headless mode, avoiding the need for xvfb.
     export MOZ_HEADLESS=1
