@@ -36,6 +36,13 @@ def test_perfherder_main(initial_data, live_server, selenium):
     This tests that the basic graphs view load and we can click the add tests button
     '''
     selenium.get(live_server.url + '/perf.html')
+    # Waiting for the button to be displayed is not enough, as it appears that
+    # clicking the button too early results in the click being ignored. Waiting
+    # for the canvas element appears to be a better indication that the page
+    # is ready for interaction.
+    WebDriverWait(selenium, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, '#graph canvas'))
+    )
     add_test_button = WebDriverWait(selenium, 20).until(
         EC.visibility_of_element_located((By.ID, 'add-test-data-button'))
     )

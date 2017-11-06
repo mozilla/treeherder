@@ -22,6 +22,10 @@ Or for more control, run each tool individually:
      vagrant ~/treeherder$ py.test tests/
      vagrant ~/treeherder$ py.test tests/log_parser/test_tasks.py
      vagrant ~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+     vagrant ~/treeherder$ py.test tests/selenium/test_basics.py::test_treeherder_main
+
+  NB: You can run the Selenium tests headlessly by setting the ``MOZ_HEADLESS``
+  environment variable.
 
   To run all tests, including slow tests that are normally skipped, use:
 

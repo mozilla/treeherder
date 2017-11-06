@@ -16,6 +16,7 @@ PYTHON_DIR="$HOME/python"
 cd "$SRC_DIR"
 
 ELASTICSEARCH_VERSION="5.5.0"
+GECKODRIVER_VERSION="0.19.1"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="9.0.1"
 # Keep in sync with the version pre-installed on Travis.
@@ -54,13 +55,16 @@ fi
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 # g++ is required by Brotli
+# libgtk-3.0 and libxt-dev are required by Firefox
 # libmemcached-dev and zlib1g-dev are required by pylibmc
 # libmysqlclient-dev is required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     g++ \
+    libgtk-3.0 \
     libmemcached-dev \
     libmysqlclient-dev \
+    libxt-dev \
     memcached \
     mysql-server-5.7 \
     nodejs \
@@ -100,6 +104,15 @@ fi
 
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
+
+if [[ "$(geckodriver --version 2>&1)" != *"${GECKODRIVER_VERSION}"* ]]; then
+    echo '-----> Installing geckodriver'
+    curl -sSfL "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
+        | sudo tar -zxC /usr/local/bin
+fi
+
+echo '-----> Installing Firefox'
+curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' | sudo tar -jxC "${HOME}"
 
 echo '-----> Running yarn install'
 # We have to use `--no-bin-links` to work around symlink issues with Windows hosts.

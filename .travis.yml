@@ -104,7 +104,7 @@ matrix:
         - source ./bin/travis-setup.sh services python_env geckodriver js_env
       script:
         - yarn build
-        - py.test tests/selenium/ --runselenium --driver Firefox
+        - py.test tests/selenium/ --driver Firefox
 
 notifications:
   email:

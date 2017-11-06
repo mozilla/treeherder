@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PATH="/home/vagrant/python/bin:$PATH"
+export PATH="${HOME}/firefox:${HOME}/python/bin:${PATH}"
 
 export ENABLE_LOCAL_SETTINGS_FILE='True'
 export BROKER_URL='amqp://guest:guest@localhost//'
@@ -13,3 +13,6 @@ export TREEHERDER_DJANGO_SECRET_KEY='secret-key-of-at-least-50-characters-to-pas
 export NEW_RELIC_CONFIG_FILE='newrelic.ini'
 export NEW_RELIC_DEVELOPER_MODE='True'
 export GRAPHQL='True'
+
+# Enable Firefox headless mode, avoiding the need for xvfb.
+export MOZ_HEADLESS=1
