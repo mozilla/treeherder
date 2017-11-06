@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Make non-zero exit codes & other errors fatal.
-set -euo pipefail
-
 # Source .bashrc, since the default .profile we're replacing did so.
 # shellcheck source=/dev/null
 . "$HOME/.bashrc"
@@ -20,7 +17,7 @@ sudo iptables -t nat -A PREROUTING -i enp0s3 -p tcp -j DNAT --to 127.0.0.1
 
 PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
 echo "Type 'thelp' to see a list of Treeherder-specific helper aliases"
-cd "$HOME/treeherder"
+cd "$HOME/treeherder" || return 1
 
 # Helper aliases
 
