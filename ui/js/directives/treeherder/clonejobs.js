@@ -356,7 +356,7 @@ treeherder.directive('thCloneJobs', [
                 }
             });
 
-            stateCounts.forEach(function (countInfo) {
+            _.forEach(stateCounts, function (countInfo) {
                 if (countInfo.count === 1) {
                     // if there is only 1 job for this status, then just add
                     // the job, rather than the count
