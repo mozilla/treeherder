@@ -331,9 +331,6 @@ treeherder.factory('ThResultSetStore', [
 
         var addRunnableJobs = function (repoName, resultSet) {
             getGeckoDecisionTaskId(repoName, resultSet.id).then(function (decisionTaskId) {
-                if (repoName !== "try") {
-                    decisionTaskId = "";
-                }
                 return ThRunnableJobModel.get_list(repoName, { decision_task_id: decisionTaskId }).then(function (jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function (job) {
