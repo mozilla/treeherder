@@ -77,7 +77,7 @@ treeherderApp.controller('JobsCtrl', [
         }
 
         $rootScope.$on(thEvents.toggleAllRevisions, function (ev, expand) {
-            _.forEach($scope.result_sets, function (rs) {
+            $scope.result_sets.forEach(function (rs) {
                 $rootScope.$emit(thEvents.toggleRevisions, rs, expand);
             });
         });

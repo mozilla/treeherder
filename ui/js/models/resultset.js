@@ -285,7 +285,7 @@ treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
                     let tclabels = [];
                     let bbnames = [];
 
-                    _.forEach(buildernames, function (name) {
+                    buildernames.forEach(function (name) {
                         // The following has 3 cases that it accounts for
                         // 1. The name is a buildbot buildername not scheduled through bbb, in which case we pass it on
                         // 2. The name is a taskcluster task label, in which case we pass it on

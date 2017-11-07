@@ -257,7 +257,7 @@ treeherderApp.controller('MainCtrl', [
             // If any tier has changed, update the tier menu check boxes and
             // throw an event.
             var changed = false;
-            _.forEach(thJobFilters.tiers, function (tier) {
+            thJobFilters.tiers.forEach(function (tier) {
                 var isShowing = $scope.isTierShowing(tier);
                 if (isShowing !== $scope.tiers[tier]) {
                     $scope.tiers[tier] = isShowing;

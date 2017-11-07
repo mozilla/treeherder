@@ -209,7 +209,7 @@ treeherder.controller('PluginCtrl', [
                                 seriesList = seriesList.concat(newSeriesList);
                             });
                         })).then(function () {
-                            _.forEach(seriesList, function (series) {
+                            seriesList.forEach(function (series) {
                                 // skip series which are subtests of another series
                                 if (series.parentSignature) {
                                     return;
@@ -319,7 +319,7 @@ treeherder.controller('PluginCtrl', [
         var getRevisionTips = function (projectName, list) {
             list.splice(0, list.length);
             var rsArr = ThResultSetStore.getResultSetsArray(projectName);
-            _.forEach(rsArr, (rs) => {
+            rsArr.forEach((rs) => {
                 list.push({
                     revision: rs.revision,
                     author: rs.author,

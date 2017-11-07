@@ -253,7 +253,7 @@ perf.controller('GraphsCtrl', [
             $scope.seriesList.forEach(function (series, i) {
                 if (series.visible && series.highlightedPoints &&
                     series.highlightedPoints.length) {
-                    _.forEach(series.highlightedPoints, function (highlightedPoint) {
+                    series.highlightedPoints.forEach(function (highlightedPoint) {
                         $scope.plot.highlight(i, highlightedPoint);
                     });
                 }
@@ -414,9 +414,9 @@ perf.controller('GraphsCtrl', [
             }
 
             if ($scope.highlightAlerts) {
-                _.forEach($scope.seriesList, function (series) {
+                $scope.seriesList.forEach(function (series) {
                     if (series.visible) {
-                        _.forEach(series.relatedAlertSummaries, function (alertSummary) {
+                        series.relatedAlertSummaries.forEach(function (alertSummary) {
                             addHighlightedDatapoint(series, alertSummary.push_id);
                         });
                     }
@@ -1106,7 +1106,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
                                     { platform: $scope.selectedPlatform }), 'name');
                                 // filter out tests which are already displayed or are
                                 // already selected
-                                _.forEach(_.union(testsDisplayed, $scope.testsToAdd),
+                                _.union(testsDisplayed, $scope.testsToAdd).forEach(
                                     function (test) {
                                         _.remove($scope.unselectedTestList, {
                                             projectName: test.projectName,
