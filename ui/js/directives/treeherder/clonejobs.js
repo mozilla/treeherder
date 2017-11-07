@@ -318,7 +318,7 @@ treeherder.directive('thCloneJobs', [
             var lastJobSelected = ThResultSetStore.getSelectedJob($rootScope.repoName);
             var typeSymbolCounts = _.countBy(jgObj.jobs, "job_type_symbol");
 
-            _.forEach(jgObj.jobs, function (job) {
+            jgObj.jobs.forEach(function (job) {
 
                 // Set the resultState
                 var resultStatus = thResultStatus(job);
@@ -356,7 +356,7 @@ treeherder.directive('thCloneJobs', [
                 }
             });
 
-            _.forEach(stateCounts, function (countInfo) {
+            stateCounts.forEach(function (countInfo) {
                 if (countInfo.count === 1) {
                     // if there is only 1 job for this status, then just add
                     // the job, rather than the count

@@ -54,7 +54,7 @@ treeherder.factory('PhAlerts', [
                              '/api/performance/alert/' + this.id + '/',
                              modification);
         };
-        _.forEach(phAlertStatusMap, function (status) {
+        phAlertStatusMap.forEach(function (status) {
             Alert.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
@@ -64,7 +64,7 @@ treeherder.factory('PhAlerts', [
             _.assign(this, alertSummaryData);
             this._initializeAlerts(optionCollectionMap);
         };
-        _.forEach(phAlertSummaryStatusMap, function (status) {
+        phAlertSummaryStatusMap.forEach(function (status) {
             AlertSummary.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
