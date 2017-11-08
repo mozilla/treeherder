@@ -7,7 +7,7 @@ Common tasks
 Running the tests
 -----------------
 
-You can run flake8, isort and the py.test suite inside the Vagrant VM, using:
+You can run flake8, isort and the pytest suite inside the Vagrant VM, using:
 
   .. code-block:: bash
 
@@ -15,14 +15,14 @@ You can run flake8, isort and the py.test suite inside the Vagrant VM, using:
 
 Or for more control, run each tool individually:
 
-* `py.test <http://pytest.org/>`_:
+* `pytest <http://pytest.org/>`_:
 
   .. code-block:: bash
 
-     vagrant ~/treeherder$ py.test tests/
-     vagrant ~/treeherder$ py.test tests/log_parser/test_tasks.py
-     vagrant ~/treeherder$ py.test tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
-     vagrant ~/treeherder$ py.test tests/selenium/test_basics.py::test_treeherder_main
+     vagrant ~/treeherder$ pytest tests/
+     vagrant ~/treeherder$ pytest tests/log_parser/test_tasks.py
+     vagrant ~/treeherder$ pytest tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
+     vagrant ~/treeherder$ pytest tests/selenium/test_basics.py::test_treeherder_main
 
   NB: You can run the Selenium tests headlessly by setting the ``MOZ_HEADLESS``
   environment variable.
@@ -31,9 +31,9 @@ Or for more control, run each tool individually:
 
   .. code-block:: bash
 
-     vagrant ~/treeherder$ py.test --runslow tests/
+     vagrant ~/treeherder$ pytest --runslow tests/
 
-  For more options, see ``py.test --help`` or http://pytest.org/latest/usage.html
+  For more options, see ``pytest --help`` or http://pytest.org/latest/usage.html
 
 * `flake8 <https://flake8.readthedocs.io/>`_:
 
