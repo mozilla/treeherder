@@ -28,6 +28,14 @@
       Hide uncertain results
     </label>
   </div>
+    <div class="checkbox" uib-tooltip="Display Noise Metric to compare noisy tests at a platform level">
+        <label>
+            <input type="checkbox"
+                   ng-model="$ctrl.filterOptions.showOnlyNoise"
+                   ng-change="$ctrl.updateFilteredTestList()" />
+            Show Only Noise
+        </label>
+    </div>
   <div ng-if="$ctrl.releaseBlockerCriteria" class="checkbox">
     <label>
       <input type="checkbox"

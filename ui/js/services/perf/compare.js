@@ -75,14 +75,19 @@ treeherder.factory('PhCompare', [
                 }
 
                 // Some statistics for a single set of values
-                function analyzeSet(values) {
-                    var average = math.average(values),
-                        stddev = math.stddev(values, average);
+                function analyzeSet(values, testName) {
+                    if (testName === 'Noise Metric') {
+                        var average = Math.sqrt(_.sum(values.map(x => Math.pow(x, 2)))),
+                            stddev = 1;
+                    } else {
+                        var average = math.average(values),
+                            stddev = math.stddev(values, average);
+                    }
 
                     return {
                         average: average,
                         stddev: stddev,
-                        stddevPct: math.percentOf(stddev, average),
+                        stddevPct: Math.round(math.percentOf(stddev, average) * 100) / 100,
 
                         // We use slice to keep the original values at their original order
                         // in case the order is important elsewhere.
@@ -104,7 +109,7 @@ treeherder.factory('PhCompare', [
                 cmap.isEmpty = false;
 
                 if (hasOrig) {
-                    var orig = analyzeSet(originalData.values);
+                    var orig = analyzeSet(originalData.values, testName);
                     cmap.originalValue = orig.average;
                     cmap.originalRuns = orig.runs;
                     cmap.originalStddev = orig.stddev;
@@ -113,7 +118,7 @@ treeherder.factory('PhCompare', [
                     cmap.originalRuns = [];
                 }
                 if (hasNew) {
-                    var newd = analyzeSet(newData.values);
+                    var newd = analyzeSet(newData.values, testName);
                     cmap.newValue = newd.average;
                     cmap.newRuns = newd.runs;
                     cmap.newStddev = newd.stddev;
@@ -176,6 +181,7 @@ treeherder.factory('PhCompare', [
                                      abs_t_value >= T_VALUE_CARE_MIN));
                 cmap.needsMoreRuns = (cmap.isComplete && !cmap.isConfident &&
                                       cmap.originalRuns.length < 6);
+                cmap.isNoiseMetric = false;
 
                 return cmap;
             },
