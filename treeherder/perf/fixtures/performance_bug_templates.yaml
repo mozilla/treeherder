@@ -5,7 +5,7 @@
     keywords: perf, regression, talos-regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, igoldan@mozilla.com
     text: |
       Talos has detected a Firefox performance regression from push:
 
@@ -33,7 +33,7 @@
     keywords: regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, nfroyd@mozilla.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com
     text: |
       We have detected a build metrics regression from push:
 
@@ -55,7 +55,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com
     text: |
       We have detected an autophone (Android) regression from push:
 
@@ -77,7 +77,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, ionut.goldan@softvision.ro, erahm@mozilla.com
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com
     text: |
       We have detected an awsy regression from push:
 
@@ -91,7 +91,7 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/AWSY
+      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -99,7 +99,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, igoldan@mozilla.com
     text: |
       We have detected an awfy regression from push:
 
@@ -121,7 +121,7 @@
     keywords: perf, regression
     default_component: Untriaged
     default_product: Firefox
-    cc_list: jmaher@mozilla.com, rwood@mozilla.com, ionut.goldan@softvision.ro
+    cc_list: jmaher@mozilla.com, rwood@mozilla.com, igoldan@mozilla.com
     text: |
       We have detected a platform microbenchmarks regression from push:
 
