@@ -1,5 +1,7 @@
 'use strict';
 
+const PropTypes = require('prop-types');
+
 const MoreRevisionsLink = props => (
     <li>
         <a href={props.href}
@@ -11,7 +13,7 @@ const MoreRevisionsLink = props => (
     </li>
 );
 MoreRevisionsLink.propTypes = {
-    href: React.PropTypes.string.isRequired
+    href: PropTypes.string.isRequired
 };
 
 const RevisionItem = (props) => {
@@ -54,10 +56,10 @@ const RevisionItem = (props) => {
     </li>;
 };
 RevisionItem.propTypes = {
-    revision: React.PropTypes.object.isRequired,
-    repo: React.PropTypes.object.isRequired,
-    linkifyBugsFilter: React.PropTypes.func.isRequired,
-    initialsFilter: React.PropTypes.func.isRequired
+    revision: PropTypes.object.isRequired,
+    repo: PropTypes.object.isRequired,
+    linkifyBugsFilter: PropTypes.func.isRequired,
+    initialsFilter: PropTypes.func.isRequired
 };
 
 const RevisionList = (props) => {
@@ -85,9 +87,9 @@ const RevisionList = (props) => {
     );
 };
 RevisionList.propTypes = {
-    resultset: React.PropTypes.object.isRequired,
-    repo: React.PropTypes.object.isRequired,
-    $injector: React.PropTypes.object.isRequired
+    resultset: PropTypes.object.isRequired,
+    repo: PropTypes.object.isRequired,
+    $injector: PropTypes.object.isRequired
 };
 
 module.exports = {

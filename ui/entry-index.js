@@ -31,7 +31,6 @@ require('angular1-ui-bootstrap4');
 require('mousetrap');
 require('js-yaml');
 require('angular-marked');
-require('react-dom');
 require('ngreact');
 require('jquery.scrollto');
 require('./vendor/resizer.js');
