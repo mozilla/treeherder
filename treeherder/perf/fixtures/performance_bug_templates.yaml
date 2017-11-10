@@ -91,7 +91,7 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests and https://developer.mozilla.org/en-US/docs/Mozilla/Performance/AWSY
+      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
