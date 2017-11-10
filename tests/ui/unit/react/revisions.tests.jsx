@@ -128,8 +128,8 @@ describe('Revision item component', () => {
                                             initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
         const link = wrapper.find('a');
         expect(link.length).toEqual(1);
-        expect(link.node.href).toEqual(mockData.repo.getRevisionHref());
-        expect(link.node.title).toEqual(`Open revision ${mockData.revision.revision} on ${mockData.repo.url}`);
+        expect(link.props().href).toEqual(mockData.repo.getRevisionHref());
+        expect(link.props().title).toEqual(`Open revision ${mockData.revision.revision} on ${mockData.repo.url}`);
     });
 
     it(`renders the contributors' initials`, () => {
@@ -147,7 +147,7 @@ describe('Revision item component', () => {
         const linkifiedCommentText = linkifyBugsFilter(escapedComment);
 
         const comment = wrapper.find('.revision-comment em');
-        expect(comment.node.innerHTML).toEqual(linkifiedCommentText);
+        expect(comment.html()).toEqual(`<em>${linkifiedCommentText}</em>`);
     });
 
     it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
@@ -167,7 +167,7 @@ describe('More revisions link component', () => {
     it('renders an "...and more" link', () => {
         const wrapper = mount(<MoreRevisionsLink href='http://more.link/'/>);
         const link = wrapper.find('a');
-        expect(link.node.href).toEqual('http://more.link/');
+        expect(link.props().href).toEqual('http://more.link/');
         expect(link.text()).toEqual('\u2026and more');
     });
 

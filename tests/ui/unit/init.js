@@ -9,7 +9,6 @@ window.jQuery = require('jquery');
 window._ = require('lodash');
 window.angular = require('angular');
 window.React = require('react');
-require('react-dom');
 require('../vendor/jasmine-jquery.js');
 require('angular-mocks');
 require('angular-resource');
@@ -24,6 +23,11 @@ require('ngreact');
 require('angular1-ui-bootstrap4');
 require('angular-marked');
 require('../../../ui/vendor/resizer.js');
+
+const Adapter = require('enzyme-adapter-react-15');
+const Enzyme = require('enzyme');
+
+Enzyme.configure({ adapter: new Adapter() });
 
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
 window.treeherder = jsContext('./treeherder.js');
