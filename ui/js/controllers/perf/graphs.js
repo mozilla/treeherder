@@ -559,7 +559,7 @@ perf.controller('GraphsCtrl', [
                 series: $scope.seriesList.map(series => `${series.projectName},${series.id},${series.visible ? 1 : 0},${series.frameworkId}`),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
-                highlightedRevisions: $scope.highlightedRevision.filter(highlight => highlight && highlight.length >= 12),
+                highlightedRevisions: $scope.highlightedRevisions.filter(highlight => highlight && highlight.length >= 12),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function () {
                     if ((typeof $scope.zoom.x !== "undefined")
