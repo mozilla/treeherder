@@ -222,6 +222,7 @@ login {
 }
 
 .choose-test-list {
+  font-size: 11px;
   margin-top: 8px;
   height: 85px;
 }
