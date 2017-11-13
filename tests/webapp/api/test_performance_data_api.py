@@ -302,8 +302,8 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
     # going back interval of 1 day, should find 1 item
     resp = client.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
-                      '?signatures={}&interval={}'.format(
-                          test_perf_signature.signature_hash,
+                      '?signature_id={}&interval={}'.format(
+                          test_perf_signature.id,
                           interval))
 
     assert resp.status_code == 200
@@ -338,8 +338,8 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
 
     resp = client.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
-                      '?signatures={}&start_date={}&end_date={}'.format(
-                          test_perf_signature.signature_hash,
+                      '?signature_id={}&start_date={}&end_date={}'.format(
+                          test_perf_signature.id,
                           start_date, end_date))
 
     assert resp.status_code == 200
@@ -360,3 +360,35 @@ def test_job_ids_validity(webapp, test_repository):
                       '?job_id=foo',
                       expect_errors=True)
     assert resp.status_code == 400
+
+
+def test_filter_data_by_signature(webapp, test_repository, test_perf_signature,
+                                  summary_perf_signature):
+    push = Push.objects.create(repository=test_repository,
+                               revision='abcdefghi',
+                               author='foo@bar.com',
+                               time=NOW)
+    for (i, signature) in enumerate([test_perf_signature, summary_perf_signature]):
+        PerformanceDatum.objects.create(
+            repository=signature.repository,
+            result_set_id=push.id,
+            push=push,
+            signature=signature,
+            value=i,
+            push_timestamp=NOW)
+
+    client = APIClient()
+
+    # test that we get the expected value for all different permutations of
+    # passing in signature_id and signature hash
+    for (i, signature) in enumerate([test_perf_signature, summary_perf_signature]):
+        for (param, value) in [('signatures', signature.signature_hash),
+                               ('signature_id', signature.id)]:
+            resp = client.get(reverse('performance-data-list',
+                                      kwargs={"project": test_repository.name}) +
+                              '?{}={}'.format(param, value))
+            assert resp.status_code == 200
+            assert len(resp.data.keys()) == 1
+            assert len(resp.data[signature.signature_hash]) == 1
+            assert resp.data[signature.signature_hash][0]['signature_id'] == signature.id
+            assert resp.data[signature.signature_hash][0]['value'] == float(i)

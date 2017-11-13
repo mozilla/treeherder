@@ -74,9 +74,9 @@ perf.controller('dashCtrl', [
                 // (so we can mash together pgo and opt)
                 $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
-                $q.all(_.chunk(seriesToMeasure, 20).map(function (seriesChunk) {
+                $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     var params = {
-                        signatures: _.map(seriesChunk, 'signature'),
+                        signature_id: _.map(seriesChunk, 'id'),
                         framework: $scope.framework
                     };
                     if ($scope.revision) {
@@ -273,9 +273,9 @@ perf.controller('dashSubtestCtrl', [
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
-                return $q.all(_.chunk(seriesList, 20).map(function (seriesChunk) {
+                return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
                     var params = {
-                        signatures: _.map(seriesChunk, 'signature'),
+                        signature_id: _.map(seriesChunk, 'id'),
                         framework: $scope.framework
                     };
                     if ($scope.revision) {

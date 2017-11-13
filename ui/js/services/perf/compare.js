@@ -219,10 +219,10 @@ treeherder.factory('PhCompare', [
 
             getResultsMap: (projectName, seriesList, params) => {
                 let resultsMap = {};
-                return $q.all(_.chunk(seriesList, 20).map(
+                return $q.all(_.chunk(seriesList, 40).map(
                     seriesChunk => PhSeries.getSeriesData(
                         projectName, {
-                            signatures: _.map(seriesChunk, 'signature'),
+                            signature_id: _.map(seriesChunk, 'id'),
                             framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
                             ...params
                         }).then((seriesData) => {

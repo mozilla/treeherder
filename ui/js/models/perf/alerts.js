@@ -18,15 +18,14 @@ treeherder.factory('PhAlerts', [
         };
         Alert.prototype.getGraphsURL = function (timeRange, alertRepository,
                                                 performanceFrameworkId) {
-            var signature = this.series_signature.signature_hash;
-            var url = "#/graphs?timerange=" + timeRange +
-                "&series=[" + [alertRepository, signature, 1] + "]" +
-                "&selected=[" + [alertRepository, signature] + "]";
+            let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${this.series_signature.id},1`;
 
-            // for talos only, automatically add related branches
+            // for talos only, automatically add related branches (we take advantage of
+            // the otherwise rather useless signature hash to avoid having to fetch this
+            // information from the server)
             if (performanceFrameworkId === 1) {
                 const branches = (alertRepository === "mozilla-beta") ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
-                url += branches.map(branch => `&series=[${branch},${signature},0]`).join("");
+                url += branches.map(branch => `&series=${branch},${this.series_signature.signature_hash},0`).join("");
             }
 
             return url;
@@ -261,9 +260,9 @@ treeherder.factory('PhAlerts', [
                     if (options && !_.isUndefined(options.frameworkFilter)) {
                         params[params.length] = ("framework=" + options.frameworkFilter);
                     }
-                    if (options && !_.isUndefined(options.seriesSignature)) {
-                        params[params.length] = ("alerts__series_signature__signature_hash=" +
-                                                 options.seriesSignature);
+                    if (options && !_.isUndefined(options.signatureId)) {
+                        params[params.length] = ("alerts__series_signature=" +
+                                                 options.signatureId);
                     }
                     if (options && !_.isUndefined(options.repository)) {
                         params[params.length] = ("repository=" +
