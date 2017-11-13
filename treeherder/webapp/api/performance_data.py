@@ -163,7 +163,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
 
-        signature_hashes = request.query_params.getlist("signatures")
+        signature_hashes = request.query_params.getlist("signatures")  # deprecated
+        signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
         try:
             job_ids = [int(job_id) for job_id in
@@ -172,10 +173,13 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             return Response({"message": "Job id(s) must be specified as integers"},
                             status=HTTP_400_BAD_REQUEST)
 
-        if not (signature_hashes or push_ids or job_ids):
+        if not (signature_ids or signature_hashes or push_ids or job_ids):
             raise exceptions.ValidationError('Need to specify either '
-                                             'signatures, push_id, or '
-                                             'job_id')
+                                             'signature_id, signatures, '
+                                             'push_id, or job_id')
+        if signature_ids and signature_hashes:
+            raise exceptions.ValidationError('Can\'t specify both signature_id '
+                                             'and signatures in same query')
 
         datums = PerformanceDatum.objects.filter(
             repository=repository).select_related(
@@ -185,6 +189,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             signature_ids = PerformanceSignature.objects.filter(
                 repository=repository,
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
+            datums = datums.filter(signature__id__in=list(signature_ids))
+        elif signature_ids:
             datums = datums.filter(signature__id__in=list(signature_ids))
         if push_ids:
             datums = datums.filter(push_id__in=push_ids)
@@ -249,6 +255,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = ['id', 'status', 'framework', 'repository',
+                     'alerts__series_signature',
                      'alerts__series_signature__signature_hash']
     ordering = ('-last_updated', '-id')
     pagination_class = AlertSummaryPagination

@@ -128,7 +128,7 @@ perf.controller('GraphsCtrl', [
                 if (alertSummary) {
                     alert = _.find(alertSummary.alerts,
                         function (alert) {
-                            return alert.series_signature.signature_hash === phSeries.signature;
+                            return alert.series_signature.id === phSeries.id;
                         });
                 }
                 $scope.tooltipContent = {
@@ -596,7 +596,7 @@ perf.controller('GraphsCtrl', [
 
         function getSeriesData(series) {
             return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
-                signatures: series.signature,
+                signature_id: series.id,
                 framework: series.frameworkId
             }).then(
                 function (seriesData) {
@@ -624,7 +624,7 @@ perf.controller('GraphsCtrl', [
                     series.relatedAlertSummaries = [];
                     var repo = _.find($rootScope.repos, { name: series.projectName });
                     return PhAlerts.getAlertSummaries({
-                        seriesSignature: series.signature,
+                        signatureId: series.id,
                         repository: repo.id }).then(function (data) {
                             series.relatedAlertSummaries = data.results;
                         });
