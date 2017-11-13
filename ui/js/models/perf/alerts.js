@@ -184,7 +184,7 @@ treeherder.factory('PhAlerts', [
             // add test info
             title += " " + _.uniq(
                 _.map(alertsInSummary, function (a) {
-                    return PhSeries.getTestName(a.series_signature, { abbreviate: true });
+                    return PhSeries.getTestName(a.series_signature);
                 })).sort().join(' / ');
             // add platform info
             title += " (" + _.uniq(
