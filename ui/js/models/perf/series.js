@@ -19,7 +19,7 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         if (signatureProps.extra_options) {
             options = options.concat(signatureProps.extra_options);
         }
-        return options;
+        return _.uniq(options);
     };
 
     var _getSeriesName = function (signatureProps, optionCollectionMap,
