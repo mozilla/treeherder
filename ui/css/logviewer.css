@@ -98,6 +98,7 @@ body {
 .logview-container {
     flex: 1;
     overflow: hidden;
+    min-height: 200px;
 }
 
 .logview-container > iframe {
