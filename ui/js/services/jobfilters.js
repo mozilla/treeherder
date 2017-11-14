@@ -411,15 +411,15 @@ treeherder.factory('thJobFilters', [
 
             _.each($location.search(), function (values, fieldName) {
                 if (_isFieldFilter(fieldName)) {
-                    var valArr = _toArray(values);
+                    const valArr = _toArray(values);
                     _.each(valArr, function (val) {
-                        var text = '';
+                        let text = '';
                         if (_withoutPrefix(fieldName) === 'failure_classification_id') {
-                            for (var i = 0; i < clopt.length; i++) {
-                                if (clopt[i]['id'].toString() === val) {
-                                    text = clopt[i]['name'];
+                            clopt.forEach(function (el) {
+                                if (el.id.toString() === val) {
+                                    text = el.name;
                                 }
-                            }
+                            });
                         }
                         if (fieldName !== QS_SEARCH_STR) {
                             fieldFilters.push({
