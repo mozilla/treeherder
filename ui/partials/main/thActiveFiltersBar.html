@@ -2,23 +2,27 @@
 <div ng-if="isFieldFilterVisible || filterBarFilters.length"
      class="alert-info active-filters-bar">
     <div ng-show="filterBarFilters.length" ng-cloak>
+      <span class="pointable"
+            title="Clear all of these filters"
+            ng-click="jobFilters.clearAllFilters()">
+        <i class="fa fa-times-circle"></i>
+      </span>
       <span class="active-filters-title">
-        <i class="fa fa-info-circle" aria-hidden="true"></i>
         <b>Active Filters</b>
       </span>
       <span ng-repeat="filter in filterBarFilters"
             class="filtersbar-filter">
+          <span class="pointable"
+                title="Clear filter: {{ filter.field }}"
+                ng-click="jobFilters.removeFilter(filter.key, filter.value)">
+            <i class="fa fa-times-circle"></i>
+          </span>
           <span title="Filter by {{ filter.field }}: {{ filter.value }}">
             <b>{{ filter.field }}:</b>
             <span ng-if="filter.field === 'failure_classification_id'"
                   ng-bind-html="getFilterValue(filter.field, filter.value)"></span>
             <span ng-if="filter.field === 'author'"> {{filter.value.split('@')[0] | limitTo: 20}}</span>
             <span ng-if="filter.field !== 'author' && filter.field !== 'failure_classification_id'"> {{filter.value | limitTo: 12}}</span>
-          </span>
-          <span class="pointable"
-                title="Click to clear filter: {{ filter.field }}"
-                ng-click="jobFilters.removeFilter(filter.key, filter.value)">
-            <i class="fa fa-times-circle"></i>
           </span>
       </span>
     </div>

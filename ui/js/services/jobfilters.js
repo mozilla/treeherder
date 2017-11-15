@@ -309,9 +309,20 @@ treeherder.factory('thJobFilters', [
             $location.search(_withPrefix(field), value);
         }
 
+        function clearAllFilters() {
+            removeAllFieldFilters();
+            removeClearableNonFieldFilters();
+        }
+
         function removeAllFieldFilters() {
             const locationSearch = $location.search();
             _stripFieldFilters(locationSearch);
+            $location.search(locationSearch);
+        }
+
+        function removeClearableNonFieldFilters() {
+            const locationSearch = $location.search();
+            _stripClearableFieldFilters(locationSearch);
             $location.search(locationSearch);
         }
 
@@ -473,9 +484,22 @@ treeherder.factory('thJobFilters', [
             return locationSearch;
         }
 
+        function _stripClearableFieldFilters(locationSearch) {
+            _.forEach(locationSearch, function (val, field) {
+                if (_isClearableFilter(field)) {
+                    delete locationSearch[field];
+                }
+            });
+            return locationSearch;
+        }
+
         function _isFieldFilter(field) {
             return field.startsWith(PREFIX) &&
                 !_.includes(['resultStatus', 'classifiedState'], _withoutPrefix(field));
+        }
+
+        function _isClearableFilter(field) {
+            return _.includes(NON_FIELD_FILTERS, field);
         }
 
         /**
@@ -573,6 +597,7 @@ treeherder.factory('thJobFilters', [
             replaceFilter: replaceFilter,
             removeAllFieldFilters: removeAllFieldFilters,
             resetNonFieldFilters: resetNonFieldFilters,
+            clearAllFilters: clearAllFilters,
             toggleFilters: toggleFilters,
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
