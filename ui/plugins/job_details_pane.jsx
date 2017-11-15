@@ -1,4 +1,5 @@
 'use strict';
+const PropTypes = require('prop-types');
 
 // using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {
@@ -226,28 +227,28 @@ class JobDetailsPane extends React.Component {
 }
 
 JobDetailsPane.propTypes = {
-    classifications: React.PropTypes.array,
-    bugs: React.PropTypes.array,
-    getBugUrl: React.PropTypes.func,
-    job: React.PropTypes.object,
-    getSlaveHealthUrl: React.PropTypes.func,
-    eta: React.PropTypes.number,
-    averageDuration: React.PropTypes.number,
-    resultStatusShading: React.PropTypes.string,
-    $injector: React.PropTypes.object,
-    jobSearchSignatureHref: React.PropTypes.string,
-    jobSearchSignature: React.PropTypes.string,
-    filterByJobSearchStr: React.PropTypes.func,
-    jobSearchStrHref: React.PropTypes.string,
-    jobSearchStr: React.PropTypes.string,
-    visibleTimeFields: React.PropTypes.object,
-    jobLogUrls: React.PropTypes.array,
-    getInspectTaskUrl: React.PropTypes.func,
-    visibleFields: React.PropTypes.object,
-    buildUrl: React.PropTypes.string,
-    classificationTypes: React.PropTypes.object,
-    jobDetailLoading: React.PropTypes.bool,
-    repoName: React.PropTypes.string
+    classifications: PropTypes.array,
+    bugs: PropTypes.array,
+    getBugUrl: PropTypes.func,
+    job: PropTypes.object,
+    getSlaveHealthUrl: PropTypes.func,
+    eta: PropTypes.number,
+    averageDuration: PropTypes.number,
+    resultStatusShading: PropTypes.string,
+    $injector: PropTypes.object,
+    jobSearchSignatureHref: PropTypes.string,
+    jobSearchSignature: PropTypes.string,
+    filterByJobSearchStr: PropTypes.func,
+    jobSearchStrHref: PropTypes.string,
+    jobSearchStr: PropTypes.string,
+    visibleTimeFields: PropTypes.object,
+    jobLogUrls: PropTypes.array,
+    getInspectTaskUrl: PropTypes.func,
+    visibleFields: PropTypes.object,
+    buildUrl: PropTypes.string,
+    classificationTypes: PropTypes.object,
+    jobDetailLoading: PropTypes.bool,
+    repoName: PropTypes.string
 };
 
 module.exports = {
