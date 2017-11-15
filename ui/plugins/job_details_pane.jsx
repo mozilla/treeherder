@@ -184,7 +184,7 @@ class JobDetailsPane extends React.Component {
         const linkifyURLsFilter = this.props.$injector.get('$filter')('linkifyURLs');
         const linkifyClassificationsFilter = this.props.$injector.get('$filter')('linkifyClassifications');
 
-        return <span>
+        return <div id="job-details-pane">
             {this.props.jobDetailLoading &&
             <div className="overlay">
                 <div>
@@ -221,7 +221,7 @@ class JobDetailsPane extends React.Component {
                 visibleFields={this.props.visibleFields}
                 buildUrl={this.props.buildUrl}
              />
-        </span>;
+        </div>;
     }
 }
 
