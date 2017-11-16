@@ -17,22 +17,24 @@ function ClassificationsPane(props) {
 
     const classificationName = props.classificationTypes.classifications[failureId];
 
-    return <ul className="list-unstyled content-spacer">
-        <li>
-            <span title={classificationName.name}><i className={`fa ${iconClass}`}></i>
-            {classificationName.name}</span>
-            {props.bugs.length > 0 &&
-            <a target="_blank" href={props.getBugUrl(props.bugs[0].bug_id)}
-            title={`View bug ${props.bugs[0].bug_id}`}><em> {props.bugs[0].bug_id}</em></a>}
-        </li>
-        {props.classifications[0].text.length > 0 &&
-        <li><em dangerouslySetInnerHTML={repoURLHTML}></em></li>}
-        <li className="revision-comment">
-            {props.dateFilter(props.classifications[0].created, 'EEE MMM d, H:mm:ss')}</li>
+    return (
+        <ul className="list-unstyled content-spacer">
+            <li>
+                <span title={classificationName.name}><i className={`fa ${iconClass}`}></i>
+                <span className="ml-1">{classificationName.name}</span></span>
+                {props.bugs.length > 0 &&
+                <a target="_blank" href={props.getBugUrl(props.bugs[0].bug_id)}
+                title={`View bug ${props.bugs[0].bug_id}`}><em> {props.bugs[0].bug_id}</em></a>}
+            </li>
+            {props.classifications[0].text.length > 0 &&
+            <li><em dangerouslySetInnerHTML={repoURLHTML}></em></li>}
             <li className="revision-comment">
-            {props.classifications[0].who}
-        </li>
-    </ul>;
+                {props.dateFilter(props.classifications[0].created, 'EEE MMM d, H:mm:ss')}</li>
+                <li className="revision-comment">
+                {props.classifications[0].who}
+            </li>
+        </ul>
+    );
 }
 
 
@@ -65,18 +67,18 @@ const JobDetailsListItem = props => (
         <label>{props.label}</label>
         {props.labelHref &&
         <a title={props.labelTitle}
-            href={props.labelHref}
-            onClick={props.labelOnclick}
-            target={props.labelTarget}>
-            {props.labelText} <span className="fa fa-pencil-square-o icon-superscript"></span>: </a>}
+           href={props.labelHref}
+           onClick={props.labelOnclick}
+           target={props.labelTarget}>
+           {props.labelText} <span className="fa fa-pencil-square-o icon-superscript"></span>: </a>}
         {!props.href ? <span className="ml-1">{props.text}</span> :
         <a title={props.title}
-            className="ml-1"
-            href={props.href}
-            onClick={props.onclick}
-            target={props.target}>
-            {props.text}</a>}
-        {props.iconClass && <span className={`ml-1${props.iconClass}`}></span>}
+           className="ml-1"
+           href={props.href}
+           onClick={props.onclick}
+           target={props.target}>
+           {props.text}</a>}
+           {props.iconClass && <span className={`ml-1${props.iconClass}`}></span>}
     </li>
 );
 
@@ -94,68 +96,75 @@ class JobDetailsList extends React.Component {
     };
 
     render() {
-        let jobObj = this.props.job;
-        let jobBuildSystem = jobObj.build_system_type;
-        let buildUrl;
-        let jobLogUrls = this.props.jobLogUrls;
-        let jobMachineName = jobObj.machine_name;
-        let slaveHealthUrl = this.props.getSlaveHealthUrl(jobMachineName);
+        const job = this.props.job;
+        let buildUrl = null;
+        const jobLogUrls = this.props.jobLogUrls;
+        const jobMachineName = job.machine_name;
         let iconCircleClass = null;
 
-        if (!slaveHealthUrl || jobObj.build_system_type !== 'buildbot') {
-            slaveHealthUrl = null;
-        }
-        if (jobBuildSystem === 'buildbot' && jobLogUrls) {
+        const slaveHealthUrl = (jobMachineName !== 'unknown' && job.build_system_type === 'buildbot') ?
+        this.props.getSlaveHealthUrl(jobMachineName) : null;
+
+        if (job.build_system_type === 'buildbot' && jobLogUrls.length > 0) {
             buildUrl = jobLogUrls[0].buildUrl;
         }
-        if (jobObj.job_type_description) {
+        if (job.job_type_description) {
             iconCircleClass = "fa fa-info-circle";
         }
+        return (
+            <ul className="list-unstyled content-spacer">
+                <JobDetailsListItem
+                                label="Job"
+                                labelTitle="Filter jobs with this unique SHA signature"
+                                labelHref={this.props.jobSearchSignatureHref}
+                                labelOnclick={event => this.filterTextEvent(event, this.props.jobSearchSignature)}
+                                labelText="(sig)"
+                                title="Filter jobs containing these keywords"
+                                href={this.props.jobSearchStrHref}
+                                onclick={event => this.filterTextEvent(event, this.props.jobSearchStr)}
+                                text={this.props.jobSearchStr} />
 
-        return <ul className="list-unstyled content-spacer">
-        <JobDetailsListItem label="Job"
-            labelTitle="Filter jobs with this unique SHA signature"
-            labelHref={this.props.jobSearchSignatureHref}
-            labelOnclick={event => this.filterTextEvent(event, this.props.jobSearchSignature)}
-            labelText="(sig)"
-            title="Filter jobs containing these keywords"
-            href={this.props.jobSearchStrHref}
-            onclick={event => this.filterTextEvent(event, this.props.jobSearchStr)}
-            text={this.props.jobSearchStr} />
+                {jobMachineName &&
+                <JobDetailsListItem
+                                label="Machine: "
+                                text={jobMachineName}
+                                title="Open buildbot slave health report"
+                                target="_blank"
+                                href={slaveHealthUrl} />}
 
-        {jobMachineName &&
-        <JobDetailsListItem label="Machine: "
-            text={jobMachineName}
-            title="Open buildbot slave health report"
-            target="_blank"
-            href={slaveHealthUrl} />}
+                {this.props.job.taskcluster_metadata &&
+                <JobDetailsListItem
+                                label="Task:" text={this.props.job.taskcluster_metadata.task_id}
+                                href={this.props.getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank" />}
 
-        {this.props.job.taskcluster_metadata &&
-        <JobDetailsListItem label="Task:" text={this.props.job.taskcluster_metadata.task_id}
-            href={this.props.getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank" />}
+                {this.props.visibleFields &&
+                Object.keys(this.props.visibleFields).map(keyName =>
+                    <JobDetailsListItem
+                                    key={keyName}
+                                    label={`${keyName}:`}
+                                    title="Open build directory in a new tab"
+                                    href={buildUrl}
+                                    target="_blank"
+                                    text={this.props.visibleFields[keyName]}
+                                    iconClass={iconCircleClass} />)}
 
-        {this.props.visibleFields &&
-        Object.keys(this.props.visibleFields).map(keyName =>
-            <JobDetailsListItem key={keyName}
-                label={`${keyName}:`}
-                target="_blank"
-                title="Open build directory in a new tab"
-                href={buildUrl}
-                target="_blank"
-                text={this.props.visibleFields[keyName]}
-                iconClass={iconCircleClass} />)}
+                {this.props.visibleTimeFields && <span>
+                <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime}/>
 
-        {this.props.visibleTimeFields && <span>
-        <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime}/>
-        <JobDetailsListItem label="Started:" text={this.props.visibleTimeFields.startTime}/>
-        <JobDetailsListItem label="Ended:" text={this.props.visibleTimeFields.endTime}/>
-        <JobDetailsListItem label="Duration:" text={this.props.visibleTimeFields.duration}/>
-        </span>}
+                {this.props.visibleTimeFields.startTime &&
+                <JobDetailsListItem label="Started:" text={this.props.visibleTimeFields.startTime}/>}
 
-        {!this.props.jobLogUrls ? <JobDetailsListItem label="Log parsing status: " text="No logs"/> :
-        this.props.jobLogUrls.map(data =>
-            <JobDetailsListItem label="Log parsing status: " text={data.parse_status} key={data}/>)}
-    </ul>;
+                {this.props.visibleTimeFields.endTime &&
+                <JobDetailsListItem label="Ended:" text={this.props.visibleTimeFields.endTime}/>}
+
+                <JobDetailsListItem label="Duration:" text={this.props.visibleTimeFields.duration}/>
+                </span>}
+
+                {!this.props.jobLogUrls ? <JobDetailsListItem label="Log parsing status: " text="No logs"/> :
+                this.props.jobLogUrls.map(data =>
+                    <JobDetailsListItem label="Log parsing status: " text={data.parse_status} key={data}/>)}
+            </ul>
+        );
     }
 }
 
@@ -185,44 +194,46 @@ class JobDetailsPane extends React.Component {
         const linkifyURLsFilter = this.props.$injector.get('$filter')('linkifyURLs');
         const linkifyClassificationsFilter = this.props.$injector.get('$filter')('linkifyClassifications');
 
-        return <div id="job-details-pane">
-            {this.props.jobDetailLoading &&
-            <div className="overlay">
-                <div>
-                    <span className="fa fa-spinner fa-pulse th-spinner-lg"></span>
-                </div>
-            </div>}
+        return (
+            <div id="job-details-pane">
+                {this.props.jobDetailLoading &&
+                <div className="overlay">
+                    <div>
+                        <span className="fa fa-spinner fa-pulse th-spinner-lg"></span>
+                    </div>
+                </div>}
 
-            {this.state.classifications.length > 0 &&
-            <ClassificationsPane
-                job={this.props.job}
-                classifications={this.state.classifications}
-                bugs={this.state.bugs}
-                getBugUrl={this.props.getBugUrl}
-                dateFilter={dateFilter}
-                linkifyURLsFilter={linkifyURLsFilter}
-                linkifyClassificationsFilter={linkifyClassificationsFilter}
-                classificationTypes={this.props.classificationTypes}
-                repoName={this.props.repoName} />}
+                {this.state.classifications.length > 0 &&
+                <ClassificationsPane
+                    job={this.props.job}
+                    classifications={this.state.classifications}
+                    bugs={this.state.bugs}
+                    getBugUrl={this.props.getBugUrl}
+                    dateFilter={dateFilter}
+                    linkifyURLsFilter={linkifyURLsFilter}
+                    linkifyClassificationsFilter={linkifyClassificationsFilter}
+                    classificationTypes={this.props.classificationTypes}
+                    repoName={this.props.repoName} />}
 
-            <JobStatusPane job={this.props.job} eta={this.props.eta} averageDuration={this.props.averageDuration}
-                resultStatusShading={this.props.resultStatusShading}/>
+                <JobStatusPane job={this.props.job} eta={this.props.eta} averageDuration={this.props.averageDuration}
+                    resultStatusShading={this.props.resultStatusShading}/>
 
-            <JobDetailsList
-                job={this.props.job}
-                getSlaveHealthUrl={this.props.getSlaveHealthUrl}
-                jobSearchSignatureHref={this.props.jobSearchSignatureHref}
-                jobSearchSignature={this.props.jobSearchSignature}
-                filterByJobSearchStr={this.props.filterByJobSearchStr}
-                jobSearchStrHref={this.props.jobSearchStrHref}
-                jobSearchStr={this.props.jobSearchStr}
-                visibleTimeFields={this.props.visibleTimeFields}
-                jobLogUrls={this.props.jobLogUrls}
-                getInspectTaskUrl={this.props.getInspectTaskUrl}
-                visibleFields={this.props.visibleFields}
-                buildUrl={this.props.buildUrl}
-             />
-        </div>;
+                <JobDetailsList
+                    job={this.props.job}
+                    getSlaveHealthUrl={this.props.getSlaveHealthUrl}
+                    jobSearchSignatureHref={this.props.jobSearchSignatureHref}
+                    jobSearchSignature={this.props.jobSearchSignature}
+                    filterByJobSearchStr={this.props.filterByJobSearchStr}
+                    jobSearchStrHref={this.props.jobSearchStrHref}
+                    jobSearchStr={this.props.jobSearchStr}
+                    visibleTimeFields={this.props.visibleTimeFields}
+                    jobLogUrls={this.props.jobLogUrls}
+                    getInspectTaskUrl={this.props.getInspectTaskUrl}
+                    visibleFields={this.props.visibleFields}
+                    buildUrl={this.props.buildUrl}
+                />
+            </div>
+        );
     }
 }
 
