@@ -10,9 +10,8 @@
             class="filtersbar-filter">
           <span title="Filter by {{ filter.field}}: {{ filter.value }}">
             <b>{{ filter.field }}:</b>
-            <span ng-if="filter.field === 'failure_classification_id'">{{ filter.text }}</span>
             <span ng-if="filter.field === 'author'"> {{filter.value.split('@')[0] | limitTo: 20}}</span>
-            <span ng-if="filter.field !== 'author' && filter.field !== 'failure_classification_id'"> {{filter.value | limitTo: 12}}</span>
+            <span ng-if="filter.field !== 'author'"> {{filter.value | limitTo: 12}}</span>
           </span>
           <span class="pointable"
                 title="Click to clear {{ filter.field }}"

@@ -407,25 +407,15 @@ treeherder.factory('thJobFilters', [
          */
         function getFieldFiltersArray() {
             const fieldFilters = [];
-            const clopt = thClassificationTypes.classificationOptions;
 
             _.each($location.search(), function (values, fieldName) {
                 if (_isFieldFilter(fieldName)) {
                     const valArr = _toArray(values);
                     _.each(valArr, function (val) {
-                        let text = '';
-                        if (_withoutPrefix(fieldName) === 'failure_classification_id') {
-                            clopt.forEach(function (el) {
-                                if (el.id.toString() === val) {
-                                    text = el.name;
-                                }
-                            });
-                        }
                         if (fieldName !== QS_SEARCH_STR) {
                             fieldFilters.push({
                                 field: _withoutPrefix(fieldName),
                                 value: val,
-                                text: text,
                                 key: fieldName
                             });
                         }
