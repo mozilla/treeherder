@@ -138,9 +138,20 @@ perf.controller('CompareResultsCtrl', [
                 window.document.title = `Comparison between ${$scope.originalProject.name} and ${$scope.newRevision} (${$scope.newProject.name})`;
             }
 
+            $scope.oldStddevVariance = {};
+            $scope.newStddevVariance = {};
+            $scope.testsTooVariable = [{ platform: "Platform", testname: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
+
             $scope.testList.forEach(function (testName) {
                 $scope.titles[testName] = testName.replace('summary ', '');
                 $scope.platformList.forEach(function (platform) {
+                    if (Object.keys($scope.oldStddevVariance).indexOf(platform) < 0) {
+                        $scope.oldStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
+                    }
+                    if (Object.keys($scope.newStddevVariance).indexOf(platform) < 0) {
+                        $scope.newStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
+                    }
+
                     var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
                         return rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform;
                     });
@@ -149,11 +160,20 @@ perf.controller('CompareResultsCtrl', [
                     });
 
                     var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
-
                     if (cmap.isEmpty) {
                         return;
                     }
 
+                    // No results for one or both data points
+                    if (cmap.originalStddevPct !== undefined && cmap.newStddevPct !== undefined) {
+                        // TODO: ideally anything >10.0 is bad, but should we ignore anything?
+                        if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
+                            $scope.oldStddevVariance[platform].values.push(Math.round(cmap.originalStddevPct * 100) / 100);
+                            $scope.newStddevVariance[platform].values.push(Math.round(cmap.newStddevPct * 100) / 100);
+                        } else {
+                            $scope.testsTooVariable.push({ platform: platform, testname: testName, baseStddev: cmap.originalStddevPct, newStddev: cmap.newStddevPct });
+                        }
+                    }
                     cmap.links = [];
 
                     if ($scope.originalRevision) {
@@ -225,10 +245,23 @@ perf.controller('CompareResultsCtrl', [
                 });
             });
 
+            let noiseMetricTestName = 'Noise Metric';
+            $scope.compareResults[noiseMetricTestName] = [];
+            $scope.platformList.forEach(function (platform) {
+                var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
+                if (cmap.isEmpty) {
+                    return;
+                }
+                cmap.name = platform;
+                cmap.isNoiseMetric = true;
+                $scope.compareResults[noiseMetricTestName].push(cmap);
+            });
+
             // Remove the tests with no data, report them as well; not needed for subtests
             $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults))
                 .map(function (name) { return ' ' + name.replace(' summary', ''); }).sort().join();
-            $scope.testList = Object.keys($scope.compareResults).sort();
+            $scope.testList = Object.keys($scope.compareResults).sort().concat([noiseMetricTestName]);
+            $scope.titles[noiseMetricTestName] = noiseMetricTestName;
         }
 
         function load() {
@@ -347,7 +380,8 @@ perf.controller('CompareResultsCtrl', [
                 framework: $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
-                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
+                showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                showOnlyNoise: $scope.filterOptions.showOnlyNoise ? 1 : undefined,
             };
 
             if ($scope.originalRevision === undefined) {
@@ -400,7 +434,9 @@ perf.controller('CompareResultsCtrl', [
                 showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                            parseInt($stateParams.showOnlyImportant)),
                 showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                           parseInt($stateParams.showOnlyConfident))
+                                           parseInt($stateParams.showOnlyConfident)),
+                showOnlyNoise: Boolean($stateParams.showOnlyNoise !== undefined &&
+                                           parseInt($stateParams.showOnlyNoise))
             };
 
             $scope.originalProject = ThRepositoryModel.getRepo(
@@ -427,7 +463,8 @@ perf.controller('CompareResultsCtrl', [
                 }
                 $scope.$watchGroup(['filterOptions.filter',
                     'filterOptions.showOnlyImportant',
-                    'filterOptions.showOnlyConfident'],
+                    'filterOptions.showOnlyConfident',
+                    'filterOptions.showOnlyNoise'],
                     updateURL);
 
                 $scope.$watch('filterOptions.framework',
@@ -481,6 +518,9 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             window.document.title = $scope.subtestTitle = $scope.titles[testName];
 
+            $scope.oldStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
+            $scope.newStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
+            $scope.testsTooVariable = [{ testName: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
             $scope.pageList.sort();
             $scope.pageList.forEach(function (page) {
                 var mapsigs = [];
@@ -507,6 +547,17 @@ perf.controller('CompareSubtestResultsCtrl', [
                     newSig === $scope.originalSignature ||
                     newSig === $scope.newSignature) {
                     cmap.highlightedTest = true;
+                }
+
+                // No results for one or both data points
+                if (cmap.originalStddevPct !== undefined && cmap.newStddevPct !== undefined) {
+                    // TODO: ideally anything >10.0 is bad, but should we ignore anything?
+                    if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
+                        $scope.oldStddevVariance.values.push(Math.round(cmap.originalStddevPct * 100) / 100);
+                        $scope.newStddevVariance.values.push(Math.round(cmap.newStddevPct * 100) / 100);
+                    } else {
+                        $scope.testsTooVariable.push({ testname: page, basStddev: cmap.originalStddevPct, newStddev: cmap.newStddevPct });
+                    }
                 }
 
                 cmap.name = page;
@@ -555,6 +606,16 @@ perf.controller('CompareSubtestResultsCtrl', [
                 }
                 $scope.compareResults[testName].push(cmap);
             });
+
+            let noiseMetricTestName = 'Noise Metric';
+            $scope.compareResults[noiseMetricTestName] = [];
+            var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
+            if (!cmap.isEmpty) {
+                cmap.name = testName;
+                cmap.isNoiseMetric = true;
+                $scope.compareResults[noiseMetricTestName].push(cmap);
+            }
+            $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + " : " + noiseMetricTestName;
         }
 
         $scope.dataLoading = true;
@@ -619,18 +680,22 @@ perf.controller('CompareSubtestResultsCtrl', [
                     showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                                parseInt($stateParams.showOnlyImportant)),
                     showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
-                                               parseInt($stateParams.showOnlyConfident))
+                                               parseInt($stateParams.showOnlyConfident)),
+                    showOnlyNoise: Boolean($stateParams.showOnlyNoise !== undefined &&
+                                               parseInt($stateParams.showOnlyNoise))
                 };
 
                 $scope.$watchGroup([
                     'filterOptions.filter',
                     'filterOptions.showOnlyImportant',
-                    'filterOptions.showOnlyConfident'
+                    'filterOptions.showOnlyConfident',
+                    'filterOptions.showOnlyNoise'
                 ], function () {
                     $state.transitionTo('comparesubtest', {
                         filter: $scope.filterOptions.filter,
                         showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
-                        showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined
+                        showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
+                        showOnlyNoise: $scope.filterOptions.showOnlyNoise ? 1 : undefined
                     }, {
                         location: true,
                         inherit: true,

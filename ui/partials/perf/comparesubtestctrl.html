@@ -7,6 +7,16 @@
   <div id="error" ng-if="!dataLoading && errors.length">
     <compare-error errors="errors" original-revision="originalRevision" original-project="originalProject" new-revision="newRevision" new-project="newProject"></compare-error>
   </div>
+    <div class="alert alert-warning" role="alert" ng-if="testsTooVariable.length > 1 && filterOptions.showOnlyNoise">
+        <strong>Tests with too much noise to be considered in the noise metric:</strong>
+        <table>
+            <tr ng-repeat="tname in testsTooVariable">
+                <td>{{tname.testname}}</td>
+                <td>{{tname.baseStddev}}</td>
+                <td>{{tname.newStddev}}</td>
+            </tr>
+        </table>
+    </div>
   <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
     <h1>{{subtestTitle}} subtest summary</h1>
     <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>

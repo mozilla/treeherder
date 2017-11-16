@@ -14,6 +14,17 @@
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
+      <div class="alert alert-warning" role="alert" ng-if="testsTooVariable.length > 1 && filterOptions.showOnlyNoise">
+          <strong>Tests with too much noise to be considered in the noise metric:</strong>
+              <table>
+                  <tr ng-repeat="tname in testsTooVariable">
+                    <td>{{tname.platform}}</td>
+                    <td>{{tname.testname}}</td>
+                    <td>{{tname.baseStddev}}</td>
+                    <td>{{tname.newStddev}}</td>
+                  </tr>
+              </table>
+      </div>
       <div class="form-group" ng-if="!originalRevision">
         Time range to sample (before push):
         <select ng-model="selectedTimeRange"
