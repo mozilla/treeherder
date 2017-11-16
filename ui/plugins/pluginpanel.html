@@ -134,120 +134,16 @@
         </ul>
       </nav>
     </div>
-    <div id="job-details-pane">
-      <ul ng-if="classifications.length > 0 || bugs.length > 0"
-          class="list-unstyled content-spacer">
-        <li ng-if="classifications.length > 0">
-          <span th-failure-classification failure-id="classifications[0].failure_classification_id"
-                job-result="job.result"></span>
-          <a target="_blank" ng-repeat="bug in bugs"
-             href="{{ getBugUrl(bug.bug_id) }}"
-             title="View bug {{bug.bug_id}}"><em> {{bug.bug_id}}</em></a>
-        </li>
-        <li ng-if="classifications[0].text.length > 0"><em ng-bind-html="classifications[0].text|linkifyURLs|linkifyClassifications:repoName"></em></li>
-        <li class="revision-comment">
-          {{classifications[0].created|date:'EEE MMM d, H:mm:ss'}}</li>
-        <li class="revision-comment">
-          {{classifications[0].who}}</li>
-      </ul>
-      <ul class="list-unstyled">
-        <li id="result-status-pane" class="small {{resultStatusShading}}">
-          <div>
-            <label>Result:</label>
-            <span>{{ job.result }}</span>
-          </div>
-          <div>
-            <label>State:</label>
-            <span>{{ job.state }}</span>
-          </div>
-          <div ng-if="job.state =='running'">
-            <span ng-if="eta > 0">Time remaining: ~{{eta}} minutes</span>
-            <span ng-if="eta < 0">{{eta_abs}} mins overdue, typically takes ~{{average_duration}} mins</span>
-            <span ng-if="eta == 0">Due any minute now, typically takes ~{{average_duration}} mins</span>
-          </div>
-          <div ng-if="job.state =='pending'">
-            <span>Typically takes ~{{average_duration}} mins once started</span>
-          </div>
-        </li>
-      </ul>
-      <ul class="content-spacer">
-        <li class="small">
-          <label>Job </label>
-          <a title="Filter jobs with this unique SHA signature"
-             href="{{jobSearchSignatureHref}}"
-             prevent-default-on-left-click
-             ng-click="filterByJobSearchStr(jobSearchSignature)"
-             copy-value="{{jobSearchSignature}}">
-            (sig) <span class="fa fa-pencil-square-o icon-superscript"></span></a>
-          <label>: </label>
-          <a title="Filter jobs containing these keywords"
-             href="{{jobSearchStrHref}}"
-             prevent-default-on-left-click
-             ng-click="filterByJobSearchStr(jobSearchStr)"
-             copy-value="{{jobSearchStr}}">
-            {{jobSearchStr}}</a>
-        </li>
-        <li class="small">
-          <label>Machine:</label>
-          <span ng-switch on="job.machine_name">
-            <span ng-switch-when='unknown'>{{job.machine_name}}</span>
-            <a title="Open buildbot slave health report" target="_blank"
-               href="{{ getSlaveHealthUrl(job.machine_name) }}"
-               ng-switch-default ng-if="job.build_system_type === 'buildbot'">
-               {{job.machine_name}}
-            </a>
-            <span ng-switch-default ng-if="job.build_system_type !== 'buildbot'">{{job.machine_name}}</span>
-          </span>
-        </li>
-        <li class="small" ng-if="job.taskcluster_metadata">
-          <label>Task:</label>
-          <a target="_blank" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">
-            {{ job.taskcluster_metadata.task_id }}
-          </a>
-        </li>
-        <li class="small" ng-repeat="(label, value) in visibleFields">
-          <label>{{label}}:</label>
-          <span ng-switch on="job.build_system_type === 'buildbot'">
-              <a ng-switch-when="true"
-                 ng-repeat="job_log_url in job_log_urls"
-                 title="Open build directory in a new tab"
-                 ng-attr-href="{{job_log_url.buildUrl}}" target="_blank">{{value}}</a>
-              <span ng-switch-when="false"
-                    title="{{job.job_type_description}}">
-                    {{value}}
-                    <span ng-hide="job.job_type_description.length == 0" class="fa fa-info-circle"></span>
-              </span>
-              <span ng-switch-default>{{value}}</span>
-          </span>
-        </li>
-        <li class="small">
-          <label>Requested:</label><span> {{visibleTimeFields.requestTime}}</span>
-        </li>
-        <li class="small" ng-show="visibleTimeFields.startTime">
-          <label>Started:</label><span> {{visibleTimeFields.startTime}}</span>
-        </li>
-        <li class="small" ng-show="visibleTimeFields.endTime">
-          <label>Ended:</label><span> {{visibleTimeFields.endTime}}</span>
-        </li>
-        <li class="small">
-          <label>Duration:</label><span> {{visibleTimeFields.duration}}</span>
-        </li>
-        <li class="small" ng-repeat="job_log_url in job_log_urls">
-          <label>Log parsing status:</label>
-          <span>{{ job_log_url.parse_status }}</span>
-        </li>
-        <li class="small" ng-if="!job_log_urls.length">
-          <label>Log parsing status:</label>
-          <span>No logs</span>
-        </li>
-      </ul>
-
-      <div ng-if="job_detail_loading" class="overlay">
-        <div>
-          <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
-        </div>
-      </div>
-    </div>
+    <job-details-pane name="JobDetailsPane" classifications="classifications" job="job" bugs="bugs"
+                      getBugUrl="getBugUrl" resultStatusShading="resultStatusShading"
+                      jobSearchSignatureHref="jobSearchSignatureHref"
+                      getSlaveHealthUrl="getSlaveHealthUrl" jobSearchSignature="jobSearchSignature"
+                      filterByJobSearchStr="filterByJobSearchStr" jobSearchStrHref="jobSearchStrHref"
+                      jobSearchStr="jobSearchStr" visibleTimeFields="visibleTimeFields"
+                      jobLogUrls="job_log_urls" averageDuration="average_duration" eta="eta"
+                      getInspectTaskUrl="getInspectTaskUrl" visibleFields="visibleFields"
+                      classificationTypes="classificationTypes" jobDetailLoading="job_detail_loading"
+                      repoName="repoName"></job-details-pane>
   </div>
   <div id="job-tabs-panel">
     <div id="job-tabs-navbar">
