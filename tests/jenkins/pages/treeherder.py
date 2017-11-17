@@ -20,7 +20,6 @@ class TreeherderPage(Base):
     _filter_panel_reset_locator = (By.CSS_SELECTOR, '#filter-dropdown > li:last-child')
     _filter_panel_testfailed_failures_locator = (By.ID, 'testfailed')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
-    _mozilla_central_repo_locator = (By.CSS_SELECTOR, '#th-global-navbar-top a[href*="mozilla-central"]')
     _nav_filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
     _nav_filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
     _nav_filter_inprogress_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title*=progress]')
@@ -31,7 +30,6 @@ class TreeherderPage(Base):
     _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
     _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
     _quick_filter_locator = (By.ID, 'quick-filter')
-    _repos_menu_locator = (By.ID, 'repoLabel')
     _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
     _unchecked_repos_links_locator = (By.CSS_SELECTOR, '#repoLabel + .dropdown-menu .dropdown-checkbox:not([checked]) + .dropdown-link')
     _unclassified_failure_count_locator = (By.ID, 'unclassified-failure-count')
@@ -40,10 +38,6 @@ class TreeherderPage(Base):
     def wait_for_page_to_load(self):
         self.wait.until(lambda s: len(self.all_jobs) >= 1)
         return self
-
-    @property
-    def active_watched_repo(self):
-        return self.find_element(*self._active_watched_repo_locator).text
 
     @property
     def all_emails(self):
@@ -247,9 +241,6 @@ class TreeherderPage(Base):
         from perfherder import PerfherderPage
         return PerfherderPage(self.selenium, self.base_url).wait_for_page_to_load()
 
-    def open_repos_menu(self):
-        self.find_element(*self._repos_menu_locator).click()
-
     def pin_using_spacebar(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.SPACE)
         self.wait.until(lambda _: self.pinboard.is_pinboard_open)
@@ -265,14 +256,6 @@ class TreeherderPage(Base):
     def select_exception_failures(self):
         """Filters Panel must be opened"""
         self.find_element(*self._filter_panel_exception_failures_locator).click()
-
-    def select_mozilla_central_repo(self):
-        self.open_repos_menu()
-        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-        el = self.find_element(By.CSS_SELECTOR, 'body')
-        self.find_element(*self._mozilla_central_repo_locator).click()
-        self.wait.until(EC.staleness_of(el))
-        self.wait_for_page_to_load()
 
     def select_next_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
@@ -290,14 +273,6 @@ class TreeherderPage(Base):
     def select_random_job(self):
         random_job = random.choice(self.all_jobs)
         random_job.click()
-
-    def select_random_repo(self):
-        self.open_repos_menu()
-        repo = random.choice(self.unchecked_repos)
-        repo_name = repo.text
-        repo.click()
-        self.wait.until(lambda s: self._active_watched_repo_locator == repo_name)
-        return repo_name
 
     def select_testfailed_failures(self):
         """Filters Panel must be opened"""

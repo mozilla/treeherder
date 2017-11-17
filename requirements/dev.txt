@@ -28,6 +28,10 @@ pytest-selenium==1.11.2 \
     --hash=sha256:5a00806dcee85fa7ab3b57be36f7cefd9f9d0aab3f19c98b6a751725db333b30 \
     --hash=sha256:9c95bf61ebf58bc711984ee20a4660da09c08b1ff66e533ba6814ca1fe7e52c5
 
+PyPOM==1.2.0 \
+    --hash=sha256:f3b0e8af86fda2a05361b1862dcb3267ed316ad49c5a7410981b270e0754d525 \
+    --hash=sha256:068abbeffee51fcb703357a5db1e7d2b3e8e4ccd9828b8bbe64b0fae6db99365
+
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.12.2 \
     --hash=sha256:e8549c143af3ce6559699a01e26fa4174f4c591dbee0a499f3cd4c3781cdec3d \
@@ -97,3 +101,14 @@ pytest-variables==1.7.0 \
 pytest-base-url==1.4.1 \
     --hash=sha256:31e42366a5fc22f450b398837dc819bb7569f5e6bd5d74e494b2b9ec239876d1 \
     --hash=sha256:7425e8163345494ac7f544e99c6f3e5a08f4228bee5e26013b98c462a4d31f6e
+
+# Required by PyPOM
+
+zope.event==4.3.0 \
+    --hash=sha256:57b5fefd1d92774a7c26d7307b7ad9d0eac2181fd320b2061e69216e2a3b3a07
+zope.interface==4.4.3 \
+    --hash=sha256:f6868378fffbb8651f1f8a767d17e42aed39926c8f6bb9c56f184022fe6c2090 \
+    --hash=sha256:4be05f79e952793f31a0c2d6a0672c81a3300315da587ce6a590357595217005 \
+    --hash=sha256:d6d26d5dfbfd60c65152938fcb82f949e8dada37c041f72916fef6621ba5c5ce
+zope.component==4.4.1 \
+    --hash=sha256:2776ab93945c8df3781fdcc2126dc7080e9a1d64fef5f76a21550473cbb505bf
