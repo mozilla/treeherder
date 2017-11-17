@@ -395,6 +395,10 @@ fieldset[disabled] .btn-view-nav-closed.active {
   cursor: default;
 }
 
+.navbar-badge.badge {
+  margin: 0 5px;
+}
+
 #notification-dropdown {
   min-width: 25em;
   max-height: 20em;
