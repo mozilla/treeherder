@@ -2,10 +2,16 @@
 
 treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function ($http, thServiceDomain, ThOptionCollectionModel, $q) {
 
-    var _getTestName = function (signatureProps) {
-        // only return suite name if testname is identical, and handle
-        // undefined test name
-        return _.uniq(_.filter([signatureProps.suite, signatureProps.test])).join(" ");
+    var _getTestName = function (signatureProps, displayOptions) {
+        var suiteName = signatureProps.suite;
+        var testName = signatureProps.test;
+
+        if (!(displayOptions && displayOptions.abbreviate)) {
+            // "summary" may appear for non-abbreviated output
+            testName = testName || "summary";
+        }
+
+        return suiteName === testName ? suiteName : suiteName + " " + testName;
     };
 
     var _getSeriesOptions = function (signatureProps, optionCollectionMap) {
