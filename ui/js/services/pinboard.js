@@ -38,7 +38,7 @@ treeherder.factory('thPinboard', [
         };
 
         var saveBugs = function (job) {
-            relatedBugs.forEach(function (bug) {
+            Object.entries(relatedBugs).forEach(function ([key, bug]) {
                 var bjm = new ThBugJobMapModel({
                     bug_id: bug.id,
                     job_id: job.id,
