@@ -9,7 +9,7 @@ see the Vagrant instructions.
 To get started:
 
 * Clone the `treeherder repo`_ from GitHub.
-* Install `Node.js`_ and Yarn_ if not present.
+* Install `Node.js`_ and Yarn_ (see `package.json`_ for known compatible versions, listed under `engines`).
 * Run ``yarn install --no-bin-links`` to install all dependencies.
 
 Running the standalone development server
@@ -125,7 +125,8 @@ The tests will perform an initial run and then re-execute each time a project fi
 .. _Karma: http://karma-runner.github.io/0.8/config/configuration-file.html
 .. _treeherder repo: https://github.com/mozilla/treeherder
 .. _Node.js: https://nodejs.org/en/download/current/
+.. _Yarn: https://yarnpkg.com/en/docs/install
+.. _package.json: https://github.com/mozilla/treeherder/blob/master/package.json
 .. _eslint: http://eslint.org
 .. _Jasmine: https://jasmine.github.io/
 .. _enzyme: http://airbnb.io/enzyme/
-.. _Yarn: https://yarnpkg.com/en/docs/install
