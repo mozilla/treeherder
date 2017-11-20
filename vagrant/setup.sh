@@ -103,7 +103,11 @@ if [[ "$("${PYTHON_DIR}/bin/pip" --version 2>&1)" != *"$PIP_VERSION"* ]]; then
 fi
 
 echo '-----> Running pip install'
-pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt | sed -e '/^Requirement already satisfied:/d'
+# The harmless 'Ignoring PACKAGE' lines are filtered out to prevent them from causing
+# confusion due to being shown in red. Remove once using a pip that includes a fix for:
+# https://github.com/pypa/pip/issues/4876
+pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt \
+    |& sed -r '/^(Requirement already satisfied:|Ignoring )/d'
 
 if [[ "$(geckodriver --version 2>&1)" != *"${GECKODRIVER_VERSION}"* ]]; then
     echo '-----> Installing geckodriver'
@@ -134,7 +138,9 @@ echo '-----> Waiting for Elasticsearch to be ready'
 while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
 
 echo '-----> Running Django migrations and loading reference data'
-./manage.py migrate --noinput
+# Redirect stderr to stdout, to prevent the harmless "InnoDB rebuilding table" warning
+# from causing confusion due to being shown in red. Remove when bug 1389548 fixed.
+./manage.py migrate --noinput 2>&1
 ./manage.py load_initial_data
 
 echo '-----> Setup complete!'
