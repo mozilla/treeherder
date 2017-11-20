@@ -1,9 +1,10 @@
-from pypom import Page
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as expected
 
+from .base import Base
 
-class Treeherder(Page):
+
+class Treeherder(Base):
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _mozilla_central_repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo=mozilla-central"]')
@@ -24,3 +25,8 @@ class Treeherder(Page):
         self.find_element(*self._mozilla_central_repo_locator).click()
         self.wait.until(expected.staleness_of(el))
         self.wait_for_page_to_load()
+
+    def switch_to_perfherder(self):
+        self.header.switch_app()
+        from pages.perfherder import Perfherder
+        return Perfherder(self.selenium, self.base_url).wait_for_page_to_load()

@@ -6,10 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
-from pages.base import Base
 
-
-class TreeherderPage(Base):
+class TreeherderPage(Page):
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
@@ -34,6 +32,9 @@ class TreeherderPage(Base):
     _unchecked_repos_links_locator = (By.CSS_SELECTOR, '#repoLabel + .dropdown-menu .dropdown-checkbox:not([checked]) + .dropdown-link')
     _unclassified_failure_count_locator = (By.ID, 'unclassified-failure-count')
     _unclassified_failure_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
+
+    def __init__(self, driver, base_url=None, timeout=20, **url_kwargs):
+        super(TreeherderPage, self).__init__(driver, base_url, timeout, **url_kwargs)
 
     def wait_for_page_to_load(self):
         self.wait.until(lambda s: len(self.all_jobs) >= 1)
@@ -234,12 +235,6 @@ class TreeherderPage(Base):
     def open_next_unclassified_failure(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
         self.wait.until(lambda _: self.info_panel.is_open)
-
-    def open_perfherder_page(self):
-        self.header.switch_page_using_dropdown()
-
-        from perfherder import PerfherderPage
-        return PerfherderPage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def pin_using_spacebar(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.SPACE)
