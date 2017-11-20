@@ -136,11 +136,9 @@ Updating package.json
 ---------------------
 
 * Always use ``yarn`` to make changes, not ``npm``, so that ``yarn.lock`` remains in sync.
-* Add new packages using ``yarn add <PACKAGE> --no-bin-links`` (``yarn.lock`` will be automatically updated).
-* After changes to ``package.json`` use ``yarn install --no-bin-links`` to install them and automatically update ``yarn.lock``.
+* Add new packages using ``yarn add <PACKAGE>`` (``yarn.lock`` will be automatically updated).
+* After changes to ``package.json`` use ``yarn install`` to install them and automatically update ``yarn.lock``.
 * For more details see the `Yarn documentation`_.
-
-Note: To work around symlink issues for Windows hosts, use ``--no-bin-links`` with any command that adds/modifies packages. Whilst this is technically unnecessary with non-Windows hosts, it's still recommended since otherwise your local changes might inadvertently rely on ``node_modules/.bin/`` symlinks that won't exist in a newly created Vagrant environment. Unfortunately yarn doesn't yet support setting this option via the global yarn config, otherwise we could just enable it by default.
 
 .. _Yarn documentation: https://yarnpkg.com/en/docs/usage
 

@@ -66,9 +66,7 @@ setup_js_env() {
 
     echo '-----> Running yarn install'
     # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
-    # `--no-bin-links` is only necessary on Windows hosts, but we include here to ensure
-    # that the package.json scripts aren't relying on symlinks that won't exist elsewhere.
-    yarn install --frozen-lockfile --no-bin-links
+    yarn install --frozen-lockfile
 }
 
 for task in "$@"; do

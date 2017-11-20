@@ -115,9 +115,7 @@ echo '-----> Installing Firefox'
 curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' | sudo tar -jxC "${HOME}"
 
 echo '-----> Running yarn install'
-# We have to use `--no-bin-links` to work around symlink issues with Windows hosts.
-# TODO: Switch the flag to a global yarn pref once yarn adds support.
-yarn install --no-bin-links
+yarn install
 
 if [[ "$(shellcheck --version 2>&1)" != *"version: ${SHELLCHECK_VERSION}"* ]]; then
     echo '-----> Installing shellcheck'

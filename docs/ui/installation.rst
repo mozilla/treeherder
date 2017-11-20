@@ -10,7 +10,7 @@ To get started:
 
 * Clone the `treeherder repo`_ from GitHub.
 * Install `Node.js`_ and Yarn_ (see `package.json`_ for known compatible versions, listed under `engines`).
-* Run ``yarn install --no-bin-links`` to install all dependencies.
+* Run ``yarn install`` to install all dependencies.
 
 Running the standalone development server
 -----------------------------------------
@@ -102,7 +102,7 @@ Running the unit tests
 
 The unit tests for the UI are run with Karma_ and Jasmine_. React components are tested with enzyme_. At this time, these tests cannot be run inside of a Vagrant VM. To run the tests:
 
-* If you haven't already done so, install local dependencies by running ``yarn install --no-bin-links`` from the project root.
+* If you haven't already done so, install local dependencies by running ``yarn install`` from the project root.
 * Then run the following command to execute the tests:
 
 .. code-block:: bash
