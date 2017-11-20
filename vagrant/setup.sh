@@ -117,11 +117,7 @@ curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US
 echo '-----> Running yarn install'
 # We have to use `--no-bin-links` to work around symlink issues with Windows hosts.
 # TODO: Switch the flag to a global yarn pref once yarn adds support.
-# The node version isn't pinned in Vagrant (unlike Heroku/Travis) so we have to use
-# --ignore-engines to prevent failures when there's a new release. This will be fixed
-# as part of the move to a Docker based development environment, where the non-APT approach
-# is much simpler.
-yarn install --no-bin-links --ignore-engines
+yarn install --no-bin-links
 
 if [[ "$(shellcheck --version 2>&1)" != *"version: ${SHELLCHECK_VERSION}"* ]]; then
     echo '-----> Installing shellcheck'
