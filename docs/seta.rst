@@ -46,7 +46,6 @@ After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and 
 -------
 .. code-block:: bash
 
-   yarn install --no-bin-links
    yarn start:local
 
 3rd tab

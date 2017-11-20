@@ -72,7 +72,6 @@ Starting a local Treeherder instance
 
   .. code-block:: bash
 
-    vagrant ~/treeherder$ yarn install --no-bin-links
     vagrant ~/treeherder$ yarn start:local
 
   This will build the UI code in the ``dist/`` folder and keep watching for
