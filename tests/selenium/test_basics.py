@@ -9,19 +9,6 @@ from treeherder.model.models import (Commit,
                                      Repository)
 
 
-def test_treeherder_main(live_server, selenium):
-    '''
-    Tests that the default treeherder page loads ok and we can
-    click the repository menu
-    '''
-    selenium.get(live_server.url)
-    repo_button = WebDriverWait(selenium, 10).until(
-        EC.visibility_of_element_located((By.ID, 'repoLabel'))
-    )
-    repo_button.click()
-    assert selenium.find_element_by_id('repo-dropdown').is_displayed()
-
-
 def test_treeherder_single_commit_titles(live_server, selenium):
     '''
     This tests that page titles are correct
