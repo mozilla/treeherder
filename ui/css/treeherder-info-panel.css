@@ -307,7 +307,7 @@ div#info-panel .info-panel-navbar > li.active a:focus {
   color: red;
 }
 
-#job-details-pane > ul {
+#job-details-pane ul {
   margin: 0;
   padding: 0;
   line-height: 12px;
