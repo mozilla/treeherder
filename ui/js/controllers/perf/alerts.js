@@ -175,8 +175,8 @@ perf.controller('AlertsCtrl', [
         };
 
         function updateAlertVisibility() {
-            _.forEach($scope.alertSummaries, function (alertSummary) {
-                _.forEach(alertSummary.alerts, function (alert) {
+            $scope.alertSummaries.forEach(function (alertSummary) {
+                alertSummary.alerts.forEach(function (alert) {
                     // only show alert if it passes all filter criteria
                     // also hide downstream alerts that are not directly related
                     // to this summary (FIXME: maybe show something underneath
@@ -381,7 +381,7 @@ perf.controller('AlertsCtrl', [
             }).then(
                 function () {
                     // update the alert summaries appropriately
-                    _.forEach(summariesToUpdate, function (alertSummary) {
+                    summariesToUpdate.forEach(function (alertSummary) {
                         updateAlertSummary(alertSummary);
                     });
                 });
@@ -402,8 +402,7 @@ perf.controller('AlertsCtrl', [
                 _.defaults(resultSetToSummaryMap,
                            _.set({}, alertSummary.repository, {}));
 
-                _.forEach(
-                    [alertSummary.push_id, alertSummary.prev_push_id],
+                [alertSummary.push_id, alertSummary.prev_push_id].forEach(
                     function (resultSetId) {
                         // skip nulls
                         if (resultSetId === null) return;
@@ -429,7 +428,7 @@ perf.controller('AlertsCtrl', [
                                     function (t) {
                                         return ((Date.now() / 1000.0) - resultSet.push_timestamp) < t;
                                     }));
-                                _.forEach(resultSetToSummaryMap[repo][resultSet.id],
+                                resultSetToSummaryMap[repo][resultSet.id].forEach(
                                           function (summary) {
                                               if (summary.push_id === resultSet.id) {
                                                   summary.resultSetMetadata = resultSet;
@@ -443,7 +442,7 @@ perf.controller('AlertsCtrl', [
             })).then(function () {
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
-                _.forEach(alertSummaries, function (summary) {
+                alertSummaries.forEach(function (summary) {
                     var repo = _.find($rootScope.repos,
                                       { name: summary.repository });
 

@@ -301,7 +301,7 @@ perf.controller('dashSubtestCtrl', [
                                              function (results) {
                                                  return results.name;
                                              });
-                    _.forEach(subtestNames, function (subtestName) {
+                    subtestNames.forEach(function (subtestName) {
                         var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
                             return resultsMap.base[sig].name === subtestName;
                         });
