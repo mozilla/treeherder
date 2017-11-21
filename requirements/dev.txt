@@ -58,9 +58,9 @@ beautifulsoup4==4.6.0 \
 waitress==1.1.0 \
     --hash=sha256:40b0f297a7f3af61fbfbdc67e59090c70dc150a1601c39ecc9f5f1d283fb931b \
     --hash=sha256:d33cd3d62426c0f1b3cd84ee3d65779c7003aae3fc060dee60524d10a57f05a9
-WebOb==1.7.3 \
-    --hash=sha256:0ef6a10fc04a9e699fe0260b3af9b3518e239d35e2942c6fdc2959c193730a2d \
-    --hash=sha256:e65ca14b9f5ae5b031988ffc93f8b7f305ddfcf17a4c774ae0db47bcb3b87283
+WebOb==1.7.4 \
+    --hash=sha256:63f4220492476c5c716b615baed7bf3d27040b3105014375787160dee0943115 \
+    --hash=sha256:8d10af182fda4b92193113ee1edeb687ab9dc44336b37d6804e413f0240d40d9
 
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
