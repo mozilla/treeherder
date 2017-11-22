@@ -14,7 +14,6 @@ from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (BuildPlatform,
                                      FailureClassification,
                                      Job,
-                                     JobDuration,
                                      JobGroup,
                                      JobLog,
                                      JobType,
@@ -192,13 +191,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     if lower_tier_signatures and signature_hash in lower_tier_signatures:
         tier = lower_tier_signatures[signature_hash]
 
-    try:
-        duration = JobDuration.objects.values_list(
-            'average_duration', flat=True).get(
-                repository=repository, signature=signature_hash)
-    except JobDuration.DoesNotExist:
-        duration = 0
-
     submit_time = datetime.fromtimestamp(
         _get_number(job_datum.get('submit_timestamp')))
     start_time = datetime.fromtimestamp(
@@ -237,7 +229,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
                 "start_time": start_time,
                 "end_time": end_time,
                 "last_modified": datetime.now(),
-                "running_eta": duration,
                 "push_id": push_id
             }
         )
@@ -280,7 +271,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         start_time=start_time,
         end_time=end_time,
         last_modified=datetime.now(),
-        running_eta=duration,
         push_id=push_id)
 
     artifacts = job_datum.get('artifacts', [])

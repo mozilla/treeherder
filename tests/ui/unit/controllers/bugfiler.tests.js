@@ -114,7 +114,6 @@ describe('BugFilerCtrl', function() {
           result: "testfailed",
           result_set_id: 189151,
           revision: "718fb66559f71d1838b3bc6b187e050d44e3f566",
-          running_eta: 2495,
           signature: "81213da4a447ba8918bdbe81152e5c1aa3d24365",
           start_timestamp: 1491432262,
           state: "completed",

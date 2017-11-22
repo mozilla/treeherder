@@ -81,7 +81,7 @@ Starting a local Treeherder instance
 Running the ingestion tasks
 ---------------------------
 
-Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a list of job etas and cache of intermittent failure bugs. To run these:
+Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
 
 * Start up a celery worker to process async tasks:
 

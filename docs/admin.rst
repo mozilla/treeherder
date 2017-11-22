@@ -34,7 +34,6 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.failure_match to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_detail to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.job_duration to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_group to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_log to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_note to 'myuser' REQUIRE SSL;

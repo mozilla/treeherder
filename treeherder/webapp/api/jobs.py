@@ -157,7 +157,6 @@ class JobsViewSet(viewsets.ViewSet):
         ('ref_data_name', 'signature__name', None),
         ('result', 'result', None),
         ('result_set_id', 'push_id', None),
-        ('running_eta', 'running_eta', None),
         ('signature', 'signature__signature', None),
         ('start_timestamp', 'start_time', to_timestamp),
         ('state', 'state', None),

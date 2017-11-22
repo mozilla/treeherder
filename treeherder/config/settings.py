@@ -256,7 +256,6 @@ CELERY_QUEUES = [
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('fetch_runnablejobs', Exchange('default'), routing_key='fetch_runnablejobs'),
     Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
-    Queue('calculate_durations', Exchange('default'), routing_key='calculate_durations'),
     Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
@@ -346,14 +345,6 @@ CELERYBEAT_SCHEDULE = {
         'relative': True,
         'options': {
             'queue': 'cycle_data'
-        }
-    },
-    'calculate-durations-every-6-hours': {
-        'task': 'calculate-durations',
-        'schedule': timedelta(hours=6),
-        'relative': True,
-        'options': {
-            'queue': 'calculate_durations'
         }
     },
     'fetch-bugs-every-hour': {
