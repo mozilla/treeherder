@@ -49,14 +49,6 @@ const JobStatusPane = props => (
                 <label>State:</label>
                 <span> {props.job.state}</span>
             </div>
-            {props.job.state === 'running' && <div>
-                {props.eta > 0 && <span>Time remaining: ~{props.eta} minutes</span>}
-                {props.eta < 0 && <span>{Math.abs(props.eta)} mins overdue, typically takes ~{props.averageDuration} mins</span>}
-                {props.eta === 0 && <span>Due any minute now, typically takes ~{props.averageDuration} mins</span>}
-            </div>}
-            {props.job.state === 'pending' && <div>
-                <span>Typically takes ~{props.averageDuration} mins once started</span>
-            </div>}
         </li>
     </ul>
 );
@@ -215,8 +207,7 @@ class JobDetailsPane extends React.Component {
                     classificationTypes={this.props.classificationTypes}
                     repoName={this.props.repoName} />}
 
-                <JobStatusPane job={this.props.job} eta={this.props.eta} averageDuration={this.props.averageDuration}
-                    resultStatusShading={this.props.resultStatusShading}/>
+                <JobStatusPane job={this.props.job} resultStatusShading={this.props.resultStatusShading}/>
 
                 <JobDetailsList
                     job={this.props.job}
@@ -243,8 +234,6 @@ JobDetailsPane.propTypes = {
     getBugUrl: PropTypes.func,
     job: PropTypes.object,
     getSlaveHealthUrl: PropTypes.func,
-    eta: PropTypes.number,
-    averageDuration: PropTypes.number,
     resultStatusShading: PropTypes.string,
     $injector: PropTypes.object,
     jobSearchSignatureHref: PropTypes.string,

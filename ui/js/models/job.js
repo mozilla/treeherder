@@ -11,18 +11,6 @@ treeherder.factory('ThJobModel', [
             angular.extend(this, data);
         };
 
-        ThJobModel.prototype.running_time_remaining = function () {
-            var timestampNow = new Date().getTime()/1000;
-            var current_duration = timestampNow - parseInt(this.start_timestamp);
-            return Math.round((parseInt(this.running_eta) - current_duration) / 60);
-        };
-
-        ThJobModel.prototype.get_average_duration = function () {
-            return Math.round(
-                parseInt(this.running_eta) /60
-            );
-        };
-
         ThJobModel.prototype.get_title = function () {
             // we want to join the group and type information together
             // so we can search for it as one token (useful when
