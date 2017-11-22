@@ -155,7 +155,12 @@ class PerformanceDatum(models.Model):
 
     class Meta:
         db_table = 'performance_datum'
-        index_together = ('repository', 'signature', 'push_timestamp')
+        index_together = [
+            # this should speed up the typical "get a range of performance datums" query
+            ('repository', 'signature', 'push_timestamp'),
+            # this should speed up the compare view in treeherder (we only index on
+            # repository because we currently filter on it in the query)
+            ('repository', 'signature', 'push')]
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
