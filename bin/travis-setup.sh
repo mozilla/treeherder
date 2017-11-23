@@ -9,10 +9,15 @@ export ELASTICSEARCH_URL='http://127.0.0.1:9200'
 export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 
 setup_services() {
-    echo '-----> Installing Elasticsearch'
-    curl -sSfo /tmp/elasticsearch.deb 'https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.0.deb'
-    sudo dpkg -i --force-confold /tmp/elasticsearch.deb
-    sudo service elasticsearch restart
+    ELASTICSEARCH_VERSION="5.5.0"
+    if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
+        echo '-----> Installing Elasticsearch'
+        curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb"
+        sudo dpkg -i --force-confold /tmp/elasticsearch.deb
+        sudo service elasticsearch restart
+    else
+        sudo service elasticsearch start
+    fi
 
     # Using tmpfs for the MySQL data directory reduces pytest runtime by 30%.
     echo '-----> Creating RAM disk for MySQL'
