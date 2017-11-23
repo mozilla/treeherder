@@ -8,8 +8,7 @@ from treeherder.etl.jobs import (_remove_existing_jobs,
                                  store_job_data)
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Job,
-                                     JobLog,
-                                     Push)
+                                     JobLog)
 
 
 def test_ingest_single_sample_job(test_repository, failure_classifications,
@@ -219,29 +218,6 @@ def test_bad_date_value_ingestion(test_repository, failure_classifications,
     # if no exception, we are good.
 
 
-def test_ingest_job_revision_hash_blank_revision(test_repository,
-                                                 failure_classifications,
-                                                 sample_data, mock_log_parser,
-                                                 sample_push):
-
-    # Given a push with a revision_hash value that is NOT the
-    # top revision SHA, ingest a job with a different revision_hash, but a
-    # matching revision SHA.  Ensure the job still goes to the right push.
-    rs_revision_hash = "12345abc"
-    push = sample_push[0].copy()
-    push["revision_hash"] = rs_revision_hash
-    store_push_data(test_repository, [push])
-
-    first_job = sample_data.job_data[0]
-    first_job["revision_hash"] = rs_revision_hash
-    first_job["revision"] = ""
-    store_job_data(test_repository, [first_job])
-
-    assert Job.objects.count() == 1
-    assert Job.objects.get(id=1).push_id == Push.objects.values_list(
-        'id', flat=True).get(revision_hash=rs_revision_hash)
-
-
 def test_remove_existing_jobs_single_existing(test_repository, failure_classifications,
                                               sample_data, sample_push,
                                               mock_log_parser):
@@ -337,52 +313,3 @@ def test_ingest_job_with_updated_job_group(test_repository, failure_classificati
 
     assert second_job.job_group.name == second_job_datum["job"]["group_name"]
     assert first_job.job_group.name == first_job_datum["job"]["group_name"]
-
-
-def test_ingest_job_with_revision_hash(test_repository,
-                                       failure_classifications, sample_data,
-                                       mock_log_parser, sample_push):
-    """
-    Test ingesting a job with only a revision hash, no revision.  And the
-    revision_hash must NOT be the same SHA value as the top revision.
-
-    This can happen if a user submits a new push in the API with their
-    own revision_hash value.  If we just use the latest revision value, then
-    their subsequent job submissions with the revision_hash they generated
-    will fail and the jobs will be skipped.
-    """
-    revision_hash = "12345abc"
-    push = sample_push[0].copy()
-    push["revision_hash"] = revision_hash
-    store_push_data(test_repository, [push])
-
-    first_job = sample_data.job_data[0]
-    first_job["revision_hash"] = revision_hash
-    del first_job["revision"]
-    store_job_data(test_repository, [first_job])
-
-    assert Job.objects.count() == 1
-
-
-def test_ingest_job_revision_and_revision_hash(test_repository,
-                                               failure_classifications,
-                                               sample_data, mock_log_parser,
-                                               sample_push):
-
-    # Given a push with a revision_hash value that is NOT the
-    # top revision SHA, ingest a job with a different revision_hash, but a
-    # matching revision SHA.  Ensure the job still goes to the right push.
-    rs_revision_hash = "12345abc"
-    push = sample_push[0].copy()
-    push["revision_hash"] = rs_revision_hash
-    revision = push["revision"]
-    store_push_data(test_repository, [push])
-
-    first_job = sample_data.job_data[0]
-    first_job["revision_hash"] = "abcdef123"
-    first_job["revision"] = revision
-    store_job_data(test_repository, [first_job])
-
-    assert Job.objects.count() == 1
-    assert Job.objects.get(id=1).push_id == Push.objects.values_list(
-        'id', flat=True).get(revision=revision)

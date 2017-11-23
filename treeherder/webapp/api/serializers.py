@@ -292,6 +292,6 @@ class PushSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Push
-        fields = ['id', 'revision_hash', 'revision', 'author', 'revisions_uri',
+        fields = ['id', 'revision', 'author', 'revisions_uri',
                   'revisions', 'revision_count', 'push_timestamp',
                   'repository_id']

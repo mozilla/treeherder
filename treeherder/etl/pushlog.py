@@ -6,8 +6,7 @@ import requests
 from django.core.cache import cache
 
 from treeherder.etl.common import (CollectionNotStoredException,
-                                   fetch_json,
-                                   generate_revision_hash)
+                                   fetch_json)
 from treeherder.etl.push import store_push
 from treeherder.model.models import Repository
 
@@ -34,8 +33,6 @@ class HgPushlogProcess(object):
 
     def transform_push(self, push):
         commits = []
-        # TODO: Remove this when bug 1257602 is addressed
-        rev_hash_components = []
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
@@ -44,12 +41,9 @@ class HgPushlogProcess(object):
                 'author': commit['author'],
                 'comment': commit['desc'],
             })
-            rev_hash_components.append(commit['node'])
-            rev_hash_components.append(commit['branch'])
 
         return {
             'revision': commits[-1]["revision"],
-            'revision_hash': generate_revision_hash(rev_hash_components),
             'author': push['user'],
             'push_timestamp': push['date'],
             'revisions': commits,

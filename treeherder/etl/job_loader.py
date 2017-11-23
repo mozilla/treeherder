@@ -59,7 +59,7 @@ class JobLoader:
                 for pulse_job in job_list:
                     if pulse_job["state"] != "unscheduled":
                         try:
-                            self.clean_revision(repository, pulse_job)
+                            self.validate_revision(repository, pulse_job)
                             storeable_job_list.append(
                                 self.transform(pulse_job)
                             )
@@ -72,36 +72,20 @@ class JobLoader:
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: {}".format(project))
 
-    def clean_revision(self, repository, pulse_job):
-        # It is possible there will be either a revision or a revision_hash
-        # At some point we will ONLY get revisions and no longer receive
-        # revision_hashes and then this check can be removed.
+    def validate_revision(self, repository, pulse_job):
         revision = pulse_job["origin"].get("revision")
-        if revision:
-            # will raise an exception if repository with name does not
-            # exist (which we want, I think, to draw attention to the problem)
-            # check the revision for this job has an existing push
-            # If it doesn't, then except out so that the celery task will
-            # retry till it DOES exist.
-            if not Push.objects.filter(repository=repository,
-                                       revision__startswith=revision).exists():
-                raise MissingPushException(
-                    "No push found in {} for revision {}".format(
-                        pulse_job["origin"]["project"],
-                        revision))
-        else:
-            revision = Push.objects.values_list('revision', flat=True).get(
-                repository=repository,
-                revision_hash=pulse_job["origin"]["revision_hash"])
-            params = {
-                "project": pulse_job["origin"]["project"],
-                "taskId": pulse_job["taskId"],
-                "buildSystem": pulse_job["buildSystem"],
-                "jobName": pulse_job["display"]["jobName"],
-            }
-            newrelic.agent.record_custom_event("revision_hash_usage", params=params)
-
-        pulse_job["origin"]["revision"] = revision
+        # will raise an exception if repository with name does not
+        # exist (which we want, I think, to draw attention to the problem)
+        # check the revision for this job has an existing push
+        # If it doesn't, then except out so that the celery task will
+        # retry till it DOES exist.
+        # TODO: Stop using startswith for improved performance as part of bug 1306707.
+        if not Push.objects.filter(repository=repository,
+                                   revision__startswith=revision).exists():
+            raise MissingPushException(
+                "No push found in {} for revision {}".format(
+                    pulse_job["origin"]["project"],
+                    revision))
 
     def transform(self, pulse_job):
         """

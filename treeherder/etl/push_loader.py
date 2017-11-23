@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import (fetch_json,
-                                   generate_revision_hash,
                                    to_timestamp)
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
@@ -244,8 +243,6 @@ class HgPushTransformer:
         push = fetch_json(url)["pushes"].values()[0]
 
         commits = []
-        # TODO: Remove this when bug 1257602 is addressed
-        rev_hash_components = []
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
@@ -254,12 +251,9 @@ class HgPushTransformer:
                 "author": commit["author"],
                 "comment": commit["desc"],
             })
-            rev_hash_components.append(commit['node'])
-            rev_hash_components.append(commit['branch'])
 
         return {
             "revision": commits[-1]["revision"],
-            'revision_hash': generate_revision_hash(rev_hash_components),
             "author": push["user"],
             "push_timestamp": push["date"],
             "revisions": commits,
