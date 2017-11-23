@@ -1,8 +1,0 @@
-[run]
-branch = True
-
-[report]
-omit =
-  */migrations/*
-  treeherder/config/wsgi.py
-  treeherder/config/settings.py
