@@ -39,7 +39,7 @@ matrix:
     # Job 3: Nodejs UI tests
     - env: ui-tests
       language: node_js
-      node_js: "8.9.0"
+      node_js: "8"
       cache:
         directories:
           - node_modules
@@ -100,7 +100,7 @@ matrix:
           - ${HOME}/venv
           - node_modules
       install:
-        - nvm install 8.9.0
+        - nvm install 8
         - source ./bin/travis-setup.sh services python_env geckodriver js_env
       script:
         - yarn build
