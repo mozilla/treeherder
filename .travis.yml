@@ -15,13 +15,14 @@ matrix:
         directories:
           - ${HOME}/venv
       install:
-        - source ./bin/travis-setup.sh python_env
+        - source ./bin/travis-setup.sh python_env docs
       script:
         - pip check
         - python lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
+        - make -C docs html
 
     # Job 2: Python 3 linters
     - env: python3-linters

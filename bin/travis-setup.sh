@@ -54,6 +54,10 @@ setup_python_env() {
     pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt
 }
 
+setup_docs() {
+    pip install -r requirements/docs.txt
+}
+
 setup_geckodriver() {
     echo '-----> Installing geckodriver'
     curl -sSfL 'https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz' | tar -zxC "${HOME}/bin"
