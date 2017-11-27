@@ -43,16 +43,6 @@ def pytest_runtest_setup(item):
     cache.clear()
 
 
-@pytest.fixture(scope="session")
-def base_url(live_server):
-    return live_server.url
-
-
-@pytest.fixture(scope='session')
-def sensitive_url(request, base_url):
-    pass
-
-
 @pytest.fixture(scope="session", autouse=True)
 def block_unmocked_requests():
     """
