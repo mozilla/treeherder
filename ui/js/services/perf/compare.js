@@ -255,10 +255,7 @@ treeherder.factory('PhCompare', [
                                         const entry = _getResultMapEntry(datum);
                                         if (!entry[signatureHash]) {
                                             entry[signatureHash] = {
-                                                platform: signature.platform,
-                                                name: signature.name,
-                                                lowerIsBetter: signature.lowerIsBetter,
-                                                frameworkId: signature.frameworkId,
+                                                ...signature,
                                                 values: [datum.value]
                                             };
                                         } else {

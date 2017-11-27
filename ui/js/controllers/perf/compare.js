@@ -143,7 +143,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.testsTooVariable = [{ platform: "Platform", testname: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
 
             $scope.testList.forEach(function (testName) {
-                $scope.titles[testName] = testName.replace('summary ', '');
+                $scope.titles[testName] = testName;
                 $scope.platformList.forEach(function (platform) {
                     if (Object.keys($scope.oldStddevVariance).indexOf(platform) < 0) {
                         $scope.oldStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
@@ -176,8 +176,11 @@ perf.controller('CompareResultsCtrl', [
                     }
                     cmap.links = [];
 
+                    const hasSubtests = ((rawResultsMap[oldSig] && rawResultsMap[oldSig].hasSubtests) ||
+                                         (newRawResultsMap[newSig] && newRawResultsMap[newSig].hasSubtests));
+
                     if ($scope.originalRevision) {
-                        if (testName.indexOf("summary") > 0) {
+                        if (hasSubtests) {
                             var detailsLink = 'perf.html#/comparesubtest?';
                             detailsLink += $httpParamSerializer({
                                 originalProject: $scope.originalProject.name,
@@ -207,7 +210,7 @@ perf.controller('CompareResultsCtrl', [
                                 $scope.newResultSet])
                         });
                     } else {
-                        if (testName.indexOf("summary") > 0) {
+                        if (hasSubtests) {
                             var detailsLink = 'perf.html#/comparesubtest?';
                             detailsLink += $httpParamSerializer({
                                 originalProject: $scope.originalProject.name,
@@ -258,8 +261,7 @@ perf.controller('CompareResultsCtrl', [
             });
 
             // Remove the tests with no data, report them as well; not needed for subtests
-            $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults))
-                .map(function (name) { return ' ' + name.replace(' summary', ''); }).sort().join();
+            $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults)).sort().join();
             $scope.testList = Object.keys($scope.compareResults).sort().concat([noiseMetricTestName]);
             $scope.titles[noiseMetricTestName] = noiseMetricTestName;
         }
@@ -511,7 +513,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.compareResults = {};
             $scope.titles = {};
 
-            var testName = $scope.testList[0].replace('summary ', '');
+            const testName = $scope.testList[0];
 
             $scope.titles[testName] = $scope.platformList[0] + ': ' + testName;
             $scope.compareResults[testName] = [];
