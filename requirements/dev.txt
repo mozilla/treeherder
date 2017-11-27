@@ -1,8 +1,8 @@
 # Dependencies needed only for development/testing.
 
-pytest==3.2.5 \
-    --hash=sha256:241d7e7798d79192a123ceaf64c602b4d233eacf6d6e42ae27caa97f498b7dc6 \
-    --hash=sha256:6d5bd4f7113b444c55a3bbb5c738a3dd80d43563d063fc42dcb0aaefbdd78b81
+pytest==3.3.0 \
+    --hash=sha256:72186b294cc88322a4427225fdb9240c95e3f01cc53c1ea4f4f79ffe39ff1955 \
+    --hash=sha256:6db1c070aa412c30647b6aeb13c55670f900cf00fbafa003cdde560c3f4a8d76
 
 django-debug-toolbar==1.9.1 \
     --hash=sha256:4af2a4e1e932dadbda197b18585962d4fc20172b4e5a479490bc659fe998864d \
@@ -46,6 +46,8 @@ isort==4.2.15 \
     --hash=sha256:79f46172d3a4e2e53e7016e663cc7a8b538bec525c36675fcfd2767df30b3983
 
 # Required by pytest
+attrs==17.3.0 --hash=sha256:e7d51b70f19a4da5fe6b3c9938983e0af3b91e230edc504bd73c443d98037063
+pluggy==0.6.0 --hash=sha256:7f8ae7f5bdf75671a718d2daf0a64b7885f74510bcd98b1a0bb420eb9a9d0cff
 py==1.5.2 \
     --hash=sha256:8cca5c229d225f8c1e3085be4fcf306090b00850fefad892f9d96c7b6e2f310f \
     --hash=sha256:ca18943e28235417756316bfada6cd96b23ce60dd532642690dcfdaba988a76d
@@ -103,7 +105,6 @@ pytest-base-url==1.4.1 \
     --hash=sha256:7425e8163345494ac7f544e99c6f3e5a08f4228bee5e26013b98c462a4d31f6e
 
 # Required by PyPOM
-
 zope.event==4.3.0 \
     --hash=sha256:57b5fefd1d92774a7c26d7307b7ad9d0eac2181fd320b2061e69216e2a3b3a07
 zope.interface==4.4.3 \
