@@ -406,10 +406,6 @@ ul.failure-summary-list li .btn-xs {
   color: purple;
 }
 
-.failure-summary-bugs button {
-  padding: 2px 3px 1px 3px;
-}
-
 /* We override global anchor color to replicate TBPL here */
 .show-hide-more {
   padding: 0 0 0 37px;
