@@ -10,7 +10,6 @@
   "results": [
     {
       "repository_id": 1,
-      "revision_hash": "6b481161b702e862182ad04c09b26d1b39d70342",
       "revision_count": 1,
       "author": "john@doe.com",
       "comments": "Back out bug 1071880 for causing bug 1083952.",
@@ -29,7 +28,6 @@
     },
     {
       "repository_id": 1,
-      "revision_hash": "b5ee50778f8aba69d8c7ecf309c522a00f43798a",
       "revision_count": 1,
       "author": "john@doe.com",
       "comments": "Bug 1133254 - Dehandlify shape-updating object methods, allow setting multiple flags on an object at once, r=terrence.",

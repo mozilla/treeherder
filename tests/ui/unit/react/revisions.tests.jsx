@@ -33,7 +33,6 @@ describe('Revision list component', () => {
 
         const resultset = {
             "id": 151371,
-            "revision_hash": "0056da58e1efd70711c8f98336eaf866f1aa8936",
             "revision": "5a110ad242ead60e71d2186bae78b1fb766ad5ff",
             "revisions_uri": "/api/project/mozilla-inbound/resultset/151371/revisions/",
             "revision_count": 3,
@@ -123,7 +122,7 @@ describe('Revision item component', () => {
         };
     }));
 
-    it('renders a linked revision hash', () => {
+    it('renders a linked revision', () => {
         const wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
                                             initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
         const link = wrapper.find('a');

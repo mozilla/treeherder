@@ -7,7 +7,6 @@ from treeherder.etl.job_loader import (JobLoader,
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
-                                     Push,
                                      TaskclusterMetadata)
 
 
@@ -122,27 +121,6 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
     jl.process_job_list(pulse_jobs)
     # length of pulse jobs is 5, so one will be skipped due to bad project
     assert Job.objects.count() == 4
-
-
-def test_ingest_pulse_jobs_with_revision_hash(pulse_jobs, test_repository,
-                                              push_stored,
-                                              failure_classifications,
-                                              mock_log_parser):
-    """
-    Ingest a revision_hash job with the JobLoader used by Pulse
-    """
-
-    jl = JobLoader()
-    revision_hash = Push.objects.values_list('revision_hash',
-                                             flat=True).get(id=1)
-    for job in pulse_jobs:
-        origin = job["origin"]
-        del(origin["revision"])
-        origin["revision_hash"] = revision_hash
-
-    jl.process_job_list(pulse_jobs)
-
-    assert Job.objects.count() == 5
 
 
 def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):

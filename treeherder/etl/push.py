@@ -19,7 +19,6 @@ def store_push(repository, push_dict):
             repository=repository,
             revision=push_revision,
             defaults={
-                'revision_hash': push_dict.get('revision_hash', push_revision),
                 'author': push_dict['author'],
                 'time': datetime.utcfromtimestamp(
                     push_dict['push_timestamp'])

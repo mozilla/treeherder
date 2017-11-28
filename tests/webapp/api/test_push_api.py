@@ -32,7 +32,6 @@ def test_push_list_basic(webapp, eleven_jobs_stored, test_repository):
         u'id',
         u'repository_id',
         u'author',
-        u'revision_hash',
         u'revision',
         u'revisions',
         u'revision_count',

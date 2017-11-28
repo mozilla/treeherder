@@ -461,28 +461,10 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             job = datum['job']
             superseded = datum.get('superseded', [])
 
-            # For a time, we need to backward support jobs submited with either a
-            # ``revision_hash`` or a ``revision``.  Eventually, we will
-            # migrate to ONLY ``revision``.  But initially, we will need
-            # to find the revision from the revision_hash.
-            rs_fields = ["revision", "revision_hash"]
-            if not any([x for x in rs_fields if x in datum]):
-                raise ValueError("Job must have either ``revision`` or ``revision_hash``")
-            if datum.get('revision'):
-                push_id = Push.objects.values_list('id', flat=True).get(
-                    repository=repository,
-                    revision__startswith=datum['revision'])
-            else:
-                revision_hash = datum.get('revision_hash')
-                push_id = Push.objects.values_list('id', flat=True).get(
-                    repository=repository,
-                    revision_hash=revision_hash)
-                newrelic.agent.record_exception(
-                    exc=ValueError("job submitted with revision_hash but no revision"),
-                    params={
-                        "revision_hash": datum["revision_hash"]
-                    }
-                )
+            # TODO: Stop using startswith for improved performance as part of bug 1306707.
+            push_id = Push.objects.values_list('id', flat=True).get(
+                repository=repository,
+                revision__startswith=datum['revision'])
 
             # load job
             (job_guid, reference_data_signature) = _load_job(

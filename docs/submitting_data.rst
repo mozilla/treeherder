@@ -320,7 +320,7 @@ example of what a job artifact looks like in the context of a job object:
     [
         {
             'project': 'mozilla-inbound',
-            'revision_hash': '4317d9e5759d58852485a7a808095a44bc806e19',
+            'revision': '4317d9e5759d58852485a7a808095a44bc806e19',
             'job': {
                 'job_guid': 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33',
                 # ...

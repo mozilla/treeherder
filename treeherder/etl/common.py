@@ -85,20 +85,6 @@ def should_skip_revision(revision, revision_filter):
     return False
 
 
-def generate_revision_hash(revisions):
-    """
-    Builds the revision hash for a set of revisions
-    TODO: Remove this with Bug 1257602 is addressed
-    """
-
-    sh = hashlib.sha1()
-    sh.update(
-        ''.join(map(lambda x: str(x), revisions))
-    )
-
-    return sh.hexdigest()
-
-
 def generate_job_guid(request_id, buildername, endtime=None):
     """Converts a request_id and buildername into a guid"""
     sh = hashlib.sha1()
