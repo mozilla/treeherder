@@ -95,15 +95,15 @@ Building the docs locally
 -------------------------
 
 * Either ``vagrant ssh`` into the VM, or else activate a virtualenv on the host machine.
-
 * From the root of the Treeherder repo, run:
 
   .. code-block:: bash
 
      > pip install -r requirements/docs.txt
-     > make -C docs html
+     > make -C docs livehtml
 
-* The built docs can then be found inside ``docs/_build/``.
+* Visit http://127.0.0.1:8000 to view the docs.
+* Source changes will result in automatic rebuilds and browser page reload.
 
 
 Sharing UI-only changes with others using GitHub Pages
