@@ -14,6 +14,7 @@ endif
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"
+	@echo "  livehtml   to start the live-reloading web server"
 
 clean:
 	rm -rf $(BUILDDIR)/*
