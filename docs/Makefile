@@ -24,5 +24,4 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
 livehtml:
-	make html
-	sphinx-autobuild -b html $(SPHINXOPTS) $(BUILDDIR)
+	sphinx-autobuild -b html --poll $(SPHINXOPTS) $(BUILDDIR)
