@@ -73,6 +73,6 @@ Here is a set of example parameters that could be used to run it::
 You can use the handy `Pulse Inspector`_ to view messages in your exchange to
 test that they are arriving at Pulse the way you expect.
 
-.. _Pulse Guardian: https://pulse.mozilla.org/whats_pulse
+.. _Pulse Guardian: https://pulseguardian.mozilla.org/whats_pulse
 .. _Pulse Inspector: https://tools.taskcluster.net/pulse-inspector/
 .. _YML Schema: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml

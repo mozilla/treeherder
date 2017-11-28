@@ -9,7 +9,7 @@ local instance of Treeherder, you can access Swagger at
 http://localhost:8000/docs/. You can also view it on
 our production instance at https://treeherder.mozilla.org/docs/.
 
-.. _Swagger: http://swagger.io/
+.. _Swagger: https://swagger.io/
 
 
 .. _python-client:
