@@ -178,7 +178,7 @@ treeherder.value("thRepoGroupOrder", {
 
 treeherder.value("thDefaultRepo", "mozilla-inbound");
 
-treeherder.value("thDateFormat", "EEE MMM d, H:mm:ss");
+treeherder.value("thDateFormat", "EEE MMM d, HH:mm:ss");
 
 treeherder.value("phCompareDefaultOriginalRepo", "mozilla-central");
 
