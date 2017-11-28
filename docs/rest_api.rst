@@ -141,7 +141,7 @@ to the TreeherderClient constructor.
 For more details see the :doc:`submitting_data` section.
 
 Generating and using credentials on treeherder stage or production
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Users can generate credentials for the deployed Mozilla Treeherder instances
 (and view/delete existing ones) using the forms here:
