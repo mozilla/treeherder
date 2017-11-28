@@ -1,5 +1,4 @@
 import os
-import time
 
 import newrelic.agent
 from celery import task
@@ -79,53 +78,4 @@ def publish_job_action(project, action, job_id, requester):
         # instead of job_guid...
         job_id=job.id,
         requester=requester
-    )
-
-
-@task(name='publish-push-action')
-def publish_push_action(project, action, push_id, requester, times=1):
-    newrelic.agent.add_custom_parameter("project", project)
-    newrelic.agent.add_custom_parameter("action", action)
-    newrelic.agent.add_custom_parameter("push_id", str(push_id))
-    newrelic.agent.add_custom_parameter("requester", requester)
-
-    publisher = pulse_connection.get_publisher()
-    if not publisher:
-        return
-
-    publisher.push_action(
-        version=1,
-        project=project,
-        action=action,
-        requester=requester,
-        resultset_id=push_id,
-        push_id=push_id,
-        times=times
-    )
-
-
-@task(name='publish-resultset-runnable-job-action')
-def publish_resultset_runnable_job_action(project, resultset_id, requester, requested_jobs, decision_task_id):
-    publish_push_runnable_job_action(project, resultset_id, requester, requested_jobs, decision_task_id)
-
-
-@task(name='publish-push-runnable-job-action')
-def publish_push_runnable_job_action(project, push_id, requester, requested_jobs, decision_task_id):
-    newrelic.agent.add_custom_parameter("project", project)
-    newrelic.agent.add_custom_parameter("push_id", str(push_id))
-    newrelic.agent.add_custom_parameter("requester", requester)
-
-    publisher = pulse_connection.get_publisher()
-    if not publisher:
-        return
-
-    timestamp = str(time.time())
-    publisher.push_runnable_job_action(
-        version=1,
-        project=project,
-        requester=requester,
-        push_id=push_id,
-        requested_jobs=requested_jobs,
-        decision_task_id=decision_task_id,
-        timestamp=timestamp
     )

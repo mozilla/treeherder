@@ -10,42 +10,6 @@ class TreeherderPublisher(PulsePublisher):
     """
     exchange_prefix = "v1/"
 
-    push_action = Exchange(
-        exchange="resultset-actions",
-        title="Actions issued by push",
-        description="""
-            There are actions which can be done to a push
-            (eg: trigger_missing_jobs), they are published on this exchange
-        """,
-        routing_keys=[
-            Key(
-                name='project',
-                summary="Project (or branch) that this push belongs to"
-            ),
-            Key(
-                name="action",
-                summary="Type of action issued (i.e. trigger_missing_jobs)"
-            ),
-        ],
-        schema="https://treeherder.mozilla.org/schemas/v1/resultset-action-message.json#"
-    )
-
-    push_runnable_job_action = Exchange(
-        exchange="resultset-runnable-job-actions",
-        title="Runnable job actions issued by push",
-        description="""
-            This action is published when a user asks for new runnable jobs (chosen
-            by name) on a push.
-        """,
-        routing_keys=[
-            Key(
-                name='project',
-                summary="Project (or branch) that this push belongs to"
-            ),
-        ],
-        schema="https://treeherder.mozilla.org/schemas/v1/resultset-runnable-job-action-message.json#"
-    )
-
     job_action = Exchange(
         exchange="job-actions",
         title="Actions issued by jobs",

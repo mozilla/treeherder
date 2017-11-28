@@ -327,12 +327,11 @@ treeherder.controller('PluginCtrl', [
 
                 var job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
-                // two use cases the first is the case where we notify a system
-                // other then buildbot that a retrigger has been requested. The
-                // second is when we have the buildapi id and need to send a request
+                // two use cases the first is the case where we notify a system other
+                // then buildbot that a retrigger has been requested (eg mozilla-taskcluster).
+                // The second is when we have the buildapi id and need to send a request
                 // to the self serve api (which does not listen over pulse!).
                 ThJobModel.retrigger($scope.repoName, job_id_list).then(function () {
-                    // XXX: Remove this after 1134929 is resolved.
                     return ThJobDetailModel.getJobDetails({
                         title: "buildbot_request_id",
                         repository: $scope.repoName,
@@ -431,18 +430,7 @@ treeherder.controller('PluginCtrl', [
                         });
                     });
             } else {
-                ThJobModel.backfill(
-                    $scope.repoName,
-                    $scope.job.id
-                ).then(function () {
-                    thNotify.send("Request sent to backfill jobs", 'success');
-                }, function (e) {
-                    // Generic error eg. the user doesn't have LDAP access
-                    thNotify.send(
-                        ThModelErrors.format(e, "Unable to send backfill"),
-                        'danger'
-                    );
-                });
+                thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
             }
         };
 
