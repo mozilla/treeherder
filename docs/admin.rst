@@ -18,9 +18,12 @@ as of November 2016 (obviously you should replace `myuser` and
 .. code-block:: sql
 
     CREATE USER 'myuser' IDENTIFIED BY 'mysecurepassword';
-    # Whilst `password` is not used (and randomly generated), it's still safer to exclude it.
+
+    -- Tables where we want to allow only partial access.
+    -- Whilst `password` is not used (and randomly generated), it's still safer to exclude it.
     GRANT SELECT (id, username, email) ON treeherder.auth_user to 'myuser' REQUIRE SSL;
-    # Tables containing no sensitive data.
+
+    -- Tables containing no sensitive data.
     GRANT SELECT ON treeherder.bug_job_map to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.bugscache to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.build_platform to 'myuser' REQUIRE SSL;
