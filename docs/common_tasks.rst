@@ -103,7 +103,7 @@ Building the docs locally
      > pip install -r requirements/docs.txt
      > make -C docs html
 
-* The built docs can then be found inside ``docs/_build/html/``.
+* The built docs can then be found inside ``docs/_build/``.
 
 
 Sharing UI-only changes with others using GitHub Pages
