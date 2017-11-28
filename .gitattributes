@@ -1,0 +1,195 @@
+# This file ensures that:
+# * on OS X/Linux: no CRLFs are accidentally checked into the repo.
+# * on Windows: the source checkout always uses LF line endings, even if the Git
+#   global config is using a suboptimal `core.autocrlf` setting (as is the default).
+#   This prevents `$'\r': command not found` bash errors caused by CRLFs.
+
+# Fallback for anything not listed below.
+# Note: Git prior to v2.10 has a bug where it treats this as `text` not `text=auto`,
+# but this isn't a problem since the fallback will be mostly unused.
+* text=auto eol=lf
+
+# The below is taken from:
+# https://github.com/alexkaratarakis/gitattributes/blob/master/Web.gitattributes
+# With a `s/text( eol=crlf)?$/text eol=lf/`.
+
+## SOURCE CODE
+*.bat      text eol=lf
+*.coffee   text eol=lf
+*.css      text eol=lf
+*.htm      text eol=lf
+*.html     text eol=lf
+*.inc      text eol=lf
+*.ini      text eol=lf
+*.js       text eol=lf
+*.json     text eol=lf
+*.jsx      text eol=lf
+*.less     text eol=lf
+*.od       text eol=lf
+*.onlydata text eol=lf
+*.php      text eol=lf
+*.pl       text eol=lf
+*.py       text eol=lf
+*.rb       text eol=lf
+*.sass     text eol=lf
+*.scm      text eol=lf
+*.scss     text eol=lf
+*.sh       text eol=lf
+*.sql      text eol=lf
+*.styl     text eol=lf
+*.tag      text eol=lf
+*.ts       text eol=lf
+*.tsx      text eol=lf
+*.xml      text eol=lf
+*.xhtml    text eol=lf
+
+## DOCKER
+*.dockerignore    text eol=lf
+Dockerfile    text eol=lf
+
+## DOCUMENTATION
+*.markdown   text eol=lf
+*.md         text eol=lf
+*.mdwn       text eol=lf
+*.mdown      text eol=lf
+*.mkd        text eol=lf
+*.mkdn       text eol=lf
+*.mdtxt      text eol=lf
+*.mdtext     text eol=lf
+*.txt        text eol=lf
+AUTHORS      text eol=lf
+CHANGELOG    text eol=lf
+CHANGES      text eol=lf
+CONTRIBUTING text eol=lf
+COPYING      text eol=lf
+copyright    text eol=lf
+*COPYRIGHT*  text eol=lf
+INSTALL      text eol=lf
+license      text eol=lf
+LICENSE      text eol=lf
+NEWS         text eol=lf
+readme       text eol=lf
+*README*     text eol=lf
+TODO         text eol=lf
+
+## TEMPLATES
+*.dot        text eol=lf
+*.ejs        text eol=lf
+*.haml       text eol=lf
+*.handlebars text eol=lf
+*.hbs        text eol=lf
+*.hbt        text eol=lf
+*.jade       text eol=lf
+*.latte      text eol=lf
+*.mustache   text eol=lf
+*.njk        text eol=lf
+*.phtml      text eol=lf
+*.tmpl       text eol=lf
+*.tpl        text eol=lf
+*.twig       text eol=lf
+
+## LINTERS
+.csslintrc    text eol=lf
+.eslintrc     text eol=lf
+.htmlhintrc   text eol=lf
+.jscsrc       text eol=lf
+.jshintrc     text eol=lf
+.jshintignore text eol=lf
+.stylelintrc  text eol=lf
+
+## CONFIGS
+*.bowerrc      text eol=lf
+*.cnf          text eol=lf
+*.conf         text eol=lf
+*.config       text eol=lf
+.browserslistrc    text eol=lf
+.editorconfig  text eol=lf
+.gitattributes text eol=lf
+.gitconfig     text eol=lf
+.gitignore     text eol=lf
+.htaccess      text eol=lf
+*.npmignore    text eol=lf
+*.yaml         text eol=lf
+*.yml          text eol=lf
+browserslist   text eol=lf
+Makefile       text eol=lf
+makefile       text eol=lf
+
+## HEROKU
+Procfile    text eol=lf
+.slugignore text eol=lf
+
+## GRAPHICS
+*.ai   binary
+*.bmp  binary
+*.eps  binary
+*.gif  binary
+*.ico  binary
+*.jng  binary
+*.jp2  binary
+*.jpg  binary
+*.jpeg binary
+*.jpx  binary
+*.jxr  binary
+*.pdf  binary
+*.png  binary
+*.psb  binary
+*.psd  binary
+*.svg  text eol=lf
+*.svgz binary
+*.tif  binary
+*.tiff binary
+*.wbmp binary
+*.webp binary
+
+## AUDIO
+*.kar  binary
+*.m4a  binary
+*.mid  binary
+*.midi binary
+*.mp3  binary
+*.ogg  binary
+*.ra   binary
+
+## VIDEO
+*.3gpp binary
+*.3gp  binary
+*.as   binary
+*.asf  binary
+*.asx  binary
+*.fla  binary
+*.flv  binary
+*.m4v  binary
+*.mng  binary
+*.mov  binary
+*.mp4  binary
+*.mpeg binary
+*.mpg  binary
+*.ogv  binary
+*.swc  binary
+*.swf  binary
+*.webm binary
+
+## ARCHIVES
+*.7z  binary
+*.gz  binary
+*.jar binary
+*.rar binary
+*.tar binary
+*.zip binary
+
+## FONTS
+*.ttf   binary
+*.eot   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+
+## EXECUTABLES
+*.exe binary
+*.pyc binary
+
+## Treeherder-specific extras
+## (Only need to list binary files here, text files can't be broken by `text=auto`)
+*.log binary
+*.xcf binary

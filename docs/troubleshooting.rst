@@ -26,11 +26,3 @@ Errors during Vagrant setup
 * If you encounter an error saying *"The guest machine entered an invalid state while waiting for it to boot. Valid states are 'starting, running'. The machine is in the 'poweroff' state. Please verify everything is configured properly and try again."* you should should check your host machine's virtualization technology (vt-x) is enabled in the BIOS (see this guide_), then continue with ``vagrant up``.
 
   .. _guide: http://www.sysprobs.com/disable-enable-virtualization-technology-bios
-
-* On Windows, if upon running ``vagrant ssh`` you see the error *"/home/vagrant/.bash_aliases: line 1: syntax error near unexpected token `$'{\r''"* - it means your global Git line endings configuration is not correct. On the host machine run:
-
-  .. code-block:: bash
-
-    git config --global core.autocrlf input
-
-  You will then need to delete and reclone the repo (or else do a force checkout).
