@@ -127,6 +127,6 @@ The tests will perform an initial run and then re-execute each time a project fi
 .. _Node.js: https://nodejs.org/en/download/current/
 .. _Yarn: https://yarnpkg.com/en/docs/install
 .. _package.json: https://github.com/mozilla/treeherder/blob/master/package.json
-.. _eslint: http://eslint.org
+.. _eslint: https://eslint.org
 .. _Jasmine: https://jasmine.github.io/
 .. _enzyme: http://airbnb.io/enzyme/

@@ -45,7 +45,7 @@ Setting up Vagrant
 
 * For the full list of available Vagrant commands (for example, suspending the VM when you are finished for the day), see their `command line documentation`_.
 
-  .. _`command line documentation`: http://docs.vagrantup.com/v2/cli/
+  .. _`command line documentation`: https://www.vagrantup.com/docs/cli/
 
 * If you just wish to :ref:`run the tests <running-tests>`, you can stop now without performing the remaining steps.
 

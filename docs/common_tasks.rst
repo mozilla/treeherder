@@ -15,7 +15,7 @@ You can run flake8, isort and the pytest suite inside the Vagrant VM, using:
 
 Or for more control, run each tool individually:
 
-* `pytest <http://pytest.org/>`_:
+* `pytest <https://docs.pytest.org/en/stable/>`_:
 
   .. code-block:: bash
 
@@ -33,7 +33,7 @@ Or for more control, run each tool individually:
 
      vagrant ~/treeherder$ pytest --runslow tests/
 
-  For more options, see ``pytest --help`` or http://pytest.org/latest/usage.html
+  For more options, see ``pytest --help`` or https://docs.pytest.org/en/stable/usage.html
 
 * `flake8 <https://flake8.readthedocs.io/>`_:
 

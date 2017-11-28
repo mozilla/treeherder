@@ -508,7 +508,7 @@ The following steps are required:
    every push from your repo.  Use the following information:
 
    a. Component: GitHub: Administration
-   b. Ask to install the https://github.com/integration/taskcluster integration on your repositories
+   b. Ask to install the https://github.com/apps/taskcluster integration on your repositories
    c. List the repositories you want to have access to the integration
    d. Answer: Are any of those repositories private?
    e. State that this is only to get Pulse messages for integration into Treeherder
