@@ -1,12 +1,7 @@
 # Dependencies for building the documentation, intended to be used standalone
 # since doc generation does not need all of the requirements in common.txt.
-# These are intentionally not version-pinned & have implicit dependencies,
-# since otherwise we play tug of war with the Read the Docs build process
-# every time they update Sphinx versions. If this file were just for Read the
-# Docs, we could omit the Sphinx entry since they provide it, however that
-# would not help those who wish to build the docs locally.
+# This file is used by Read the Docs, Travis and when building locally.
 
 Sphinx==1.6.5
 sphinx-autobuild==0.7.1
 sphinx-rtd-theme==0.2.4
-sphinxcontrib-httpdomain==1.5.0
