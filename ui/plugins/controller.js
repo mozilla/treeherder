@@ -192,37 +192,24 @@ treeherder.controller('PluginCtrl', [
                     }
                     $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
 
-                    var performanceData = results[3];
+                    var performanceData = _.flatten(Object.values(results[3]));
                     if (performanceData) {
-                        var seriesList = [];
-                        $scope.perfJobDetail = [];
-                        $q.all(_.chunk(_.keys(performanceData), 20).map(function (signatureHashes) {
-                            var signatureIds = _.map(signatureHashes, function (signatureHash) {
-                                return performanceData[signatureHash][0].signature_id;
-                            });
-                            return PhSeries.getSeriesList($scope.repoName, { id: signatureIds }).then(function (newSeriesList) {
-                                seriesList = seriesList.concat(newSeriesList);
-                            });
-                        })).then(function () {
-                            seriesList.forEach(function (series) {
-                                // skip series which are subtests of another series
-                                if (series.parentSignature) {
-                                    return;
-                                }
-                                var detail = {
-                                    url: thServiceDomain + '/perf.html#/graphs?series=[' + [
-                                        $scope.repoName, series.signature, 1,
-                                        series.frameworkId
-                                    ] + ']&selected=[' + [
-                                        $scope.repoName, series.signature,
-                                        $scope.job.result_set_id, $scope.job.id
-                                    ] + ']',
-                                    value: performanceData[series.signature][0].value,
-                                    title: series.name
-                                };
-
-                                $scope.perfJobDetail.push(detail);
-                            });
+                        var signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
+                        $q.all(_.chunk(signatureIds, 20).map(
+                            signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
+                        )).then((seriesListList) => {
+                            let seriesList = _.flatten(seriesListList);
+                            $scope.perfJobDetail = performanceData.map(d => ({
+                                series: seriesList.find(s => d.signature_id === s.id),
+                                ...d
+                            })).filter(d => !d.series.parentSignature).map(d => ({
+                                url: `${thServiceDomain}/perf.html#/graphs?series=` +
+                                [$scope.repoName, d.signature_id, 1, d.series.frameworkId] +
+                                '&selected=' +
+                                [$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id],
+                                value: d.value,
+                                title: d.series.name
+                            }));
                         });
                     }
 
