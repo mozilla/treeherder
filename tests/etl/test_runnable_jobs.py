@@ -1,7 +1,7 @@
 import responses
 
 from treeherder.config.settings import (TASKCLUSTER_INDEX_URL,
-                                        TASKCLUSTER_TASKGRAPH_URL)
+                                        TASKCLUSTER_RUNNABLE_JOBS_URL)
 from treeherder.etl.buildbot import get_symbols_and_platforms
 from treeherder.etl.runnable_jobs import (RunnableJobsProcess,
                                           _taskcluster_runnable_jobs)
@@ -11,9 +11,35 @@ from treeherder.model.models import (BuildPlatform,
                                      Repository,
                                      RunnableJob)
 
+TASK_ID = 'AFq3FRt4TyiTwIN7fUqOQg'
+CONTENT1 = {'taskId': TASK_ID}
+RUNNABLE_JOBS_URL = TASKCLUSTER_RUNNABLE_JOBS_URL.format(task_id=TASK_ID)
+JOB_NAME = 'job name'
+API_RETURN = {
+    'build_platform': 'plaform name',
+    'build_system_type': 'taskcluster',
+    'job_group_name': 'Group Name',
+    'job_group_symbol': 'GRP',
+    'job_type_name': JOB_NAME,
+    'job_type_symbol': 'sym',
+    'platform': 'plaform name',
+    'platform_option': 'opt',
+    'ref_data_name': JOB_NAME,
+    'state': 'runnable',
+    'result': 'runnable'
+}
+RUNNABLE_JOBS_CONTENTS = {
+    JOB_NAME: {
+        'collection':  {'opt': True},
+        'groupName': API_RETURN['job_group_name'],
+        'groupSymbol': API_RETURN['job_group_symbol'],
+        'platform': API_RETURN['platform'],
+        'symbol': API_RETURN['job_type_symbol'],
+    }
+}
+
 
 def test_prune_old_runnable_job(test_repository, eleven_jobs_stored):
-
     """
     Test that a defunct buildername will be pruned
     """
@@ -38,63 +64,18 @@ def test_prune_old_runnable_job(test_repository, eleven_jobs_stored):
 
 @responses.activate
 def test_taskcluster_runnable_jobs(test_repository):
-
     """
     Test getting runnable jobs without providing decision task id
     """
     repo = test_repository.name
-    task_id = 'AFq3FRt4TyiTwIN7fUqOQg'
-    tc_index_url = TASKCLUSTER_INDEX_URL % repo
-    tc_graph_url = TASKCLUSTER_TASKGRAPH_URL.format(task_id=task_id)
-    platform = 'plaform name'
-    grp_symbol = 'GRP'
-    grp_name = 'Group Name'
-    symbol = 'sym'
-    collection = {'opt': True}
-    name = 'job name'
-    description = 'job description'
 
-    content1 = {
-        'taskId': task_id
-    }
-
-    content2 = {
-        'node': {
-            'task': {
-                'extra': {
-                    'treeherder': {
-                        'groupSymbol': grp_symbol,
-                        'groupName': grp_name,
-                        'symbol': symbol,
-                        'machine': {
-                            'platform': platform
-                        },
-                        'collection':  collection
-                    }
-                },
-                'metadata': {
-                    'name': name,
-                    'description': description
-                }
-            }
-        }
-    }
-
-    responses.add(responses.GET, tc_index_url, json=content1, match_querystring=True, status=200)
-    responses.add(responses.GET, tc_graph_url, json=content2, match_querystring=True, status=200)
-
+    responses.add(responses.GET, TASKCLUSTER_INDEX_URL % repo,
+                  json=CONTENT1, match_querystring=True, status=200)
+    responses.add(responses.GET, RUNNABLE_JOBS_URL,
+                  json=RUNNABLE_JOBS_CONTENTS, match_querystring=True, status=200)
     jobs_ret = _taskcluster_runnable_jobs(repo, None)
 
     assert len(jobs_ret) == 1
     test_job = jobs_ret[0]
 
-    assert test_job['build_platform'] == platform
-    assert test_job['build_system_type'] == 'taskcluster'
-    assert test_job['job_group_name'] == grp_name
-    assert test_job['job_group_symbol'] == grp_symbol
-    assert test_job['job_type_name'] == name
-    assert test_job['job_type_description'] == description
-    assert test_job['job_type_symbol'] == symbol
-    assert test_job['platform'] == platform
-    assert test_job['state'] == 'runnable'
-    assert test_job['result'] == 'runnable'
+    assert test_job == API_RETURN

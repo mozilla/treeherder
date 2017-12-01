@@ -127,7 +127,7 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     if not decision_task_id:
         return ret
 
-    tc_graph_url = settings.TASKCLUSTER_TASKGRAPH_URL.format(task_id=decision_task_id)
+    tc_graph_url = settings.TASKCLUSTER_RUNNABLE_JOBS_URL.format(task_id=decision_task_id)
     validate = URLValidator()
     try:
         validate(tc_graph_url)
@@ -141,30 +141,19 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
         return []
 
     for label, node in tc_graph.iteritems():
-        if not ('extra' in node['task'] and 'treeherder' in node['task']['extra']):
-            # some tasks don't have the treeherder information we need
-            # to be able to display them (and are not intended to be
-            # displayed). skip.
-            continue
-
-        treeherder_options = node['task']['extra']['treeherder']
-        task_metadata = node['task']['metadata']
-        platform_option = ' '.join(treeherder_options.get('collection', {}).keys())
-
         ret.append({
-            'build_platform': treeherder_options.get('machine', {}).get('platform', ''),
+            'build_platform': node.get('platform', ''),
             'build_system_type': 'taskcluster',
-            'job_group_name': treeherder_options.get('groupName', ''),
-            'job_group_symbol': treeherder_options.get('groupSymbol', ''),
-            'job_type_description': task_metadata['description'],
-            'job_type_name': task_metadata['name'],
-            'job_type_symbol': treeherder_options['symbol'],
-            'platform': treeherder_options.get('machine', {}).get('platform', ''),
-            'platform_option': platform_option,
+            'job_group_name': node.get('groupName', ''),
+            'job_group_symbol': node.get('groupSymbol', ''),
+            'job_type_name': label,
+            'job_type_symbol': node['symbol'],
+            'platform': node.get('platform'),
+            'platform_option': ' '.join(node.get('collection', {}).keys()),
             'ref_data_name': label,
             'state': 'runnable',
             'result': 'runnable',
-            })
+        })
 
     return ret
 
