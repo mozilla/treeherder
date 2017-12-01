@@ -16,7 +16,8 @@ class SuggestionsListItem extends React.Component {
         this.props.fileBug(this.props.index);
     }
 
-    clickShowMore() {
+    clickShowMore(event) {
+        event.preventDefault();
         this.setState({ suggestionShowMore: !this.state.suggestionShowMore });
     }
 
@@ -27,7 +28,7 @@ class SuggestionsListItem extends React.Component {
         return (
             <li>
                 <div className="job-tabs-content">
-                    {this.props.filerInAddress || this.props.user.is_staff &&
+                    {(this.props.filerInAddress || this.props.user.is_staff) &&
                     <a className="btn btn-xs btn-light-bordered"
                        onClick={this.fileBugEvent}
                        title="file a bug for this failure">
@@ -51,6 +52,7 @@ class SuggestionsListItem extends React.Component {
                 {/* <!--All other bugs--> */}
                 {this.props.suggestion.valid_all_others && this.props.suggestion.valid_open_recent &&
                 <a target="_blank"
+                   href=""
                    onClick={this.clickShowMore}
                    className="show-hide-more">Show / Hide more</a>}
 
@@ -63,11 +65,12 @@ class SuggestionsListItem extends React.Component {
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
                                     highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
-                                    bugClassName={bug.resolution !== "" ? "deleted" : ""} />)}
+                                    bugClassName={bug.resolution !== "" ? "deleted" : ""}
+                                    title={bug.resolution !== "" ? bug.resolution : ""} />)}
                 </ul>}
 
-                {this.props.suggestion.bugs.too_many_open_recent || (this.props.suggestion.bugs.too_many_all_others
-                && !this.props.suggestion.valid_open_recent) &&
+                {(this.props.suggestion.bugs.too_many_open_recent || (this.props.suggestion.bugs.too_many_all_others
+                && !this.props.suggestion.valid_open_recent)) &&
                 <mark>Exceeded max {this.props.bugLimit} bug suggestions, most of which are likely false positives.</mark>}
             </li>
         );
@@ -77,13 +80,7 @@ class SuggestionsListItem extends React.Component {
 
 const ListItem = props => (
     <li>
-        <p className="failure-summary-line-empty mb-0">{props.text}<br />
-        {props.href &&
-        <a title={props.title}
-           target="_blank"
-           href={props.href}>{props.linkText}</a>}
-        {props.text2 &&
-        <span>{props.text2}</span>}</p>
+        <p className="failure-summary-line-empty mb-0">{props.text}</p>
     </li>
 );
 
@@ -104,9 +101,10 @@ const BugListItem = (props) => {
                     title="add to list of bugs to associate with all pinned jobs">
                 <i className="fa fa-thumb-tack"></i>
             </button>
-            <a className={props.bugClassName}
+            <a className={`${props.bugClassName} ml-1`}
                href={getBugUrl}
-               target="_blank">{props.bug.id}
+               target="_blank"
+               title={props.title}>{props.bug.id}
                 <span className={props.bugClassName} dangerouslySetInnerHTML={bugSummaryHTML}></span>
             </a>
      </li>
@@ -155,27 +153,31 @@ class FailureSummaryPanel extends React.Component {
                 {this.props.errors && this.props.errors.length > 0 &&
                 <ErrorsList errors={this.props.errors} />}
 
-                {(!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && this.props.bugSuggestionsLoaded &&
-                 this.props.jobLogUrls.length === 0 && this.props.suggestions.length === 0 && this.props.errors.length === 0) &&
+                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && this.props.bugSuggestionsLoaded &&
+                 this.props.jobLogUrls.length === 0 && this.props.suggestions.length === 0 && this.props.errors.length === 0 &&
                 <ListItem text="Failure summary is empty" />}
 
-                {(!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && !this.props.bugSuggestionsLoaded
-                 && this.props.jobLogUrls.length && this.props.logParseStatus === 'success') &&
-                <ListItem
-                        text="Log parsing complete. Generating bug suggestions."
-                        text2="The content of this panel will refresh in 5 seconds." />}
+                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && !this.props.bugSuggestionsLoaded
+                 && this.props.jobLogUrls.length && this.props.logParseStatus === 'success' &&
+                 <li>
+                    <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
+                    <span>The content of this panel will refresh in 5 seconds.</span></p>
+                </li>}
 
-                {(this.props.jobLogUrls && !this.props.tabs.failureSummary.is_loading && !this.props.jobLogsAllParsed) &&
+                {this.props.jobLogUrls && !this.props.tabs.failureSummary.is_loading && !this.props.jobLogsAllParsed &&
                 this.props.jobLogUrls.map((job, index) =>
-                    <ListItem
-                            key={index} text="Log parsing in progress." title="Open the raw log in a new window"
-                            href={job.url} linkText="The raw log "
-                            text2="is available. This panel will automatically recheck every 5 seconds."/>)}
+                    <li key={index}>
+                        <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
+                        <a title="Open the raw log in a new window"
+                           target="_blank"
+                           href={job.url}>The raw log</a>
+                        <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
+                    </li>)}
 
-                {(!this.props.tabs.failureSummary.is_loading && this.props.logParseStatus === 'failed') &&
+                {!this.props.tabs.failureSummary.is_loading && this.props.logParseStatus === 'failed' &&
                 <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
 
-                {(!this.props.tabs.failureSummary.is_loading && this.props.jobLogUrls && this.props.jobLogUrls.length === 0) &&
+                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogUrls && this.props.jobLogUrls.length === 0 &&
                 <ListItem text="No logs available for this job." />}
 
                 {this.props.tabs.failureSummary.is_loading &&
