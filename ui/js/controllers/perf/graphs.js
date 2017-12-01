@@ -54,6 +54,7 @@ perf.controller('GraphsCtrl', [
             return {
                 projectName: flotItem.series.thSeries.projectName,
                 signature: flotItem.series.thSeries.signature,
+                signatureId: flotItem.series.thSeries.id,
                 frameworkId: flotItem.series.thSeries.frameworkId,
                 resultSetId: resultSetId,
                 flotDataOffset: (flotItem.dataIndex -
@@ -82,23 +83,16 @@ perf.controller('GraphsCtrl', [
                     $scope.ttHideTimer = null;
                 }
 
-                var phSeriesIndex = _.findIndex(
-                    $scope.seriesList,
-                    function (s) {
-                        return s.projectName === dataPoint.projectName &&
-                            s.signature === dataPoint.signature;
-                    });
-                var phSeries = $scope.seriesList[phSeriesIndex];
+                var phSeries = _.find($scope.seriesList,
+                                      s => s.id === dataPoint.signatureId);
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
                 var flotIndex = phSeries.flotSeries.idData.indexOf(
                     dataPoint.id);
                 var flotData = {
-                    series: _.find($scope.plot.getData(), function (fs) {
-                        return fs.thSeries.projectName === dataPoint.projectName &&
-                            fs.thSeries.signature === dataPoint.signature;
-                    }),
+                    series: _.find($scope.plot.getData(),
+                                   fs => fs.thSeries.id === dataPoint.signatureId),
                     pointIndex: flotIndex
                 };
                 // check if there are any points belonging to earlier pushes in this
@@ -263,10 +257,7 @@ perf.controller('GraphsCtrl', [
             if ($scope.selectedDataPoint) {
                 var selectedSeriesIndex = _.findIndex(
                     $scope.seriesList,
-                    function (s) {
-                        return s.projectName === $scope.selectedDataPoint.projectName &&
-                            s.signature === $scope.selectedDataPoint.signature;
-                    });
+                    s => s.id === $scope.selectedDataPoint.signatureId);
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
                     $scope.selectedDataPoint.id);
@@ -573,12 +564,11 @@ perf.controller('GraphsCtrl', [
                     return $scope.zoom;
                 }()),
                 selected: (function () {
-                    return ($scope.selectedDataPoint) ? "[" + [$scope.selectedDataPoint.projectName,
-                        $scope.selectedDataPoint.signature,
+                    return ($scope.selectedDataPoint) ? [$scope.selectedDataPoint.projectName,
+                        $scope.selectedDataPoint.signatureId,
                         $scope.selectedDataPoint.resultSetId,
                         $scope.selectedDataPoint.id,
-                        $scope.selectedDataPoint.frameworkId]
-                        + "]" : undefined;
+                        $scope.selectedDataPoint.frameworkId].toString() : undefined;
                 }())
             }, {
                 location: true,
@@ -681,10 +671,9 @@ perf.controller('GraphsCtrl', [
                     // add the color back to the list of available colors
                     availableColors.push(series.color);
 
-                        // deselect datapoint if no longer valid
+                    // deselect datapoint if no longer valid
                     if ($scope.selectedDataPoint &&
-                        $scope.selectedDataPoint.signature === signature &&
-                        $scope.selectedDataPoint.projectName === projectName) {
+                        $scope.selectedDataPoint.signatureId === series.id) {
                         $scope.selectedDataPoint = null;
                     }
                 }
@@ -802,7 +791,7 @@ perf.controller('GraphsCtrl', [
                 var tooltipArray = tooltipString.split(",");
                 var tooltip = {
                     projectName: tooltipArray[0],
-                    signature: tooltipArray[1],
+                    signatureId: parseInt(tooltipArray[1]),
                     resultSetId: parseInt(tooltipArray[2]),
                     id: parseInt(tooltipArray[3]),
                     frameworkId: parseInt(tooltipArray[4]) || 1
