@@ -108,6 +108,11 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   min-width: 550px;
 }
 
+.perf-job-selected {
+  /* An override to optimize all other non-perf jobs at 550px */
+  min-width: 646px !important;
+}
+
 .info-panel-navbar-controls {
   flex-wrap: nowrap;
 }
