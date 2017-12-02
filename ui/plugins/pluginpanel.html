@@ -150,7 +150,8 @@
   <div id="job-tabs-panel">
     <div id="job-tabs-navbar">
       <nav class="info-panel-navbar info-panel-navbar-tabs">
-        <ul class="nav navbar-nav tab-headers">
+        <ul class="nav navbar-nav tab-headers"
+            ng-class="{'perf-job-selected': tabService.tabs.perfDetails.enabled}">
           <li ng-repeat="tabName in tabService.tabOrder"
               ng-if="tabService.tabs[tabName].enabled"
               ng-class="{'active': tabService.selectedTab == tabName}">
