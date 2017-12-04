@@ -9,5 +9,5 @@ cd "$SRC_DIR"
 source vagrant/env.sh
 
 exec newrelic-admin run-program celery -A treeherder worker -c 3 \
-     -Q default,cycle_data,calculate_durations,fetch_bugs,fetch_runnablejobs,generate_perf_alerts,seta_analyze_failures \
+     -Q default,cycle_data,fetch_bugs,fetch_runnablejobs,generate_perf_alerts,seta_analyze_failures \
      -E -l INFO -n default.%h

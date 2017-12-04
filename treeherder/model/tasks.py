@@ -7,8 +7,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.exchanges import TreeherderPublisher
-from treeherder.model.models import (Job,
-                                     Repository)
+from treeherder.model.models import Job
 from treeherder.model.pulse_publisher import load_schemas
 
 # Load schemas for validation of messages published on pulse
@@ -47,13 +46,6 @@ pulse_connection = LazyPublisher()
 @task(name='cycle-data', rate_limit='1/h', soft_time_limit=180*60, time_limit=181*60)
 def cycle_data():
     call_command('cycle_data')
-
-
-@task(name='calculate-durations', rate_limit='1/h')
-def calculate_durations(sample_window_seconds=21600, debug=False):
-    for repository in Repository.objects.filter(active_status='active'):
-        Job.objects.calculate_durations(repository, sample_window_seconds,
-                                        debug)
 
 
 @task(name='publish-job-action')

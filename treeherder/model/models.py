@@ -14,7 +14,6 @@ from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
 from django.db.models import (Count,
-                              F,
                               Q)
 from django.forms import model_to_dict
 from django.utils import timezone
@@ -364,57 +363,10 @@ class ReferenceDataSignatures(models.Model):
         unique_together = ('name', 'signature', 'build_system_type', 'repository')
 
 
-class JobDuration(models.Model):
-    """
-    Average job duration for each repository/job signature combination.
-
-    These are updated periodically by the calculate_durations task.
-    """
-    signature = models.CharField(max_length=50)
-    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    average_duration = models.PositiveIntegerField()
-
-    class Meta:
-        db_table = 'job_duration'
-        unique_together = ('signature', 'repository')
-
-
 class JobManager(models.Manager):
     """
     Convenience functions for operations on groups of jobs
     """
-
-    def calculate_durations(self, repository, sample_window_seconds, debug):
-        # Get the most recent timestamp from jobs
-        max_start_time = self.values_list(
-            'start_time', flat=True).latest('start_time')
-        if not max_start_time:
-            return
-        latest_start_time = max_start_time - datetime.timedelta(
-            seconds=sample_window_seconds)
-
-        jobs = self.filter(repository=repository,
-                           start_time__gt=latest_start_time)
-
-        for signature_hash in jobs.values_list(
-                'signature__signature', flat=True).distinct():
-            # in theory we should be able to use a Django aggregation here,
-            # but it doesn't seem to work:
-            # http://stackoverflow.com/questions/3131107/annotate-a-queryset-with-the-average-date-difference-django#comment66231763_32856190
-            num_jobs = 0
-            total_time = 0.0
-            for (start_time, end_time) in jobs.filter(
-                    signature__signature=signature_hash,
-                    end_time__gt=F('start_time')).values_list(
-                        'start_time', 'end_time'):
-                total_time += (end_time - start_time).total_seconds()
-                num_jobs += 1
-            if not num_jobs:
-                continue
-            JobDuration.objects.update_or_create(
-                signature=signature_hash,
-                repository=repository,
-                defaults={'average_duration': int(total_time / num_jobs)})
 
     def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
@@ -519,6 +471,7 @@ class Job(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     last_modified = models.DateTimeField(auto_now=True, db_index=True)
+    # TODO: Remove next time we add/drop another field.
     running_eta = models.PositiveIntegerField(null=True, default=None)
     tier = models.PositiveIntegerField()
 

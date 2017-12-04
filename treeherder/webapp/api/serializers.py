@@ -96,7 +96,6 @@ class JobSerializer(serializers.ModelSerializer):
             'ref_data_name': job.signature.name,
             'result': job.result,
             'result_set_id': job.push_id,
-            'running_eta': job.running_eta,
             'signature': job.signature.signature,
             'start_timestamp': to_timestamp(job.start_time),
             'state': job.state,
