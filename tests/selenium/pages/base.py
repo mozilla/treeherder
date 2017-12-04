@@ -13,11 +13,17 @@ class Base(Page):
 
         _root_locator = (By.ID, 'th-global-navbar')
         _app_menu_locator = (By.ID, 'th-logo')
+        _app_logo_locator = (By.CSS_SELECTOR, '#th-logo img')
         _switch_app_locator = (By.CSS_SELECTOR, '#th-logo + ul > li a')
 
         @property
         def active_app(self):
-            return self.find_element(*self._app_menu_locator).text
+            # Initially try to compare with the text of the menu item.
+            # But if there's an image instead of just text, then compare the
+            # ``alt`` property of the image instead.
+            menu = self.find_element(*self._app_menu_locator).text
+            return menu if menu else self.find_element(
+                *self._app_logo_locator).get_attribute("alt")
 
         def switch_app(self):
             self.find_element(*self._app_menu_locator).click()

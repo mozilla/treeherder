@@ -37,13 +37,14 @@ class StatusNavbar extends React.Component {
 
   render() {
     return (
-      <Navbar toggleable>
-        <Nav className="mr-auto" navbar>
+      <Navbar expand>
+        <Nav className="mr-auto">
           <span className="navbar-text">
             <Icon name="code"/> Revision <code className="push-revision">{this.props.push.revision}</code>
           </span>
 
           <span className="navbar-text">
+            <span className="hidden-sm-down">&mdash;&nbsp;&nbsp;&nbsp;</span>
             <Icon name="id-card-o"/> Author <code>{this.props.push.author}</code>
           </span>
         </Nav>
@@ -75,7 +76,7 @@ class StatusNavbar extends React.Component {
         </span>
 
         <span className="navbar-text">
-          <Badge>{this.props.counts.pending} Pending Jobs</Badge>
+          <Badge color="secondary">{this.props.counts.pending} Pending Jobs</Badge>
         </span>
       </Navbar>
     );

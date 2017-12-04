@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { AppContainer } from 'react-hot-loader';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.css';
-import './global.css';
+import '../css/treeherder-test-view.css';
 import { store, actions } from './redux/store';
 import App from './ui/App';
 

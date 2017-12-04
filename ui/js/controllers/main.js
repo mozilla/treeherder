@@ -28,8 +28,6 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.serverChanged = false;
         $rootScope.serverChangedDelayed = false;
 
-        $scope.testBasedUIHost = '/';
-
         // Ensure user is available on initial page load
         $rootScope.user = {};
 

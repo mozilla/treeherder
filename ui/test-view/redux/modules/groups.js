@@ -1,5 +1,3 @@
-import { treeherder } from '../configureStore';
-
 export const types = {
   FETCH_TESTS: 'FETCH_TESTS',
   RENDER_TESTS: 'RENDER_TESTS',
@@ -100,7 +98,7 @@ export const actions = {
     type: types.FETCH_TESTS,
     meta: {
       type: 'api',
-      url: `${treeherder}/graphql?query=${getTestDataQuery(revision)}`,
+      url: `${SERVICE_DOMAIN}/graphql?query=${getTestDataQuery(revision)}`,
       method: 'GET',
       filter,
       options,
@@ -112,7 +110,7 @@ export const actions = {
     type: types.FETCH_OPTIONS,
     meta: {
       type: 'api',
-      url: `${treeherder}/graphql?query=${optionsQuery}`,
+      url: `${SERVICE_DOMAIN}/graphql?query=${optionsQuery}`,
       method: 'GET',
     },
   }),
@@ -120,7 +118,7 @@ export const actions = {
     type: types.FETCH_COUNTS,
     meta: {
       type: 'api',
-      url: `${treeherder}/api/project/${repoName}/resultset/${pushId}/status/`,
+      url: `${SERVICE_DOMAIN}/api/project/${repoName}/resultset/${pushId}/status/`,
       method: 'GET',
     },
   }),
@@ -128,7 +126,7 @@ export const actions = {
     type: types.FETCH_BUGS,
     meta: {
       type: 'api',
-      url: `${treeherder}/graphql?query=`,
+      url: `${SERVICE_DOMAIN}/graphql?query=`,
       method: 'GET',
       rowData,
     },

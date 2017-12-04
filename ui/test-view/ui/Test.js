@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
-import { platformMap, store, actions } from '../redux/store';
+import { store, actions } from '../redux/store';
+import { platformMap } from '../../js/constants';
 import { LogViewer } from './LogViewer';
 
 
 const mapStateToProps = ({ groups }) => ({
   expanded: groups.expanded,
   revision: groups.push.revision,
-  treeherder: groups.treeherder,
   options: groups.options,
   repo: groups.push.repository.name,
   bugSuggestions: groups.bugSuggestions,
@@ -50,7 +50,7 @@ class Platform extends React.Component {
       <span className="platform badge"
             title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}>
         <Link
-          to={`${this.props.treeherder}/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
+          to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
           target="_blank">
           {this.getIcon(this.props.job.failureClassification.name)}
           {this.props.platform} {this.props.option}
@@ -96,11 +96,9 @@ class TestComponent extends React.Component {
                       key={key}
                       platform={platformMap[job.buildPlatform.platform]}
                       option={this.props.options[job.optionCollectionHash]}
-                      treeherder={this.props.treeherder}
                       repo={this.props.repo}
                       revision={this.props.revision} />
             <LogViewer job={job}
-                       treeherder={this.props.treeherder}
                        repo={this.props.repo} />
             {job.tier > 1 && <span className="tier badge">Tier-{job.tier}</span>}
             <div>{job.failureLines.map((failureLine, jlkey) => (
@@ -149,7 +147,6 @@ class TestComponent extends React.Component {
                       key={key}
                       platform={platformMap[job.buildPlatform.platform]}
                       option={this.props.options[job.optionCollectionHash]}
-                      treeherder={this.props.treeherder}
                       repo={this.props.repo}
                       revision={this.props.revision} />
           ))}

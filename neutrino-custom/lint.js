@@ -25,8 +25,11 @@ module.exports = neutrino => {
                         impliedStrict: false
                     }
                 },
-                extends: 'eslint:recommended',
-              rules: {
+                extends: [
+                    'eslint:recommended',
+                    'plugin:react/recommended',
+                ],
+                rules: {
                     'arrow-body-style': ['error', 'as-needed', {
                         requireReturnForObjectLiteral: false,
                     }],
@@ -42,9 +45,6 @@ module.exports = neutrino => {
                     'eol-last': 'error',
                     'eqeqeq': 'error',
                     'guard-for-in': 'error',
-                    'indent': ['error', 4, {
-                        'SwitchCase': 1
-                    }],
                     'key-spacing': ['error', {
                         beforeColon: false,
                         afterColon: true
@@ -95,6 +95,8 @@ module.exports = neutrino => {
                     'no-void': 'error',
                     'no-with': 'error',
                     'object-curly-spacing': ['error', 'always'],
+                    'react/jsx-uses-react': 'error',
+                    'react/jsx-uses-vars': 'error',
                     'semi': 'error',
                     'space-before-blocks': 'error',
                     'space-before-function-paren': ['error', {
@@ -102,7 +104,6 @@ module.exports = neutrino => {
                         named: 'never',
                         asyncArrow: 'always'
                     }],
-                    'strict': ['error', 'global'],
                     'quote-props': ['error', 'as-needed', {
                         keywords: false,
                         unnecessary: true,

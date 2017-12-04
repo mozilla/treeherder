@@ -35,7 +35,7 @@ module.exports = neutrino => {
             from: '**'
         }], {
             ignore: ['*.js', '*.jsx', '*.css', '*.html', '*.tmpl',
-                '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2']
+                '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2', '*.psd']
         });
 
     // Likewise for this clean plugin:

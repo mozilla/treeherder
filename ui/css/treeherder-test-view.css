@@ -1,13 +1,22 @@
-@import url('https://fonts.googleapis.com/css?family=Anonymous+Pro:700|Fira+Sans+Extra+Condensed:400,500,600,700');
 
 body {
-  font-family: "Fira Sans Extra Condensed", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  font-family: Arial Narrow, "PT Sans Narrow", "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-rendering: optimizeLegibility;
-  padding-top: 3.5rem;
+  padding-top: 2.5rem;
+}
+.th-top-navbar {
+  background-color: #222;
+  height: 34px;
+}
+
+#th-logo img {
+  margin-top: -7px;
+  margin-left: -2px;
+  max-height: 18px;
 }
 
 input[type=text] {
-  font-family: "Fira Sans Extra Condensed", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  font-family: Arial Narrow, "PT Sans Narrow", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .nav-item {
@@ -62,7 +71,7 @@ main .progress {
   background-color: #1d7dbb!important;
 }
 
-.badge-default, .bg-default, .btn-default {
+.badge-secondary, .bg-secondary, .btn-secondary {
   background-color: #5d707f!important;
 }
 
@@ -97,10 +106,12 @@ main .progress {
 
 .badge-infra {
   background-color: #d78236;
+  color: white;
 }
 
 .badge-intermittent {
   background-color: #d78236;
+  color: white;
 }
 
 .toggle-count {
@@ -111,7 +122,7 @@ main .progress {
   padding-right: .25em;
 }
 
-:disabled:hover {
+[disabled]:hover {
   cursor: not-allowed;
 }
 
