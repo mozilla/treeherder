@@ -8,11 +8,11 @@ export class LogViewer extends React.Component {
       <span className="logviewer badge">
         <Link
           to={`${this.props.treeherder}/logviewer.html#/?repo=${this.props.repo}&job_id=${this.props.job.jobId}`}
-          target="_blank"
-          title="Open the log viewer in a new window">
+              target="_blank"
+              title="Open the log viewer in a new window">
           <img src={logUrl} className="logviewer-icon" />
         </Link>
       </span>
-    )
+    );
   };
 }

@@ -17,13 +17,13 @@ const request = (url, options) => fetch(url.replace('http:', `${fetch_protocol}:
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?
-      group.symbol.substring(3) : group.symbol;
+    group.symbol.substring(3) : group.symbol;
   const name = group.name.replace(' executed by TaskCluster', '');
   return symbol === '?' ? 'Ungrouped' : `${symbol} - ${name}`;
 }
 
 function getId(hash) {
-  return atob(hash).split(':')[1]
+  return atob(hash).split(':')[1];
 }
 
 async function fetchTests(store, fetchOptions) {
@@ -55,7 +55,7 @@ async function fetchTests(store, fetchOptions) {
 
   // ``payload.groups`` will look like:
   // { jobGroupName1: { testName1: { group: foo, jobs: [ job1: [FailureLine1, ... ], ... ] } }, ... }
-  payload.groups = jobs.reduce((acc, {node: job}) => {
+  payload.groups = jobs.reduce((acc, { node: job }) => {
     const jobGroupName = getGroupText(job.jobGroup);
     const logSet = job.jobLog;
 
@@ -86,8 +86,8 @@ async function fetchTests(store, fetchOptions) {
       delete test.failureLines;
 
       acc[jobGroupName][testName] = acc[jobGroupName][testName]
-          ? acc[jobGroupName][testName]
-          : { group: test.group, jobs: [] };
+        ? acc[jobGroupName][testName]
+        : { group: test.group, jobs: [] };
       acc[jobGroupName][testName].jobs = [ ...acc[jobGroupName][testName].jobs, flJob];
       acc[jobGroupName][testName].bugs = bugSuggestions[`${jobGroupName}-${testName}`];
     });
@@ -134,7 +134,7 @@ function buildFailureLines(lsAcc, failureLine) {
   if (failureLine.test) {
     lsAcc[failureLine.test] = lsAcc[failureLine.test]
       ? lsAcc[failureLine.test]
-      : {group: failureLine.group.length ? failureLine.group[0].name : "Unavailable", failureLines: []};
+      : { group: failureLine.group.length ? failureLine.group[0].name : "Unavailable", failureLines: [] };
     lsAcc[failureLine.test].failureLines = [...lsAcc[failureLine.test].failureLines, failureLine];
   }
   return lsAcc;
@@ -152,7 +152,7 @@ async function fetchOptions(store, fetchOptions) {
         [opt.optionCollectionHash]: opt.option.name
       }), {}),
     }
-  })
+  });
 }
 
 async function fetchCounts(store, fetchOptions) {
@@ -170,7 +170,7 @@ async function fetchCounts(store, fetchOptions) {
     payload: {
       counts,
     }
-  })
+  });
 }
 
 /**
@@ -185,7 +185,7 @@ async function fetchCounts(store, fetchOptions) {
  * @param regexes - Array of Regexes that ``filterStr`` must pass
  */
 function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideClassified) {
-  test.jobs.forEach(job => {
+  test.jobs.forEach((job) => {
     // Reconstruct this each time because the same ``job`` can exist on
     // different test paths (more than one test can happen as a result of
     // one job).  So we can't just store this ``filterStr`` in the job
@@ -260,12 +260,12 @@ function toggleHideClassified(store, fetchOptions) {
 
 async function fetchBugs(store, { rowData, url }) {
   // map of tests to urls
-  const testMap = Object.entries(rowData).reduce((gacc, [groupName, tests]) => {
-    Object.entries(tests).forEach(([testName, test]) => {
-      test.jobs.forEach(job => {
+  const testMap = Object.entries(rowData).reduce((gacc, [ , tests ]) => {
+    Object.entries(tests).forEach(([ , test ]) => {
+      test.jobs.forEach((job) => {
         const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
         gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [ ...gacc[bsUrl], test] : [test] };
-      })
+      });
     });
     return gacc;
   }, {});
@@ -274,7 +274,7 @@ async function fetchBugs(store, { rowData, url }) {
   const responses = await Promise.all(Object.keys(testMap).map(url => request(url)));
   const respData = await Promise.all(responses.map(promise => promise.json()));
   const bugSuggestions = respData.reduce((bsAcc, data, idx) => {
-    testMap[responses[idx].url].forEach(test => {
+    testMap[responses[idx].url].forEach((test) => {
       test.bugs = { ...test.bugs, ...extractBugSuggestions(data, test.name) };
       bsAcc = { ...bugSuggestions, [`${test.jobGroup}-${test.name}`]: test.bugs};
     });
@@ -319,16 +319,16 @@ function getMatchingTestBugs(bs, testName) {
 
 function extractBugSuggestions(bugSuggestions, testName) {
   return bugSuggestions.data.allJobs.edges.reduce((jacc, { node: job }) => (
-      { ...jacc, ...job.textLogStep.reduce((tlsAcc, step) => (
-        // Only add the bug suggestions that match the testName for this job
-        { ...tlsAcc, ...step.errors.reduce((sAcc, error) => (
+    { ...jacc, ...job.textLogStep.reduce((tlsAcc, step) => (
+      // Only add the bug suggestions that match the testName for this job
+      { ...tlsAcc, ...step.errors.reduce((sAcc, error) => (
           { ...sAcc, ...getMatchingTestBugs(error.bugSuggestions, testName) }
         ), {}) }
       ), {}) }
-    ), {});
+  ), {});
 }
 
-const testDataMiddleware = store => next => action => {
+const testDataMiddleware = store => next => (action) => {
   if (!action.meta) {
     return next(action);
   }

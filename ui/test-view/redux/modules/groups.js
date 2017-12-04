@@ -124,7 +124,7 @@ export const actions = {
       method: 'GET',
     },
   }),
-  fetchBugs: (rowData) => ({
+  fetchBugs: rowData => ({
     type: types.FETCH_BUGS,
     meta: {
       type: 'api',
@@ -166,7 +166,7 @@ const initialState = {
   rowData: {},
   counts: { failed: 0, intermittent: 0, infra: 0, success: 0, running: 0, pending: 0 },
   hideClassified: { infra: true, intermittent: true },
-  push: { revision: '', author: '', id: '', repository: {}},
+  push: { revision: '', author: '', id: '', repository: {} },
   expanded: {},
   options: {},
   filter: '',

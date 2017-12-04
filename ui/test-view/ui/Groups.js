@@ -37,6 +37,7 @@ export class Groups extends React.Component {
     const searchParams = new URLSearchParams(location.search);
     const revision = searchParams.get('revision');
     const filter = searchParams.get('filter') || '';
+
     store.dispatch(actions.groups.updateTests(revision, filter, options, hideClassified, bugSuggestions));
   }
 
@@ -86,42 +87,42 @@ export class Groups extends React.Component {
               <th key="test">Test</th>
             </tr>
           </thead>
-            {this.props.fetchStatus === 'HasData' ? Object.entries(this.props.rowData).map(([name, rows], tkey) => (
-              <tbody key={tkey}>
-                <tr style={{ backgroundColor: '#f9f9f9' }}>
-                  <td colSpan={4} style={{ textAlign: 'center', fontSize: '1.5rem' }}>
-                    <code style={{ color: '#000', backgroundColor: 'transparent' }}>
-                      {name}
-                    </code>
-                  </td>
-                </tr>
-                {Object.entries(rows).map(([testName, test], rkey) => (
-                  <tr key={rkey}>
-                    <BugCount testName={testName} test={test} jobGroup={name} />
-                    <Test name={testName} test={test} jobGroup={name} />
-                  </tr>
-                ))}
+          {this.props.fetchStatus === 'HasData' ? Object.entries(this.props.rowData).map(([name, rows], tkey) => (
+            <tbody key={tkey}>
+            <tr style={{ backgroundColor: '#f9f9f9' }}>
+              <td colSpan={4} style={{ textAlign: 'center', fontSize: '1.5rem' }}>
+                <code style={{ color: '#000', backgroundColor: 'transparent' }}>
+                  {name}
+                </code>
+              </td>
+            </tr>
+            {Object.entries(rows).map(([testName, test], rkey) => (
+              <tr key={rkey}>
+                <BugCount testName={testName} test={test} jobGroup={name} />
+                <Test name={testName} test={test} jobGroup={name} />
+              </tr>
+            ))}
+            </tbody>
+          )) : (
+            this.props.fetchStatus ? (
+              <tbody>
+              <tr>
+                <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
+                  {this.props.fetchStatus}
+                </td>
+              </tr>
               </tbody>
-            )) : (
-              this.props.fetchStatus ? (
-                  <tbody>
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
-                      {this.props.fetchStatus}
-                    </td>
-                  </tr>
-                  </tbody>
 
-                ) : (
-                  <tbody>
-                    <tr>
-                      <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
-                        <Icon name="spinner" size="2x" spin />
-                      </td>
-                    </tr>
-                  </tbody>
-                )
+            ) : (
+              <tbody>
+              <tr>
+                <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
+                  <Icon name="spinner" size="2x" spin />
+                </td>
+              </tr>
+              </tbody>
             )
+          )
           }
         </Table>
       </div>
