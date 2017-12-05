@@ -55,7 +55,17 @@ def make_request(url, method='GET', headers=None,
     return response
 
 
-def fetch_json(url, params=None):
+def fetch_json(url, params=None, force_gzip_decompression=False):
+    if force_gzip_decompression:
+        # Override the Content-Encoding header to enable automatic decompression in
+        # cases where the header is incorrect (eg for Taskcluster artifacts on S3).
+        # We have to enable streaming mode (which requires using a context manager
+        # to ensure the connection is cleaned up) otherwise the decompression step
+        # will have already been skipped by the time we override the header.
+        with make_request(url, params=params, stream=True) as response:
+            response.raw.headers['Content-Encoding'] = 'gzip'
+            return response.json()
+
     response = make_request(url,
                             params=params,
                             headers={'Accept': 'application/json'})
