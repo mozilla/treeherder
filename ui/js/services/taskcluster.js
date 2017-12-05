@@ -14,7 +14,7 @@ treeherder.factory('thTaskcluster', ['$rootScope', 'localStorageService',
             refreshTimestamps: function (task) {
                 // Take a taskcluster task and make all of the timestamps
                 // new again. This is pretty much lifted verbatim from
-                // mozilla_ci_tools which is used by pulse_actions.
+                // mozilla_ci_tools which was used by pulse_actions.
                 // We need to do this because action tasks are created with
                 // timestamps for expires/created/deadline that are based
                 // on the time of the original decision task creation. We must

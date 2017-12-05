@@ -411,20 +411,6 @@ class JobsViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
         return Response({"message": "All jobs successfully retriggered."})
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def backfill(self, request, project, pk=None):
-        """
-        Issue a "backfill" to the underlying build_system_type by scheduling a
-        pulse message.
-        """
-        try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
-            self._job_action_event(job, 'backfill', request.user.email)
-            return Response({"message": "backfilled job '{0}'".format(job.guid)})
-        except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
-
     @detail_route(methods=['get'])
     def failure_lines(self, request, project, pk=None):
         """

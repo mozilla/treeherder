@@ -2,7 +2,6 @@ import datetime
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
@@ -14,9 +13,7 @@ from treeherder.model.models import (Commit,
                                      Job,
                                      Push,
                                      Repository)
-from treeherder.model.tasks import (publish_job_action,
-                                    publish_push_action,
-                                    publish_push_runnable_job_action)
+from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
@@ -197,13 +194,6 @@ class PushViewSet(viewsets.ViewSet):
         if not pk:  # pragma nocover
             return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
 
-        # Sending 'cancel_all' action to pulse. Right now there is no listener
-        # for this, so we cannot remove 'cancel' action for each job below.
-        publish_push_action.apply_async(
-            args=[project, 'cancel_all', pk, request.user.email],
-            routing_key='publish_to_pulse'
-        )
-
         # Notify the build systems which created these jobs...
         for job in Job.objects.filter(push_id=pk).exclude(state='completed'):
             publish_job_action.apply_async(
@@ -220,68 +210,6 @@ class PushViewSet(viewsets.ViewSet):
             last_modified=datetime.datetime.now())
 
         return Response({"message": "pending and running jobs canceled for push '{0}'".format(pk)})
-
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def trigger_missing_jobs(self, request, project, pk=None):
-        """
-        Trigger jobs that are missing in a push.
-        """
-        if not pk:
-            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
-
-        publish_push_action.apply_async(
-            args=[project, "trigger_missing_jobs", pk, request.user.email],
-            routing_key='publish_to_pulse'
-        )
-
-        return Response({"message": "Missing jobs triggered for push '{0}'".format(pk)})
-
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def trigger_all_talos_jobs(self, request, project, pk=None):
-        """
-        Trigger all the talos jobs in a push.
-        """
-        if not pk:
-            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
-
-        times = int(request.query_params.get('times', None))
-        if not times:
-            raise ParseError(detail="The 'times' parameter is mandatory for this endpoint")
-
-        publish_push_action.apply_async(
-            args=[project, "trigger_all_talos_jobs", pk, request.user.email,
-                  times],
-            routing_key='publish_to_pulse'
-        )
-
-        return Response({"message": "Talos jobs triggered for push '{0}'".format(pk)})
-
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def trigger_runnable_jobs(self, request, project, pk=None):
-        """
-        Add new jobs to a push.
-        """
-        if not pk:
-            return Response({"message": "push id required"},
-                            status=HTTP_400_BAD_REQUEST)
-
-        # Making sure a push with this id exists
-        if not Push.objects.filter(id=pk).exists():
-            return Response({"message": "No push with id: {0}".format(pk)},
-                            status=HTTP_404_NOT_FOUND)
-
-        requested_jobs = request.data.get('requested_jobs', [])
-        decision_task_id = request.data.get('decision_task_id', [])
-        if not requested_jobs:
-            Response({"message": "The list of requested_jobs cannot be empty"},
-                     status=HTTP_400_BAD_REQUEST)
-
-        publish_push_runnable_job_action.apply_async(
-            args=[project, pk, request.user.email, requested_jobs, decision_task_id],
-            routing_key='publish_to_pulse'
-        )
-
-        return Response({"message": "New jobs added for push '{0}'".format(pk)})
 
     @detail_route()
     def status(self, request, project, pk=None):
