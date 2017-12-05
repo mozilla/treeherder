@@ -131,7 +131,9 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     validate = URLValidator()
     try:
         validate(tc_graph_url)
-        tc_graph = fetch_json(tc_graph_url)
+        # `force_gzip_encoding` works around Taskcluster not setting `Content-Encoding: gzip`:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1423215
+        tc_graph = fetch_json(tc_graph_url, force_gzip_decompression=True)
     except ValidationError:
         logger.warning('Failed to validate {}'.format(tc_graph_url))
         return []
