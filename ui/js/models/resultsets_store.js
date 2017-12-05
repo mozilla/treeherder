@@ -1124,8 +1124,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getJobCount = function (jobList) {
-            return _.reduce(
-                jobList,
+            return jobList.reduce(
                 function (memo, job) {
 
                     // don't count superseded

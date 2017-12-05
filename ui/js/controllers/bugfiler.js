@@ -333,12 +333,13 @@ treeherder.controller('BugFilerCtrl', [
                 return;
             }
 
-            var descriptionStrings = _.reduce($scope.checkedLogLinks, function (result, link) {
-                if (link) {
-                    result = result + link + "\n\n";
+            var descriptionStrings = Object.keys($scope.checkedLogLinks).reduce(function(result, key) {
+                if ($scope.checkedLogLinks[key]) {
+                    result += $scope.checkedLogLinks[key] + "\n\n";
                 }
                 return result;
             }, "");
+
             if ($scope.modalComment) {
                 descriptionStrings += $scope.modalComment;
             }
