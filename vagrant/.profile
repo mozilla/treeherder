@@ -13,10 +13,10 @@
 # As such, it's just easier to re-run the commands on each login since they take <30ms.
 sudo sysctl -q -w net.ipv4.conf.all.route_localnet=1
 sudo iptables -t nat --flush
-# Have to calculate the interface name dynamically, due to:
+# Using `e+` wildcard to handle all possible variations of ethernet adapter name, since it can be
+# either `enp0s3` or `eth0`depending on Bento image version:
 # https://github.com/chef/bento/pull/900#issuecomment-344297489
-INTERFACE_NAME="$(sudo ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://')"
-sudo iptables -t nat -A PREROUTING -i "${INTERFACE_NAME}" -p tcp -j DNAT --to 127.0.0.1
+sudo iptables -t nat -A PREROUTING -i e+ -p tcp -j DNAT --to 127.0.0.1
 
 PS1='\[\e[0;31m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \$ '
 echo "Type 'thelp' to see a list of Treeherder-specific helper aliases"
