@@ -3,7 +3,8 @@
 treeherder.provider('thServiceDomain', function () {
     this.$get = function () {
         // The SERVICE_DOMAIN global is set by webpack's DefinePlugin.
-        return (typeof SERVICE_DOMAIN !== 'undefined') ? SERVICE_DOMAIN : "";
+        // return (typeof SERVICE_DOMAIN !== 'undefined') ? SERVICE_DOMAIN : "";
+        return SERVICE_DOMAIN;
     };
 });
 

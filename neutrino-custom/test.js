@@ -1,7 +1,6 @@
 'use strict';
 const basePreset = require('./base');
 const karmaPreset = require('neutrino-preset-karma');
-const UI = require('./base').UI;
 
 module.exports = neutrino => {
     basePreset(neutrino);

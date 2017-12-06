@@ -98,7 +98,7 @@ export const actions = {
     type: types.FETCH_TESTS,
     meta: {
       type: 'api',
-      url: `${SERVICE_DOMAIN}/graphql?query=${getTestDataQuery(revision)}`,
+      url: `/graphql?query=${getTestDataQuery(revision)}`,
       method: 'GET',
       filter,
       options,
@@ -110,7 +110,7 @@ export const actions = {
     type: types.FETCH_OPTIONS,
     meta: {
       type: 'api',
-      url: `${SERVICE_DOMAIN}/graphql?query=${optionsQuery}`,
+      url: `/graphql?query=${optionsQuery}`,
       method: 'GET',
     },
   }),
@@ -118,7 +118,7 @@ export const actions = {
     type: types.FETCH_COUNTS,
     meta: {
       type: 'api',
-      url: `${SERVICE_DOMAIN}/api/project/${repoName}/resultset/${pushId}/status/`,
+      url: `/api/project/${repoName}/resultset/${pushId}/status/`,
       method: 'GET',
     },
   }),
@@ -126,7 +126,7 @@ export const actions = {
     type: types.FETCH_BUGS,
     meta: {
       type: 'api',
-      url: `${SERVICE_DOMAIN}/graphql?query=`,
+      url: `/graphql?query=`,
       method: 'GET',
       rowData,
     },
