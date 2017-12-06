@@ -158,6 +158,7 @@ def test_cycle_job_model_reference_data(test_repository, failure_classifications
     assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
 
 
+@pytest.mark.skip(reason="Perf data cycling temporarily disabled (bug 1346567)")
 def test_cycle_job_with_performance_data(test_repository, failure_classifications,
                                          test_job, mock_log_parser,
                                          test_perf_signature):
@@ -184,6 +185,7 @@ def test_cycle_job_with_performance_data(test_repository, failure_classification
     assert p.job is None
 
 
+@pytest.mark.skip(reason="Perf data cycling temporarily disabled (bug 1346567)")
 @pytest.mark.parametrize("test_repository_expire_data", [False, True])
 def test_cycle_performance_data(test_repository, push_stored,
                                 test_perf_signature,

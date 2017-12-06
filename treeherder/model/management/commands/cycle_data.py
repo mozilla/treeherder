@@ -63,7 +63,10 @@ class Command(BaseCommand):
                                                 options['sleep_time'])
             self.debug("Deleted {} jobs from {}".format(rs_deleted,
                                                         repository.name))
-            if repository.expire_performance_data:
+
+            # TODO: Fix the performance issues and re-enable:
+            # https://bugzilla.mozilla.org/show_bug.cgi?id=1346567#c10
+            if False and repository.expire_performance_data:
                 PerformanceDatum.objects.cycle_data(repository,
                                                     cycle_interval,
                                                     options['chunk_size'],
