@@ -220,8 +220,7 @@ def load_exp(filename):
             return {}
 
 
-def create_generic_job(guid, repository, push_id, project_specific_id,
-                       generic_reference_data):
+def create_generic_job(guid, repository, push_id, generic_reference_data):
     job_time = datetime.datetime.fromtimestamp(0)
     return models.Job.objects.create(
         guid=guid,
@@ -243,7 +242,6 @@ def create_generic_job(guid, repository, push_id, project_specific_id,
         submit_time=job_time,
         start_time=job_time,
         end_time=job_time,
-        project_specific_id=project_specific_id,
         tier=1)
 
 
