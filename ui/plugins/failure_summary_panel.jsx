@@ -105,7 +105,7 @@ const BugListItem = (props) => {
                href={getBugUrl}
                target="_blank"
                title={props.title}>{props.bug.id}
-                <span className={props.bugClassName} dangerouslySetInnerHTML={bugSummaryHTML}></span>
+                <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML}></span>
             </a>
      </li>
     );
