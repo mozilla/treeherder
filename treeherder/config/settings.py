@@ -33,6 +33,7 @@ DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
 # cycling data
 DATA_CYCLE_CHUNK_SIZE = env.int("DATA_CYCLE_CHUNK_SIZE", default=100)
 DATA_CYCLE_SLEEP_TIME = env.int("DATA_CYCLE_SLEEP_TIME", default=0)
+DATA_CYCLE_ITERATIONS = env.int("DATA_CYCLE_ITERATIONS", default=50)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
