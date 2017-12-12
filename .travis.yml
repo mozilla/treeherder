@@ -103,8 +103,10 @@ matrix:
       install:
         - nvm install 8
         - source ./bin/travis-setup.sh services python_env geckodriver js_env
-      script:
+      before_script:
+        # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
         - yarn build
+      script:
         - pytest tests/selenium/ --driver Firefox
 
 notifications:
