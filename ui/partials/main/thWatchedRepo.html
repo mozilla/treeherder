@@ -18,7 +18,7 @@
           ng-class="{'active': watchedRepo===repoName}"
           ng-click="repoModel.unwatchRepo(watchedRepo)"
           ng-hide="watchedRepo===repoName"
-          title="unwatch {{::watchedRepo}}">
+          title="Unwatch {{::watchedRepo}}">
     <span class="fa fa-times"></span>
   </button>
   <th-watched-repo-info-drop-down name="{{::watchedRepo}}"
