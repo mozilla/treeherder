@@ -133,6 +133,8 @@ login {
 }
 
 .watched-repo-info-btn {
+    padding-left: 6px;
+    padding-right: 9px;
     border-right: 0;
 }
 
