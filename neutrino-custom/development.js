@@ -3,14 +3,10 @@ const webpack = require('webpack');
 const basePreset = require('./base');
 const UI = require('./base').UI;
 
-// The service domain is used to determine whether login is available in the auth component.
-let SERVICE_DOMAIN = process.env.SERVICE_DOMAIN;
-
 // Set the service domain to production if no environment value was provided, since
 // webpack-dev-server doesn't serve data from the vagrant machine.
-if (typeof SERVICE_DOMAIN === 'undefined') {
-    SERVICE_DOMAIN = 'https://treeherder.mozilla.org';
-}
+const SERVICE_DOMAIN = (typeof process.env.SERVICE_DOMAIN !== 'undefined')
+  ? process.env.SERVICE_DOMAIN : 'https://treeherder.mozilla.org';
 
 module.exports = neutrino => {
     basePreset(neutrino);

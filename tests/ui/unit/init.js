@@ -36,6 +36,7 @@ window.perf = jsContext('./perf.js');
 window.failureViewerApp = jsContext('./failureviewer.js');
 window.logViewerApp = jsContext('./logviewer.js');
 window.userguideApp = jsContext('./userguide.js');
+window.SERVICE_DOMAIN = process.env.SERVICE_DOMAIN || '';
 jsContext('./values.js');
 jsContext('./providers.js');
 jsContext('./filters.js');

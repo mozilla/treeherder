@@ -1,6 +1,5 @@
 'use strict';
 
-const webpack = require('webpack');
 const productionPreset = require('./production');
 
 // Taskcluster login POSTs in treeherder require that the UI is served from the same
@@ -40,12 +39,5 @@ module.exports = neutrino => {
         .loader('babel', ({ options }) => {
             options.env.development.plugins.shift();
             return { options };
-        });
-
-    // Finally, the service domain should be set:
-    neutrino.config
-        .plugin('define')
-        .use(webpack.DefinePlugin, {
-            SERVICE_DOMAIN: JSON.stringify(process.env.SERVICE_DOMAIN)
         });
 };

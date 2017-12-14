@@ -55,6 +55,11 @@ label.dropdown-item {
     border-left: 0;
 }
 
+#th-logo img {
+    margin-top: -8px;
+    max-height: 18px;
+}
+
 /*
  * Right hand upper navbar
  */

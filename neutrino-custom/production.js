@@ -7,9 +7,6 @@ const CWD = require('./base').CWD;
 const UI = require('./base').UI;
 const DIST = require('./base').DIST;
 
-// The service domain is used to determine whether login is available in the auth component.
-let SERVICE_DOMAIN = process.env.SERVICE_DOMAIN;
-
 module.exports = neutrino => {
     basePreset(neutrino);
 
@@ -19,10 +16,11 @@ module.exports = neutrino => {
         }
     ));
 
-    // Define the service domain globally for the thServiceDomain provider:
+    // Define the service domain globally:
     neutrino.config.plugin('define')
         .use(webpack.DefinePlugin, {
-            SERVICE_DOMAIN: JSON.stringify(SERVICE_DOMAIN)
+            SERVICE_DOMAIN: JSON.stringify(
+              typeof process.env.SERVICE_DOMAIN !== 'undefined' ? process.env.SERVICE_DOMAIN : '')
         });
 
 
@@ -35,7 +33,7 @@ module.exports = neutrino => {
             from: '**'
         }], {
             ignore: ['*.js', '*.jsx', '*.css', '*.html', '*.tmpl',
-                '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2']
+                '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2', '*.psd']
         });
 
     // Likewise for this clean plugin:
