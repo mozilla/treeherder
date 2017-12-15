@@ -313,6 +313,14 @@ input[type="checkbox"] {
   color: gray;
 }
 
+.lightorange {
+  color: #eba870;
+}
+
+.darkorange {
+  color: #dd6602;
+}
+
 /*
  * Text
  */
