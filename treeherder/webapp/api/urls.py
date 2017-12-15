@@ -9,6 +9,7 @@ from treeherder.webapp.api import (auth,
                                    bugzilla,
                                    classifiedfailure,
                                    failureline,
+                                   intermittents_view,
                                    job_log_url,
                                    jobs,
                                    note,
@@ -133,4 +134,8 @@ urlpatterns = [
         include(project_bound_router.urls)),
     url(r'^',
         include(default_router.urls)),
+    url(r'^failures/$', intermittents_view.Failures.as_view()),
+    url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view()),
+    url(r'^failurecount/$', intermittents_view.FailureCount.as_view()),
+
 ]
