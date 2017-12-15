@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -243,3 +245,40 @@ class PushSerializer(serializers.ModelSerializer):
         fields = ['id', 'revision', 'author',
                   'revisions', 'revision_count', 'push_timestamp',
                   'repository_id']
+
+
+class FailuresSerializer(serializers.ModelSerializer):
+    bug_count = serializers.IntegerField()
+
+    class Meta:
+        model = models.BugJobMap
+        fields = ('bug_id', 'bug_count')
+
+
+class TestSuiteField(serializers.Field):
+    """Removes all characters before /"""
+    def to_representation(self, field_value):
+        return re.sub(r'.+/', '', field_value)
+
+
+class FailuresByBugSerializer(serializers.ModelSerializer):
+    test_suite = TestSuiteField(source="job__signature__job_type_name")
+    platform = serializers.CharField(source="job__machine_platform__platform")
+    revision = serializers.CharField(source="job__push__revision")
+    tree = serializers.CharField(source="job__repository__name")
+    push_time = serializers.CharField(source="job__push__time")
+    build_type = serializers.CharField()
+
+    class Meta:
+        model = models.BugJobMap
+        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id', 'bug_id')
+
+
+class FailureCountSerializer(serializers.ModelSerializer):
+    test_runs = serializers.IntegerField()
+    date = serializers.DateField(format="%Y-%m-%d")
+    failure_count = serializers.IntegerField()
+
+    class Meta:
+        model = models.Push
+        fields = ('date', 'test_runs', 'failure_count')
