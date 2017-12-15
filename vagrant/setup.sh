@@ -20,7 +20,7 @@ GECKODRIVER_VERSION="0.19.1"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="9.0.1"
 # Keep in sync with the version pre-installed on Travis.
-SHELLCHECK_VERSION="0.4.6"
+SHELLCHECK_VERSION="0.4.7"
 
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
