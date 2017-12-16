@@ -28,7 +28,7 @@ def perf_push(test_repository):
 @pytest.fixture
 def perf_job(perf_push, failure_classifications, generic_reference_data):
     return create_generic_job('myfunguid', perf_push.repository,
-                              perf_push.id, 1, generic_reference_data)
+                              perf_push.id, generic_reference_data)
 
 
 def _generate_perf_data_range(test_repository,
@@ -52,7 +52,7 @@ def _generate_perf_data_range(test_repository,
             author='foo@bar.com',
             time=push_time)
         job = create_generic_job('myguid%s' % i, test_repository,
-                                 push.id, i, generic_reference_data)
+                                 push.id, generic_reference_data)
         datum = {
             'job_guid': 'fake_job_guid',
             'name': 'test',
@@ -244,7 +244,7 @@ def test_load_generic_data(test_repository,
         author='foo@bar.com',
         time=later_timestamp)
     later_job = create_generic_job('lateguid', test_repository,
-                                   later_push.id, 2, generic_reference_data)
+                                   later_push.id, generic_reference_data)
     store_performance_artifact(later_job, submit_datum)
     signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'],

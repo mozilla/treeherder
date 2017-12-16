@@ -39,8 +39,6 @@ class JobFilter(django_filters.FilterSet):
     as the previous jobs API
     """
     id = django_filters.NumberFilter(name='id')
-    project_specific_id = django_filters.NumberFilter(
-        name='project_specific_id')
     id__in = NumberInFilter(name='id', lookup_expr='in')
     tier__in = NumberInFilter(name='tier', lookup_expr='in')
     push_id__in = NumberInFilter(name='push_id', lookup_expr='in')
@@ -86,7 +84,6 @@ class JobFilter(django_filters.FilterSet):
             'failure_classification_id': ['exact'],
             'job_type_id': ['exact'],
             'job_group_id': ['exact'],
-            'project_specific_id': ['exact'],
             'reason': ['exact'],
             'state': ['exact'],
             'result': ['exact'],
