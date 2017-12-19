@@ -8,14 +8,9 @@
     </li>
   </ul>
   <ul>
-    <li ng-repeat="line in job_details"
-        ng-if="line.content_type == 'link' && line.value.substr(-8) == '.sps.zip'">
-      <a href="https://people.mozilla.org/~bgirard/cleopatra/?zippedProfile={{line.url}}"
-         target="_blank">Open {{line.value}} in Cleopatra</a>
-    </li>
     <li>
-      <a href="perf.html#/comparechooser?newProject={{repoName}}&newRevision={{jobRevision}}">
-         Compare result against another revision</a>
+      <a href="perf.html#/comparechooser?newProject={{repoName}}&newRevision={{jobRevision}}"
+         target="_blank">Compare result against another revision</a>
     </li>
   </ul>
 
