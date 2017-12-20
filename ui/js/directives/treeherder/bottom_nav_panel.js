@@ -30,14 +30,6 @@ treeherder.directive('thPinnedJob', [
         };
     }]);
 
-treeherder.directive('thRelatedBugSaved', function () {
-
-    return {
-        restrict: "E",
-        templateUrl: 'partials/main/thRelatedBugSaved.html'
-    };
-});
-
 treeherder.directive('thRelatedBugQueued', function () {
 
     return {
