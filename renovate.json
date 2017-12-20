@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "config:js-app",
+    ":maintainLockFilesWeekly",
+    ":prNotPending",
+    ":unpublishSafe"
+  ],
+  "group": {
+    "commitMessage": "Update {{groupName}} packages",
+    "prTitle": "Update {{groupName}} packages"
+  },
+  "ignoreDeps": [
+    "deepmerge",
+    "neutrino",
+    "neutrino-lint-base",
+    "neutrino-preset-karma",
+    "neutrino-preset-react",
+    "raw-loader"
+  ],
+  "reviewers": [
+    "@mozilla/treeherder-admins"
+  ],
+  "semanticCommits": false
+}
