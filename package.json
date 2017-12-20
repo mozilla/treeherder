@@ -14,7 +14,7 @@
     "ajv": "5.2.3",
     "angular": "1.5.11",
     "angular-cookies": "1.5.11",
-    "angular-local-storage": "0.5.2",
+    "angular-local-storage": "0.7.1",
     "angular-marked": "1.2.2",
     "angular-resource": "1.5.11",
     "angular-route": "1.5.11",
