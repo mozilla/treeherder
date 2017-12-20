@@ -4697,9 +4697,9 @@ neutrino@4.3.1:
     webpack-dev-server "^2.4.1"
     yargs "^6.6.0"
 
-ngreact@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/ngreact/-/ngreact-0.5.0.tgz#c55b429b60ba7aff8c90f34d2887597a8bbf0294"
+ngreact@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/ngreact/-/ngreact-0.5.1.tgz#2dcccc1541771796689d13e51bb8d5010af41c57"
 
 no-case@^2.2.0:
   version "2.3.2"
