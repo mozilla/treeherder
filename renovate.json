@@ -5,10 +5,6 @@
     ":prNotPending",
     ":unpublishSafe"
   ],
-  "group": {
-    "commitMessage": "Update {{groupName}} packages",
-    "prTitle": "Update {{groupName}} packages"
-  },
   "ignoreDeps": [
     "deepmerge",
     "neutrino",
