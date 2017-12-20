@@ -1,8 +1,6 @@
 'use strict';
-const PropTypes = require('prop-types');
+import PropTypes from 'prop-types';
 
-// TODO: This is the thRelatedBugSaved directive that's been converted to a component;
-// it should be moved into its own file at some point
 const RelatedBugSaved = (props) => {
 
     const deleteBugEvent = () => {
@@ -97,14 +95,12 @@ function AnnotationsTable(props) {
 };
 
 
-class AnnotationsPanel extends React.Component {
+export default class AnnotationsPanel extends React.Component {
     constructor(props) {
         super(props);
     }
 
     render() {
-        // TODO: move this to ui/js/constants.js when we start using import;
-        // it's also used in job_details_pane.jsx
         const dateFilter = this.props.$injector.get('$filter')('date');
 
         return (
@@ -138,15 +134,6 @@ AnnotationsPanel.propTypes = {
     bugs: PropTypes.array,
     deleteBug: PropTypes.func
 };
-
-module.exports = {
-    AnnotationsPanel,
-    AnnotationsTable,
-    TableRow,
-    RelatedBugSaved,
-    RelatedBug
-};
-
 
 treeherder.directive('annotationsPanel', ['reactDirective', '$injector', (reactDirective, $injector) =>
 reactDirective(AnnotationsPanel, undefined, {}, { $injector })]);
