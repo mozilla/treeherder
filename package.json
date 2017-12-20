@@ -61,7 +61,7 @@
     "enzyme-adapter-react-15": "1.0.5",
     "jasmine-core": "2.8.0",
     "karma-firefox-launcher": "1.1.0",
-    "karma-jasmine": "1.1.0",
+    "karma-jasmine": "1.1.1",
     "neutrino-preset-karma": "4.2.1",
     "react-test-renderer": "15.6.2"
   },
