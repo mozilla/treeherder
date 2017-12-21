@@ -265,7 +265,7 @@
         "dvcs_type": "hg",
         "name": "birch",
         "url": "https://hg.mozilla.org/projects/birch",
-        "active_status": "onhold",
+        "active_status": "active",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
