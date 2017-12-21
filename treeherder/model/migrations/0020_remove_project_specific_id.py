@@ -11,13 +11,14 @@ class Migration(migrations.Migration):
         ('model', '0019_remove_job_duration'),
     ]
     operations = [
+        # Django incorrectly generated:
+        #   CREATE INDEX `job_repository_id_20bb4d74` ON `job` (`repository_id`);
+        #   ALTER TABLE `job` DROP INDEX `job_repository_id_project_specific_id_7883a5e8_uniq`;
+        # We couldn't use manual SQL statements since the index name varies between
+        # environments and DROP INDEX doesn't support IF EXISTS. So we'll have to drop manually.
         migrations.RunSQL(
-            sql="""
-ALTER TABLE `job` DROP INDEX `job_repository_id_project_specific_id_7883a5e8_uniq`;
-            """,
-            reverse_sql="""
-CREATE UNIQUE INDEX `job_repository_id_project_specific_id_7883a5e8_uni` ON `job` (`repository_id`,`project_specific_id`);
-            """,
+            migrations.RunSQL.noop,
+            reverse_sql=migrations.RunSQL.noop,
             state_operations=[
                 migrations.AlterUniqueTogether(
                     name='job',
