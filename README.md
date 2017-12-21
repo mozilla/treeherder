@@ -8,7 +8,7 @@ treeherder
 
 
 #### Description
-[Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. The Treeherder service manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
+[Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checks. It allows users to see the results of automatic builds and their respective tests. The Treeherder service manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
 
 
 #### Instances
@@ -18,7 +18,7 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 #### Installation
 The steps to run Treeherder are provided [here](https://treeherder.readthedocs.io/installation.html).
 
-The steps to run only the UI are provided [here](https://treeherder.readthedocs.io/ui/installation.html).
+The steps to run only the UI is provided [here](https://treeherder.readthedocs.io/ui/installation.html).
 
 
 #### Links
