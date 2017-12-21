@@ -1,9 +1,5 @@
 "use strict";
 
-// Importing from browser rather than `hawk` to work around:
-// https://github.com/hueniverse/hawk/issues/223
-import Hawk from 'hawk/lib/browser';
-
 /**
  * This component handles logging in to Taskcluster Authentication
  *
@@ -148,6 +144,7 @@ treeherder.component("loginCallback", {
     `,
     controller: ['localStorageService', '$location', '$window', '$http', '$scope',
         function (localStorageService, $location, $window, $http, $scope) {
+            const hawk = require('hawk');
             const host = $location.host();
             const port = $location.port();
             const loginUrl = `${$location.protocol()}://${host}:${port}/api/auth/login/`;
@@ -166,15 +163,15 @@ treeherder.component("loginCallback", {
             const results = $location.search();
             if (results.certificate) {
                 results.certificate = JSON.parse(results.certificate);
-                payload.ext = Hawk.utils.base64urlEncode(JSON.stringify({ certificate: results.certificate }));
+                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({ certificate: results.certificate }));
             }
 
-            const { header } = Hawk.client.header(loginUrl, 'GET', payload);
+            const header = hawk.client.header(loginUrl, 'GET', payload);
 
             // send a request from client side to TH server signed with TC
             // creds from login.taskcluster.net
             $http.get(loginUrl,
-                      { headers: { tcauth: header } })
+                      { headers: { tcauth: header.field } })
                 .then(function (resp) {
                     var user = resp.data;
                     user.loggedin = true;

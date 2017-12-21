@@ -26,7 +26,7 @@
     "deepmerge": "1.5.2",
     "eslint-plugin-react": "7.5.1",
     "font-awesome": "4.7.0",
-    "hawk": "7.0.5",
+    "hawk": "6.0.2",
     "history": "4.7.2",
     "jquery": "3.2.1",
     "jquery.scrollto": "2.1.2",
