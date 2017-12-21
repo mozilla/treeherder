@@ -294,11 +294,11 @@ async_timeout==1.4.0; python_version >= '3' \
     --hash=sha256:983891535b1eca6ba82b9df671c8abff53c804fce3fa630058da5bbbda500340
 
 graphene-django==1.3 \
-    --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc
+    --hash=sha256:6679eaa73768a760aef76e1860a4ca3273db4213f0505dc13cdfa44278e027fc  # pyup: <2 # Bug 1412792
 
 # Used by graphene-django
 graphql-core==1.1 \
-    --hash=sha256:63bb8593aeeadb0a53e14207b910027fe51158d017927fad87326dac806185ee
+    --hash=sha256:63bb8593aeeadb0a53e14207b910027fe51158d017927fad87326dac806185ee  # pyup: <2 # Bug 1412792
 graphql-relay==0.4.5 --hash=sha256:2716b7245d97091af21abf096fabafac576905096d21ba7118fba722596f65db
 typing==3.6.2 \
     --hash=sha256:349b1f9c109c84b53ac79ac1d822eaa68fc91d63b321bd9392df15098f746f53 \
@@ -313,7 +313,7 @@ iso8601==0.1.12 \
     --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd \
     --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82
 graphene==1.4.1 \
-    --hash=sha256:36134e026ec987514b240b57e3b6a995d6aed0fc5dece0567e77d5aed0ad0ece
+    --hash=sha256:36134e026ec987514b240b57e3b6a995d6aed0fc5dece0567e77d5aed0ad0ece  # pyup: <2 # Bug 1412792
 
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
