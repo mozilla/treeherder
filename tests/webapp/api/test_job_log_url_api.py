@@ -7,9 +7,9 @@ from treeherder.model.models import JobLog
 def test_get_job_log_urls(test_repository, push_stored,
                           failure_classifications,
                           generic_reference_data, webapp):
-    job1 = create_generic_job('1234', test_repository, 1, 1,
+    job1 = create_generic_job('1234', test_repository, 1,
                               generic_reference_data)
-    job2 = create_generic_job('5678', test_repository, 1, 2,
+    job2 = create_generic_job('5678', test_repository, 1,
                               generic_reference_data)
 
     JobLog.objects.create(job=job1,

@@ -45,7 +45,7 @@ def test_job_details(test_repository, failure_classifications,
             push_id = 2
             i = 1
         print (i, repository)
-        job = create_generic_job(job_guid, repository, push_id, i,
+        job = create_generic_job(job_guid, repository, push_id,
                                  generic_reference_data)
         JobDetail.objects.create(
             job=job, **params)

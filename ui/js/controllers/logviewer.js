@@ -107,60 +107,53 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.init = () => {
             $scope.logProperties = [];
 
-            ThJobModel.get_list($scope.repoName, {
-                project_specific_id: $scope.job_id
-            }).then(function (jobList) {
-                if (jobList.length > 0) {
-                    $scope.job_id = jobList[0].id;
+            ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
+                // set the title of the browser window/tab
+                $scope.logViewerTitle = job.get_title();
+
+                if (job.logs && job.logs.length) {
+                    $scope.rawLogURL = job.logs[0].url;
                 }
-                ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
-                    // set the title of the browser window/tab
-                    $scope.logViewerTitle = job.get_title();
 
-                    if (job.logs && job.logs.length) {
-                        $scope.rawLogURL = job.logs[0].url;
+                // set the result value and shading color class
+                $scope.result = { label: 'Result', value: job.result };
+                $scope.resultStatusShading = $scope.getShadingClass(job.result);
+
+                // other properties, in order of appearance
+                $scope.logProperties = [
+                    { label: 'Job', value: $scope.logViewerTitle },
+                    { label: 'Machine', value: job.machine_name },
+                    { label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat) },
+                    { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) }
+                ];
+
+                // Test to disable successful steps checkbox on taskcluster jobs
+                $scope.isTaskClusterLog = (job.build_system_type === 'taskcluster');
+                if (job.taskcluster_metadata) {
+                    $scope.taskId = job.taskcluster_metadata.task_id;
+                }
+
+                // Test to expose the reftest button in the logviewer actionbar
+                $scope.isReftest = () => {
+                    if (job.job_group_name) {
+                        return thReftestStatus(job);
                     }
+                };
 
-                    // set the result value and shading color class
-                    $scope.result = { label: 'Result', value: job.result };
-                    $scope.resultStatusShading = $scope.getShadingClass(job.result);
+                // get the revision and linkify it
+                ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
+                    const revision = data.data.revision;
 
-                    // other properties, in order of appearance
-                    $scope.logProperties = [
-                        { label: 'Job', value: $scope.logViewerTitle },
-                        { label: 'Machine', value: job.machine_name },
-                        { label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat) },
-                        { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) }
-                    ];
-
-                    // Test to disable successful steps checkbox on taskcluster jobs
-                    $scope.isTaskClusterLog = (job.build_system_type === 'taskcluster');
-                    if (job.taskcluster_metadata) {
-                        $scope.taskId = job.taskcluster_metadata.task_id;
-                    }
-
-                    // Test to expose the reftest button in the logviewer actionbar
-                    $scope.isReftest = () => {
-                        if (job.job_group_name) {
-                            return thReftestStatus(job);
-                        }
-                    };
-
-                    // get the revision and linkify it
-                    ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
-                        const revision = data.data.revision;
-
-                        $scope.logProperties.push({ label: 'Revision', value: revision });
-                    });
-
-                    ThJobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
-                        $scope.job_details = jobDetails;
-                    });
-                }, () => {
-                    $scope.loading = false;
-                    $scope.jobExists = false;
-                    thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
+                    $scope.logProperties.push({ label: 'Revision', value: revision });
                 });
+
+                ThJobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
+                    $scope.job_details = jobDetails;
+                });
+            }, () => {
+                $scope.loading = false;
+                $scope.jobExists = false;
+                thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
             });
         };
 

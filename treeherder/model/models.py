@@ -448,7 +448,7 @@ class Job(models.Model):
 
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     guid = models.CharField(max_length=50, unique=True)
-    project_specific_id = models.PositiveIntegerField(null=True)
+    project_specific_id = models.PositiveIntegerField(null=True)  # unused, see bug 1328985
     autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
 
     coalesced_to_guid = models.CharField(max_length=50, null=True,
@@ -479,7 +479,6 @@ class Job(models.Model):
 
     class Meta:
         db_table = 'job'
-        unique_together = ('repository', 'project_specific_id')
         index_together = [
             # these speed up the various permutations of the "similar jobs"
             # queries
@@ -496,8 +495,7 @@ class Job(models.Model):
         ]
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format(self.id, self.repository, self.guid,
-                                        self.project_specific_id)
+        return "{0} {1} {2}".format(self.id, self.repository, self.guid)
 
     def get_platform_option(self, option_collection_map=None):
         if not hasattr(self, 'platform_option'):
