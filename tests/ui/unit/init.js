@@ -24,7 +24,7 @@ require('angular1-ui-bootstrap4');
 require('angular-marked');
 require('../../../ui/vendor/resizer.js');
 
-const Adapter = require('enzyme-adapter-react-15');
+const Adapter = require('enzyme-adapter-react-16');
 const Enzyme = require('enzyme');
 
 Enzyme.configure({ adapter: new Adapter() });
