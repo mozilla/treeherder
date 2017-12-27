@@ -6,6 +6,16 @@
   version "8.5.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.5.2.tgz#83b8103fa9a2c2e83d78f701a9aa7c9539739aa5"
 
+"@uirouter/angularjs@1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@uirouter/angularjs/-/angularjs-1.0.12.tgz#b2275b7e33e0024a485f96568a18d350539880f3"
+  dependencies:
+    "@uirouter/core" "5.0.13"
+
+"@uirouter/core@5.0.13":
+  version "5.0.13"
+  resolved "https://registry.yarnpkg.com/@uirouter/core/-/core-5.0.13.tgz#e1b31626c393cbdd82651755ff1ce3fc55163fd0"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -136,12 +146,6 @@ angular-toarrayfilter@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/angular-toarrayfilter/-/angular-toarrayfilter-1.0.3.tgz#0741279050b67e67746d918ab6b74befdf051652"
 
-angular-ui-router@0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/angular-ui-router/-/angular-ui-router-0.4.3.tgz#6c29546fe50b8d2f74614dcb8660d6fc40d6e167"
-  dependencies:
-    angular "^1.0.8"
-
 angular1-ui-bootstrap4@2.4.22:
   version "2.4.22"
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
@@ -149,10 +153,6 @@ angular1-ui-bootstrap4@2.4.22:
 angular@1.5.11:
   version "1.5.11"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.5.11.tgz#8c5ba7386f15965c9acf3429f6881553aada30d6"
-
-angular@^1.0.8:
-  version "1.6.8"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.8.tgz#5be378a58be91a5489e78b59c4518cd9fd273ffb"
 
 ansi-escapes@^1.1.0:
   version "1.4.0"

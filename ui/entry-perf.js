@@ -17,7 +17,10 @@ require('metrics-graphics/dist/metricsgraphics.css');
 // Vendor JS
 require('angular');
 require('angular-resource');
-require('angular-ui-router');
+require('@uirouter/angularjs');
+// Enable the $stateChange event polyfill so $stateChangeSuccess still works:
+// https://ui-router.github.io/guide/ng1/migrate-to-1_0#state-change-events
+require('@uirouter/angularjs/release/stateEvents.js');
 require('angular-sanitize');
 require('angular-local-storage');
 require('mousetrap');
