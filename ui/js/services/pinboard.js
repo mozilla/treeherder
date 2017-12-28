@@ -24,15 +24,15 @@ treeherder.factory('thPinboard', [
 
                 classification.job_id = job.id;
                 classification.create()
-                    .success(function () {
+                    .then(() => {
                         thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
-                    }).error(function (data) {
+                    }).catch((response) => {
                         var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
-                            ThModelErrors.format(data, message),
+                            ThModelErrors.format(response, message),
                             "danger"
                         );
-                        $log.debug("classification failed", data);
+                        $log.debug("classification failed", response);
                     });
             }
         };
@@ -45,12 +45,12 @@ treeherder.factory('thPinboard', [
                     type: 'annotation'
                 });
                 bjm.create()
-                    .success(function () {
+                    .then(() => {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
-                    }).error(function (data) {
+                    }).catch((response) => {
                         var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
-                            ThModelErrors.format(data, message),
+                            ThModelErrors.format(response, message),
                             "danger"
                         );
                     });

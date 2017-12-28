@@ -103,7 +103,7 @@ treeherder.factory('ThRepositoryModel', [
 
                 // return the promise of getting the repos
                 return get_list()
-                    .success(function (data) {
+                    .then(({ data }) => {
                         // FIXME: only supporting github + hg for now for pushlog
                         // + revision info (we also assume dvcs_type git===github)
                         function Repo(props) {
