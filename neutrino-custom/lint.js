@@ -111,11 +111,24 @@ module.exports = neutrino => {
                     }],
                     'yoda': 'error'
                 },
-                globals: ['angular', '$', '_', 'treeherder', 'perf',
-                    'treeherderApp', 'failureViewerApp', 'logViewerApp',
-                    'userguideApp', 'Mousetrap', 'jQuery', 'React',
-                    'hawk', 'jsonSchemaDefaults', 'SERVICE_DOMAIN', 'numeral',
-                    'metrics-graphics'
+                globals: [
+                    '$',
+                    '_',
+                    'angular',
+                    'failureViewerApp',
+                    'hawk',
+                    'jQuery',
+                    'jsonSchemaDefaults',
+                    'logViewerApp',
+                    'metrics-graphics',
+                    'Mousetrap',
+                    'numeral',
+                    'perf',
+                    'React',
+                    'SERVICE_DOMAIN',
+                    'treeherder',
+                    'treeherderApp',
+                    'userguideApp',
                 ]
             }
         }));
