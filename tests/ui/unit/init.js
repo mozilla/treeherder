@@ -14,7 +14,6 @@ require('angular-mocks');
 require('angular-resource');
 require('angular-route');
 require('angular-sanitize');
-require('angular-cookies');
 require('angular-local-storage');
 require('angular-toarrayfilter');
 require('mousetrap');

@@ -34,7 +34,6 @@ module.exports = neutrino => {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
             'angular',
-            'angular-cookies',
             'angular-local-storage',
             'angular-resource',
             'angular-route',

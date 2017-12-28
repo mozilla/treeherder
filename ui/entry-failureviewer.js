@@ -16,7 +16,6 @@ require('./css/failureviewer.css');
 require('angular');
 require('angular-route');
 require('angular-resource');
-require('angular-cookies');
 require('angular-sanitize');
 require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');

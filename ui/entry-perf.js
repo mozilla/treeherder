@@ -17,7 +17,6 @@ require('metrics-graphics/dist/metricsgraphics.css');
 // Vendor JS
 require('angular');
 require('angular-resource');
-require('angular-cookies');
 require('angular-ui-router');
 require('angular-sanitize');
 require('angular-local-storage');
