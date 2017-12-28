@@ -2,10 +2,14 @@
 
 var logViewerApp = angular.module('logviewer', ['treeherder']);
 
-logViewerApp.config(['$compileProvider', '$resourceProvider',
-    function ($compileProvider, $resourceProvider) {
+logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider',
+    function ($compileProvider, $locationProvider, $resourceProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
+
+        // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
+        // https://docs.angularjs.org/guide/migration#commit-aa077e8
+        $locationProvider.hashPrefix('');
 
         // Don't strip trailing slashes from calculated URLs
         $resourceProvider.defaults.stripTrailingSlashes = false;

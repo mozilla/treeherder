@@ -5,12 +5,16 @@ var treeherderApp = angular.module('treeherder.app',
         'mc.resizer', 'angular-toArrayFilter', 'react',
         'hc.marked']);
 
-treeherderApp.config(['$compileProvider', '$routeProvider', '$httpProvider',
+treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
     '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
-    function ($compileProvider, $routeProvider, $httpProvider, $logProvider,
+    function ($compileProvider, $locationProvider, $routeProvider, $httpProvider, $logProvider,
              $resourceProvider, localStorageServiceProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
+
+        // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
+        // https://docs.angularjs.org/guide/migration#commit-aa077e8
+        $locationProvider.hashPrefix('');
 
         // Don't strip trailing slashes from calculated URLs
         $resourceProvider.defaults.stripTrailingSlashes = false;
