@@ -33,11 +33,28 @@ module.exports = neutrino => {
     if (process.env.NODE_ENV !== 'test') {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
-            'angular', 'angular-cookies', 'angular-local-storage', 'angular-resource',
-            'angular-route', 'angular-sanitize', 'angular-toarrayfilter', 'angular1-ui-bootstrap4',
-            'angular-ui-router', 'bootstrap/dist/js/bootstrap', 'hawk', 'jquery', 'jquery.scrollto',
-            'js-yaml', 'mousetrap', 'prop-types', 'react', 'react-dom', 'taskcluster-client',
-            'numeral', 'metrics-graphics'];
+            'angular',
+            'angular-cookies',
+            'angular-local-storage',
+            'angular-resource',
+            'angular-route',
+            'angular-sanitize',
+            'angular-toarrayfilter',
+            'angular-ui-router',
+            'angular1-ui-bootstrap4',
+            'bootstrap/dist/js/bootstrap',
+            'hawk',
+            'jquery',
+            'jquery.scrollto',
+            'js-yaml',
+            'metrics-graphics',
+            'mousetrap',
+            'numeral',
+            'prop-types',
+            'react',
+            'react-dom',
+            'taskcluster-client',
+        ];
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
         );
