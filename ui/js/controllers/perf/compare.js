@@ -11,7 +11,7 @@ perf.controller('CompareChooserCtrl', [
                                 thPerformanceBranches,
                                 localStorageService,
                                 compareBaseLineDefaultTimeRange) {
-        ThRepositoryModel.get_list().success(function (projects) {
+        ThRepositoryModel.get_list().then(({ data: projects }) => {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];

@@ -47,10 +47,10 @@ treeherder.factory('thBuildApi', [
                     },
                     withCredentials: true
                 })
-                    .success(function (data, status) {
+                    .then(({ status }) => {
                         notify(status, "cancel");
                     })
-                    .error(function (data, status) {
+                    .catch(({ status }) => {
                         notify(status, "cancel");
                     });
             },
@@ -65,10 +65,10 @@ treeherder.factory('thBuildApi', [
                     withCredentials: true
 
                 })
-                    .success(function (data, status) {
+                    .then(({ status }) => {
                         notify(status, "cancel all jobs");
                     })
-                    .error(function (data, status) {
+                    .catch(({ status }) => {
                         notify(status, "cancel all jobs");
                     });
             }
