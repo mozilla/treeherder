@@ -1,10 +1,14 @@
 "use strict";
 
 // configure the router here, after we have defined all the controllers etc
-perf.config(['$compileProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
-    function ($compileProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
+perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
+    function ($compileProvider, $locationProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
         // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
+
+        // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
+        // https://docs.angularjs.org/guide/migration#commit-aa077e8
+        $locationProvider.hashPrefix('');
 
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
