@@ -3,13 +3,13 @@
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
     'ThResultSetModel', 'ThJobModel', 'ThJobDetailModel', 'thEvents',
-    'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
+    'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify', 'ThModelErrors',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
         ThJobModel, ThJobDetailModel, thEvents, thResultStatusObject, thAggregateIds,
-        ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
+        ThLog, thNotify, ThModelErrors, thJobFilters, thOptionOrder, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 
         var $log = new ThLog("ThResultSetStore");
@@ -1014,9 +1014,10 @@ treeherder.factory('ThResultSetStore', [
 
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendResultSets(repoName, resultsets),
-                     (data) => {
-                         thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
-                         $log.error(data);
+                     (response) => {
+                         thNotify.send(
+                            ThModelErrors.format(response, "Error retrieving push data"),
+                            "danger", { sticky: true });
                          appendResultSets(repoName, { results: [] });
                      })
                 .then(() => {

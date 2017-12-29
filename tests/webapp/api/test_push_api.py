@@ -1,4 +1,3 @@
-import copy
 import datetime
 
 import pytest
@@ -75,28 +74,17 @@ def test_push_list_empty_push_still_show(webapp, sample_push, test_repository):
     assert len(resp.json['results']) == 10
 
 
-def test_push_list_single_short_revision(webapp, eleven_jobs_stored, test_repository):
+def test_push_list_invalid_length_revision(webapp, sample_push, test_repository):
     """
     test retrieving a push list, filtered by single short revision
     """
-
     resp = webapp.get(
         reverse("push-list", kwargs={"project": test_repository.name}),
-        {"revision": "45f8637cb9f7"}
+        {"revision": "45f8637cb9f7"},
+        expect_errors=True
     )
-    assert resp.status_int == 200
-    results = resp.json['results']
-    meta = resp.json['meta']
-    assert len(results) == 1
-    assert set([rs["revision"] for rs in results]) == {"45f8637cb9f78f19cb8463ff174e81756805d8cf"}
-    assert(meta == {
-        u'count': 1,
-        u'revision': u'45f8637cb9f7',
-        u'filter_params': {
-            u'revisions_short_revision': "45f8637cb9f7"
-        },
-        u'repository': test_repository.name}
-    )
+    assert resp.status_int == 400
+    assert resp.json == {"detail": "Revision must be the full 40 character SHA"}
 
 
 def test_push_list_single_long_revision(webapp, eleven_jobs_stored, test_repository):
@@ -116,40 +104,8 @@ def test_push_list_single_long_revision(webapp, eleven_jobs_stored, test_reposit
     assert(meta == {
         u'count': 1,
         u'revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf',
-        u'filter_params': {
-            u'revisions_long_revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf'
-        },
+        u'filter_params': {},
         u'repository': test_repository.name}
-    )
-
-
-def test_push_list_single_long_revision_stored_long(webapp, sample_push, test_repository):
-    """
-    test retrieving a push list with store long revision, filtered by a single long revision
-    """
-    long_revision = "21fb3eed1b5f3456789012345678901234567890"
-
-    # store a push with long revision
-    push = copy.deepcopy(sample_push[0])
-    push["revisions"][0]["revision"] = long_revision
-    store_push_data(test_repository, [push])
-
-    resp = webapp.get(
-        reverse("push-list", kwargs={"project": test_repository.name}),
-        {"revision": long_revision}
-    )
-    assert resp.status_int == 200
-    results = resp.json['results']
-    meta = resp.json['meta']
-    assert len(results) == 1
-    assert set([ph["revision"] for ph in results]) == {sample_push[0]['revision']}
-    assert(meta == {
-        'count': 1,
-        'revision': long_revision,
-        'filter_params': {
-            'revisions_long_revision': long_revision
-        },
-        'repository': test_repository.name}
     )
 
 
@@ -160,7 +116,8 @@ def test_push_list_filter_by_revision(webapp, eleven_jobs_stored, test_repositor
 
     resp = webapp.get(
         reverse("push-list", kwargs={"project": test_repository.name}),
-        {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
+        {"fromchange": "130965d3df6c9a1093b4725f3b877eaef80d72bc",
+         "tochange": "f361dcb60bbedaa01257fbca211452972f7a74b2"}
     )
     assert resp.status_int == 200
     results = resp.json['results']
@@ -174,13 +131,13 @@ def test_push_list_filter_by_revision(webapp, eleven_jobs_stored, test_repositor
     }
     assert(meta == {
         u'count': 4,
-        u'fromchange': u'130965d3df6c',
+        u'fromchange': u'130965d3df6c9a1093b4725f3b877eaef80d72bc',
         u'filter_params': {
             u'push_timestamp__gte': 1384363842,
             u'push_timestamp__lte': 1384365942
         },
         u'repository': test_repository.name,
-        u'tochange': u'f361dcb60bbe'}
+        u'tochange': u'f361dcb60bbedaa01257fbca211452972f7a74b2'}
     )
 
 

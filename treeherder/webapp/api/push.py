@@ -59,7 +59,7 @@ class PushViewSet(viewsets.ViewSet):
         for (param, value) in meta.iteritems():
             if param == 'fromchange':
                 frompush_time = Push.objects.values_list('time', flat=True).get(
-                    repository=repository, revision__startswith=value)
+                    repository=repository, revision=value)
                 pushes = pushes.filter(time__gte=frompush_time)
                 filter_params.update({
                     "push_timestamp__gte": to_timestamp(frompush_time)
@@ -67,7 +67,7 @@ class PushViewSet(viewsets.ViewSet):
 
             elif param == 'tochange':
                 topush_time = Push.objects.values_list('time', flat=True).get(
-                    repository=repository, revision__startswith=value)
+                    repository=repository, revision=value)
                 pushes = pushes.filter(time__lte=topush_time)
                 filter_params.update({
                     "push_timestamp__lte": to_timestamp(topush_time)
@@ -84,12 +84,11 @@ class PushViewSet(viewsets.ViewSet):
                     "push_timestamp__lt": to_timestamp(real_end_date)
                 })
             elif param == 'revision':
-                # revision can be either the revision of the push itself, or
-                # any of the commits it refers to
-                pushes = pushes.filter(commits__revision__startswith=value)
-                rev_key = "revisions_long_revision" \
-                          if len(meta['revision']) == 40 else "revisions_short_revision"
-                filter_params.update({rev_key: meta['revision']})
+                if len(value) != 40:
+                    return Response({
+                        "detail": "Revision must be the full 40 character SHA"
+                    }, status=HTTP_400_BAD_REQUEST)
+                pushes = pushes.filter(revision=value)
 
         for param in ['push_timestamp__lt', 'push_timestamp__lte',
                       'push_timestamp__gt', 'push_timestamp__gte']:
