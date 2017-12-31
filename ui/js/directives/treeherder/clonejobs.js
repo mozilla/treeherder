@@ -3,14 +3,14 @@
 /* Directives */
 treeherder.directive('thCloneJobs', [
     '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
-    'thServiceDomain', 'thResultStatusInfo', 'thEvents', 'thAggregateIds',
-    'thJobFilters', 'thResultStatusObject', 'ThResultSetStore',
+    'thResultStatusInfo', 'thEvents', 'thAggregateIds',
+    'thJobFilters', 'ThResultSetStore',
     'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
     'thNotify', '$timeout', '$compile',
     function (
         $rootScope, $http, ThLog, thUrl, thCloneHtml,
-        thServiceDomain, thResultStatusInfo, thEvents, thAggregateIds,
-        thJobFilters, thResultStatusObject, ThResultSetStore,
+        thResultStatusInfo, thEvents, thAggregateIds,
+        thJobFilters, ThResultSetStore,
         ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
         thNotify, $timeout, $compile) {
 
