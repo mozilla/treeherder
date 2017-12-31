@@ -4,11 +4,11 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
+    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-                      thServiceDomain, thDefaultRepo, phTimeRanges,
+                      thDefaultRepo, phTimeRanges,
                       defaultTimeRange, phBlockers, phDashboardValues) {
 
         $scope.dataLoading = true;
@@ -214,11 +214,11 @@ perf.controller('dashCtrl', [
 
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare', 'thServiceDomain',
+    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
     function ($state, $stateParams, $scope, $rootScope, $q, $http,
              ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-             thServiceDomain, thDefaultRepo, phTimeRanges, defaultTimeRange,
+             thDefaultRepo, phTimeRanges, defaultTimeRange,
              phDashboardValues) {
 
         var baseSignature = $stateParams.baseSignature;

@@ -1,10 +1,10 @@
 'use strict';
 
 treeherder.factory('ThResultSetModel', ['$rootScope', '$http', '$location',
-    '$q', '$interpolate', 'thUrl', 'thResultStatusObject', 'thEvents', 'tcactions',
+    '$q', '$interpolate', 'thUrl', 'thEvents', 'tcactions',
     'thServiceDomain', 'ThLog', 'thNotify', 'ThJobModel', 'thTaskcluster', 'jsyaml',
     function ($rootScope, $http, $location, $q, $interpolate, thUrl,
-        thResultStatusObject, thEvents, tcactions, thServiceDomain, ThLog,
+        thEvents, tcactions, thServiceDomain, ThLog,
         thNotify, ThJobModel, thTaskcluster, jsyaml) {
 
         var $log = new ThLog("ThResultSetModel");

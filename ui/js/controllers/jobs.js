@@ -87,13 +87,13 @@ treeherderApp.controller('JobsCtrl', [
 
 treeherderApp.controller('ResultSetCtrl', [
     '$scope', '$rootScope', '$http', 'ThLog', '$location',
-    'thUrl', 'thServiceDomain', 'thResultStatusInfo', 'thDateFormat',
+    'thUrl', 'thResultStatusInfo', 'thDateFormat',
     'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
     'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal', 'thPinboardCountError',
     function ResultSetCtrl(
         $scope, $rootScope, $http, ThLog, $location,
-        thUrl, thServiceDomain, thResultStatusInfo, thDateFormat,
+        thUrl, thResultStatusInfo, thDateFormat,
         ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
         ThJobModel, ThTaskclusterErrors, $uibModal, thPinboardCountError) {
