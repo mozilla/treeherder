@@ -132,9 +132,9 @@ angular-sanitize@1.5.11:
   version "1.5.11"
   resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.5.11.tgz#ebfb3f343e543f9b2ef050fb4c2e9ee048d1772f"
 
-angular-toarrayfilter@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/angular-toarrayfilter/-/angular-toarrayfilter-1.0.2.tgz#a81dcb0c9f3c39985f8fd4424dbe1dbea84771c4"
+angular-toarrayfilter@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/angular-toarrayfilter/-/angular-toarrayfilter-1.0.3.tgz#0741279050b67e67746d918ab6b74befdf051652"
 
 angular-ui-router@0.4.3:
   version "0.4.3"
