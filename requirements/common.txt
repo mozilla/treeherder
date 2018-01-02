@@ -197,10 +197,10 @@ django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4
 
 elasticsearch==5.4.0 \
     --hash=sha256:8f02d626cff98befd298ffb1d19d8e519643d86d3aa27f6d7388566ec4ba48ee \
-    --hash=sha256:e754c688e20fe73160fb6f7f5b63f2a71c78788dc9e6908950681d3a39b56e85
+    --hash=sha256:e754c688e20fe73160fb6f7f5b63f2a71c78788dc9e6908950681d3a39b56e85  # pyup: <6 # Bug 1427598
 elasticsearch-dsl==5.4.0 \
     --hash=sha256:197246ddd556b4b7d2738dfa9e4831068c9b5cb21706f6aca035136d42849109 \
-    --hash=sha256:cbef6467085d7debc870bc450d996c7ba5b8822eb86a6033bba09134ffb01ba8
+    --hash=sha256:cbef6467085d7debc870bc450d996c7ba5b8822eb86a6033bba09134ffb01ba8  # pyup: <6 # Bug 1427598
 
 # required by requests and elasticsearch
 urllib3==1.22 \
