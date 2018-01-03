@@ -117,9 +117,9 @@ jsonfield==2.0.2 \
     --hash=sha256:a0a7fdee736ff049059409752b045281a225610fecbda9b9bd588ba976493c12 \
     --hash=sha256:beb1cd4850d6d6351c32daefcb826c01757744e9c863228a642f87a1a4acb834
 
-mozlog==3.5 \
-    --hash=sha256:30fa398c631faf2f6b8cc81d95e35e3ee9f1a6e5bcdf3132fde7ad943273d66e \
-    --hash=sha256:2b70acdbdd4385a26083b298ba86f30fce82d5a0e662a07025a2f17553be4fa1
+mozlog==3.6 \
+    --hash=sha256:5de45b0054f5bf7e28f8dc67802070be924548c4892b7720d261a11557669ead \
+    --hash=sha256:a4cb1bcbdb7ad03dff3ce367d6dafb38e8fc1d8fd03db4c159d9a798a274fb3c
 
 futures==3.2.0; python_version < '3' \
     --hash=sha256:ec0a6cb848cc212002b9828c3e34c675e0c9ff6741dc445cab6fdd4e1085d1f1 \
