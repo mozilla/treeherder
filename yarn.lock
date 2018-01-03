@@ -102,6 +102,10 @@ amqplib@^0.5.1:
     readable-stream "1.x >=1.1.9"
     safe-buffer "^5.0.1"
 
+angular-clipboard@1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/angular-clipboard/-/angular-clipboard-1.6.2.tgz#4708e5a1dc94f3940ab89861ea1e19b26754154f"
+
 angular-cookies@1.5.11:
   version "1.5.11"
   resolved "https://registry.yarnpkg.com/angular-cookies/-/angular-cookies-1.5.11.tgz#88558de7c5044dcc3abeb79614d7ef8107ba49c0"
