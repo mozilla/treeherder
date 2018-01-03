@@ -25,10 +25,11 @@ require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
 require('angular1-ui-bootstrap4');
 require('angular-clipboard');
-// The jquery flot package does not seem to be updated on npm, so we use a local version:
-require('./vendor/jquery.flot.js');
-require('./vendor/jquery.flot.time.js');
-require('./vendor/jquery.flot.selection.js');
+// The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
+// instead, which is identical to https://github.com/flot/flot
+require('jquery.flot');
+require('jquery.flot/jquery.flot.time.js');
+require('jquery.flot/jquery.flot.selection.js');
 
 // Perf JS
 require('./js/services/treestatus.js');
