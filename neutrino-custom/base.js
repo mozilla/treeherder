@@ -33,13 +33,13 @@ module.exports = neutrino => {
     if (process.env.NODE_ENV !== 'test') {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
+            '@uirouter/angularjs',
             'angular',
             'angular-local-storage',
             'angular-resource',
             'angular-route',
             'angular-sanitize',
             'angular-toarrayfilter',
-            'angular-ui-router',
             'angular1-ui-bootstrap4',
             'bootstrap/dist/js/bootstrap',
             'hawk',
