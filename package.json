@@ -32,7 +32,7 @@
     "jquery.flot": "0.8.3",
     "jquery.scrollto": "2.1.2",
     "js-yaml": "3.10.0",
-    "json-e": "2.3.5",
+    "json-e": "2.4.0",
     "json-schema-defaults": "0.3.0",
     "lodash": "4.17.4",
     "metrics-graphics": "2.12.0",
