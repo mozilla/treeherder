@@ -104,7 +104,7 @@ async function fetchTests(store, fetchParams) {
   // Disable initial fetch of all bug suggestions due to bug:
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1409679
   // store.dispatch(groupsStore.actions.fetchBugs(payload.rowData));
-  
+
   // We use most of the counts from the push status, but ``failed`` will be a count of
   // the "test failures" rather than jobs.  So we walk each group(manifest) and count
   // the failed tests.
