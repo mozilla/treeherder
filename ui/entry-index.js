@@ -22,7 +22,6 @@ require('./css/treeherder-loading-overlay.css');
 require('angular');
 require('angular-route');
 require('angular-resource');
-require('angular-cookies');
 require('angular-sanitize');
 require('angular-toarrayfilter');
 require('angular-local-storage');
