@@ -79,8 +79,8 @@ treeherder.directive('thWatchedRepo', [
     }]);
 
 treeherder.directive('thWatchedRepoInfoDropDown', [
-    'ThLog', 'ThRepositoryModel', 'treeStatus',
-    function (ThLog, ThRepositoryModel, treeStatus) {
+    'ThRepositoryModel', 'treeStatus',
+    function (ThRepositoryModel, treeStatus) {
 
         return {
             restrict: "E",

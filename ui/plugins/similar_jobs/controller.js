@@ -2,12 +2,12 @@
 
 treeherder.controller('SimilarJobsPluginCtrl', [
     '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel', 'thResultStatusInfo',
-    'thEvents', 'numberFilter', 'dateFilter', 'thClassificationTypes',
+    'numberFilter', 'dateFilter', 'thClassificationTypes',
     'thResultStatus', 'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
         $scope, ThLog, ThJobModel, ThTextLogStepModel, thResultStatusInfo,
-        thEvents, numberFilter, dateFilter, thClassificationTypes,
+        numberFilter, dateFilter, thClassificationTypes,
         thResultStatus, ThResultSetModel, thNotify,
         thTabs) {
 

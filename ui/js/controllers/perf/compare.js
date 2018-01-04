@@ -3,12 +3,11 @@
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',
-    'thPerformanceBranches', 'localStorageService', 'compareBaseLineDefaultTimeRange',
+    'localStorageService', 'compareBaseLineDefaultTimeRange',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
                                 ThRepositoryModel, ThResultSetModel,
                                 phCompareDefaultNewRepo,
                                 phCompareDefaultOriginalRepo,
-                                thPerformanceBranches,
                                 localStorageService,
                                 compareBaseLineDefaultTimeRange) {
         ThRepositoryModel.get_list().success(function (projects) {
@@ -118,15 +117,13 @@ perf.controller('CompareChooserCtrl', [
     }]);
 
 perf.controller('CompareResultsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$location',
-    'thServiceDomain', 'ThRepositoryModel',
-    'ThResultSetModel', '$http', '$httpParamSerializer', '$q', '$timeout', 'PhFramework', 'PhSeries',
-    'math', 'phTimeRanges', 'PhCompare', 'compareBaseLineDefaultTimeRange',
+    '$state', '$stateParams', '$scope',
+    'ThRepositoryModel',
+    'ThResultSetModel', '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
+    'phTimeRanges', 'PhCompare', 'compareBaseLineDefaultTimeRange',
     function CompareResultsCtrl($state, $stateParams, $scope,
-                                $rootScope, $location,
-                                thServiceDomain,
-                                ThRepositoryModel, ThResultSetModel, $http, $httpParamSerializer,
-                                $q, $timeout, PhFramework, PhSeries, math,
+                                ThRepositoryModel, ThResultSetModel, $httpParamSerializer,
+                                $q, PhFramework, PhSeries,
                                 phTimeRanges,
                                 PhCompare, compareBaseLineDefaultTimeRange) {
         function displayResults(rawResultsMap, newRawResultsMap) {
@@ -482,14 +479,13 @@ perf.controller('CompareResultsCtrl', [
     }]);
 
 perf.controller('CompareSubtestResultsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$location',
-    'thServiceDomain', 'ThRepositoryModel',
-    'ThResultSetModel', '$http', '$q', '$timeout', 'PhSeries', 'math',
+    '$state', '$stateParams', '$scope',
+    'ThRepositoryModel',
+    'ThResultSetModel', '$q', 'PhSeries',
     'PhCompare', 'phTimeRanges', 'compareBaseLineDefaultTimeRange', '$httpParamSerializer',
-    function CompareSubtestResultsCtrl($state, $stateParams, $scope, $rootScope,
-                                       $location, thServiceDomain,
+    function CompareSubtestResultsCtrl($state, $stateParams, $scope,
                                        ThRepositoryModel, ThResultSetModel,
-                                       $http, $q, $timeout, PhSeries, math,
+                                       $q, PhSeries,
                                        PhCompare, phTimeRanges, compareBaseLineDefaultTimeRange,
                                        $httpParamSerializer) {
          //TODO: duplicated from comparectrl

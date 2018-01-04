@@ -20,13 +20,13 @@
  */
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', '$location',
-    'thNotify', 'thEvents', 'thFailureResults',
-    'thResultStatus', 'thClassificationTypes', 'ThRepositoryModel',
+    'thEvents', 'thFailureResults',
+    'thResultStatus', 'thClassificationTypes',
     'thPlatformName',
     function (
         thResultStatusList, ThLog, $rootScope, $location,
-        thNotify, thEvents, thFailureResults,
-        thResultStatus, thClassificationTypes, ThRepositoryModel,
+        thEvents, thFailureResults,
+        thResultStatus, thClassificationTypes,
         thPlatformName) {
 
         const $log = new ThLog("thJobFilters");

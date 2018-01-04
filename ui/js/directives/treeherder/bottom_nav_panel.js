@@ -39,8 +39,8 @@ treeherder.directive('thRelatedBugQueued', function () {
 });
 
 treeherder.directive('thFailureClassification', [
-    '$parse', 'thClassificationTypes',
-    function ($parse, thClassificationTypes) {
+    'thClassificationTypes',
+    function (thClassificationTypes) {
         return {
             scope: {
                 failureId: "=",
@@ -63,7 +63,7 @@ treeherder.directive('thFailureClassification', [
     }]);
 
 treeherder.directive('thSimilarJobs', [
-    'ThJobModel', 'ThLog',
+    'ThJobModel',
     function (ThJobModel) {
         return {
             restrict: "E",

@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThTextLogErrorsModel', [
-    '$http', '$q', 'ThLog', 'thUrl',
-    function ($http, $q, ThLog, thUrl) {
+    '$http', '$q', 'thUrl',
+    function ($http, $q, thUrl) {
 
         var ThTextLogErrorsModel = function (data) {
             if (data.metadata === null) {

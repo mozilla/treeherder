@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('thBuildApi', [
-    '$http', '$location', 'thUrl', 'ThLog', 'thNotify',
-    function ($http, $location, thUrl, ThLog, thNotify) {
+    '$http', 'thNotify',
+    function ($http, thNotify) {
 
         var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
