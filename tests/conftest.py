@@ -16,7 +16,8 @@ from treeherder.client.thclient import TreeherderClient
 from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (JobNote,
+from treeherder.model.models import (Commit,
+                                     JobNote,
                                      Push,
                                      TextLogErrorMetadata)
 
@@ -123,6 +124,24 @@ def test_repository_2(test_repository):
         dvcs_type=test_repository.dvcs_type,
         url=test_repository.url + '_2',
         codebase=test_repository.codebase)
+
+
+@pytest.fixture
+def test_push(test_repository):
+    return Push.objects.create(
+        repository=test_repository,
+        revision="4c45a777949168d16c03a4cba167678b7ab65f76",
+        author="foo@bar.com",
+        time=datetime.datetime.now())
+
+
+@pytest.fixture
+def test_commit(test_push):
+    return Commit.objects.create(
+        push=test_push,
+        revision=test_push.revision,
+        author=test_push.author,
+        comments="Bug 12345 - This is a message")
 
 
 @pytest.fixture
