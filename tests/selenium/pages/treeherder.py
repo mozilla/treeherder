@@ -1,3 +1,5 @@
+import itertools
+
 from django.conf import settings
 from pypom import Region
 from selenium.webdriver.common.by import By
@@ -11,6 +13,7 @@ class Treeherder(Base):
     URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
+    _quick_filter_locator = (By.ID, 'quick-filter')
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
     _repo_menu_locator = (By.ID, 'repoLabel')
     _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
@@ -25,8 +28,22 @@ class Treeherder(Base):
         return self.find_element(*self._active_watched_repo_locator).text
 
     @property
+    def all_jobs(self):
+        return list(itertools.chain.from_iterable(
+            r.jobs for r in self.result_sets))
+
+    @property
+    def info_panel(self):
+        return self.InfoPanel(self)
+
+    @property
     def result_sets(self):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._result_sets_locator)]
+
+    @property
+    def quick_filter_term(self):
+        el = self.find_element(*self._quick_filter_locator)
+        return el.get_attribute('value')
 
     def select_repository(self, name):
         self.find_element(*self._repo_menu_locator).click()
@@ -47,6 +64,7 @@ class Treeherder(Base):
         _author_locator = (By.CSS_SELECTOR, '.result-set-title-left th-author a')
         _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
+        _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
 
         @property
         def author(self):
@@ -55,6 +73,10 @@ class Treeherder(Base):
         @property
         def datestamp(self):
             return self.find_element(*self._datestamp_locator).text
+
+        @property
+        def jobs(self):
+            return [self.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
 
         @property
         def commits(self):
@@ -66,6 +88,12 @@ class Treeherder(Base):
             self.find_element(*self._datestamp_locator).click()
             self.wait.until(expected.staleness_of(el))
             self.page.wait_for_page_to_load()
+
+        class Job(Region):
+
+            def click(self):
+                self.root.click()
+                self.wait.until(lambda _: self.page.info_panel.is_open)
 
     class Commit(Region):
 
@@ -84,3 +112,29 @@ class Treeherder(Base):
         @property
         def comment(self):
             return self.find_element(*self._comment_locator).text
+
+    class InfoPanel(Region):
+
+        _root_locator = (By.ID, 'info-panel')
+        _loading_locator = (By.CSS_SELECTOR, '.overlay')
+
+        @property
+        def is_open(self):
+            return self.root.is_displayed() and \
+                not self.find_elements(*self._loading_locator)
+
+        @property
+        def job_details(self):
+            return self.JobDetails(self.page)
+
+        class JobDetails(Region):
+
+            _root_locator = (By.ID, 'job-details-panel')
+            _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
+
+            @property
+            def keywords(self):
+                return self.find_element(*self._keywords_locator).text
+
+            def filter_by_keywords(self):
+                self.find_element(*self._keywords_locator).click()
