@@ -105,6 +105,12 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
 
+GRAPHENE = {
+    'MIDDLEWARE': [
+        'graphene_django.debug.DjangoDebugMiddleware',
+    ]
+}
+
 if ENABLE_DEBUG_TOOLBAR:
     # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
     # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:

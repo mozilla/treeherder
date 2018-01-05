@@ -1,4 +1,5 @@
 import graphene
+from graphene_django.debug import DjangoDebug
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 from graphql.utils.ast_to_dict import ast_to_dict
@@ -152,6 +153,8 @@ class Query(graphene.ObjectType):
     all_failure_classifications = graphene.List(FailureClassificationGraph)
     all_pushes = DjangoFilterConnectionField(PushGraph)
     all_text_log_steps = graphene.List(TextLogStepGraph)
+
+    debug = graphene.Field(DjangoDebug, name='__debug')
 
     def resolve_all_jobs(self, info, **kwargs):
         return Job.objects.filter(**kwargs)
