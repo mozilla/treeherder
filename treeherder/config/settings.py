@@ -105,11 +105,12 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
 
-GRAPHENE = {
-    'MIDDLEWARE': [
-        'graphene_django.debug.DjangoDebugMiddleware',
-    ]
-}
+GRAPHENE = env.json('GRAPHENE', default={"MIDDLEWARE": []})
+# This could be set to the following to enable debugging of GraphQL queries:
+# GRAPHENE = {"MIDDLEWARE": ["graphene_django.debug.DjangoDebugMiddleware", ]}
+# For more info, see:
+# http://docs.graphene-python.org/projects/django/en/latest/debug/
+
 
 if ENABLE_DEBUG_TOOLBAR:
     # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
