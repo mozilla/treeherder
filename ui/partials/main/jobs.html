@@ -25,12 +25,10 @@
     </span>
     <th-result-counts class="result-counts"></th-result-counts>
     <span class="result-set-buttons">
-      <!--- https://bugzilla.mozilla.org/show_bug.cgi?id=1409679
       <a class="btn btn-sm btn-resultset test-view-btn"
          href="/testview.html?repo={{repoName}}&revision={{resultset.revision}}"
          target="_blank"
          title="View details on failed test results for this push">View Tests</a>
-      -->
       <button class="btn btn-sm btn-resultset cancel-all-jobs-btn"
             ng-attr-title="{{getCancelJobsTitle()}}"
             ng-show="currentRepo.is_try_repo || user.is_staff"

@@ -100,7 +100,11 @@ async function fetchTests(store, fetchParams) {
     type: groupsStore.types.RENDER_TESTS,
     payload,
   });
-  store.dispatch(groupsStore.actions.fetchBugs(payload.rowData));
+
+  // Disable initial fetch of all bug suggestions due to bug:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1409679
+  // store.dispatch(groupsStore.actions.fetchBugs(payload.rowData));
+
   // We use most of the counts from the push status, but ``failed`` will be a count of
   // the "test failures" rather than jobs.  So we walk each group(manifest) and count
   // the failed tests.
@@ -266,6 +270,37 @@ function stripHost(urlStr) {
   }
 }
 
+async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
+
+  const testMap = test.jobs.reduce((gacc, job) => {
+    const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
+    gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [ ...gacc[bsUrl], test] : [test] };
+    return gacc;
+  }, {});
+
+  // Do a request for each url in the keys of the testMap.  Using them as keys eliminates
+  // duplicate requests since multiple tests can be in the same job.
+  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(`${SERVICE_DOMAIN}${url}`)));
+  const respData = await Promise.all(responses.map(promise => promise.json()));
+  const updatedBugSuggestions = {
+    ...bugSuggestions,
+    ...respData.reduce((bsAcc, data, idx) => {
+      testMap[stripHost(responses[idx].url)].forEach((test) => {
+        test.bugs = { ...test.bugs, ...extractBugSuggestions(data, test.name) };
+        bsAcc = { ...bsAcc, [`${test.jobGroup}-${test.name}`]: test.bugs };
+      });
+      return bsAcc;
+    }, {})
+  };
+
+  store.dispatch({
+    type: groupsStore.types.RENDER_BUGS,
+    payload: {
+      bugSuggestions: updatedBugSuggestions,
+    }
+  });
+}
+
 async function fetchBugs(store, { rowData, url }) {
   // map of tests to urls
   const testMap = Object.entries(rowData).reduce((gacc, [ , tests ]) => {
@@ -356,6 +391,9 @@ const testDataMiddleware = store => next => (action) => {
       return next(consumed);
     case groupsStore.types.FETCH_BUGS:
       fetchBugs(store, { ...action.meta });
+      return next(consumed);
+    case groupsStore.types.FETCH_BUGS_SINGLE_TEST:
+      fetchBugsSingleTest(store, { ...action.meta });
       return next(consumed);
     case groupsStore.types.TOGGLE_EXPANDED:
       toggleExpanded(store, { ...action.meta });

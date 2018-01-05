@@ -23,6 +23,10 @@ class BugCountComponent extends React.Component {
   }
 
   onClick() {
+    store.dispatch(actions.groups.fetchBugsSingleTest(
+      this.props.test,
+      this.props.bugSuggestions
+    ));
     store.dispatch(actions.groups.toggleExpanded(
       Boolean(!this.props.expanded[this.props.testName]),
       this.props.testName,
@@ -34,7 +38,7 @@ class BugCountComponent extends React.Component {
     return (
       <td className="bug-count"
           onClick={this.onClick}>
-        {this.props.test.bugs === undefined ? <Icon name="spinner" spin /> : (
+        {this.props.test.bugs === undefined ? <Icon name="minus" title="Click to expand and fetch bugs"/> : (
           Object.keys(this.props.test.bugs).length > 0 ? Object.keys(this.props.test.bugs).length : (
             <Badge size="sm" color='danger' style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}>0</Badge>
           )
@@ -79,6 +83,10 @@ class TestComponent extends React.Component {
     this.onClick = this.onClick.bind(this);
   }
   onClick() {
+    store.dispatch(actions.groups.fetchBugsSingleTest(
+      this.props.test,
+      this.props.bugSuggestions
+    ));
     store.dispatch(actions.groups.toggleExpanded(
       Boolean(!this.props.expanded[this.props.name]),
       this.props.name,

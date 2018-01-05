@@ -6,6 +6,7 @@ export const types = {
   STORE_OPTIONS: 'STORE_OPTIONS',
   FETCH_COUNTS: 'FETCH_COUNTS',
   FETCH_BUGS: 'FETCH_BUGS',
+  FETCH_BUGS_SINGLE_TEST: 'FETCH_BUGS_SINGLE_TEST',
   RENDER_COUNTS: 'RENDER_COUNTS',
   TOGGLE_EXPANDED: 'TOGGLE_EXPANDED',
   RENDER_EXPANDED: 'RENDER_EXPANDED',
@@ -129,6 +130,16 @@ export const actions = {
       url: `/graphql?query=`,
       method: 'GET',
       rowData,
+    },
+  }),
+  fetchBugsSingleTest: (test, bugSuggestions) => ({
+    type: types.FETCH_BUGS_SINGLE_TEST,
+    meta: {
+      type: 'api',
+      url: `/graphql?query=`,
+      method: 'GET',
+      test,
+      bugSuggestions,
     },
   }),
   filterTests: (filter, groups, options, hideClassified) => ({
