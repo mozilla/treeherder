@@ -1,3 +1,4 @@
+from django.conf import settings
 from pypom import Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as expected
@@ -7,13 +8,16 @@ from .base import Base
 
 class Treeherder(Base):
 
+    URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
+
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
-    _mozilla_central_repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo=mozilla-central"]')
-    _repos_menu_locator = (By.ID, 'repoLabel')
+    _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
+    _repo_menu_locator = (By.ID, 'repoLabel')
     _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
+    _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar th-watched-repo')
 
     def wait_for_page_to_load(self):
-        self.wait.until(lambda _: self.is_element_displayed(*self._active_watched_repo_locator))
+        self.wait.until(lambda _: self.find_elements(*self._watched_repos_locator))
         return self
 
     @property
@@ -24,11 +28,12 @@ class Treeherder(Base):
     def result_sets(self):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._result_sets_locator)]
 
-    def select_mozilla_central_repo(self):
-        self.find_element(*self._repos_menu_locator).click()
+    def select_repository(self, name):
+        self.find_element(*self._repo_menu_locator).click()
         # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
         el = self.find_element(By.CSS_SELECTOR, 'body')
-        self.find_element(*self._mozilla_central_repo_locator).click()
+        locator = (self._repo_locator[0], self._repo_locator[1].format(name))
+        self.find_element(*locator).click()
         self.wait.until(expected.staleness_of(el))
         self.wait_for_page_to_load()
 

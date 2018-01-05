@@ -1,7 +1,7 @@
 from pages.treeherder import Treeherder
 
 
-def test_switch_app(base_url, selenium):
+def test_switch_app(base_url, selenium, test_repository):
     """Switch between Treeherder and Perfherder using header dropdown"""
     page = Treeherder(selenium, base_url).open()
     assert page.header.active_app == 'Treeherder'
