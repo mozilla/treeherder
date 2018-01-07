@@ -3967,9 +3967,9 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-json-e@2.3.5:
-  version "2.3.5"
-  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.3.5.tgz#93a1aaae9554744b7ffc93c173f7518fe4e6c6ed"
+json-e@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.4.0.tgz#70e45530ebd34312803897b163495ff42c0b1193"
 
 json-loader@^0.5.4:
   version "0.5.7"
