@@ -1,8 +1,8 @@
 "use strict";
 
 perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
-    function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter, thServiceDomain) {
+    '$http', '$httpParamSerializer', '$templateRequest', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
+    function ($http, $httpParamSerializer, $templateRequest, $interpolate, $rootScope, dateFilter, thServiceDomain) {
         return {
             fileBug: function (alertSummary) {
                 $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function (response) {
@@ -64,10 +64,10 @@ perf.controller(
         }]);
 
 perf.controller(
-    'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries,
-                 phAlertStatusMap) {
+    'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$http', '$q', 'alertSummary',
+        'allAlertSummaries', 'PhAlerts', 'phAlertStatusMap',
+        function ($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries,
+                 PhAlerts, phAlertStatusMap) {
             $scope.title = "Mark alerts downstream";
             $scope.placeholder = "Alert #";
 
@@ -102,9 +102,9 @@ perf.controller(
         }]);
 
 perf.controller(
-    'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries, phAlertStatusMap) {
+    'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$http', '$q', 'alertSummary',
+        'allAlertSummaries', 'PhAlerts', 'phAlertStatusMap',
+        function ($scope, $uibModalInstance, $http, $q, alertSummary, allAlertSummaries, PhAlerts, phAlertStatusMap) {
 
             $scope.title = "Reassign alerts";
             $scope.placeholder = "Alert #";
@@ -142,17 +142,17 @@ perf.controller(
         }]);
 
 perf.controller('AlertsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
+    '$state', '$stateParams', '$scope', '$rootScope', '$http', '$q', '$uibModal',
     'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
-    'PhFramework', 'PhAlerts', 'PhBugs', 'phTimeRanges',
+    'PhFramework', 'PhSeries', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
     'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
-    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
+    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $http, $q,
                         $uibModal,
                         thUrl, ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
-                        PhFramework, PhAlerts, PhBugs, phTimeRanges,
+                        PhFramework, PhSeries, PhAlerts, PhBugs, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
                         dateFilter, thDateFormat, clipboard, phTimeRangeValues) {
         $scope.alertSummaries = undefined;

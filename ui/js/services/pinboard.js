@@ -1,10 +1,10 @@
 'use strict';
 
 treeherder.factory('thPinboard', [
-    'ThJobClassificationModel', '$rootScope', 'thEvents',
+    '$http', 'thUrl', 'ThJobClassificationModel', '$rootScope', 'thEvents',
     'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'thPinboardCountError',
     function (
-        ThJobClassificationModel, $rootScope, thEvents,
+        $http, thUrl, ThJobClassificationModel, $rootScope, thEvents,
         ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore, thPinboardCountError) {
 
         var $log = new ThLog("thPinboard");

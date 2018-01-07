@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import pytest
 
 from treeherder.model.error_summary import (get_crash_signature,

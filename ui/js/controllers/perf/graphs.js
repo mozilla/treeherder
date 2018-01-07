@@ -1,11 +1,11 @@
 "use strict";
 
 perf.controller('GraphsCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
-    '$window', 'thServiceDomain', '$q', '$timeout', 'PhSeries', 'PhAlerts',
+    '$state', '$stateParams', '$scope', '$rootScope', '$location', '$uibModal',
+    '$window', 'thServiceDomain', '$http', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
-    function GraphsCtrl($state, $stateParams, $scope, $rootScope,
-        $uibModal, $window, thServiceDomain, $q, $timeout, PhSeries,
+    function GraphsCtrl($state, $stateParams, $scope, $rootScope, $location,
+        $uibModal, $window, thServiceDomain, $http, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
@@ -876,11 +876,11 @@ perf.filter('testNameContainsWords', function () {
     };
 });
 
-perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
-    'projects', 'timeRange', 'thDefaultRepo', 'PhSeries',
+perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', '$http',
+    'projects', 'timeRange', 'thServiceDomain', 'thDefaultRepo', 'PhSeries',
     'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
     '$q', 'testsDisplayed', 'options', 'thPerformanceBranches', 'phDefaultFramework',
-    function ($scope, $uibModalInstance, projects, timeRange,
+    function ($scope, $uibModalInstance, $http, projects, timeRange, thServiceDomain,
         thDefaultRepo, PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
         defaultPlatform, $q, testsDisplayed, options, thPerformanceBranches,
         phDefaultFramework) {

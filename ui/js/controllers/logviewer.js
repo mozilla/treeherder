@@ -2,12 +2,12 @@
 
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
-    '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',
+    '$timeout', '$resource', 'ThTextLogStepModel', 'ThJobDetailModel',
     'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
     'thDateFormat', 'thReftestStatus', 'thUrl',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
-        $timeout, ThTextLogStepModel, ThJobDetailModel,
+        $timeout, $resource, ThTextLogStepModel, ThJobDetailModel,
         ThJobModel, thNotify, dateFilter, ThResultSetModel,
         thDateFormat, thReftestStatus, thUrl) {
 

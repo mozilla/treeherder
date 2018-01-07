@@ -1,16 +1,16 @@
 "use strict";
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$location', '$timeout', '$q',
+    '$scope', '$rootScope', '$routeParams', '$location', '$timeout', '$q',
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
-    'thClassificationTypes', 'thEvents', '$interval', '$window',
+    'thClassificationTypes', 'thEvents', '$interval', '$window', 'thNotify',
     'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     '$httpParamSerializer',
     function MainController(
-        $scope, $rootScope, $location, $timeout, $q,
+        $scope, $rootScope, $routeParams, $location, $timeout, $q,
         ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
-        thClassificationTypes, thEvents, $interval, $window,
+        thClassificationTypes, thEvents, $interval, $window, thNotify,
         thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
         $httpParamSerializer) {

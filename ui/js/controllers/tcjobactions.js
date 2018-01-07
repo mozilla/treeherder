@@ -1,12 +1,12 @@
 "use strict";
 
 treeherder.controller('TCJobActionsCtrl', [
-    '$scope', '$uibModalInstance', 'ThResultSetStore',
-    'thTaskcluster', 'ThTaskclusterErrors',
+    '$scope', '$http', '$uibModalInstance', 'ThResultSetStore',
+    'ThJobDetailModel', 'thTaskcluster', 'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
     'jsyaml', 'Ajv', 'jsonSchemaDefaults',
-    function ($scope, $uibModalInstance, ThResultSetStore,
-             thTaskcluster, ThTaskclusterErrors, thNotify,
+    function ($scope, $http, $uibModalInstance, ThResultSetStore,
+             ThJobDetailModel, thTaskcluster, ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, tcactions, jsyaml, Ajv, jsonSchemaDefaults) {
         const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
         let decisionTaskId;

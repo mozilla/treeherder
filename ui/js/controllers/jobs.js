@@ -1,14 +1,14 @@
 "use strict";
 
 treeherderApp.controller('JobsCtrl', [
-    '$scope', '$rootScope', '$routeParams',
-    'thDefaultRepo',
-    'ThResultSetStore', '$location', 'thEvents',
-    'thNotify',
+    '$scope', '$http', '$rootScope', '$routeParams', 'ThLog',
+    'thUrl', 'ThRepositoryModel', 'thDefaultRepo',
+    'ThResultSetStore', 'thResultStatusList', '$location', 'thEvents',
+    'ThJobModel', 'thNotify',
     function JobsCtrl(
-        $scope, $rootScope, $routeParams,
-        thDefaultRepo,
-        ThResultSetStore, $location, thEvents, thNotify) {
+        $scope, $http, $rootScope, $routeParams, ThLog,
+        thUrl, ThRepositoryModel, thDefaultRepo,
+        ThResultSetStore, thResultStatusList, $location, thEvents, ThJobModel, thNotify) {
 
         // load our initial set of resultsets
         // scope needs this function so it can be called directly by the user, too.
@@ -86,17 +86,17 @@ treeherderApp.controller('JobsCtrl', [
 
 
 treeherderApp.controller('ResultSetCtrl', [
-    '$scope', '$rootScope',
-    'thResultStatusInfo', 'thDateFormat',
-    'ThResultSetStore', 'thEvents', 'thNotify',
+    '$scope', '$rootScope', '$http', 'ThLog', '$location',
+    'thUrl', 'thResultStatusInfo', 'thDateFormat',
+    'ThResultSetStore', 'thEvents', 'thJobFilters', 'thNotify',
     'thBuildApi', 'thPinboard', 'ThResultSetModel', 'dateFilter',
-    'ThModelErrors', 'ThTaskclusterErrors', '$uibModal', 'thPinboardCountError',
+    'ThModelErrors', 'ThJobModel', 'ThTaskclusterErrors', '$uibModal', 'thPinboardCountError',
     function ResultSetCtrl(
-        $scope, $rootScope,
-        thResultStatusInfo, thDateFormat,
-        ThResultSetStore, thEvents, thNotify,
+        $scope, $rootScope, $http, ThLog, $location,
+        thUrl, thResultStatusInfo, thDateFormat,
+        ThResultSetStore, thEvents, thJobFilters, thNotify,
         thBuildApi, thPinboard, ThResultSetModel, dateFilter, ThModelErrors,
-        ThTaskclusterErrors, $uibModal, thPinboardCountError) {
+        ThJobModel, ThTaskclusterErrors, $uibModal, thPinboardCountError) {
 
         $scope.getCountClass = function (resultStatus) {
             return thResultStatusInfo(resultStatus).btnClass;

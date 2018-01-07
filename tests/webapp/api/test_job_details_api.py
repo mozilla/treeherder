@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from django.core.urlresolvers import reverse
 
 from tests.test_utils import create_generic_job
@@ -44,13 +46,13 @@ def test_job_details(test_repository, failure_classifications,
             repository = test_repository2
             push_id = 2
             i = 1
-        print (i, repository)
+        print(i, repository)
         job = create_generic_job(job_guid, repository, push_id,
                                  generic_reference_data)
         JobDetail.objects.create(
             job=job, **params)
         i += 1
-    print JobDetail.objects.filter(job__guid='abcd')
+    print(JobDetail.objects.filter(job__guid='abcd'))
 
     # trying to get them all should return an error
     resp = webapp.get(reverse('jobdetail-list'), expect_errors=True)

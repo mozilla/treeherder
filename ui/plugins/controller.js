@@ -5,7 +5,7 @@ treeherder.controller('PluginCtrl', [
     'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
-    'ThLog', '$q', 'thPinboard',
+    'ThResultSetModel', 'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml', 'tcactions',
@@ -14,7 +14,7 @@ treeherder.controller('PluginCtrl', [
         thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
-        ThLog, $q, thPinboard,
+        ThResultSetModel, ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain, thTaskcluster, jsyaml, tcactions) {
