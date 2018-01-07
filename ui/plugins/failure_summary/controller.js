@@ -2,11 +2,11 @@
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
-    'ThBugSuggestionsModel', 'thPinboard', 'thEvents', '$q',
-    'thTabs', '$timeout', 'thUrl', '$uibModal', '$location',
+    'ThBugSuggestionsModel', 'thPinboard', 'thEvents',
+    'thTabs', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
         $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,
-        thPinboard, thEvents, $q, thTabs, $timeout, thUrl, $uibModal, $location) {
+        thPinboard, thEvents, thTabs, thUrl, $uibModal, $location) {
 
         var $log = new ThLog(this.constructor.name);
 

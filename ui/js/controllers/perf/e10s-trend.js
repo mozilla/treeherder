@@ -5,13 +5,13 @@ perf.value('defaultNewDate', 0);
 perf.value('defaultSampleSize', 604800);
 
 perf.controller('e10sTrendCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'defaultSampleSize',
+    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
+    'ThRepositoryModel', 'PhSeries', 'PhCompare',
+    'thDefaultRepo', 'phTimeRanges', 'defaultSampleSize',
     'phComparisonDate', 'defaultBaseDate', 'defaultNewDate', 'phBlockers',
-    function e10sTrendCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-                      thServiceDomain, thDefaultRepo, phTimeRanges,
+    function e10sTrendCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
+                      ThRepositoryModel, PhSeries, PhCompare,
+                      thDefaultRepo, phTimeRanges,
                       defaultSampleSize, phComparisonDate, defaultBaseDate, defaultNewDate, phBlockers) {
 
         $scope.compareResults = {};
@@ -253,13 +253,13 @@ perf.controller('e10sTrendCtrl', [
 ]);
 
 perf.controller('e10sTrendSubtestCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$http', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'thServiceDomain', 'thDefaultRepo', 'phTimeRanges', 'defaultSampleSize',
-    'phComparisonDate', 'defaultBaseDate', 'defaultNewDate', 'phBlockers',
-    function e10sTrendCtrl($state, $stateParams, $scope, $rootScope, $q, $http, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-                      thServiceDomain, thDefaultRepo, phTimeRanges,
+    '$state', '$stateParams', '$scope', '$rootScope', '$q',
+    'ThRepositoryModel', 'PhSeries', 'PhCompare',
+    'thDefaultRepo', 'phTimeRanges', 'defaultSampleSize',
+    'phComparisonDate', 'defaultBaseDate', 'defaultNewDate',
+    function e10sTrendCtrl($state, $stateParams, $scope, $rootScope, $q,
+                      ThRepositoryModel, PhSeries, PhCompare,
+                      thDefaultRepo, phTimeRanges,
                       defaultSampleSize, phComparisonDate, defaultBaseDate, defaultNewDate) {
 
         var baseSignature = $stateParams.baseSignature;

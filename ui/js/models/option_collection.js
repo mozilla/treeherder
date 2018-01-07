@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThOptionCollectionModel', [
-    '$http', '$log', 'thUrl',
-    function ($http, $log, thUrl) {
+    '$http', 'thUrl',
+    function ($http, thUrl) {
         var optionCollectionMap = {};
         var loadPromise = $http.get(
             thUrl.getRootUrl("/optioncollectionhash/")).then(

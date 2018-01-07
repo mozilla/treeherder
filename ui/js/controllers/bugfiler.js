@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('BugFilerCtrl', [
-    '$scope', '$rootScope', '$uibModalInstance', '$http', 'summary',
+    '$scope', '$uibModalInstance', '$http', 'summary',
     'search_terms', 'fullLog', 'parsedLog', 'reftest', 'selectedJob',
     'allFailures', 'crashSignatures', 'successCallback', 'thNotify',
     function BugFilerCtrl(
-        $scope, $rootScope, $uibModalInstance, $http, summary, search_terms,
+        $scope, $uibModalInstance, $http, summary, search_terms,
         fullLog, parsedLog, reftest, selectedJob, allFailures,
         crashSignatures, successCallback, thNotify) {
 

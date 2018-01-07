@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThJobGroupModel', [
-    '$http', '$log', 'thUrl',
-    function ($http, $log, thUrl) {
+    '$http', 'thUrl',
+    function ($http, thUrl) {
 
         // ThJobGroupModel is the js counterpart of job_type
 

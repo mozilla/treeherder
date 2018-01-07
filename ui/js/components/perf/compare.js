@@ -1,7 +1,7 @@
 'use strict';
 
 treeherder.component('phCompareTable', {
-    templateUrl: ['$element', '$attrs', function ($element, $attrs) {
+    templateUrl: ['$attrs', function ($attrs) {
         if ($attrs.type === 'trend') {
             return 'partials/perf/trendtable.html';
         }
@@ -18,7 +18,7 @@ treeherder.component('phCompareTable', {
         filterByFramework: '@',
         releaseBlockerCriteria: '@'
     },
-    controller: ['$element', '$attrs', function ($element, $attrs) {
+    controller: ['$attrs', function ($attrs) {
         var ctrl = this;
 
         if (!ctrl.baseTitle) {

@@ -2,13 +2,13 @@
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
-    'ThResultSetModel', 'ThJobModel', 'ThJobDetailModel', 'thEvents',
+    'ThResultSetModel', 'ThJobModel', 'thEvents',
     'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
-        ThJobModel, ThJobDetailModel, thEvents, thResultStatusObject, thAggregateIds,
+        ThJobModel, thEvents, thResultStatusObject, thAggregateIds,
         ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 

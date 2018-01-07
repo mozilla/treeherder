@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThClassifiedFailuresModel', [
-    '$http', '$q', 'ThLog', 'thUrl',
-    function ($http, $q, ThLog, thUrl) {
+    '$http', '$q', 'thUrl',
+    function ($http, $q, thUrl) {
 
         var ThClassifiedFailuresModel = function (data) {
             angular.extend(this, data);
