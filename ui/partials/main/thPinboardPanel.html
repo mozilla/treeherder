@@ -59,10 +59,13 @@
                placeholder="click to add comment"
                blur-this></input>
         <div ng-if="classification.failure_classification_id === 2">
-          <select id="recent-choice">
+          <select id="recent-choice"
+                  ng-model="classification.recentChoice"
+                  ng-change="classification.text=classification.recentChoice">
             <option value="0" selected disabled>Choose a recent commit</option>
             <option ng-repeat="tip in revisionList | limitTo:20"
-              ng-click="classification.text=tip.revision" title="{{tip.title}}">
+              title="{{tip.title}}"
+              value="{{tip.revision}}">
               {{tip.revision | limitTo: 12}} {{tip.author}}
             </option>
           </select>
