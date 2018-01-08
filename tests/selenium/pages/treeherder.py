@@ -54,6 +54,10 @@ class Treeherder(Base):
         el = self.find_element(*self._quick_filter_locator)
         return el.get_attribute('value')
 
+    def reset_filters(self):
+        self.find_element(*self._filters_menu_locator).click()
+        self.FiltersMenu(self).reset()
+
     def select_repository(self, name):
         self.find_element(*self._repo_menu_locator).click()
         # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
@@ -73,13 +77,21 @@ class Treeherder(Base):
         _root_locator = (By.ID, 'filter-dropdown')
         _busted_locator = (By.ID, 'busted')
         _exception_locator = (By.ID, 'exception')
+        _reset_locator = (By.CSS_SELECTOR, 'li[title="Reset to default status filters"]')
+        _success_locator = (By.ID, 'success')
         _testfailed_locator = (By.ID, 'testfailed')
+
+        def reset(self):
+            self.find_element(*self._reset_locator).click()
 
         def toggle_busted_jobs(self):
             self.find_element(*self._busted_locator).click()
 
         def toggle_exception_jobs(self):
             self.find_element(*self._exception_locator).click()
+
+        def toggle_success_jobs(self):
+            self.find_element(*self._success_locator).click()
 
         def toggle_testfailed_jobs(self):
             self.find_element(*self._testfailed_locator).click()

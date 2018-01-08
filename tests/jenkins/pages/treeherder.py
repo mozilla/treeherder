@@ -11,8 +11,6 @@ class TreeherderPage(Page):
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
-    _filter_panel_locator = (By.CSS_SELECTOR, 'span.navbar-right > span:nth-child(4)')
-    _filter_panel_reset_locator = (By.CSS_SELECTOR, '#filter-dropdown > li:last-child')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
     _nav_filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
     _nav_filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
@@ -140,9 +138,6 @@ class TreeherderPage(Page):
         else:
             raise Exception('Unsupported method: {}'.format(method))
 
-    def click_on_filters_panel(self):
-        self.find_element(*self._filter_panel_locator).click()
-
     def click_on_active_watched_repo(self):
         # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
         el = self.find_element(By.CSS_SELECTOR, 'body')
@@ -208,10 +203,6 @@ class TreeherderPage(Page):
     def pin_using_spacebar(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.SPACE)
         self.wait.until(lambda _: self.pinboard.is_pinboard_open)
-
-    def reset_filters(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_reset_locator).click()
 
     def select_next_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
