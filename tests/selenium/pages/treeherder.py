@@ -1,4 +1,5 @@
 import itertools
+from contextlib import contextmanager
 
 from django.conf import settings
 from pypom import Region
@@ -13,6 +14,7 @@ class Treeherder(Base):
     URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
+    _filters_menu_locator = (By.ID, 'filterLabel')
     _quick_filter_locator = (By.ID, 'quick-filter')
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
     _repo_menu_locator = (By.ID, 'repoLabel')
@@ -31,6 +33,13 @@ class Treeherder(Base):
     def all_jobs(self):
         return list(itertools.chain.from_iterable(
             r.jobs for r in self.result_sets))
+
+    @contextmanager
+    def filters_menu(self):
+        el = self.find_element(*self._filters_menu_locator)
+        el.click()
+        yield self.FiltersMenu(self)
+        el.click()
 
     @property
     def info_panel(self):
@@ -58,6 +67,22 @@ class Treeherder(Base):
         self.header.switch_app()
         from pages.perfherder import Perfherder
         return Perfherder(self.selenium, self.base_url).wait_for_page_to_load()
+
+    class FiltersMenu(Region):
+
+        _root_locator = (By.ID, 'filter-dropdown')
+        _busted_locator = (By.ID, 'busted')
+        _exception_locator = (By.ID, 'exception')
+        _testfailed_locator = (By.ID, 'testfailed')
+
+        def toggle_busted_jobs(self):
+            self.find_element(*self._busted_locator).click()
+
+        def toggle_exception_jobs(self):
+            self.find_element(*self._exception_locator).click()
+
+        def toggle_testfailed_jobs(self):
+            self.find_element(*self._testfailed_locator).click()
 
     class ResultSet(Region):
 
@@ -131,10 +156,15 @@ class Treeherder(Base):
 
             _root_locator = (By.ID, 'job-details-panel')
             _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
+            _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
             @property
             def keywords(self):
                 return self.find_element(*self._keywords_locator).text
+
+            @property
+            def result(self):
+                return self.find_element(*self._result_locator).text
 
             def filter_by_keywords(self):
                 self.find_element(*self._keywords_locator).click()

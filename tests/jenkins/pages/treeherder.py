@@ -11,12 +11,8 @@ class TreeherderPage(Page):
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
-    _close_the_job_panel_locator = (By.CSS_SELECTOR, '.info-panel-navbar-controls > li:nth-child(2)')
-    _filter_panel_busted_failures_locator = (By.ID, 'busted')
-    _filter_panel_exception_failures_locator = (By.ID, 'exception')
     _filter_panel_locator = (By.CSS_SELECTOR, 'span.navbar-right > span:nth-child(4)')
     _filter_panel_reset_locator = (By.CSS_SELECTOR, '#filter-dropdown > li:last-child')
-    _filter_panel_testfailed_failures_locator = (By.ID, 'testfailed')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
     _nav_filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
     _nav_filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
@@ -74,18 +70,6 @@ class TreeherderPage(Page):
     def all_superseded_jobs(self):
         return list(itertools.chain.from_iterable(
             r.superseded_jobs for r in self.result_sets))
-
-    @property
-    def checkbox_busted_is_selected(self):
-        return self.find_element(*self._filter_panel_busted_failures_locator).is_selected()
-
-    @property
-    def checkbox_exception_is_selected(self):
-        return self.find_element(*self._filter_panel_exception_failures_locator).is_selected()
-
-    @property
-    def checkbox_testfailed_is_selected(self):
-        return self.find_element(*self._filter_panel_testfailed_failures_locator).is_selected()
 
     @property
     def info_panel(self):
@@ -166,23 +150,8 @@ class TreeherderPage(Page):
         self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
 
-    def close_the_job_panel(self):
-        self.find_element(*self._close_the_job_panel_locator).click()
-
     def close_all_panels(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ESCAPE)
-
-    def deselect_busted_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_busted_failures_locator).click()
-
-    def deselect_exception_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_exception_failures_locator).click()
-
-    def deselect_testfailed_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_testfailed_failures_locator).click()
 
     def filter_by(self, term, method='pointer'):
         if method == 'pointer':
@@ -244,14 +213,6 @@ class TreeherderPage(Page):
         """Filters Panel must be opened"""
         self.find_element(*self._filter_panel_reset_locator).click()
 
-    def select_busted_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_busted_failures_locator).click()
-
-    def select_exception_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_exception_failures_locator).click()
-
     def select_next_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
 
@@ -268,10 +229,6 @@ class TreeherderPage(Page):
     def select_random_job(self):
         random_job = random.choice(self.all_jobs)
         random_job.click()
-
-    def select_testfailed_failures(self):
-        """Filters Panel must be opened"""
-        self.find_element(*self._filter_panel_testfailed_failures_locator).click()
 
     class ResultSet(Region):
 
