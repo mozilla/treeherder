@@ -26,13 +26,14 @@ Vagrant.configure("2") do |config|
     # The Bento boxes (https://github.com/chef/bento) are recommended over the
     # Canonical ones, since they more closely follow Vagrant best practices.
     override.vm.box = "bento/ubuntu-16.04"
-    override.vm.box_version = ">= 2.3.5"
+    override.vm.box_version = ">= 201802.02.0"
     vb.name = "treeherder"
     vb.memory = "3072"
   end
 
   config.vm.provider "hyperv" do |hv, override|
-    override.vm.box = "ericmann/trusty64"
+    override.vm.box = "bento/ubuntu-16.04"
+    override.vm.box_version = ">= 201801.02.0"
     hv.vmname = "treeherder"
     hv.memory = "3072"
   end

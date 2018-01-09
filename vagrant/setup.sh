@@ -56,6 +56,7 @@ fi
 
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
+sudo -E apt-get -yqq dist-upgrade
 # libgtk-3.0 and libxt-dev are required by Firefox
 # libmysqlclient-dev is required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
