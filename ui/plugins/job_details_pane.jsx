@@ -80,6 +80,10 @@ class JobDetailsList extends React.Component {
         super(props);
 
         this.filterTextEvent = this.filterTextEvent.bind(this);
+
+        this.state = {
+            machineUrl: ''
+        };
     }
 
     filterTextEvent(event, input) {
@@ -87,15 +91,43 @@ class JobDetailsList extends React.Component {
         this.props.filterByJobSearchStr(input);
     };
 
+    async setJobMachineUrl(props) {
+        let machineUrl = null;
+
+        try {
+            machineUrl = await this.getJobMachineUrl(props);
+        } catch (err) {
+            machineUrl = '';
+        }
+
+        if (this.state.machineUrl !== machineUrl) {
+          this.setState({ machineUrl });
+        }
+    }
+
+    getJobMachineUrl(props) {
+        const { build_system_type, machine_name } = props.job;
+        const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
+            props.getSlaveHealthUrl(machine_name) :
+            props.getWorkerExplorerUrl(props.job.taskcluster_metadata.task_id);
+
+        return machineUrl;
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (_.isEmpty(nextProps.job)) {
+            return;
+        }
+
+        this.setJobMachineUrl(nextProps);
+    }
+
     render() {
         const job = this.props.job;
-        let buildUrl = null;
         const jobLogUrls = this.props.jobLogUrls;
         const jobMachineName = job.machine_name;
+        let buildUrl = null;
         let iconCircleClass = null;
-
-        const slaveHealthUrl = (jobMachineName !== 'unknown' && job.build_system_type === 'buildbot') ?
-        this.props.getSlaveHealthUrl(jobMachineName) : null;
 
         if (job.build_system_type === 'buildbot' && jobLogUrls.length > 0) {
             buildUrl = jobLogUrls[0].buildUrl;
@@ -120,9 +152,9 @@ class JobDetailsList extends React.Component {
                 <JobDetailsListItem
                                 label="Machine: "
                                 text={jobMachineName}
-                                title="Open buildbot slave health report"
+                                title="Inspect machine"
                                 target="_blank"
-                                href={slaveHealthUrl} />}
+                                href={this.state.machineUrl} />}
 
                 {this.props.job.taskcluster_metadata &&
                 <JobDetailsListItem
@@ -212,6 +244,7 @@ class JobDetailsPane extends React.Component {
                 <JobDetailsList
                     job={this.props.job}
                     getSlaveHealthUrl={this.props.getSlaveHealthUrl}
+                    getWorkerExplorerUrl={this.props.getWorkerExplorerUrl}
                     jobSearchSignatureHref={this.props.jobSearchSignatureHref}
                     jobSearchSignature={this.props.jobSearchSignature}
                     filterByJobSearchStr={this.props.filterByJobSearchStr}
@@ -234,6 +267,7 @@ JobDetailsPane.propTypes = {
     getBugUrl: PropTypes.func,
     job: PropTypes.object,
     getSlaveHealthUrl: PropTypes.func,
+    getWorkerExplorerUrl: PropTypes.func,
     resultStatusShading: PropTypes.string,
     $injector: PropTypes.object,
     jobSearchSignatureHref: PropTypes.string,
