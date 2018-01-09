@@ -19,6 +19,8 @@ treeherder.component('phCompareTable', {
         releaseBlockerCriteria: '@'
     },
     controller: ['$attrs', function ($attrs) {
+        // TODO: Use $onInit() so the legacy preAssignBindingsEnabled pref
+        // doesn't have to be enabled in perfapp.js
         var ctrl = this;
 
         if (!ctrl.baseTitle) {
