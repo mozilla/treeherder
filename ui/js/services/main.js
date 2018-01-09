@@ -2,8 +2,8 @@
 
 /* Services */
 treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain',
-    function ($rootScope, thServiceDomain) {
+    '$rootScope', 'thServiceDomain', 'thTaskcluster',
+    function ($rootScope, thServiceDomain, thTaskcluster) {
 
         var thUrl = {
             getRootUrl: function (uri) {
@@ -42,6 +42,15 @@ treeherder.factory('thUrl', [
             },
             getInspectTaskUrl: function (taskId) {
                 return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
+            },
+            getWorkerExplorerUrl: async function (taskId) {
+                const tc = thTaskcluster.client();
+                const queue = new tc.Queue();
+                const { status } = await queue.status(taskId);
+                const { provisionerId, workerType } = status;
+                const { workerGroup, workerId } = status.runs[status.runs.length - 1];
+
+                return `https://tools.taskcluster.net/provisioners/${provisionerId}/worker-types/${workerType}/workers/${workerGroup}/${workerId}`;
             }
         };
         return thUrl;
