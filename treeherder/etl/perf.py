@@ -23,7 +23,7 @@ def _get_signature_hash(signature_properties):
     signature_prop_values = signature_properties.keys()
     str_values = []
     for value in signature_properties.values():
-        if not isinstance(value, basestring):
+        if not isinstance(value, str):
             str_values.append(json.dumps(value, sort_keys=True))
         else:
             str_values.append(value)
