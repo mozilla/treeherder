@@ -36,6 +36,8 @@ matrix:
         - source ./bin/travis-setup.sh python_env
       script:
         - pip check
+        - flake8 --show-source
+
 
     # Job 3: Nodejs UI tests
     - env: ui-tests

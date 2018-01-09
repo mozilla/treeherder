@@ -1,11 +1,11 @@
 "use strict";
 
 treeherder.controller('AnnotationsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'thNotify',
-    'thEvents', 'ThResultSetStore', 'thTabs',
+    '$scope', '$rootScope', 'ThLog', 'ThJobClassificationModel', 'thNotify',
+    'thEvents', 'ThResultSetStore', 'ThBugJobMapModel', 'thTabs',
     function AnnotationsPluginCtrl(
-        $scope, $rootScope, ThLog, thNotify,
-        thEvents, ThResultSetStore, thTabs) {
+        $scope, $rootScope, ThLog, ThJobClassificationModel,
+        thNotify, thEvents, ThResultSetStore, ThBugJobMapModel, thTabs) {
 
         var $log = new ThLog(this.constructor.name);
 

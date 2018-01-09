@@ -1,8 +1,8 @@
 'use strict';
 
 treeherder.factory('ThMatcherModel', [
-    '$http', 'thUrl',
-    function ($http, thUrl) {
+    '$http', '$log', 'thUrl',
+    function ($http, $log, thUrl) {
 
         // ThJobTypeModel is the js counterpart of job_type
 

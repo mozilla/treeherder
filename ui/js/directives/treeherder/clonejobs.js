@@ -2,16 +2,16 @@
 
 /* Directives */
 treeherder.directive('thCloneJobs', [
-    '$rootScope', 'ThLog', 'thUrl', 'thCloneHtml',
+    '$rootScope', '$http', 'ThLog', 'thUrl', 'thCloneHtml',
     'thResultStatusInfo', 'thEvents', 'thAggregateIds',
     'thJobFilters', 'ThResultSetStore',
-    'ThJobModel', 'thResultStatus', 'thPlatformName',
+    'ThJobModel', 'linkifyBugsFilter', 'thResultStatus', 'thPlatformName',
     'thNotify', '$timeout', '$compile',
     function (
-        $rootScope, ThLog, thUrl, thCloneHtml,
+        $rootScope, $http, ThLog, thUrl, thCloneHtml,
         thResultStatusInfo, thEvents, thAggregateIds,
         thJobFilters, ThResultSetStore,
-        ThJobModel, thResultStatus, thPlatformName,
+        ThJobModel, linkifyBugsFilter, thResultStatus, thPlatformName,
         thNotify, $timeout, $compile) {
 
         var $log = new ThLog("thCloneJobs");

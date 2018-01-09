@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import pytest
 
 from tests.test_utils import add_log_response
@@ -42,7 +44,7 @@ def test_parse_log(test_repository, failure_classifications, jobs_with_local_log
     store_job_data(test_repository, jobs)
 
     # this log generates 4 job detail objects at present
-    print JobDetail.objects.count() == 4
+    print(JobDetail.objects.count() == 4)
 
 
 def test_create_error_summary(failure_classifications,

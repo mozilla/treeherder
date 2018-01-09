@@ -93,8 +93,8 @@ treeherder.factory('ThClassificationOption', ['thExtendProperties',
  * Non-editable best option controller
  */
 treeherder.controller('ThStaticClassificationOptionController', [
-    '$scope', 'thPinboard', 'thUrl', 'ThLog',
-    function ($scope, thPinboard, thUrl, ThLog) {
+    '$scope', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl', 'ThLog',
+    function ($scope, highlightCommonTerms, escapeHTML, thPinboard, thUrl, ThLog) {
         var ctrl = this;
 
         var log = new ThLog('ThStaticClassificationOptionController');
@@ -128,9 +128,9 @@ treeherder.component('thStaticClassificationOption', {
  * Editable option component controller
  */
 treeherder.controller('ThClassificationOptionController', [
-    '$scope', '$uibModal', 'thPinboard', 'thUrl',
+    '$scope', '$uibModal', 'highlightCommonTermsFilter', 'escapeHTMLFilter', 'thPinboard', 'thUrl',
     'thReftestStatus', 'ThLog',
-    function ($scope, $uibModal, thPinboard, thUrl, thReftestStatus,
+    function ($scope, $uibModal, highlightCommonTerms, escapeHTML, thPinboard, thUrl, thReftestStatus,
               ThLog) {
         var ctrl = this;
 
@@ -212,10 +212,12 @@ treeherder.component('thClassificationOption', {
  */
 treeherder.controller('ThErrorLineController', [
     '$scope', '$rootScope',
-    'thEvents', 'thUrl', 'ThLog',
+    'highlightLogLineFilter', 'escapeHTMLFilter',
+    'thEvents', 'thValidBugNumber', 'thUrl', 'ThLog',
     'ThClassificationOption', 'thStringOverlap',
     function ($scope, $rootScope,
-              thEvents, thUrl, ThLog,
+              highlightLogLine, escapeHTML,
+              thEvents, thValidBugNumber, thUrl, ThLog,
               ThClassificationOption, thStringOverlap) {
         var ctrl = this;
         var log = new ThLog('ThErrorLineController');
@@ -817,10 +819,10 @@ treeherder.component('thAutoclassifyToolbar', {
  * Main controller for the autoclassification panel.
  */
 treeherder.controller('ThAutoclassifyPanelController', [
-    '$scope', '$rootScope', '$q',
+    '$scope', '$rootScope', '$q', '$timeout',
     'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
     'thUrl', 'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
-    function ($scope, $rootScope, $q,
+    function ($scope, $rootScope, $q, $timeout,
              ThLog, thEvents, thNotify, thJobNavSelectors, thPinboard,
              thUrl, ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 

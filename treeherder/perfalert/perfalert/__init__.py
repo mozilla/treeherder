@@ -95,7 +95,12 @@ class RevisionDatum(object):
         self.change_detected = False
 
     def __cmp__(self, o):
-        return cmp(self.push_timestamp, o.push_timestamp)
+        if self.push_timestamp == o.push_timestamp:
+            return 0
+        elif self.push_timestamp < o.push_timestamp:
+            return -1
+        elif self.push_timestamp:
+            return 1
 
     def __repr__(self):
         values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in

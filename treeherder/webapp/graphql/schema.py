@@ -24,7 +24,7 @@ class TextLogErrorGraph(DjangoObjectType):
 
     bug_suggestions = ObjectScalar()
 
-    def resolve_bug_suggestions(self, info, **kwargs):
+    def resolve_bug_suggestions(self, args, context, info):
         return error_summary.bug_suggestions_line(self)
 
 
@@ -46,8 +46,8 @@ class JobGraph(DjangoObjectType):
 
     job_details = DjangoFilterConnectionField(JobDetailGraph)
 
-    def resolve_job_details(self, info, **kwargs):
-        return JobDetail.objects.filter(job=self, **kwargs)
+    def resolve_job_details(self, args, context, info):
+        return JobDetail.objects.filter(job=self, **args)
 
 
 class BuildPlatformGraph(DjangoObjectType):
@@ -123,7 +123,7 @@ class PushGraph(DjangoObjectType):
 
     jobs = helpers.OptimizedFilterConnectionField(JobGraph)
 
-    def resolve_jobs(self, info, **kwargs):
+    def resolve_jobs(self, args, context, info):
         field_map = {
             "buildPlatform": ("build_platform", "select"),
             "jobLog": ("job_log", "prefetch"),
@@ -135,7 +135,7 @@ class PushGraph(DjangoObjectType):
             "textLogStep": ("text_log_step", "prefetch"),
             "errors": ("text_log_step__errors", "prefetch"),
         }
-        return helpers.optimize(Job.objects.filter(push=self, **kwargs),
+        return helpers.optimize(Job.objects.filter(push=self, **args),
                                 ast_to_dict(info.field_asts),
                                 field_map)
 
@@ -153,22 +153,22 @@ class Query(graphene.ObjectType):
     all_pushes = DjangoFilterConnectionField(PushGraph)
     all_text_log_steps = graphene.List(TextLogStepGraph)
 
-    def resolve_all_jobs(self, info, **kwargs):
-        return Job.objects.filter(**kwargs)
+    def resolve_all_jobs(self, args, context, info):
+        return Job.objects.filter(**args)
 
-    def resolve_all_job_details(self, info, **kwargs):
-        return JobDetail.objects.filter(**kwargs)
+    def resolve_all_job_details(self, args, context, info):
+        return JobDetail.objects.filter(**args)
 
-    def resolve_all_build_platforms(self, info, **kwargs):
+    def resolve_all_build_platforms(self, args, context, info):
         return BuildPlatform.objects.all()
 
-    def resolve_all_machine_platforms(self, info, **kwargs):
+    def resolve_all_machine_platforms(self, args, context, info):
         return MachinePlatform.objects.all()
 
-    def resolve_all_machines(self, info, **kwargs):
+    def resolve_all_machines(self, args, context, info):
         return Machine.objects.all()
 
-    def resolve_all_option_collections(self, info, **kwargs):
+    def resolve_all_option_collections(self, args, context, info):
         field_map = {
             "option": ("option", "select"),
         }
@@ -176,20 +176,20 @@ class Query(graphene.ObjectType):
                                 ast_to_dict(info.field_asts),
                                 field_map)
 
-    def resolve_all_job_types(self, info, **kwargs):
+    def resolve_all_job_types(self, args, context, info):
         return JobType.objects.all()
 
-    def resolve_all_products(self, info, **kwargs):
+    def resolve_all_products(self, args, context, info):
         return Product.objects.all()
 
-    def resolve_all_failure_classifications(self, info, **kwargs):
+    def resolve_all_failure_classifications(self, args, context, info):
         return FailureClassification.objects.all()
 
-    def resolve_all_pushes(self, info, **kwargs):
-        return Push.objects.filter(**kwargs)
+    def resolve_all_pushes(self, args, context, info):
+        return Push.objects.filter(**args)
 
-    def resolve_all_text_log_steps(self, info, **kwargs):
-        return TextLogStep.objects.filter(**kwargs)
+    def resolve_all_text_log_steps(self, args, context, info):
+        return TextLogStep.objects.filter(**args)
 
 
 schema = graphene.Schema(query=Query)

@@ -23,11 +23,7 @@ def test_create_bug_job_map(test_job, mock_message_broker,
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    submit_obj = {
-        u"job_id": test_job.id,
-        u"bug_id": 1L,
-        u"type": u"manual"
-    }
+    submit_obj = {"job_id": test_job.id, "bug_id": 1, "type": "manual"}
 
     # if testing duplicate handling, submit twice
     if test_duplicate_handling:
@@ -48,7 +44,7 @@ def test_create_bug_job_map(test_job, mock_message_broker,
         bug_job_map = BugJobMap.objects.all()[0]
 
         assert bug_job_map.job_id == submit_obj['job_id']
-        assert bug_job_map.bug_id == 1L
+        assert bug_job_map.bug_id == 1
         assert bug_job_map.user == test_user
 
 

@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 def _get_number(s):
     try:
-        return long(s)
+        return int(s)
     except (ValueError, TypeError):
         return 0
 

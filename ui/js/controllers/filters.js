@@ -1,11 +1,11 @@
 "use strict";
 
 treeherderApp.controller('JobFilterCtrl', [
-    '$scope', '$rootScope',
+    '$scope', '$rootScope', '$route', '$routeParams', '$location', 'ThLog',
     'thResultStatusList', 'thEvents', 'thJobFilters',
     'ThResultSetStore', 'thPinboard', 'thNotify', 'thFailureResults', 'thPinboardCountError',
     function JobFilterCtrl(
-        $scope, $rootScope,
+        $scope, $rootScope, $route, $routeParams, $location, ThLog,
         thResultStatusList, thEvents, thJobFilters,
         ThResultSetStore, thPinboard, thNotify, thFailureResults, thPinboardCountError) {
 
