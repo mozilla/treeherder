@@ -26,10 +26,10 @@ def test_no_missing_migrations():
     call_command('makemigrations', interactive=False, dry_run=True, check_changes=True)
 
 
-def test_memcached_setup():
-    "Test memcached is properly setup"
+def test_django_cache():
+    """Test the Django cache backend & associated server are properly set up."""
     k, v = 'my_key', 'my_value'
-    cache.set(k, v)
+    cache.set(k, v, 10)
     assert cache.get(k) == v
 
 
