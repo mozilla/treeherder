@@ -1,6 +1,7 @@
 from treeherder.config.settings import *
 
 DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}
+KEY_PREFIX = 'test'
 
 TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 
