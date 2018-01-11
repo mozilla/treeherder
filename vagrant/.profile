@@ -36,7 +36,6 @@ function thelp {
     threstartmemcached - Restart memcached
     threstartrabbitmq  - Restart rabbitmq
     thresetall         - Delete logs, purge queues and reset memcached
-    tabname            - Set the title text of the current shell tab
     "
 }
 
@@ -63,9 +62,6 @@ function threstartrabbitmq {
 }
 
 function thresetall {
-    echo "Deleting logs"
-    thlogsdelete
-
     threstartmemcached
     threstartrabbitmq
 
