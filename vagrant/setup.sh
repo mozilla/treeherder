@@ -54,13 +54,11 @@ fi
 
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
-# g++ is required by Brotli
 # libgtk-3.0 and libxt-dev are required by Firefox
 # libmemcached-dev and zlib1g-dev are required by pylibmc
 # libmysqlclient-dev is required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
-    g++ \
     libgtk-3.0 \
     libmemcached-dev \
     libmysqlclient-dev \
