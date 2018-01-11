@@ -154,6 +154,9 @@ class Command(BaseCommand):
 
         time_interval = options['time_interval']
 
+        raise CommandError("This command is currently broken and needs to be "
+                           "fixed, see bug 1429809")
+
         pc = PerfherderClient(server_url=options['server'])
         signatures = pc.get_performance_signatures(
             project,
