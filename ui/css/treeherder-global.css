@@ -410,6 +410,11 @@ h4 {
     width:100%;
 }
 
+#shortcut-table-card {
+    max-height: 90vh;
+    overflow: auto;
+}
+
 /*
  * Clipboard
  *
