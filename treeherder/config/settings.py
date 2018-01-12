@@ -488,53 +488,44 @@ PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 PULSE_DATA_INGESTION_SOURCES = env.json(
     "PULSE_DATA_INGESTION_SOURCES",
     default=[
-        # {
-        #     "name": "exchange/taskcluster-treeherder/v1/jobs",
-        #     "projects": [
-        #         'mozilla-central',
-        #         'mozilla-inbound'
-        #         # other repos TC can submit to
-        #     ],
-        #     "destinations": [
-        #         'production'
-        #         'staging'
-        #     ]
-        # },
-        # {
-        #     "name": "exchange/treeherder-test/jobs",
-        #     "projects": [
-        #         'mozilla-inbound'
-        #     ],
-        #     "destinations": [
-        #         'production'
-        #         'staging'
-        #     ]
-        #
-        # }
+        {
+            "exchange": "exchange/taskcluster-treeherder/v1/jobs",
+            "projects": [
+                '#'
+                # some specific repos TC can ingest from
+                # 'mozilla-central.#',
+                # 'mozilla-inbound.#'
+            ],
+            "destinations": [
+                '#'
+                # 'production',
+                # 'staging'
+            ]
+        }
         # ... other CI systems
     ])
 
 PULSE_PUSH_SOURCES = env.json(
     "PULSE_PUSH_SOURCES",
     default=[
-        # {
-        #     "exchange": "exchange/taskcluster-github/v1/push",
-        #     "routing_keys": [
-        #         '#'
-        #     ],
-        # },
-        # {
-        #     "exchange": "exchange/taskcluster-github/v1/pull-request",
-        #     "routing_keys": [
-        #         '#'
-        #     ],
-        # },
-        # {
-        #     "exchange": "exchange/hgpushes/v1",
-        #     "routing_keys": [
-        #         "#"
-        #     ]
-        # },
+        {
+            "exchange": "exchange/taskcluster-github/v1/push",
+            "routing_keys": [
+                '#'
+            ],
+        },
+        {
+            "exchange": "exchange/taskcluster-github/v1/pull-request",
+            "routing_keys": [
+                '#'
+            ],
+        },
+        {
+            "exchange": "exchange/hgpushes/v1",
+            "routing_keys": [
+                "#"
+            ]
+        }
         # ... other CI systems
     ])
 
