@@ -7,17 +7,9 @@ from kombu import (Exchange,
                    Queue)
 
 from treeherder import path
+from treeherder.config.utils import connection_should_use_tls
 
 env = environ.Env()
-
-
-def server_supports_tls(url):
-    hostname = urlparse(url).hostname
-    # Services such as RabbitMQ/Elasticsearch running on Travis do not yet have TLS
-    # certificates set up. We could try using TLS locally using self-signed certs,
-    # but until Travis has support it's not overly useful.
-    return hostname != 'localhost'
-
 
 TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
@@ -269,7 +261,7 @@ BROKER_URL = env('BROKER_URL')
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
 # This is required since CloudAMQP's automatically defined URL uses neither.
-if server_supports_tls(BROKER_URL):
+if connection_should_use_tls(BROKER_URL):
     BROKER_USE_SSL = True
 
 # Recommended by CloudAMQP:
