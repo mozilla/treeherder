@@ -33,9 +33,8 @@ function thelp {
     thpurge            - Empty all databases and reset all queues (requires vagrant provision afterward)
     thqueues           - Output the status of the Treeherder celery queues
     thqueuespurge      - Empty all the treeherder celery queues
-    threstartmemcached - Restart memcached
     threstartrabbitmq  - Restart rabbitmq
-    thresetall         - Delete logs, purge queues and reset memcached
+    thresetall         - Delete logs, purge queues and clear cache
     "
 }
 
@@ -51,18 +50,13 @@ function thqueuespurge {
     celery -A treeherder purge
 }
 
-function threstartmemcached {
-    echo "Restarting memcache"
-    sudo systemctl restart memcached.service
-}
-
 function threstartrabbitmq {
     echo "Restarting rabbitmq"
     sudo systemctl restart rabbitmq-server.service
 }
 
 function thresetall {
-    threstartmemcached
+    "${HOME}/treeherder/manage.py" clear_cache
     threstartrabbitmq
 
     echo "Purging queues"
