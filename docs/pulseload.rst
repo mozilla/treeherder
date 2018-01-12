@@ -10,19 +10,9 @@ posting your own data.
 Configuration
 -------------
 
-Specify the exchanges to read from using environment variables. For example::
+If you don't want all the sources provided by default in ``settings.py``, you can specify the exchange, the projects, or destinations to read from using an environment variable in your vagrant shell. A working example::
 
-    PULSE_DATA_INGESTION_SOURCES = [
-        {
-            "exchange": "exchange/taskcluster-treeherder/v1/jobs",
-            "destinations": [
-                'tc-treeherder'
-            ],
-            "projects": [
-                'mozilla-inbound.#'
-            ]
-        }
-    ]
+    export PULSE_DATA_INGESTION_SOURCES='[{"exchange": "exchange/taskcluster-treeherder/v1/jobs", "destinations": ["#"], "projects": ["#"]}]'
 
 To be able to ingest from exchanges, you need to create a Pulse user with
 `Pulse Guardian`_, so
