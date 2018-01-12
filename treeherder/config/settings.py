@@ -226,6 +226,11 @@ if DEBUG:
                 'handlers': ['console'],
                 'level': 'WARNING',
             },
+            # TODO: Remove me
+            'elasticsearch.trace': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+            },
             'treeherder': {
                 'handlers': ['console'],
                 'level': 'DEBUG',

@@ -10,7 +10,7 @@ from elasticsearch_dsl import (Boolean,
                                DocType,
                                Index,
                                Integer,
-                               String,
+                               Text,
                                analyzer,
                                tokenizer)
 from elasticsearch_dsl.connections import connections
@@ -65,14 +65,14 @@ class TestFailureLine(RoutedDocType):
     and an error message"""
     _routing_key = "test"
 
-    job_guid = String(required=True, index='not_analyzed')
-    test = String(required=True, index='not_analyzed')
-    subtest = String(index='not_analyzed')
-    status = String(required=True, index='not_analyzed')
-    expected = String(required=True, index='not_analyzed')
+    job_guid = Text(required=True, index='not_analyzed')
+    test = Text(required=True, index='not_analyzed')
+    subtest = Text(index='not_analyzed')
+    status = Text(required=True, index='not_analyzed')
+    expected = Text(required=True, index='not_analyzed')
     best_classification = Integer(index='not_analyzed')
     best_is_verified = Boolean(index='not_analyzed')
-    message = String(analyzer=message_analyzer)
+    message = Text(analyzer=message_analyzer)
 
     @classmethod
     def from_model(cls, line):
