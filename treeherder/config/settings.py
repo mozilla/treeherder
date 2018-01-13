@@ -604,8 +604,6 @@ CACHES = {
         "LOCATION": MEMCACHED_LOCATION,
         # Cache forever
         "TIMEOUT": None,
-        # bumping this is effectively equivalent to restarting memcached
-        "VERSION": 1,
     },
 }
 
