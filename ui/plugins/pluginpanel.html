@@ -113,10 +113,13 @@
               <span class="fa fa-ellipsis-h" aria-hidden="true"></span>
             </span>
             <ul class="dropdown-menu actionbar-menu" role="menu">
-              <li class="{{ canBackfill() ? '' : 'disabled' }}">
-                <a ng-attr-title="{{ backfillButtonTitle() }}"
+              <li>
+                <button id="backfill-btn" href=""
                    class="dropdown-item"
-                   ng-click="!canBackfill() || backfillJob()">Backfill</a>
+                   ng-class="!user.loggedin || !canBackfill() ? 'disabled' : ''"
+                   ng-attr-title="{{ backfillButtonTitle() }}"
+                   ng-disabled="!canBackfill()"
+                   ng-click="!canBackfill() || backfillJob()">Backfill</button>
               </li>
               <li ng-if-start="job.taskcluster_metadata">
                 <a target="_blank" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
