@@ -11,6 +11,7 @@ from treeherder.etl.push import store_push
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
+ONE_WEEK_IN_SECONDS = 604800
 
 
 def last_push_id_from_server(repo):
@@ -128,6 +129,6 @@ class HgPushlogProcess(object):
 
         if not changeset:
             # only cache the last push if we're not fetching a specific changeset
-            cache.set(cache_key, last_push_id)
+            cache.set(cache_key, last_push_id, ONE_WEEK_IN_SECONDS)
 
         return top_revision
