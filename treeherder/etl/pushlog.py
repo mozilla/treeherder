@@ -50,10 +50,11 @@ class HgPushlogProcess(object):
         }
 
     def run(self, source_url, repository_name, changeset=None, last_push_id=None):
+        cache_key = '{}:last_push_id'.format(repository_name)
         if not last_push_id:
             # get the last object seen from cache. this will
             # reduce the number of pushes processed every time
-            last_push_id = cache.get("{0}:last_push_id".format(repository_name))
+            last_push_id = cache.get(cache_key)
 
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
@@ -80,7 +81,7 @@ class HgPushlogProcess(object):
                                     repository_name
                                     )
                                )
-                cache.delete("{0}:last_push_id".format(repository_name))
+                cache.delete(cache_key)
                 extracted_content = self.extract(source_url)
         else:
             if changeset:
@@ -126,8 +127,7 @@ class HgPushlogProcess(object):
             raise CollectionNotStoredException(errors)
 
         if not changeset:
-            # only cache the last push if we're not fetching a specific
-            # changeset
-            cache.set("{0}:last_push_id".format(repository_name), last_push_id)
+            # only cache the last push if we're not fetching a specific changeset
+            cache.set(cache_key, last_push_id)
 
         return top_revision
