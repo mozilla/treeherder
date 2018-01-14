@@ -602,8 +602,6 @@ CACHES = {
     "default": {
         "BACKEND": "django_pylibmc.memcached.PyLibMCCache",
         "LOCATION": MEMCACHED_LOCATION,
-        # Cache forever
-        "TIMEOUT": None,
     },
 }
 

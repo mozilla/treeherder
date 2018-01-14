@@ -20,6 +20,8 @@ CACHE_KEYS = {
     'running': 'processed_buildapi_running',
     'complete': 'processed_buildapi_complete',
 }
+ONE_HOUR_IN_SECONDS = 3600
+FOUR_HOURS_IN_SECONDS = 14400
 
 # Signature sets are for
 # autoland
@@ -432,7 +434,7 @@ class Builds4hJobsProcess(Builds4hTransformerMixin):
         if job_collections:
             store_jobs(job_collections,
                        chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
-        cache.set(CACHE_KEYS['complete'], job_ids_seen)
+        cache.set(CACHE_KEYS['complete'], job_ids_seen, FOUR_HOURS_IN_SECONDS)
         return bool(job_collections)
 
 
@@ -449,7 +451,7 @@ class PendingJobsProcess(PendingRunningTransformerMixin):
         if job_collections:
             store_jobs(job_collections,
                        chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
-        cache.set(CACHE_KEYS['pending'], job_ids_seen)
+        cache.set(CACHE_KEYS['pending'], job_ids_seen, ONE_HOUR_IN_SECONDS)
         return bool(job_collections)
 
 
@@ -466,7 +468,7 @@ class RunningJobsProcess(PendingRunningTransformerMixin):
         if job_collections:
             store_jobs(job_collections,
                        chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
-        cache.set(CACHE_KEYS['running'], job_ids_seen)
+        cache.set(CACHE_KEYS['running'], job_ids_seen, ONE_HOUR_IN_SECONDS)
         return bool(job_collections)
 
 
