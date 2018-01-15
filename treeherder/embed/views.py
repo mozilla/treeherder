@@ -11,13 +11,14 @@ class PushStatusView(TemplateView):
 
     template_name = "embed/push_status.html"
 
-    def get_context_data(self, **kwargs):
-        assert "repository" in kwargs and "revision" in kwargs
-        (repository_name, revision) = (kwargs['repository'], kwargs['revision'])
-        context = super(PushStatusView, self).get_context_data(**kwargs)
+    def get_context_data(self, repository, revision, **kwargs):
+        context = super(PushStatusView, self).get_context_data(
+            repository=repository, revision=revision, **kwargs
+        )
         pushes = Push.objects.filter(
-            repository__name=repository_name,
-            commits__revision__startswith=revision)
+            repository__name=repository,
+            commits__revision__startswith=revision
+        )
         if not len(pushes):
             raise Http404("No push found for revision {0}".format(
                 revision))

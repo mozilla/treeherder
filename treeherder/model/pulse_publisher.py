@@ -28,8 +28,10 @@ def load_schemas(folder):
         # Read file and insert into schemas
         with open(os.path.join(folder, filename)) as f:
             data = json.load(f)
-            assert 'id' in data, "JSON schemas must have an 'id' property"
-            schemas[data['id']] = data
+            try:
+                schemas[data['id']] = data
+            except KeyError:
+                raise KeyError("JSON schemas must have an 'id' property")
 
     # Return schemas loaded
     return schemas
@@ -108,6 +110,8 @@ class Key(object):
 
 class PulsePublisher(object):
 
+    REQUIRED_ATTRS = ('title', 'description', 'exchange_prefix')
+
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
         exchange_path = "exchange/%s/%s%s" % (
@@ -163,9 +167,9 @@ class PulsePublisher(object):
         :param list: list of available schemas.
         """
         # Validate properties
-        assert hasattr(self, 'title'), "Title is required"
-        assert hasattr(self, 'description'), "description is required"
-        assert hasattr(self, 'exchange_prefix'), "exchange_prefix is required"
+        for attr in self.REQUIRED_ATTRS:
+            if not hasattr(self, attr):
+                raise TypeError('{} is required'.format(attr))
 
         # Set attributes
         self.schemas = schemas
