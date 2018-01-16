@@ -58,6 +58,14 @@ class Treeherder(Base):
         self.find_element(*self._filters_menu_locator).click()
         self.FiltersMenu(self).reset()
 
+    def select_next_unclassified_job(self):
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
+        self.wait.until(lambda _: self.info_panel.is_open)
+
+    def select_previous_unclassified_job(self):
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys('p')
+        self.wait.until(lambda _: self.info_panel.is_open)
+
     def select_repository(self, name):
         self.find_element(*self._repo_menu_locator).click()
         # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
@@ -131,6 +139,10 @@ class Treeherder(Base):
             def click(self):
                 self.root.click()
                 self.wait.until(lambda _: self.page.info_panel.is_open)
+
+            @property
+            def selected(self):
+                return 'selected-job' in self.root.get_attribute('class')
 
     class Commit(Region):
 

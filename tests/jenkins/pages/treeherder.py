@@ -398,17 +398,12 @@ class TreeherderPage(Page):
 
             _root_locator = (By.ID, 'job-details-panel')
             _job_keyword_locator = (By.CSS_SELECTOR, '#job-details-pane > ul > li > a:nth-last-child(1)')
-            _job_result_status_locator = (By.CSS_SELECTOR, '#result-status-pane > div:nth-child(1) > span:nth-child(2)')
             _logviewer_button_locator = (By.ID, 'logviewer-btn')
             _pin_job_locator = (By.ID, 'pin-job-btn')
 
             @property
             def job_keyword_name(self):
                 return self.find_element(*self._job_keyword_locator).text
-
-            @property
-            def job_result_status(self):
-                return self.find_element(*self._job_result_status_locator).text
 
             def filter_by_job_keyword(self):
                 self.find_element(*self._job_keyword_locator).click()
