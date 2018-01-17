@@ -30,6 +30,8 @@ export PIP_DISABLE_PIP_VERSION_CHECK='True'
 echo '-----> Performing cleanup'
 # Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
 sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
+# Remove memcached remnants in case this instance existed prior to the Redis switch.
+sudo -E apt-get -yqq purge --auto-remove memcached libmemcached-dev
 # Stale pyc files can cause pytest ImportMismatchError exceptions.
 find . -type f -name '*.pyc' -delete
 # Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
@@ -55,22 +57,18 @@ fi
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 # libgtk-3.0 and libxt-dev are required by Firefox
-# libmemcached-dev and zlib1g-dev are required by pylibmc
 # libmysqlclient-dev is required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     libgtk-3.0 \
-    libmemcached-dev \
     libmysqlclient-dev \
     libxt-dev \
-    memcached \
     mysql-server-5.7 \
     nodejs \
     openjdk-8-jre-headless \
     rabbitmq-server \
     redis-server \
-    yarn \
-    zlib1g-dev
+    yarn
 
 if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
     echo '-----> Installing Elasticsearch'
