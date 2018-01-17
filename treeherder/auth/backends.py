@@ -1,10 +1,16 @@
+import json
 import logging
 import re
+import time
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.reverse import reverse
-from taskcluster import Auth
+from jose import jwt
+from rest_framework.exceptions import AuthenticationFailed
+
+from six.moves.urllib.request import urlopen
+from treeherder.config.settings import (AUTH0_AUDIENCE,
+                                        AUTH0_DOMAIN)
 
 logger = logging.getLogger(__name__)
 
@@ -13,26 +19,34 @@ CLIENT_ID_RE = re.compile(
     r"a-zA-Z0-9-.]+)$")
 
 
-class TaskclusterAuthBackend(object):
-    """
-        result of tc_auth.authenticateHawk has the form:
+class AuthBackend(object):
+    def _get_session_expiry(self, request):
+        expires_at_in_milliseconds = request.META.get("HTTP_EXPIRESAT")
 
-        {'status': 'auth-success',
-         'scopes': ['assume:mozilla-group:ateam',
-                    'assume:mozilla-group:vpn_treeherder',
-                    'assume:mozilla-user:biped@mozilla.com',
-                    'assume:mozillians-user:biped',
-                    ...
-                    'assume:project-admin:ateam',
-                    'assume:project-admin:treeherder',
-                    'assume:project:ateam:*',
-                    'assume:project:treeherder:*',
-                    'assume:worker-id:*',
-                    'secrets:set:project/treeherder/*'],
-         'scheme': 'hawk',
-         'clientId': 'mozilla-ldap/biped@mozilla.com',
-         'expires': '2016-10-31T17:40:45.692Z'}
-    """
+        if not expires_at_in_milliseconds:
+            raise AuthenticationFailed("expiresAt header is expected")
+        return int(expires_at_in_milliseconds)
+
+    def _get_token_auth_header(self, request):
+        auth = request.META.get("HTTP_AUTHORIZATION", None)
+
+        if not auth:
+            raise AuthenticationFailed("Authorization header is expected")
+
+        parts = auth.split()
+
+        if parts[0].lower() != "bearer":
+            raise AuthenticationFailed("Authorization header must start with 'Bearer'")
+
+        elif len(parts) == 1:
+            raise AuthenticationFailed("Token not found")
+
+        elif len(parts) > 2:
+            raise AuthenticationFailed("Authorization header must be 'Bearer {token}'")
+
+        token = parts[1]
+
+        return token
 
     def _extract_email_from_clientid(self, client_id):
         """
@@ -51,32 +65,54 @@ class TaskclusterAuthBackend(object):
             "No email found in clientId: '{}'".format(client_id))
 
     def authenticate(self, request):
+        token = self._get_token_auth_header(request)
+        expires_at_in_milliseconds = self._get_session_expiry(request)
+        now_in_milliseconds = int(round(time.time() * 1000))
 
-        auth_header = request.META.get("HTTP_TCAUTH", None)
-        host = request.get_host().split(":")[0]
-        port = int(request.get_port())
+        # The Django user session expiration should be set to match the expiry time of the Auth0 token
+        request.session.set_expiry((expires_at_in_milliseconds - now_in_milliseconds) / 1000)
 
-        if not auth_header:
-            # Doesn't have the right params for this backend.  So just
-            # skip and let another backend have a try at it.
-            return None
+        # JWT Validator
+        # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
+        jsonurl = urlopen('https://' + AUTH0_DOMAIN + '/.well-known/jwks.json')
+        jwks = json.loads(jsonurl.read())
+        unverified_header = jwt.get_unverified_header(token)
 
-        tc_auth = Auth()
-        # https://docs.taskcluster.net/reference/platform/taskcluster-auth/references/api#authenticateHawk
-        # https://github.com/taskcluster/taskcluster-client.py#authenticate-hawk-request
-        result = tc_auth.authenticateHawk({
-            "authorization": auth_header,
-            "host": host,
-            "port": port,
-            "resource": reverse("auth-login"),
-            "method": "get",
-        })
+        rsa_key = {}
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
 
-        if result["status"] != "auth-success":
-            logger.warning("Error logging in: {}".format(result["message"]))
-            raise TaskclusterAuthException(result["message"])
+        if rsa_key:
+            try:
+                jwt.decode(
+                    token,
+                    rsa_key,
+                    algorithms=['RS256'],
+                    audience=AUTH0_AUDIENCE,
+                    issuer="https://"+AUTH0_DOMAIN+"/"
+                )
+            except jwt.ExpiredSignatureError:
+                raise AuthError({"code": "token_expired",
+                                "description": "token is expired"}, 401)
+            except jwt.JWTClaimsError:
+                raise AuthError({"code": "invalid_claims",
+                                "description":
+                                    "incorrect claims,"
+                                    "please check the audience and issuer"}, 401)
+            except Exception:
+                raise AuthError({"code": "invalid_header",
+                                "description":
+                                    "Unable to parse authentication"
+                                    " token."}, 400)
 
-        client_id = result["clientId"]
+        client_id = request.META.get("HTTP_CLIENTID", None)
         email = self._extract_email_from_clientid(client_id)
 
         # Look for an existing user by username/clientId
@@ -96,9 +132,9 @@ class TaskclusterAuthBackend(object):
             return None
 
 
-class TaskclusterAuthException(Exception):
+class NoEmailException(Exception):
     pass
 
 
-class NoEmailException(Exception):
+class AuthError(Exception):
     pass

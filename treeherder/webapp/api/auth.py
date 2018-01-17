@@ -8,11 +8,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from taskcluster.exceptions import (TaskclusterConnectionError,
-                                    TaskclusterRestFailure)
 
-from treeherder.auth.backends import (NoEmailException,
-                                      TaskclusterAuthException)
+from treeherder.auth.backends import (AuthError,
+                                      NoEmailException)
 from treeherder.credentials.models import Credentials
 from treeherder.webapp.api.serializers import UserSerializer
 
@@ -33,12 +31,12 @@ def hawk_lookup(id):
     }
 
 
-class TaskclusterAuthViewSet(viewsets.ViewSet):
+class AuthViewSet(viewsets.ViewSet):
 
     @list_route()
     def login(self, request):
         """
-        Verify credentials with Taskcluster
+        Verify credentials
         """
         try:
             user = authenticate(request)
@@ -56,18 +54,12 @@ class TaskclusterAuthViewSet(viewsets.ViewSet):
             # The user's clientId didn't have an email
             logger.warning("Email required for login.", exc_info=ex)
             raise AuthenticationFailed(str(ex))
-        except TaskclusterAuthException as ex:
-            # This is an error where the user wasn't able to log in
-            # for some reason.
-            logger.warning("Error authenticating with Taskcluster", exc_info=ex)
-            raise AuthenticationFailed(str(ex))
-        except (TaskclusterConnectionError,
-                TaskclusterRestFailure) as ex:
+        except AuthError as ex:
             # This indicates an error that may require attention by the
             # Treeherder or Taskcluster teams.  Logging this to New Relic to
             # increase visibility.
             newrelic.agent.record_exception()
-            logger.exception("Error communicating with Taskcluster", exc_info=ex)
+            logger.exception("Error", exc_info=ex)
             raise AuthenticationFailed(str(ex))
 
     @list_route()
