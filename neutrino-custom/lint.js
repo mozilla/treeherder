@@ -94,6 +94,7 @@ module.exports = neutrino => {
                     'treeherder',
                     'treeherderApp',
                     'userguideApp',
+                    'authApp'
                 ]
             }
         }));

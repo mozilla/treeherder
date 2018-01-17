@@ -11,6 +11,7 @@ const SRC = path.join(CWD, 'src'); // neutrino's default source directory
 const UI = path.join(CWD, 'ui');
 const DIST = path.join(CWD, 'dist');
 const INDEX_TEMPLATE = path.join(UI, 'index.html');
+const LOGIN_TEMPLATE = path.join(UI, 'login.html');
 const PERF_TEMPLATE = path.join(UI, 'perf.html');
 const LOGVIEWER_TEMPLATE = path.join(UI, 'logviewer.html');
 const FAILUREVIEWER_TEMPLATE = path.join(UI, 'failureviewer.html');
@@ -41,6 +42,8 @@ module.exports = neutrino => {
             'angular-toarrayfilter',
             'angular-ui-router',
             'angular1-ui-bootstrap4',
+            'auth0-js',
+            'angular-auth0',
             'bootstrap/dist/js/bootstrap',
             'hawk',
             'jquery',
@@ -53,6 +56,7 @@ module.exports = neutrino => {
             'react',
             'react-dom',
             'taskcluster-client',
+            'taskcluster-client-web'
         ];
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
@@ -77,6 +81,10 @@ module.exports = neutrino => {
     neutrino.config
         .entry('failureviewer')
         .add(path.join(UI, 'entry-failureviewer.js'))
+        .end();
+    neutrino.config
+        .entry('login')
+        .add(path.join(UI, 'entry-login.js'))
         .end();
     neutrino.config
         .entry('userguide')
@@ -149,6 +157,16 @@ module.exports = neutrino => {
             filename: 'perf.html',
             template: PERF_TEMPLATE,
             chunks: ['perf', 'vendor', 'manifest'],
+            minify: HTML_MINIFY_OPTIONS
+        });
+
+    neutrino.config
+        .plugin('html-login')
+        .use(HtmlPlugin, {
+            inject: 'body',
+            filename: 'login.html',
+            template: LOGIN_TEMPLATE,
+            chunks: ['login', 'vendor', 'manifest'],
             minify: HTML_MINIFY_OPTIONS
         });
 
@@ -228,6 +246,7 @@ module.exports = neutrino => {
     neutrino.config
         .plugin('provide')
         .use(webpack.ProvidePlugin, {
+            auth0: require.resolve('auth0-js'),
             $: require.resolve('jquery'),
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
@@ -240,12 +259,12 @@ module.exports = neutrino => {
             treeherderApp: require.resolve(path.join(UI, 'js/treeherder_app.js')),
             perf: require.resolve(path.join(UI, 'js/perf.js')),
             failureViewerApp: require.resolve(path.join(UI, 'js/failureviewer.js')),
+            authApp: require.resolve(path.join(UI, 'js/auth.js')),
             logViewerApp: require.resolve(path.join(UI, 'js/logviewer.js')),
             userguideApp: require.resolve(path.join(UI, 'js/userguide.js'))
         });
 
     neutrino.config.devtool('source-map');
-
 };
 
 module.exports.CWD = CWD;
