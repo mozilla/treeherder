@@ -1,7 +1,7 @@
 'use strict';
 
 var treeherderApp = angular.module('treeherder.app',
-    ['treeherder', 'ui.bootstrap', 'ngRoute',
+    ['treeherder', 'auth', 'ui.bootstrap', 'ngRoute',
         'mc.resizer', 'angular-toArrayFilter', 'react',
         'hc.marked']);
 
@@ -44,9 +44,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
                 controller: 'JobsCtrl',
                 templateUrl: 'partials/main/jobs.html',
                 reloadOnSearch: false
-            })
-            .when('/login', {
-                template: '<login-callback/>'
             })
             .otherwise({ redirectTo: '/jobs' });
     }]).run(require('./cache-templates'));
