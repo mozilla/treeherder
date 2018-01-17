@@ -1,12 +1,14 @@
+import time
+
 import pytest
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
+from jose import jwt
 from mohawk import Sender
 from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
-from taskcluster import Auth
 
 from treeherder.model.models import User
 from treeherder.webapp.api import permissions
@@ -102,90 +104,44 @@ def test_post_no_auth():
     assert response.data == {'detail': 'Authentication credentials were not provided.'}
 
 
-# TC Auth Login and Logout Tests
+# Auth Login and Logout Tests
 
-def test_ldap_login_and_logout(test_ldap_user, webapp, monkeypatch):
+def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": "mozilla-ldap/user@foo.com",
-                "scopes": ["assume:mozilla-user:user@foo.com"]
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
 
     assert "sessionid" not in webapp.cookies
 
-    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
+    client_id = "mozilla-ldap/user@foo.com"
+    one_hour = 1000 * 60 * 60
+    expires_at = int(round(time.time() * 1000)) + one_hour
+
+    webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=200)
+
     session_key = webapp.cookies["sessionid"]
     session = Session.objects.get(session_key=session_key)
     session_data = session.get_decoded()
     user = User.objects.get(id=session_data.get('_auth_user_id'))
+
     assert user.id == test_ldap_user.id
+    assert user.username == client_id
 
     webapp.get(reverse("auth-logout"), status=200)
+
     assert "sessionid" not in webapp.cookies
-
-
-def test_ldap_login_no_mozilla_user_scope(test_user, webapp, monkeypatch):
-    """
-    LDAP login, user exists, no scope: find by username.
-    also covers logging in by email
-    """
-    client_id = "mozilla-ldap/test@foo.com"
-    existing_user = User.objects.create(username=client_id, email="test@foo.com")
-
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": client_id,
-                "scopes": []
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
-
-    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
-
-    session_key = webapp.cookies["sessionid"]
-    session = Session.objects.get(session_key=session_key)
-    session_data = session.get_decoded()
-    user = User.objects.get(id=session_data.get('_auth_user_id'))
-    assert user.id == existing_user.id
-    assert user.username == client_id
-
-
-def test_ldap_login_no_mozilla_user_scope_create(test_user, webapp, monkeypatch):
-    """
-    LDAP login, user exists, no scope: find by username.
-    create because no username match
-    """
-    client_id = "mozilla-ldap/user@foo.com"
-
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": client_id,
-                "scopes": []
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
-
-    webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=200)
-
-    session_key = webapp.cookies["sessionid"]
-    session = Session.objects.get(session_key=session_key)
-    session_data = session.get_decoded()
-    user = User.objects.get(id=session_data.get('_auth_user_id'))
-    assert user.id != test_user.id
-    assert user.username == client_id
 
 
 @pytest.mark.django_db
 def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
     """email login, user doesn't exist, create it"""
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": "email/user@foo.com",
-                "scopes": []
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
 
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"})
+    client_id = "email/user@foo.com"
+    one_hour = 1000 * 60 * 60
+    expires_at = int(round(time.time() * 1000)) + one_hour
+
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id})
+
     assert resp.json["username"] == "email/user@foo.com"
 
 
@@ -205,39 +161,35 @@ def test_login_no_email(test_user, webapp, monkeypatch):
     transaction has been compromised.
 
     """
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": "foo/bar",
-                "scopes": ["assume:mozilla-user:meh"]
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
 
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    client_id = "foo/bar"
+    one_hour = 1000 * 60 * 60
+    expires_at = int(round(time.time() * 1000)) + one_hour
+
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=403)
+
     assert resp.json["detail"] == "No email found in clientId: 'foo/bar'"
 
 
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     """LDAP login, user not active"""
-    def mock_auth(selfless, payload):
-        return {"status": "auth-success",
-                "clientId": "mozilla-ldap/user@foo.com",
-                "scopes": ["assume:mozilla-user:user@foo.com"]
-                }
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
+
+    client_id = "mozilla-ldap/user@foo.com"
+    one_hour = 1000 * 60 * 60
+    expires_at = int(round(time.time() * 1000)) + one_hour
 
     test_ldap_user.is_active = False
     test_ldap_user.save()
 
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=403)
+
     assert resp.json["detail"] == "This user has been disabled."
 
 
 def test_login_invalid(webapp, monkeypatch):
-    def mock_auth(selfless, payload):
-        return {"status": "auth-failed",
-                "message": "Don't try to frighten us with your sorcerous ways, Lord Vader."}
-    monkeypatch.setattr(Auth, 'authenticateHawk', mock_auth)
+    resp = webapp.get(reverse("auth-login"), status=403)
 
-    resp = webapp.get(reverse("auth-login"), headers={"tcauth": "foo"}, status=403)
-    assert resp.json["detail"] == "Don't try to frighten us with your sorcerous ways, Lord Vader."
+    assert resp.json["detail"] == "Authorization header is expected"

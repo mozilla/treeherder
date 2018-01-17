@@ -313,3 +313,5 @@ iso8601==0.1.12 \
 
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
+
+python-jose==2.0.0 --hash=sha256:0f38b5d0bb7df491abcfec5765a2bcd31f28495d366dab05fb15797c2fc8d2ab
