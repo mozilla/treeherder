@@ -12,7 +12,6 @@ from treeherder.config.utils import (connection_should_use_tls,
 env = environ.Env()
 
 TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
-TREEHERDER_MEMCACHED_KEY_PREFIX = env("TREEHERDER_MEMCACHED_KEY_PREFIX", default="treeherder")
 
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
@@ -604,8 +603,6 @@ CACHES = {
         "LOCATION": MEMCACHED_LOCATION,
     },
 }
-
-KEY_PREFIX = TREEHERDER_MEMCACHED_KEY_PREFIX
 
 # This code handles the memcachier service on heroku.
 # TODO: Stop special-casing Heroku and use newer best practices from:
