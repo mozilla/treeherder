@@ -193,10 +193,10 @@ djangorestframework-filters==0.10.2 \
     --hash=sha256:6d72c304d543b0e5597defe89ba581517455e86ac84efd17526eda27118236e8 \
     --hash=sha256:1f51945b46f476b8184518e2881febcf3772b606b73ce022a4b7e7ff3763895d
 
-pylibmc==1.5.2 \
-    --hash=sha256:fc54e28a9f1b5b2ec0c030da29c7ad8a15c2755bd98aaa4142eaf419d5fabb33
+django-redis==4.8.0 --hash=sha256:9660332cf9de5689a7ebbe0c623c4a0de79e0916a6ae867b5d0b94759bba46c9
 
-django-pylibmc==0.6.1 --hash=sha256:9cffdee703aaf9ebc029d9dbdee8abdd0723564b95e4b2ac59e4a668b8e58f93
+# Required by django-redis
+redis==2.10.6 --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb
 
 elasticsearch==5.5.2 \
     --hash=sha256:2e6dcdf9cb62377e0d6b82d2931ebc67b5a549081bbb531aa3be60ece33257b2 \

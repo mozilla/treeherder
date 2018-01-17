@@ -5,6 +5,7 @@ export PATH="${HOME}/firefox:${HOME}/python/bin:${PATH}"
 export BROKER_URL='amqp://guest:guest@localhost//'
 export DATABASE_URL='mysql://root@localhost/treeherder'
 export ELASTICSEARCH_URL='http://localhost:9200'
+export REDIS_URL='redis://localhost:6379'
 
 export TREEHERDER_DEBUG='True'
 export ENABLE_DEBUG_TOOLBAR='True'

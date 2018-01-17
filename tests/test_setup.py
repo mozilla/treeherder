@@ -4,6 +4,7 @@ from celery import current_app
 from django.core.cache import cache
 from django.core.management import call_command
 
+from treeherder.config.utils import get_tls_redis_url
 from treeherder.etl.common import fetch_text
 
 
@@ -31,6 +32,16 @@ def test_django_cache():
     k, v = 'my_key', 'my_value'
     cache.set(k, v, 10)
     assert cache.get(k) == v
+
+
+def test_get_tls_redis_url():
+    """
+    Test conversion from REDIS_URL to the stunnel TLS URL described here:
+    https://devcenter.heroku.com/articles/securing-heroku-redis#connecting-directly-to-stunnel
+    """
+    REDIS_URL = 'redis://h:abc8069@ec2-12-34-56-78.compute-1.amazonaws.com:8069'
+    TLS_REDIS_URL = 'rediss://h:abc8069@ec2-12-34-56-78.compute-1.amazonaws.com:8070'
+    assert get_tls_redis_url(REDIS_URL) == TLS_REDIS_URL
 
 
 @current_app.task

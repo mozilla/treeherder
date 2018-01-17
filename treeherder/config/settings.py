@@ -7,11 +7,10 @@ from kombu import (Exchange,
 
 from treeherder import path
 from treeherder.config.utils import (connection_should_use_tls,
+                                     get_tls_redis_url,
                                      hostname)
 
 env = environ.Env()
-
-TREEHERDER_MEMCACHED = env("TREEHERDER_MEMCACHED", default="127.0.0.1:11211")
 
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
@@ -592,33 +591,22 @@ for alias in DATABASES:
             'ca': 'deployment/aws/combined-ca-bundle.pem',
         }
 
-# TREEHERDER_MEMCACHED is a string of comma-separated address:port pairs
-# NB: On Heroku this will be set to localhost, so that the connection
-# occurs via the stunnel established by memcachier-tls-buildpack.
-MEMCACHED_LOCATION = TREEHERDER_MEMCACHED.strip(',').split(',')
+REDIS_URL = env('REDIS_URL')
+
+if connection_should_use_tls(REDIS_URL):
+    # Connect using TLS on Heroku.
+    REDIS_URL = get_tls_redis_url(REDIS_URL)
 
 CACHES = {
-    "default": {
-        "BACKEND": "django_pylibmc.memcached.PyLibMCCache",
-        "LOCATION": MEMCACHED_LOCATION,
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            # Override the default of no timeout, to avoid connection hangs.
+            'SOCKET_CONNECT_TIMEOUT': 5,
+        },
     },
 }
-
-# This code handles the memcachier service on heroku.
-# TODO: Stop special-casing Heroku and use newer best practices from:
-# https://www.memcachier.com/documentation#django.
-if 'DYNO' in env:
-    # Prefs taken from:
-    # https://github.com/rdegges/django-heroku-memcacheify/blob/v1.0.0/memcacheify.py#L30-L39
-    CACHES['default'].update({
-        "BINARY": True,
-        "USERNAME": env('MEMCACHIER_USERNAME', default=None),
-        "PASSWORD": env('MEMCACHIER_PASSWORD', default=None),
-        "OPTIONS": {
-            "ketama": True,
-            "tcp_nodelay": True,
-        },
-    })
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {},

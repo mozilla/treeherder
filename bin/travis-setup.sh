@@ -6,6 +6,7 @@ set -euo pipefail
 export BROKER_URL='amqp://guest:guest@localhost:5672//'
 export DATABASE_URL='mysql://root@localhost/test_treeherder'
 export ELASTICSEARCH_URL='http://127.0.0.1:9200'
+export REDIS_URL='redis://localhost:6379'
 export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 
 setup_services() {
