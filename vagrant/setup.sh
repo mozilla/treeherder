@@ -68,6 +68,7 @@ sudo -E apt-get -yqq install --no-install-recommends \
     nodejs \
     openjdk-8-jre-headless \
     rabbitmq-server \
+    redis-server \
     yarn \
     zlib1g-dev
 

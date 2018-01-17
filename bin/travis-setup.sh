@@ -34,6 +34,9 @@ setup_services() {
     sudo -E apt-get -yqq update
     sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
 
+    echo '-----> Starting redis-server'
+    sudo service redis-server start
+
     echo '-----> Starting rabbitmq-server'
     sudo service rabbitmq-server start
 
