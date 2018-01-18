@@ -1,6 +1,6 @@
 'use strict';
 
-const authApp = angular.module('auth', ['LocalStorageModule', 'auth0.auth0']);
+const authApp = angular.module('auth', ['LocalStorageModule', 'auth0.auth0', 'react']);
 
 authApp.config(['angularAuth0Provider', 'localStorageServiceProvider', '$locationProvider',
     function (angularAuth0Provider, localStorageServiceProvider, $locationProvider) {

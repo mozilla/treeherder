@@ -12,7 +12,8 @@ import 'angular';
 import 'angular-local-storage';
 import 'auth0-js';
 import 'angular-auth0';
+import 'ngreact';
 
 // Auth JS
 import './js/services/auth.js';
-import './js/components/auth/auth.js';
+import './js/components/auth/auth.jsx';

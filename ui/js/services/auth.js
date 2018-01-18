@@ -42,7 +42,7 @@ import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
             // expiresAt is used by the django backend to expire the user session
             expiresAt,
             // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
-            renewAfter: fromNow('10 seconds')
+            renewAfter: fromNow('15 minutes')
         };
 
       return userSession;
