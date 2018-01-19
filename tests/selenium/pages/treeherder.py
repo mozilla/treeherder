@@ -14,6 +14,12 @@ class Treeherder(Base):
     URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
+    _filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
+    _filter_in_progress_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title*=progress]')
+    _filter_retry_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=retry]')
+    _filter_success_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=success]')
+    _filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
+    _filter_usercancel_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=usercancel]')
     _filters_menu_locator = (By.ID, 'filterLabel')
     _quick_filter_locator = (By.ID, 'quick-filter')
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
@@ -79,6 +85,24 @@ class Treeherder(Base):
         self.header.switch_app()
         from pages.perfherder import Perfherder
         return Perfherder(self.selenium, self.base_url).wait_for_page_to_load()
+
+    def toggle_failures(self):
+        self.find_element(*self._filter_failures_locator).click()
+
+    def toggle_in_progress(self):
+        self.find_element(*self._filter_in_progress_locator).click()
+
+    def toggle_retry(self):
+        self.find_element(*self._filter_retry_locator).click()
+
+    def toggle_success(self):
+        self.find_element(*self._filter_success_locator).click()
+
+    def toggle_superseded(self):
+        self.find_element(*self._filter_superseded_locator).click()
+
+    def toggle_usercancel(self):
+        self.find_element(*self._filter_usercancel_locator).click()
 
     class FiltersMenu(Region):
 

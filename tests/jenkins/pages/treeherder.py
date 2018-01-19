@@ -12,12 +12,6 @@ class TreeherderPage(Page):
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
-    _nav_filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
-    _nav_filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
-    _nav_filter_inprogress_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title*=progress]')
-    _nav_filter_retry_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=retry]')
-    _nav_filter_successes_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=success]')
-    _nav_filter_usercancel_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=usercancel]')
     _get_next_10_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(1)')
     _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
     _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
@@ -40,68 +34,13 @@ class TreeherderPage(Page):
             r.emails for r in self.result_sets))
 
     @property
-    def all_failed_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.failed_jobs for r in self.result_sets))
-
-    @property
-    def all_in_progress_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.in_progress_jobs for r in self.result_sets))
-
-    @property
     def all_jobs(self):
         return list(itertools.chain.from_iterable(
             r.jobs for r in self.result_sets))
 
     @property
-    def all_restarted_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.restarted_jobs for r in self.result_sets))
-
-    @property
-    def all_successful_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.successful_jobs for r in self.result_sets))
-
-    @property
-    def all_superseded_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.superseded_jobs for r in self.result_sets))
-
-    @property
     def info_panel(self):
         return self.InfoPanel(self)
-
-    @property
-    def nav_filter_superseded_is_selected(self):
-        el = self.find_element(*self._nav_filter_superseded_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
-
-    @property
-    def nav_filter_failures_is_selected(self):
-        el = self.find_element(*self._nav_filter_failures_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
-
-    @property
-    def nav_filter_in_progress_is_selected(self):
-        el = self.find_element(*self._nav_filter_inprogress_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
-
-    @property
-    def nav_filter_retry_is_selected(self):
-        el = self.find_element(*self._nav_filter_retry_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
-
-    @property
-    def nav_filter_success_is_selected(self):
-        el = self.find_element(*self._nav_filter_successes_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
-
-    @property
-    def nav_filter_usercancel_is_selected(self):
-        el = self.find_element(*self._nav_filter_usercancel_locator)
-        return ('fa-dot-circle-o' in el.get_attribute('class'))
 
     @property
     def pinboard(self):
@@ -159,24 +98,6 @@ class TreeherderPage(Page):
                 'f' + term + Keys.RETURN)
         else:
             raise Exception('Unsupported method: {}'.format(method))
-
-    def filter_job_superseded(self):
-        self.find_element(*self._nav_filter_superseded_locator).click()
-
-    def filter_job_failures(self):
-        self.find_element(*self._nav_filter_failures_locator).click()
-
-    def filter_job_in_progress(self):
-        self.find_element(*self._nav_filter_inprogress_locator).click()
-
-    def filter_job_retries(self):
-        self.find_element(*self._nav_filter_retry_locator).click()
-
-    def filter_job_successes(self):
-        self.find_element(*self._nav_filter_successes_locator).click()
-
-    def filter_job_usercancel(self):
-        self.find_element(*self._nav_filter_usercancel_locator).click()
 
     def filter_unclassified_jobs(self):
         self.find_element(*self._unclassified_failure_filter_locator).click()
