@@ -225,7 +225,6 @@ class TreeherderPage(Page):
 
         _busted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-red')
         _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
-        _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _email_locator = (By.CSS_SELECTOR, '.result-set-title-left > th-author > span > a')
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
@@ -234,8 +233,6 @@ class TreeherderPage(Page):
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _restarted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkblue')
         _running_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkgray')
-        _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.show > li:nth-child(9) > a')
-        _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.show > li:nth-child(8) > a')
         _successful_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-green')
         _superseded_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltblue')
         _tests_failed_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-orange')
@@ -243,10 +240,6 @@ class TreeherderPage(Page):
         @property
         def busted_jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._busted_jobs_locator)]
-
-        @property
-        def datestamp(self):
-            return self.find_element(*self._datestamp_locator).text
 
         @property
         def emails(self):
@@ -294,22 +287,6 @@ class TreeherderPage(Page):
         @property
         def running_jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._running_jobs_locator)]
-
-        def set_as_bottom_of_range(self):
-            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-            el = self.page.find_element(By.CSS_SELECTOR, 'body')
-            self.find_element(*self._dropdown_toggle_locator).click()
-            self.find_element(*self._set_bottom_of_range_locator).click()
-            self.wait.until(EC.staleness_of(el))
-            self.page.wait_for_page_to_load()
-
-        def set_as_top_of_range(self):
-            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-            el = self.page.find_element(By.CSS_SELECTOR, 'body')
-            self.find_element(*self._dropdown_toggle_locator).click()
-            self.find_element(*self._set_top_of_range_locator).click()
-            self.wait.until(EC.staleness_of(el))
-            self.page.wait_for_page_to_load()
 
         @property
         def successful_jobs(self):
