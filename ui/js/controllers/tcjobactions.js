@@ -72,7 +72,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 // only directing loaner tasks to the loaner UI in the tools site.
                 // It is possible that we may make this a part of the spec later.
                 const loaners = ['docker-worker-linux-loaner', 'generic-worker-windows-loaner'];
-                if (_.includes(loaners, $scope.input.selectedAction.name)) {
+                if (loaners.indexOf($scope.input.selectedAction.name) !== -1) {
                     message = 'Visit Taskcluster Tools site to access loaner:';
                     url = `${url}/connect`;
                 }

@@ -51,7 +51,7 @@ treeherderApp.controller('JobFilterCtrl', [
         };
 
         $scope.isFilterOn = function (filter) {
-            if (_.includes(_.keys($scope.filterGroups), filter)) {
+            if (_.keys($scope.filterGroups).indexOf(filter) !== -1) {
                 // this is a filter grouping, so toggle all on/off
                 return _.some(
                     _.at($scope.resultStatusFilters,
@@ -67,7 +67,7 @@ treeherderApp.controller('JobFilterCtrl', [
          */
         $scope.toggleResultStatusFilterChicklet = function (filter) {
             var filterValues;
-            if (_.includes(_.keys($scope.filterGroups), filter)) {
+            if (_.keys($scope.filterGroups).indexOf(filter) !== -1) {
                 // this is a filter grouping, so toggle all on/off
                 filterValues = $scope.filterGroups[filter].resultStatuses;
             } else {
@@ -111,8 +111,7 @@ treeherderApp.controller('JobFilterCtrl', [
         var updateToggleFilters = function () {
             for (var i = 0; i < $scope.filterOptions.length; i++) {
                 var opt = $scope.filterOptions[i];
-                $scope.resultStatusFilters[opt] = _.includes(
-                    thJobFilters.getResultStatusArray(), opt);
+                $scope.resultStatusFilters[opt] = thJobFilters.getResultStatusArray().indexOf(opt) !== -1;
             }
 
             // whether or not to show classified jobs
@@ -120,8 +119,8 @@ treeherderApp.controller('JobFilterCtrl', [
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
             var classifiedState = thJobFilters.getClassifiedStateArray();
-            $scope.classifiedFilter = _.includes(classifiedState, 'classified');
-            $scope.unClassifiedFilter = _.includes(classifiedState, 'unclassified');
+            $scope.classifiedFilter = classifiedState.indexOf('classified') !== -1;
+            $scope.unClassifiedFilter = classifiedState.indexOf('unclassified') !== -1;
         };
 
         updateToggleFilters();

@@ -27,8 +27,8 @@ treeherder.factory('ThLog', [
         ThLog.prototype.error = function () { logIt(this, $log.error, arguments); };
 
         var logIt = function (self, func, args) {
-            if ((whitelist.length && _.includes(whitelist, self.getClassName())) ||
-                (blacklist.length && !_.includes(blacklist, self.getClassName())) ||
+            if ((whitelist.length && whitelist.indexOf(self.getClassName()) !== -1) ||
+                (blacklist.length && blacklist.indexOf(self.getClassName()) === -1) ||
                 (!whitelist.length && !blacklist.length)) {
                 var newArgs = Array.prototype.slice.call(args);
                 newArgs.unshift(self.getClassName());

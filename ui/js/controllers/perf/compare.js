@@ -744,7 +744,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             // If there is no data for a given signature, handle it gracefully
                             if (seriesMap) {
                                 Object.keys(seriesMap).forEach(function (series) {
-                                    if (!_.includes($scope.pageList, seriesMap[series].name)) {
+                                    if ($scope.pageList.indexOf(seriesMap[series].name) === -1) {
                                         $scope.pageList.push(seriesMap[series].name);
                                     }
                                 });
@@ -779,7 +779,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
                                 if (newSeriesMap) {
                                     Object.keys(newSeriesMap).forEach(function (series) {
-                                        if (!_.includes($scope.pageList, newSeriesMap[series].name)) {
+                                        if ($scope.pageList.indexOf(newSeriesMap[series].name) === -1) {
                                             $scope.pageList.push(newSeriesMap[series].name);
                                         }
                                     });
@@ -846,7 +846,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     // There is a chance that we haven't received data for the given signature/resultSet yet
                                     if (newSeriesMap) {
                                         Object.keys(newSeriesMap).forEach(function (series) {
-                                            if (!_.includes($scope.pageList, newSeriesMap[series].name)) {
+                                            if ($scope.pageList.indexOf(newSeriesMap[series].name) === -1) {
                                                 $scope.pageList.push(newSeriesMap[series].name);
                                             }
                                         });

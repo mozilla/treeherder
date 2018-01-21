@@ -280,7 +280,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                         // 2. The name is a buildbot buildername _scheduled_ through bbb, in which case we
                         //    translate it to the taskcluster label that triggers it.
                         name = builderToTask[name] || name;
-                        if (_.includes(allLabels, name)) {
+                        if (allLabels.indexOf(name) !== -1) {
                             tclabels.push(name);
                         }
                     });

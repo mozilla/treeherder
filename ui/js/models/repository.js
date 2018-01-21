@@ -57,7 +57,7 @@ treeherder.factory('ThRepositoryModel', [
         var watchRepo = function (name) {
             // Safeguard: Don't allow duplicates in the watch list
             // Also, only add items for which we have data for
-            if (_.includes(watchedRepos, name) || !repos[name]) {
+            if (watchedRepos.indexOf(name) !== -1 || !repos[name]) {
                 return;
             }
             _.extend(repos[name], {
@@ -294,11 +294,11 @@ treeherder.factory('ThRepositoryModel', [
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            var repoNames = _.includes(watchedRepos, repoName) ? [repoName] : watchedRepos;
+            var repoNames = watchedRepos.indexOf(repoName) !== -1 ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
-            repoNames = repoNames.filter(repo => _.includes(watchedRepos, repo) && repos[repo].treeStatus.status !== 'unsupported');
+            repoNames = repoNames.filter(repo => watchedRepos.indexOf(repo) !== -1 && repos[repo].treeStatus.status !== 'unsupported');
             var newStatuses = {};
 
             var getStatus = function (repo) {
