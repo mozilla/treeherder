@@ -3,10 +3,10 @@
 perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
-    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer', '$log',
+    '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
-    function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer, $log,
+    function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       thDefaultRepo, phTimeRanges,
                       defaultTimeRange, phBlockers, phDashboardValues) {
@@ -26,7 +26,7 @@ perf.controller('dashCtrl', [
                     $scope[k] = phDashboardValues[$scope.topic][k];
                 }
                 catch (TypeError) {
-                    $log.debug('"'+ k + '" option not found in ' + '"' + $scope.topic + '" dashboard config');
+                    console.debug('"'+ k + '" option not found in ' + '"' + $scope.topic + '" dashboard config');
                 }
             });
 

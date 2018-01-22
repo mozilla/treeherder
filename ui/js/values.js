@@ -59,14 +59,6 @@ treeherder.value("phTimeRangeValues", {
     "mozilla-beta": 7776000
 });
 
-treeherder.value("phComparisonDate", [
-    { value: 0, text: "Today" },
-    { value: 604800, text: "1 week ago" },
-    { value: 1209600, text: "2 weeks ago" },
-    { value: 2419200, text: "4 weeks ago" },
-    { value: 3628800, text: "6 weeks ago" }
-]);
-
 treeherder.value("phBlockers", {
     "cart summary": 2.0,
     "damp summary": 2.0,
