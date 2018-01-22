@@ -1215,7 +1215,7 @@
         "name": "treeherder",
         "url": "https://github.com/mozilla/treeherder",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "treeherder",
         "repository_group": 5,
         "description": "A system for managing CI data for Mozilla projects"

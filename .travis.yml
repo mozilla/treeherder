@@ -78,7 +78,7 @@ matrix:
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
         # Using Python 2's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
         # https://docs.python.org/2/using/cmdline.html#cmdoption-3
-        - python -3 -m pytest tests/ --runslow --ignore=tests/selenium/ --ignore=tests/jenkins/
+        - python -3 -m pytest tests/ --runslow --ignore=tests/selenium/
 
     # Job 5: Python Tests - Selenium integration
     - env: python-tests-selenium
