@@ -3,13 +3,13 @@ import time
 import pytest
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
-from jose import jwt
 from mohawk import Sender
 from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 
+from treeherder.auth.backends import AuthBackend
 from treeherder.model.models import User
 from treeherder.webapp.api import permissions
 
@@ -108,15 +108,23 @@ def test_post_no_auth():
 
 def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
-    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
+    def userinfo_mock(selfless, request):
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email}
+
+    def validate_mock(selfless, request):
+        return True
+
+    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     assert "sessionid" not in webapp.cookies
 
     client_id = "mozilla-ldap/user@foo.com"
+
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=200)
+    webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=200)
 
     session_key = webapp.cookies["sessionid"]
     session = Session.objects.get(session_key=session_key)
@@ -134,13 +142,19 @@ def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
 @pytest.mark.django_db
 def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
     """email login, user doesn't exist, create it"""
-    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
+    def userinfo_mock(selfless, request):
+        return {'sub': 'email', 'email': test_user.email}
 
-    client_id = "email/user@foo.com"
+    def validate_mock(selfless, request):
+        return True
+
+    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id})
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)})
 
     assert resp.json["username"] == "email/user@foo.com"
 
@@ -161,30 +175,42 @@ def test_login_no_email(test_user, webapp, monkeypatch):
     transaction has been compromised.
 
     """
-    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
+    def userinfo_mock(selfless, request):
+        return {'sub': 'bad', 'email': test_user.email}
 
-    client_id = "foo/bar"
+    def validate_mock(selfless, request):
+        return True
+
+    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=403)
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=403)
 
-    assert resp.json["detail"] == "No email found in clientId: 'foo/bar'"
+    assert resp.json["detail"] == "Unrecognized identity"
 
 
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     """LDAP login, user not active"""
-    monkeypatch.setattr(jwt, "get_unverified_header", lambda x: {"kid": "skip_jwt_decode_section"})
+    def userinfo_mock(selfless, request):
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email}
 
-    client_id = "mozilla-ldap/user@foo.com"
+    def validate_mock(selfless, request):
+        return True
+
+    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
     test_ldap_user.is_active = False
     test_ldap_user.save()
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at), "clientId": client_id}, status=403)
+    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=403)
 
     assert resp.json["detail"] == "This user has been disabled."
 
