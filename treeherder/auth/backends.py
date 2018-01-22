@@ -1,30 +1,29 @@
 import json
 import logging
-import re
 import time
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from jose import jwt
 from rest_framework.exceptions import AuthenticationFailed
 
-from six.moves.urllib.request import urlopen
+from six.moves.urllib.request import (Request,
+                                      urlopen)
 from treeherder.config.settings import (AUTH0_AUDIENCE,
                                         AUTH0_DOMAIN)
 
 logger = logging.getLogger(__name__)
 
-CLIENT_ID_RE = re.compile(
-    r"^(?:email|mozilla-ldap)/([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.["
-    r"a-zA-Z0-9-.]+)$")
-
 
 class AuthBackend(object):
+
     def _get_session_expiry(self, request):
         expires_at_in_milliseconds = request.META.get("HTTP_EXPIRESAT")
 
         if not expires_at_in_milliseconds:
             raise AuthenticationFailed("expiresAt header is expected")
+
         return int(expires_at_in_milliseconds)
 
     def _get_token_auth_header(self, request):
@@ -48,34 +47,50 @@ class AuthBackend(object):
 
         return token
 
-    def _extract_email_from_clientid(self, client_id):
+    def _get_clientid_from_userinfo(self, user_info):
         """
-        Extract the user's email from the client_id
+        Get the user's client_id from the jwt sub property
         """
 
-        # Client IDs must be in one of these forms:
-        # - email/foo@bar.com
-        # - mozilla-ldap/foo@bar.com
-        # Email regex taken from http://emailregex.com
-        match = CLIENT_ID_RE.match(client_id)
-        if match:
-            return match.group(1)
+        subject = user_info['sub']
+        email = user_info['email']
 
-        raise NoEmailException(
-            "No email found in clientId: '{}'".format(client_id))
+        if "Mozilla-LDAP" in subject:
+            return "mozilla-ldap/" + email
+        elif "email" in subject:
+            return "email/" + email
+        else:
+            raise AuthenticationFailed("Unrecognized identity")
 
-    def authenticate(self, request):
+    def _get_jwks_json(self):
+        """
+        Get the JSON Web Key Set (jwks), which is a set of keys
+        containing the public keys that should be used to verify
+        any JWT issued by the authorization server. Auth0 exposes
+        a JWKS endpoint for each tenant, which is found at
+        'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
+        will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
+        Reference: https://auth0.com/docs/jwks
+        """
+
+        cache_key = 'well-known-jwks'
+        cached_jwks = cache.get(cache_key)
+
+        if cached_jwks is not None:
+            return cached_jwks
+
+        cached_jwks = urlopen('https://' + AUTH0_DOMAIN + '/.well-known/jwks.json').read()
+        cache.set(cache_key, cached_jwks)
+
+        return cached_jwks
+
+    def _validate_token(self, request):
         token = self._get_token_auth_header(request)
-        expires_at_in_milliseconds = self._get_session_expiry(request)
-        now_in_milliseconds = int(round(time.time() * 1000))
-
-        # The Django user session expiration should be set to match the expiry time of the Auth0 token
-        request.session.set_expiry((expires_at_in_milliseconds - now_in_milliseconds) / 1000)
-
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
-        jsonurl = urlopen('https://' + AUTH0_DOMAIN + '/.well-known/jwks.json')
-        jwks = json.loads(jsonurl.read())
+        jwks_json = self._get_jwks_json()
+        jwks = json.loads(jwks_json)
+
         unverified_header = jwt.get_unverified_header(token)
 
         rsa_key = {}
@@ -89,31 +104,42 @@ class AuthBackend(object):
                     "e": key["e"]
                 }
 
-        if rsa_key:
-            try:
-                jwt.decode(
-                    token,
-                    rsa_key,
-                    algorithms=['RS256'],
-                    audience=AUTH0_AUDIENCE,
-                    issuer="https://"+AUTH0_DOMAIN+"/"
-                )
-            except jwt.ExpiredSignatureError:
-                raise AuthError({"code": "token_expired",
-                                "description": "token is expired"}, 401)
-            except jwt.JWTClaimsError:
-                raise AuthError({"code": "invalid_claims",
-                                "description":
-                                    "incorrect claims,"
-                                    "please check the audience and issuer"}, 401)
-            except Exception:
-                raise AuthError({"code": "invalid_header",
-                                "description":
-                                    "Unable to parse authentication"
-                                    " token."}, 400)
+        if not rsa_key:
+            raise AuthError({"code": "rsa_key",
+                            "description": "rsa_key is empty"}, 401)
 
-        client_id = request.META.get("HTTP_CLIENTID", None)
-        email = self._extract_email_from_clientid(client_id)
+        try:
+            jwt.decode(
+                token,
+                rsa_key,
+                algorithms=['RS256'],
+                audience=AUTH0_AUDIENCE,
+                issuer="https://"+AUTH0_DOMAIN+"/"
+            )
+        except jwt.ExpiredSignatureError:
+            raise AuthError({"code": "token_expired",
+                            "description": "token is expired"}, 401)
+        except jwt.JWTClaimsError:
+            raise AuthError({"code": "invalid_claims",
+                            "description":
+                                "incorrect claims,"
+                                "please check the audience and issuer"}, 401)
+        except Exception:
+            raise AuthError({"code": "invalid_header",
+                            "description":
+                                "Unable to parse authentication"
+                                " token."}, 400)
+
+    def _get_user_info(self, request):
+        user_info_url = 'https://' + AUTH0_DOMAIN + '/userinfo'
+
+        return json.loads(
+            urlopen(Request(user_info_url, headers={'Authorization': request.META.get('HTTP_AUTHORIZATION', None)})).read())
+
+    def authenticate(self, request):
+        self._validate_token(request)
+        user_info = self._get_user_info(request)
+        client_id = self._get_clientid_from_userinfo(user_info)
 
         # Look for an existing user by username/clientId
         # If not found, create it, as long as it has an email.
@@ -123,7 +149,12 @@ class AuthBackend(object):
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
             logger.warning("Creating new user: {}".format(client_id))
-            return User.objects.create_user(client_id, email=email)
+            return User.objects.create_user(client_id, email=user_info['email'])
+
+        expires_at_in_milliseconds = self._get_session_expiry(request)
+        now_in_milliseconds = int(round(time.time() * 1000))
+        # The Django user session expiration should be set to match the expiry time of the Auth0 token
+        request.session.set_expiry((expires_at_in_milliseconds - now_in_milliseconds) / 1000)
 
     def get_user(self, user_id):
         try:
