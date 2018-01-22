@@ -13,9 +13,5 @@ export TREEHERDER_DJANGO_SECRET_KEY='secret-key-of-at-least-50-characters-to-pas
 export NEW_RELIC_CONFIG_FILE='newrelic.ini'
 export NEW_RELIC_DEVELOPER_MODE='True'
 
-# Auth0 Config
-export AUTH0_DOMAIN='auth.mozilla.auth0.com'
-export AUTH0_AUDIENCE='login.taskcluster.net'
-
 # Enable Firefox headless mode, avoiding the need for xvfb.
 export MOZ_HEADLESS=1
