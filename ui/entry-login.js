@@ -1,19 +1,20 @@
 'use strict';
 
-// Webpack entry point for login.html
-// Scripts and styles included here are automatically included on the page at build time
 import './js/config';
 
-// Styles
-import 'font-awesome/css/font-awesome.css';
+import React from 'react';
+import { render } from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
+import LoginCallback from './js/auth/LoginCallback';
 
-// Vendor JS
-import 'angular';
-import 'angular-local-storage';
-import 'auth0-js';
-import 'angular-auth0';
-import 'ngreact';
+const load = () => render((
+    <AppContainer>
+        <LoginCallback />
+    </AppContainer>
+), document.getElementById('root'));
 
-// Auth JS
-import './js/services/auth.js';
-import './js/components/auth/auth.jsx';
+if (module.hot) {
+    module.hot.accept('./js/auth/LoginCallback', load);
+}
+
+load();

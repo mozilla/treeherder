@@ -45,7 +45,6 @@ require('./js/directives/treeherder/resultsets.js');
 require('./js/directives/treeherder/top_nav_bar.js');
 require('./js/directives/treeherder/bottom_nav_panel.js');
 require('./js/reactrevisions.jsx');
-require('./js/services/auth.js');
 require('./js/services/main.js');
 require('./js/services/buildapi.js');
 require('./js/services/taskcluster.js');

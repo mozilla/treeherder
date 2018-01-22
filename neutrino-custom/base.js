@@ -43,7 +43,6 @@ module.exports = neutrino => {
             'angular-ui-router',
             'angular1-ui-bootstrap4',
             'auth0-js',
-            'angular-auth0',
             'bootstrap/dist/js/bootstrap',
             'hawk',
             'jquery',
@@ -161,16 +160,6 @@ module.exports = neutrino => {
         });
 
     neutrino.config
-        .plugin('html-login')
-        .use(HtmlPlugin, {
-            inject: 'body',
-            filename: 'login.html',
-            template: LOGIN_TEMPLATE,
-            chunks: ['login', 'vendor', 'manifest'],
-            minify: HTML_MINIFY_OPTIONS
-        });
-
-    neutrino.config
         .plugin('html-failureviewer')
         .use(HtmlPlugin, {
             inject: 'body',
@@ -199,6 +188,32 @@ module.exports = neutrino => {
             chunks: ['userguide', 'vendor', 'manifest'],
             minify: HTML_MINIFY_OPTIONS
         });
+
+
+    neutrino.config
+        .plugin('html-login')
+        .use(HtmlPlugin, {
+            inject: false,
+            template: htmlTemplate,
+            filename: 'login.html',
+            chunks: ['login', 'vendor', 'manifest'],
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: 'Treeherder Login',
+            meta: [
+                {
+                    "name": "description",
+                    "content": "Treeherder Login"
+                },
+                {
+                    "name": "author",
+                    "content": "Mozilla Treeherder"
+                }
+            ]
+        });
+
 
     neutrino.config
         .plugin('html-testview')
@@ -246,7 +261,6 @@ module.exports = neutrino => {
     neutrino.config
         .plugin('provide')
         .use(webpack.ProvidePlugin, {
-            auth0: require.resolve('auth0-js'),
             $: require.resolve('jquery'),
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
@@ -259,7 +273,6 @@ module.exports = neutrino => {
             treeherderApp: require.resolve(path.join(UI, 'js/treeherder_app.js')),
             perf: require.resolve(path.join(UI, 'js/perf.js')),
             failureViewerApp: require.resolve(path.join(UI, 'js/failureviewer.js')),
-            authApp: require.resolve(path.join(UI, 'js/auth.js')),
             logViewerApp: require.resolve(path.join(UI, 'js/logviewer.js')),
             userguideApp: require.resolve(path.join(UI, 'js/userguide.js'))
         });

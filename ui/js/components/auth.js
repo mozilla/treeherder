@@ -1,5 +1,7 @@
 "use strict";
 
+import AuthService from '../auth/AuthService';
+
 /**
  * This component handles logging in to Taskcluster Authentication
  *
@@ -44,10 +46,11 @@ treeherder.component("login", {
         onUserChange: "&"
     },
     controller: ['$location', '$window', 'localStorageService', 'thNotify',
-        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain', 'thAuth',
+        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
         function ($location, $window, localStorageService, thNotify,
-                  ThUserModel, $http, thUrl, $timeout, thServiceDomain, thAuth) {
-            var ctrl = this;
+                  ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
+            const authService = new AuthService();
+            const ctrl = this;
             ctrl.user = {};
 
             // "clears out" the user when it is detected to be logged out.
@@ -103,7 +106,7 @@ treeherder.component("login", {
              * if it's successful.
              */
             ctrl.login = function () {
-                thAuth.login();
+                $window.open('/login.html', '_blank');
             };
 
             /**
@@ -130,7 +133,7 @@ treeherder.component("login", {
 
                 // start session renewal process
                 if (userSession && userSession.renewAfter) {
-                    thAuth.resetRenewalTimer(userSession);
+                    authService.resetRenewalTimer(userSession);
                 }
             };
 
