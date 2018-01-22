@@ -6,6 +6,7 @@ set -euo pipefail
 export BROKER_URL='amqp://guest:guest@localhost:5672//'
 export DATABASE_URL='mysql://root@localhost/test_treeherder'
 export ELASTICSEARCH_URL='http://127.0.0.1:9200'
+export REDIS_URL='redis://localhost:6379'
 export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 
 setup_services() {
@@ -33,6 +34,9 @@ setup_services() {
     echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
     sudo -E apt-get -yqq update
     sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
+
+    echo '-----> Starting redis-server'
+    sudo service redis-server start
 
     echo '-----> Starting rabbitmq-server'
     sudo service rabbitmq-server start

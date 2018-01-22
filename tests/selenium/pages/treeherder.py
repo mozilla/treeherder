@@ -108,8 +108,11 @@ class Treeherder(Base):
 
         _author_locator = (By.CSS_SELECTOR, '.result-set-title-left th-author a')
         _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
+        _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
+        _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(9) > a')
+        _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(8) > a')
 
         @property
         def author(self):
@@ -126,6 +129,22 @@ class Treeherder(Base):
         @property
         def commits(self):
             return [self.page.Commit(self.page, el) for el in self.find_elements(*self._commits_locator)]
+
+        def set_as_bottom_of_range(self):
+            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            el = self.page.find_element(By.CSS_SELECTOR, 'body')
+            self.find_element(*self._dropdown_toggle_locator).click()
+            self.find_element(*self._set_bottom_of_range_locator).click()
+            self.wait.until(expected.staleness_of(el))
+            self.page.wait_for_page_to_load()
+
+        def set_as_top_of_range(self):
+            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
+            el = self.page.find_element(By.CSS_SELECTOR, 'body')
+            self.find_element(*self._dropdown_toggle_locator).click()
+            self.find_element(*self._set_top_of_range_locator).click()
+            self.wait.until(expected.staleness_of(el))
+            self.page.wait_for_page_to_load()
 
         def view(self):
             # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264

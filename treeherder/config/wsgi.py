@@ -8,7 +8,6 @@ this application via the ``WSGI_APPLICATION`` setting.
 """
 import os
 
-from django.core.cache.backends.memcached import BaseMemcachedCache
 from django.core.wsgi import get_wsgi_application
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
@@ -18,8 +17,3 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "treeherder.config.settings")
 
 application = get_wsgi_application()
-
-# Fix django closing connection to MemCachier after every request:
-# https://code.djangoproject.com/ticket/11331
-# Remove when https://github.com/django/django/pull/4866 fixed.
-BaseMemcachedCache.close = lambda self, **kwargs: None
