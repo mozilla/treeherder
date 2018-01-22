@@ -23,6 +23,9 @@ class Treeherder(Base):
     _filter_superseded_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=superseded]')
     _filter_usercancel_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=usercancel]')
     _filters_menu_locator = (By.ID, 'filterLabel')
+    _get_next_10_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(1)')
+    _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
+    _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
     _quick_filter_locator = (By.ID, 'quick-filter')
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
     _repo_menu_locator = (By.ID, 'repoLabel')
@@ -75,6 +78,21 @@ class Treeherder(Base):
 
     def filter_unclassified_jobs(self):
         self.find_element(*self._unclassified_filter_locator).click()
+
+    def _get_next(self, count):
+        before = len(self.pushes)
+        locator = getattr(self, '_get_next_{}_locator'.format(count))
+        self.find_element(*locator).click()
+        self.wait.until(lambda s: len(self.pushes) == before + count)
+
+    def get_next_10(self):
+        self._get_next(10)
+
+    def get_next_20(self):
+        self._get_next(20)
+
+    def get_next_50(self):
+        self._get_next(50)
 
     @property
     def info_panel(self):
