@@ -594,9 +594,10 @@ treeherderApp.controller('MainCtrl', [
         // we have to set the field match type here so that the UI can either
         // show a text field for entering a value, or switch to a drop-down select.
         $scope.setFieldMatchType = function () {
-            $scope.newFieldFilter.matchType=$scope.fieldChoices[$scope.newFieldFilter.field].matchType;
-            $scope.newFieldFilter.choices=$scope.fieldChoices[$scope.newFieldFilter.field].choices;
-
+            if ($scope.newFieldFilter.field) {
+              $scope.newFieldFilter.matchType = $scope.fieldChoices[$scope.newFieldFilter.field].matchType;
+              $scope.newFieldFilter.choices = $scope.fieldChoices[$scope.newFieldFilter.field].choices;
+            }
         };
 
         // for most match types we want to show just the raw value.  But for
