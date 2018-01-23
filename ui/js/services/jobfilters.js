@@ -197,7 +197,7 @@ treeherder.factory('thJobFilters', [
             // shown regardless of settings for classified or result state
             if (job.result !== "runnable") {
                 // test against resultStatus and classifiedState
-                if (!_.includes(cachedResultStatusFilters, thResultStatus(job))) {
+                if (cachedResultStatusFilters.indexOf(thResultStatus(job)) === -1) {
                     return false;
                 }
                 if (!_checkClassifiedStateFilters(job)) {
@@ -247,13 +247,13 @@ treeherder.factory('thJobFilters', [
                                 break;
 
                             case MATCH_TYPE.exactstr:
-                                if (!_.includes(values, jobFieldValue)) {
+                                if (values.indexOf(jobFieldValue) === -1) {
                                     return false;
                                 }
                                 break;
 
                             case MATCH_TYPE.choice:
-                                if (!_.includes(values, jobFieldValue)) {
+                                if (values.indexOf(jobFieldValue) === -1) {
                                     return false;
                                 }
                                 break;
@@ -382,7 +382,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function isFilterSetToShow(field, value) {
-            return _.includes(_getFiltersOrDefaults(field), String(value));
+            return _getFiltersOrDefaults(field).indexOf(String(value)) !== -1;
         }
 
         /**
@@ -455,12 +455,12 @@ treeherder.factory('thJobFilters', [
         }
 
         function isJobUnclassifiedFailure(job) {
-            return (_.includes(thFailureResults, job.result) &&
+            return (thFailureResults.indexOf(job.result) !== -1 &&
                     !_isJobClassified(job));
         }
 
         function _isJobClassified(job) {
-            return !_.includes(UNCLASSIFIED_IDS, job.failure_classification_id);
+            return UNCLASSIFIED_IDS.indexOf(job.failure_classification_id) === -1;
         }
 
         function stripFiltersFromQueryString(locationSearch) {
@@ -495,11 +495,11 @@ treeherder.factory('thJobFilters', [
 
         function _isFieldFilter(field) {
             return field.startsWith(PREFIX) &&
-                !_.includes(['resultStatus', 'classifiedState'], _withoutPrefix(field));
+                ['resultStatus', 'classifiedState'].indexOf(_withoutPrefix(field)) === -1;
         }
 
         function _isClearableFilter(field) {
-            return _.includes(NON_FIELD_FILTERS, field);
+            return NON_FIELD_FILTERS.indexOf(field) !== -1;
         }
 
         /**

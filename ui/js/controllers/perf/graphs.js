@@ -397,11 +397,11 @@ perf.controller('GraphsCtrl', [
                 // highlight the datapoints too
                 series.highlightedPoints = _.union(
                     series.highlightedPoints,
-                    _.compact(_.map(
+                    _.map(
                         series.flotSeries.resultSetData,
                         function (seriesResultSetId, index) {
                             return resultSetId === seriesResultSetId ? index : null;
-                        })));
+                        }).filter(v => v));
             }
 
             if ($scope.highlightAlerts) {
@@ -1062,7 +1062,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     framework: $scope.selectedFramework.id }).then(function (platformList) {
                         $scope.platformList = platformList;
                         $scope.platformList.sort();
-                        if (_.includes($scope.platformList, defaultPlatform)) {
+                        if ($scope.platformList.indexOf(defaultPlatform) !== -1) {
                             $scope.selectedPlatform = defaultPlatform;
                         } else {
                             $scope.selectedPlatform = $scope.platformList[0];

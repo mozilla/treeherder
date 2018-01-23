@@ -197,7 +197,7 @@ treeherder.factory('ThResultSetStore', [
                     // get the new job ids
                     var jobIds = _.map(jobList, 'id');
                     // remove the elements that need to be updated
-                    resultSet.jobList = resultSet.jobList.filter(job => _.indexOf(jobIds, job.id) === -1);
+                    resultSet.jobList = resultSet.jobList.filter(job => jobIds.indexOf(job.id) === -1);
                     resultSet.jobList = resultSet.jobList.concat(jobList);
                 } else {
                     resultSet.jobList = jobList;
@@ -834,7 +834,7 @@ treeherder.factory('ThResultSetStore', [
                 // get
                 var newResultsets = [];
                 _.each(data.results, function (rs) {
-                    if (!_.includes(rsIds, rs.id)) {
+                    if (rsIds.indexOf(rs.id) === -1) {
                         newResultsets.push(rs);
                     }
                 });
@@ -976,7 +976,7 @@ treeherder.factory('ThResultSetStore', [
 
         var isRunnableJobSelected = function (repoName, resultsetId, buildername) {
             var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
-            return _.includes(selectedRunnableJobs, buildername);
+            return selectedRunnableJobs.indexOf(buildername) !== -1;
         };
 
         var getJobMap = function (repoName) {
