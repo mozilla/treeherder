@@ -112,7 +112,6 @@ module.exports = neutrino => {
     neutrino.config
         .module
         .rule('html')
-        .test(/\.(html|tmpl)$/)
         .loader('raw', require.resolve('raw-loader'));
 
     // Set up templates for each entry point:
