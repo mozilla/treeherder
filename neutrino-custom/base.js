@@ -104,7 +104,11 @@ module.exports = neutrino => {
     neutrino.config
         .module
         .rule('html')
-        .loader('html', require.resolve('html-loader'));
+        .loader('html', require.resolve('html-loader'), {
+            // Override html-loader's default of `img:src`,
+            // so it also parses favicon images (`<link href="...">`).
+            attrs: ['img:src', 'link:href']
+        });
 
     // Backport Neutrino 8's `test` regex, since Neutrino 4 omitted `.gif`:
     // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L108
