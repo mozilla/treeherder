@@ -123,6 +123,18 @@ module.exports = neutrino => {
         .rule('img')
         .test(/\.(png|jpg|jpeg|gif|webp)(\?v=\d+\.\d+\.\d+)?$/);
 
+    // Remove Neutrino 4's invalid SVG mimetype, and use auto-detection instead, like Neutrino 8.
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L98-L104
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v8.0.18/packages/image-loader/index.js#L11-L16
+    // Fixes the log viewer icon on the job details panel (which url-loader embeds as a base64 encoded data URI).
+    neutrino.config
+        .module
+        .rule('svg')
+        .loader('url', ({ options }) => {
+            options.mimetype = null;
+            return { options };
+        });
+
     // Set up templates for each entry point:
     neutrino.config.plugins.delete('html');
     neutrino.config
