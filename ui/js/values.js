@@ -1,5 +1,7 @@
 'use strict';
 
+import treeFavicon from '../img/tree_open.png';
+import closedTreeFavicon from '../img/tree_closed.png';
 import { platformMap } from './constants';
 
 treeherder.value("thPlatformMap", platformMap);
@@ -19,10 +21,10 @@ treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
 treeherder.value("thTitleSuffixLimit", 70);
 
 treeherder.value("thFavicons", {
-    closed: "img/tree_closed.png",
-    open: "img/tree_open.png",
-    "approval required": "img/tree_open.png",
-    unavailable: "img/tree_open.png"
+    closed: closedTreeFavicon,
+    open: treeFavicon,
+    "approval required": treeFavicon,
+    unavailable: treeFavicon
 });
 
 treeherder.value("thRepoGroupOrder", {
