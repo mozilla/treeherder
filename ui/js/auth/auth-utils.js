@@ -53,3 +53,5 @@ export const parseHash = qs => (
         });
     })
 );
+
+export const loggedOutUser = { is_staff: false, username: "", email: "", loggedin: false };

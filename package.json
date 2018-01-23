@@ -29,6 +29,7 @@
     "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "7.5.1",
     "font-awesome": "4.7.0",
+    "got": "8.0.3",
     "hawk": "6.0.2",
     "history": "4.7.2",
     "html-loader": "0.5.5",

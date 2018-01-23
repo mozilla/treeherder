@@ -1,9 +1,9 @@
 'use strict';
 
 import React from 'react';
-import 'font-awesome/css/font-awesome.css';
+import Icon from 'react-fontawesome';
 import AuthService from './AuthService';
-import { webAuth, parseHash } from './auth0';
+import { webAuth, parseHash } from './auth-utils';
 
 export default class LoginCallback extends React.PureComponent {
     constructor(props) {
@@ -36,18 +36,14 @@ export default class LoginCallback extends React.PureComponent {
             authResult = await parseHash(window.location.hash);
 
             if (authResult.accessToken) {
-                try {
-                    await this.authService.saveCredentialsFromAuthResult(authResult);
+                await this.authService.saveCredentialsFromAuthResult(authResult);
 
-                    if (window.opener) {
-                        window.close();
-                    }
-                } catch (err) {
-                    return this.setState({ loginError: err.detail ? err.detail : err.message });
+                if (window.opener) {
+                    window.close();
                 }
             }
-        } catch (loginError) {
-            return this.setState({ loginError: loginError.errorDescription || loginError.error });
+        } catch (err) {
+            return this.setState({ loginError: err.response ? err.response.body.detail : err.error });
         }
     }
 
@@ -57,9 +53,19 @@ export default class LoginCallback extends React.PureComponent {
         }
 
         if (window.location.hash) {
-            return <p>Logging in..</p>;
+            return (
+                <div>
+                    <span>Logging in..&nbsp;</span>
+                    <Icon name="spinner" spin />
+                </div>
+            );
         }
 
-        return <p>Redirecting..</p>;
+        return (
+            <div>
+                <span>Redirecting..&nbsp;</span>
+                <Icon name="spinner" spin />
+            </div>
+        );
     }
 }

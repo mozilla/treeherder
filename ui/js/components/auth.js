@@ -1,6 +1,7 @@
 "use strict";
 
 import AuthService from '../auth/AuthService';
+import { loggedOutUser } from '../auth/auth-utils';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -51,11 +52,8 @@ treeherder.component("login", {
                   ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
             const authService = new AuthService();
             const ctrl = this;
+
             ctrl.user = {};
-
-            // "clears out" the user when it is detected to be logged out.
-            var loggedOutUser = { is_staff: false, username: "", email: "", loggedin: false };
-
             ctrl.userLoggingIn = $location.path() === '/login';
 
             // check if the user can login.  thServiceDomain must match
@@ -85,7 +83,7 @@ treeherder.component("login", {
                         $timeout(() => ctrl.setLoggedIn(newUser), 0);
                     } else if (newUser && !newUser.email) {
                         // Show the user as logged out in all other opened tabs
-                        $timeout(() => ctrl.setLoggedOut(newUser), 0);
+                        $timeout(() => ctrl.setLoggedOut(), 0);
                     }
                 }
             });
@@ -138,10 +136,7 @@ treeherder.component("login", {
             };
 
             ctrl.setLoggedOut = function () {
-                localStorageService.set('user', loggedOutUser);
-                localStorageService.remove('taskcluster.credentials');
-                localStorageService.remove('userSession');
-
+                authService.logout();
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };

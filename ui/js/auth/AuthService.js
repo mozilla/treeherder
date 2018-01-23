@@ -1,12 +1,11 @@
 'use strict';
 
-import React from 'react';
 import { OIDCCredentialAgent } from 'taskcluster-client-web';
-import { userSessionFromAuthResult, renew } from './auth0';
+import got from 'got';
+import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 
-export default class AuthService extends React.Component {
-    constructor(props) {
-        super(props);
+export default class AuthService {
+    constructor() {
         this.renewalTimer = null;
     }
 
@@ -30,8 +29,9 @@ export default class AuthService extends React.Component {
 
                 return this.resetRenewalTimer();
             }
-        } catch (renewError) {
-            throw new Error(renewError);
+        } catch (err) {
+            this.logout();
+            console.error('Could not renew login:', err);
         }
     }
 
@@ -51,9 +51,16 @@ export default class AuthService extends React.Component {
 
             // create renewal timer
             this._clearRenewalTimer();
-            this.renewalTimer = setTimeout(() => this._renewAuth, timeout);
+            this.renewalTimer = setTimeout(() => this._renewAuth(), timeout);
         }
     }
+
+    logout() {
+        localStorage.removeItem('treeherder.taskcluster.credentials');
+        localStorage.removeItem('treeherder.userSession');
+        localStorage.setItem('treeherder.user', JSON.stringify(loggedOutUser));
+    }
+
 
     async saveCredentialsFromAuthResult(authResult) {
         const userSession = userSessionFromAuthResult(authResult);
@@ -64,15 +71,14 @@ export default class AuthService extends React.Component {
         const loginUrl = `${location.protocol}//${location.host}/api/auth/login/`;
 
         const taskclusterCredentials = await credentialAgent.getCredentials();
-        const user = await (await fetch(loginUrl, {
-            method: 'GET',
+        const { body: user } = await got(loginUrl, {
             headers: {
-
                 authorization: `Bearer ${userSession.accessToken}`,
                 expiresAt: userSession.expiresAt
             },
-            credentials: 'same-origin'
-        })).json();
+            method: 'GET',
+            json: true
+        });
 
         localStorage.setItem('treeherder.taskcluster.credentials', JSON.stringify(taskclusterCredentials));
         localStorage.setItem('treeherder.userSession', JSON.stringify(userSession));

@@ -11,7 +11,6 @@ const SRC = path.join(CWD, 'src'); // neutrino's default source directory
 const UI = path.join(CWD, 'ui');
 const DIST = path.join(CWD, 'dist');
 const INDEX_TEMPLATE = path.join(UI, 'index.html');
-const LOGIN_TEMPLATE = path.join(UI, 'login.html');
 const PERF_TEMPLATE = path.join(UI, 'perf.html');
 const LOGVIEWER_TEMPLATE = path.join(UI, 'logviewer.html');
 const FAILUREVIEWER_TEMPLATE = path.join(UI, 'failureviewer.html');
@@ -99,7 +98,7 @@ module.exports = neutrino => {
         .module
         .rule('compile')
         .include(UI);
-
+  
     // Don't use file loader for html...
     // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L64-L69
     neutrino.config
