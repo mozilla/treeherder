@@ -35,13 +35,11 @@ module.exports = neutrino => {
     // imported in ./local-watch.js and run via `neutrino start`, it is still included
     // in the config (it is only applied in !development by default):
     neutrino.config.plugin('copy')
-        .use(CopyPlugin, [{
-            context: UI,
-            from: '**'
-        }], {
-            ignore: ['*.js', '*.jsx', '*.css', '*.html', '*.tmpl',
-                '*.eot', '*.otf', '*.ttf', '*.woff', '*.woff2', '*.psd']
-        });
+        .use(CopyPlugin, [
+            {context: UI, from: 'contribute.json'},
+            {context: UI, from: 'revision.txt'},
+            {context: UI, from: 'robots.txt'},
+        ]);
 
     // Likewise for this clean plugin:
     neutrino.config.plugin('clean')
