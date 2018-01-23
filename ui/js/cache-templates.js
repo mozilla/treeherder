@@ -12,7 +12,7 @@
 //  - https://github.com/WearyMonkey/ngtemplate-loader
 //  - https://github.com/EJIqpEP/angular-templatecache-loader
 module.exports = ['$templateCache', ($templateCache) => {
-    const partialsReq = require.context('../partials', true, /\.(tmpl|html)$/);
+    const partialsReq = require.context('../partials', true, /\.html$/);
     partialsReq.keys().forEach((template) => {
         const keyPath = `partials${template.substring(1)}`;
         $templateCache.put(
@@ -20,7 +20,7 @@ module.exports = ['$templateCache', ($templateCache) => {
             partialsReq(template)
         );
     });
-    const pluginsReq = require.context('../plugins', true, /\.(tmpl|html)$/);
+    const pluginsReq = require.context('../plugins', true, /\.html$/);
     pluginsReq.keys().forEach((template) => {
         const keyPath = `plugins${template.substring(1)}`;
         $templateCache.put(
