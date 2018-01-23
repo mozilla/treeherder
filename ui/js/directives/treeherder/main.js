@@ -121,15 +121,15 @@ treeherder.directive('thNotificationBox', [
     }]);
 
 treeherder.directive('thFaviconLink', [
-    'ThRepositoryModel', 'thFavicons',
-    function (ThRepositoryModel, thFavicons) {
+    '$sce', 'ThRepositoryModel', 'thFavicons',
+    function ($sce, ThRepositoryModel, thFavicons) {
         return {
             restrict: "E",
             link: function (scope) {
                 scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus;
                 scope.$watch('currentTreeStatus()', function (newVal) {
                     if (newVal) {
-                        scope.favicon = thFavicons[ThRepositoryModel.getCurrentTreeStatus()];
+                        scope.favicon = $sce.trustAsResourceUrl(thFavicons[ThRepositoryModel.getCurrentTreeStatus()]);
                     }
                 });
             },
