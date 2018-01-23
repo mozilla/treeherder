@@ -93,26 +93,18 @@ module.exports = neutrino => {
         .rule('compile')
         .include(UI);
 
-    // The page templates should be excluded from the file-loader, so that they don't collide with the html plugins:
-    neutrino.config
-        .module
-        .rule('html')
-        ._exclude
-        .add([USERGUIDE_TEMPLATE, PERF_TEMPLATE, LOGVIEWER_TEMPLATE,
-            INDEX_TEMPLATE, FAILUREVIEWER_TEMPLATE]);
-
     // Don't use file loader for html...
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L64-L69
     neutrino.config
         .module
         .rule('html')
         .loaders.delete('file');
-    // Instead, use the raw loader, which will allow us to get the contents
-    // of the templates and load them into the templateCache automatically;
-    // See ui/js/cache-templates.js.
+    // Instead, use html-loader, like Neutrino 8:
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v8.0.18/packages/html-loader/index.js#L7
     neutrino.config
         .module
         .rule('html')
-        .loader('raw', require.resolve('raw-loader'));
+        .loader('html', require.resolve('html-loader'));
 
     // Backport Neutrino 8's `test` regex, since Neutrino 4 omitted `.gif`:
     // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L108

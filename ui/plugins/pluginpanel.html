@@ -22,21 +22,21 @@
                href="{{::lvUrl}}"
                copy-value="{{::lvFullUrl}}"
                class="">
-              <img src="./img/logviewerIcon.svg"
+              <img src="../img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'failed'"
                id="logviewer-btn"
                title="Log parsing has failed"
                class="disabled" >
-              <img src="./img/logviewerIcon.svg"
+              <img src="../img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
             <a ng-if="job_log_url.parse_status == 'pending'"
                id="logviewer-btn"
                class="disabled"
                title="Log parsing in progress">
-              <img src="./img/logviewerIcon.svg"
+              <img src="../img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
           </li>
@@ -45,7 +45,7 @@
                id="logviewer-btn"
                class="disabled"
                title="No logs available for this job">
-              <img src="./img/logviewerIcon.svg"
+              <img src="../img/logviewerIcon.svg"
                    class="logviewer-icon"><img>
             </a>
           </li>
