@@ -114,6 +114,15 @@ module.exports = neutrino => {
         .rule('html')
         .loader('raw', require.resolve('raw-loader'));
 
+    // Backport Neutrino 8's `test` regex, since Neutrino 4 omitted `.gif`:
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L108
+    // https://github.com/mozilla-neutrino/neutrino-dev/blob/v8.0.18/packages/image-loader/index.js#L20
+    // Fixes "You may need an appropriate loader to handle this file type" errors for `dancing_cat.gif`.
+    neutrino.config
+        .module
+        .rule('img')
+        .test(/\.(png|jpg|jpeg|gif|webp)(\?v=\d+\.\d+\.\d+)?$/);
+
     // Set up templates for each entry point:
     neutrino.config.plugins.delete('html');
     neutrino.config
