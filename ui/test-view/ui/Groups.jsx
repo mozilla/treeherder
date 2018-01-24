@@ -70,7 +70,7 @@ export class Groups extends React.Component {
                     type="text"
                     name="filter"
                     id="filter"
-                    defaultValue={ this.filterStr }
+                    defaultValue={this.filterStr}
                     placeholder="Filter with one or more space-separated words or regexes..."
                     onChange={e => this.filter(e)}
                   />
