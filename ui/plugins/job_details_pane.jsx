@@ -123,7 +123,7 @@ class JobDetailsList extends React.Component {
     filterTextEvent(event, input) {
         event.preventDefault();
         this.props.filterByJobSearchStr(input);
-    };
+    }
 
     render() {
         const job = this.props.job;

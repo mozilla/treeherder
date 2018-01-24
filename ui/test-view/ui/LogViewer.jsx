@@ -14,5 +14,5 @@ export default class LogViewer extends React.Component {
         </Link>
       </span>
     );
-  };
+  }
 }
