@@ -7,6 +7,9 @@
   ],
   "ignoreDeps": [
     "deepmerge",
+    "eslint-config-airbnb",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-react",
     "neutrino",
     "neutrino-lint-base",
     "neutrino-preset-karma",
