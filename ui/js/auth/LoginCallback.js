@@ -43,7 +43,7 @@ export default class LoginCallback extends React.PureComponent {
                 }
             }
         } catch (err) {
-            return this.setState({ loginError: err.response ? err.response.body.detail : err.error });
+            return this.setState({ loginError: err.message ? err.message : err.errorDescription });
         }
     }
 

@@ -114,18 +114,11 @@ class AuthBackend(object):
 
             return user_info
         except jwt.ExpiredSignatureError:
-            raise AuthError({"code": "token_expired",
-                            "description": "token is expired"}, 401)
+            raise AuthError("Token is expired")
         except jwt.JWTClaimsError:
-            raise AuthError({"code": "invalid_claims",
-                            "description":
-                                "incorrect claims,"
-                                "please check the audience and issuer"}, 401)
+            raise AuthError("Incorrect claims: please check the audience and issuer")
         except Exception:
-            raise AuthError({"code": "invalid_header",
-                            "description":
-                                "Unable to parse authentication"
-                                " token."}, 400)
+            raise AuthError("Invalid header: Unable to parse authentication")
 
     def authenticate(self, request):
         user_info = self._get_user_info(request)

@@ -1,12 +1,37 @@
 'use strict';
 
 import { OIDCCredentialAgent } from 'taskcluster-client-web';
-import got from 'got';
 import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 
 export default class AuthService {
     constructor() {
         this.renewalTimer = null;
+    }
+
+    _fetchUser(userSession) {
+        const loginUrl = `${location.protocol}//${location.host}/api/auth/login/`;
+
+        return new Promise(async (resolve, reject) => {
+            const userResponse = await fetch(loginUrl, {
+                headers: {
+                    authorization: `Bearer ${userSession.accessToken}`,
+                    idToken: userSession.idToken,
+                    expiresAt: userSession.expiresAt
+                },
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            const user = await userResponse.json();
+
+            if (!userResponse.ok) {
+                reject(
+                    new Error(user.detail || userResponse.statusText)
+                );
+            }
+
+            resolve(user);
+        });
     }
 
     _clearRenewalTimer() {
@@ -60,26 +85,15 @@ export default class AuthService {
         localStorage.setItem('treeherder.user', JSON.stringify(loggedOutUser));
     }
 
-
     async saveCredentialsFromAuthResult(authResult) {
         const userSession = userSessionFromAuthResult(authResult);
         const credentialAgent = new OIDCCredentialAgent({
             accessToken: userSession.accessToken,
             oidcProvider: 'mozilla-auth0'
         });
-        const loginUrl = `${location.protocol}//${location.host}/api/auth/login/`;
-
         const taskclusterCredentials = await credentialAgent.getCredentials();
 
-        const { body: user } = await got(loginUrl, {
-            headers: {
-                authorization: `Bearer ${userSession.accessToken}`,
-                idToken: userSession.idToken,
-                expiresAt: userSession.expiresAt
-            },
-            method: 'GET',
-            json: true
-        });
+        const user = await this._fetchUser(userSession);
 
         // Update taskcluster client credentials
         window.dispatchEvent(
