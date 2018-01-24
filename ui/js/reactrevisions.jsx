@@ -6,7 +6,8 @@ const MoreRevisionsLink = props => (
     <li>
         <a href={props.href}
            data-ignore-job-clear-on-click
-           target="_blank">
+           target="_blank"
+        >
             {`\u2026and more`}
             <i className="fa fa-external-link-square" />
         </a>
@@ -41,12 +42,14 @@ const RevisionItem = (props) => {
             <span className="revision-holder">
                 <a title={`Open revision ${props.revision.revision} on ${props.repo.url}`}
                    href={props.repo.getRevisionHref(props.revision.revision)}
-                   data-ignore-job-clear-on-click>
+                   data-ignore-job-clear-on-click
+                >
                     {props.revision.revision.substring(0, 12)}
                 </a>
             </span>
             <span title={`${name}: ${email}`}
-                  dangerouslySetInnerHTML={initialsHTML} />
+                  dangerouslySetInnerHTML={initialsHTML}
+            />
             <span title={comment}>
                 <span className="revision-comment">
                     <em dangerouslySetInnerHTML={escapedCommentHTML} />
@@ -75,12 +78,14 @@ const RevisionList = (props) => {
                         linkifyBugsFilter={linkifyBugsFilter}
                         revision={revision}
                         repo={props.repo}
-                        key={i} />)
+                        key={i}
+                    />)
                 )}
                 {hasMore &&
                     <MoreRevisionsLink
                         key="more"
-                        href={props.repo.getPushLogHref(props.resultset.revision)} />
+                        href={props.repo.getPushLogHref(props.resultset.revision)}
+                    />
                 }
             </ul>
         </span>

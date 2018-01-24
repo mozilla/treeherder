@@ -12,12 +12,14 @@ const RelatedBugSaved = (props) => {
             <a className="btn btn-xs annotations-bug related-bugs-link"
                href={props.getBugUrl(props.bug.bug_id)}
                target="_blank"
-               title={`View bug ${props.bug.bug_id}`}>
+               title={`View bug ${props.bug.bug_id}`}
+            >
             <em>{props.bug.bug_id}</em>
             </a>
             <span className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
                   onClick={deleteBugEvent}
-                  title={`Delete relation to bug ${props.bug.bug_id}`}>
+                  title={`Delete relation to bug ${props.bug.bug_id}`}
+            >
             <i className="fa fa-times-circle" />
             </span>
       </span>
@@ -68,7 +70,8 @@ function TableRow(props) {
             <td>
                 <span onClick={deleteEvent}
                     className="classification-delete-icon hover-warning pointable"
-                    title="Delete this classification">
+                    title="Delete this classification"
+                >
                     <i className="fa fa-times-circle" />
                 </span>
             </td>
@@ -88,7 +91,8 @@ function AnnotationsTable(props) {
                     (<TableRow
                             key={index} dateFilter={props.dateFilter} classification={classification}
                             deleteClassification={props.deleteClassification}
-                            classificationTypes={props.classificationTypes} />))}
+                            classificationTypes={props.classificationTypes}
+                    />))}
             </tbody>
         </table>
     );
@@ -110,7 +114,8 @@ export default class AnnotationsPanel extends React.Component {
                     <AnnotationsTable
                                     classifications={this.props.classifications} dateFilter={dateFilter}
                                     deleteClassification={this.props.deleteClassification}
-                                    classificationTypes={this.props.classificationTypes} /> :
+                                    classificationTypes={this.props.classificationTypes}
+                    /> :
                     <p>This job has not been classified</p>}
                 </div>
 
@@ -118,7 +123,8 @@ export default class AnnotationsPanel extends React.Component {
                 <div className="col-sm-2 bug-list-pane">
                     <RelatedBug
                             bugs={this.props.bugs} getBugUrl={this.props.getBugUrl}
-                            deleteBug={this.props.deleteBug} />
+                            deleteBug={this.props.deleteBug}
+                    />
                 </div>}
             </div>
         );

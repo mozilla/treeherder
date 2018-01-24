@@ -31,7 +31,8 @@ class SuggestionsListItem extends React.Component {
                     {(this.props.filerInAddress || this.props.user.is_staff) &&
                     <a className="btn btn-xs btn-light-bordered"
                        onClick={this.fileBugEvent}
-                       title="file a bug for this failure">
+                       title="file a bug for this failure"
+                    >
                         <i className="fa fa-bug" />
                     </a>}
                     <span>{this.props.suggestion.search}</span>
@@ -45,7 +46,8 @@ class SuggestionsListItem extends React.Component {
                                     key={index} bug={bug} selectedJob={this.props.selectedJob}
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
-                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter} />))}
+                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
+                        />))}
 
                 </ul>}
 
@@ -54,7 +56,8 @@ class SuggestionsListItem extends React.Component {
                 <a target="_blank"
                    href=""
                    onClick={this.clickShowMore}
-                   className="show-hide-more">Show / Hide more</a>}
+                   className="show-hide-more"
+                >Show / Hide more</a>}
 
                 {this.props.suggestion.valid_all_others && (this.state.suggestionShowMore
                 || !this.props.suggestion.valid_open_recent) &&
@@ -66,7 +69,8 @@ class SuggestionsListItem extends React.Component {
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
                                     highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
                                     bugClassName={bug.resolution !== "" ? "deleted" : ""}
-                                    title={bug.resolution !== "" ? bug.resolution : ""} />))}
+                                    title={bug.resolution !== "" ? bug.resolution : ""}
+                        />))}
                 </ul>}
 
                 {(this.props.suggestion.bugs.too_many_open_recent || (this.props.suggestion.bugs.too_many_all_others
@@ -98,13 +102,15 @@ const BugListItem = (props) => {
         <li>
             <button className="btn btn-xs btn-light-bordered"
                     onClick={pinboardServiceEvent}
-                    title="add to list of bugs to associate with all pinned jobs">
+                    title="add to list of bugs to associate with all pinned jobs"
+            >
                 <i className="fa fa-thumb-tack" />
             </button>
             <a className={`${props.bugClassName} ml-1`}
                href={getBugUrl}
                target="_blank"
-               title={props.title}>{props.bug.id}
+               title={props.title}
+            >{props.bug.id}
                 <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
             </a>
      </li>
@@ -117,7 +123,8 @@ const ErrorsList = (props) => {
         (<li key={index}>{error.name} : {error.result}.
             <a title="Open in Log Viewer"
                target="_blank"
-               href={error.lvURL}><span className="ml-1">View log</span></a>
+               href={error.lvURL}
+            ><span className="ml-1">View log</span></a>
         </li>));
 
     return (
@@ -148,7 +155,8 @@ class FailureSummaryPanel extends React.Component {
                                     highlightCommonTermsFilter={highlightCommonTermsFilter}
                                     escapeHTMLFilter={escapeHTMLFilter} getBugUrl={this.props.getBugUrl}
                                     bugLimit={this.props.bugLimit} pinboardService={this.props.pinboardService}
-                                    selectedJob={this.props.selectedJob} />))}
+                                    selectedJob={this.props.selectedJob}
+                    />))}
 
                 {this.props.errors && this.props.errors.length > 0 &&
                 <ErrorsList errors={this.props.errors} />}
@@ -170,7 +178,8 @@ class FailureSummaryPanel extends React.Component {
                         <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
                         <a title="Open the raw log in a new window"
                            target="_blank"
-                           href={job.url}>The raw log</a>
+                           href={job.url}
+                        >The raw log</a>
                         <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
                     </li>))}
 
