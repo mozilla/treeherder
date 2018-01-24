@@ -52,7 +52,6 @@ module.exports = neutrino => {
                     'no-plusplus': 'off',
                     'no-prototype-builtins': 'off',
                     'no-redeclare': 'off',
-                    'no-restricted-properties': 'off',
                     'no-restricted-syntax': 'off',
                     'no-shadow': 'off',
                     'no-underscore-dangle': 'off',

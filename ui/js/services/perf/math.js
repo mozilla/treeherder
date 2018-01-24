@@ -23,7 +23,7 @@ treeherder.factory('math', [
             if (!avg) avg = average(values);
 
             return Math.sqrt(
-                values.map(function (v) { return Math.pow(v - avg, 2); })
+                values.map(v => (v - avg) ** 2)
                     .reduce(function (a, b) { return a + b; }) / (values.length - 1));
         }
 
