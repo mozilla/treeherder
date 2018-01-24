@@ -40,7 +40,7 @@ class BugCountComponent extends React.Component {
           onClick={this.onClick}>
         {this.props.test.bugs === undefined ? <Icon name="minus" title="Click to expand and fetch bugs"/> : (
           Object.keys(this.props.test.bugs).length > 0 ? Object.keys(this.props.test.bugs).length : (
-            <Badge size="sm" color='danger' style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}>0</Badge>
+            <Badge size="sm" color="danger" style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}>0</Badge>
           )
         )}
       </td>
