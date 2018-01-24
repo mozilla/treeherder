@@ -37,7 +37,8 @@ class BugCountComponent extends React.Component {
   render() {
     return (
       <td className="bug-count"
-          onClick={this.onClick}>
+          onClick={this.onClick}
+      >
         {this.props.test.bugs === undefined ? <Icon name="minus" title="Click to expand and fetch bugs" /> : (
           Object.keys(this.props.test.bugs).length > 0 ? Object.keys(this.props.test.bugs).length : (
             <Badge size="sm" color="danger" style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}>0</Badge>
@@ -65,10 +66,12 @@ class Platform extends React.Component {
   render() {
     return (
       <span className="platform badge"
-            title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}>
+            title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
+      >
         <Link
           to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
-          target="_blank">
+          target="_blank"
+        >
           {this.getIcon(this.props.job.failureClassification.name)}
           {this.props.platform} {this.props.option}
         </Link>
@@ -105,9 +108,11 @@ class TestComponent extends React.Component {
                       platform={platformMap[job.buildPlatform.platform]}
                       option={this.props.options[job.optionCollectionHash]}
                       repo={this.props.repo}
-                      revision={this.props.revision} />
+                      revision={this.props.revision}
+            />
             <LogViewer job={job}
-                       repo={this.props.repo} />
+                       repo={this.props.repo}
+            />
             {job.tier > 1 && <span className="tier badge">Tier-{job.tier}</span>}
             <div>{job.failureLines.map((failureLine, jlkey) => (
               <span key={jlkey}>
@@ -137,7 +142,8 @@ class TestComponent extends React.Component {
           <div className="bottom-separator"><strong>Bugs:</strong></div>
           {Object.values(this.props.test.bugs).map((bug, key) => (
             <div key={key}><Link to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
-                                 target="_blank">{bug.id} - {bug.summary}</Link></div>
+                                 target="_blank"
+            >{bug.id} - {bug.summary}</Link></div>
           ))}
         </div>}
       </div>
@@ -148,7 +154,8 @@ class TestComponent extends React.Component {
     return (
       <td className="test-table">
         <span className="test"
-              onClick={this.onClick}>{this.props.name}</span>
+              onClick={this.onClick}
+        >{this.props.name}</span>
         <span className="platform-list">
           {this.props.test.jobs.map((job, key) => (
             <Platform job={job}
@@ -156,7 +163,8 @@ class TestComponent extends React.Component {
                       platform={platformMap[job.buildPlatform.platform]}
                       option={this.props.options[job.optionCollectionHash]}
                       repo={this.props.repo}
-                      revision={this.props.revision} />
+                      revision={this.props.revision}
+            />
           ))}
         </span>
         { this.props.expanded[this.props.name] && this.renderExpanded() }

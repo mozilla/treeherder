@@ -18,7 +18,8 @@ const App = () => (
         <Switch>
           <Route exact path="/testview.html" render={props => (hasProps(props.location.search) ?
             <Groups {...props} /> :
-            <NotFound {...props} />)} />
+            <NotFound {...props} />)}
+          />
           <Route name="search" path="?revision=:revision&repo=:repo" handler={Groups} />
           <Route name="notfound" component={NotFound} />
         </Switch>

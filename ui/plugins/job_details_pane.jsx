@@ -24,7 +24,8 @@ function ClassificationsPane(props) {
                 <span className="ml-1">{classificationName.name}</span></span>
                 {props.bugs.length > 0 &&
                 <a target="_blank" href={props.getBugUrl(props.bugs[0].bug_id)}
-                title={`View bug ${props.bugs[0].bug_id}`}><em> {props.bugs[0].bug_id}</em></a>}
+                title={`View bug ${props.bugs[0].bug_id}`}
+                ><em> {props.bugs[0].bug_id}</em></a>}
             </li>
             {props.classifications[0].text.length > 0 &&
             <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>}
@@ -61,14 +62,16 @@ const JobDetailsListItem = props => (
         <a title={props.labelTitle}
            href={props.labelHref}
            onClick={props.labelOnclick}
-           target={props.labelTarget}>
+           target={props.labelTarget}
+        >
            {props.labelText} <span className="fa fa-pencil-square-o icon-superscript" />: </a>}
         {!props.href ? <span className="ml-1">{props.text}</span> :
         <a title={props.title}
            className="ml-1"
            href={props.href}
            onClick={props.onclick}
-           target={props.target}>
+           target={props.target}
+        >
            {props.text}</a>}
            {props.iconClass && <span className={`ml-1${props.iconClass}`} />}
     </li>
@@ -146,7 +149,8 @@ class JobDetailsList extends React.Component {
                                 title="Filter jobs containing these keywords"
                                 href={this.props.jobSearchStrHref}
                                 onclick={event => this.filterTextEvent(event, this.props.jobSearchStr)}
-                                text={this.props.jobSearchStr} />
+                                text={this.props.jobSearchStr}
+                />
 
                 {jobMachineName &&
                 <JobDetailsListItem
@@ -154,12 +158,14 @@ class JobDetailsList extends React.Component {
                                 text={jobMachineName}
                                 title="Inspect machine"
                                 target="_blank"
-                                href={this.state.machineUrl} />}
+                                href={this.state.machineUrl}
+                />}
 
                 {this.props.job.taskcluster_metadata &&
                 <JobDetailsListItem
                                 label="Task:" text={this.props.job.taskcluster_metadata.task_id}
-                                href={this.props.getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank" />}
+                                href={this.props.getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank"
+                />}
 
                 {this.props.visibleFields &&
                 Object.keys(this.props.visibleFields).map(keyName =>
@@ -170,7 +176,8 @@ class JobDetailsList extends React.Component {
                                     href={buildUrl}
                                     target="_blank"
                                     text={this.props.visibleFields[keyName]}
-                                    iconClass={iconCircleClass} />))}
+                                    iconClass={iconCircleClass}
+                    />))}
 
                 {this.props.visibleTimeFields && <span>
                 <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime} />
@@ -237,7 +244,8 @@ class JobDetailsPane extends React.Component {
                     linkifyURLsFilter={linkifyURLsFilter}
                     linkifyClassificationsFilter={linkifyClassificationsFilter}
                     classificationTypes={this.props.classificationTypes}
-                    repoName={this.props.repoName} />}
+                    repoName={this.props.repoName}
+                />}
 
                 <JobStatusPane job={this.props.job} resultStatusShading={this.props.resultStatusShading} />
 
