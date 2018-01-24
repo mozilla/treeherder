@@ -86,10 +86,13 @@ class JobDetailsList extends React.Component {
         };
     }
 
-    filterTextEvent(event, input) {
-        event.preventDefault();
-        this.props.filterByJobSearchStr(input);
-    };
+    componentWillReceiveProps(nextProps) {
+        if (_.isEmpty(nextProps.job)) {
+            return;
+        }
+
+        this.setJobMachineUrl(nextProps);
+    }
 
     async setJobMachineUrl(props) {
         let machineUrl = null;
@@ -114,13 +117,10 @@ class JobDetailsList extends React.Component {
         return machineUrl;
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (_.isEmpty(nextProps.job)) {
-            return;
-        }
-
-        this.setJobMachineUrl(nextProps);
-    }
+    filterTextEvent(event, input) {
+        event.preventDefault();
+        this.props.filterByJobSearchStr(input);
+    };
 
     render() {
         const job = this.props.job;

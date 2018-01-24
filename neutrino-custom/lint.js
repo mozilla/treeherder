@@ -89,7 +89,6 @@ module.exports = neutrino => {
                     'react/prop-types': 'off',
                     'react/require-default-props': 'off',
                     'react/self-closing-comp': 'off',
-                    'react/sort-comp': 'off',
                     'space-infix-ops': 'off',
                     'spaced-comment': 'off',
                     'strict': 'off',
