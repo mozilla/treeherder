@@ -22,19 +22,17 @@ perf.controller('dashCtrl', [
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'descP2',
             'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function (k) {
-                $scope[k] = phDashboardValues[$scope.topic][k];
+                try {
+                    $scope[k] = phDashboardValues[$scope.topic][k];
+                }
+                catch (TypeError) {
+                    console.debug('"'+ k + '" option not found in ' + '"' + $scope.topic + '" dashboard config');
+                }
             });
 
         // custom series filters based on dashboard topic
-        function filterSeriesByTopic(series) {
-            if ($scope.topic === "e10s") {
-                return series.options.indexOf('pgo') >= 0 ||
-                       (series.platform === 'osx-10-10' && series.options.indexOf('opt') >= 0);
-            }
-            if ($scope.topic === "hasal") {
-                return series.options.indexOf('firefox') >= 0 ||
-                       series.options.indexOf('chrome') >= 0;
-            }
+        function filterSeriesByTopic(series) { // eslint-disable-line no-unused-vars
+            return true;
         }
 
         function loadData() {
