@@ -100,10 +100,6 @@ function AnnotationsTable(props) {
 
 
 export default class AnnotationsPanel extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         const dateFilter = this.props.$injector.get('$filter')('date');
 
