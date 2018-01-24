@@ -472,7 +472,6 @@ perf.controller('GraphsCtrl', [
                 function updateSelectedItem() {
                     if (!$scope.selectedDataPoint) {
                         hideTooltip();
-                        return;
                     }
                 }
 

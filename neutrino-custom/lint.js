@@ -59,7 +59,6 @@ module.exports = neutrino => {
                     'no-use-before-define': 'off',
                     'no-useless-constructor': 'off',
                     'no-useless-escape': 'off',
-                    'no-useless-return': 'off',
                     'no-var': 'off',
                     'object-property-newline': 'off',
                     'object-shorthand': 'off',
