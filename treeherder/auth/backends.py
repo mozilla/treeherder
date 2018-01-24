@@ -10,7 +10,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from six.moves.urllib.request import (Request,
                                       urlopen)
-from treeherder.config.settings import (AUTH0_AUDIENCE,
+from treeherder.config.settings import (AUTH0_CLIENTID,
                                         AUTH0_DOMAIN)
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class AuthBackend(object):
 
-    def _get_session_expiry(self, request):
+    def _get_accesstoken_expiry(self, request):
         expires_at_in_milliseconds = request.META.get("HTTP_EXPIRESAT")
 
         if not expires_at_in_milliseconds:
@@ -47,9 +47,9 @@ class AuthBackend(object):
 
         return token
 
-    def _get_clientid_from_userinfo(self, user_info):
+    def _get_username_from_userinfo(self, user_info):
         """
-        Get the user's client_id from the jwt sub property
+        Get the user's username from the jwt sub property
         """
 
         subject = user_info['sub']
@@ -59,6 +59,8 @@ class AuthBackend(object):
             return "mozilla-ldap/" + email
         elif "email" in subject:
             return "email/" + email
+        elif "github" in subject:
+            return "github/" + email
         else:
             raise AuthenticationFailed("Unrecognized identity")
 
@@ -71,27 +73,32 @@ class AuthBackend(object):
         'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
         will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
         Reference: https://auth0.com/docs/jwks
-        """
 
+        The jwks is under our (Mozilla's) control. Changing it would be a big thing
+        with lots of notice in advance. In order to mitigate the additional HTTP request
+        as well as the possiblity of receiving a 503 status code, we use a static json file to
+        read its content.
+        """
         cache_key = 'well-known-jwks'
         cached_jwks = cache.get(cache_key)
 
         if cached_jwks is not None:
             return cached_jwks
 
-        cached_jwks = urlopen('https://' + AUTH0_DOMAIN + '/.well-known/jwks.json').read()
+        cached_jwks = json.load(open('treeherder/auth/jwks.json'))
         cache.set(cache_key, cached_jwks)
 
         return cached_jwks
 
-    def _validate_token(self, request):
-        token = self._get_token_auth_header(request)
+    def _get_user_info(self, request):
+        access_token = self._get_token_auth_header(request)
+        id_token = request.META.get("HTTP_IDTOKEN", None)
+
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
-        jwks_json = self._get_jwks_json()
-        jwks = json.loads(jwks_json)
+        jwks = self._get_jwks_json()
 
-        unverified_header = jwt.get_unverified_header(token)
+        unverified_header = jwt.get_unverified_header(id_token)
 
         rsa_key = {}
         for key in jwks["keys"]:
@@ -109,13 +116,16 @@ class AuthBackend(object):
                             "description": "rsa_key is empty"}, 401)
 
         try:
-            jwt.decode(
-                token,
+            user_info = jwt.decode(
+                id_token,
                 rsa_key,
                 algorithms=['RS256'],
-                audience=AUTH0_AUDIENCE,
+                audience=AUTH0_CLIENTID,
+                access_token=access_token,
                 issuer="https://"+AUTH0_DOMAIN+"/"
             )
+
+            return user_info
         except jwt.ExpiredSignatureError:
             raise AuthError({"code": "token_expired",
                             "description": "token is expired"}, 401)
@@ -130,31 +140,31 @@ class AuthBackend(object):
                                 "Unable to parse authentication"
                                 " token."}, 400)
 
-    def _get_user_info(self, request):
-        user_info_url = 'https://' + AUTH0_DOMAIN + '/userinfo'
-
-        return json.loads(
-            urlopen(Request(user_info_url, headers={'Authorization': request.META.get('HTTP_AUTHORIZATION', None)})).read())
-
     def authenticate(self, request):
-        self._validate_token(request)
         user_info = self._get_user_info(request)
-        client_id = self._get_clientid_from_userinfo(user_info)
+        username = self._get_username_from_userinfo(user_info)
 
         # Look for an existing user by username/clientId
         # If not found, create it, as long as it has an email.
         try:
-            return User.objects.get(username=client_id)
+            user = User.objects.get(username=username)
+
+            accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
+            # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
+            idtoken_exp_in_ms = user_info['exp'] * 1000
+            now_in_ms = int(round(time.time() * 1000))
+
+            # The Django user session expiration should be set to the token for which the expiry is closer.
+            session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
+
+            request.session.set_expiry((session_expiry_in_ms - now_in_ms) / 1000)
+
+            return user
 
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(client_id))
-            return User.objects.create_user(client_id, email=user_info['email'])
-
-        expires_at_in_milliseconds = self._get_session_expiry(request)
-        now_in_milliseconds = int(round(time.time() * 1000))
-        # The Django user session expiration should be set to match the expiry time of the Auth0 token
-        request.session.set_expiry((expires_at_in_milliseconds - now_in_milliseconds) / 1000)
+            logger.warning("Creating new user: {}".format(username))
+            return User.objects.create_user(username, email=user_info['email'])
 
     def get_user(self, user_id):
         try:

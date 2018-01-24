@@ -74,6 +74,7 @@ export default class AuthService {
         const { body: user } = await got(loginUrl, {
             headers: {
                 authorization: `Bearer ${userSession.accessToken}`,
+                idToken: userSession.idToken,
                 expiresAt: userSession.expiresAt
             },
             method: 'GET',

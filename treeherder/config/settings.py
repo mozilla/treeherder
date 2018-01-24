@@ -425,7 +425,7 @@ BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
 
 # Auth0 setup
 AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
-AUTH0_AUDIENCE = env('AUTH0_AUDIENCE', default="login.taskcluster.net")
+AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
 
 ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
 ORANGEFACTOR_HAWK_ID = "treeherder"

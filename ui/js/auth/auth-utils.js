@@ -15,6 +15,7 @@ export const webAuth = new WebAuth({
 export const userSessionFromAuthResult = (authResult) => {
     const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + Date.now());
     const userSession = {
+        idToken: authResult.idToken,
         accessToken: authResult.accessToken,
         fullName: authResult.idTokenPayload.nickname,
         picture: authResult.idTokenPayload.picture,
