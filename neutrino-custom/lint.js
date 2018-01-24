@@ -36,7 +36,6 @@ module.exports = neutrino => {
                     'import/prefer-default-export': 'off',
                     // Indentation is disabled pending a switch from 4 to 2 space for JS.
                     'indent': 'off',
-                    'jsx-a11y/alt-text': 'off',
                     'jsx-a11y/label-has-for': 'off',
                     'jsx-a11y/no-noninteractive-element-interactions': 'off',
                     'jsx-a11y/no-static-element-interactions': 'off',
