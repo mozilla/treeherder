@@ -32,7 +32,7 @@ class SuggestionsListItem extends React.Component {
                     <a className="btn btn-xs btn-light-bordered"
                        onClick={this.fileBugEvent}
                        title="file a bug for this failure">
-                        <i className="fa fa-bug"></i>
+                        <i className="fa fa-bug" />
                     </a>}
                     <span>{this.props.suggestion.search}</span>
                 </div>
@@ -99,13 +99,13 @@ const BugListItem = (props) => {
             <button className="btn btn-xs btn-light-bordered"
                     onClick={pinboardServiceEvent}
                     title="add to list of bugs to associate with all pinned jobs">
-                <i className="fa fa-thumb-tack"></i>
+                <i className="fa fa-thumb-tack" />
             </button>
             <a className={`${props.bugClassName} ml-1`}
                href={getBugUrl}
                target="_blank"
                title={props.title}>{props.bug.id}
-                <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML}></span>
+                <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
             </a>
      </li>
     );
@@ -183,7 +183,7 @@ class FailureSummaryPanel extends React.Component {
                 {this.props.tabs.failureSummary.is_loading &&
                 <div className="overlay">
                     <div>
-                        <span className="fa fa-spinner fa-pulse th-spinner-lg"></span>
+                        <span className="fa fa-spinner fa-pulse th-spinner-lg" />
                     </div>
                 </div>}
             </ul>

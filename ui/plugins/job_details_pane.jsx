@@ -20,14 +20,14 @@ function ClassificationsPane(props) {
     return (
         <ul className="list-unstyled content-spacer">
             <li>
-                <span title={classificationName.name}><i className={`fa ${iconClass}`}></i>
+                <span title={classificationName.name}><i className={`fa ${iconClass}`} />
                 <span className="ml-1">{classificationName.name}</span></span>
                 {props.bugs.length > 0 &&
                 <a target="_blank" href={props.getBugUrl(props.bugs[0].bug_id)}
                 title={`View bug ${props.bugs[0].bug_id}`}><em> {props.bugs[0].bug_id}</em></a>}
             </li>
             {props.classifications[0].text.length > 0 &&
-            <li><em dangerouslySetInnerHTML={repoURLHTML}></em></li>}
+            <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>}
             <li className="revision-comment">
                 {props.dateFilter(props.classifications[0].created, 'EEE MMM d, H:mm:ss')}</li>
                 <li className="revision-comment">
@@ -62,7 +62,7 @@ const JobDetailsListItem = props => (
            href={props.labelHref}
            onClick={props.labelOnclick}
            target={props.labelTarget}>
-           {props.labelText} <span className="fa fa-pencil-square-o icon-superscript"></span>: </a>}
+           {props.labelText} <span className="fa fa-pencil-square-o icon-superscript" />: </a>}
         {!props.href ? <span className="ml-1">{props.text}</span> :
         <a title={props.title}
            className="ml-1"
@@ -70,7 +70,7 @@ const JobDetailsListItem = props => (
            onClick={props.onclick}
            target={props.target}>
            {props.text}</a>}
-           {props.iconClass && <span className={`ml-1${props.iconClass}`}></span>}
+           {props.iconClass && <span className={`ml-1${props.iconClass}`} />}
     </li>
 );
 
@@ -223,7 +223,7 @@ class JobDetailsPane extends React.Component {
                 {this.props.jobDetailLoading &&
                 <div className="overlay">
                     <div>
-                        <span className="fa fa-spinner fa-pulse th-spinner-lg"></span>
+                        <span className="fa fa-spinner fa-pulse th-spinner-lg" />
                     </div>
                 </div>}
 

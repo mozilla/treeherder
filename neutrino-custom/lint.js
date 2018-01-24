@@ -86,7 +86,6 @@ module.exports = neutrino => {
                     'react/prefer-stateless-function': 'off',
                     'react/prop-types': 'off',
                     'react/require-default-props': 'off',
-                    'react/self-closing-comp': 'off',
                     'space-infix-ops': 'off',
                     'spaced-comment': 'off',
                     'strict': 'off',

@@ -18,7 +18,7 @@ const RelatedBugSaved = (props) => {
             <span className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
                   onClick={deleteBugEvent}
                   title={`Delete relation to bug ${props.bug.bug_id}`}>
-            <i className="fa fa-times-circle"></i>
+            <i className="fa fa-times-circle" />
             </span>
       </span>
     );
@@ -59,7 +59,7 @@ function TableRow(props) {
             <td>
                 {/* TODO: the classification label & star has been used in the job_details_pane.jxs
                  so it should probably be made its own component when we start using import */}
-                <span title={classificationName.name}><i className={`fa ${iconClass}`}></i>
+                <span title={classificationName.name}><i className={`fa ${iconClass}`} />
                 <span className="ml-1">{classificationName.name}</span></span>
             </td>
             <td>
@@ -69,7 +69,7 @@ function TableRow(props) {
                 <span onClick={deleteEvent}
                     className="classification-delete-icon hover-warning pointable"
                     title="Delete this classification">
-                    <i className="fa fa-times-circle"></i>
+                    <i className="fa fa-times-circle" />
                 </span>
             </td>
         </tr>
