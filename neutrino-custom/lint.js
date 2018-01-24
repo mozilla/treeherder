@@ -63,7 +63,6 @@ module.exports = neutrino => {
                     'prefer-arrow-callback': 'off',
                     'prefer-const': 'off',
                     'prefer-rest-params': 'off',
-                    'prefer-spread': 'off',
                     'prefer-template': 'off',
                     'quotes': 'off',
                     'radix': 'off',
