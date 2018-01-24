@@ -22,7 +22,6 @@ module.exports = neutrino => {
                 },
                 rules: {
                     // TODO: Fix & remove these deviations from AirBnB style (bug 1183749).
-                    'array-bracket-spacing': 'off',
                     'block-scoped-var': 'off',
                     'camelcase': 'off',
                     'class-methods-use-this': 'off',

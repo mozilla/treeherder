@@ -82,7 +82,7 @@ async function fetchTests(store, fetchParams) {
       acc[jobGroupName][testName] = acc[jobGroupName][testName]
         ? acc[jobGroupName][testName]
         : { group: test.group, jobs: [] };
-      acc[jobGroupName][testName].jobs = [ ...acc[jobGroupName][testName].jobs, flJob];
+      acc[jobGroupName][testName].jobs = [...acc[jobGroupName][testName].jobs, flJob];
       acc[jobGroupName][testName].bugs = bugSuggestions[`${jobGroupName}-${testName}`];
     });
     return acc;
@@ -203,7 +203,7 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
       newTest.jobGroup = groupName;
       newTest.name = testName;
       newTest.bugs = test.bugs;
-      newTest.jobs = newTest.jobs ? [ ...newTest.jobs, job ] : [job];
+      newTest.jobs = newTest.jobs ? [...newTest.jobs, job] : [job];
     }
   });
 }
@@ -274,7 +274,7 @@ async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
 
   const testMap = test.jobs.reduce((gacc, job) => {
     const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
-    gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [ ...gacc[bsUrl], test] : [test] };
+    gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [...gacc[bsUrl], test] : [test] };
     return gacc;
   }, {});
 
@@ -303,11 +303,11 @@ async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
 
 async function fetchBugs(store, { rowData, url }) {
   // map of tests to urls
-  const testMap = Object.entries(rowData).reduce((gacc, [ , tests ]) => {
-    Object.entries(tests).forEach(([ , test ]) => {
+  const testMap = Object.entries(rowData).reduce((gacc, [, tests]) => {
+    Object.entries(tests).forEach(([, test]) => {
       test.jobs.forEach((job) => {
         const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
-        gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [ ...gacc[bsUrl], test] : [test] };
+        gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [...gacc[bsUrl], test] : [test] };
       });
     });
     return gacc;
