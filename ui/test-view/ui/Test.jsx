@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
 import { store, actions } from '../redux/store';
 import { platformMap } from '../../js/constants';
-import { LogViewer } from './LogViewer';
+import LogViewer from './LogViewer';
 
 
 const mapStateToProps = ({ groups }) => ({
