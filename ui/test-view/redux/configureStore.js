@@ -4,10 +4,10 @@ import {
   combineReducers,
   applyMiddleware,
 } from 'redux';
-import * as groupsStore from './modules/groups';
-import { platformMap } from '../../js/constants';
 import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
+import * as groupsStore from './modules/groups';
+import { platformMap } from '../../js/constants';
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?
