@@ -79,7 +79,6 @@ module.exports = neutrino => {
                     'react/jsx-boolean-value': 'off',
                     'react/jsx-closing-bracket-location': 'off',
                     'react/jsx-curly-spacing': 'off',
-                    'react/jsx-filename-extension': 'off',
                     'react/jsx-first-prop-new-line': 'off',
                     'react/jsx-indent': 'off',
                     'react/jsx-indent-props': 'off',
