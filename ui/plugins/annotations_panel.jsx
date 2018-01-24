@@ -77,7 +77,7 @@ function TableRow(props) {
             </td>
         </tr>
     );
-};
+}
 
 
 function AnnotationsTable(props) {
@@ -96,7 +96,7 @@ function AnnotationsTable(props) {
             </tbody>
         </table>
     );
-};
+}
 
 
 export default class AnnotationsPanel extends React.Component {

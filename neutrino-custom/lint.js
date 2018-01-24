@@ -40,7 +40,6 @@ module.exports = neutrino => {
                     'max-len': 'off',
                     'no-alert': 'off',
                     'no-continue': 'off',
-                    'no-extra-semi': 'off',
                     'no-loop-func': 'off',
                     'no-mixed-operators': 'off',
                     'no-multi-assign': 'off',
