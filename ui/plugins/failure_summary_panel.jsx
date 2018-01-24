@@ -138,10 +138,6 @@ const ErrorsList = (props) => {
 
 
 class FailureSummaryPanel extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         const escapeHTMLFilter = this.props.$injector.get('$filter')('escapeHTML');
         const highlightCommonTermsFilter = this.props.$injector.get('$filter')('highlightCommonTerms');
