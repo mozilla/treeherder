@@ -80,7 +80,6 @@ module.exports = neutrino => {
                     'react/jsx-indent-props': 'off',
                     'react/jsx-max-props-per-line': 'off',
                     'react/jsx-tag-spacing': 'off',
-                    'react/jsx-wrap-multilines': 'off',
                     'react/no-array-index-key': 'off',
                     'react/no-danger': 'off',
                     'react/no-multi-comp': 'off',

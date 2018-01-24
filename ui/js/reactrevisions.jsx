@@ -36,7 +36,7 @@ const RevisionItem = (props) => {
         tags += "backout";
     }
 
-    return <li className="clearfix">
+    return (<li className="clearfix">
         <span className="revision" data-tags={tags}>
             <span className="revision-holder">
                 <a title={`Open revision ${props.revision.revision} on ${props.repo.url}`}
@@ -53,7 +53,7 @@ const RevisionItem = (props) => {
                 </span>
             </span>
         </span>
-    </li>;
+    </li>);
 };
 RevisionItem.propTypes = {
     revision: PropTypes.object.isRequired,
@@ -70,12 +70,12 @@ const RevisionList = (props) => {
         <span className="revision-list col">
             <ul className="list-unstyled">
                 {props.resultset.revisions.map((revision, i) =>
-                    <RevisionItem
+                    (<RevisionItem
                         initialsFilter={initialsFilter}
                         linkifyBugsFilter={linkifyBugsFilter}
                         revision={revision}
                         repo={props.repo}
-                        key={i} />
+                        key={i} />)
                 )}
                 {hasMore &&
                     <MoreRevisionsLink

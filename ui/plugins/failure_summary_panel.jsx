@@ -41,11 +41,11 @@ class SuggestionsListItem extends React.Component {
                 {this.props.suggestion.valid_open_recent &&
                 <ul className="list-unstyled failure-summary-bugs">
                     {this.props.suggestion.bugs.open_recent.map((bug, index) =>
-                        <BugListItem
+                        (<BugListItem
                                     key={index} bug={bug} selectedJob={this.props.selectedJob}
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
-                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}/>)}
+                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}/>))}
 
                 </ul>}
 
@@ -60,13 +60,13 @@ class SuggestionsListItem extends React.Component {
                 || !this.props.suggestion.valid_open_recent) &&
                 <ul className="list-unstyled failure-summary-bugs">
                     {this.props.suggestion.bugs.all_others.map((bug, index) =>
-                        <BugListItem
+                        (<BugListItem
                                     key={index} bug={bug} selectedJob={this.props.selectedJob}
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
                                     highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
                                     bugClassName={bug.resolution !== "" ? "deleted" : ""}
-                                    title={bug.resolution !== "" ? bug.resolution : ""} />)}
+                                    title={bug.resolution !== "" ? bug.resolution : ""} />))}
                 </ul>}
 
                 {(this.props.suggestion.bugs.too_many_open_recent || (this.props.suggestion.bugs.too_many_all_others
@@ -114,11 +114,11 @@ const BugListItem = (props) => {
 
 const ErrorsList = (props) => {
     const errorListItem = props.errors.map((error, index) =>
-        <li key={index}>{error.name} : {error.result}.
+        (<li key={index}>{error.name} : {error.result}.
             <a title="Open in Log Viewer"
                target="_blank"
                href={error.lvURL}><span className="ml-1">View log</span></a>
-        </li>);
+        </li>));
 
     return (
         <li>
@@ -142,13 +142,13 @@ class FailureSummaryPanel extends React.Component {
         return (
             <ul className="list-unstyled failure-summary-list">
                 {this.props.suggestions && this.props.suggestions.map((suggestion, index) =>
-                    <SuggestionsListItem
+                    (<SuggestionsListItem
                                     key={index} index={index} suggestion={suggestion} user={this.props.user}
                                     filerInAddress={this.props.filerInAddress} fileBug={this.props.fileBug}
                                     highlightCommonTermsFilter={highlightCommonTermsFilter}
                                     escapeHTMLFilter={escapeHTMLFilter} getBugUrl={this.props.getBugUrl}
                                     bugLimit={this.props.bugLimit} pinboardService={this.props.pinboardService}
-                                    selectedJob={this.props.selectedJob} />)}
+                                    selectedJob={this.props.selectedJob} />))}
 
                 {this.props.errors && this.props.errors.length > 0 &&
                 <ErrorsList errors={this.props.errors} />}
@@ -166,13 +166,13 @@ class FailureSummaryPanel extends React.Component {
 
                 {this.props.jobLogUrls && !this.props.tabs.failureSummary.is_loading && !this.props.jobLogsAllParsed &&
                 this.props.jobLogUrls.map((job, index) =>
-                    <li key={index}>
+                    (<li key={index}>
                         <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
                         <a title="Open the raw log in a new window"
                            target="_blank"
                            href={job.url}>The raw log</a>
                         <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
-                    </li>)}
+                    </li>))}
 
                 {!this.props.tabs.failureSummary.is_loading && this.props.logParseStatus === 'failed' &&
                 <ListItem text="Log parsing failed.  Unable to generate failure summary." />}

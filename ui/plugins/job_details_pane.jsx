@@ -163,14 +163,14 @@ class JobDetailsList extends React.Component {
 
                 {this.props.visibleFields &&
                 Object.keys(this.props.visibleFields).map(keyName =>
-                    <JobDetailsListItem
+                    (<JobDetailsListItem
                                     key={keyName}
                                     label={`${keyName}:`}
                                     title="Open build directory in a new tab"
                                     href={buildUrl}
                                     target="_blank"
                                     text={this.props.visibleFields[keyName]}
-                                    iconClass={iconCircleClass} />)}
+                                    iconClass={iconCircleClass} />))}
 
                 {this.props.visibleTimeFields && <span>
                 <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime}/>
