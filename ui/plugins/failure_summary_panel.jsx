@@ -45,7 +45,7 @@ class SuggestionsListItem extends React.Component {
                                     key={index} bug={bug} selectedJob={this.props.selectedJob}
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
-                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}/>))}
+                                    highlightCommonTermsFilter={this.props.highlightCommonTermsFilter} />))}
 
                 </ul>}
 
