@@ -84,7 +84,7 @@ module.exports = neutrino => {
         .end();
     neutrino.config
         .entry('testview')
-        .add(path.join(UI, 'test-view', 'index.js'))
+        .add(path.join(UI, 'test-view', 'index.jsx'))
         .end();
 
     // Likewise, we must modify the include paths for the compile rule to look in ui/ instead of src/:
