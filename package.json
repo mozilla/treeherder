@@ -24,6 +24,8 @@
     "angular1-ui-bootstrap4": "2.4.22",
     "bootstrap": "4.0.0-beta.2",
     "deepmerge": "1.5.2",
+    "eslint-config-airbnb": "15.1.0",
+    "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "7.5.1",
     "font-awesome": "4.7.0",
     "hawk": "6.0.2",
