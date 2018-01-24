@@ -411,7 +411,7 @@ const testDataMiddleware = store => next => (action) => {
   return next(action);
 };
 
-export const configureStore = () => {
+export default () => {
   const debounceConfig = { filter: 300 };
   const debouncer = createDebounce(debounceConfig);
   const reducer = combineReducers({
@@ -424,5 +424,3 @@ export const configureStore = () => {
 
   return { store, actions };
 };
-
-export default configureStore;

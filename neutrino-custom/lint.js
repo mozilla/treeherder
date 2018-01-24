@@ -32,7 +32,6 @@ module.exports = neutrino => {
                     'func-names': 'off',
                     'global-require': 'off',
                     'import/first': 'off',
-                    'import/no-named-as-default': 'off',
                     'import/prefer-default-export': 'off',
                     // Indentation is disabled pending a switch from 4 to 2 space for JS.
                     'indent': 'off',

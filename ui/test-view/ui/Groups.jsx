@@ -9,7 +9,7 @@ import { store, actions } from '../redux/store';
 
 const mapStateToProps = ({ groups }) => groups;
 
-export class Groups extends React.Component {
+class Groups extends React.Component {
 
   componentWillMount() {
     this.filterStr = new URLSearchParams(location.search).get('filter') || '';
