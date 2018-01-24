@@ -64,39 +64,26 @@ class AuthBackend(object):
         else:
             raise AuthenticationFailed("Unrecognized identity")
 
-    def _get_jwks_json(self):
-        """
-        Get the JSON Web Key Set (jwks), which is a set of keys
-        containing the public keys that should be used to verify
-        any JWT issued by the authorization server. Auth0 exposes
-        a JWKS endpoint for each tenant, which is found at
-        'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
-        will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
-        Reference: https://auth0.com/docs/jwks
-
-        The jwks is under our (Mozilla's) control. Changing it would be a big thing
-        with lots of notice in advance. In order to mitigate the additional HTTP request
-        as well as the possiblity of receiving a 503 status code, we use a static json file to
-        read its content.
-        """
-        cache_key = 'well-known-jwks'
-        cached_jwks = cache.get(cache_key)
-
-        if cached_jwks is not None:
-            return cached_jwks
-
-        cached_jwks = json.load(open('treeherder/auth/jwks.json'))
-        cache.set(cache_key, cached_jwks)
-
-        return cached_jwks
-
     def _get_user_info(self, request):
         access_token = self._get_token_auth_header(request)
         id_token = request.META.get("HTTP_IDTOKEN", None)
 
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
-        jwks = self._get_jwks_json()
+
+        # The JSON Web Key Set (jwks), which is a set of keys
+        # containing the public keys that should be used to verify
+        # any JWT issued by the authorization server. Auth0 exposes
+        # a JWKS endpoint for each tenant, which is found at
+        # 'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
+        # will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
+        # Reference: https://auth0.com/docs/jwks
+
+        # The jwks is under our (Mozilla's) control. Changing it would be a big thing
+        # with lots of notice in advance. In order to mitigate the additional HTTP request
+        # as well as the possiblity of receiving a 503 status code, we use a static json file to
+        # read its content.
+        jwks = json.load(open('treeherder/auth/jwks.json'))
 
         unverified_header = jwt.get_unverified_header(id_token)
 
