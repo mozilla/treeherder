@@ -173,20 +173,20 @@ class JobDetailsList extends React.Component {
                                     iconClass={iconCircleClass} />))}
 
                 {this.props.visibleTimeFields && <span>
-                <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime}/>
+                <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime} />
 
                 {this.props.visibleTimeFields.startTime &&
-                <JobDetailsListItem label="Started:" text={this.props.visibleTimeFields.startTime}/>}
+                <JobDetailsListItem label="Started:" text={this.props.visibleTimeFields.startTime} />}
 
                 {this.props.visibleTimeFields.endTime &&
-                <JobDetailsListItem label="Ended:" text={this.props.visibleTimeFields.endTime}/>}
+                <JobDetailsListItem label="Ended:" text={this.props.visibleTimeFields.endTime} />}
 
-                <JobDetailsListItem label="Duration:" text={this.props.visibleTimeFields.duration}/>
+                <JobDetailsListItem label="Duration:" text={this.props.visibleTimeFields.duration} />
                 </span>}
 
-                {!this.props.jobLogUrls ? <JobDetailsListItem label="Log parsing status: " text="No logs"/> :
+                {!this.props.jobLogUrls ? <JobDetailsListItem label="Log parsing status: " text="No logs" /> :
                 this.props.jobLogUrls.map(data =>
-                    <JobDetailsListItem label="Log parsing status: " text={data.parse_status} key={data}/>)}
+                    <JobDetailsListItem label="Log parsing status: " text={data.parse_status} key={data} />)}
             </ul>
         );
     }
@@ -239,7 +239,7 @@ class JobDetailsPane extends React.Component {
                     classificationTypes={this.props.classificationTypes}
                     repoName={this.props.repoName} />}
 
-                <JobStatusPane job={this.props.job} resultStatusShading={this.props.resultStatusShading}/>
+                <JobStatusPane job={this.props.job} resultStatusShading={this.props.resultStatusShading} />
 
                 <JobDetailsList
                     job={this.props.job}

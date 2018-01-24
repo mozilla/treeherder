@@ -40,12 +40,12 @@ class StatusNavbar extends React.Component {
       <Navbar expand>
         <Nav className="mr-auto">
           <span className="navbar-text">
-            <Icon name="code"/> Revision <code className="push-revision">{this.props.push.revision}</code>
+            <Icon name="code" /> Revision <code className="push-revision">{this.props.push.revision}</code>
           </span>
 
           <span className="navbar-text">
             <span className="hidden-sm-down">&mdash;&nbsp;&nbsp;&nbsp;</span>
-            <Icon name="id-card-o"/> Author <code>{this.props.push.author}</code>
+            <Icon name="id-card-o" /> Author <code>{this.props.push.author}</code>
           </span>
         </Nav>
 
@@ -55,14 +55,14 @@ class StatusNavbar extends React.Component {
 
         <span className="navbar-text toggle-count" onClick={() => this.toggleHideClassified('infra')}>
           <Badge color="infra">
-            <Icon name={this.props.hideClassified.infra ? 'square-o' : 'check-square-o'}/>
+            <Icon name={this.props.hideClassified.infra ? 'square-o' : 'check-square-o'} />
             {this.props.counts.infra} Infra Tests
           </Badge>
         </span>
 
         <span className="navbar-text toggle-count" onClick={() => this.toggleHideClassified('intermittent')}>
           <Badge color="intermittent">
-            <Icon name={this.props.hideClassified.intermittent ? 'square-o' : 'check-square-o'}/>
+            <Icon name={this.props.hideClassified.intermittent ? 'square-o' : 'check-square-o'} />
             {this.props.counts.intermittent} Intermittent Tests
           </Badge>
         </span>
