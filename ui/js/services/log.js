@@ -32,7 +32,7 @@ treeherder.factory('ThLog', [
                 (!whitelist.length && !blacklist.length)) {
                 var newArgs = Array.prototype.slice.call(args);
                 newArgs.unshift(self.getClassName());
-                func.apply(null, newArgs);
+                func(...newArgs);
             }
         };
 

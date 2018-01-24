@@ -626,7 +626,7 @@ treeherder.factory('ThResultSetStore', [
                         if (ids_unfetched.length > 0) {
                             $log.debug("re-adding " +
                                        ids_unfetched.length + "job to the fetch queue");
-                            unavailableJobs.push.apply(unavailableJobs, ids_unfetched);
+                            unavailableJobs.push(...ids_unfetched);
                         }
                         return jobsFetched;
                     }, error_callback)
