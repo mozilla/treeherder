@@ -30,9 +30,9 @@ const RelatedBug = props => (
         <p className="annotations-bug-header font-weight-bold">Bugs</p>
         <ul className="annotations-bug-list">
             {props.bugs.map((bug, index) =>
-            <li key={index} >
+            (<li key={index} >
                 <RelatedBugSaved bug={bug} getBugUrl={props.getBugUrl} deleteBug={props.deleteBug} />
-            </li>)}
+            </li>))}
         </ul>
     </span>
 );
@@ -85,10 +85,10 @@ function AnnotationsTable(props) {
             </thead>
             <tbody>
                 {props.classifications.map((classification, index) =>
-                    <TableRow
+                    (<TableRow
                             key={index} dateFilter={props.dateFilter} classification={classification}
                             deleteClassification={props.deleteClassification}
-                            classificationTypes={props.classificationTypes} />)}
+                            classificationTypes={props.classificationTypes} />))}
             </tbody>
         </table>
     );
