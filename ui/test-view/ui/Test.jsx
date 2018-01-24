@@ -49,6 +49,19 @@ class BugCountComponent extends React.Component {
 }
 
 class Platform extends React.Component {
+  getIcon(failureClassification) {
+    switch (failureClassification) {
+      case 'not classified':
+        return;
+      case 'intermittent':
+        return <Icon name="bug" className="classified classified-intermittent" />;
+      case 'infra':
+        return <Icon name="chain-broken" className="classified classified-infra" />;
+      default:
+        return <Icon name="star" className="classified" />;
+    }
+  }
+
   render() {
     return (
       <span className="platform badge"
@@ -61,19 +74,6 @@ class Platform extends React.Component {
         </Link>
       </span>
     );
-  }
-
-  getIcon(failureClassification) {
-    switch (failureClassification) {
-      case 'not classified':
-        return;
-      case 'intermittent':
-        return <Icon name="bug" className="classified classified-intermittent" />;
-      case 'infra':
-        return <Icon name="chain-broken" className="classified classified-infra" />;
-      default:
-        return <Icon name="star" className="classified" />;
-    }
   }
 }
 
