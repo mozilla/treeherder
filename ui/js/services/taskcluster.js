@@ -1,7 +1,5 @@
 'use strict';
 
-import { OIDCCredentialAgent } from 'taskcluster-client-web';
-
 treeherder.factory('thTaskcluster', ['$window',
     function ($window) {
         let client = require('taskcluster-client');
