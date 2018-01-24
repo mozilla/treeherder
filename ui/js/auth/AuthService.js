@@ -56,7 +56,6 @@ export default class AuthService {
     }
 
     logout() {
-        localStorage.removeItem('treeherder.taskcluster.credentials');
         localStorage.removeItem('treeherder.userSession');
         localStorage.setItem('treeherder.user', JSON.stringify(loggedOutUser));
     }
@@ -71,6 +70,7 @@ export default class AuthService {
         const loginUrl = `${location.protocol}//${location.host}/api/auth/login/`;
 
         const taskclusterCredentials = await credentialAgent.getCredentials();
+
         const { body: user } = await got(loginUrl, {
             headers: {
                 authorization: `Bearer ${userSession.accessToken}`,
@@ -81,7 +81,11 @@ export default class AuthService {
             json: true
         });
 
-        localStorage.setItem('treeherder.taskcluster.credentials', JSON.stringify(taskclusterCredentials));
+        // Update taskcluster client credentials
+        window.dispatchEvent(
+            new CustomEvent('taskcluster-credentials', { detail: taskclusterCredentials })
+        );
+
         localStorage.setItem('treeherder.userSession', JSON.stringify(userSession));
         localStorage.setItem('treeherder.user', JSON.stringify(user));
     }

@@ -1,12 +1,13 @@
 'use strict';
 
-treeherder.factory('thTaskcluster', ['$rootScope', 'localStorageService',
-    function ($rootScope, localStorageService) {
+import { OIDCCredentialAgent } from 'taskcluster-client-web';
+
+treeherder.factory('thTaskcluster', ['$window',
+    function ($window) {
         let client = require('taskcluster-client');
-        $rootScope.$on("LocalStorageModule.notification.setitem", function () {
-            client.config({
-                credentials: localStorageService.get('taskcluster.credentials') || {},
-            });
+
+        $window.addEventListener("taskcluster-credentials", function ({ detail: credentials }) {
+            client.config({ credentals: credentials || {} });
         });
 
         return {
