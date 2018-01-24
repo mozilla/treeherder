@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import logUrl from '../../img/logviewerIcon.png';
 
-export class LogViewer extends React.Component {
+export default class LogViewer extends React.Component {
   render() {
     return (
       <span className="logviewer badge">
