@@ -462,6 +462,9 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',
+    # We can't set X_FRAME_OPTIONS to DENY since renewal of auth token requires
+    # opening an invisible iframe with the same origin.
+    'security.W019'
 ]
 
 # Enable integration between autoclassifier and jobs
