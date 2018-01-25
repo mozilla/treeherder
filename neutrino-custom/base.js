@@ -82,7 +82,7 @@ module.exports = neutrino => {
         .end();
     neutrino.config
         .entry('login')
-        .add(path.join(UI, 'entry-login.js'))
+        .add(path.join(UI, 'entry-login.jsx'))
         .end();
     neutrino.config
         .entry('userguide')
