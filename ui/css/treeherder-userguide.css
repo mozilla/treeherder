@@ -15,25 +15,6 @@
  * Job notation table
  */
 
-.ug-btn-sm tr > th > button {
-    font-size: 13px;
-    padding: 0 2px;
-    margin-top: 1px;
-    border: 1px solid;
-    border-radius: 3px;
-    color: #b3b3b3;
-    cursor: auto;
-    background: #fff;
-}
-
-.ug-btn-sm tr > th > button:focus {
-    outline: 0;
-}
-
-.ug-btn-desc tr > td {
-    vertical-align: bottom;
-}
-
 .ug-btn {
     margin: 2px;
     border: 2px solid;
