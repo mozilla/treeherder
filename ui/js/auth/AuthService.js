@@ -56,6 +56,7 @@ export default class AuthService {
             }
         } catch (err) {
             this.logout();
+            /* eslint-disable no-console */
             console.error('Could not renew login:', err);
         }
     }

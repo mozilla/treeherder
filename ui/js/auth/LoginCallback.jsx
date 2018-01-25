@@ -16,7 +16,7 @@ export default class LoginCallback extends React.PureComponent {
         this.authService = new AuthService();
     }
 
-    async componentDidMount() {
+    async componentWillMount() {
         let authResult;
 
         // make the user login if there is no access token
