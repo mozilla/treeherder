@@ -57,7 +57,6 @@ require('./js/controllers/perf/compare.js');
 require('./js/controllers/perf/graphs.js');
 require('./js/controllers/perf/alerts.js');
 require('./js/controllers/perf/dashboard.js');
-require('./js/controllers/perf/e10s-trend.js');
 require('./js/components/perf/compare.js');
 require('./js/components/auth.js');
 require('./js/components/loading.js');

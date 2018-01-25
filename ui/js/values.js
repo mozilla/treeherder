@@ -61,14 +61,6 @@ treeherder.value("phTimeRangeValues", {
     "mozilla-beta": 7776000
 });
 
-treeherder.value("phComparisonDate", [
-    { value: 0, text: "Today" },
-    { value: 604800, text: "1 week ago" },
-    { value: 1209600, text: "2 weeks ago" },
-    { value: 2419200, text: "4 weeks ago" },
-    { value: 3628800, text: "6 weeks ago" }
-]);
-
 treeherder.value("phBlockers", {
     "cart summary": 2.0,
     "damp summary": 2.0,
@@ -189,35 +181,21 @@ treeherder.value("thPerformanceBranches", [
 
 treeherder.value("phDashboardValues",
     {
-        e10s: {
-            baseTitle: "non-e10s",
-            defaultRepo: "mozilla-inbound",
-            descP1: "Comparing results of all Talos tests over the last two days on mozilla-inbound " +
-                    "(using pgo configuration on all platforms that support it). Because we're taking " +
-                    "a sample over a period of time, improvements or regressions will take a while " +
-                    "to be reflected in results. When in doubt, check the graphs by hovering over each " +
-                    "line. Also, if there are no results for the default time range, try specifying a " +
-                    "longer one.",
-            descP2: "For more information on what is considered 'acceptable' in terms of a Talos regression, see ",
-            framework: 1,
-            header: "Perfherder e10s dashboard",
-            linkDesc: "the official e10s release criteria.",
-            linkUrl: "https://wiki.mozilla.org/index.php?title=Electrolysis/Release_Criteria",
-            variantDataOpt: "e10s",
-            variantTitle: "e10s"
-        },
-        hasal: {
-            baseTitle: "chrome",
-            defaultRepo: "mozilla-central",
-            descP1: "Comparing Firefox with Chrome browser.",
-            descP2: "For more information, see ",
-            linkDesc: "the Hasal repo.",
-            linkUrl: "https://github.com/Mozilla-TWQA/Hasal",
-            framework: 9,
-            header: "Perfherder hasal dashboard",
-            variantDataOpt: "firefox",
-            variantTitle: "firefox"
-        }
+        /*
+        Expected dashboard configs structure:
+        <dashboard_name>: {
+            baseTitle: string,
+            defaultRepo: string,
+            descP1: string,
+            descP2: string,
+            framework: integer,
+            header: string,
+            linkDesc: string,
+            linkUrl: urlString,
+            variantDataOpt: string,
+            variantTitle: string
+         }, ...
+         */
     }
 );
 
