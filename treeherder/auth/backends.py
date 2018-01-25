@@ -3,17 +3,28 @@ import logging
 import time
 
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from jose import jwt
 from rest_framework.exceptions import AuthenticationFailed
 
-from six.moves.urllib.request import (Request,
-                                      urlopen)
 from treeherder.config.settings import (AUTH0_CLIENTID,
                                         AUTH0_DOMAIN)
 
 logger = logging.getLogger(__name__)
+
+# The JSON Web Key Set (jwks), which is a set of keys
+# containing the public keys that should be used to verify
+# any JWT issued by the authorization server. Auth0 exposes
+# a JWKS endpoint for each tenant, which is found at
+# 'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
+# will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
+# Reference: https://auth0.com/docs/jwks
+
+# The jwks is under our (Mozilla's) control. Changing it would be a big thing
+# with lots of notice in advance. In order to mitigate the additional HTTP request
+# as well as the possiblity of receiving a 503 status code, we use a static json file to
+# read its content.
+jwks = json.load(open('treeherder/auth/jwks.json'))
 
 
 class AuthBackend(object):
@@ -70,20 +81,6 @@ class AuthBackend(object):
 
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
-
-        # The JSON Web Key Set (jwks), which is a set of keys
-        # containing the public keys that should be used to verify
-        # any JWT issued by the authorization server. Auth0 exposes
-        # a JWKS endpoint for each tenant, which is found at
-        # 'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
-        # will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
-        # Reference: https://auth0.com/docs/jwks
-
-        # The jwks is under our (Mozilla's) control. Changing it would be a big thing
-        # with lots of notice in advance. In order to mitigate the additional HTTP request
-        # as well as the possiblity of receiving a 503 status code, we use a static json file to
-        # read its content.
-        jwks = json.load(open('treeherder/auth/jwks.json'))
 
         unverified_header = jwt.get_unverified_header(id_token)
 
