@@ -10,20 +10,20 @@ from treeherder.auth.backends import (AuthBackend,
 
 
 @pytest.mark.parametrize(
-    ('user_info', 'exp_client_id', 'exp_exception'),
+    ('user_info', 'exp_username', 'exp_exception'),
     [({'sub': 'email', 'email': 'biped@mozilla.com'}, 'email/biped@mozilla.com', False),  # email clientId
      ({'sub': 'Mozilla-LDAP', 'email': 'biped@mozilla.com'}, 'mozilla-ldap/biped@mozilla.com', False),  # ldap clientId
      ({'sub': 'meh', 'email': 'biped@mozilla.com'}, 'None', True),  # invalid clientId, exception
      ])
-def test_get_clientid_from_userinfo(user_info, exp_client_id, exp_exception):
+def test_get_username_from_userinfo(user_info, exp_username, exp_exception):
     tca = AuthBackend()
     if exp_exception:
         with pytest.raises(AuthenticationFailed):
-            tca._get_clientid_from_userinfo(user_info)
+            tca._get_username_from_userinfo(user_info)
     else:
-        client_id = tca._get_clientid_from_userinfo(user_info)
-        print "received client_id: ", client_id
-        assert client_id == exp_client_id
+        username = tca._get_username_from_userinfo(user_info)
+
+        assert username == exp_username
 
 
 @pytest.mark.django_db
@@ -49,12 +49,8 @@ def test_existing_email_create_user(test_user, webapp, monkeypatch, exp_username
     username.
     """
     def userinfo_mock(selfless, request):
-        return {'sub': 'email', 'email': email}
+        return {'sub': 'email', 'email': email, 'exp': '500'}
 
-    def validate_mock(selfless, request):
-        return True
-
-    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     one_hour = 1000 * 60 * 60
@@ -62,7 +58,7 @@ def test_existing_email_create_user(test_user, webapp, monkeypatch, exp_username
 
     existing_user = User.objects.create(username="email/foo@bar.net", email=email)
 
-    webapp.get(reverse("auth-login"), headers={"Authorization": "Bearer meh", "expiresAt": str(expires_at)})
+    webapp.get(reverse("auth-login"), headers={"Authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)})
 
     session_key = webapp.cookies["sessionid"]
     session = Session.objects.get(session_key=session_key)

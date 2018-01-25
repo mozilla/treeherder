@@ -109,12 +109,8 @@ def test_post_no_auth():
 def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
     def userinfo_mock(selfless, request):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email}
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
 
-    def validate_mock(selfless, request):
-        return True
-
-    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     assert "sessionid" not in webapp.cookies
@@ -124,7 +120,9 @@ def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=200)
+    webapp.get(reverse('auth-login'),
+               headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
+               status=200)
 
     session_key = webapp.cookies["sessionid"]
     session = Session.objects.get(session_key=session_key)
@@ -143,18 +141,15 @@ def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
 def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
     """email login, user doesn't exist, create it"""
     def userinfo_mock(selfless, request):
-        return {'sub': 'email', 'email': test_user.email}
+        return {'sub': 'email', 'email': test_user.email, 'exp': '500'}
 
-    def validate_mock(selfless, request):
-        return True
-
-    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)})
+    resp = webapp.get(reverse("auth-login"),
+                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)})
 
     assert resp.json["username"] == "email/user@foo.com"
 
@@ -176,18 +171,16 @@ def test_login_no_email(test_user, webapp, monkeypatch):
 
     """
     def userinfo_mock(selfless, request):
-        return {'sub': 'bad', 'email': test_user.email}
+        return {'sub': 'bad', 'email': test_user.email, 'exp': '500'}
 
-    def validate_mock(selfless, request):
-        return True
-
-    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=403)
+    resp = webapp.get(reverse("auth-login"),
+                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
+                      status=403)
 
     assert resp.json["detail"] == "Unrecognized identity"
 
@@ -196,12 +189,8 @@ def test_login_no_email(test_user, webapp, monkeypatch):
 def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     """LDAP login, user not active"""
     def userinfo_mock(selfless, request):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email}
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
 
-    def validate_mock(selfless, request):
-        return True
-
-    monkeypatch.setattr(AuthBackend, '_validate_token', validate_mock)
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
     one_hour = 1000 * 60 * 60
@@ -210,7 +199,9 @@ def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     test_ldap_user.is_active = False
     test_ldap_user.save()
 
-    resp = webapp.get(reverse("auth-login"), headers={"authorization": "Bearer meh", "expiresAt": str(expires_at)}, status=403)
+    resp = webapp.get(reverse("auth-login"),
+                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
+                      status=403)
 
     assert resp.json["detail"] == "This user has been disabled."
 
