@@ -66,12 +66,6 @@ TEMPLATES = [
             path("templates"),
         ],
         'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
     },
 ]
 
@@ -90,7 +84,6 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'hawkrest.middleware.HawkResponseMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
@@ -121,12 +114,10 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`.
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
     # 3rd party apps
     'rest_framework',
     'rest_framework_swagger',
