@@ -281,9 +281,9 @@ multidict==4.0.0; python_version >= '3' \
     --hash=sha256:52e0c03f32df10f9f1338054dad78e7a3ff4d36f27c600441190302708653661 \
     --hash=sha256:b72486b3ad2b8444f7afebdafda8b111c1803e37203dfe81b7765298f2781778
 
-async_timeout==1.4.0; python_version >= '3' \
-    --hash=sha256:5b5c855783f65dfda72fc15ca538070188776ece811408867e64dd3cce53371d \
-    --hash=sha256:983891535b1eca6ba82b9df671c8abff53c804fce3fa630058da5bbbda500340
+async_timeout==2.0.0; python_version >= '3' \
+    --hash=sha256:d3a195a827b0f4068d1616ae2da04aac62e365d14f2b13dbc071f9feed9db4e2 \
+    --hash=sha256:c17d8ac2d735d59aa62737d76f2787a6c938f5a944ecf768a8c0ab70b0dea566
 
 graphene-django==2.0.0 \
     --hash=sha256:5cabf46b59f242a533fe1df1912c87d5ad6606246937609be2e6c9086cfdf7a4 \
