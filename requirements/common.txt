@@ -254,12 +254,12 @@ iso8601==0.1.12 \
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
 
-python-jose==2.0.0 \
-    --hash=sha256:0f38b5d0bb7df491abcfec5765a2bcd31f28495d366dab05fb15797c2fc8d2ab
+python-jose==2.0.2 \
+    --hash=sha256:3b35cdb0e55a88581ff6d3f12de753aa459e940b50fe7ca5aa25149bc94cb37b
 
 # Used by python-jose
-pycryptodome==3.3.1 \
-    --hash=sha256:1b52d5643e243a6d5ba4b5706e6ae59ee61b14e800ff812c1e47ec4dfe8e4761
+pycryptodome==3.4.8 \
+    --hash=sha256:e089d8619a46212cc191258292a3ffbe0d44b9e5ca21f036a4ca8f2db6b0860a
 
 ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c
