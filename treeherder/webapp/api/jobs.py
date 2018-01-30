@@ -308,7 +308,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         if count > MAX_JOBS_COUNT:
             msg = "Specified count exceeds API MAX_JOBS_COUNT value: {}".format(MAX_JOBS_COUNT)
-            return Response({"error": msg}, status=HTTP_400_BAD_REQUEST)
+            return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         try:
             repository = Repository.objects.get(name=project)

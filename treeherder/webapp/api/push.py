@@ -100,7 +100,7 @@ class PushViewSet(viewsets.ViewSet):
                         float(filter_params.get(param)))
                 except ValueError:
                     return Response({
-                        "error": "Invalid timestamp specified for {}".format(
+                        "detail": "Invalid timestamp specified for {}".format(
                             param)
                     }, status=HTTP_400_BAD_REQUEST)
                 pushes = pushes.filter(**{
@@ -112,7 +112,7 @@ class PushViewSet(viewsets.ViewSet):
                 value = int(filter_params.get(param, 0))
             except ValueError:
                 return Response({
-                    "error": "Invalid timestamp specified for {}".format(
+                    "detail": "Invalid timestamp specified for {}".format(
                         param)
                 }, status=HTTP_400_BAD_REQUEST)
             if value:
@@ -123,7 +123,7 @@ class PushViewSet(viewsets.ViewSet):
             try:
                 id_in_list = [int(id) for id in id_in.split(',')]
             except ValueError:
-                return Response({"error": "Invalid id__in specification"},
+                return Response({"detail": "Invalid id__in specification"},
                                 status=HTTP_400_BAD_REQUEST)
             pushes = pushes.filter(id__in=id_in_list)
 
@@ -134,12 +134,12 @@ class PushViewSet(viewsets.ViewSet):
         try:
             count = int(filter_params.get("count", 10))
         except ValueError:
-            return Response({"error": "Valid count value required"},
+            return Response({"detail": "Valid count value required"},
                             status=HTTP_400_BAD_REQUEST)
 
         if count > MAX_PUSH_COUNT:
             msg = "Specified count exceeds api limit: {}".format(MAX_PUSH_COUNT)
-            return Response({"error": msg}, status=HTTP_400_BAD_REQUEST)
+            return Response({"detail": msg}, status=HTTP_400_BAD_REQUEST)
 
         # we used to have a "full" parameter for this endpoint so you could
         # specify to not fetch the revision information if it was set to

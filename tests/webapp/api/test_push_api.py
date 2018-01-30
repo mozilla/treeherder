@@ -295,7 +295,7 @@ def test_push_list_bad_count(webapp, test_repository):
             params={'count': bad_count}, expect_errors=True)
 
     assert resp.status_code == 400
-    assert resp.json == {'error': 'Valid count value required'}
+    assert resp.json == {'detail': 'Valid count value required'}
 
 
 def test_push_author(webapp, test_repository):
