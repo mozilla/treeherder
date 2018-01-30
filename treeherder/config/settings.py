@@ -139,7 +139,6 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
-    'treeherder.embed',
     'treeherder.perf',
     'treeherder.autoclassify',
     'treeherder.credentials',

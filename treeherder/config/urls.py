@@ -6,14 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework_swagger.views import get_swagger_view
 
 from treeherder.credentials.urls import urlpatterns as credentials_patterns
-from treeherder.embed import urls as embed_urls
 from treeherder.webapp.api import urls as api_urls
 
 admin.site.login_template = 'webapp/admin_login.html'
 
 urlpatterns = [
    url(r'^api/', include(api_urls)),
-   url(r'^embed/', include(embed_urls)),
    url(r'^admin/', admin.site.urls),
    url(r'^docs/', get_swagger_view(title='Treeherder API')),
    url(r'^credentials/', include(credentials_patterns)),
