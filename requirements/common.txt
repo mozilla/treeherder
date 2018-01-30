@@ -259,7 +259,8 @@ python-jose==2.0.2 \
 
 # Used by python-jose
 pycryptodome==3.4.8 \
-    --hash=sha256:e089d8619a46212cc191258292a3ffbe0d44b9e5ca21f036a4ca8f2db6b0860a
+    --hash=sha256:e089d8619a46212cc191258292a3ffbe0d44b9e5ca21f036a4ca8f2db6b0860a \
+    --hash=sha256:2c1ca8e134dc812555400e0a993cd4b9c858c968e6819522ae69d7b0ad6437a7
 
 ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c
