@@ -38,7 +38,7 @@ class AuthBackend(object):
         return int(expires_at_in_milliseconds)
 
     def _get_token_auth_header(self, request):
-        auth = request.META.get("HTTP_AUTHORIZATION", None)
+        auth = request.META.get("HTTP_AUTHORIZATION")
 
         if not auth:
             raise AuthenticationFailed("Authorization header is expected")
@@ -77,7 +77,7 @@ class AuthBackend(object):
 
     def _get_user_info(self, request):
         access_token = self._get_token_auth_header(request)
-        id_token = request.META.get("HTTP_IDTOKEN", None)
+        id_token = request.META.get("HTTP_IDTOKEN")
 
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
