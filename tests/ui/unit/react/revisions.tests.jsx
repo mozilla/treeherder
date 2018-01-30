@@ -1,9 +1,6 @@
 'use strict';
-const mount = require('enzyme').mount;
-const revisions = require('../../../../ui/js/reactrevisions.jsx');
-const RevisionList = revisions.RevisionList;
-const RevisionItem = revisions.RevisionItem;
-const MoreRevisionsLink = revisions.MoreRevisionsLink;
+import { mount } from 'enzyme';
+import { RevisionList, RevisionItem, MoreRevisionsLink, Initials } from '../../../../ui/job-view/ui/revisions';
 
 describe('Revision list component', () => {
     let $injector, mockData;
@@ -28,10 +25,10 @@ describe('Revision list component', () => {
             "pushlogURL": "https://hg.mozilla.org/integration/mozilla-inbound/pushloghtml"
         };
         // Mock these simple functions so we don't have to call ThRepositoryModel.load() first to use them
-        repo.getRevisionHref = () => `${repo.url}/rev/${resultset.revision}`;
+        repo.getRevisionHref = () => `${repo.url}/rev/${push.revision}`;
         repo.getPushLogHref = (revision) => `${repo.pushlogURL}?changeset=${revision}`;
 
-        const resultset = {
+        const push = {
             "id": 151371,
             "revision": "5a110ad242ead60e71d2186bae78b1fb766ad5ff",
             "revisions_uri": "/api/project/mozilla-inbound/resultset/151371/revisions/",
@@ -60,21 +57,21 @@ describe('Revision list component', () => {
             }]
         };
         mockData = {
-            resultset,
+            push,
             repo
         };
     }));
 
     it('renders the correct number of revisions in a list', () => {
-        const wrapper = mount(<RevisionList repo={mockData.repo} resultset={mockData.resultset}
+        const wrapper = mount(<RevisionList repo={mockData.repo} push={mockData.push}
                                             $injector={$injector}/>);
-        expect(wrapper.find(RevisionItem).length).toEqual(mockData['resultset']['revision_count']);
+        expect(wrapper.find(RevisionItem).length).toEqual(mockData['push']['revision_count']);
     });
 
     it('renders an "...and more" link if the revision count is higher than the max display count of 20', () => {
-        mockData.resultset.revision_count = 21;
+        mockData.push.revision_count = 21;
 
-        const wrapper = mount(<RevisionList repo={mockData.repo} resultset={mockData.resultset}
+        const wrapper = mount(<RevisionList repo={mockData.repo} push={mockData.push}
                                             $injector={$injector}/>);
         expect(wrapper.find(MoreRevisionsLink).length).toEqual(1);
     });
@@ -82,11 +79,10 @@ describe('Revision list component', () => {
 });
 
 describe('Revision item component', () => {
-    let $injector, linkifyBugsFilter, initialsFilter, mockData;
+    let $injector, linkifyBugsFilter, mockData;
     beforeEach(angular.mock.module('treeherder'));
     beforeEach(inject((_$injector_, $filter) => {
         $injector = _$injector_;
-        initialsFilter = $filter('initials');
         linkifyBugsFilter = $filter('linkifyBugs');
 
         const repo = {
@@ -124,7 +120,7 @@ describe('Revision item component', () => {
 
     it('renders a linked revision', () => {
         const wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
-                                            initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
+                                            linkifyBugsFilter={linkifyBugsFilter}/>);
         const link = wrapper.find('a');
         expect(link.length).toEqual(1);
         expect(link.props().href).toEqual(mockData.repo.getRevisionHref());
@@ -133,15 +129,15 @@ describe('Revision item component', () => {
 
     it(`renders the contributors' initials`, () => {
         const wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
-                                            initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
-        const initials = wrapper.find('span[title="André Bargull: andre.bargull@gmail.com"]');
+                                            linkifyBugsFilter={linkifyBugsFilter}/>);
+        const initials = wrapper.find('.user-push-initials');
         expect(initials.length).toEqual(1);
         expect(initials.text()).toEqual('AB');
     });
 
     it('linkifies bug IDs in the comments', () => {
         const wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
-                                            initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
+                                            linkifyBugsFilter={linkifyBugsFilter}/>);
         const escapedComment = _.escape(mockData.revision.comments.split('\n')[0]);
         const linkifiedCommentText = linkifyBugsFilter(escapedComment);
 
@@ -152,12 +148,12 @@ describe('Revision item component', () => {
     it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
         mockData.revision.comments = "Backed out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
         let wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
-                                            initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
+                                          linkifyBugsFilter={linkifyBugsFilter}/>);
         expect(wrapper.find({'data-tags': 'backout'}).length).toEqual(1);
 
         mockData.revision.comments = "Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
         wrapper = mount(<RevisionItem repo={mockData.repo} revision={mockData.revision}
-                                          initialsFilter={initialsFilter} linkifyBugsFilter={linkifyBugsFilter}/>);
+                                      linkifyBugsFilter={linkifyBugsFilter}/>);
         expect(wrapper.find({'data-tags': 'backout'}).length).toEqual(1);
     });
 });
@@ -175,3 +171,33 @@ describe('More revisions link component', () => {
         expect(wrapper.find('i.fa.fa-external-link-square').length).toEqual(1);
     });
 });
+
+describe('initials filter', function() {
+    const email = "foo@bar.baz";
+    it('initializes a one-word name', function() {
+        const name = 'Starscream';
+        const initials = mount(<Initials title={`${name}: ${email}`}
+                                         author={name}
+                               />);
+        expect(initials.html()).toEqual('<span><span class="user-push-icon" title="Starscream: foo@bar.baz"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div></span>');
+    });
+
+    it('initializes a two-word name', function() {
+        const name = 'Optimus Prime';
+        const initials = mount(<Initials title={`${name}: ${email}`}
+                                         author={name}
+                               />);
+        const userPushInitials = initials.find('.user-push-initials');
+        expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials">OP</div>');
+    });
+
+    it('initializes a three-word name', function() {
+        const name = 'Some Other Transformer';
+        const initials = mount(<Initials title={`${name}: ${email}`}
+                                         author={name}
+                               />);
+        const userPushInitials = initials.find('.user-push-initials');
+        expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials">ST</div>');
+    });
+});
+

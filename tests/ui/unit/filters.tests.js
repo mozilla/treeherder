@@ -45,29 +45,6 @@ describe('linkifyBugs filter', function() {
     });
 });
 
-describe('initials filter', function() {
-    var $filter;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-
-    it('initializes a one-word name', function() {
-        var initials = $filter('initials');
-        expect(initials('Starscream')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div>');
-    });
-
-    it('initializes a two-word name', function() {
-        var initials = $filter('initials');
-        expect(initials('Optimus Prime')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">OP</div>');
-    });
-
-    it('initializes a three-word name', function() {
-        var initials = $filter('initials');
-        expect(initials('Some Other Transformer')).toEqual('<span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">ST</div>');
-    });
-});
-
 describe('highlightCommonTerms filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));

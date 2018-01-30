@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from "react-redux";
 import * as _ from 'lodash';
 import { react2angular } from 'react2angular';
-import RevisionList from './revisions';
+import { RevisionList } from './revisions';
 import JobGroup from './groups';
 import { JobButton } from './jobs';
 import { actions, store } from '../redux/store';
@@ -302,7 +302,7 @@ class Push extends React.Component {
       <Provider store={store}>
         <div className="row result-set clearfix">
           {this.$rootScope.currentRepo &&
-          <RevisionList resultset={this.props.push}
+          <RevisionList push={this.props.push}
                         $injector={this.props.$injector}
                         repo={this.$rootScope.currentRepo}
           />}

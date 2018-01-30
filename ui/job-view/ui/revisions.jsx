@@ -1,4 +1,4 @@
-const MoreRevisionsLink = props => (
+export const MoreRevisionsLink = props => (
     <li>
       <a href={props.href}
          data-ignore-job-clear-on-click
@@ -9,7 +9,7 @@ const MoreRevisionsLink = props => (
     </li>
 );
 
-const Initials = (props) => {
+export const Initials = (props) => {
     const str = props.author || '';
     const words = str.split(' ');
     const firstLetters = words.map(
@@ -33,7 +33,7 @@ const Initials = (props) => {
     );
 };
 
-class RevisionItem extends React.PureComponent {
+export class RevisionItem extends React.PureComponent {
   constructor(props) {
     super(props);
     this.userTokens = this.props.revision.author.split(/[<>]+/);
@@ -75,18 +75,18 @@ class RevisionItem extends React.PureComponent {
   }
 }
 
-export default class RevisionList extends React.PureComponent {
+export class RevisionList extends React.PureComponent {
   constructor(props) {
     super(props);
     this.linkifyBugsFilter = this.props.$injector.get("linkifyBugsFilter");
-    this.hasMore = props.resultset.revision_count > props.resultset.revisions.length;
+    this.hasMore = props.push.revision_count > props.push.revisions.length;
   }
 
   render() {
     return (
       <span className="revision-list col-5">
         <ul className="list-unstyled">
-          {this.props.resultset.revisions.map((revision, i) =>
+          {this.props.push.revisions.map((revision, i) =>
             (<RevisionItem
               linkifyBugsFilter={this.linkifyBugsFilter}
               revision={revision}
@@ -97,7 +97,7 @@ export default class RevisionList extends React.PureComponent {
           {this.hasMore &&
           <MoreRevisionsLink
             key="more"
-            href={this.props.repo.getPushLogHref(this.props.resultset.revision)}
+            href={this.props.repo.getPushLogHref(this.props.push.revision)}
           />
           }
         </ul>
