@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 # with lots of notice in advance. In order to mitigate the additional HTTP request
 # as well as the possiblity of receiving a 503 status code, we use a static json file to
 # read its content.
-jwks = json.load(open('treeherder/auth/jwks.json'))
+with open('treeherder/auth/jwks.json') as f:
+    jwks = json.load(f)
 
 
 class AuthBackend(object):
