@@ -120,49 +120,8 @@ otherwise authentication will fail. In this case, the response body will be:
 Managing API credentials
 ------------------------
 
-To submit data to Treeherder's API you need Hawk credentials,
-even if you're submitting to your local server. The recommended
-process is slightly different for a development server versus
-submitting to Treeherder staging or production, see below for
-details.
+Submitting data via the REST API has been deprecated in favour of Pulse
+(`bug 1349182 <https://bugzilla.mozilla.org/show_bug.cgi?id=1349182>`__).
 
-Generating and using credentials on a local testing instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To generate credentials in the Vagrant instance run the following:
-
-  .. code-block:: bash
-
-      vagrant ~/treeherder$ ./manage.py create_credentials my-client-id
-
-The generated Hawk ``secret`` will be output to the console, which should then
-be passed along with the chosen ``client_id``, and Vagrant instance ``server_url``
-to the TreeherderClient constructor.
-For more details see the :doc:`submitting_data` section.
-
-Generating and using credentials on treeherder stage or production
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Users can generate credentials for the deployed Mozilla Treeherder instances
-(and view/delete existing ones) using the forms here:
-`stage <https://treeherder.allizom.org/credentials/>`__ /
-`production <https://treeherder.mozilla.org/credentials/>`__.
-It is recommended that the same ``client_id`` string be used for both stage
-and production. Once you've created your set of credentials, you can get
-access to the Hawk ``secret`` by clicking on the link that should appear on the
-credentials list page.
-
-The credentials must be marked as approved by a Treeherder admin before they can
-be used for submitting to the API. Request this for stage first, by filing a bug in
-`Treeherder: API <https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder%3A%20API>`__.
-Once any submission issues are resolved on stage, file a new bug requesting
-approval for production.
-
-Once the credentials are approved, they may be used exactly in exactly
-the same way as with a local testing instance (see above).
-
-Treeherder administrators can manage credentials here:
-`stage <https://treeherder.allizom.org/admin/credentials/credentials/>`__ /
-`production <https://treeherder.mozilla.org/admin/credentials/credentials/>`__.
-Note: Bugs must be filed to document all approvals & changes, to ease debugging
-and coordinating with credential owners in case of any later issues.
+As such we are no longer issuing Hawk credentials for new projects,
+and the UI for requesting/managing credentials has been removed.
