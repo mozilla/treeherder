@@ -73,7 +73,6 @@ class JobButtonComponent extends React.Component {
       classes.push('job-btn');
     }
     if (runnable) {
-      console.log("runnable one", this.props.selectedRunnableJobs);
       if (runnable && this.ThResultSetStore.isRunnableJobSelected(this.$rootScope.repoName,
                                                                   this.props.job.push_id,
                                                                   this.props.job.ref_data_name)) {

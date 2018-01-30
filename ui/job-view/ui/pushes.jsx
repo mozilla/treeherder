@@ -144,7 +144,6 @@ class PushJobs extends React.Component {
 
     this.$rootScope.$on(this.thEvents.deleteRunnableJobs, (ev, push) => {
       if (this.props.push.id === push.id) {
-        console.log("chchchanges");
         push.isRunnableVisible = false;
         this.setState({ isRunnableVisible: false });
         store.dispatch(actions.pushes.setSelectedRunnableJobs(null));
@@ -158,7 +157,6 @@ class PushJobs extends React.Component {
     if (jobElem) {
       const jobId = jobElem.value;
       const job = this.getJobFromId(jobId);
-      console.log("job", job);
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(jobId);
       } else if (ev.metaKey || ev.ctrlKey) { // Pin job
@@ -234,7 +232,6 @@ class PushJobs extends React.Component {
   }
 
   handleRunnableClick(job) {
-    console.log("handleRunnableClick");
     const selected = this.ThResultSetStore.toggleSelectedRunnableJob(
       this.$rootScope.repoName,
       this.pushId,
