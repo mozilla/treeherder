@@ -93,7 +93,7 @@ module.exports = neutrino => {
                     'SERVICE_DOMAIN',
                     'treeherder',
                     'treeherderApp',
-                    'userguideApp'
+                    'userguideApp',
                 ]
             }
         }));

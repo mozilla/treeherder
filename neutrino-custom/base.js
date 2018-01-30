@@ -98,7 +98,7 @@ module.exports = neutrino => {
         .module
         .rule('compile')
         .include(UI);
-  
+
     // Don't use file loader for html...
     // https://github.com/mozilla-neutrino/neutrino-dev/blob/v4.2.0/packages/neutrino-preset-web/src/index.js#L64-L69
     neutrino.config
