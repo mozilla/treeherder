@@ -129,6 +129,12 @@ class PushJobs extends React.Component {
     );
 
     this.$rootScope.$on(
+      this.thEvents.jobsClassified, () => {
+        this.filterJobs();
+      }
+    );
+
+    this.$rootScope.$on(
       this.thEvents.searchPage, () => {
         this.filterJobs();
       }

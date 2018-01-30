@@ -30,7 +30,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
         $scope.deleteClassification = function (classification) {
 
-            var key = "key" + classification.job_id;
+            var key = `${classification.job_id}`;
             var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
             var job = jobMap[key].job_obj;
 
