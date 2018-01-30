@@ -51,18 +51,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
                 controller: 'CompareChooserCtrl'
             })
-            .state('e10s_trend', {
-                title: 'e10s Trend Dashboard',
-                templateUrl: 'partials/perf/e10s-trend.html',
-                url: '/e10s-trend?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision',
-                controller: 'e10sTrendCtrl'
-            })
-            .state('e10s_trendsubtest', {
-                title: 'e10s Trend Dashboard - subtests',
-                templateUrl: 'partials/perf/e10s-trend-subtest.html',
-                url: '/e10s_trendsubtest?filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&basedate&newdate&timerange&revision&baseSignature&e10sSignature',
-                controller: 'e10sTrendSubtestCtrl'
-            })
             .state('dashboard', {
                 title: 'Perfherder Dashboard',
                 templateUrl: 'partials/perf/dashboard.html',

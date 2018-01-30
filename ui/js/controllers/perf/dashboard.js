@@ -4,12 +4,14 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
+    'ThRepositoryModel', 'ThResultSetModel', 'ThLog', 'PhSeries', 'PhCompare',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
+                      ThRepositoryModel, ThResultSetModel, ThLog, PhSeries, PhCompare,
                       thDefaultRepo, phTimeRanges,
                       defaultTimeRange, phBlockers, phDashboardValues) {
+
+        var $log = new ThLog('dashCtrl');
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
@@ -22,19 +24,16 @@ perf.controller('dashCtrl', [
         // dashboard customization values
         ['variantDataOpt', 'framework', 'header', 'descP1', 'descP2',
             'linkUrl', 'linkDesc', 'baseTitle', 'variantTitle'].forEach(function (k) {
-                $scope[k] = phDashboardValues[$scope.topic][k];
+                try {
+                    $scope[k] = phDashboardValues[$scope.topic][k];
+                } catch (TypeError) {
+                    $log.error('"'+ k + '" option not found in "' + $scope.topic + '" dashboard config');
+                }
             });
 
         // custom series filters based on dashboard topic
-        function filterSeriesByTopic(series) {
-            if ($scope.topic === "e10s") {
-                return series.options.indexOf('pgo') >= 0 ||
-                       (series.platform === 'osx-10-10' && series.options.indexOf('opt') >= 0);
-            }
-            if ($scope.topic === "hasal") {
-                return series.options.indexOf('firefox') >= 0 ||
-                       series.options.indexOf('chrome') >= 0;
-            }
+        function filterSeriesByTopic(series) { // eslint-disable-line no-unused-vars
+            return true;
         }
 
         function loadData() {
