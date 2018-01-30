@@ -32,6 +32,8 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.failure_classification to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_line to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.failure_match to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.group to 'myuser' REQUIRE SSL;
+    GRANT SELECT ON treeherder.group_failure_lines to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_detail to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.job_group to 'myuser' REQUIRE SSL;
@@ -61,8 +63,6 @@ as of November 2016 (obviously you should replace `myuser` and
     GRANT SELECT ON treeherder.text_log_error_match to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_error_metadata to 'myuser' REQUIRE SSL;
     GRANT SELECT ON treeherder.text_log_step to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.text_log_summary to 'myuser' REQUIRE SSL;
-    GRANT SELECT ON treeherder.text_log_summary_line to 'myuser' REQUIRE SSL;
 
 If new tables are added, you can generate a new set of grant
 statements using the following SQL:
