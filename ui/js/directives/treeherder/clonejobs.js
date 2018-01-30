@@ -332,7 +332,7 @@ treeherder.directive('thCloneJobs', [
                 // We don't add it to group counts, because it should not be counted
                 // when filtered out and duplicate jobs are being shown.
                 // Failures don't get included in counts anyway.
-                if (failResults.indexOf(resultStatus) === -1 ||
+                if (failResults.indexOf(resultStatus) !== -1 ||
                         (typeSymbolCounts[job.job_type_symbol] > 1 && $scope.showDuplicateJobs)) {
                     // render the job itself, not a count
                     addJobBtnToArray(job, lastJobSelected, jobBtnArray);
