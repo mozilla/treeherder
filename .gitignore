@@ -9,8 +9,7 @@ npm-error.log
 # vi
 *.swp
 
-# pytest cache
-.cache/
+.pytest_cache/
 
 # PyCharm
 .idea/
