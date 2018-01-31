@@ -218,7 +218,9 @@ def test_get_with_bug(webapp, classified_failures, bugs):
                         "keywords": bug.keywords,
                         "resolution": bug.resolution,
                         "os": bug.os,
-                        "modified": bug.modified.isoformat()}}
+                        "modified": bug.modified.isoformat(),
+                        "whiteboard": bug.whiteboard}
+                }
 
     assert actual == expected
 

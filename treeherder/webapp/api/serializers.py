@@ -180,7 +180,7 @@ class JobDetailSerializer(serializers.ModelSerializer):
 
 
 class BugJobMapSerializer(serializers.ModelSerializer):
-
+    bug_id = serializers.PrimaryKeyRelatedField(source="bug", read_only=True)
     job_id = serializers.PrimaryKeyRelatedField(
         source="job", read_only=True)
 

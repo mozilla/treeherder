@@ -22,6 +22,8 @@ def sample_bugs(test_base_dir):
 
 def _update_bugscache(bug_list):
     max_summary_length = Bugscache._meta.get_field('summary').max_length
+    max_whiteboard_length = Bugscache._meta.get_field('whiteboard').max_length
+
     for bug in bug_list:
         Bugscache.objects.create(
             id=bug['id'],
@@ -31,7 +33,8 @@ def _update_bugscache(bug_list):
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
             os=bug['op_sys'],
-            modified=bug['last_change_time'])
+            modified=bug['last_change_time'],
+            whiteboard=smart_text(bug['whiteboard'])[:max_whiteboard_length])
 
 
 BUG_SEARCHES = (
@@ -135,7 +138,7 @@ def test_bug_properties(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     expected_keys = set(['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id',
-                         'status'])
+                         'status', 'whiteboard'])
 
     suggestions = Bugscache.search(search_term)
     assert set(suggestions['open_recent'][0].keys()) == expected_keys

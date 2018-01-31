@@ -16,7 +16,7 @@ def fetch_intermittent_bugs(offset, limit):
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
         'include_fields': ('id,summary,status,resolution,op_sys,cf_crash_signature,'
-                           'keywords,last_change_time'),
+                           'keywords,last_change_time, whiteboard'),
         'offset': offset,
         'limit': limit,
     }
@@ -32,6 +32,7 @@ class BzApiBugProcess():
         offset = 0
         limit = 500
         max_summary_length = Bugscache._meta.get_field('summary').max_length
+        max_whiteboard_length = Bugscache._meta.get_field('whiteboard').max_length
 
         # Keep querying Bugzilla until there are no more results.
         while True:
@@ -63,7 +64,9 @@ class BzApiBugProcess():
                             'keywords': ",".join(bug['keywords']),
                             'os': bug.get('op_sys', ''),
                             'modified': dateutil.parser.parse(
-                                bug['last_change_time'], ignoretz=True)
+                                bug['last_change_time'], ignoretz=True),
+                            'whiteboard': smart_text(
+                                bug.get('whiteboard', '')[:max_whiteboard_length])
                         })
                 except Exception as e:
                     logger.error("error inserting bug '%s' into db: %s", bug, e)
