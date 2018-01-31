@@ -1,5 +1,3 @@
-"use strict";
-
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 

@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import Icon from 'react-fontawesome';
 import AuthService from './AuthService';

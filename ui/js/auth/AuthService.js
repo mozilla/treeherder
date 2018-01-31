@@ -1,5 +1,3 @@
-'use strict';
-
 import { OIDCCredentialAgent } from 'taskcluster-client-web';
 import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 
@@ -64,6 +62,8 @@ export default class AuthService {
   resetRenewalTimer() {
     const userSession = JSON.parse(localStorage.getItem('treeherder.userSession'));
 
+    // if a user has multiple treeherder tabs open and logs out from one of them,
+    // we make sure to clear each tab's timer without renewing
     this._clearRenewalTimer();
 
     if (userSession) {
