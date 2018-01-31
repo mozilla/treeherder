@@ -45,9 +45,9 @@ treeherder.component("login", {
         onUserChange: "&"
     },
     controller: ['$location', '$window', 'localStorageService', 'thNotify',
-        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
+        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain', 'thTaskcluster',
         function ($location, $window, localStorageService, thNotify,
-                  ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
+                  ThUserModel, $http, thUrl, $timeout, thServiceDomain, thTaskcluster) {
             const authService = new AuthService();
             const ctrl = this;
 
@@ -83,6 +83,8 @@ treeherder.component("login", {
                         // Show the user as logged out in all other opened tabs
                         $timeout(() => ctrl.setLoggedOut(), 0);
                     }
+                } else if (e.key === "treeherder.taskcluster.credentials") {
+                    thTaskcluster.updateCredentials(JSON.parse(e.newValue));
                 }
             });
 
@@ -135,6 +137,9 @@ treeherder.component("login", {
 
             ctrl.setLoggedOut = function () {
                 authService.logout();
+                // Logging out will not trigger a storage event since localStorage is set by the same window,
+                // hence the need for calling updateCredentials here.
+                thTaskcluster.updateCredentials(localStorageService.get('taskcluster.credentials'));
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };

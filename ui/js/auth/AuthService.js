@@ -82,6 +82,7 @@ export default class AuthService {
   }
 
   logout() {
+    localStorage.removeItem('treeherder.taskcluster.credentials');
     localStorage.removeItem('treeherder.userSession');
     localStorage.setItem('treeherder.user', JSON.stringify(loggedOutUser));
   }
@@ -96,11 +97,7 @@ export default class AuthService {
 
     const user = await this._fetchUser(userSession);
 
-    // Update taskcluster client credentials
-    window.dispatchEvent(
-      new CustomEvent('taskcluster-credentials', { detail: taskclusterCredentials })
-    );
-
+    localStorage.setItem('treeherder.taskcluster.credentials', JSON.stringify(taskclusterCredentials));
     localStorage.setItem('treeherder.userSession', JSON.stringify(userSession));
     localStorage.setItem('treeherder.user', JSON.stringify(user));
   }
