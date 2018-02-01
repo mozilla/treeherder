@@ -109,46 +109,6 @@ treeherderApp.controller('ResultSetCtrl', [
             $rootScope.selectedJob = job;
         };
 
-        $rootScope.$on(thEvents.applyNewJobs, function () {
-            $scope.getDecisionTaskVisibility();
-        });
-
-        $scope.getDecisionTaskVisibility = function () {
-            let dtId = ThResultSetStore.getGeckoDecisionTaskId($scope.repoName, $scope.resultset.id);
-            if (dtId.$$state.value === 'No decision task') {
-                $scope.isDecisionTaskVisible = false;
-            } else {
-                $scope.isDecisionTaskVisible = true;
-            }
-        };
-
-        $scope.addNewJobsMenuTitle = function () {
-            let title = "";
-
-            // Ensure resultset is available on initial page load
-            if (!$scope.resultset.id) {
-                // still loading
-                return undefined;
-            }
-
-            if (!$scope.user.loggedin) {
-                title = title.concat("must be logged in / ");
-            }
-
-            if (!$scope.isDecisionTaskVisible) {
-                title = title.concat("a decision task is required");
-            }
-
-            if (title === "") {
-                title = "Add new jobs to this push";
-            } else {
-                // Cut off trailing "/ " if one exists, capitalize first letter
-                title = title.replace(/\/ $/, "");
-                title = title.replace(/^./, l => l.toUpperCase());
-            }
-            return title;
-        };
-
         $scope.toggleRevisions = function () {
 
             ThResultSetStore.loadRevisions(
