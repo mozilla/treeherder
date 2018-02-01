@@ -44,9 +44,9 @@ treeherder.component("login", {
         // calls to the HTML which sets the user value in the $rootScope.
         onUserChange: "&"
     },
-    controller: ['$location', '$window', 'localStorageService', 'thNotify',
+    controller: ['$location', '$window', 'thNotify',
         'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain', 'thTaskcluster',
-        function ($location, $window, localStorageService, thNotify,
+        function ($location, $window, thNotify,
                   ThUserModel, $http, thUrl, $timeout, thServiceDomain, thTaskcluster) {
             const authService = new AuthService();
             const ctrl = this;
@@ -72,7 +72,7 @@ treeherder.component("login", {
              */
 
             $window.addEventListener("storage", function (e) {
-                if (e.key === "treeherder.user") {
+                if (e.key === 'user') {
                     const oldUser = JSON.parse(e.oldValue);
                     const newUser = JSON.parse(e.newValue);
 
@@ -83,7 +83,7 @@ treeherder.component("login", {
                         // Show the user as logged out in all other opened tabs
                         $timeout(() => ctrl.setLoggedOut(), 0);
                     }
-                } else if (e.key === "treeherder.taskcluster.credentials") {
+                } else if (e.key === 'taskcluster.credentials') {
                     thTaskcluster.updateCredentials(JSON.parse(e.newValue));
                 }
             });
@@ -91,7 +91,7 @@ treeherder.component("login", {
             // Ask the back-end if a user is logged in on page load
             if (ctrl.userCanLogin && !ctrl.userLoggingIn) {
                 ThUserModel.get().then(function (currentUser) {
-                    if (currentUser.email && localStorageService.get('userSession')) {
+                    if (currentUser.email && localStorage.getItem('userSession')) {
                         ctrl.setLoggedIn(currentUser);
                     } else {
                         ctrl.setLoggedOut();
@@ -121,7 +121,7 @@ treeherder.component("login", {
             };
 
             ctrl.setLoggedIn = function (newUser) {
-                const userSession = localStorageService.get('userSession');
+                const userSession = JSON.parse(localStorage.getItem('userSession'));
 
                 newUser.loggedin = true;
                 newUser.fullName = userSession.fullName;
@@ -131,15 +131,17 @@ treeherder.component("login", {
 
                 // start session renewal process
                 if (userSession && userSession.renewAfter) {
-                    authService.resetRenewalTimer(userSession);
+                    authService.resetRenewalTimer();
                 }
             };
 
             ctrl.setLoggedOut = function () {
                 authService.logout();
-                // Logging out will not trigger a storage event since localStorage is set by the same window,
+                // Logging out will not trigger a storage event since localStorage is being set by the same window,
                 // hence the need for calling updateCredentials here.
-                thTaskcluster.updateCredentials(localStorageService.get('taskcluster.credentials'));
+                thTaskcluster.updateCredentials(
+                    JSON.parse(localStorage.getItem('taskcluster.credentials'))
+                );
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };

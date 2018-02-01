@@ -33,7 +33,7 @@ treeherder.factory('ThModelErrors', [function () {
 /**
  * This is useful to display Taskcluster errors nicely.
 */
-treeherder.factory('ThTaskclusterErrors', ['localStorageService', function (localStorageService) {
+treeherder.factory('ThTaskclusterErrors', [function () {
     let TC_ERROR_PREFIX = 'Taskcluster: ';
     return {
         /**
@@ -43,9 +43,11 @@ treeherder.factory('ThTaskclusterErrors', ['localStorageService', function (loca
         */
         format: function (e) {
             if (e.code === 'AuthenticationFailed') {
-                let creds = localStorageService.get('taskcluster.credentials');
-                if (creds && creds.certificate && creds.certificate.expiry) {
-                    let expires = new Date(creds.certificate.expiry);
+                const creds = localStorage.getItem('taskcluster.credentials');
+                const parsedCreds = creds && JSON.parse(creds);
+
+                if (parsedCreds && parsedCreds.certificate && parsedCreds.certificate.expiry) {
+                    let expires = new Date(parsedCreds.certificate.expiry);
                     if (expires < new Date()) {
                         return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
                             'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +

@@ -41,7 +41,7 @@ export default class AuthService {
 
   async _renewAuth() {
     try {
-      if (!localStorage.getItem('treeherder.userSession')) {
+      if (!localStorage.getItem('userSession')) {
         return;
       }
 
@@ -60,7 +60,7 @@ export default class AuthService {
   }
 
   resetRenewalTimer() {
-    const userSession = JSON.parse(localStorage.getItem('treeherder.userSession'));
+    const userSession = JSON.parse(localStorage.getItem('userSession'));
 
     // if a user has multiple treeherder tabs open and logs out from one of them,
     // we make sure to clear each tab's timer without renewing
@@ -82,9 +82,9 @@ export default class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('treeherder.taskcluster.credentials');
-    localStorage.removeItem('treeherder.userSession');
-    localStorage.setItem('treeherder.user', JSON.stringify(loggedOutUser));
+    localStorage.removeItem('taskcluster.credentials');
+    localStorage.removeItem('userSession');
+    localStorage.setItem('user', JSON.stringify(loggedOutUser));
   }
 
   async saveCredentialsFromAuthResult(authResult) {
@@ -97,8 +97,8 @@ export default class AuthService {
 
     const user = await this._fetchUser(userSession);
 
-    localStorage.setItem('treeherder.taskcluster.credentials', JSON.stringify(taskclusterCredentials));
-    localStorage.setItem('treeherder.userSession', JSON.stringify(userSession));
-    localStorage.setItem('treeherder.user', JSON.stringify(user));
+    localStorage.setItem('taskcluster.credentials', JSON.stringify(taskclusterCredentials));
+    localStorage.setItem('userSession', JSON.stringify(userSession));
+    localStorage.setItem('user', JSON.stringify(user));
   }
 }
