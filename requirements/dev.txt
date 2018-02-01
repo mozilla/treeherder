@@ -41,9 +41,9 @@ flake8==3.5.0 \
     --hash=sha256:c7841163e2b576d435799169b78703ad6ac1bbb0f199994fc05f700b2a90ea37 \
     --hash=sha256:7253265f7abd8b313e3892944044a365e3f4ac3fcdcfb4298f55ee9ddf188ba0
 
-isort==4.2.15 \
-    --hash=sha256:cd5d3fc2c16006b567a17193edf4ed9830d9454cbeb5a42ac80b36ea00c23db4 \
-    --hash=sha256:79f46172d3a4e2e53e7016e663cc7a8b538bec525c36675fcfd2767df30b3983
+isort==4.3.0 \
+    --hash=sha256:9b6963c7975c36f0cf519d26d2bdf83ce5aaa39fb5f9a514c4de1170a235a6b3 \
+    --hash=sha256:beff82862fc587bef031c8b60485e41e1362d1f1cf1904be2aefb9f0027884c7
 
 # Required by pytest
 attrs==17.4.0 \
