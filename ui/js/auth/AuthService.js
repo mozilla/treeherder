@@ -1,5 +1,4 @@
-import { OIDCCredentialAgent } from 'taskcluster-client-web';
-import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
+import { userSessionFromAuthResult, renew, loggedOutUser, taskclusterCredentials } from './auth-utils';
 
 export default class AuthService {
   constructor() {
@@ -89,15 +88,10 @@ export default class AuthService {
 
   async saveCredentialsFromAuthResult(authResult) {
     const userSession = userSessionFromAuthResult(authResult);
-    const credentialAgent = new OIDCCredentialAgent({
-      accessToken: userSession.accessToken,
-      oidcProvider: 'mozilla-auth0'
-    });
-    const taskclusterCredentials = await credentialAgent.getCredentials();
-
+    const tcCredentials = await taskclusterCredentials(userSession.accessToken);
     const user = await this._fetchUser(userSession);
 
-    localStorage.setItem('taskcluster.credentials', JSON.stringify(taskclusterCredentials));
+    localStorage.setItem('taskcluster.credentials', JSON.stringify(tcCredentials));
     localStorage.setItem('userSession', JSON.stringify(userSession));
     localStorage.setItem('user', JSON.stringify(user));
   }

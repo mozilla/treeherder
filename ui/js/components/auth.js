@@ -1,5 +1,5 @@
 import AuthService from '../auth/AuthService';
-import { loggedOutUser } from '../auth/auth-utils';
+import { loggedOutUser, taskclusterCredentials } from '../auth/auth-utils';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -90,9 +90,18 @@ treeherder.component("login", {
 
             // Ask the back-end if a user is logged in on page load
             if (ctrl.userCanLogin && !ctrl.userLoggingIn) {
-                ThUserModel.get().then(function (currentUser) {
-                    if (currentUser.email && localStorage.getItem('userSession')) {
+                ThUserModel.get().then(async function (currentUser) {
+                    const userSession = localStorage.getItem('userSession');
+
+                    if (currentUser.email && userSession) {
                         ctrl.setLoggedIn(currentUser);
+
+                        // update logged in user with taskcluster credentials
+                        // in case things like the user's scopes have changed
+                        const tcCredentials = await taskclusterCredentials(JSON.parse(userSession).accessToken);
+
+                        localStorage.setItem('taskcluster.credentials', JSON.stringify(tcCredentials));
+                        thTaskcluster.updateCredentials(tcCredentials);
                     } else {
                         ctrl.setLoggedOut();
                     }
