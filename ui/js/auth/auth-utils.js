@@ -1,4 +1,4 @@
-import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
+import { fromNow } from 'taskcluster-client-web';
 import { WebAuth } from 'auth0-js';
 
 export const webAuth = new WebAuth({
@@ -52,15 +52,5 @@ export const parseHash = qs => (
     });
   })
 );
-
-export const taskclusterCredentials = async (accessToken) => {
-    const credentialAgent = new OIDCCredentialAgent({
-        accessToken,
-        oidcProvider: 'mozilla-auth0'
-    });
-    const tcCredentials = await credentialAgent.getCredentials();
-
-    return tcCredentials;
-};
 
 export const loggedOutUser = { is_staff: false, username: "", email: "", loggedin: false };

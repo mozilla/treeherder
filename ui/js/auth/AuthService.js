@@ -1,4 +1,5 @@
-import { userSessionFromAuthResult, renew, loggedOutUser, taskclusterCredentials } from './auth-utils';
+import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
+import thTaskcluster from '../services/taskcluster';
 
 export default class AuthService {
   constructor() {
@@ -81,18 +82,17 @@ export default class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('taskcluster.credentials');
     localStorage.removeItem('userSession');
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
   }
 
   async saveCredentialsFromAuthResult(authResult) {
     const userSession = userSessionFromAuthResult(authResult);
-    const tcCredentials = await taskclusterCredentials(userSession.accessToken);
     const user = await this._fetchUser(userSession);
 
-    localStorage.setItem('taskcluster.credentials', JSON.stringify(tcCredentials));
     localStorage.setItem('userSession', JSON.stringify(userSession));
     localStorage.setItem('user', JSON.stringify(user));
+
+    thTaskcluster.updateAgent();
   }
 }

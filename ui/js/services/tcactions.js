@@ -1,11 +1,15 @@
 "use strict";
 
+import { Queue } from 'taskcluster-client-web';
+import thTaskcluster from './taskcluster';
+
 treeherder.factory('tcactions', [
-    '$q', '$http', 'thTaskcluster', 'thNotify',
-    function ($q, $http, thTaskcluster, thNotify) {
+    '$q', '$http', 'thNotify',
+    function ($q, $http, thNotify) {
         const jsone = require('json-e');
-        const tc = thTaskcluster.client();
-        const queue = new tc.Queue();
+        const credentialAgent = thTaskcluster.getAgent() || {};
+
+        const queue = new Queue({ credentialAgent });
 
         return {
             render: (template, context) => jsone(template, context),
@@ -21,8 +25,9 @@ treeherder.factory('tcactions', [
                 }, staticActionVariables));
 
                 return queue.task(decisionTaskId).then((decisionTask) => {
-                    const submitQueue = new tc.Queue({
-                        authorizedScopes: decisionTask.scopes,
+                    const submitQueue = new Queue({
+                      credentialAgent,
+                      authorizedScopes: decisionTask.scopes,
                     });
 
                     return submitQueue.createTask(actionTaskId, actionTask);

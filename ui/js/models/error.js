@@ -1,5 +1,7 @@
 'use strict';
 
+import thTaskcluser from '../services/taskcluster';
+
 /**
 This object contains a few constants and helper functions related to error
 message handling.
@@ -41,13 +43,14 @@ treeherder.factory('ThTaskclusterErrors', [function () {
 
         @param {Error} e error object from taskcluster client.
         */
-        format: function (e) {
-            if (e.code === 'AuthenticationFailed') {
-                const creds = localStorage.getItem('taskcluster.credentials');
-                const parsedCreds = creds && JSON.parse(creds);
+        format: async function (e) {
+            const err = e.body;
 
-                if (parsedCreds && parsedCreds.certificate && parsedCreds.certificate.expiry) {
-                    let expires = new Date(parsedCreds.certificate.expiry);
+            if (err.code === 'AuthenticationFailed') {
+                const creds = await thTaskcluser.getCredentials();
+
+                if (creds && creds.certificate && creds.certificate.expiry) {
+                    let expires = new Date(creds.certificate.expiry);
                     if (expires < new Date()) {
                         return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
                             'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +
@@ -55,10 +58,10 @@ treeherder.factory('ThTaskclusterErrors', [function () {
                     }
                 }
             }
-            if (e.message.indexOf('----') !== -1) {
-                return TC_ERROR_PREFIX + e.message.split('----')[0];
+            if (err.message.indexOf('----') !== -1) {
+                return TC_ERROR_PREFIX + err.message.split('----')[0];
             }
-            return TC_ERROR_PREFIX + e.message;
+            return TC_ERROR_PREFIX + err.message;
         }
     };
 }]);

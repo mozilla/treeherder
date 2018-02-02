@@ -1,5 +1,6 @@
 import AuthService from '../auth/AuthService';
-import { loggedOutUser, taskclusterCredentials } from '../auth/auth-utils';
+import { loggedOutUser } from '../auth/auth-utils';
+import thTaskcluster from '../services/taskcluster';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -45,9 +46,9 @@ treeherder.component("login", {
         onUserChange: "&"
     },
     controller: ['$location', '$window', 'thNotify',
-        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain', 'thTaskcluster',
+        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
         function ($location, $window, thNotify,
-                  ThUserModel, $http, thUrl, $timeout, thServiceDomain, thTaskcluster) {
+                  ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
             const authService = new AuthService();
             const ctrl = this;
 
@@ -83,8 +84,9 @@ treeherder.component("login", {
                         // Show the user as logged out in all other opened tabs
                         $timeout(() => ctrl.setLoggedOut(), 0);
                     }
-                } else if (e.key === 'taskcluster.credentials') {
-                    thTaskcluster.updateCredentials(JSON.parse(e.newValue));
+                } else if (e.key === 'userSession') {
+                    // used when a different tab updates userSession,
+                    thTaskcluster.updateAgent();
                 }
             });
 
@@ -95,13 +97,6 @@ treeherder.component("login", {
 
                     if (currentUser.email && userSession) {
                         ctrl.setLoggedIn(currentUser);
-
-                        // update logged in user with taskcluster credentials
-                        // in case things like the user's scopes have changed
-                        const tcCredentials = await taskclusterCredentials(JSON.parse(userSession).accessToken);
-
-                        localStorage.setItem('taskcluster.credentials', JSON.stringify(tcCredentials));
-                        thTaskcluster.updateCredentials(tcCredentials);
                     } else {
                         ctrl.setLoggedOut();
                     }
@@ -146,11 +141,8 @@ treeherder.component("login", {
 
             ctrl.setLoggedOut = function () {
                 authService.logout();
-                // Logging out will not trigger a storage event since localStorage is being set by the same window,
-                // hence the need for calling updateCredentials here.
-                thTaskcluster.updateCredentials(
-                    JSON.parse(localStorage.getItem('taskcluster.credentials'))
-                );
+                // logging out will not trigger a storage event since localStorage is being set by the same window
+                thTaskcluster.updateAgent();
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };

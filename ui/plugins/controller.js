@@ -1,5 +1,8 @@
 "use strict";
 
+import { Queue, slugid } from 'taskcluster-client-web';
+import thTaskcluster from '../js/services/taskcluster';
+
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
     'thUrl', 'ThJobClassificationModel',
@@ -8,7 +11,7 @@ treeherder.controller('PluginCtrl', [
     'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'thTaskcluster', 'jsyaml', 'tcactions',
+    'PhSeries', 'thServiceDomain', 'jsyaml', 'tcactions',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
@@ -17,7 +20,7 @@ treeherder.controller('PluginCtrl', [
         ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, thTaskcluster, jsyaml, tcactions) {
+        thServiceDomain, jsyaml, tcactions) {
 
         var $log = new ThLog("PluginCtrl");
 
@@ -372,8 +375,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.repoName,
                     $scope.resultsetId).then(function (decisionTaskId) {
                         return tcactions.load(decisionTaskId, $scope.job).then((results) => {
-                            const tc = thTaskcluster.client();
-                            const actionTaskId = tc.slugid();
+                            const actionTaskId = slugid();
                             if (results) {
                                 const backfilltask = _.find(results.actions, { name: 'backfill' });
                                 // We'll fall back to actions.yaml if this isn't true
@@ -388,19 +390,19 @@ treeherder.controller('PluginCtrl', [
                                         staticActionVariables: results.staticActionVariables,
                                     }).then(function () {
                                         $scope.$apply(thNotify.send(`Request sent to backfill job via actions.json (${actionTaskId})`, 'success'));
-                                    }, function (e) {
+                                    }, async function (e) {
                                         // The full message is too large to fit in a Treeherder
                                         // notification box.
-                                        $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                                        $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                                     });
                                 }
                             }
 
                             // Otherwise we'll figure things out with actions.yml
-                            const queue = new tc.Queue();
+                            const queue = new Queue({ credentialAgent: { ...thTaskcluster.getAgent() } });
 
                             // buildUrl is documented at
-                            // https://github.com/taskcluster/taskcluster-client#construct-signed-urls
+                            // https://github.com/taskcluster/taskcluster-client-web#construct-urls
                             // It is necessary here because getLatestArtifact assumes it is getting back
                             // JSON as a reponse due to how the client library is constructed. Since this
                             // result is yml, we'll fetch it manually using $http and can use the url
@@ -421,10 +423,10 @@ treeherder.controller('PluginCtrl', [
                                 let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                 queue.createTask(actionTaskId, task).then(function () {
                                     $scope.$apply(thNotify.send(`Request sent to backfill job via actions.yml (${actionTaskId})`, 'success'));
-                                }, function (e) {
+                                }, async function (e) {
                                     // The full message is too large to fit in a Treeherder
                                     // notification box.
-                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                                    $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                                 });
                             });
                         });

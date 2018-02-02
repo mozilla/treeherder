@@ -57,7 +57,6 @@
     "reactstrap": "5.0.0-alpha.4",
     "redux": "3.7.2",
     "redux-debounce": "1.0.1",
-    "taskcluster-client": "2.5.4",
     "taskcluster-client-web": "5.0.1"
   },
   "devDependencies": {

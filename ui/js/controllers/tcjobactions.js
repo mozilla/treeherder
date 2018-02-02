@@ -1,12 +1,14 @@
 "use strict";
 
+import { slugid } from 'taskcluster-client-web';
+
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$uibModalInstance', 'ThResultSetStore',
-    'thTaskcluster', 'ThTaskclusterErrors',
+    'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
     'jsyaml', 'Ajv', 'jsonSchemaDefaults',
     function ($scope, $uibModalInstance, ThResultSetStore,
-             thTaskcluster, ThTaskclusterErrors, thNotify,
+             ThTaskclusterErrors, thNotify,
              job, repoName, resultsetId, tcactions, jsyaml, Ajv, jsonSchemaDefaults) {
         const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
         let decisionTaskId;
@@ -34,8 +36,6 @@ treeherder.controller('TCJobActionsCtrl', [
         $scope.triggerAction = function () {
             $scope.triggering = true;
 
-            let tc = thTaskcluster.client();
-
             let input = null;
             if (validate && $scope.input.payload) {
                 try {
@@ -53,7 +53,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 }
             }
 
-            let actionTaskId = tc.slugid();
+            let actionTaskId = slugid();
             tcactions.submit({
                 action: $scope.input.selectedAction,
                 actionTaskId,
@@ -81,8 +81,8 @@ treeherder.controller('TCJobActionsCtrl', [
                     url,
                 }));
                 $uibModalInstance.close('request sent');
-            }, function (e) {
-                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+            }, async function (e) {
+                $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
             });
