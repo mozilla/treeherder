@@ -82,7 +82,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 }));
                 $uibModalInstance.close('request sent');
             }, async function (e) {
-                $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
             });

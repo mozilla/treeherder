@@ -248,7 +248,7 @@ treeherderApp.controller('ResultSetCtrl', [
                 ).then(function (msg) {
                     thNotify.send(msg, "success");
                 }, async function (e) {
-                    thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true });
+                    thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                 });
             });
         };
@@ -270,7 +270,7 @@ treeherderApp.controller('ResultSetCtrl', [
                         thNotify.send(result, "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
                     }, async function (e) {
-                        thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true });
+                        thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                     });
                 });
             } else {

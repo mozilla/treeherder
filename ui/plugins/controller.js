@@ -393,7 +393,7 @@ treeherder.controller('PluginCtrl', [
                                     }, async function (e) {
                                         // The full message is too large to fit in a Treeherder
                                         // notification box.
-                                        $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                                        $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                                     });
                                 }
                             }
@@ -426,7 +426,7 @@ treeherder.controller('PluginCtrl', [
                                 }, async function (e) {
                                     // The full message is too large to fit in a Treeherder
                                     // notification box.
-                                    $scope.$apply(thNotify.send(await ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                                    $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
                                 });
                             });
                         });
