@@ -40,7 +40,7 @@ treeherder.factory('ThTaskclusterErrors', [function () {
         @param {Error} e error object from taskcluster client.
         */
         format: function (e) {
-            const err = e.body;
+            const err = e.body || e;
 
             if (err.message.indexOf('----') !== -1) {
                 return TC_ERROR_PREFIX + err.message.split('----')[0];

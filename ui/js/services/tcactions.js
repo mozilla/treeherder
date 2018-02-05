@@ -1,5 +1,3 @@
-"use strict";
-
 import { Queue } from 'taskcluster-client-web';
 import thTaskcluster from './taskcluster';
 
@@ -7,9 +5,6 @@ treeherder.factory('tcactions', [
     '$q', '$http', 'thNotify',
     function ($q, $http, thNotify) {
         const jsone = require('json-e');
-        const credentialAgent = thTaskcluster.getAgent() || {};
-
-        const queue = new Queue({ credentialAgent });
 
         return {
             render: (template, context) => jsone(template, context),
@@ -23,12 +18,10 @@ treeherder.factory('tcactions', [
                     input,
                     ownTaskId: actionTaskId,
                 }, staticActionVariables));
+                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
 
                 return queue.task(decisionTaskId).then((decisionTask) => {
-                    const submitQueue = new Queue({
-                      credentialAgent,
-                      authorizedScopes: decisionTask.scopes,
-                    });
+                    const submitQueue = queue.use({ authorizedScopes: decisionTask.scopes });
 
                     return submitQueue.createTask(actionTaskId, actionTask);
                 });
@@ -39,6 +32,7 @@ treeherder.factory('tcactions', [
                     return;
                 }
 
+                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                 const actionsUrl = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskID,

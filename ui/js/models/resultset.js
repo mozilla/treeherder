@@ -241,7 +241,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     // Otherwise we'll figure things out with actions.yml
-                    const queue = new Queue({ credentialAgent: { ...thTaskcluster.getAgent() } });
+                    const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                     const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                     return $http.get(url).then(function (resp) {
                         let action = resp.data;
@@ -259,7 +259,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerNewJobs: function (buildernames, decisionTaskId) {
-                const queue = new Queue({ credentialAgent: { ...thTaskcluster.getAgent() } });
+                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                 let url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,

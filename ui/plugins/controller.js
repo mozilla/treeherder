@@ -390,7 +390,7 @@ treeherder.controller('PluginCtrl', [
                                         staticActionVariables: results.staticActionVariables,
                                     }).then(function () {
                                         $scope.$apply(thNotify.send(`Request sent to backfill job via actions.json (${actionTaskId})`, 'success'));
-                                    }, async function (e) {
+                                    }, function (e) {
                                         // The full message is too large to fit in a Treeherder
                                         // notification box.
                                         $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
@@ -399,7 +399,7 @@ treeherder.controller('PluginCtrl', [
                             }
 
                             // Otherwise we'll figure things out with actions.yml
-                            const queue = new Queue({ credentialAgent: { ...thTaskcluster.getAgent() } });
+                            const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
 
                             // buildUrl is documented at
                             // https://github.com/taskcluster/taskcluster-client-web#construct-urls
@@ -423,7 +423,7 @@ treeherder.controller('PluginCtrl', [
                                 let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                 queue.createTask(actionTaskId, task).then(function () {
                                     $scope.$apply(thNotify.send(`Request sent to backfill job via actions.yml (${actionTaskId})`, 'success'));
-                                }, async function (e) {
+                                }, function (e) {
                                     // The full message is too large to fit in a Treeherder
                                     // notification box.
                                     $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));

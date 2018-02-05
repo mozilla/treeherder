@@ -247,7 +247,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     decisionTaskID
                 ).then(function (msg) {
                     thNotify.send(msg, "success");
-                }, async function (e) {
+                }, function (e) {
                     thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                 });
             });
@@ -269,7 +269,7 @@ treeherderApp.controller('ResultSetCtrl', [
                     ThResultSetModel.triggerNewJobs(buildernames, decisionTaskID).then(function (result) {
                         thNotify.send(result, "success");
                         ThResultSetStore.deleteRunnableJobs($scope.repoName, $scope.resultset);
-                    }, async function (e) {
+                    }, function (e) {
                         thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true });
                     });
                 });

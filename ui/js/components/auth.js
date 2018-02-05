@@ -32,11 +32,8 @@ treeherder.component("login", {
         </span>
 
         <span class="btn btn-right-navbar nav-login-btn"
-           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin && !ctrl.userLoggingIn"
+           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin"
            ng-click="$ctrl.login()">Login/Register</span>
-        <span ng-if="$ctrl.userLoggingIn"
-              class="midgray"
-              title="User is already logging in">Logging In...</span>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
               title="thServiceDomain does not match host domain">Login not available</span>
@@ -53,7 +50,6 @@ treeherder.component("login", {
             const ctrl = this;
 
             ctrl.user = {};
-            ctrl.userLoggingIn = $location.path() === '/login';
 
             // check if the user can login.  thServiceDomain must match
             // host domain.  Remove this if we fix
@@ -91,7 +87,7 @@ treeherder.component("login", {
             });
 
             // Ask the back-end if a user is logged in on page load
-            if (ctrl.userCanLogin && !ctrl.userLoggingIn) {
+            if (ctrl.userCanLogin) {
                 ThUserModel.get().then(async function (currentUser) {
                     const userSession = localStorage.getItem('userSession');
 

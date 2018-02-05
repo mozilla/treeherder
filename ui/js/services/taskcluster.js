@@ -33,7 +33,6 @@ const thTaskcluster = (() => {
         credentialAgent = null;
       }
     },
-    getCredentials: () => (credentialAgent ? credentialAgent.getCredentials() : {}),
     refreshTimestamps: function (task) {
       // Take a taskcluster task and make all of the timestamps
       // new again. This is pretty much lifted verbatim from
