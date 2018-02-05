@@ -40,9 +40,6 @@ WHITENOISE_ROOT = path("..", "dist")
 STATIC_ROOT = path("static")
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = path("media")
-MEDIA_URL = "/media/"
-
 # Default minimum regression threshold for perfherder is 2% (otherwise
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2
