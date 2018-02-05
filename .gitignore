@@ -29,5 +29,3 @@ coverage/
 
 # Celery
 celerybeat-schedule
-
-!.gitkeep
