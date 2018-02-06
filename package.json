@@ -62,7 +62,7 @@
     "angular-mocks": "1.6.9",
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
-    "jasmine-core": "2.9.1",
+    "jasmine-core": "2.99.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "1.1.1",
     "neutrino-preset-karma": "4.2.1",
