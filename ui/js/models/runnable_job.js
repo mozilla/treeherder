@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThRunnableJobModel', [
     'thUrl', 'ThJobModel',
     function (thUrl, ThJobModel) {

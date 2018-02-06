@@ -1,5 +1,3 @@
-"use strict";
-
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
     '$window', 'thServiceDomain', '$q', '$timeout', 'PhSeries', 'PhAlerts',

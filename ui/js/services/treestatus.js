@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('treeStatus', [
     '$http',
     function ($http) {

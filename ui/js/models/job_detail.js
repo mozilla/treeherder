@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThJobDetailModel', [
     '$http', 'thUrl', function ($http, thUrl) {
         return {

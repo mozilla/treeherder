@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.component('thLogViewer', {
     templateUrl: 'partials/logviewer/logviewer.html',
     controller: ['$sce', '$location', '$element', '$scope', '$rootScope',

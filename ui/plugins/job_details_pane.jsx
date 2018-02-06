@@ -1,4 +1,3 @@
-'use strict';
 const PropTypes = require('prop-types');
 
 // using ES6 arrow function syntax throws an error for this particular component

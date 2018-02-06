@@ -1,5 +1,3 @@
-'use strict';
-
 // Karma/webpack entry for tests
 
 // Global variables are set here instead of with webpack.ProvidePlugin

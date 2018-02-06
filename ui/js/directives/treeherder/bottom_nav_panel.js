@@ -1,6 +1,3 @@
-'use strict';
-
-
 treeherder.directive('thPinnedJob', [
     'thResultStatusInfo', 'thResultStatus',
     function (thResultStatusInfo, thResultStatus) {

@@ -1,5 +1,3 @@
-'use strict';
-
 //treeherder.config(['$logProvider', 'ThLogConfigProvider',
 //    function($logProvider, ThLogConfigProvider) {
 //

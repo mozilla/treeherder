@@ -1,5 +1,3 @@
-'use strict';
-
 describe('ThResultSetStore', function(){
 
     var $httpBackend,

@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('thTabs', [
     function () {
         var thTabs = {

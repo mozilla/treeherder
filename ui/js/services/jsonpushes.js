@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.service('JsonPushes', ['$http', '$q', function ($http, $q) {
     // error handler helper
     var prevRevsErrHandler = function (response) {

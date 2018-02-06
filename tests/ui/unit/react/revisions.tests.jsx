@@ -1,4 +1,3 @@
-'use strict';
 const mount = require('enzyme').mount;
 const revisions = require('../../../../ui/js/reactrevisions.jsx');
 const RevisionList = revisions.RevisionList;

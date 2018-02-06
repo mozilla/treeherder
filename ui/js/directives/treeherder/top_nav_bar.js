@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.directive('thWatchedRepo', [
     'ThLog', 'ThRepositoryModel',
     function (ThLog, ThRepositoryModel) {

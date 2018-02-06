@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.provider('thServiceDomain', function () {
     this.$get = function () {
         // The SERVICE_DOMAIN global is set by webpack's DefinePlugin.

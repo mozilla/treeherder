@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThMatcherModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {

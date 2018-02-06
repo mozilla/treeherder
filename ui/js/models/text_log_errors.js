@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThTextLogErrorsModel', [
     '$http', '$q', 'thUrl',
     function ($http, $q, thUrl) {

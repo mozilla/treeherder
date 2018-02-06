@@ -1,5 +1,3 @@
-"use strict";
-
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
     function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter, thServiceDomain) {

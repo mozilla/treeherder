@@ -77,7 +77,6 @@ module.exports = neutrino => {
                     'react/require-default-props': 'off',
                     'space-infix-ops': 'off',
                     'spaced-comment': 'off',
-                    'strict': 'off',
                     'vars-on-top': 'off',
                 },
                 globals: [

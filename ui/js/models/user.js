@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThUserModel', [
     '$http', 'thUrl', 'thNotify', '$q',
     function ($http, thUrl, thNotify, $q) {

@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThOptionCollectionModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {

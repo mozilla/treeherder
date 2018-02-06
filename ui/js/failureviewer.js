@@ -1,5 +1,3 @@
-'use strict';
-
 var failureViewerApp = angular.module('failureviewer', ['treeherder']);
 
 failureViewerApp.config(['$compileProvider', '$locationProvider',

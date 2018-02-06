@@ -1,5 +1,3 @@
-"use strict";
-
 treeherderApp.controller('JobsCtrl', [
     '$scope', '$rootScope', '$routeParams',
     'thDefaultRepo',

@@ -1,5 +1,3 @@
-'use strict';
-
 /* Filters */
 
 treeherder.filter('showOrHide', function () {

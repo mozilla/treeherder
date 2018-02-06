@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('thClassificationTypes', [
     '$http', 'thUrl',
     function ($http, thUrl) {

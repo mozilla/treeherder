@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
     'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',

@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.factory(
     'PhFramework', [
         '$http', 'thServiceDomain',

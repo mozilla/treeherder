@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThFailureLinesModel', [
     '$http', '$q', 'thUrl',
     function ($http, $q, thUrl) {

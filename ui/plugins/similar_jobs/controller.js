@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.controller('SimilarJobsPluginCtrl', [
     '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel', 'thResultStatusInfo',
     'numberFilter', 'dateFilter', 'thClassificationTypes',

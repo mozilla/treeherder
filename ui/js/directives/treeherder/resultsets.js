@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.directive('thActionButton', function () {
     return {
         restrict: "E",

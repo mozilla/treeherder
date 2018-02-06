@@ -29,8 +29,6 @@ Create a controller
 
 The most basic of controllers would look like this::
 
-    "use strict";
-
     treeherder.controller('JobFooPluginCtrl',
         function JobFooPluginCtrl($scope) {
 

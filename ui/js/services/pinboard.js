@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('thPinboard', [
     'ThJobClassificationModel', '$rootScope', 'thEvents',
     'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'thPinboardCountError',

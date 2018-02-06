@@ -1,5 +1,3 @@
-"use strict";
-
 import { slugid } from 'taskcluster-client-web';
 
 treeherder.controller('TCJobActionsCtrl', [

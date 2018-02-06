@@ -1,5 +1,3 @@
-"use strict";
-
 treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope',
     'thResultStatusList', 'thEvents', 'thJobFilters',
