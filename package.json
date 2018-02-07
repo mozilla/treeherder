@@ -22,7 +22,7 @@
     "angular-toarrayfilter": "1.0.3",
     "angular-ui-router": "0.4.3",
     "angular1-ui-bootstrap4": "2.4.22",
-    "auth0-js": "9.1.3",
+    "auth0-js": "9.2.1",
     "bootstrap": "4.0.0-beta.2",
     "deepmerge": "1.5.2",
     "eslint-config-airbnb": "15.1.0",
@@ -57,7 +57,7 @@
     "reactstrap": "5.0.0-alpha.4",
     "redux": "3.7.2",
     "redux-debounce": "1.0.1",
-    "taskcluster-client-web": "5.0.1"
+    "taskcluster-client-web": "5.1.0"
   },
   "devDependencies": {
     "angular-mocks": "1.6.9",
