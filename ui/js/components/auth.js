@@ -1,4 +1,6 @@
-"use strict";
+import AuthService from '../auth/AuthService';
+import { loggedOutUser } from '../auth/auth-utils';
+import thTaskcluster from '../services/taskcluster';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -14,9 +16,14 @@ treeherder.component("login", {
               ng-if="$ctrl.user.loggedin">
           <button id="logoutLabel" title="Logged in as: {{$ctrl.user.email}}" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-right-navbar dropdown-toggle">
-            <div class="nav-user-icon">
-              <span class="fa fa-user pull-left"></span>
+                  class="btn btn-view-nav btn-right-navbar">
+            <div class="dropdown-toggle">
+                <div class="nav-user-icon">
+                  <span class="fa fa-user pull-left"></span>
+                </div>
+                <div class="nav-user-name">
+                    <span>{{$ctrl.user.fullName}}</span>
+                </div>
             </div>
           </button>
           <ul class="dropdown-menu nav-dropdown-menu-right" role="menu" aria-labelledby="logoutLabel">
@@ -25,11 +32,8 @@ treeherder.component("login", {
         </span>
 
         <span class="btn btn-right-navbar nav-login-btn"
-           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin && !ctrl.userLoggingIn"
+           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin"
            ng-click="$ctrl.login()">Login/Register</span>
-        <span ng-if="$ctrl.userLoggingIn"
-              class="midgray"
-              title="User is already logging in">Logging In...</span>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
               title="thServiceDomain does not match host domain">Login not available</span>
@@ -38,16 +42,14 @@ treeherder.component("login", {
         // calls to the HTML which sets the user value in the $rootScope.
         onUserChange: "&"
     },
-    controller: ['$location', '$window', 'localStorageService', 'thNotify',
+    controller: ['$location', '$window', 'thNotify',
         'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
-        function ($location, $window, localStorageService, thNotify,
+        function ($location, $window, thNotify,
                   ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
-            var ctrl = this;
-            ctrl.user = {};
-            // "clears out" the user when it is detected to be logged out.
-            var loggedOutUser = { is_staff: false, username: "", email: "", loggedin: false };
+            const authService = new AuthService();
+            const ctrl = this;
 
-            ctrl.userLoggingIn = $location.path() === '/login';
+            ctrl.user = {};
 
             // check if the user can login.  thServiceDomain must match
             // host domain.  Remove this if we fix
@@ -65,22 +67,31 @@ treeherder.component("login", {
              * Using a window listener here because I wasn't getting reliable
              * results from the events from angular-local-storage.
              */
+
             $window.addEventListener("storage", function (e) {
-                if (e.key === "treeherder.user") {
-                    $timeout(function () {
-                        var newUser = JSON.parse(e.newValue);
-                        if (newUser && newUser.email) {
-                            // User was saved to local storage. Use it.
-                            ctrl.setLoggedIn(newUser);
-                        }
-                    }, 0);
+                if (e.key === 'user') {
+                    const oldUser = JSON.parse(e.oldValue);
+                    const newUser = JSON.parse(e.newValue);
+
+                    if (newUser && newUser.email && !_.isEqual(newUser, oldUser)) {
+                        // User was saved to local storage. Use it.
+                        $timeout(() => ctrl.setLoggedIn(newUser), 0);
+                    } else if (newUser && !newUser.email) {
+                        // Show the user as logged out in all other opened tabs
+                        $timeout(() => ctrl.setLoggedOut(), 0);
+                    }
+                } else if (e.key === 'userSession') {
+                    // used when a different tab updates userSession,
+                    thTaskcluster.updateAgent();
                 }
             });
 
             // Ask the back-end if a user is logged in on page load
-            if (ctrl.userCanLogin && !ctrl.userLoggingIn) {
-                ThUserModel.get().then(function (currentUser) {
-                    if (currentUser.email) {
+            if (ctrl.userCanLogin) {
+                ThUserModel.get().then(async function (currentUser) {
+                    const userSession = localStorage.getItem('userSession');
+
+                    if (currentUser.email && userSession) {
                         ctrl.setLoggedIn(currentUser);
                     } else {
                         ctrl.setLoggedOut();
@@ -89,18 +100,11 @@ treeherder.component("login", {
             }
 
             /**
-             * Contact login.taskcluster to log the user in.  Opens a new tab
-             * for the tc-login, which will get closed if it's successful.
+             * Opens a new tab to handle authentication, which will get closed
+             * if it's successful.
              */
             ctrl.login = function () {
-                var hash = encodeURIComponent("#");
-                var colon = encodeURIComponent(":");
-                var target = `${$location.protocol()}${colon}//${$location.host()}${colon}${$location.port()}/${hash}/login`;
-                var description = "Treeherder";
-                var url = `https://login.taskcluster.net/?target=${target}&description=${description}`;
-
-                // open a new tab to show the taskcluster auth login page
-                $window.open(url, "_blank");
+                $window.open('/login.html', '_blank');
             };
 
             /**
@@ -117,70 +121,26 @@ treeherder.component("login", {
             };
 
             ctrl.setLoggedIn = function (newUser) {
+                const userSession = JSON.parse(localStorage.getItem('userSession'));
+
                 newUser.loggedin = true;
-                localStorageService.set("user", newUser);
+                newUser.fullName = userSession.fullName;
+
                 ctrl.user = newUser;
                 ctrl.onUserChange({ $event: { user: newUser } });
 
+                // start session renewal process
+                if (userSession && userSession.renewAfter) {
+                    authService.resetRenewalTimer();
+                }
             };
 
             ctrl.setLoggedOut = function () {
-                localStorageService.set("user", loggedOutUser);
-                localStorageService.set('taskcluster.credentials', {});
+                authService.logout();
+                // logging out will not trigger a storage event since localStorage is being set by the same window
+                thTaskcluster.updateAgent();
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };
         }]
-});
-
-treeherder.component("loginCallback", {
-    template: `
-        <div ng-if="!loginError">
-            <span>Logging in... <span class="fa fa-spinner fa-spin"></span></span>
-        </div>
-        <div ng-if="loginError">
-            <span>Error logging in: {{loginError}}</span>
-        </div>
-    `,
-    controller: ['localStorageService', '$location', '$window', '$http', '$scope',
-        function (localStorageService, $location, $window, $http, $scope) {
-            const hawk = require('hawk');
-            const host = $location.host();
-            const port = $location.port();
-            const loginUrl = `${$location.protocol()}://${host}:${port}/api/auth/login/`;
-            const credentials = {
-                id: $location.search().clientId,
-                key: $location.search().accessToken,
-                algorithm: 'sha256'
-            };
-
-            this.loginError = null;
-            var payload = {
-                credentials: credentials,
-            };
-
-            // Cribbed from taskcluster-tools. Save this for interacting with tc
-            const results = $location.search();
-            if (results.certificate) {
-                results.certificate = JSON.parse(results.certificate);
-                payload.ext = hawk.utils.base64urlEncode(JSON.stringify({ certificate: results.certificate }));
-            }
-
-            const header = hawk.client.header(loginUrl, 'GET', payload);
-
-            // send a request from client side to TH server signed with TC
-            // creds from login.taskcluster.net
-            $http.get(loginUrl,
-                      { headers: { tcauth: header.field } })
-                .then(function (resp) {
-                    var user = resp.data;
-                    user.loggedin = true;
-                    localStorageService.set("user", user);
-                    localStorageService.set('taskcluster.credentials', results);
-                    $window.close();
-                }, function (data) {
-                    $scope.loginError = data.data.detail;
-                });
-        }
-    ]
 });

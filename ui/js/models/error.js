@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 This object contains a few constants and helper functions related to error
 message handling.
@@ -33,7 +31,7 @@ treeherder.factory('ThModelErrors', [function () {
 /**
  * This is useful to display Taskcluster errors nicely.
 */
-treeherder.factory('ThTaskclusterErrors', ['localStorageService', function (localStorageService) {
+treeherder.factory('ThTaskclusterErrors', [function () {
     let TC_ERROR_PREFIX = 'Taskcluster: ';
     return {
         /**
@@ -42,21 +40,13 @@ treeherder.factory('ThTaskclusterErrors', ['localStorageService', function (loca
         @param {Error} e error object from taskcluster client.
         */
         format: function (e) {
-            if (e.code === 'AuthenticationFailed') {
-                let creds = localStorageService.get('taskcluster.credentials');
-                if (creds && creds.certificate && creds.certificate.expiry) {
-                    let expires = new Date(creds.certificate.expiry);
-                    if (expires < new Date()) {
-                        return TC_ERROR_PREFIX + 'Your credentials are expired. ' +
-                            'They must expire every 3 days (Bug 1328434). Log out and back in again to ' +
-                            'refresh your credentials.';
-                    }
-                }
+            const err = e.body || e;
+
+            if (err.message.indexOf('----') !== -1) {
+                return TC_ERROR_PREFIX + err.message.split('----')[0];
             }
-            if (e.message.indexOf('----') !== -1) {
-                return TC_ERROR_PREFIX + e.message.split('----')[0];
-            }
-            return TC_ERROR_PREFIX + e.message;
+
+            return TC_ERROR_PREFIX + err.message;
         }
     };
 }]);

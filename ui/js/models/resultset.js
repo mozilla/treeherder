@@ -1,11 +1,14 @@
 'use strict';
 
+import { Queue, slugid } from 'taskcluster-client-web';
+import thTaskcluster from '../services/taskcluster';
+
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'thUrl', 'tcactions',
-    'thServiceDomain', 'ThLog', 'ThJobModel', 'thTaskcluster', 'jsyaml',
+    'thServiceDomain', 'ThLog', 'ThJobModel', 'jsyaml',
     function ($http, $location, $q, $interpolate, thUrl,
         tcactions, thServiceDomain, ThLog,
-        ThJobModel, thTaskcluster, jsyaml) {
+        ThJobModel, jsyaml) {
 
         var $log = new ThLog("ThResultSetModel");
 
@@ -193,8 +196,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             triggerMissingJobs: function (decisionTaskId) {
                 return tcactions.load(decisionTaskId).then((results) => {
-                    const tc = thTaskcluster.client();
-                    const actionTaskId = tc.slugid();
+                    const actionTaskId = slugid();
 
                     // In this case we have actions.json tasks
                     if (results) {
@@ -217,8 +219,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             triggerAllTalosJobs: function (times, decisionTaskId) {
                 return tcactions.load(decisionTaskId).then((results) => {
-                    const tc = thTaskcluster.client();
-                    const actionTaskId = tc.slugid();
+                    const actionTaskId = slugid();
 
                     // In this case we have actions.json tasks
                     if (results) {
@@ -240,7 +241,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     // Otherwise we'll figure things out with actions.yml
-                    const queue = new tc.Queue();
+                    const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                     const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                     return $http.get(url).then(function (resp) {
                         let action = resp.data;
@@ -258,8 +259,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerNewJobs: function (buildernames, decisionTaskId) {
-                let tc = thTaskcluster.client();
-                let queue = new tc.Queue();
+                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                 let url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,
@@ -290,8 +290,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     return tcactions.load(decisionTaskId).then((results) => {
-                        const actionTaskId = tc.slugid();
-
+                        const actionTaskId = slugid();
                         // In this case we have actions.json tasks
                         if (results) {
                             const addjobstask = _.find(results.actions, { name: 'add-new-jobs' });

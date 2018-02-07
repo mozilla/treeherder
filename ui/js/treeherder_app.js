@@ -45,9 +45,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
                 templateUrl: 'partials/main/jobs.html',
                 reloadOnSearch: false
             })
-            .when('/login', {
-                template: '<login-callback/>'
-            })
             .otherwise({ redirectTo: '/jobs' });
     }]).run(require('./cache-templates'));
 

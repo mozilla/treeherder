@@ -1,0 +1,69 @@
+import React from 'react';
+import Icon from 'react-fontawesome';
+import AuthService from './AuthService';
+import { webAuth, parseHash } from './auth-utils';
+
+export default class LoginCallback extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loginError: null
+    };
+
+    this.authService = new AuthService();
+  }
+
+  async componentWillMount() {
+    let authResult;
+
+    // make the user login if there is no access token
+    if (!window.location.hash) {
+      return webAuth.authorize();
+    }
+
+    // for silent renewal, auth0-js opens this page in an iframe, and expects
+    // a postMessage back, and that's it.
+    if (window !== window.top) {
+      window.parent.postMessage(window.location.hash, window.origin);
+
+      return;
+    }
+
+    try {
+      authResult = await parseHash(window.location.hash);
+
+      if (authResult.accessToken) {
+        await this.authService.saveCredentialsFromAuthResult(authResult);
+
+        if (window.opener) {
+          window.close();
+        }
+      }
+    } catch (err) {
+      return this.setState({ loginError: err.message ? err.message : err.errorDescription });
+    }
+  }
+
+  render() {
+    if (this.state.loginError) {
+      return <p>{this.state.loginError}</p>;
+    }
+
+    if (window.location.hash) {
+      return (
+        <div>
+          <span>Logging in..&nbsp;</span>
+          <Icon name="spinner" spin />
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <span>Redirecting..&nbsp;</span>
+        <Icon name="spinner" spin />
+      </div>
+    );
+  }
+}

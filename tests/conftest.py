@@ -563,6 +563,14 @@ def bugs(mock_bugzilla_api_request):
 
 
 @pytest.fixture
+def webapp():
+    """
+    we can use this object to test calls to a wsgi application
+    """
+    return TestApp(application)
+
+
+@pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     from treeherder.model.models import FailureLine
     from autoclassify.utils import create_text_log_errors

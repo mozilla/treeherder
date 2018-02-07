@@ -41,6 +41,7 @@ module.exports = neutrino => {
             'angular-toarrayfilter',
             'angular-ui-router',
             'angular1-ui-bootstrap4',
+            'auth0-js',
             'bootstrap/dist/js/bootstrap',
             'hawk',
             'jquery',
@@ -52,7 +53,7 @@ module.exports = neutrino => {
             'prop-types',
             'react',
             'react-dom',
-            'taskcluster-client',
+            'taskcluster-client-web'
         ];
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
@@ -77,6 +78,10 @@ module.exports = neutrino => {
     neutrino.config
         .entry('failureviewer')
         .add(path.join(UI, 'entry-failureviewer.js'))
+        .end();
+    neutrino.config
+        .entry('login')
+        .add(path.join(UI, 'entry-login.jsx'))
         .end();
     neutrino.config
         .entry('userguide')
@@ -182,6 +187,32 @@ module.exports = neutrino => {
             minify: HTML_MINIFY_OPTIONS
         });
 
+
+    neutrino.config
+        .plugin('html-login')
+        .use(HtmlPlugin, {
+            inject: false,
+            template: htmlTemplate,
+            filename: 'login.html',
+            chunks: ['login', 'vendor', 'manifest'],
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: 'Treeherder Login',
+            meta: [
+                {
+                    "name": "description",
+                    "content": "Treeherder Login"
+                },
+                {
+                    "name": "author",
+                    "content": "Mozilla Treeherder"
+                }
+            ]
+        });
+
+
     neutrino.config
         .plugin('html-testview')
         .use(HtmlPlugin, {
@@ -245,7 +276,6 @@ module.exports = neutrino => {
         });
 
     neutrino.config.devtool('source-map');
-
 };
 
 module.exports.CWD = CWD;

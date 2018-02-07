@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.component('loading', {
     bindings: {
         data: '<'

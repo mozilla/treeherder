@@ -1,93 +1,148 @@
+import json
 import logging
-import re
+import time
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.reverse import reverse
-from taskcluster import Auth
+from jose import jwt
+from rest_framework.exceptions import AuthenticationFailed
+
+from treeherder.config.settings import (AUTH0_CLIENTID,
+                                        AUTH0_DOMAIN)
 
 logger = logging.getLogger(__name__)
 
-CLIENT_ID_RE = re.compile(
-    r"^(?:email|mozilla-ldap)/([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.["
-    r"a-zA-Z0-9-.]+)$")
+# The JSON Web Key Set (jwks), which is a set of keys
+# containing the public keys that should be used to verify
+# any JWT issued by the authorization server. Auth0 exposes
+# a JWKS endpoint for each tenant, which is found at
+# 'https://' + AUTH0_DOMAIN + '/.well-known/jwks.json'. This endpoint
+# will contain the JWK used to sign all Auth0 issued JWTs for this tenant.
+# Reference: https://auth0.com/docs/jwks
+
+# The jwks is under our (Mozilla's) control. Changing it would be a big thing
+# with lots of notice in advance. In order to mitigate the additional HTTP request
+# as well as the possiblity of receiving a 503 status code, we use a static json file to
+# read its content.
+with open('treeherder/auth/jwks.json') as f:
+    jwks = json.load(f)
 
 
-class TaskclusterAuthBackend(object):
-    """
-        result of tc_auth.authenticateHawk has the form:
+class AuthBackend(object):
 
-        {'status': 'auth-success',
-         'scopes': ['assume:mozilla-group:ateam',
-                    'assume:mozilla-group:vpn_treeherder',
-                    'assume:mozilla-user:biped@mozilla.com',
-                    'assume:mozillians-user:biped',
-                    ...
-                    'assume:project-admin:ateam',
-                    'assume:project-admin:treeherder',
-                    'assume:project:ateam:*',
-                    'assume:project:treeherder:*',
-                    'assume:worker-id:*',
-                    'secrets:set:project/treeherder/*'],
-         'scheme': 'hawk',
-         'clientId': 'mozilla-ldap/biped@mozilla.com',
-         'expires': '2016-10-31T17:40:45.692Z'}
-    """
+    def _get_accesstoken_expiry(self, request):
+        expires_at_in_milliseconds = request.META.get("HTTP_EXPIRESAT")
 
-    def _extract_email_from_clientid(self, client_id):
+        if not expires_at_in_milliseconds:
+            raise AuthenticationFailed("expiresAt header is expected")
+
+        return int(expires_at_in_milliseconds)
+
+    def _get_token_auth_header(self, request):
+        auth = request.META.get("HTTP_AUTHORIZATION")
+
+        if not auth:
+            raise AuthenticationFailed("Authorization header is expected")
+
+        parts = auth.split()
+
+        if parts[0].lower() != "bearer":
+            raise AuthenticationFailed("Authorization header must start with 'Bearer'")
+
+        elif len(parts) == 1:
+            raise AuthenticationFailed("Token not found")
+
+        elif len(parts) > 2:
+            raise AuthenticationFailed("Authorization header must be 'Bearer {token}'")
+
+        token = parts[1]
+
+        return token
+
+    def _get_username_from_userinfo(self, user_info):
         """
-        Extract the user's email from the client_id
+        Get the user's username from the jwt sub property
         """
 
-        # Client IDs must be in one of these forms:
-        # - email/foo@bar.com
-        # - mozilla-ldap/foo@bar.com
-        # Email regex taken from http://emailregex.com
-        match = CLIENT_ID_RE.match(client_id)
-        if match:
-            return match.group(1)
+        subject = user_info['sub']
+        email = user_info['email']
 
-        raise NoEmailException(
-            "No email found in clientId: '{}'".format(client_id))
+        if "Mozilla-LDAP" in subject:
+            return "mozilla-ldap/" + email
+        elif "email" in subject:
+            return "email/" + email
+        elif "github" in subject:
+            return "github/" + email
+        else:
+            raise AuthenticationFailed("Unrecognized identity")
+
+    def _get_user_info(self, request):
+        access_token = self._get_token_auth_header(request)
+        id_token = request.META.get("HTTP_IDTOKEN")
+
+        # JWT Validator
+        # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
+
+        unverified_header = jwt.get_unverified_header(id_token)
+
+        rsa_key = {}
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
+
+        if not rsa_key:
+            raise AuthError({"code": "rsa_key",
+                            "description": "rsa_key is empty"}, 401)
+
+        try:
+            user_info = jwt.decode(
+                id_token,
+                rsa_key,
+                algorithms=['RS256'],
+                audience=AUTH0_CLIENTID,
+                access_token=access_token,
+                issuer="https://"+AUTH0_DOMAIN+"/"
+            )
+
+            return user_info
+        except jwt.ExpiredSignatureError:
+            raise AuthError("Token is expired")
+        except jwt.JWTClaimsError:
+            raise AuthError("Incorrect claims: please check the audience and issuer")
+        except Exception:
+            raise AuthError("Invalid header: Unable to parse authentication")
 
     def authenticate(self, request):
-
-        auth_header = request.META.get("HTTP_TCAUTH", None)
-        host = request.get_host().split(":")[0]
-        port = int(request.get_port())
-
-        if not auth_header:
-            # Doesn't have the right params for this backend.  So just
-            # skip and let another backend have a try at it.
-            return None
-
-        tc_auth = Auth()
-        # https://docs.taskcluster.net/reference/platform/taskcluster-auth/references/api#authenticateHawk
-        # https://github.com/taskcluster/taskcluster-client.py#authenticate-hawk-request
-        result = tc_auth.authenticateHawk({
-            "authorization": auth_header,
-            "host": host,
-            "port": port,
-            "resource": reverse("auth-login"),
-            "method": "get",
-        })
-
-        if result["status"] != "auth-success":
-            logger.warning("Error logging in: {}".format(result["message"]))
-            raise TaskclusterAuthException(result["message"])
-
-        client_id = result["clientId"]
-        email = self._extract_email_from_clientid(client_id)
+        user_info = self._get_user_info(request)
+        username = self._get_username_from_userinfo(user_info)
 
         # Look for an existing user by username/clientId
         # If not found, create it, as long as it has an email.
         try:
-            return User.objects.get(username=client_id)
+            user = User.objects.get(username=username)
+
+            accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
+            # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
+            idtoken_exp_in_ms = user_info['exp'] * 1000
+            now_in_ms = int(round(time.time() * 1000))
+
+            # The Django user session expiration should be set to the token for which the expiry is closer.
+            session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
+
+            request.session.set_expiry((session_expiry_in_ms - now_in_ms) / 1000)
+
+            return user
 
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(client_id))
-            return User.objects.create_user(client_id, email=email)
+            logger.warning("Creating new user: {}".format(username))
+            return User.objects.create_user(username, email=user_info['email'])
 
     def get_user(self, user_id):
         try:
@@ -96,9 +151,9 @@ class TaskclusterAuthBackend(object):
             return None
 
 
-class TaskclusterAuthException(Exception):
+class NoEmailException(Exception):
     pass
 
 
-class NoEmailException(Exception):
+class AuthError(Exception):
     pass

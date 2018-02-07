@@ -137,7 +137,7 @@ default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         base_name='jobdetail')
-default_router.register(r'auth', auth.TaskclusterAuthViewSet,
+default_router.register(r'auth', auth.AuthViewSet,
                         base_name='auth')
 default_router.register(r'seta/failures-fixed-by-commit',
                         seta.SetaFailuresFixedByCommit,

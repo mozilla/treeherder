@@ -1,9 +1,12 @@
 'use strict';
 
+import { Queue } from 'taskcluster-client-web';
+import thTaskcluster from './taskcluster';
+
 /* Services */
 treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain', 'thTaskcluster',
-    function ($rootScope, thServiceDomain, thTaskcluster) {
+    '$rootScope', 'thServiceDomain',
+    function ($rootScope, thServiceDomain) {
 
         var thUrl = {
             getRootUrl: function (uri) {
@@ -44,8 +47,7 @@ treeherder.factory('thUrl', [
                 return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
             },
             getWorkerExplorerUrl: async function (taskId) {
-                const tc = thTaskcluster.client();
-                const queue = new tc.Queue();
+                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                 const { status } = await queue.status(taskId);
                 const { provisionerId, workerType } = status;
                 const { workerGroup, workerId } = status.runs[status.runs.length - 1];
