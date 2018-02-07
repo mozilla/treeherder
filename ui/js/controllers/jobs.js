@@ -116,12 +116,18 @@ treeherderApp.controller('ResultSetCtrl', [
         });
 
         $scope.getDecisionTaskVisibility = function () {
-            let dtId = ThResultSetStore.getGeckoDecisionTaskId($scope.repoName, $scope.resultset.id);
-            if (dtId.$$state.value === 'No decision task') {
-                $scope.isDecisionTaskVisible = false;
-            } else {
-                $scope.isDecisionTaskVisible = true;
-            }
+            let dtId = ThResultSetStore.getGeckoDecisionTaskId(
+                $scope.repoName,
+                $scope.resultset.id
+            ).then(function () {
+                if (dtId.$$state.value === 'No decision task') {
+                    $scope.isDecisionTaskVisible = false;
+                } else {
+                    $scope.isDecisionTaskVisible = true;
+                }
+            }, function (e) {
+                console.log(e);
+            });
         };
 
         $scope.addNewJobsMenuTitle = function () {
