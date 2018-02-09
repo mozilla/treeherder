@@ -73,6 +73,8 @@ class AuthBackend(object):
             return "email/" + email
         elif "github" in subject:
             return "github/" + email
+        elif "google" in subject:
+            return "google/" + email
         else:
             raise AuthenticationFailed("Unrecognized identity")
 
