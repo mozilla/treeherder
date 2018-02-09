@@ -1,6 +1,7 @@
 import re
 
 import newrelic.agent
+from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 
@@ -51,7 +52,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         return super(CustomWhiteNoise, self).is_immutable_file(path, url)
 
 
-class NewRelicMiddleware(object):
+class NewRelicMiddleware(MiddlewareMixin):
     """Adds custom annotations to New Relic web transactions."""
 
     def process_request(self, request):
