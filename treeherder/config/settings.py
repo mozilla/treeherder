@@ -84,7 +84,7 @@ MIDDLEWARE_CLASSES = [middleware for middleware in [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'hawkrest.middleware.HawkResponseMiddleware',
+    'treeherder.middleware.FixedHawkResponseMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
 
