@@ -69,23 +69,23 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = [middleware for middleware in [
+MIDDLEWARE = [middleware for middleware in [
     # Adds custom New Relic annotations. Must be first so all transactions are annotated.
     'treeherder.middleware.NewRelicMiddleware',
     # Redirect to HTTPS/set HSTS and other security headers.
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     # Allows both Django static files and those specified via `WHITENOISE_ROOT`
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.middleware.CustomWhiteNoise',
     'django.middleware.gzip.GZipMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware' if ENABLE_DEBUG_TOOLBAR else False,
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'treeherder.middleware.FixedHawkResponseMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ] if middleware]
 
 if ENABLE_DEBUG_TOOLBAR:
