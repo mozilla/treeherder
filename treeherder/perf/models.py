@@ -174,6 +174,20 @@ class PerformanceDatum(models.Model):
 
 
 @python_2_unicode_compatible
+class IssueTracker(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, blank=False)
+    task_base_url = models.URLField(max_length=512, null=False)
+    main_url = models.URLField(max_length=512, null=False)
+
+    class Meta:
+        db_table = "issue_tracker"
+
+    def __str__(self):
+        return "{} (tasks via {})".format(self.name, self.main_url)
+
+
+@python_2_unicode_compatible
 class PerformanceAlertSummary(models.Model):
     '''
     A summarization of performance alerts
@@ -216,6 +230,10 @@ class PerformanceAlertSummary(models.Model):
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
     bug_number = models.PositiveIntegerField(null=True)
+
+    issue_tracker = models.ForeignKey(IssueTracker,
+                                      on_delete=models.PROTECT,
+                                      null=True)
 
     def update_status(self):
         autodetermined_status = self.autodetermine_status()

@@ -101,6 +101,11 @@ treeherder.value("phAlertSummaryStatusMap", {
     BACKEDOUT: { id: 8, text: "backedout" }
 });
 
+treeherder.value("phAlertSummaryIssueTrackersMap", {
+    BUGZILLA: { id: 1, text: "Bugzilla", issueTrackerUrl: "https://bugzilla.mozilla.org/show_bug.cgi?id=" },
+    GITHUB_SERVO: { id: 2, text: "Github - Servo", issueTrackerUrl: "https://github.com/servo/servo/pull/" }
+});
+
 treeherder.value("phAlertStatusMap", {
     UNTRIAGED: { id: 0, text: "untriaged" },
     DOWNSTREAM: { id: 1, text: "downstream" },

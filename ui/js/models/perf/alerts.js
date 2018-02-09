@@ -1,8 +1,8 @@
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
-    'phAlertSummaryStatusMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
+    'phAlertSummaryStatusMap', 'phAlertSummaryIssueTrackersMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
     function ($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
-             phAlertSummaryStatusMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
+             phAlertSummaryStatusMap, phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
         var Alert = function (alertData, optionCollectionMap) {
             _.assign(this, alertData);
@@ -69,6 +69,12 @@ treeherder.factory('PhAlerts', [
                 this.updateStatus(status);
             };
         });
+        AlertSummary.prototype.getIssueTrackerUrl = function () {
+            if (this.issue_tracker) {
+                var issueTrackerUrl = _.find(phAlertSummaryIssueTrackersMap, { id: this.issue_tracker }).issueTrackerUrl;
+                return issueTrackerUrl + this.bug_number;
+            }
+        };
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
             var resultStr = "";
             var improved = _.sortBy(
@@ -191,11 +197,11 @@ treeherder.factory('PhAlerts', [
                 })).sort().join(', ') + ')';
             return title;
         };
-        AlertSummary.prototype.assignBug = function (bugNumber) {
+        AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
             var alertSummary = this;
             return $http.put(thServiceDomain +
                              '/api/performance/alertsummary/' + this.id + '/',
-                             { bug_number: bugNumber }).then(function () {
+                             { bug_number: taskNumber, issue_tracker: issueTrackerId }).then(function () {
                                  return alertSummary.update();
                              });
         };

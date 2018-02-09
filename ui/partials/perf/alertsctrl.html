@@ -59,7 +59,7 @@
           </ul>
         </span>
         <span ng-show="alertSummary.bug_number"> ·
-          <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{alertSummary.bug_number}}" target="_blank">
+          <a href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank">
             Bug {{alertSummary.bug_number}}
           </a>
         </span>
