@@ -85,8 +85,9 @@
             ng-disabled="!user.loggedin || !canSaveClassifications()">save
     </button>
     <button class="btn btn-light-bordered btn-xs dropdown-toggle save-btn-dropdown"
-            title="{{ !hasPinnedJobs() ? 'No pinned jobs' : 'Additional pinboard functions' }}"
-            ng-disabled="!hasPinnedJobs()"
+            title="{{ !hasPinnedJobs() && !pinboardIsDirty() ? 'No pinned jobs' :
+                      'Additional pinboard functions' }}"
+            ng-disabled="!hasPinnedJobs() && !pinboardIsDirty()"
             type="button"
             data-toggle="dropdown">
       <span class="caret"></span>

@@ -184,6 +184,13 @@ treeherder.controller('PinboardCtrl', [
                    (thisClass.failure_classification_id === 2 && thisClass.text.length > 7));
         };
 
+        // Facilitates Clear all if no jobs pinned to reset pinboard UI
+        $scope.pinboardIsDirty = function () {
+            return $scope.classification.text !== '' ||
+                   thPinboard.hasRelatedBugs() ||
+                   $scope.classification.failure_classification_id !== 4;
+        };
+
         // Dynamic btn/anchor title for classification save
         $scope.saveUITitle = function (category) {
             var title = "";
