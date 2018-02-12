@@ -1,5 +1,5 @@
-from treeherder.autoclassify.detectors import TestFailureDetector as _TestFailureDetector
 from treeherder.autoclassify.detectors import ManualDetector
+from treeherder.autoclassify.detectors import TestFailureDetector as _TestFailureDetector
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
                                               ElasticSearchTestMatcher,
                                               PreciseTestMatcher)
