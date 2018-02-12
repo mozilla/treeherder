@@ -1,5 +1,3 @@
-"use strict";
-
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
     'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',

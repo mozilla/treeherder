@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.factory('math', [
     function () {
         function percentOf(a, b) {

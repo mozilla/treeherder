@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.directive('lvLogSteps', ['$timeout', ($timeout) => {
     function getOffsetOfStep(order) {
         const el = $('.lv-step[order="' + order + '"]');

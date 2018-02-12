@@ -1,5 +1,3 @@
-'use strict';
-
 var logViewerApp = angular.module('logviewer', ['treeherder']);
 
 logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider',

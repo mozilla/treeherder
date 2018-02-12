@@ -1,5 +1,3 @@
-"use strict";
-
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
     function ($compileProvider, $locationProvider, $httpProvider, $stateProvider, $urlRouterProvider) {

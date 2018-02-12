@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.factory('PhCompare', [
     '$q', '$http', '$httpParamSerializer', 'thServiceDomain', 'PhSeries', 'math', 'phTimeRanges',
     function ($q, $http, $httpParamSerializer, thServiceDomain, PhSeries, math, phTimeRanges) {

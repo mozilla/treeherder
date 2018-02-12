@@ -1,5 +1,3 @@
-"use strict";
-
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',

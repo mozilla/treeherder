@@ -1,5 +1,3 @@
-'use strict';
-
 // Check for a config file and use it if available
 try {
     // (Requiring via context allows us to avoid ugly warnings when no file is present)

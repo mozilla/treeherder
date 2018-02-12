@@ -1,5 +1,3 @@
-'use strict';
-
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',

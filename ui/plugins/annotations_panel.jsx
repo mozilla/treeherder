@@ -1,4 +1,3 @@
-'use strict';
 import PropTypes from 'prop-types';
 
 const RelatedBugSaved = (props) => {

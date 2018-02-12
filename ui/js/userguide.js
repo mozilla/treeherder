@@ -1,5 +1,3 @@
-'use strict';
-
 var userguideApp = angular.module('userguide', []);
 
 userguideApp.config(['$compileProvider', function ($compileProvider) {

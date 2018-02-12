@@ -1,5 +1,3 @@
-'use strict';
-
 describe('linkifyURLs filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));

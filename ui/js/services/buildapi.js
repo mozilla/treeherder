@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('thBuildApi', [
     '$http', 'thNotify',
     function ($http, thNotify) {

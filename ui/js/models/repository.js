@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
     '$q', 'treeStatus', 'thRepoGroupOrder',

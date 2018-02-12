@@ -1,5 +1,3 @@
-'use strict';
-
 failureViewerApp.controller('FailureViewerCtrl', [
     '$q', '$location', '$rootScope', '$scope', '$window',
     'thUrl', 'thNotify', 'ThClassifiedFailuresModel',

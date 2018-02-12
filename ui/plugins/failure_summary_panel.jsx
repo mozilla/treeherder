@@ -1,4 +1,3 @@
-'use strict';
 const PropTypes = require('prop-types');
 
 class SuggestionsListItem extends React.Component {

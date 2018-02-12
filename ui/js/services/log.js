@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThLog', [
     '$log', 'ThLogConfig',
     function ($log, ThLogConfig) {

@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.directive('ngRightClick', [
     '$parse',
     function ($parse) {

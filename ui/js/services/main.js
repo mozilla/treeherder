@@ -1,5 +1,3 @@
-'use strict';
-
 import { Queue } from 'taskcluster-client-web';
 import thTaskcluster from './taskcluster';
 

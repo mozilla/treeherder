@@ -1,5 +1,3 @@
-"use strict";
-
 userguideApp.controller('UserguideCtrl', ['$scope',
     function UserguideCtrl($scope) {
 

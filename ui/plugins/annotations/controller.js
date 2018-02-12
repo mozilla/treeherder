@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.controller('AnnotationsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'thNotify',
     'thEvents', 'ThResultSetStore', 'thTabs',

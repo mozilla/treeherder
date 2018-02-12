@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents',

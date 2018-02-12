@@ -1,5 +1,3 @@
-'use strict';
-
 // Webpack entry point for userguide.html
 // Scripts and styles included here are automatically included on the page at build time
 

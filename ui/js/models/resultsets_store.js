@@ -1,5 +1,3 @@
-'use strict';
-
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
     'ThResultSetModel', 'ThJobModel', 'thEvents',

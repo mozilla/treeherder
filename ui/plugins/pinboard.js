@@ -1,5 +1,3 @@
-"use strict";
-
 treeherder.controller('PinboardCtrl', [
     '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify', 'ThLog',
     function PinboardCtrl(
