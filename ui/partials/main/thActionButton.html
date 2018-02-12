@@ -11,18 +11,18 @@
   </button>
   <!-- Menu contents -->
   <ul class="dropdown-menu pull-right">
-    <li title="{{user.loggedin ? '' : 'Must be logged in'}}"
-        class="{{user.loggedin ? '' : 'disabled'}}">
-        <a target="_blank" data-ignore-job-clear-on-click
-           title="Add new jobs to this push"
+    <li><button target="_blank" data-ignore-job-clear-on-click
+           ng-attr-title="{{addNewJobsMenuTitle()}}"
+           ng-class="!user.loggedin || !isDecisionTaskVisible ? 'disabled' : ''"
+           ng-disabled="!user.loggedin || !isDecisionTaskVisible"
            href="" class="dropdown-item"
            ng-hide="resultset.isRunnableVisible"
-           ng-click="showRunnableJobs()">Add new jobs</a></li>
-    <li><a target="_blank" data-ignore-job-clear-on-click
-           title="Hide Runnable Jobs"
+           ng-click="showRunnableJobs()">Add new jobs</button></li>
+    <li><button target="_blank" data-ignore-job-clear-on-click
+           title="Hide new jobs from this push"
            href="" class="dropdown-item"
            ng-show="resultset.isRunnableVisible"
-           ng-click="deleteRunnableJobs()">Hide Runnable Jobs</a></li>
+           ng-click="deleteRunnableJobs()">Hide runnable jobs</button></li>
     <li><a target="_blank" data-ignore-job-clear-on-click class="dropdown-item"
            href="https://secure.pub.build.mozilla.org/buildapi/self-serve/{{::repoName}}/rev/{{::resultset.revision}}">BuildAPI</a></li>
     <li><a target="_blank" data-ignore-job-clear-on-click
