@@ -4234,6 +4234,10 @@ jasmine-core@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.0.0.tgz#8cdb20cf336b1b86830edc58b1a8aac47455e94c"
 
+jasmine-jquery@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/jasmine-jquery/-/jasmine-jquery-2.1.1.tgz#d4095e646944a26763235769ab018d9f30f0d47b"
+
 jquery.flot@0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/jquery.flot/-/jquery.flot-0.8.3.tgz#81d2ec4ffdf0dee729c8a442e8faa399e9b48207"
