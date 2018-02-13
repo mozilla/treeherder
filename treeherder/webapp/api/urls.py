@@ -42,12 +42,6 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'seta/job-types',
-    seta.SetaJobTypes,
-    base_name='seta-job-types'
-)
-
-project_bound_router.register(
     r'resultset',
     push.PushViewSet,
     base_name='resultset',
@@ -133,9 +127,6 @@ default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         base_name='jobdetail')
 default_router.register(r'auth', auth.AuthViewSet,
                         base_name='auth')
-default_router.register(r'seta/failures-fixed-by-commit',
-                        seta.SetaFailuresFixedByCommit,
-                        base_name='seta_failures_fixed_by_commit')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/',

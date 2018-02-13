@@ -1,57 +1,7 @@
-import logging
-
-from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
-from treeherder.seta.runnable_jobs import RunnableJobsClient
 from treeherder.seta.settings import (SETA_SUPPORTED_TC_JOBTYPES,
                                       SETA_UNSUPPORTED_PLATFORMS,
                                       SETA_UNSUPPORTED_TESTTYPES)
-
-LOG = logging.getLogger(__name__)
-
-
-class Treecodes:
-    """This class contain all the mapping we need in SETA and makes it works"""
-
-    def __init__(self, repo_name='mozilla-inbound'):
-        # default to query all jobs on mozilla-inbound branch
-        self.jobtypes = []
-        self.jobnames = []
-        ignored_jobs = []
-
-        for job in RunnableJobsClient().query_runnable_jobs(repo_name)['results']:
-            # e.g. web-platform-tests-4
-            # e.g. Ubuntu VM 12.04 x64 mozilla-inbound opt test web-platform-tests-4 OR
-            #      test-linux64/opt-web-platform-tests-4
-            testtype = parse_testtype(
-                build_system_type=job['build_system_type'],
-                job_type_name=job['job_type_name'],
-                platform_option=job['platform_option'],
-                ref_data_name=job['ref_data_name']
-            )
-
-            if is_job_blacklisted(testtype):
-                ignored_jobs.append(job['ref_data_name'])
-                continue
-
-            self.jobtypes.append(
-                    unique_key(testtype=testtype,
-                               buildtype=job['platform_option'],
-                               platform=job['platform']))
-            self.jobnames.append({
-                'buildplatform': job['build_system_type'],
-                'buildtype': job['platform_option'],
-                'platform': job['platform'],
-                'ref_data_name': job['ref_data_name'],
-                'testtype': testtype,
-                })
-
-        for ref_data_name in sorted(ignored_jobs):
-            LOG.info('Ignoring {}'.format(ref_data_name))
-
-    def query_jobtypes(self):
-        """Query all available jobtypes and return it as list"""
-        return self.jobtypes
 
 
 def is_job_blacklisted(testtype):
