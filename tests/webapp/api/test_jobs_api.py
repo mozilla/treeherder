@@ -289,7 +289,6 @@ def test_job_detail_not_found(webapp, test_repository):
     assert resp.status_int == 404
 
 
-@pytest.mark.skipif(True, reason="Awaiting landing of Bug 1177519")
 def test_job_error_lines(webapp, eleven_jobs_stored, failure_lines, classified_failures):
     """
     test retrieving failure lines
@@ -305,7 +304,7 @@ def test_job_error_lines(webapp, eleven_jobs_stored, failure_lines, classified_f
     failures = resp.json
     assert isinstance(failures, list)
 
-    exp_failure_keys = ["id", "job_guid", "repository", "action", "line",
+    exp_failure_keys = ["id", "job_guid", "repository", "job_log", "action", "line",
                         "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
                         "best_classification", "best_is_verified", "classified_failures",
