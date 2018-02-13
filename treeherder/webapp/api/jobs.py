@@ -44,7 +44,6 @@ class JobFilter(django_filters.FilterSet):
     push_id__in = NumberInFilter(name='push_id', lookup_expr='in')
     job_guid = django_filters.CharFilter(name='guid')
     job_guid__in = CharInFilter(name='guid', lookup_expr='in')
-    job_coalesced_to_guid = django_filters.CharFilter(name='coalesced_to_guid')
     build_architecture = django_filters.CharFilter(
         name='build_platform__architecture')
     build_os = django_filters.CharFilter(
@@ -133,7 +132,6 @@ class JobsViewSet(viewsets.ViewSet):
         ('end_timestamp', 'end_time', to_timestamp),
         ('failure_classification_id', 'failure_classification_id', None),
         ('id', 'id', None),
-        ('job_coalesced_to_guid', 'coalesced_to_guid', None),
         ('job_group_description', 'job_group__description', None),
         ('job_group_id', 'job_group_id', None),
         ('job_group_name', 'job_group__name', None),

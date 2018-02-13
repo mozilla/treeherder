@@ -29,7 +29,6 @@
     "job_type_symbol",
     "reason",
     "job_group_description",
-    "job_coalesced_to_guid",
     "machine_platform_os",
     "start_timestamp",
     "build_architecture",
