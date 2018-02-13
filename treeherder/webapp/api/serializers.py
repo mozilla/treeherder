@@ -42,27 +42,6 @@ class RepositorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Product
-        fields = '__all__'
-
-
-class BuildPlatformSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.BuildPlatform
-        fields = '__all__'
-
-
-class MachinePlatformSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.MachinePlatform
-        fields = '__all__'
-
-
 class JobSerializer(serializers.ModelSerializer):
 
     def to_representation(self, job):
@@ -105,27 +84,6 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Job
-        fields = '__all__'
-
-
-class JobGroupSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.JobGroup
-        fields = '__all__'
-
-
-class JobTypeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.JobType
-        fields = '__all__'
-
-
-class MachineSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Machine
         fields = '__all__'
 
 

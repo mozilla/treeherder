@@ -10,27 +10,6 @@ from treeherder.webapp.api import serializers as th_serializers
 #####################
 
 
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata Product model"""
-    queryset = models.Product.objects.all()
-    serializer_class = th_serializers.ProductSerializer
-
-
-class BuildPlatformViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata BuildPlatform model"""
-    queryset = models.BuildPlatform.objects.all()
-    serializer_class = th_serializers.BuildPlatformSerializer
-
-
-class JobGroupViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata JobGroup model"""
-    queryset = models.JobGroup.objects.all()
-    serializer_class = th_serializers.JobGroupSerializer
-
-
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
@@ -38,20 +17,6 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         active_status='active').select_related(
             'repository_group')
     serializer_class = th_serializers.RepositorySerializer
-
-
-class MachinePlatformViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata MachinePlatform model"""
-    queryset = models.MachinePlatform.objects.all()
-    serializer_class = th_serializers.MachinePlatformSerializer
-
-
-class MachineViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata Machine model"""
-    queryset = models.Machine.objects.all()
-    serializer_class = th_serializers.MachineSerializer
 
 
 class OptionCollectionHashViewSet(viewsets.ViewSet):
@@ -67,13 +32,6 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
                         'options': [{'name': name} for
                                     name in option_names]})
         return Response(ret)
-
-
-class JobTypeViewSet(viewsets.ReadOnlyModelViewSet):
-
-    """ViewSet for the refdata JobType model"""
-    queryset = models.JobType.objects.all()
-    serializer_class = th_serializers.JobTypeSerializer
 
 
 class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
