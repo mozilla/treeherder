@@ -101,12 +101,6 @@ class ExtendedRouter(routers.DefaultRouter):
 
 # refdata endpoints:
 default_router = ExtendedRouter()
-default_router.register(r'product', refdata.ProductViewSet)
-default_router.register(r'machine', refdata.MachineViewSet)
-default_router.register(r'machineplatform', refdata.MachinePlatformViewSet)
-default_router.register(r'buildplatform', refdata.BuildPlatformViewSet)
-default_router.register(r'jobgroup', refdata.JobGroupViewSet)
-default_router.register(r'jobtype', refdata.JobTypeViewSet)
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
                         base_name='optioncollectionhash')
