@@ -78,6 +78,7 @@ treeherder.component("login", {
                         $timeout(() => ctrl.setLoggedIn(newUser), 0);
                     } else if (newUser && !newUser.email) {
                         // Show the user as logged out in all other opened tabs
+                        thNotify.record('Logging out all other Treeherder tabs', 'info');
                         $timeout(() => ctrl.setLoggedOut(), 0);
                     }
                 } else if (e.key === 'userSession') {
@@ -89,9 +90,11 @@ treeherder.component("login", {
             // Ask the back-end if a user is logged in on page load
             if (ctrl.userCanLogin) {
                 ThUserModel.get().then(async function (currentUser) {
-                    if (currentUser.email) {
+                    if (currentUser.email && localStorage.getItem('userSession')) {
+                        thNotify.record('User is authenticated in the back-end on page load', 'success');
                         ctrl.setLoggedIn(currentUser);
                     } else {
+                        thNotify.record('User is not authenticated in the back-end on page load', 'info');
                         ctrl.setLoggedOut();
                     }
                 });
@@ -112,6 +115,7 @@ treeherder.component("login", {
             ctrl.logout = function () {
                 $http.get(thUrl.getRootUrl("/auth/logout/"))
                     .then(function () {
+                        thNotify.record('Logout successful', 'success');
                         ctrl.setLoggedOut();
                     }, function (data) {
                         thNotify.send(`Logout failed: ${data.data}`, "danger", { sticky: true });
