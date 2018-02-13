@@ -168,6 +168,22 @@ treeherder.factory('thNotify', [
                 }
             },
 
+           /*
+            * send a message to the notification queue without displaying the notification box
+            * @severity can be one of success|info|warning|danger
+            */
+            record: function (message, severity) {
+                const notification = {
+                    message,
+                    severity,
+                    created: Date.now()
+                };
+                const storedNotifications = thNotify.storedNotifications;
+
+                storedNotifications.unshift(notification);
+                localStorageService.set('notifications', storedNotifications);
+            },
+
             /*
              * Delete the first non-sticky element from the notifications queue
              */
