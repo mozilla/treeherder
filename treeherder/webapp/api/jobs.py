@@ -328,36 +328,6 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
-    @detail_route(methods=['post'])
-    def update_state(self, request, project, pk=None):
-        """
-        Change the state of a job.
-        """
-        state = request.data.get('state', None)
-
-        # check that this state is valid
-        if state not in Job.STATES:
-            return Response(
-                {"message": ("'{0}' is not a valid state.  Must be "
-                             "one of: {1}".format(
-                                 state,
-                                 ", ".join(Job.STATES)
-                             ))},
-                status=HTTP_400_BAD_REQUEST,
-            )
-
-        if not pk:  # pragma nocover
-            return Response({"message": "job id required"}, status=HTTP_400_BAD_REQUEST)
-
-        try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
-            job.state = state
-            job.save()
-        except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
-        return Response({"message": "state updated to '{0}'".format(state)})
-
     @list_route(methods=['post'], permission_classes=[IsAuthenticated])
     def cancel(self, request, project):
         try:
