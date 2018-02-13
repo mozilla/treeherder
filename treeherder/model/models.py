@@ -423,9 +423,6 @@ class Job(models.Model):
     """
     This class represents a build or test job in Treeherder
     """
-    INCOMPLETE_STATES = ["running", "pending"]
-    STATES = INCOMPLETE_STATES + ["completed"]
-
     objects = JobManager()
 
     id = models.BigAutoField(primary_key=True)
