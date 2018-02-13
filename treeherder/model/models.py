@@ -105,17 +105,13 @@ class Push(models.Model):
     the changesets that were part of the push
     '''
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    # TODO: Remove revision_hash and make revision not null later (bug 1257602)
-    revision_hash = models.CharField(max_length=50, null=True)  # legacy
-    # revision can be null if revision_hash defined ^^
-    revision = models.CharField(max_length=40, null=True)
+    revision = models.CharField(max_length=40)
     author = models.CharField(max_length=150)
     time = models.DateTimeField()
 
     class Meta:
         db_table = 'push'
-        unique_together = [('repository', 'revision'),
-                           ('repository', 'revision_hash')]
+        unique_together = ('repository', 'revision')
 
     def __str__(self):
         return "{0} {1}".format(
