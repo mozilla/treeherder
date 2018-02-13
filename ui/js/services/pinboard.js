@@ -1,8 +1,8 @@
 treeherder.factory('thPinboard', [
-    'ThJobClassificationModel', '$rootScope', 'thEvents',
+    'ThJobClassificationModel', '$rootScope', 'thEvents', '$timeout',
     'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'thPinboardCountError',
     function (
-        ThJobClassificationModel, $rootScope, thEvents,
+        ThJobClassificationModel, $rootScope, thEvents, $timeout,
         ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore, thPinboardCountError) {
 
         var $log = new ThLog("thPinboard");
@@ -94,14 +94,18 @@ treeherder.factory('thPinboard', [
                 api.count.numPinnedJobs = _.size(pinnedJobs);
             },
 
-            addBug: function (bug, job) {
-                $log.debug("adding bug ", bug);
-                relatedBugs[bug.id] = bug;
-                api.count.numRelatedBugs = _.size(relatedBugs);
-                $log.debug("related bugs", relatedBugs);
-                if (job) {
-                    api.pinJob(job);
-                }
+            addBug: (bug, job) => {
+                // If this was invoked from ReactJS, then Angular's watch cycle
+                // won't be invoked and the UI won't update right away.  Use
+                // $timeout to kick it off.
+                $timeout(() => {
+                    relatedBugs[bug.id] = bug;
+                    api.count.numRelatedBugs = _.size(relatedBugs);
+
+                    if (job) {
+                        api.pinJob(job);
+                    }
+                });
 
             },
 
