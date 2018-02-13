@@ -89,9 +89,7 @@ treeherder.component("login", {
             // Ask the back-end if a user is logged in on page load
             if (ctrl.userCanLogin) {
                 ThUserModel.get().then(async function (currentUser) {
-                    const userSession = localStorage.getItem('userSession');
-
-                    if (currentUser.email && userSession) {
+                    if (currentUser.email) {
                         ctrl.setLoggedIn(currentUser);
                     } else {
                         ctrl.setLoggedOut();
