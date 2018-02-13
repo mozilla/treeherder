@@ -90,11 +90,14 @@ treeherder.component("login", {
             // Ask the back-end if a user is logged in on page load
             if (ctrl.userCanLogin) {
                 ThUserModel.get().then(async function (currentUser) {
-                    if (currentUser.email && localStorage.getItem('userSession')) {
+                    if (currentUser.email) {
                         thNotify.record('User is authenticated in the back-end on page load', 'success');
+                    }
+
+                    if (currentUser.email && localStorage.getItem('userSession')) {
                         ctrl.setLoggedIn(currentUser);
                     } else {
-                        thNotify.record('User is not authenticated in the back-end on page load', 'info');
+                        thNotify.record('User either is not authenticated in the back-end or there has been some race condition with localStorage', 'info');
                         ctrl.setLoggedOut();
                     }
                 });
