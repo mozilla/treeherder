@@ -138,7 +138,7 @@ class AuthBackend(object):
             session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
             expires_in = (session_expiry_in_ms - now_in_ms) / 1000
 
-            logger.debug("Updating session to expire in %d hours" % (expires_in / 3600))
+            logger.warn("Updating session to expire in %d hours" % (expires_in / 3600))
 
             request.session.set_expiry(expires_in)
 
