@@ -39,7 +39,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
     products_ref = set()
     pushes_ref = set()
     log_urls_ref = set()
-    superseded_job_guids = {}
+    superseded_job_guids = set()
     artifacts_ref = {}
 
     blobs = []
@@ -61,9 +61,6 @@ def do_job_ingestion(test_repository, job_data, sample_push,
         # Build data structures to confirm everything is stored
         # as expected
         if verify_data:
-
-            job_guid = blob['job']['job_guid']
-
             job = blob['job']
 
             build_platforms_ref.add(
@@ -97,8 +94,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
                 artifacts_ref[artifact_name] = job.get('artifact')
 
             superseded = blob.get('superseded', [])
-            if superseded:
-                superseded_job_guids[job_guid] = superseded
+            superseded_job_guids.update(superseded)
 
     # Store the modified json blobs
     store_job_data(test_repository, blobs)
@@ -183,24 +179,10 @@ def verify_log_urls(test_repository, log_urls_ref):
     assert log_urls_ref.issubset(log_urls)
 
 
-def verify_superseded(superseded_job_guids):
-
-    superseded_job_guid_list = superseded_job_guids.keys()
-
-    if superseded_job_guid_list:
-        superseded_guids = models.Job.objects.filter(
-            result='superseded',
-            coalesced_to_guid__in=superseded_job_guid_list).values_list(
-                'guid', 'coalesced_to_guid')
-        superseded_job_guids_stored = {}
-        for (guid, superseded_guid) in superseded_guids:
-            if superseded_guid not in superseded_job_guids_stored:
-                superseded_job_guids_stored[superseded_guid] = []
-            superseded_job_guids_stored[superseded_guid].append(
-                guid
-            )
-
-        assert superseded_job_guids_stored == superseded_job_guids
+def verify_superseded(expected_superseded_job_guids):
+    superseeded_guids = models.Job.objects.filter(
+        result='superseded').values_list('guid', flat=True)
+    assert set(superseeded_guids) == expected_superseded_job_guids
 
 
 def load_exp(filename):

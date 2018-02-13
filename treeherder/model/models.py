@@ -447,6 +447,7 @@ class Job(models.Model):
     project_specific_id = models.PositiveIntegerField(null=True)  # unused, see bug 1328985
     autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
 
+    # TODO: Remove coalesced_to_guid next time the jobs table is modified (bug 1402992)
     coalesced_to_guid = models.CharField(max_length=50, null=True,
                                          default=None)
     signature = models.ForeignKey(ReferenceDataSignatures, on_delete=models.CASCADE)

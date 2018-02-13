@@ -75,7 +75,6 @@ class JobSerializer(serializers.ModelSerializer):
             'end_timestamp': to_timestamp(job.end_time),
             'failure_classification_id': job.failure_classification_id,
             'id': job.id,
-            'job_coalesced_to_guid': job.coalesced_to_guid,
             'job_group_description': job.job_group.description,
             'job_group_id': job.job_group_id,
             'job_group_name': job.job_group.name,

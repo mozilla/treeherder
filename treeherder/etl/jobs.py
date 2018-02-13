@@ -480,12 +480,9 @@ def store_job_data(repository, data, lower_tier_signatures=None):
             # skip any jobs that hit errors in these stages.
             continue
 
-    # Update the coalesced_to_guid columns for any superseded job found.
-    # Also update state and result.
-    # TODO: Consider removing this in Bug 1402992.
+    # Update the result/state of any jobs that were superseded by those ingested above.
     if superseded_job_guid_placeholders:
         for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
                 result='superseded',
-                state='completed',
-                coalesced_to_guid=job_guid)
+                state='completed')

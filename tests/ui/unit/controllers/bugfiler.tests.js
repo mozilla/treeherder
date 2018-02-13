@@ -89,7 +89,6 @@ describe('BugFilerCtrl', function() {
           end_timestamp: 1491433995,
           failure_classification_id: 1,
           id: 89017089,
-          job_coalesced_to_guid: null,
           job_group_description: "",
           job_group_id: 257,
           job_group_name: "Mochitests executed by TaskCluster",
