@@ -105,10 +105,6 @@ djangorestframework==3.7.7 \
     --hash=sha256:1f6baf40ed456ed2af6bd1a4ff8bbc3503cebea16509993aea2b7085bc097766 \
     --hash=sha256:9f9e94e8d22b100ed3a43cee8c47a7ff7b185e778a1f2da9ec5c73fc4e081b87
 
-django-rest-swagger==2.1.2 \
-    --hash=sha256:ff889e2b339a9a57010dba7729d56471e05b77827f6dd36c0bcb983839882598 \
-    --hash=sha256:3471e6c21a3e97751fa6f7b81b66e916e40fa645cac36be1594c0efed810d247
-
 django-cors-headers==2.1.0 \
     --hash=sha256:4e02be61ffaaab5917f1fd7cc3c305c4fb7ccd0156a649c96f49bc0a09c5f572 \
     --hash=sha256:451bc37a514792c2b46c52362368f7985985933ecdbf1a85f82652579a5cbe01
@@ -129,7 +125,7 @@ futures==3.2.0; python_version < '3' \
 functools32==3.2.3-2; python_version < '3' \
     --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
 
-# Required by django-rest-swagger
+# Required by djangorestframework's API documentation
 coreapi==2.3.3 \
     --hash=sha256:bf39d118d6d3e171f10df9ede5666f63ad80bba9a29a8ec17726a66cf52ee6f3 \
     --hash=sha256:46145fcc1f7017c076a2ef684969b641d18a2991051fddec9458ad3f78ffc1cb
@@ -141,8 +137,6 @@ Jinja2==2.10 \
     --hash=sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4
 MarkupSafe==1.0 \
     --hash=sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665
-openapi-codec==1.3.2 \
-    --hash=sha256:1bce63289edf53c601ea3683120641407ff6b708803b8954c8a876fe778d2145
 
 # Required by coreapi
 itypes==1.1.0 --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073
@@ -184,7 +178,6 @@ python-dateutil==2.6.1 \
 
 requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
-# djangorestframework-filters doesn't yet support django-filter 1.x.
 django-filter==1.1.0 \
     --hash=sha256:ea204242ea83790e1512c9d0d8255002a652a6f4986e93cee664f28955ba0c22 \
     --hash=sha256:ec0ef1ba23ef95b1620f5d481334413700fb33f45cd76d56a63f4b0b1d76976a
