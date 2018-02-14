@@ -35,7 +35,6 @@ def test_push_list_basic(webapp, eleven_jobs_stored, test_repository):
         u'revision',
         u'revisions',
         u'revision_count',
-        u'revisions_uri',
         u'push_timestamp',
     ])
     for rs in results:

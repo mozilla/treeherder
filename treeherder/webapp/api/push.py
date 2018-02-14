@@ -7,10 +7,8 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from serializers import (CommitSerializer,
-                         PushSerializer)
-from treeherder.model.models import (Commit,
-                                     Job,
+from serializers import PushSerializer
+from treeherder.model.models import (Job,
                                      Push,
                                      Repository)
 from treeherder.model.tasks import publish_job_action
@@ -170,19 +168,6 @@ class PushViewSet(viewsets.ViewSet):
             serializer = PushSerializer(push)
             return Response(serializer.data)
         except Push.DoesNotExist:
-            return Response("No push with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
-
-    @detail_route()
-    def revisions(self, request, project, pk=None):
-        """
-        GET method for revisions of a push
-        """
-        try:
-            serializer = CommitSerializer(Commit.objects.filter(push_id=pk),
-                                          many=True)
-            return Response(serializer.data)
-        except Commit.DoesNotExist:
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
 

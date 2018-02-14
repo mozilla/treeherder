@@ -31,7 +31,6 @@ describe('Revision list component', () => {
         const push = {
             "id": 151371,
             "revision": "5a110ad242ead60e71d2186bae78b1fb766ad5ff",
-            "revisions_uri": "/api/project/mozilla-inbound/resultset/151371/revisions/",
             "revision_count": 3,
             "author": "ryanvm@gmail.com",
             "push_timestamp": 1481326280,

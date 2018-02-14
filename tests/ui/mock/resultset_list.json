@@ -13,7 +13,6 @@
       "revision_count": 1,
       "author": "john@doe.com",
       "comments": "Back out bug 1071880 for causing bug 1083952.",
-      "revisions_uri": "/api/project/mozilla-inbound/resultset/1/revisions/",
       "push_timestamp": 1424272815,
       "revisions": [
         {
@@ -31,7 +30,6 @@
       "revision_count": 1,
       "author": "john@doe.com",
       "comments": "Bug 1133254 - Dehandlify shape-updating object methods, allow setting multiple flags on an object at once, r=terrence.",
-      "revisions_uri": "/api/project/mozilla-inbound/resultset/2/revisions/",
       "push_timestamp": 1424272126,
       "revisions": [
         {
