@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 
 from treeherder.model import models
 from treeherder.webapp.api.utils import to_timestamp
@@ -222,11 +221,6 @@ class CommitSerializer(serializers.ModelSerializer):
 
 class PushSerializer(serializers.ModelSerializer):
 
-    def get_revisions_uri(self, obj):
-        return reverse("push-revisions",
-                       kwargs={"project": obj.repository.name,
-                               "pk": obj.id})
-
     def get_revisions(self, push):
         serializer = CommitSerializer(
             instance=push.commits.all().order_by('-id')[:20],
@@ -239,7 +233,6 @@ class PushSerializer(serializers.ModelSerializer):
     def get_push_timestamp(self, push):
         return to_timestamp(push.time)
 
-    revisions_uri = serializers.SerializerMethodField()
     revisions = serializers.SerializerMethodField()
     revision_count = serializers.SerializerMethodField()
     push_timestamp = serializers.SerializerMethodField()
@@ -248,6 +241,6 @@ class PushSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Push
-        fields = ['id', 'revision', 'author', 'revisions_uri',
+        fields = ['id', 'revision', 'author',
                   'revisions', 'revision_count', 'push_timestamp',
                   'repository_id']
