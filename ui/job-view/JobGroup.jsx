@@ -13,8 +13,9 @@ export default class JobGroup extends React.Component {
     this.thResultStatusInfo = this.props.$injector.get('thResultStatusInfo');
 
     // The group should be expanded initially if the global group state is expanded
+    const groupState = new URLSearchParams(location.hash.split('?')[1]).get('group_state');
     this.state = {
-      expanded: this.props.expanded || false,
+      expanded: this.props.expanded || groupState === 'expanded',
       showDuplicateJobs: false
     };
   }
