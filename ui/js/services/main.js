@@ -21,12 +21,7 @@ treeherder.factory('thUrl', [
                 return thUrl.getProjectUrl(uri, repoName);
             },
             getJobsUrl: function (repo, fromChange, toChange) {
-                return "index.html#/jobs?" + _.reduce({
-                    repo: repo, fromchange: fromChange, tochange: toChange
-                }, function (result, v, k) {
-                    if (result.length) result += '&';
-                    return result + k + '=' + v;
-                }, "");
+                return "index.html#/jobs?repo=" + repo + "&fromchange=" + fromChange + "&tochange=" + toChange;
             },
             getLogViewerUrl: function (job_id, line_number) {
                 var rv = "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
