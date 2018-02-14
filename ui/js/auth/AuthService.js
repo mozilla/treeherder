@@ -53,7 +53,6 @@ export default class AuthService {
         return this.resetRenewalTimer();
       }
     } catch (err) {
-      this.logout();
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
