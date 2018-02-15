@@ -1,11 +1,9 @@
 <div ng-class="['status', status]">&nbsp;</div>
 
 <div ng-if="line.verified">
-  <a ng-if="!line.verifiedIgnore"
-     class="badge badge-xs badge-primary"
-     title="This line is verified"
-     target="_blank"
-     ng-href="/failureviewer.html#/?classified_failure_id={{line.data.classifiedFailureId}}">Verified</a>
+  <span ng-if="!line.verifiedIgnore"
+        class="badge badge-xs badge-primary"
+        title="This line is verified">Verified</span>
 
   <span ng-if="line.verifiedIgnore"
         class="badge badge-xs badge-ignored"

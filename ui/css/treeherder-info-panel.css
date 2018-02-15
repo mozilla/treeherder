@@ -555,12 +555,8 @@ div.performance-panel {
 }
 
 /*
- * Failure Viewer
+ * Autoclassify Panel
  */
-
-.failure-line-detail {
-  padding-left: 6px;
-}
 
 .failure-line-message {
   display: flex;
@@ -592,10 +588,6 @@ div.performance-panel {
   white-space: pre-wrap;
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
-
-/*
- * Autoclassify Panel
- */
 
 th-autoclassify-panel {
   font-size: 11px;
