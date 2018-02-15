@@ -213,7 +213,8 @@ class Treeherder(Base):
         @property
         def is_open(self):
             return self.root.is_displayed() and \
-                not self.find_elements(*self._loading_locator)
+                not self.find_elements(*self._loading_locator) and \
+                self.job_details.result
 
         @property
         def job_details(self):
