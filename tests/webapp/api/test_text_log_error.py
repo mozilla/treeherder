@@ -165,7 +165,7 @@ def test_update_error_mark_job(test_job,
     note = JobNote.objects.get(job=test_job)
     assert note.failure_classification.id == 4
     assert note.user == test_user
-    job_bugs = BugJobMap.objects.filter(job=test_job).select_related('bug')
+    job_bugs = BugJobMap.objects.filter(job=test_job)
     assert job_bugs.count() == 1
     assert job_bugs[0].bug_id == 1234
 

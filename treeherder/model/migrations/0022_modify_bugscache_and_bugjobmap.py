@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bugjobmap',
             name='bug_id',
-            field=models.PositiveIntegerField(db_column='bug_id'),
+            field=models.PositiveIntegerField(db_index=True, db_column='bug_id'),
         ),
         migrations.RenameField(
             model_name='bugjobmap',
