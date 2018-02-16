@@ -39,7 +39,7 @@ export default class PushJobs extends React.Component {
   }
 
   componentDidMount() {
-    this.$rootScope.$on(
+    this.applyNewJobsUnlisten = this.$rootScope.$on(
       this.thEvents.applyNewJobs, (ev, appliedpushId) => {
         if (appliedpushId === this.pushId) {
           this.applyNewJobs();
@@ -53,46 +53,59 @@ export default class PushJobs extends React.Component {
       }
     );
 
-    this.$rootScope.$on(
+    this.globalFilterChangedUnlisten = this.$rootScope.$on(
       this.thEvents.globalFilterChanged, () => {
         this.filterJobs();
       }
     );
 
-    this.$rootScope.$on(
+    this.groupStateChangedUnlisten = this.$rootScope.$on(
       this.thEvents.groupStateChanged, () => {
         this.filterJobs();
       }
     );
 
-    this.$rootScope.$on(
+    this.jobsClassifiedUnlisten = this.$rootScope.$on(
       this.thEvents.jobsClassified, () => {
         this.filterJobs();
       }
     );
 
-    this.$rootScope.$on(
+    this.searchPageUnlisten = this.$rootScope.$on(
       this.thEvents.searchPage, () => {
         this.filterJobs();
       }
     );
 
-    this.$rootScope.$on(this.thEvents.showRunnableJobs, (ev, push) => {
-      if (this.props.push.id === push.id) {
+    this.showRunnableJobsUnlisten = this.$rootScope.$on(this.thEvents.showRunnableJobs, (ev, pushId) => {
+      const { push, repoName } = this.props;
+
+      if (push.id === pushId) {
         push.isRunnableVisible = true;
         this.setState({ isRunnableVisible: true });
-        this.ThResultSetStore.addRunnableJobs(this.$rootScope.repoName, push);
+        this.ThResultSetStore.addRunnableJobs(repoName, push);
       }
     });
 
-    this.$rootScope.$on(this.thEvents.deleteRunnableJobs, (ev, push) => {
-      if (this.props.push.id === push.id) {
+    this.deleteRunnableJobsUnlisten = this.$rootScope.$on(this.thEvents.deleteRunnableJobs, (ev, pushId) => {
+      const { push } = this.props;
+
+      if (push.id === pushId) {
         push.isRunnableVisible = false;
         this.setState({ isRunnableVisible: false });
-        store.dispatch(actions.pushes.setSelectedRunnableJobs(null));
         this.applyNewJobs();
       }
     });
+  }
+
+  componentWillUnmount() {
+    this.applyNewJobsUnlisten();
+    this.globalFilterChangedUnlisten();
+    this.groupStateChangedUnlisten();
+    this.jobsClassifiedUnlisten();
+    this.searchPageUnlisten();
+    this.showRunnableJobsUnlisten();
+    this.deleteRunnableJobsUnlisten();
   }
 
   onMouseDown(ev) {

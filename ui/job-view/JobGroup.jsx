@@ -22,20 +22,25 @@ export default class JobGroup extends React.Component {
   }
 
   componentWillMount() {
-    this.$rootScope.$on(
+    this.duplicateJobsVisibilityChangedUnlisten = this.$rootScope.$on(
       this.thEvents.duplicateJobsVisibilityChanged,
       () => {
         this.setState({ showDuplicateJobs: !this.state.showDuplicateJobs });
       }
     );
 
-    this.$rootScope.$on(
+    this.groupStateChangedUnlisten = this.$rootScope.$on(
       this.thEvents.groupStateChanged,
       (e, newState) => {
         this.setState({ expanded: newState === 'expanded' });
       }
     );
     this.toggleExpanded = this.toggleExpanded.bind(this);
+  }
+
+  componentWillUnmount() {
+    this.duplicateJobsVisibilityChangedUnlisten();
+    this.groupStateChangedUnlisten();
   }
 
   toggleExpanded() {
