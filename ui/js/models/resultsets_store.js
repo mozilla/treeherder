@@ -671,7 +671,7 @@ treeherder.factory('ThResultSetStore', [
 
                     revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
 
-                    resultsetAggregateId = thAggregateIds.getResultsetTableId(
+                    resultsetAggregateId = thAggregateIds.getPushTableId(
                         $rootScope.repoName, resultsetId, revision
                     );
 
@@ -887,11 +887,12 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].rsMap[resultsetId].rs_obj;
         };
 
-        var getSelectedRunnableJobs = function (repoName, resultsetId) {
-            if (!repositories[repoName].rsMap[resultsetId].selected_runnable_jobs) {
-                repositories[repoName].rsMap[resultsetId].selected_runnable_jobs = [];
+        var getSelectedRunnableJobs = function (repoName, pushId) {
             }
-            return repositories[repoName].rsMap[resultsetId].selected_runnable_jobs;
+            if (!repositories[repoName].rsMap[pushId].selected_runnable_jobs) {
+                repositories[repoName].rsMap[pushId].selected_runnable_jobs = [];
+            }
+            return repositories[repoName].rsMap[pushId].selected_runnable_jobs;
         };
 
         var getGeckoDecisionJob = function (repoName, resultsetId) {

@@ -9,7 +9,7 @@ from pages.treeherder import TreeherderPage
 def test_expanding_group_count(base_url, selenium):
     page = TreeherderPage(selenium, base_url).open()
     all_groups = list(itertools.chain.from_iterable(
-        r.job_groups for r in page.result_sets))
+        r.job_groups for r in page.pushes))
     group = next(g for g in all_groups if not g.expanded)
     jobs = group.jobs
     group.expand()

@@ -16,7 +16,7 @@ class TreeherderPage(Page):
     _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
     _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
     _quick_filter_locator = (By.ID, 'quick-filter')
-    _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
+    _pushes_locator = (By.CSS_SELECTOR, '.push:not(.row)')
     _unchecked_repos_links_locator = (By.CSS_SELECTOR, '#repoLabel + .dropdown-menu .dropdown-checkbox:not([checked]) + .dropdown-link')
     _unclassified_failure_count_locator = (By.ID, 'unclassified-failure-count')
     _unclassified_failure_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
@@ -31,12 +31,12 @@ class TreeherderPage(Page):
     @property
     def all_emails(self):
         return list(itertools.chain.from_iterable(
-            r.emails for r in self.result_sets))
+            r.emails for r in self.pushes))
 
     @property
     def all_jobs(self):
         return list(itertools.chain.from_iterable(
-            r.jobs for r in self.result_sets))
+            r.jobs for r in self.pushes))
 
     @property
     def info_panel(self):
@@ -52,8 +52,8 @@ class TreeherderPage(Page):
         return random_email_name.get_name
 
     @property
-    def result_sets(self):
-        return [self.ResultSet(self, el) for el in self.find_elements(*self._result_sets_locator)]
+    def pushes(self):
+        return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
     @property
     def search_term(self):
@@ -92,7 +92,7 @@ class TreeherderPage(Page):
             el = self.selenium.find_element(*self._quick_filter_locator)
             el.send_keys(term)
             el.send_keys(Keys.RETURN)
-            self.wait.until(lambda s: self.result_sets)
+            self.wait.until(lambda s: self.pushes)
         elif method == 'keyboard':
             self.find_element(By.CSS_SELECTOR, 'body').send_keys(
                 'f' + term + Keys.RETURN)
@@ -103,10 +103,10 @@ class TreeherderPage(Page):
         self.find_element(*self._unclassified_failure_filter_locator).click()
 
     def _get_next(self, count):
-        before = len(self.result_sets)
+        before = len(self.pushes)
         locator = getattr(self, '_get_next_{}_locator'.format(count))
         self.find_element(*locator).click()
-        self.wait.until(lambda s: len(self.result_sets) == before + count)
+        self.wait.until(lambda s: len(self.pushes) == before + count)
 
     def get_next_10(self):
         self._get_next(10)
@@ -145,8 +145,8 @@ class TreeherderPage(Page):
     class ResultSet(Region):
 
         _busted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-red')
-        _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
-        _email_locator = (By.CSS_SELECTOR, '.result-set-title-left > th-author > span > a')
+        _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
+        _email_locator = (By.CSS_SELECTOR, '.push-title-left > th-author > span > a')
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')

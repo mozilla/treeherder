@@ -22,8 +22,8 @@ export default class PushJobs extends React.Component {
     this.thJobFilters = $injector.get('thJobFilters');
 
     this.rsMap = null;
-    this.aggregateId = aggregateIds.getResultsetTableId(
     this.pushId = push.id;
+    this.aggregateId = aggregateIds.getPushTableId(
       repoName,
       this.pushId,
       push.revision

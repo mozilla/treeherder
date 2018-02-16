@@ -24,7 +24,7 @@ class Treeherder(Base):
     _quick_filter_locator = (By.ID, 'quick-filter')
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
     _repo_menu_locator = (By.ID, 'repoLabel')
-    _result_sets_locator = (By.CSS_SELECTOR, '.result-set:not(.row)')
+    _pushes_locator = (By.CSS_SELECTOR, '.push:not(.row)')
     _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar th-watched-repo')
 
     def wait_for_page_to_load(self):
@@ -38,7 +38,7 @@ class Treeherder(Base):
     @property
     def all_jobs(self):
         return list(itertools.chain.from_iterable(
-            r.jobs for r in self.result_sets))
+            r.jobs for r in self.pushes))
 
     @contextmanager
     def filters_menu(self):
@@ -52,8 +52,8 @@ class Treeherder(Base):
         return self.InfoPanel(self)
 
     @property
-    def result_sets(self):
-        return [self.ResultSet(self, el) for el in self.find_elements(*self._result_sets_locator)]
+    def pushes(self):
+        return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
     @property
     def quick_filter_term(self):
@@ -130,13 +130,13 @@ class Treeherder(Base):
 
     class ResultSet(Region):
 
-        _author_locator = (By.CSS_SELECTOR, '.result-set-title-left th-author a')
-        _datestamp_locator = (By.CSS_SELECTOR, '.result-set-title-left > span a')
+        _author_locator = (By.CSS_SELECTOR, '.push-title-left .push-author a')
+        _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
         _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
-        _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(9) > a')
-        _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(8) > a')
+        _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(6)')
+        _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(5)')
 
         @property
         def author(self):

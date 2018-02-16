@@ -10,7 +10,7 @@ def test_filter_by_email(base_url, selenium):
     page = TreeherderPage(selenium, base_url).open()
     page.select_random_email()
 
-    filtered_emails_name = page.result_sets[0].email_name
+    filtered_emails_name = page.pushes[0].email_name
     random_email_name = page.random_email_name
 
     assert filtered_emails_name == random_email_name
