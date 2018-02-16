@@ -18,25 +18,6 @@ class Migration(migrations.Migration):
             field=models.CharField(blank=True, default='', max_length=100),
         ),
         migrations.AlterField(
-            model_name='bugjobmap',
-            name='bug_id',
-            field=models.PositiveIntegerField(db_index=True, db_column='bug_id'),
-        ),
-        migrations.RenameField(
-            model_name='bugjobmap',
-            old_name='bug_id',
-            new_name='bug',
-        ),
-        migrations.AlterUniqueTogether(
-            name='bugjobmap',
-            unique_together=set([('job', 'bug')]),
-        ),
-        migrations.AlterField(
-            model_name='bugjobmap',
-            name='bug',
-            field=models.ForeignKey(on_delete=models.CASCADE, to='model.Bugscache', related_name='bugmap'),
-        ),
-        migrations.AlterField(
             model_name='push',
             name='time',
             field=models.DateTimeField(db_index=True),

@@ -60,7 +60,7 @@ def test_bug_job_map_list(webapp, test_repository, eleven_jobs_stored, test_user
     expected = list()
 
     for (i, job) in enumerate(jobs):
-        bjm = BugJobMap.objects.create(job=job, bug=bugs[i],
+        bjm = BugJobMap.objects.create(job=job, bug_id=bugs[i].id,
                                        user=test_user)
         expected.append({
             "job_id": job.id,
@@ -90,7 +90,7 @@ def test_bug_job_map_detail(webapp, eleven_jobs_stored, test_repository,
     expected = list()
 
     bjm = BugJobMap.objects.create(job=job,
-                                   bug=bug,
+                                   bug_id=bug.id,
                                    user=test_user)
 
     pk = "{0}-{1}".format(job.id, bug.id)
@@ -122,7 +122,7 @@ def test_bug_job_map_delete(webapp, eleven_jobs_stored, test_repository,
     bug = bugs[0]
 
     BugJobMap.objects.create(job=job,
-                             bug=bug,
+                             bug_id=bug.id,
                              user=test_user)
 
     client = APIClient()

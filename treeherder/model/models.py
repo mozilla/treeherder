@@ -689,13 +689,13 @@ class BugJobMap(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    bug = models.ForeignKey(Bugscache, on_delete=models.CASCADE, related_name='bugmap')
+    bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     class Meta:
         db_table = "bug_job_map"
-        unique_together = ('job', 'bug')
+        unique_together = ('job', 'bug_id')
 
     @property
     def who(self):

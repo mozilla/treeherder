@@ -130,7 +130,7 @@ def test_autoclassified_after_manual_classification(test_user,
     bug = bugs.first()
 
     BugJobMap.objects.create(job=test_job_2,
-                             bug=bug,
+                             bug_id=bug.id,
                              user=test_user)
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
