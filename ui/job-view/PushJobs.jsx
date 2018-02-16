@@ -9,22 +9,24 @@ import Platform from './Platform';
 export default class PushJobs extends React.Component {
   constructor(props) {
     super(props);
-    this.$rootScope = this.props.$injector.get('$rootScope');
-    this.$location = this.props.$injector.get('$location');
-    this.thEvents = this.props.$injector.get('thEvents');
-    this.ThResultSetStore = this.props.$injector.get('ThResultSetStore');
-    this.ThJobModel = this.props.$injector.get('ThJobModel');
-    this.thUrl = this.props.$injector.get('thUrl');
-    this.thJobFilters = this.props.$injector.get('thJobFilters');
     this.thResultStatus = this.props.$injector.get('thResultStatus');
     this.thResultStatusInfo = this.props.$injector.get('thResultStatusInfo');
+    const { $injector, push, repoName } = this.props;
+
+    this.$rootScope = $injector.get('$rootScope');
+    this.$location = $injector.get('$location');
+    this.thEvents = $injector.get('thEvents');
+    this.ThResultSetStore = $injector.get('ThResultSetStore');
+    this.ThJobModel = $injector.get('ThJobModel');
+    this.thUrl = $injector.get('thUrl');
+    this.thJobFilters = $injector.get('thJobFilters');
 
     this.rsMap = null;
-    this.pushId = this.props.push.id;
     this.aggregateId = aggregateIds.getResultsetTableId(
-      this.$rootScope.repoName,
+    this.pushId = push.id;
+      repoName,
       this.pushId,
-      this.props.push.revision
+      push.revision
     );
     this.state = { platforms: null, isRunnableVisible: false };
     this.onMouseDown = this.onMouseDown.bind(this);
@@ -112,7 +114,7 @@ export default class PushJobs extends React.Component {
 
   getIdForPlatform(platform) {
     return aggregateIds.getPlatformRowId(
-      this.$rootScope.repoName,
+      this.props.repoName,
       this.props.push.id,
       platform.name,
       platform.option
@@ -140,10 +142,11 @@ export default class PushJobs extends React.Component {
   applyNewJobs() {
     this.rsMap = this.ThResultSetStore.getResultSetsMap(this.$rootScope.repoName);
     if (!this.rsMap[this.pushId] || !this.rsMap[this.pushId].rs_obj.platforms) {
+    const { push } = this.props;
       return;
     }
 
-    const rsPlatforms = this.rsMap[this.pushId].rs_obj.platforms;
+    const rsPlatforms = push.platforms;
     const platforms = rsPlatforms.reduce((acc, platform) => {
       const thisPlatform = { ...platform };
       thisPlatform.id = this.getIdForPlatform(platform);
@@ -162,7 +165,7 @@ export default class PushJobs extends React.Component {
   handleLogViewerClick(jobId) {
     // Open logviewer in a new window
     this.ThJobModel.get(
-      this.$rootScope.repoName,
+      this.props.repoName,
       jobId
     ).then((data) => {
       if (data.logs.length > 0) {
@@ -203,6 +206,8 @@ export default class PushJobs extends React.Component {
 
   render() {
     const platforms = this.state.platforms || {};
+    const { $injector, repoName } = this.props;
+
     return (
       <table id={this.aggregateId} className="table-hover">
         <tbody onMouseDown={this.onMouseDown}>
@@ -210,7 +215,8 @@ export default class PushJobs extends React.Component {
           platforms[id].visible &&
           <Platform
             platform={platforms[id]}
-            $injector={this.props.$injector}
+            repoName={repoName}
+            $injector={$injector}
             key={id}
             ref={id}
             refOrder={i}

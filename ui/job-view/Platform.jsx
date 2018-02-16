@@ -13,12 +13,15 @@ const PlatformName = (props) => {
 
 export default class Platform extends React.Component {
   render() {
+    const { platform, $injector, repoName } = this.props;
+
     return (
-      <tr id={this.props.platform.id} key={this.props.platform.id}>
-        <PlatformName platform={this.props.platform} />
+      <tr id={platform.id} key={platform.id}>
+        <PlatformName platform={platform} />
         <JobsAndGroups
-          groups={this.props.platform.groups}
-          $injector={this.props.$injector}
+          groups={platform.groups}
+          repoName={repoName}
+          $injector={$injector}
         />
       </tr>
     );

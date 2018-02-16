@@ -6,12 +6,14 @@ const mapStateToProps = ({ pushes }) => pushes;
 class JobButtonComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.$rootScope = this.props.$injector.get('$rootScope');
-    this.thEvents = this.props.$injector.get('thEvents');
     this.thResultStatus = this.props.$injector.get('thResultStatus');
     this.thResultStatusInfo = this.props.$injector.get('thResultStatusInfo');
     this.ThJobModel = this.props.$injector.get('ThJobModel');
-    this.ThResultSetStore = this.props.$injector.get('ThResultSetStore');
+    const { $injector } = this.props;
+
+    this.$rootScope = $injector.get('$rootScope');
+    this.thEvents = $injector.get('thEvents');
+    this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.state = {
       failureClassificationId: null
@@ -92,8 +94,8 @@ class JobButtonComponent extends React.Component {
 }
 
 JobButtonComponent.propTypes = {
-  $injector: PropTypes.object.isRequired,
   job: PropTypes.object.isRequired,
+  $injector: PropTypes.object.isRequired,
   visible: PropTypes.bool.isRequired,
   hasGroup: PropTypes.bool.isRequired,
 };

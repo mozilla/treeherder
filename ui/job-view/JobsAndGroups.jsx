@@ -5,14 +5,17 @@ import JobGroup from './JobGroup';
 
 export default class JobsAndGroups extends React.Component {
   render() {
+    const { $injector, groups, repoName } = this.props;
+
     return (
       <td className="job-row">
-        {this.props.groups.map((group, i) => {
+        {groups.map((group, i) => {
           if (group.symbol !== '?') {
             return (
               group.visible && <JobGroup
                 group={group}
-                $injector={this.props.$injector}
+                repoName={repoName}
+                $injector={$injector}
                 refOrder={i}
                 key={group.mapKey}
                 ref={i}
@@ -24,7 +27,8 @@ export default class JobsAndGroups extends React.Component {
             group.jobs.map(job => (
               <JobButton
                 job={job}
-                $injector={this.props.$injector}
+                $injector={$injector}
+                repoName={repoName}
                 visible={job.visible}
                 key={job.id}
                 hasGroup={false}

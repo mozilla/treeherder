@@ -7,10 +7,11 @@ export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
 
-    this.$rootScope = this.props.$injector.get('$rootScope');
-    this.thEvents = this.props.$injector.get('thEvents');
     this.thResultStatus = this.props.$injector.get('thResultStatus');
     this.thResultStatusInfo = this.props.$injector.get('thResultStatusInfo');
+    const { $injector } = this.props;
+    this.$rootScope = $injector.get('$rootScope');
+    this.thEvents = $injector.get('thEvents');
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = new URLSearchParams(location.hash.split('?')[1]).get('group_state');
@@ -47,10 +48,10 @@ export default class JobGroup extends React.Component {
     const stateCounts = {};
     if (this.state.expanded) {
       // All buttons should be shown when the group is expanded
-      buttons = this.props.group.jobs;
+      buttons = jobs;
     } else {
-      const typeSymbolCounts = _.countBy(this.props.group.jobs, 'job_type_symbol');
-      this.props.group.jobs.forEach((job) => {
+      const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
+      jobs.forEach((job) => {
         if (!job.visible) return;
         const status = this.thResultStatus(job);
         let countInfo = this.thResultStatusInfo(status, job.failure_classification_id);
@@ -88,13 +89,14 @@ export default class JobGroup extends React.Component {
 
   render() {
     this.items = this.groupButtonsAndCounts();
+    const { group, $injector, repoName } = this.props;
 
     return (
       <span className="platform-group">
         <span
           className="disabled job-group"
-          title={this.props.group.name}
-          data-grkey={this.props.group.grkey}
+          title={group.name}
+          data-grkey={group.grkey}
         >
           <button
             className="btn group-symbol"
@@ -109,8 +111,10 @@ export default class JobGroup extends React.Component {
               {this.items.buttons.map((job, i) => (
                 <JobButton
                   job={job}
-                  $injector={this.props.$injector}
+                  $injector={$injector}
                   visible={job.visible}
+                  failureClassificationId={job.failure_classification_id}
+                  repoName={repoName}
                   hasGroup
                   key={job.id}
                   ref={i}

@@ -27,30 +27,29 @@ export const Initials = (props) => {
 export class Revision extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.userTokens = this.props.revision.author.split(/[<>]+/);
-    this.name = this.userTokens[0].trim().replace(/\w\S*/g,
-                                        txt => txt.charAt(0).toUpperCase() + txt.substr(1));
-    if (this.userTokens.length > 1) this.email = this.userTokens[1];
-    const comment = this.props.revision.comments.split('\n')[0];
-    const escapedComment = _.escape(comment);
-    this.escapedCommentHTML = { __html: this.props.linkifyBugsFilter(escapedComment) };
+    const { revision, linkifyBugsFilter } = this.props;
 
-    this.tags = '';
-    if (escapedComment.search('Backed out') >= 0 ||
-        escapedComment.search('Back out') >= 0) {
-        this.tags += 'backout';
-    }
+    const escapedComment = _.escape(revision.comments.split('\n')[0]);
+    this.userTokens = revision.author.split(/[<>]+/);
+    this.name = this.userTokens[0].trim().replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1));
+    this.escapedCommentHTML = { __html: linkifyBugsFilter(escapedComment) };
+    this.tags = escapedComment.search('Backed out') >= 0 || escapedComment.search('Back out') >= 0 ?
+        'backout' : '';
+    this.email = this.userTokens.length > 1 ? this.userTokens[1] : '';
   }
 
   render() {
+    const { revision, repo } = this.props;
+    const commitRevision = revision.revision;
+
     return (<li className="clearfix">
       <span className="revision" data-tags={this.tags}>
         <span className="revision-holder">
           <a
-            title={`Open revision ${this.props.revision.revision} on ${this.props.repo.url}`}
-            href={this.props.repo.getRevisionHref(this.props.revision.revision)}
+            title={`Open revision ${commitRevision} on ${repo.url}`}
+            href={repo.getRevisionHref(commitRevision)}
             data-ignore-job-clear-on-click
-          >{this.props.revision.revision.substring(0, 12)}
+          >{commitRevision.substring(0, 12)}
           </a>
         </span>
         <Initials title={`${this.name}: ${this.email}`}

@@ -806,11 +806,8 @@ treeherder.factory('ThResultSetStore', [
                     isInResultSetRange(repoName, data.results[i].push_timestamp) &&
                     repositories[repoName].rsMap[data.results[i].id] === undefined) {
 
-                    $log.debug("prepending resultset: ", data.results[i].id);
                     repositories[repoName].resultSets.push(data.results[i]);
                     added.push(data.results[i]);
-                } else {
-                    $log.debug("not prepending.  timestamp is older");
                 }
             }
 
@@ -820,7 +817,6 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var appendResultSets = function (repoName, data) {
-
             if (data.results.length > 0) {
 
                 $log.debug("appendResultSets", data.results);
