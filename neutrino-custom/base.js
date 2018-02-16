@@ -13,7 +13,6 @@ const DIST = path.join(CWD, 'dist');
 const INDEX_TEMPLATE = path.join(UI, 'index.html');
 const PERF_TEMPLATE = path.join(UI, 'perf.html');
 const LOGVIEWER_TEMPLATE = path.join(UI, 'logviewer.html');
-const FAILUREVIEWER_TEMPLATE = path.join(UI, 'failureviewer.html');
 const USERGUIDE_TEMPLATE = path.join(UI, 'userguide.html');
 
 const HTML_MINIFY_OPTIONS = {
@@ -74,10 +73,6 @@ module.exports = neutrino => {
     neutrino.config
         .entry('logviewer')
         .add(path.join(UI, 'entry-logviewer.js'))
-        .end();
-    neutrino.config
-        .entry('failureviewer')
-        .add(path.join(UI, 'entry-failureviewer.js'))
         .end();
     neutrino.config
         .entry('login')
@@ -154,16 +149,6 @@ module.exports = neutrino => {
             filename: 'perf.html',
             template: PERF_TEMPLATE,
             chunks: ['perf', 'vendor', 'manifest'],
-            minify: HTML_MINIFY_OPTIONS
-        });
-
-    neutrino.config
-        .plugin('html-failureviewer')
-        .use(HtmlPlugin, {
-            inject: 'body',
-            filename: 'failureviewer.html',
-            template: FAILUREVIEWER_TEMPLATE,
-            chunks: ['failureviewer', 'vendor', 'manifest'],
             minify: HTML_MINIFY_OPTIONS
         });
 
@@ -270,7 +255,6 @@ module.exports = neutrino => {
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),
             treeherderApp: require.resolve(path.join(UI, 'js/treeherder_app.js')),
             perf: require.resolve(path.join(UI, 'js/perf.js')),
-            failureViewerApp: require.resolve(path.join(UI, 'js/failureviewer.js')),
             logViewerApp: require.resolve(path.join(UI, 'js/logviewer.js')),
             userguideApp: require.resolve(path.join(UI, 'js/userguide.js'))
         });

@@ -72,7 +72,6 @@ require('./js/models/error.js');
 require('./js/models/matcher.js');
 require('./js/models/failure_lines.js');
 require('./js/models/text_log_errors.js');
-require('./js/models/classified_failure.js');
 require('./js/models/bug_suggestions.js');
 require('./js/models/text_log_step.js');
 require('./js/models/perf/series.js');
