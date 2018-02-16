@@ -30,6 +30,7 @@ export default class Platform extends React.Component {
 
 Platform.propTypes = {
   platform: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
 };
 

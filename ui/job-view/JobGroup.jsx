@@ -2,22 +2,21 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash';
 import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
+import { getBtnClass, getStatus } from "../helpers/jobHelper";
 
 export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
-
-    this.thResultStatus = this.props.$injector.get('thResultStatus');
-    this.thResultStatusInfo = this.props.$injector.get('thResultStatusInfo');
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
     this.thEvents = $injector.get('thEvents');
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = new URLSearchParams(location.hash.split('?')[1]).get('group_state');
+    const duplicateJobs = new URLSearchParams(location.hash.split('?')[1]).get('duplicate_jobs');
     this.state = {
-      expanded: this.props.expanded || groupState === 'expanded',
-      showDuplicateJobs: false
+      expanded: groupState === 'expanded',
+      showDuplicateJobs: duplicateJobs === 'visible',
     };
   }
 
@@ -47,7 +46,7 @@ export default class JobGroup extends React.Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
-  groupButtonsAndCounts() {
+  groupButtonsAndCounts(jobs) {
     let buttons = [];
     const counts = [];
     const stateCounts = {};
@@ -58,8 +57,11 @@ export default class JobGroup extends React.Component {
       const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         if (!job.visible) return;
-        const status = this.thResultStatus(job);
-        let countInfo = this.thResultStatusInfo(status, job.failure_classification_id);
+        const status = getStatus(job);
+        let countInfo = {
+          btnClass: getBtnClass(status, job.failure_classification_id),
+          countText: status
+        };
         if (['testfailed', 'busted', 'exception'].includes(status) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && this.state.showDuplicateJobs)) {
           // render the job itself, not a count
@@ -93,8 +95,8 @@ export default class JobGroup extends React.Component {
   }
 
   render() {
-    this.items = this.groupButtonsAndCounts();
     const { group, $injector, repoName } = this.props;
+    this.items = this.groupButtonsAndCounts(group.jobs);
 
     return (
       <span className="platform-group">
@@ -107,8 +109,8 @@ export default class JobGroup extends React.Component {
             className="btn group-symbol"
             data-ignore-job-clear-on-click
             onClick={this.toggleExpanded}
-          >{this.props.group.symbol}{this.props.group.tier &&
-            <span className="small text-muted">[tier {this.props.group.tier}]</span>
+          >{group.symbol}{group.tier &&
+            <span className="small text-muted">[tier {group.tier}]</span>
            }</button>
 
           <span className="group-content">
@@ -118,6 +120,7 @@ export default class JobGroup extends React.Component {
                   job={job}
                   $injector={$injector}
                   visible={job.visible}
+                  status={getStatus(job)}
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   hasGroup
@@ -148,6 +151,6 @@ export default class JobGroup extends React.Component {
 
 JobGroup.propTypes = {
     group: PropTypes.object.isRequired,
+    repoName: PropTypes.string.isRequired,
     $injector: PropTypes.object.isRequired,
-    expanded: PropTypes.bool,
 };

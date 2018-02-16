@@ -26,6 +26,18 @@ treeherderApp.controller('MainCtrl', [
         // Ensure user is available on initial page load
         $rootScope.user = {};
 
+        // set to the default repo if one not specified
+        const repoName = $location.search().repo;
+        if (repoName) {
+            $rootScope.repoName = repoName;
+        } else {
+            $rootScope.repoName = thDefaultRepo;
+            $location.search("repo", $rootScope.repoName);
+        }
+        $rootScope.revision = $location.search().revision;
+        ThResultSetStore.addRepository($rootScope.repoName);
+
+
         thClassificationTypes.load();
 
         var checkServerRevision = function () {
@@ -40,9 +52,6 @@ treeherderApp.controller('MainCtrl', [
                 });
             });
         };
-
-        // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
-        $scope.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
 
         $scope.updateButtonClick = function () {
             if (window.confirm("Reload the page to pick up Treeherder updates?")) {
@@ -138,21 +147,10 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.selectedJob = null;
 
             // Clear the selected job display style
-            $rootScope.$emit(thEvents.clearSelectedJob, $rootScope.selectedJob);
+            $rootScope.$emit(thEvents.clearSelectedJob);
 
             // Reset selected job to null to initialize nav position
             ThResultSetStore.setSelectedJob($rootScope.repoName);
-        };
-
-        // Clear the job if it occurs in a particular area
-        $scope.clearJobOnClick = function (event) {
-            var element = event.target;
-            // Suppress for various UI elements so selection is preserved
-            var ignoreClear = element.hasAttribute("data-ignore-job-clear-on-click");
-
-            if (!ignoreClear && !thPinboard.hasPinnedJobs()) {
-                $scope.closeJob();
-            }
         };
 
         $scope.repoModel = ThRepositoryModel;

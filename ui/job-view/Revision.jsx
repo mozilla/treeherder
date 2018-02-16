@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { parseAuthor } from '../helpers/revisionHelper';
 
 export const Initials = (props) => {
     const str = props.author || '';
@@ -30,16 +31,14 @@ export class Revision extends React.PureComponent {
     const { revision, linkifyBugsFilter } = this.props;
 
     const escapedComment = _.escape(revision.comments.split('\n')[0]);
-    this.userTokens = revision.author.split(/[<>]+/);
-    this.name = this.userTokens[0].trim().replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1));
     this.escapedCommentHTML = { __html: linkifyBugsFilter(escapedComment) };
     this.tags = escapedComment.search('Backed out') >= 0 || escapedComment.search('Back out') >= 0 ?
         'backout' : '';
-    this.email = this.userTokens.length > 1 ? this.userTokens[1] : '';
   }
 
   render() {
     const { revision, repo } = this.props;
+    const { name, email } = parseAuthor(revision.author);
     const commitRevision = revision.revision;
 
     return (<li className="clearfix">
@@ -52,8 +51,8 @@ export class Revision extends React.PureComponent {
           >{commitRevision.substring(0, 12)}
           </a>
         </span>
-        <Initials title={`${this.name}: ${this.email}`}
-                  author={this.name}
+        <Initials title={`${name}: ${email}`}
+                  author={name}
         />
         <span title={this.comment}>
           <span className="revision-comment">

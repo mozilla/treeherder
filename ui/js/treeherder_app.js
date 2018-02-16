@@ -32,15 +32,11 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
 
         $routeProvider
             .when('/jobs', {
-                controller: 'JobsCtrl',
-                templateUrl: 'partials/main/jobs.html',
                 // see controllers/filters.js ``skipNextSearchChangeReload`` for
                 // why we set this to false.
                 reloadOnSearch: false
             })
             .when('/jobs/:tree', {
-                controller: 'JobsCtrl',
-                templateUrl: 'partials/main/jobs.html',
                 reloadOnSearch: false
             })
             .otherwise({ redirectTo: '/jobs' });

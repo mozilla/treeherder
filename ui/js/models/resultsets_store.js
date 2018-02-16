@@ -348,9 +348,11 @@ treeherder.factory('ThResultSetStore', [
             });
         };
 
-        var deleteRunnableJobs = function (repoName, resultSet) {
-            repositories[repoName].rsMap[resultSet.id].selected_runnable_jobs = [];
-            resultSet.isRunnableVisible = false;
+        var deleteRunnableJobs = function (repoName, pushId) {
+            const push = repositories[repoName].rsMap[pushId];
+            push.selected_runnable_jobs = [];
+            push.rs_obj.isRunnableVisible = false;
+            $rootScope.$emit(thEvents.selectRunnableJob, []);
             $rootScope.$emit(thEvents.globalFilterChanged);
         };
 
@@ -814,6 +816,7 @@ treeherder.factory('ThResultSetStore', [
             mapResultSets(repoName, added);
 
             repositories[repoName].loadingStatus.prepending = false;
+            $rootScope.$emit(thEvents.pushesLoaded);
         };
 
         var appendResultSets = function (repoName, data) {
@@ -846,6 +849,7 @@ treeherder.factory('ThResultSetStore', [
             }
 
             repositories[repoName].loadingStatus.appending = false;
+            $rootScope.$emit(thEvents.pushesLoaded);
         };
 
         /**
@@ -879,15 +883,13 @@ treeherder.factory('ThResultSetStore', [
             return repositories[repoName].resultSets;
         };
 
-        var getResultSetsMap = function (repoName) {
-            return repositories[repoName].rsMap;
-        };
-
         var getResultSet = function (repoName, resultsetId) {
             return repositories[repoName].rsMap[resultsetId].rs_obj;
         };
 
         var getSelectedRunnableJobs = function (repoName, pushId) {
+            if (!repositories[repoName].rsMap[pushId]) {
+                return 0;
             }
             if (!repositories[repoName].rsMap[pushId].selected_runnable_jobs) {
                 repositories[repoName].rsMap[pushId].selected_runnable_jobs = [];
@@ -945,26 +947,13 @@ treeherder.factory('ThResultSetStore', [
             } else {
                 selectedRunnableJobs.splice(jobIndex, 1);
             }
+            $rootScope.$emit(thEvents.selectRunnableJob, selectedRunnableJobs, resultsetId);
             return selectedRunnableJobs;
-        };
-
-        var isRunnableJobSelected = function (repoName, resultsetId, buildername) {
-            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
-            return selectedRunnableJobs.indexOf(buildername) !== -1;
         };
 
         var getJobMap = function (repoName) {
             // this is a "watchable" for jobs
             return repositories[repoName].jobMap;
-        };
-        var getGroupMap = function (repoName) {
-            return repositories[repoName].grpMap;
-        };
-        var getLoadingStatus = function (repoName) {
-            return repositories[repoName].loadingStatus;
-        };
-        var isNotLoaded = function (repoName) {
-            return _.isEmpty(repositories[repoName].rsMap);
         };
 
         var fetchResultSets = function (repoName, count, keepFilters) {
@@ -1181,22 +1170,15 @@ treeherder.factory('ThResultSetStore', [
             fetchResultSets: fetchResultSets,
             getAllShownJobs: getAllShownJobs,
             getJobMap: getJobMap,
-            getGroupMap: getGroupMap,
-            getLoadingStatus: getLoadingStatus,
-            getPlatformKey: getPlatformKey,
             addRunnableJobs: addRunnableJobs,
-            isRunnableJobSelected: isRunnableJobSelected,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
-            getGeckoDecisionJob: getGeckoDecisionJob,
             getGeckoDecisionTaskId: getGeckoDecisionTaskId,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getResultSet: getResultSet,
             getResultSetsArray: getResultSetsArray,
-            getResultSetsMap: getResultSetsMap,
             getSelectedJob: getSelectedJob,
             getFilteredUnclassifiedFailureCount: getFilteredUnclassifiedFailureCount,
             getAllUnclassifiedFailureCount: getAllUnclassifiedFailureCount,
-            isNotLoaded: isNotLoaded,
             setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultResultSetCount: defaultResultSetCount,

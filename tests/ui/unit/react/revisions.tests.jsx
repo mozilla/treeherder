@@ -5,8 +5,6 @@ import {
   MoreRevisionsLink
 } from '../../../../ui/job-view/RevisionList';
 
-/*global describe, beforeEach, inject, it, expect*/
-
 describe('Revision list component', () => {
   let $injector, mockData;
   beforeEach(angular.mock.module('treeherder'));

@@ -44,7 +44,7 @@
   width: 100%;
 }
 
-.result-counts {
+.push-counts {
   flex: none;
   padding-right: 10px;
 }
@@ -112,8 +112,8 @@ th-action-button .btn-push {
   padding-left: 15px;
 }
 
-.result-set .cancel-all-jobs-confirm {
-  padding: 8px 34px 0 34px;
+.cancel-all-jobs-confirm-btn {
+  margin-left: 20px;
 }
 
 /*

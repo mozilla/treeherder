@@ -1,3 +1,5 @@
+import { getBtnClass } from '../../../helpers/jobHelper';
+
 treeherder.directive('thWatchedRepo', [
     'ThLog', 'ThRepositoryModel',
     function (ThLog, ThRepositoryModel) {
@@ -152,15 +154,12 @@ treeherder.directive('thRepoMenuItem',
         };
     });
 
-treeherder.directive('thResultStatusChicklet', [
-    'thResultStatusInfo', function (thResultStatusInfo) {
-        return {
-            restrict: "E",
-            link: function (scope) {
-                scope.chickletClass = thResultStatusInfo(scope.filterName).btnClass +
-                    "-filter-chicklet";
-            },
-            templateUrl: 'partials/main/thResultStatusChicklet.html'
-        };
-    }
-]);
+treeherder.directive('thResultStatusChicklet', function () {
+    return {
+        restrict: "E",
+        link: function (scope) {
+            scope.chickletClass = `${getBtnClass(scope.filterName)}-filter-chicklet`;
+        },
+        templateUrl: 'partials/main/thResultStatusChicklet.html'
+    };
+});

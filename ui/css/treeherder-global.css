@@ -85,6 +85,10 @@ input[type="checkbox"] {
   cursor: not-allowed;
 }
 
+.dropdown-item {
+  cursor: pointer;
+}
+
 /* For cases where the base Bootstrap 4 equivalent doesn't
    work, due to our special uses.*/
 .nav-dropdown-menu-right {

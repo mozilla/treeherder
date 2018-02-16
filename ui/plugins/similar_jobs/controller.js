@@ -1,12 +1,14 @@
+import { getBtnClass, getStatus } from "../../helpers/jobHelper";
+
 treeherder.controller('SimilarJobsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel', 'thResultStatusInfo',
+    '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel',
     'numberFilter', 'dateFilter', 'thClassificationTypes',
-    'thResultStatus', 'ThResultSetModel', 'thNotify',
+    'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
-        $scope, ThLog, ThJobModel, ThTextLogStepModel, thResultStatusInfo,
+        $scope, ThLog, ThJobModel, ThTextLogStepModel,
         numberFilter, dateFilter, thClassificationTypes,
-        thResultStatus, ThResultSetModel, thNotify,
+        ThResultSetModel, thNotify,
         thTabs) {
 
         var $log = new ThLog(this.constructor.name);
@@ -85,20 +87,14 @@ treeherder.controller('SimilarJobsPluginCtrl', [
 
         $scope.similar_jobs = [];
 
-        $scope.result_status_info = thResultStatusInfo;
-
         $scope.similar_jobs_filters = {
             machine_id: false,
             build_platform_id: true,
             option_collection_hash: true
         };
-        $scope.button_class = function (job) {
-            var resultState = job.result;
-            if (job.state !== "completed") {
-                resultState = job.state;
-            }
-            return thResultStatusInfo(resultState).btnClass;
-        };
+        $scope.button_class = job => (
+            getBtnClass(getStatus(job))
+        );
 
         // this is triggered by the show more link
         $scope.show_next = function () {
@@ -112,7 +108,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
             ThJobModel.get($scope.repoName, job.id)
             .then(function (job) {
                 $scope.similar_job_selected = job;
-                $scope.similar_job_selected.result_status = thResultStatus($scope.similar_job_selected);
+                $scope.similar_job_selected.result_status = getStatus($scope.similar_job_selected);
                 var duration = (
                     $scope.similar_job_selected.end_timestamp - $scope.similar_job_selected.start_timestamp
                  )/60;

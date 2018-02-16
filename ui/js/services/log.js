@@ -41,11 +41,11 @@ treeherder.factory('ThLog', [
 
 /**
  * You can use this to configure which debug lines you want to see in your
- * ``local.conf.js`` file.  You can see ONLY ``ResultSetCtrl`` lines by adding
+ * ``local.conf.js`` file.  You can see ONLY ``foo`` lines by adding
  * a line like:
  *
  *     ThLogConfigProvider.setWhitelist([
- *         'ResultSetCtrl'
+ *         'foo'
  *     ]);
  *
  * Note: even though this is called ThLogConfig, when you configure it, you must

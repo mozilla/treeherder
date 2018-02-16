@@ -198,6 +198,32 @@ treeherder.factory('Ajv', [
         return require('ajv');
     }]);
 
+// The Custom Actions modal is accessible from both the PushActionMenu and the
+// job-details-actionbar.  So leave this as Angular for now, till we
+// migrate job-details-actionbar to React.
+treeherder.factory('customPushActions', [
+    '$uibModal',
+    function ($uibModal) {
+        return {
+          open(repoName, pushId) {
+            $uibModal.open({
+              templateUrl: 'partials/main/tcjobactions.html',
+              controller: 'TCJobActionsCtrl',
+              size: 'lg',
+              resolve: {
+                job: () => null,
+                repoName: function () {
+                  return repoName;
+                },
+                resultsetId: function () {
+                  return pushId;
+                }
+              }
+            });
+          }
+        };
+    }]);
+
 treeherder.factory('jsonSchemaDefaults', [
     function () {
         return require('json-schema-defaults');

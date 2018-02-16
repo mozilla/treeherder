@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
+import { getStatus } from "../helpers/jobHelper";
 
 export default class JobsAndGroups extends React.Component {
   render() {
@@ -19,7 +20,6 @@ export default class JobsAndGroups extends React.Component {
                 refOrder={i}
                 key={group.mapKey}
                 ref={i}
-                expanded={this.props.expanded}
               />
             );
           }
@@ -30,8 +30,10 @@ export default class JobsAndGroups extends React.Component {
                 $injector={$injector}
                 repoName={repoName}
                 visible={job.visible}
-                key={job.id}
+                status={getStatus(job)}
+                failureClassificationId={job.failure_classification_id}
                 hasGroup={false}
+                key={job.id}
                 ref={i}
                 refOrder={i}
               />
@@ -45,5 +47,6 @@ export default class JobsAndGroups extends React.Component {
 
 JobsAndGroups.propTypes = {
   groups: PropTypes.array.isRequired,
+  repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
 };

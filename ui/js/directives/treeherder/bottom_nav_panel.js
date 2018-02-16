@@ -1,31 +1,31 @@
-treeherder.directive('thPinnedJob', [
-    'thResultStatusInfo', 'thResultStatus',
-    function (thResultStatusInfo, thResultStatus) {
+import { getBtnClass, getStatus } from "../../../helpers/jobHelper";
 
-        var getHoverText = function (job) {
-            var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
-            var status = thResultStatus(job);
-            return job.job_type_name + " - " + status + " - " + duration + "mins";
-        };
+treeherder.directive('thPinnedJob', function () {
 
-        return {
-            restrict: "E",
-            link: function (scope) {
-                var unbindWatcher = scope.$watch("job", function () {
-                    var resultState = thResultStatus(scope.job);
-                    scope.job.display = thResultStatusInfo(resultState, scope.job.failure_classification_id);
-                    scope.hoverText = getHoverText(scope.job);
+    var getHoverText = function (job) {
+        var duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
+        var status = getStatus(job);
+        return job.job_type_name + " - " + status + " - " + duration + "mins";
+    };
 
-                    if (scope.job.state === "completed") {
-                        //Remove watchers when a job has a completed status
-                        unbindWatcher();
-                    }
+    return {
+        restrict: "E",
+        link: function (scope) {
+            var unbindWatcher = scope.$watch("job", function () {
+                var resultState = getStatus(scope.job);
+                scope.job.btnClass = getBtnClass(resultState, scope.job.failure_classification_id);
+                scope.hoverText = getHoverText(scope.job);
 
-                }, true);
-            },
-            templateUrl: 'partials/main/thPinnedJob.html'
-        };
-    }]);
+                if (scope.job.state === "completed") {
+                    //Remove watchers when a job has a completed status
+                    unbindWatcher();
+                }
+
+            }, true);
+        },
+        templateUrl: 'partials/main/thPinnedJob.html'
+    };
+});
 
 treeherder.directive('thRelatedBugQueued', function () {
 

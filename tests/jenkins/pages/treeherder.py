@@ -146,7 +146,7 @@ class TreeherderPage(Page):
 
         _busted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-red')
         _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
-        _email_locator = (By.CSS_SELECTOR, '.push-title-left > th-author > span > a')
+        _email_locator = (By.CSS_SELECTOR, '.push-title-left > .push-author > span > a')
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
