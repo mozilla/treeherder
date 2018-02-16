@@ -2,14 +2,9 @@ REST API
 ========
 
 Treeherder provides a REST API which can be used to query for all the
-push, job, and performance data it stores internally. To allow
-inspection of this API, we use Swagger_, which provides a friendly
-browsable interface to Treeherder's API endpoints. After setting up a
-local instance of Treeherder, you can access Swagger at
-http://localhost:8000/docs/. You can also view it on
-our production instance at https://treeherder.mozilla.org/docs/.
-
-.. _Swagger: https://swagger.io/
+push, job, and performance data it stores internally. For a browsable
+interface, see:
+https://treeherder.mozilla.org/docs/
 
 
 .. _python-client:

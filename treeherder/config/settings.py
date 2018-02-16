@@ -114,7 +114,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd party apps
     'rest_framework',
-    'rest_framework_swagger',
     'hawkrest',
     'corsheaders',
     'django_filters',

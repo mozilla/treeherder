@@ -2,13 +2,13 @@ from django.conf import settings
 from django.conf.urls import (include,
                               url)
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework_swagger.views import get_swagger_view
+from rest_framework.documentation import include_docs_urls
 
 from treeherder.webapp.api import urls as api_urls
 
 urlpatterns = [
-   url(r'^api/', include(api_urls)),
-   url(r'^docs/', get_swagger_view(title='Treeherder API')),
+    url(r'^api/', include(api_urls)),
+    url(r'^docs/', include_docs_urls(title='REST API Docs')),
 ]
 
 if settings.DEBUG:
