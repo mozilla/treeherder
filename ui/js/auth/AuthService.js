@@ -53,6 +53,10 @@ export default class AuthService {
         return this.resetRenewalTimer();
       }
     } catch (err) {
+      // instance where a new scope was added and is now required in order to be logged in
+      if (err.error === 'consent_required') {
+        this.logout();
+      }
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
