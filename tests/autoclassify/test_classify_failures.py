@@ -122,14 +122,15 @@ def test_autoclassify_no_update_job_classification(test_job, test_job_2,
 def test_autoclassified_after_manual_classification(test_user,
                                                     test_job_2,
                                                     text_log_errors_failure_lines,
-                                                    failure_classifications):
+                                                    failure_classifications, bugs):
     register_detectors(ManualDetector, _TestFailureDetector)
 
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
+    bug = bugs.first()
 
     BugJobMap.objects.create(job=test_job_2,
-                             bug_id=1234,
+                             bug=bug,
                              user=test_user)
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,

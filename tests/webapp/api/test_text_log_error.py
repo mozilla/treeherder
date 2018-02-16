@@ -6,6 +6,7 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.model.models import (BugJobMap,
+                                     Bugscache,
                                      ClassifiedFailure,
                                      FailureLine,
                                      Job,
@@ -134,6 +135,7 @@ def test_update_error_mark_job(test_job,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
+    Bugscache.objects.create(id=1234, status="NEW", modified="2014-01-01 00:00:00", summary="test")
     classified_failures[1].bug_number = 1234
     classified_failures[1].save()
 

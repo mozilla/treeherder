@@ -1,5 +1,4 @@
 import json
-import random
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -14,18 +13,18 @@ from treeherder.model.models import (BugJobMap,
     (False, False),
     (False, True)])
 def test_create_bug_job_map(test_job, mock_message_broker,
-                            test_user, test_no_auth, test_duplicate_handling):
+                            test_user, test_no_auth, test_duplicate_handling, bugs):
     """
     test creating a single note via endpoint
     """
-
+    bug = bugs[0]
     client = APIClient()
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
     submit_obj = {
         u"job_id": test_job.id,
-        u"bug_id": 1L,
+        u"bug_id": bug.id,
         u"type": u"manual"
     }
 
@@ -48,25 +47,24 @@ def test_create_bug_job_map(test_job, mock_message_broker,
         bug_job_map = BugJobMap.objects.all()[0]
 
         assert bug_job_map.job_id == submit_obj['job_id']
-        assert bug_job_map.bug_id == 1L
+        assert bug_job_map.bug_id == submit_obj['bug_id']
         assert bug_job_map.user == test_user
 
 
-def test_bug_job_map_list(webapp, test_repository, eleven_jobs_stored, test_user):
+def test_bug_job_map_list(webapp, test_repository, eleven_jobs_stored, test_user, bugs):
     """
     test retrieving a list of bug_job_map
     """
     jobs = Job.objects.all()[:10]
-    bugs = [random.randint(0, 100) for i in range(0, len(jobs))]
 
     expected = list()
 
     for (i, job) in enumerate(jobs):
-        bjm = BugJobMap.objects.create(job=job, bug_id=bugs[i],
+        bjm = BugJobMap.objects.create(job=job, bug=bugs[i],
                                        user=test_user)
         expected.append({
             "job_id": job.id,
-            "bug_id": bugs[i],
+            "bug_id": bugs[i].id,
             "created": bjm.created.isoformat(),
             "who": test_user.email
         })
@@ -83,20 +81,19 @@ def test_bug_job_map_list(webapp, test_repository, eleven_jobs_stored, test_user
 
 
 def test_bug_job_map_detail(webapp, eleven_jobs_stored, test_repository,
-                            test_user):
+                            test_user, bugs):
     """
     test retrieving a list of bug_job_map
     """
     job = Job.objects.all()[0]
-    bug_id = random.randint(0, 100)
-
+    bug = bugs[0]
     expected = list()
 
     bjm = BugJobMap.objects.create(job=job,
-                                   bug_id=bug_id,
+                                   bug=bug,
                                    user=test_user)
 
-    pk = "{0}-{1}".format(job.id, bug_id)
+    pk = "{0}-{1}".format(job.id, bug.id)
 
     resp = webapp.get(
         reverse("bug-job-map-detail", kwargs={
@@ -107,7 +104,7 @@ def test_bug_job_map_detail(webapp, eleven_jobs_stored, test_repository,
 
     expected = {
         "job_id": job.id,
-        "bug_id": bug_id,
+        "bug_id": bug.id,
         "created": bjm.created.isoformat(),
         "who": test_user.email
     }
@@ -117,22 +114,22 @@ def test_bug_job_map_detail(webapp, eleven_jobs_stored, test_repository,
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
 def test_bug_job_map_delete(webapp, eleven_jobs_stored, test_repository,
-                            test_user, test_no_auth):
+                            test_user, test_no_auth, bugs):
     """
     test deleting a bug_job_map object
     """
     job = Job.objects.all()[0]
-    bug_id = random.randint(0, 100)
+    bug = bugs[0]
 
     BugJobMap.objects.create(job=job,
-                             bug_id=bug_id,
+                             bug=bug,
                              user=test_user)
 
     client = APIClient()
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    pk = "{0}-{1}".format(job.id, bug_id)
+    pk = "{0}-{1}".format(job.id, bug.id)
 
     resp = client.delete(
         reverse("bug-job-map-detail", kwargs={

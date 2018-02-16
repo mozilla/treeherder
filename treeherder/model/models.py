@@ -107,7 +107,7 @@ class Push(models.Model):
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     revision = models.CharField(max_length=40)
     author = models.CharField(max_length=150)
-    time = models.DateTimeField()
+    time = models.DateTimeField(db_index=True)
 
     class Meta:
         db_table = 'push'
@@ -186,6 +186,7 @@ class Bugscache(models.Model):
     keywords = models.TextField(blank=True)
     os = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField()
+    whiteboard = models.CharField(max_length=100, blank=True, default='')
 
     class Meta:
         db_table = 'bugscache'
@@ -688,13 +689,13 @@ class BugJobMap(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    bug_id = models.PositiveIntegerField(db_index=True)
+    bug = models.ForeignKey(Bugscache, on_delete=models.CASCADE, related_name='bugmap')
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     class Meta:
         db_table = "bug_job_map"
-        unique_together = ('job', 'bug_id')
+        unique_together = ('job', 'bug')
 
     @property
     def who(self):
