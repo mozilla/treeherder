@@ -7,7 +7,7 @@ export const webAuth = new WebAuth({
   responseType: 'id_token token',
   audience: 'login.taskcluster.net',
   redirectUri: `${location.protocol}//${location.host}/login.html`,
-  scope: 'full-user-credentials openid profile email'
+  scope: 'taskcluster-credentials openid profile email'
 });
 
 export const userSessionFromAuthResult = (authResult) => {
