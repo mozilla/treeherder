@@ -13,7 +13,7 @@ const PlatformName = (props) => {
 
 export default class Platform extends React.Component {
   render() {
-    const { platform, $injector, repoName } = this.props;
+    const { platform, $injector, repoName, filterPlatformCb } = this.props;
 
     return (
       <tr id={platform.id} key={platform.id}>
@@ -22,6 +22,8 @@ export default class Platform extends React.Component {
           groups={platform.groups}
           repoName={repoName}
           $injector={$injector}
+          filterPlatformCb={filterPlatformCb}
+          platform={platform}
         />
       </tr>
     );

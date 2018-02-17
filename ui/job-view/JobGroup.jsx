@@ -96,7 +96,7 @@ export default class JobGroup extends React.Component {
   }
 
   render() {
-    const { group, $injector, repoName } = this.props;
+    const { group, $injector, repoName, filterPlatformCb, platform } = this.props;
     this.items = this.groupButtonsAndCounts(group.jobs);
 
     return (
@@ -124,6 +124,8 @@ export default class JobGroup extends React.Component {
                   status={getStatus(job)}
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
+                  filterPlatformCb={filterPlatformCb}
+                  platform={platform}
                   hasGroup
                   key={job.id}
                   ref={i}

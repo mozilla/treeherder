@@ -6,7 +6,7 @@ import { getStatus } from "../helpers/jobHelper";
 
 export default class JobsAndGroups extends React.Component {
   render() {
-    const { $injector, groups, repoName } = this.props;
+    const { $injector, groups, repoName, platform, filterPlatformCb } = this.props;
 
     return (
       <td className="job-row">
@@ -17,6 +17,8 @@ export default class JobsAndGroups extends React.Component {
                 group={group}
                 repoName={repoName}
                 $injector={$injector}
+                filterPlatformCb={filterPlatformCb}
+                platform={platform}
                 refOrder={i}
                 key={group.mapKey}
                 ref={i}
@@ -32,6 +34,8 @@ export default class JobsAndGroups extends React.Component {
                 visible={job.visible}
                 status={getStatus(job)}
                 failureClassificationId={job.failure_classification_id}
+                filterPlatformCb={filterPlatformCb}
+                platform={platform}
                 hasGroup={false}
                 key={job.id}
                 ref={i}
