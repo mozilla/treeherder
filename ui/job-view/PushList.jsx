@@ -1,6 +1,11 @@
 import React from 'react';
 import Push from './Push';
-import { findInstance, findSelectedInstance, scrollToElement } from '../helpers/jobHelper';
+import {
+  findInstance,
+  findSelectedInstance,
+  findJobInstance,
+  scrollToElement
+} from '../helpers/jobHelper';
 import PushLoadErrors from './PushLoadErrors';
 
 export default class PushList extends React.Component {
@@ -82,6 +87,15 @@ export default class PushList extends React.Component {
         }
       }
     );
+
+    this.jobsClassifiedUnlisten = this.$rootScope.$on(
+      this.thEvents.jobsClassified, (ev, { jobs }) => {
+        Object.values(jobs).forEach((job) => {
+          findJobInstance(job.id).props.job.failure_classification_id = job.failure_classification_id;
+        });
+        this.$rootScope.$emit(this.thEvents.globalFilterChanged);
+      }
+    );
   }
 
   componentWillUnmount() {
@@ -91,6 +105,7 @@ export default class PushList extends React.Component {
     this.clearSelectedJobUnlisten();
     this.changeSelectionUnlisten();
     this.jobsLoadedUnlisten();
+    this.jobsClassifiedUnlisten();
   }
 
   getNextPushes(count, keepFilters) {
