@@ -134,12 +134,12 @@ def test_update_failure_line_mark_job(test_repository, test_job,
     client = APIClient()
     client.force_authenticate(user=test_user)
 
-    Bugscache.objects.create(id=1234,
-                             status="NEW",
-                             modified="2014-01-01 00:00:00",
-                             summary="test")
+    bug = Bugscache.objects.create(id=1234,
+                                   status="NEW",
+                                   modified="2014-01-01 00:00:00",
+                                   summary="test")
 
-    classified_failures[1].bug_number = 1234
+    classified_failures[1].bug_number = bug.id
     classified_failures[1].save()
 
     for text_log_error, failure_line in zip(text_log_errors, failure_lines):
@@ -171,7 +171,7 @@ def test_update_failure_line_mark_job(test_repository, test_job,
     assert note.user == test_user
     job_bugs = BugJobMap.objects.filter(job=test_job)
     assert job_bugs.count() == 1
-    assert job_bugs[0].bug_id == 1234
+    assert job_bugs[0].bug_id == bug.id
 
 
 def test_update_failure_line_mark_job_with_human_note(test_job,
