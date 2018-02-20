@@ -5,22 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-def set_perfstrip_threshold(apps, schema_editor):
-    PerformanceSignature = apps.get_model('perf', 'PerformanceSignature')
-    for signature in PerformanceSignature.objects.all():
-        if signature.suite == 'Strings' and 'PerfStrip' in signature.test:
-            signature.alert_threshold = 8
-            signature.save()
-
-
-def unset_perfstrip_theshold(apps, schema_editor):
-    PerformanceSignature = apps.get_model('perf', 'PerformanceSignature')
-    for signature in PerformanceSignature.objects.all():
-        if signature.suite == 'Strings' and 'PerfStrip' in signature.test:
-            signature.alert_threshold = None
-            signature.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -28,6 +12,29 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(set_perfstrip_threshold,
-                             reverse_code=unset_perfstrip_theshold)
+        migrations.RunSQL('''
+            UPDATE performance_signature
+            SET alert_threshold = 8
+            WHERE
+                suite LIKE "String" AND
+                test LIKE "PerfStrip%" AND
+                framework_id = (
+                    SELECT id
+                    FROM performance_framework
+                    WHERE name LIKE "platform_microbench"
+                    LIMIT 1
+                )''',
+            reverse_sql='''
+            UPDATE performance_signature
+            SET alert_threshold = NULL
+            WHERE
+                suite LIKE "String" AND
+                test LIKE "PerfStrip%" AND
+                framework_id = (
+                    SELECT id
+                    FROM performance_framework
+                    WHERE name LIKE "platform_microbench"
+                    LIMIT 1
+                )'''
+        )
     ]
