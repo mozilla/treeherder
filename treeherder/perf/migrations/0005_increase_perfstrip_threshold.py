@@ -13,28 +13,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL('''
-            UPDATE performance_signature
-            SET alert_threshold = 8
-            WHERE
-                suite LIKE "String" AND
-                test LIKE "PerfStrip%" AND
-                framework_id = (
-                    SELECT id
-                    FROM performance_framework
-                    WHERE name LIKE "platform_microbench"
-                    LIMIT 1
-                )''',
-            reverse_sql='''
-            UPDATE performance_signature
-            SET alert_threshold = NULL
-            WHERE
-                suite LIKE "String" AND
-                test LIKE "PerfStrip%" AND
-                framework_id = (
-                    SELECT id
-                    FROM performance_framework
-                    WHERE name LIKE "platform_microbench"
-                    LIMIT 1
-                )'''
-        )
+        UPDATE performance_signature
+        SET alert_threshold = 8
+        WHERE
+            suite LIKE "String" AND
+            test LIKE "PerfStrip%" AND
+            framework_id = (
+                SELECT id
+                FROM performance_framework
+                WHERE name LIKE "platform_microbench"
+                LIMIT 1
+            )''', reverse_sql='''
+        UPDATE performance_signature
+        SET alert_threshold = NULL
+        WHERE
+            suite LIKE "String" AND
+            test LIKE "PerfStrip%" AND
+            framework_id = (
+                SELECT id
+                FROM performance_framework
+                WHERE name LIKE "platform_microbench"
+                LIMIT 1
+            )''')
     ]
