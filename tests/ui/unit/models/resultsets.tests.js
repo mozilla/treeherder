@@ -38,10 +38,10 @@ describe('ThResultSetStore', function(){
         );
 
         $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&full=true').respond(
-            getJSONFixture('resultset_list.json')
+            getJSONFixture('push_list.json')
         );
 
-        
+
         $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=1&return_type=list').respond(
             getJSONFixture('job_list/job_1.json')
         );

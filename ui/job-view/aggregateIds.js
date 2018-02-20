@@ -1,20 +1,17 @@
-export const escape = function (id) {
-  return id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
-};
+export const escape = id => (
+  id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-')
+);
 
-export const getPlatformRowId = function (repoName, resultsetId, platformName, platformOptions) {
+export const getPlatformRowId = (repoName, pushId, platformName, platformOptions) => (
   // ensure there are no invalid characters in the id (like spaces, etc)
-  return escape(repoName +
-    resultsetId +
-    platformName +
-    platformOptions);
-};
+  escape(repoName + pushId + platformName + platformOptions)
+);
 
-export const getResultsetTableId = function (repoName, resultsetId, revision) {
-  return escape(repoName + resultsetId + revision);
-};
+export const getPushTableId = (repoName, pushId, revision) => (
+  escape(repoName + pushId + revision)
+);
 
-export const getGroupMapKey = function (result_set_id, grSymbol, grTier, plName, plOpt) {
+export const getGroupMapKey = (pushId, grSymbol, grTier, plName, plOpt) => (
   //Build string key for groupMap entries
-  return escape(result_set_id + grSymbol + grTier + plName + plOpt);
-};
+  escape(pushId + grSymbol + grTier + plName + plOpt)
+);

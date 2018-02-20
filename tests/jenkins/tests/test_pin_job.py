@@ -39,6 +39,6 @@ def test_clear_pinboard(base_url, selenium):
 def test_pin_all_jobs(base_url, selenium):
     """Open treeherder page, pin all jobs, confirm no more than 500 pins in pinboard"""
     page = TreeherderPage(selenium, base_url).open()
-    result_set = next(r for r in page.result_sets if len(r.jobs) > 1)
+    result_set = next(r for r in page.pushes if len(r.jobs) > 1)
     result_set.pin_all_jobs()
     assert len(result_set.jobs) <= len(page.pinboard.jobs) <= 500

@@ -16,7 +16,7 @@ module.exports = neutrino => {
         .loader('eslint', props => merge(props, {
             options: {
                 plugins: ['react'],
-                envs: ['browser', 'es6', 'commonjs'],
+                envs: ['browser', 'es6', 'commonjs', 'jasmine'],
                 baseConfig: {
                     extends: ['airbnb']
                 },

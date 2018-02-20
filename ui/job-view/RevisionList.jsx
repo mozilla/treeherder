@@ -9,21 +9,23 @@ export class RevisionList extends React.PureComponent {
   }
 
   render() {
+    const { push, repo } = this.props;
+
     return (
       <span className="revision-list col-5">
         <ul className="list-unstyled">
-          {this.props.push.revisions.map((revision, i) =>
+          {push.revisions.map((revision, i) =>
             (<Revision
               linkifyBugsFilter={this.linkifyBugsFilter}
               revision={revision}
-              repo={this.props.repo}
+              repo={repo}
               key={i}
             />)
           )}
           {this.hasMore &&
           <MoreRevisionsLink
             key="more"
-            href={this.props.repo.getPushLogHref(this.props.push.revision)}
+            href={repo.getPushLogHref(push.revision)}
           />
           }
         </ul>
@@ -43,9 +45,7 @@ export const MoreRevisionsLink = props => (
       <a href={props.href}
          data-ignore-job-clear-on-click
          target="_blank"
-      >{`\u2026and more`}
-      <i className="fa fa-external-link-square" />
-      </a>
+      >{`\u2026and more`}<i className="fa fa-external-link-square" /></a>
     </li>
 );
 

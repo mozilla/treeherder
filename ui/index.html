@@ -25,10 +25,15 @@
             </div>
             <ng-include src="'partials/main/thTreeherderUpdateBar.html'"></ng-include>
             <ng-include src="'partials/main/thActiveFiltersBar.html'"></ng-include>
-            <div id="th-global-content" class="th-global-content"
-                 ng-click="clearJobOnClick($event)">
+            <div id="th-global-content" class="th-global-content">
                 <span class="th-view-content" ng-cloak>
-                    <ng-view></ng-view>
+                    <push-list
+                      user="user"
+                      repoName="repoName"
+                      revision="revision"
+                      currentRepo="currentRepo"
+                      watchDepth="reference"
+                    />
                 </span>
             </div>
             <div ng-controller="PluginCtrl"

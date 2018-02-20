@@ -25,17 +25,6 @@ treeherder.provider('thResultStatusList', function () {
     };
 });
 
-treeherder.provider('thResultStatus', function () {
-    this.$get = function () {
-        return function (job) {
-            if (job.state === "completed") {
-                return job.result;
-            }
-            return job.state;
-        };
-    };
-});
-
 treeherder.provider('thResultStatusObject', function () {
     var getResultStatusObject = function () {
         return {
@@ -49,95 +38,6 @@ treeherder.provider('thResultStatusObject', function () {
         return {
             getResultStatusObject: getResultStatusObject
         };
-    };
-});
-
-treeherder.provider('thResultStatusInfo', function () {
-    this.$get = function () {
-        return function (resultState, failure_classification_id) {
-            // default if there is no match, used for pending
-            var resultStatusInfo = {
-                btnClass: "btn-default"
-            };
-
-            switch (resultState) {
-                case "busted":
-                case "failures":
-                    resultStatusInfo = {
-                        btnClass: "btn-red",
-                        countText: "busted"
-                    };
-                    break;
-                case "exception":
-                    resultStatusInfo = {
-                        btnClass: "btn-purple",
-                        countText: "exception"
-                    };
-                    break;
-                case "testfailed":
-                    resultStatusInfo = {
-                        btnClass: "btn-orange",
-                        countText: "failed"
-                    };
-                    break;
-                case "unknown":
-                    resultStatusInfo = {
-                        btnClass: "btn-yellow",
-                        countText: "unknown"
-                    };
-                    break;
-                case "usercancel":
-                    resultStatusInfo = {
-                        btnClass: "btn-pink",
-                        countText: "cancel"
-                    };
-                    break;
-                case "retry":
-                    resultStatusInfo = {
-                        btnClass: "btn-dkblue",
-                        countText: "retry"
-                    };
-                    break;
-                case "success":
-                    resultStatusInfo = {
-                        btnClass: "btn-green",
-                        countText: "success"
-                    };
-                    break;
-                case "running":
-                case "in progress":
-                    resultStatusInfo = {
-                        btnClass: "btn-dkgray",
-                        countText: "running"
-                    };
-                    break;
-                case "pending":
-                    resultStatusInfo = {
-                        btnClass: "btn-ltgray",
-                        countText: "pending"
-                    };
-                    break;
-                case "superseded":
-                    resultStatusInfo = {
-                        btnClass: "btn-ltblue",
-                        countText: "superseded"
-                    };
-                    break;
-            }
-
-            // handle if a job is classified
-            var classificationId = parseInt(failure_classification_id, 10);
-            if (classificationId > 1) {
-                resultStatusInfo.btnClass += "-classified";
-                // autoclassification-only case
-                if (classificationId === 7) {
-                    resultStatusInfo.btnClass += " autoclassified";
-                }
-                resultStatusInfo.countText = "classified " + resultStatusInfo.countText;
-            }
-            return resultStatusInfo;
-        };
-
     };
 });
 
@@ -182,6 +82,9 @@ treeherder.provider('thEvents', function () {
 
             // after loading a group of jobs
             jobsLoaded: "jobs-loaded-EVT",
+
+            // when new pushes are prepended, or appended
+            pushesLoaded: "pushes-loaded-EVT",
 
             // after deselecting a job via click outside/esc
             clearSelectedJob: "clear-selected-job-EVT",
@@ -239,8 +142,9 @@ treeherder.provider('thEvents', function () {
 
             autoclassifyToggleExpandOptions: "ac-toggle-expand-options-EVT",
 
-            autoclassifyToggleEdit: "ac-toggle-edit-EVT"
+            autoclassifyToggleEdit: "ac-toggle-edit-EVT",
 
+            selectRunnableJob: "select-runnable-job-EVT",
         };
     };
 });
@@ -249,7 +153,7 @@ treeherder.provider('thAggregateIds', function () {
     this.$get = function () {
         return {
             getPlatformRowId: aggregateIds.getPlatformRowId,
-            getResultsetTableId: aggregateIds.getResultsetTableId,
+            getPushTableId: aggregateIds.getPushTableId,
             getGroupMapKey: aggregateIds.getGroupMapKey,
             escape: aggregateIds.escape
         };

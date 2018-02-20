@@ -159,12 +159,11 @@ treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {
             name: "jobs",
-            selector: ".job-btn, .selected-job, .selected-count"
+            selector: ".job-btn, .selected-job"
         },
         UNCLASSIFIED_FAILURES: {
             name: "unclassified failures",
             selector: ".selected-job, " +
-                      ".selected-count, " +
                       ".job-btn.btn-red, " +
                       ".job-btn.btn-orange, " +
                       ".job-btn.btn-purple, " +

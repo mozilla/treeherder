@@ -32,10 +32,6 @@
   background-color: rgba(208, 228, 250, 0.51);
 }
 
-.group-btn.btn.job-group-count.selected-count:hover {
-  background-color: rgb(208, 228, 250);
-}
-
 .group-symbol {
   background: transparent;
   padding: 0 2px 0 2px;
@@ -97,10 +93,6 @@
 
 .selected-job {
   border: 4px solid;
-  background-color: #fff;
-}
-
-.selected-count.btn-lg-xform {
   background-color: #fff;
 }
 

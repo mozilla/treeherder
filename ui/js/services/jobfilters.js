@@ -1,3 +1,4 @@
+import { getStatus } from '../../helpers/jobHelper';
 /**
    This service handles whether or not a job, job group or platform row should
    be displayed based on the filter settings.
@@ -18,13 +19,13 @@
  */
 treeherder.factory('thJobFilters', [
     'thResultStatusList', 'ThLog', '$rootScope', '$location',
-    'thEvents', 'thFailureResults',
-    'thResultStatus', 'thClassificationTypes',
+    'thEvents', 'thFailureResults', '$timeout',
+    'thClassificationTypes',
     'thPlatformName',
     function (
         thResultStatusList, ThLog, $rootScope, $location,
-        thEvents, thFailureResults,
-        thResultStatus, thClassificationTypes,
+        thEvents, thFailureResults, $timeout,
+        thClassificationTypes,
         thPlatformName) {
 
         const $log = new ThLog("thJobFilters");
@@ -193,9 +194,10 @@ treeherder.factory('thJobFilters', [
         function showJob(job) {
             // when runnable jobs have been added to a resultset, they should be
             // shown regardless of settings for classified or result state
-            if (job.result !== "runnable") {
+            const status = getStatus(job);
+            if (status !== "runnable") {
                 // test against resultStatus and classifiedState
-                if (cachedResultStatusFilters.indexOf(thResultStatus(job)) === -1) {
+                if (cachedResultStatusFilters.indexOf(status) === -1) {
                     return false;
                 }
                 if (!_checkClassifiedStateFilters(job)) {
@@ -281,7 +283,9 @@ treeherder.factory('thJobFilters', [
                 newQsVal = null;
             }
             $log.debug("add set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
-            $location.search(_withPrefix(field), newQsVal);
+            $timeout(() => {
+                $location.search(_withPrefix(field), newQsVal);
+            }, 0);
         }
 
         function removeFilter(field, value) {

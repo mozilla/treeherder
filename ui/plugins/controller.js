@@ -1,11 +1,12 @@
 import { Queue, slugid } from 'taskcluster-client-web';
 import thTaskcluster from '../js/services/taskcluster';
+import { getStatus } from '../helpers/jobHelper';
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
     'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
-    'numberFilter', 'ThBugJobMapModel', 'thResultStatus', 'thJobFilters',
+    'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
     'ThLog', '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
@@ -14,7 +15,7 @@ treeherder.controller('PluginCtrl', [
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
-        numberFilter, ThBugJobMapModel, thResultStatus, thJobFilters,
+        numberFilter, ThBugJobMapModel, thJobFilters,
         ThLog, $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
@@ -92,7 +93,7 @@ treeherder.controller('PluginCtrl', [
                 successTab = 'perfDetails';
             }
 
-            if (thResultStatus(job) === 'success') {
+            if (getStatus(job) === 'success') {
                 $scope.tabService.selectedTab = successTab;
             } else {
                 $scope.tabService.selectedTab = failTab;
@@ -191,7 +192,7 @@ treeherder.controller('PluginCtrl', [
                     if ($scope.job_log_urls.length) {
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
                     }
-                    $scope.resultStatusShading = "result-status-shading-" + thResultStatus($scope.job);
+                    $scope.resultStatusShading = "result-status-shading-" + getStatus($scope.job);
 
                     var performanceData = _.flatten(Object.values(results[3]));
                     if (performanceData) {
