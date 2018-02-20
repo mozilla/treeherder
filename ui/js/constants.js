@@ -70,6 +70,7 @@ export const platformMap = {
     "windows2012-64-noopt": "Windows 2012 x64 NoOpt",
     "windows2012-64-devedition": "Windows 2012 x64 DevEdition",
     "windows2012-64-dmd": "Windows 2012 x64 DMD",
+    "windows-mingw32": "Windows MinGW",
 
     "android-2-2-armv6": "Android 2.2 Armv6",
     "android-2-2": "Android 2.2",
