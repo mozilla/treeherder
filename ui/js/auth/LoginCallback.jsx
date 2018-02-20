@@ -38,6 +38,9 @@ export default class LoginCallback extends React.PureComponent {
 
         if (window.opener) {
           window.close();
+        } else {
+          // handle case where the user navigates directly to the login route
+          window.location.href = window.origin;
         }
       }
     } catch (err) {
