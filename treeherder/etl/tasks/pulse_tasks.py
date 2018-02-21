@@ -9,7 +9,7 @@ from treeherder.workers.task import retryable_task
 
 
 @retryable_task(name='store-pulse-jobs', max_retries=10)
-def store_pulse_job(pulse_job, exchange, routing_key):
+def store_pulse_jobs(pulse_job, exchange, routing_key):
     """
     Fetches the jobs pending from pulse exchanges and loads them.
     """

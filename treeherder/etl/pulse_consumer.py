@@ -6,7 +6,7 @@ from kombu import (Exchange,
 from kombu.mixins import ConsumerMixin
 
 from treeherder.etl.common import fetch_json
-from treeherder.etl.tasks.pulse_tasks import (store_pulse_job,
+from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
                                               store_pulse_resultsets)
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ class JobConsumer(PulseConsumer):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
         logger.info('received job message from %s#%s' % (exchange, routing_key))
-        store_pulse_job.apply_async(
+        store_pulse_jobs.apply_async(
             args=[body, exchange, routing_key],
             routing_key='store_pulse_jobs'
         )
