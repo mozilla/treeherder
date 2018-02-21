@@ -9,20 +9,14 @@ from treeherder.workers.task import retryable_task
 
 
 @retryable_task(name='store-pulse-jobs', max_retries=10)
-def store_pulse_job(job_list, exchange, routing_key):
+def store_pulse_job(pulse_job, exchange, routing_key):
     """
     Fetches the jobs pending from pulse exchanges and loads them.
     """
     newrelic.agent.add_custom_parameter("exchange", exchange)
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
 
-    if not isinstance(job_list, list):
-        job_list = [job_list]
-
-    job_loader = JobLoader()
-
-    for pulse_job in job_list:
-        job_loader.process_job(pulse_job)
+    JobLoader().process_job(pulse_job)
 
 
 @retryable_task(name='store-pulse-resultsets', max_retries=10)
