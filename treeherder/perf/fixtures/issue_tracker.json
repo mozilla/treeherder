@@ -4,8 +4,7 @@
         "model": "perf.IssueTracker",
         "fields": {
             "name": "Bugzilla",
-            "task_base_url": "https://bugzilla.mozilla.org/show_bug.cgi?id=",
-            "main_url": "https://bugzilla.mozilla.org/"
+            "task_base_url": "https://bugzilla.mozilla.org/show_bug.cgi?id="
         }
     },
     {
@@ -13,8 +12,7 @@
         "model": "perf.IssueTracker",
         "fields": {
             "name": "Github - Servo",
-            "task_base_url": "https://github.com/servo/servo/pull/",
-            "main_url": "https://github.com/servo/servo"
+            "task_base_url": "https://github.com/servo/servo/pull/"
         }
     }
 ]

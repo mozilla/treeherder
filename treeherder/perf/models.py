@@ -178,13 +178,12 @@ class IssueTracker(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=False)
     task_base_url = models.URLField(max_length=512, null=False)
-    main_url = models.URLField(max_length=512, null=False)
 
     class Meta:
         db_table = "issue_tracker"
 
     def __str__(self):
-        return "{} (tasks via {})".format(self.name, self.main_url)
+        return "{} (tasks via {})".format(self.name, self.task_base_url)
 
 
 @python_2_unicode_compatible

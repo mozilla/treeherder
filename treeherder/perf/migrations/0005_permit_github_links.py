@@ -18,8 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=255)),
-                ('task_base_url', models.URLField(max_length=512)),
-                ('main_url', models.URLField(max_length=512)),
+                ('task_base_url', models.URLField(max_length=512))
             ],
             options={
                 'db_table': 'issue_tracker',
