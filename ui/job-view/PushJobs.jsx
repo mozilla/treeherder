@@ -111,7 +111,7 @@ export default class PushJobs extends React.Component {
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(jobId);
       } else if (ev.metaKey || ev.ctrlKey) { // Pin job
-        this.$rootScope.$emit(this.thEvents.jobPin, job);
+        this.$rootScope.$emit(this.thEvents.toggleJobPin, job);
       } else if (job.state === 'runnable') { // Toggle runnable
         this.handleRunnableClick(job);
       } else {
