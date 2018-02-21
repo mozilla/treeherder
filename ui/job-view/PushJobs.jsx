@@ -5,7 +5,6 @@ import { platformMap } from '../js/constants';
 import * as aggregateIds from './aggregateIds';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
-import { getUrlParam } from '../helpers/locationHelper';
 
 export default class PushJobs extends React.Component {
   constructor(props) {
