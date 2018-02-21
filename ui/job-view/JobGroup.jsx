@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";
+import { getUrlParam } from "../helpers/locationHelper";
 
 export default class JobGroup extends React.Component {
   constructor(props) {
@@ -12,8 +13,8 @@ export default class JobGroup extends React.Component {
     this.thEvents = $injector.get('thEvents');
 
     // The group should be expanded initially if the global group state is expanded
-    const groupState = new URLSearchParams(location.hash.split('?')[1]).get('group_state');
-    const duplicateJobs = new URLSearchParams(location.hash.split('?')[1]).get('duplicate_jobs');
+    const groupState = getUrlParam('group_state');
+    const duplicateJobs = getUrlParam('duplicate_jobs');
     this.state = {
       expanded: groupState === 'expanded',
       showDuplicateJobs: duplicateJobs === 'visible',
