@@ -16,8 +16,8 @@ export const Initials = (props) => {
     }
 
     return (
-      <span>
-        <span className="user-push-icon" title={props.title}>
+      <span title={props.title}>
+        <span className="user-push-icon">
           <i className="fa fa-user-o" aria-hidden="true" />
         </span>
         <div className="icon-superscript user-push-initials">{initials}</div>
@@ -30,9 +30,9 @@ export class Revision extends React.PureComponent {
     super(props);
     const { revision, linkifyBugsFilter } = this.props;
 
-    const escapedComment = _.escape(revision.comments.split('\n')[0]);
-    this.escapedCommentHTML = { __html: linkifyBugsFilter(escapedComment) };
-    this.tags = escapedComment.search('Backed out') >= 0 || escapedComment.search('Back out') >= 0 ?
+    this.escapedComment = _.escape(revision.comments.split('\n')[0]);
+    this.escapedCommentHTML = { __html: linkifyBugsFilter(this.escapedComment) };
+    this.tags = this.escapedComment.search('Backed out') >= 0 || this.escapedComment.search('Back out') >= 0 ?
         'backout' : '';
   }
 
@@ -54,7 +54,7 @@ export class Revision extends React.PureComponent {
         <Initials title={`${name}: ${email}`}
                   author={name}
         />
-        <span title={this.comment}>
+        <span title={this.escapedComment}>
           <span className="revision-comment">
             <em dangerouslySetInnerHTML={this.escapedCommentHTML} />
           </span>
