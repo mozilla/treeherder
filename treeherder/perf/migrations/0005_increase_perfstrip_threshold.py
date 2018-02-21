@@ -14,7 +14,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL('''
         UPDATE performance_signature
-        SET alert_threshold = 8
+        SET
+            alert_threshold = 8,
+            min_back_window = 24,
+            max_back_window = 48,
+            fore_window = 24
         WHERE
             suite LIKE "String" AND
             test LIKE "PerfStrip%" AND
@@ -25,7 +29,11 @@ class Migration(migrations.Migration):
                 LIMIT 1
             )''', reverse_sql='''
         UPDATE performance_signature
-        SET alert_threshold = NULL
+        SET
+            alert_threshold = NULL,
+            min_back_window = NULL,
+            max_back_window = NULL,
+            fore_window = NULL
         WHERE
             suite LIKE "String" AND
             test LIKE "PerfStrip%" AND
