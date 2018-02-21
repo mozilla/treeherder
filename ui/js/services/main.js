@@ -79,11 +79,9 @@ treeherder.factory('ThPaginator', function () {
 });
 
 treeherder.factory('thNotify', [
-    '$timeout', 'ThLog', 'localStorageService',
-    function ($timeout, ThLog, localStorageService) {
+    '$timeout', 'localStorageService',
+    function ($timeout, localStorageService) {
         //a growl-like notification system
-
-        var $log = new ThLog("thNotify");
 
         var thNotify = {
             // message queue
@@ -104,7 +102,6 @@ treeherder.factory('thNotify', [
                 if (opts !== undefined && !_.isPlainObject(opts)) {
                     throw new Error('Must pass an object as last argument to thNotify.send!');
                 }
-                $log.debug("received message", message);
                 opts = opts || {};
                 severity = severity || 'info';
 

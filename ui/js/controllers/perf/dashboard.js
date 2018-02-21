@@ -2,14 +2,12 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'ThLog', 'PhSeries', 'PhCompare',
+    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
     'thDefaultRepo', 'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, ThLog, PhSeries, PhCompare,
+                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       thDefaultRepo, phTimeRanges,
                       defaultTimeRange, phBlockers, phDashboardValues) {
-
-        var $log = new ThLog('dashCtrl');
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
@@ -25,7 +23,8 @@ perf.controller('dashCtrl', [
                 try {
                     $scope[k] = phDashboardValues[$scope.topic][k];
                 } catch (TypeError) {
-                    $log.error('"'+ k + '" option not found in "' + $scope.topic + '" dashboard config');
+                    // eslint-disable-next-line no-console
+                    console.error('"'+ k + '" option not found in "' + $scope.topic + '" dashboard config');
                 }
             });
 

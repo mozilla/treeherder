@@ -24,7 +24,6 @@ require('./js/directives/treeherder/log_viewer_steps.js');
 require('./js/directives/treeherder/main.js');
 require('./js/components/logviewer/logviewer.js');
 require('./js/services/main.js');
-require('./js/services/log.js');
 require('./js/services/taskcluster.js');
 require('./js/models/job_detail.js');
 require('./js/models/job.js');

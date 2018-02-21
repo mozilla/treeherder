@@ -18,17 +18,15 @@ import { getStatus } from '../../helpers/jobHelper';
  * must match only ONE of those values.
  */
 treeherder.factory('thJobFilters', [
-    'thResultStatusList', 'ThLog', '$rootScope', '$location',
+    'thResultStatusList', '$rootScope', '$location',
     'thEvents', 'thFailureResults', '$timeout',
     'thClassificationTypes',
     'thPlatformName',
     function (
-        thResultStatusList, ThLog, $rootScope, $location,
+        thResultStatusList, $rootScope, $location,
         thEvents, thFailureResults, $timeout,
         thClassificationTypes,
         thPlatformName) {
-
-        const $log = new ThLog("thJobFilters");
 
         // prefix for all filter query string params
         const PREFIX = "filter-";
@@ -282,7 +280,6 @@ treeherder.factory('thJobFilters', [
             if (_matchesDefaults(field, newQsVal)) {
                 newQsVal = null;
             }
-            $log.debug("add set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
             $timeout(() => {
                 $location.search(_withPrefix(field), newQsVal);
             }, 0);
@@ -300,14 +297,12 @@ treeherder.factory('thJobFilters', [
                 if (!newQsVal || !newQsVal.length || _matchesDefaults(field, newQsVal)) {
                     newQsVal = null;
                 }
-                $log.debug("remove set " + _withPrefix(field) + " from " + oldQsVal + " to " + newQsVal);
             }
             $location.search(_withPrefix(field), newQsVal);
         }
 
         function replaceFilter(field, value) {
             //check for existing value
-            $log.debug("add set " + _withPrefix(field) + " to " + value);
             $location.search(_withPrefix(field), value);
         }
 
@@ -348,7 +343,6 @@ treeherder.factory('thJobFilters', [
          * @param add - true if adding, false if removing
          */
         function toggleFilters(field, values, add) {
-            $log.debug("toggling to ", add);
             const action = add ? addFilter : removeFilter;
             values.map(value => action(field, value));
             // Don't emit the filter changed state here: we'll
@@ -375,7 +369,6 @@ treeherder.factory('thJobFilters', [
         }
 
         function toggleUnclassifiedFailures() {
-            $log.debug("toggleUnclassifiedFailures");
             if (_isUnclassifiedFailures()) {
                 resetNonFieldFilters();
             } else {
@@ -530,7 +523,6 @@ treeherder.factory('thJobFilters', [
         }
 
         function _matchesDefaults(field, values) {
-            $log.debug("_matchesDefaults", field, values);
             field = _withoutPrefix(field);
             if (DEFAULTS.hasOwnProperty(field)) {
                 return values.length === DEFAULTS[field].length &&

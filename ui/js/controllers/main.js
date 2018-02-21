@@ -1,18 +1,17 @@
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
-    'ThLog', 'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
+    'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'thJobFilters', 'ThResultSetStore',
     'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
     '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $location, $timeout, $q,
-        ThLog, ThRepositoryModel, thPinboard, thTabs, $document,
+        ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window,
         thJobFilters, ThResultSetStore,
         thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
         $httpParamSerializer) {
-        var $log = new ThLog("MainCtrl");
 
         /*
          *  revisionPollInterval: How often we check revision.txt for changes
@@ -81,8 +80,6 @@ treeherderApp.controller('MainCtrl', [
                     }
                 });
             }, revisionPollInterval);
-        }, function (reason) {
-            $log.debug(reason);
         });
 
         $rootScope.getWindowTitle = function () {
@@ -163,7 +160,6 @@ treeherderApp.controller('MainCtrl', [
          * check this each time a drop-down is invoked.
          */
         $scope.setDropDownPull = function (event) {
-            $log.debug("dropDown", event.target);
             var element = event.target.offsetParent;
             if (element.offsetLeft > $(window).width() / 2) {
                 $(element).find(".dropdown-menu").addClass("pull-right");
@@ -585,8 +581,6 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.addNewFieldFilter = function () {
-            $log.debug("adding filter", $scope.newFieldFilter.field);
-
             if (!$scope.newFieldFilter) {
                 return;
             }

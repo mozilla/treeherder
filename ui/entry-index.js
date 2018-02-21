@@ -36,7 +36,6 @@ require('./vendor/resizer.js');
 require('./job-view/PushList');
 
 // Treeherder JS
-require('./js/services/log.js');
 require('./js/providers.js');
 require('./js/values.js');
 require('./js/components/auth.js');

@@ -3,19 +3,16 @@ import thTaskcluster from '../services/taskcluster';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'thUrl', 'tcactions',
-    'thServiceDomain', 'ThLog', 'ThJobModel', 'jsyaml',
+    'thServiceDomain', 'ThJobModel', 'jsyaml',
     function ($http, $location, $q, $interpolate, thUrl,
-        tcactions, thServiceDomain, ThLog,
+        tcactions, thServiceDomain,
         ThJobModel, jsyaml) {
-
-        var $log = new ThLog("ThResultSetModel");
 
         var MAX_RESULTSET_FETCH_SIZE = 100;
 
         var convertDates = function (locationParams) {
             // support date ranges.  we must convert the strings to a timezone
             // appropriate timestamp
-            $log.debug("locationParams", locationParams);
             if (_.has(locationParams, "startdate")) {
                 locationParams.push_timestamp__gte = Date.parse(
                     locationParams.startdate) / 1000;
@@ -98,8 +95,6 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     locationParams = convertDates(locationParams);
-
-                    $log.debug("updated params", params);
                     _.extend(params, locationParams);
                 }
 
