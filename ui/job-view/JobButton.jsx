@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getBtnClass, findJobInstance } from "../helpers/jobHelper";
+import { getUrlParam } from "../helpers/locationHelper";
 
 export default class JobButtonComponent extends React.Component {
   constructor(props) {
@@ -20,8 +21,7 @@ export default class JobButtonComponent extends React.Component {
   componentWillMount() {
     const { job } = this.props;
     const { id } = job;
-    const urlSelectedJob = new URLSearchParams(
-      location.hash.split('?')[1]).get('selectedJob');
+    const urlSelectedJob = getUrlParam('selectedJob');
 
     if (parseInt(urlSelectedJob) === id) {
       this.setState({ isSelected: true });

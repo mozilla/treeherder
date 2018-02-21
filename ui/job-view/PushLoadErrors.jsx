@@ -1,6 +1,8 @@
+import { getAllUrlParams } from '../helpers/locationHelper';
+
 const PushLoadErrors = (props) => {
   const { loadingPushes, currentRepo, revision, repoName } = props;
-  const urlParams = new URLSearchParams(location.hash.split('?')[1]);
+  const urlParams = getAllUrlParams();
   urlParams.delete("revision");
 
   return (
