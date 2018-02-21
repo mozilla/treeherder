@@ -207,7 +207,7 @@ describe('initials filter', function () {
     const initials = mount(<Initials title={`${name}: ${email}`}
                                      author={name}
     />);
-    expect(initials.html()).toEqual('<span><span class="user-push-icon" title="Starscream: foo@bar.baz"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div></span>');
+    expect(initials.html()).toEqual('<span title="Starscream: foo@bar.baz"><span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div></span>');
   });
 
   it('initializes a two-word name', function () {
