@@ -65,16 +65,25 @@ treeherder.filter('linkifyBugs', function () {
 
         var bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
         var pr_matches = str.match(/PR#([0-9]+)/ig);
-
         // Settings
-        var bug_title = 'bugzilla.mozilla.org';
-        var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
-            'data-bugid="$1" title="' + bug_title + '">$1</a>';
         var pr_title = 'github.com';
         var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
             'data-prid="$1" title="' + pr_title + '">$1</a>';
 
         if (bug_matches) {
+            var bugId = '$1';
+            var getTitle = `
+              async function getBugTitle(bugId, ctx) {
+                let response = await fetch('https://bugzilla.mozilla.org/rest/bug/${bugId}?include_fields=summary');
+                let data = await response.json();
+                let title = data['bugs'][0]['summary'];
+                if (title) {
+                  ctx.title = 'Bug ${bugId} - ' + title;
+                }
+              }; getBugTitle(${bugId}, this);`;
+            var bug_url = `<a onmouseover="${getTitle}" href="https://bugzilla.mozilla.org/show_bug.cgi?id=${bugId}"
+              data-bugid="${bugId}" title="bugzilla.mozilla.org">${bugId}</a>`;
+
             // Separate passes to preserve prefix
             str = str.replace(/Bug ([0-9]+)/g, "Bug " + bug_url);
             str = str.replace(/bug ([0-9]+)/g, "bug " + bug_url);
