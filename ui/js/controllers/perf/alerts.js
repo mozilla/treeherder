@@ -35,17 +35,20 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
-        function ($scope, $uibModalInstance, alertSummary) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'phAlertSummaryIssueTrackersMap',
+        function ($scope, $uibModalInstance, alertSummary, phAlertSummaryIssueTrackersMap) {
             $scope.title = "Link to bug";
-            $scope.placeholder = "Bug #";
+            $scope.placeholder = "Task #";
+            $scope.issue_trackers = phAlertSummaryIssueTrackersMap;
 
             $scope.update = function () {
                 var newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
+                var selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
+
                 $scope.modifying = true;
-                alertSummary.assignBug(newId).then(function () {
+                alertSummary.assignBug(newId, selectedIssueTracker.id).then(function () {
                     $scope.modifying = false;
                     $uibModalInstance.close('assigned');
                 });
@@ -301,7 +304,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.unlinkBug = function (alertSummary) {
-            alertSummary.assignBug(null).then(function () {
+            alertSummary.assignBug(null, null).then(function () {
                 updateAlertVisibility();
             });
         };
