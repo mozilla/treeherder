@@ -1,13 +1,9 @@
 treeherder.controller('AnnotationsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'thNotify',
+    '$scope', '$rootScope', 'thNotify',
     'thEvents', 'ThResultSetStore', 'thTabs',
     function AnnotationsPluginCtrl(
-        $scope, $rootScope, ThLog, thNotify,
+        $scope, $rootScope, thNotify,
         thEvents, ThResultSetStore, thTabs) {
-
-        var $log = new ThLog(this.constructor.name);
-
-        $log.debug("annotations plugin initialized");
 
         $scope.$watch('classifications', function (newValue) {
             thTabs.tabs.annotations.num_items = newValue ? $scope.classifications.length : 0;

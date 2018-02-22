@@ -1,14 +1,10 @@
 treeherder.controller('BugsPluginCtrl', [
-    '$scope', '$rootScope', 'ThLog', 'ThTextLogStepModel',
+    '$scope', '$rootScope', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents',
     'thTabs', 'thUrl', '$uibModal', '$location',
     function BugsPluginCtrl(
-        $scope, $rootScope, ThLog, ThTextLogStepModel, ThBugSuggestionsModel,
+        $scope, $rootScope, ThTextLogStepModel, ThBugSuggestionsModel,
         thPinboard, thEvents, thTabs, thUrl, $uibModal, $location) {
-
-        var $log = new ThLog(this.constructor.name);
-
-        $log.debug("bugs plugin initialized");
 
         $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;

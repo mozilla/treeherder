@@ -1,19 +1,15 @@
 import { getBtnClass, getStatus } from "../../helpers/jobHelper";
 
 treeherder.controller('SimilarJobsPluginCtrl', [
-    '$scope', 'ThLog', 'ThJobModel', 'ThTextLogStepModel',
+    '$scope', 'ThJobModel', 'ThTextLogStepModel',
     'numberFilter', 'dateFilter', 'thClassificationTypes',
     'ThResultSetModel', 'thNotify',
     'thTabs',
     function SimilarJobsPluginCtrl(
-        $scope, ThLog, ThJobModel, ThTextLogStepModel,
+        $scope, ThJobModel, ThTextLogStepModel,
         numberFilter, dateFilter, thClassificationTypes,
         ThResultSetModel, thNotify,
         thTabs) {
-
-        var $log = new ThLog(this.constructor.name);
-
-        $log.debug("similar jobs plugin initialized");
 
         // do the jobs retrieval based on the user selection
         $scope.page_size = 20;

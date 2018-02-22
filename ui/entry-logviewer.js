@@ -1,6 +1,5 @@
 // Webpack entry point for logviewer.html
 // Scripts and styles included here are automatically included on the page at build time
-require('./js/config');
 
 // Styles
 require('bootstrap/dist/css/bootstrap.css');
@@ -24,7 +23,6 @@ require('./js/directives/treeherder/log_viewer_steps.js');
 require('./js/directives/treeherder/main.js');
 require('./js/components/logviewer/logviewer.js');
 require('./js/services/main.js');
-require('./js/services/log.js');
 require('./js/services/taskcluster.js');
 require('./js/models/job_detail.js');
 require('./js/models/job.js');

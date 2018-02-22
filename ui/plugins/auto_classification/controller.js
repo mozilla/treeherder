@@ -91,17 +91,14 @@ treeherder.factory('ThClassificationOption', ['thExtendProperties',
  * Non-editable best option controller
  */
 treeherder.controller('ThStaticClassificationOptionController', [
-    '$scope', 'thPinboard', 'thUrl', 'ThLog',
-    function ($scope, thPinboard, thUrl, ThLog) {
+    '$scope', 'thPinboard', 'thUrl',
+    function ($scope, thPinboard, thUrl) {
         var ctrl = this;
-
-        var log = new ThLog('ThStaticClassificationOptionController');
 
         $scope.getBugUrl = thUrl.getBugUrl;
         $scope.thPinboard = thPinboard;
 
-        ctrl.$onChanges = (changes) => {
-            log.debug('$onChanges', ctrl, changes);
+        ctrl.$onChanges = () => {
             $scope.line = ctrl.errorLine;
             $scope.option = ctrl.optionData;
         };
@@ -127,18 +124,14 @@ treeherder.component('thStaticClassificationOption', {
  */
 treeherder.controller('ThClassificationOptionController', [
     '$scope', '$uibModal', 'thPinboard', 'thUrl',
-    'thReftestStatus', 'ThLog',
-    function ($scope, $uibModal, thPinboard, thUrl, thReftestStatus,
-              ThLog) {
+    'thReftestStatus',
+    function ($scope, $uibModal, thPinboard, thUrl, thReftestStatus) {
         var ctrl = this;
-
-        var log = new ThLog('ThClassificationOptionController');
 
         $scope.getBugUrl = thUrl.getBugUrl;
         $scope.thPinboard = thPinboard;
 
-        ctrl.$onChanges = (changes) => {
-            log.debug('$onChanges', ctrl, changes);
+        ctrl.$onChanges = () => {
             $scope.line = ctrl.errorLine;
             $scope.option = ctrl.optionData;
         };
@@ -210,13 +203,12 @@ treeherder.component('thClassificationOption', {
  */
 treeherder.controller('ThErrorLineController', [
     '$scope', '$rootScope',
-    'thEvents', 'thUrl', 'ThLog',
+    'thEvents', 'thUrl',
     'ThClassificationOption', 'thStringOverlap',
     function ($scope, $rootScope,
-              thEvents, thUrl, ThLog,
+              thEvents, thUrl,
               ThClassificationOption, thStringOverlap) {
         var ctrl = this;
-        var log = new ThLog('ThErrorLineController');
         var line;
         // Map between option id and option data
         var optionsById = null;
@@ -232,7 +224,6 @@ treeherder.controller('ThErrorLineController', [
         $scope.showHidden = false;
 
         ctrl.$onChanges = (changes) => {
-            log.debug("$onChanges", ctrl, changes);
             var changed = x => changes.hasOwnProperty(x);
             if (changed("errorMatchers") || changed("errorLine")) {
                 build();
@@ -250,7 +241,6 @@ treeherder.controller('ThErrorLineController', [
             $scope.logUrl = thUrl.getLogViewerUrl(ctrl.thJob.id, line.data.line_number + 1);
             if (!line.verified) {
                 $scope.options = getOptions();
-                log.debug("options", $scope.options);
                 $scope.extraOptions = getExtraOptions($scope.options);
 
                 var allOptions = $scope.options.concat($scope.extraOptions);
@@ -263,13 +253,11 @@ treeherder.controller('ThErrorLineController', [
                 var defaultOption = getDefaultOption($scope.options,
                                                      $scope.extraOptions,
                                                      ctrl.prevErrorLine);
-                log.debug("defaultOption", defaultOption);
                 $scope.selectedOption = {
                     id: defaultOption.id,
                     manualBugNumber: "",
                     ignoreAlways: false
                 };
-                log.debug("options", $scope.options);
                 $scope.editableChanged(defaultEditable());
                 $scope.optionChanged();
             } else {
@@ -306,7 +294,6 @@ treeherder.controller('ThErrorLineController', [
          * a selection in the UI
          */
         $scope.optionChanged = function () {
-            log.debug("optionChanged", $scope.selectedOption);
             var option = $scope.currentOption = currentOption();
             // If the best option is a classified failure with no associated bug number
             // then default to updating that option with a new bug number
@@ -357,7 +344,6 @@ treeherder.controller('ThErrorLineController', [
                                                             cf.bug ? cf.bug.summary : "",
                                                             cf.bug ? cf.bug.resolution : "",
                                                             classificationMatches(cf.id)));
-            log.debug("autoclassifyOptions", autoclassifyOptions);
             var autoclassifiedBugs = autoclassifyOptions
                     .reduce((classifiedBugs, option) => classifiedBugs.add(option.bugNumber),
                             new Set());
@@ -370,7 +356,6 @@ treeherder.controller('ThErrorLineController', [
                                                                        bugSuggestion.id,
                                                                        bugSuggestion.summary,
                                                                        bugSuggestion.resolution));
-            log.debug("bugSuggestionOptions", bugSuggestionOptions);
 
             bestOption = null;
 
@@ -816,15 +801,13 @@ treeherder.component('thAutoclassifyToolbar', {
  */
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q',
-    'ThLog', 'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
+    'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
     'thUrl', 'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function ($scope, $rootScope, $q,
-             ThLog, thEvents, thNotify, thJobNavSelectors, thPinboard,
+             thEvents, thNotify, thJobNavSelectors, thPinboard,
              thUrl, ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;
-
-        var log = new ThLog('ThAutoclassifyPanelController');
 
         var requestPromise = null;
 
@@ -886,7 +869,6 @@ treeherder.controller('ThAutoclassifyPanelController', [
                 fetchErrorData()
                     .then(data => buildLines(data))
                     .catch(() => {
-                        log.error("load failed");
                         ctrl.loadStatus = "error";
                     });
             }

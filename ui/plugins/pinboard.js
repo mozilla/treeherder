@@ -1,9 +1,7 @@
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify', 'ThLog',
+    '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify',
     function PinboardCtrl(
-        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify, ThLog) {
-
-        var $log = new ThLog(this.constructor.name);
+        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify) {
 
         $rootScope.$on(thEvents.toggleJobPin, function (event, job) {
             $scope.toggleJobPin(job);
@@ -283,8 +281,6 @@ treeherder.controller('PinboardCtrl', [
                 if (!$scope.newEnteredBugNumber) {
                     $scope.toggleEnterBugNumber(false);
                 } else if (/^[0-9]*$/.test($scope.newEnteredBugNumber)) {
-                    $log.debug("new bug number to be saved: ",
-                               $scope.newEnteredBugNumber);
                     thPinboard.addBug({ id: $scope.newEnteredBugNumber });
                     $scope.toggleEnterBugNumber(false);
                     return true;

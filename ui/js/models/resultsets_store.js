@@ -1,16 +1,14 @@
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
     'ThResultSetModel', 'ThJobModel', 'thEvents',
-    'thResultStatusObject', 'thAggregateIds', 'ThLog', 'thNotify',
+    'thResultStatusObject', 'thAggregateIds', 'thNotify',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
         ThJobModel, thEvents, thResultStatusObject, thAggregateIds,
-        ThLog, thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
+        thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
-
-        var $log = new ThLog("ThResultSetStore");
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array
         var platformArray = _.map(thPlatformMap, function (val, idx) { return idx; });
@@ -241,14 +239,8 @@ treeherder.factory('ThResultSetStore', [
                 _.clone($location.search())
             );
 
-            $log.debug("locationSearch", locationSearch);
-
             if (_.isEmpty(repositories[repoName]) ||
                !_.isEqual(locationSearch, repositories[repoName].search)) {
-                $log.debug(
-                    "fetching new resultset list with parameters:",
-                    locationSearch
-                );
                 repositories[repoName] = {
 
                     name: repoName,
@@ -381,13 +373,8 @@ treeherder.factory('ThResultSetStore', [
                 }
             }
 
-            $log.debug("sorting", repoName, repositories[repoName]);
             repositories[repoName].resultSets.sort(rsCompare);
-
             repositories[repoName].rsMapOldestTimestamp = _.last(repositories[repoName].resultSets).push_timestamp;
-
-            $log.debug("oldest result set: ", repositories[repoName].rsMapOldestTimestamp);
-            $log.debug("done mapping:", repositories[repoName].rsMap);
         };
 
         var mapPlatforms = function (repoName, rs_obj) {
@@ -534,8 +521,6 @@ treeherder.factory('ThResultSetStore', [
             if (!plMapElement) {
 
                 // this platform wasn't in the resultset, so add it.
-                $log.debug("adding new platform");
-
                 var pl_obj = {
                     name: newJob.platform,
                     option: newJob.platform_option,
@@ -574,7 +559,6 @@ treeherder.factory('ThResultSetStore', [
 
                 grMapElement = plMapElement.groups[groupInfo.symbol];
                 if (!grMapElement) {
-                    $log.debug("adding new group");
                     var grp_obj = {
                         symbol: groupInfo.symbol,
                         name: groupInfo.name,
@@ -605,14 +589,9 @@ treeherder.factory('ThResultSetStore', [
          * @param {number[]} jobFetchList - project-specific ids of the jobs to fetch
          */
         var fetchJobs = function (repoName, jobFetchList) {
-            $log.debug("fetchJobs", repoName, jobFetchList);
-
             // we could potentially have very large lists of jobs.  So we need
             // to chunk this fetching.
             var count = 40;
-            var error_callback = function (data) {
-                $log.error("Error fetching jobs: " + data);
-            };
             var unavailableJobs = [];
             while (jobFetchList.length > 0) {
                 var jobFetchSlice = jobFetchList.splice(0, count);
@@ -624,12 +603,10 @@ treeherder.factory('ThResultSetStore', [
                         // if there are jobs unfetched, enqueue them for the next run
                         var ids_unfetched = jobFetchList.splice(count);
                         if (ids_unfetched.length > 0) {
-                            $log.debug("re-adding " +
-                                       ids_unfetched.length + "job to the fetch queue");
                             unavailableJobs.push(...ids_unfetched);
                         }
                         return jobsFetched;
-                    }, error_callback)
+                    })
                     .then(_.bind(updateJobs, $rootScope, repoName));
             }
             // retry to fetch the unfetched jobs later
@@ -679,8 +656,6 @@ treeherder.factory('ThResultSetStore', [
 
                     platformKey = getPlatformKey(platformName, platformOption);
 
-                    $log.debug("aggregateJobPlatform", repoName, resultsetId, platformKey, repositories);
-
                     jobGroups = [];
                     if (repositories[repoName].rsMap[resultsetId].platforms[platformKey] !== undefined) {
                         jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
@@ -707,8 +682,6 @@ treeherder.factory('ThResultSetStore', [
          * @param jobList List of jobs to be placed in the data model and maps
          */
         var updateJobs = function (repoName, jobList) {
-
-            $log.debug("number of jobs returned for add/update: ", jobList.length);
 
             var platformData = {};
 
@@ -767,12 +740,9 @@ treeherder.factory('ThResultSetStore', [
             }
 
             if (loadedJob) {
-                $log.debug("updating existing job", loadedJob, newJob);
                 _.extend(loadedJob, newJob);
             } else {
                 // this job is not yet in the model or the map.  add it to both
-                $log.debug("adding new job", newJob);
-
                 var grpMapElement = getOrCreateGroup(repoName, newJob);
 
                 if (grpMapElement) {
@@ -822,7 +792,6 @@ treeherder.factory('ThResultSetStore', [
         var appendResultSets = function (repoName, data) {
             if (data.results.length > 0) {
 
-                $log.debug("appendResultSets", data.results);
                 var rsIds = repositories[repoName].resultSets.map(rs => rs.id);
 
                 // ensure we only append resultsets we don't already have.
@@ -977,9 +946,8 @@ treeherder.factory('ThResultSetStore', [
 
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendResultSets(repoName, resultsets),
-                     (data) => {
+                     () => {
                          thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
-                         $log.error(data);
                          appendResultSets(repoName, { results: [] });
                      })
                 .then(() => {

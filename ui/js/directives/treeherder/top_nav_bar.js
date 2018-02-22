@@ -1,10 +1,8 @@
 import { getBtnClass } from '../../../helpers/jobHelper';
 
 treeherder.directive('thWatchedRepo', [
-    'ThLog', 'ThRepositoryModel',
-    function (ThLog, ThRepositoryModel) {
-
-        var $log = new ThLog("thWatchedRepo");
+    'ThRepositoryModel',
+    function (ThRepositoryModel) {
 
         var statusInfo = {
             open: {
@@ -64,7 +62,6 @@ treeherder.directive('thWatchedRepo', [
 
                 scope.$watch('repoData.treeStatus.status', function (newVal) {
                     if (newVal) {
-                        $log.debug("updated treeStatus", newVal);
                         var si = statusInfo[newVal];
                         scope.statusIcon = si.icon;
                         scope.statusIconClass = si.iconClass || "";
@@ -102,11 +99,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
     }]);
 
 
-treeherder.directive('thCheckboxDropdownContainer', [
-    'ThLog',
-    function (ThLog) {
-
-        var $log = new ThLog("thCheckboxDropdownContainer");
+treeherder.directive('thCheckboxDropdownContainer', function () {
 
         return {
             restrict: "A",
@@ -114,8 +107,7 @@ treeherder.directive('thCheckboxDropdownContainer', [
 
                 scope.closeable = true;
                 $(element).on({
-                    "hide.bs.dropdown": function (ev) {
-                        $log.debug("repo menu container", "hide.bs.dropdown", scope.closeable, ev.target.className);
+                    "hide.bs.dropdown": function () {
                         var closeable = scope.closeable;
                         scope.closeable = true;
                         return closeable;
@@ -128,13 +120,12 @@ treeherder.directive('thCheckboxDropdownContainer', [
                             $(ev.target).parent().hasClass("dropdown-link")) {
                             scope.closeable = false;
                         }
-                        $log.debug("menu dropdown", "click", scope.closeable, ev.target.className);
                     }
                 });
 
             }
         };
-    }]);
+    });
 
 treeherder.directive('thRepoMenuItem',
     function () {

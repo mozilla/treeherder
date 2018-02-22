@@ -1,11 +1,9 @@
 treeherder.factory('ThRepositoryModel', [
-    '$http', 'thUrl', '$rootScope', 'ThLog', '$interval',
+    '$http', 'thUrl', '$rootScope', '$interval',
     '$q', 'treeStatus', 'thRepoGroupOrder',
     function (
-        $http, thUrl, $rootScope, ThLog, $interval, $q,
+        $http, thUrl, $rootScope, $interval, $q,
         treeStatus, thRepoGroupOrder) {
-
-        var $log = new ThLog("ThRepositoryModel");
 
         var repos = {};
         var watchedRepos = [];
@@ -22,10 +20,7 @@ treeherder.factory('ThRepositoryModel', [
                         return repo;
                     }
                 }
-            } else {
-                $log.warn("Repos list has not been loaded.");
             }
-            $log.warn("'" + name + "' not found in repos list.");
             return null;
         };
 
@@ -70,11 +65,9 @@ treeherder.factory('ThRepositoryModel', [
                 watchedRepos.length = maxWatchedRepos;
             }
             saveWatchedRepos();
-            $log.debug("watchedRepo", name, repos[name]);
         };
 
         var unwatchRepo = function (name) {
-            $log.debug("unwatchRepo", name, watchedRepos);
             var pos = watchedRepos.indexOf(name);
             if (pos > -1) {
                 watchedRepos.splice(pos, 1);
@@ -96,7 +89,6 @@ treeherder.factory('ThRepositoryModel', [
             if (!$rootScope.repos) {
                 // this is the first time this was called, so initiate the interval
                 // update the repo status (treestatus) in an interval of every 2 minutes
-                $log.debug("treestatus", "setting the interval");
                 $interval(updateTreeStatus, 2 * 60 * 1000);
 
                 // return the promise of getting the repos
@@ -212,14 +204,10 @@ treeherder.factory('ThRepositoryModel', [
                     watchRepo(name);
                 }
 
-                $log.debug("setCurrent", name, "watchedRepos", $rootScope.currentRepo, repos);
-            } else {
-                $log.debug("setCurrent", "Skipping.  Current repo was already set to " + name, $rootScope.currentRepo);
             }
         };
 
         var toggleWatched = function (repoName) {
-            $log.debug("toggleWatched", repoName, repos[repoName]);
             if (watchedRepos[repoName]) {
                 unwatchRepo(repoName);
             } else {
@@ -301,7 +289,6 @@ treeherder.factory('ThRepositoryModel', [
 
             var getStatus = function (repo) {
 
-                $log.debug("updateTreeStatus", "getStatus", "updating", repo);
                 treeStatus.get(repo).then(
                     function (data) {
                         newStatuses[repo] = data.data.result;
@@ -323,7 +310,6 @@ treeherder.factory('ThRepositoryModel', [
                     // we've received all the statuses we expect to
                     _.defer(function () {
                         _.each(newStatuses, function (status) {
-                            $log.debug("updateTreeStatus", "updateStatusesIfDone", status.tree, status.status);
                             repos[treeStatus.getRepoName(status.tree)].treeStatus = status;
                         });
                     });

@@ -7,7 +7,7 @@ treeherder.controller('PluginCtrl', [
     'thUrl', 'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
-    'ThLog', '$q', 'thPinboard',
+    '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
     'PhSeries', 'thServiceDomain', 'jsyaml', 'tcactions',
@@ -16,12 +16,10 @@ treeherder.controller('PluginCtrl', [
         thUrl, ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thJobFilters,
-        ThLog, $q, thPinboard,
+        $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
         thServiceDomain, jsyaml, tcactions) {
-
-        var $log = new ThLog("PluginCtrl");
 
         $scope.job = {};
         $scope.revisionList = [];
@@ -112,7 +110,6 @@ treeherder.controller('PluginCtrl', [
             if (job.id) {
                 $scope.job_detail_loading = true;
                 if (selectJobPromise !== null) {
-                    $log.debug("timing out previous job request");
                     selectJobPromise.resolve();
                 }
                 selectJobPromise = $q.defer();

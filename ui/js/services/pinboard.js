@@ -1,11 +1,9 @@
 treeherder.factory('thPinboard', [
     'ThJobClassificationModel', '$rootScope', 'thEvents', '$timeout',
-    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThLog', 'ThResultSetStore', 'thPinboardCountError',
+    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThResultSetStore', 'thPinboardCountError',
     function (
         ThJobClassificationModel, $rootScope, thEvents, $timeout,
-        ThBugJobMapModel, thNotify, ThModelErrors, ThLog, ThResultSetStore, thPinboardCountError) {
-
-        var $log = new ThLog("thPinboard");
+        ThBugJobMapModel, thNotify, ThModelErrors, ThResultSetStore, thPinboardCountError) {
 
         var pinnedJobs = {};
         var relatedBugs = {};
@@ -30,7 +28,6 @@ treeherder.factory('thPinboard', [
                             ThModelErrors.format(response, message),
                             "danger"
                         );
-                        $log.debug("classification failed", response);
                     });
             }
         };

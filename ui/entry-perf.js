@@ -1,8 +1,6 @@
 // Webpack entry point for perf.html
 // Scripts and styles included here are automatically included on the page at build time
 
-require('./js/config');
-
 // Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
@@ -35,7 +33,6 @@ require('./js/values.js');
 require('./js/filters.js');
 require('./js/models/option_collection.js');
 require('./js/services/main.js');
-require('./js/services/log.js');
 require('./js/services/taskcluster.js');
 require('./js/services/jsonpushes.js');
 require('./js/models/repository.js');
