@@ -59,6 +59,15 @@ function isSHA(str) {
     return true;
 }
 
+window.getBugTitle = async function (bugId, ctx) {
+    let response = await fetch(`https://bugzilla.mozilla.org/rest/bug/${bugId}?include_fields=summary`);
+    let data = await response.json();
+    let title = data.bugs && data.bugs[0].summary;
+    if (title) {
+        ctx.title = `Bug ${bugId} - ${title}`;
+    }
+};
+
 treeherder.filter('linkifyBugs', function () {
     return function (input) {
         var str = input || '';
@@ -71,17 +80,8 @@ treeherder.filter('linkifyBugs', function () {
             'data-prid="$1" title="' + pr_title + '">$1</a>';
 
         if (bug_matches) {
-            var bugId = '$1';
-            var getTitle = `
-              async function getBugTitle(bugId, ctx) {
-                let response = await fetch('https://bugzilla.mozilla.org/rest/bug/${bugId}?include_fields=summary');
-                let data = await response.json();
-                let title = data['bugs'][0]['summary'];
-                if (title) {
-                  ctx.title = 'Bug ${bugId} - ' + title;
-                }
-              }; getBugTitle(${bugId}, this);`;
-            var bug_url = `<a onmouseover="${getTitle}" href="https://bugzilla.mozilla.org/show_bug.cgi?id=${bugId}"
+            const bugId = '$1';
+            const bug_url = `<a onmouseover="getBugTitle('${bugId}', this)" href="https://bugzilla.mozilla.org/show_bug.cgi?id=${bugId}"
               data-bugid="${bugId}" title="bugzilla.mozilla.org">${bugId}</a>`;
 
             // Separate passes to preserve prefix
