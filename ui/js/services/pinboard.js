@@ -16,7 +16,7 @@ treeherder.factory('thPinboard', [
                 job.failure_classification_id = classification.failure_classification_id;
 
                 // update the unclassified failure count for the page
-                ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
+                ThResultSetStore.updateUnclassifiedFailureMap(job);
 
                 classification.job_id = job.id;
                 classification.create()

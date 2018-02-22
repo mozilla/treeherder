@@ -95,7 +95,7 @@ treeherder.controller('TCJobActionsCtrl', [
             }
         });
 
-        ThResultSetStore.getGeckoDecisionTaskId(repoName, resultsetId).then((dtId) => {
+        ThResultSetStore.getGeckoDecisionTaskId(resultsetId).then((dtId) => {
             decisionTaskId = dtId;
             tcactions.load(decisionTaskId, job).then((results) => {
                 originalTask = results.originalTask;

@@ -141,8 +141,8 @@ treeherder.controller('PluginCtrl', [
 
                     //the first result comes from the job promise
                     $scope.job = results[0];
-                    $scope.resultsetId = ThResultSetStore.getSelectedJob($scope.repoName).job.result_set_id;
-                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.repoName, $scope.resultsetId).revision;
+                    $scope.resultsetId = ThResultSetStore.getSelectedJob().job.result_set_id;
+                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.resultsetId).revision;
 
                     // filtering values for data fields and signature
                     $scope.jobSearchStr = $scope.job.get_title();
@@ -294,13 +294,13 @@ treeherder.controller('PluginCtrl', [
         $scope.$watch('getCountPinnedJobs()', function (newVal, oldVal) {
             if (oldVal === 0 && newVal > 0) {
                 $scope.isPinboardVisible = true;
-                getRevisionTips($scope.repoName, $scope.revisionList);
+                getRevisionTips($scope.revisionList);
             }
         });
 
-        var getRevisionTips = function (projectName, list) {
+        var getRevisionTips = function (list) {
             list.splice(0, list.length);
-            var rsArr = ThResultSetStore.getResultSetsArray(projectName);
+            var rsArr = ThResultSetStore.getResultSetsArray();
             rsArr.forEach((rs) => {
                 list.push({
                     revision: rs.revision,
@@ -369,7 +369,6 @@ treeherder.controller('PluginCtrl', [
 
             if ($scope.job.build_system_type === 'taskcluster' || $scope.job.reason.startsWith('Created by BBB for task')) {
                 ThResultSetStore.getGeckoDecisionTaskId(
-                    $scope.repoName,
                     $scope.resultsetId).then(function (decisionTaskId) {
                         return tcactions.load(decisionTaskId, $scope.job).then((results) => {
                             const actionTaskId = slugid();
@@ -622,7 +621,7 @@ treeherder.controller('PluginCtrl', [
             // But getting that information to here seems to be non-trivial
             $scope.updateBugs();
             $timeout($scope.updateClassifications);
-            ThResultSetStore.fetchJobs($scope.repoName, [$scope.job.id]);
+            ThResultSetStore.fetchJobs([$scope.job.id]);
             // Emit an event indicating that a job has been classified, although
             // it might in fact not have been
             var jobs = {};

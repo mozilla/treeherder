@@ -54,10 +54,10 @@ describe('PushList component', () => {
       }
     );
 
-    ThResultSetStore.addRepository(repoName);
-    ThResultSetStore.fetchResultSets(repoName, 10);
+    ThResultSetStore.initRepository(repoName);
+    ThResultSetStore.fetchResultSets(10);
     $httpBackend.flush();
-    pushList = ThResultSetStore.getResultSetsArray(repoName);
+    pushList = ThResultSetStore.getResultSetsArray();
   }));
 
   /*
@@ -115,11 +115,11 @@ describe('PushJobs component', () => {
       }
     );
 
-    ThResultSetStore.addRepository(repoName);
-    ThResultSetStore.fetchResultSets(repoName, 10);
+    ThResultSetStore.initRepository(repoName);
+    ThResultSetStore.fetchResultSets(10);
 
     $httpBackend.flush();
-    pushList = ThResultSetStore.getResultSetsArray(repoName);
+    pushList = ThResultSetStore.getResultSetsArray();
     pushJobsEl = mount(
       <PushJobs
         $injector={$injector}

@@ -31,7 +31,7 @@ export default class Push extends React.Component {
   }
 
   hideRunnableJobs() {
-    this.ThResultSetStore.deleteRunnableJobs(this.props.repoName, this.props.push.id);
+    this.ThResultSetStore.deleteRunnableJobs(this.props.push.id);
     this.$rootScope.$emit(this.thEvents.deleteRunnableJobs, this.props.push.id);
     this.setState({ runnableVisible: false });
   }

@@ -25,7 +25,7 @@ export default class PushList extends React.Component {
     this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.ThJobModel = $injector.get('ThJobModel');
 
-    this.ThResultSetStore.addRepository(repoName);
+    this.ThResultSetStore.initRepository(repoName);
 
     this.getNextPushes = this.getNextPushes.bind(this);
     this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
@@ -39,23 +39,21 @@ export default class PushList extends React.Component {
 
     // get our first set of resultsets
     this.ThResultSetStore.fetchResultSets(
-        repoName,
         this.ThResultSetStore.defaultResultSetCount,
         true
     );
   }
 
   componentWillMount() {
-    const { repoName } = this.props;
     this.pushesLoadedUnlisten = this.$rootScope.$on(this.thEvents.pushesLoaded, () => {
-      const pushList = this.ThResultSetStore.getResultSetsArray(repoName);
+      const pushList = this.ThResultSetStore.getResultSetsArray();
       this.$timeout(() => {
         this.setState({ pushList, loadingPushes: false });
       }, 0);
     });
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
-      const pushList = this.ThResultSetStore.getResultSetsArray(repoName);
+      const pushList = this.ThResultSetStore.getResultSetsArray();
       this.$timeout(() => {
         this.setState({ pushList, jobsReady: true });
       }, 0);
@@ -65,7 +63,7 @@ export default class PushList extends React.Component {
       this.$location.search('selectedJob', job.id);
       const { repoName } = this.props;
       if (repoName) {
-        this.ThResultSetStore.setSelectedJob(repoName, job);
+        this.ThResultSetStore.setSelectedJob(job);
       }
     });
 
@@ -116,7 +114,7 @@ export default class PushList extends React.Component {
       this.$location.search('revision', null);
       this.$location.search('tochange', revision);
     }
-    this.ThResultSetStore.fetchResultSets(this.props.repoName, count, keepFilters)
+    this.ThResultSetStore.fetchResultSets(count, keepFilters)
       .then(this.updateUrlFromchange);
 
   }
@@ -131,7 +129,7 @@ export default class PushList extends React.Component {
   setSelectedJobFromQueryString(selectedJobId) {
     const { repoName } = this.props;
     const { urlBasePath } = this.$rootScope;
-    const jobMap = this.ThResultSetStore.getJobMap(repoName);
+    const jobMap = this.ThResultSetStore.getJobMap();
     const selectedJobEl = jobMap[`${selectedJobId}`];
 
     // select the job in question
@@ -165,7 +163,7 @@ export default class PushList extends React.Component {
   updateUrlFromchange() {
     // since we fetched more pushes, we need to persist the
     // push state in the URL.
-    const rsArray = this.ThResultSetStore.getResultSetsArray(this.props.repoName);
+    const rsArray = this.ThResultSetStore.getResultSetsArray();
     const updatedLastRevision = _.last(rsArray).revision;
     if (this.$location.search().fromchange !== updatedLastRevision) {
       this.$rootScope.skipNextPageReload = true;
@@ -174,7 +172,7 @@ export default class PushList extends React.Component {
   }
 
   changeSelectedJob(ev, direction, jobNavSelector) {
-    const jobMap = this.ThResultSetStore.getJobMap(this.props.repoName);
+    const jobMap = this.ThResultSetStore.getJobMap();
     // Get the appropriate next index based on the direction and current job
     // selection (if any).  Must wrap end to end.
     const getIndex = direction === 'next' ?
