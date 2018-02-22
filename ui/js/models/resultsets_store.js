@@ -226,17 +226,8 @@ treeherder.factory('ThResultSetStore', [
         var initRepository = function (repoName) {
             //Initialize a new repository in the repoData structure
 
-            // only base the locationSearch on params that are NOT filters,
-            // because filters don't effect the server side fetching of
-            // jobs.
-            var locationSearch = thJobFilters.stripFiltersFromQueryString(
-                _.clone($location.search())
-            );
-
-            if (_.isEmpty(repoData) ||
-               !_.isEqual(locationSearch, repoData.search)) {
+            if (_.isEmpty(repoData)) {
                 repoData = {
-
                     name: repoName,
 
                     // This keeps track of the selected job.  The selected job,
@@ -266,7 +257,6 @@ treeherder.factory('ThResultSetStore', [
                         appending: false,
                         prepending: false
                     },
-                    search: locationSearch
                 };
 
             }
