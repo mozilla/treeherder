@@ -1,6 +1,5 @@
 // Webpack entry point for index.html
 // Scripts and styles included here are automatically included on the page at build time
-require('./js/config');
 
 // Styles
 require('bootstrap/dist/css/bootstrap.css');

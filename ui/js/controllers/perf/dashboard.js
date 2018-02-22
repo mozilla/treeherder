@@ -24,7 +24,7 @@ perf.controller('dashCtrl', [
                     $scope[k] = phDashboardValues[$scope.topic][k];
                 } catch (TypeError) {
                     // eslint-disable-next-line no-console
-                    console.error('"'+ k + '" option not found in "' + $scope.topic + '" dashboard config');
+                    console.error(`"${k}" option not found in ${$scope.topic} dashboard config`);
                 }
             });
 
