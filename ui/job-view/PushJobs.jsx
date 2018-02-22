@@ -208,7 +208,9 @@ export default class PushJobs extends React.Component {
         }
       });
     });
-    this.setState({ platforms: { ...this.state.platforms } });
+    if (Object.keys(this.state.platforms).length) {
+      this.setState({ platforms: { ...this.state.platforms } });
+    }
     return platform;
   }
 
