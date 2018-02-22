@@ -141,7 +141,7 @@ treeherder.controller('PluginCtrl', [
                     //the first result comes from the job promise
                     $scope.job = results[0];
                     $scope.resultsetId = ThResultSetStore.getSelectedJob().job.result_set_id;
-                    $scope.jobRevision = ThResultSetStore.getResultSet($scope.resultsetId).revision;
+                    $scope.jobRevision = ThResultSetStore.getPush($scope.resultsetId).revision;
 
                     // filtering values for data fields and signature
                     $scope.jobSearchStr = $scope.job.get_title();
@@ -299,7 +299,7 @@ treeherder.controller('PluginCtrl', [
 
         var getRevisionTips = function (list) {
             list.splice(0, list.length);
-            var rsArr = ThResultSetStore.getResultSetsArray();
+            var rsArr = ThResultSetStore.getPushArray();
             rsArr.forEach((rs) => {
                 list.push({
                     revision: rs.revision,

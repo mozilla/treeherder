@@ -38,7 +38,7 @@ export default class PushList extends React.Component {
     };
 
     // get our first set of resultsets
-    this.ThResultSetStore.fetchResultSets(
+    this.ThResultSetStore.fetchPushes(
         this.ThResultSetStore.defaultResultSetCount,
         true
     );
@@ -46,14 +46,14 @@ export default class PushList extends React.Component {
 
   componentWillMount() {
     this.pushesLoadedUnlisten = this.$rootScope.$on(this.thEvents.pushesLoaded, () => {
-      const pushList = this.ThResultSetStore.getResultSetsArray();
+      const pushList = this.ThResultSetStore.getPushArray();
       this.$timeout(() => {
         this.setState({ pushList, loadingPushes: false });
       }, 0);
     });
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
-      const pushList = this.ThResultSetStore.getResultSetsArray();
+      const pushList = this.ThResultSetStore.getPushArray();
       this.$timeout(() => {
         this.setState({ pushList, jobsReady: true });
       }, 0);
@@ -114,7 +114,7 @@ export default class PushList extends React.Component {
       this.$location.search('revision', null);
       this.$location.search('tochange', revision);
     }
-    this.ThResultSetStore.fetchResultSets(count, keepFilters)
+    this.ThResultSetStore.fetchPushes(count, keepFilters)
       .then(this.updateUrlFromchange);
 
   }
@@ -163,7 +163,7 @@ export default class PushList extends React.Component {
   updateUrlFromchange() {
     // since we fetched more pushes, we need to persist the
     // push state in the URL.
-    const rsArray = this.ThResultSetStore.getResultSetsArray();
+    const rsArray = this.ThResultSetStore.getPushArray();
     const updatedLastRevision = _.last(rsArray).revision;
     if (this.$location.search().fromchange !== updatedLastRevision) {
       this.$rootScope.skipNextPageReload = true;

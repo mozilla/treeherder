@@ -100,8 +100,8 @@ treeherderApp.controller('MainCtrl', [
             var revisions = [];
             var percentComplete;
 
-            if ($scope.currentRepo && ThResultSetStore.getResultSetsArray()[0]) {
-                revisions = ThResultSetStore.getResultSetsArray()[0].revisions;
+            if ($scope.currentRepo && ThResultSetStore.getPushArray()[0]) {
+                revisions = ThResultSetStore.getPushArray()[0].revisions;
             }
 
             // Revisions (and comments) might not be loaded the first few times this function is called
@@ -110,8 +110,8 @@ treeherderApp.controller('MainCtrl', [
             }
 
             //Job counts are calculated at a later point in the page load, so this is undefined for a while
-            if (ThResultSetStore.getResultSetsArray()[0].job_counts) {
-                percentComplete = ThResultSetStore.getResultSetsArray()[0].job_counts.percentComplete;
+            if (ThResultSetStore.getPushArray()[0].job_counts) {
+                percentComplete = ThResultSetStore.getPushArray()[0].job_counts.percentComplete;
             }
 
             for (var i=0; i<revisions.length; i++) {

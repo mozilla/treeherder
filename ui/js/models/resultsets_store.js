@@ -14,29 +14,29 @@ treeherder.factory('ThResultSetStore', [
         var platformArray = _.map(thPlatformMap, function (val, idx) { return idx; });
 
         /******
-         * Handle updating the resultset datamodel based on a queue of jobs
-         * and resultsets.
+         * Handle updating the push datamodel based on a queue of jobs
+         * and pushs.
          *
          * manages:
-         *     resultset array
-         *     resultset queue
-         *     resultset map
+         *     push array
+         *     push queue
+         *     push map
          *     job queue
          *     job map
          */
 
-        var defaultResultSetCount = 10;
+        var defaultPushCount = 10;
 
         // the primary data model
         var repoData = {};
 
-        var resultSetPollInterval = 60000;
+        var pushPollInterval = 60000;
         var jobPollInterval = 60000;
         var maxPollInterval = 60000 * 15;
         var lastPolltime;
         var lastJobUpdate;
 
-        // Keys that, if present on the url, must be passed into the resultset
+        // Keys that, if present on the url, must be passed into the push
         // polling endpoint
         var rsPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
 
@@ -53,70 +53,70 @@ treeherder.factory('ThResultSetStore', [
             'nojobs'
         ];
 
-        var registerResultSetPollers = function () {
+        var registerPushPollers = function () {
 
             // these params will be passed in each time we poll to remain
             // within the constraints of the URL params
             var rsPollingParams = _.pick($location.search(), rsPollingKeys);
 
-            // Register resultset poller if it's not registered
-            var resultSetPoller = $interval(function () {
+            // Register push poller if it's not registered
+            var pushPoller = $interval(function () {
 
-                // This case is if we already have at least 1 resultset and we're
+                // This case is if we already have at least 1 push and we're
                 // polling for more.
                 // If we already have one, and the revision param is passed in,
                 // don't poll for more, because "there can be only one."
-                if ((repoData.resultSets.length > 0) &&
+                if ((repoData.pushes.length > 0) &&
                     (!repoData.loadingStatus.prepending)) {
-                    if (doResultSetPolling(rsPollingParams)) {
-                        // Get all resultsets from the oldest we have in memory
+                    if (doPushPolling(rsPollingParams)) {
+                        // Get all pushes from the oldest we have in memory
                         // to the newest possible.  This is so that, if a
-                        // resultset has been created on the server out of
+                        // push has been created on the server out of
                         // order with regards to its push_timestamp, we will
                         // still pick it up.
-                        var fromChangeRev = repoData.resultSets[repoData.resultSets.length - 1].revision;
+                        var fromChangeRev = repoData.pushes[repoData.pushes.length - 1].revision;
                         ThResultSetModel.getResultSetsFromChange(
                             repoData.name,
                             fromChangeRev,
                             rsPollingParams
                         ).then(function (data) {
-                            prependResultSets(data.data);
+                            prependPushes(data.data);
                         });
                     } else {
                         // cancel the interval for the polling, because
-                        // the parameters mean we can get no more result sets.
-                        $interval.cancel(resultSetPoller);
+                        // the parameters mean we can get no more pushes.
+                        $interval.cancel(pushPoller);
                     }
 
-                } else if ((repoData.resultSets.length === 0) &&
+                } else if ((repoData.pushes.length === 0) &&
                            (repoData.loadingStatus.prepending === false)) {
 
-                    fetchResultSets(defaultResultSetCount);
+                    fetchPushes(defaultPushCount);
 
                 }
-            }, resultSetPollInterval);
+            }, pushPollInterval);
         };
 
         /**
          * Some URL conditions will prevent polling after the initial set of
-         * result sets is loaded.
+         * pushes is loaded.
          *
-         * Formerly, we wouldn't poll for resultsets if the most recent loaded
-         * resultset matched the url param of ``tochange``.
-         * But it is now possible (however unlikely) to get resultsets out of
-         * order (due to resultset auto-creation or created via the resultset
+         * Formerly, we wouldn't poll for pushes if the most recent loaded
+         * push matched the url param of ``tochange``.
+         * But it is now possible (however unlikely) to get pushes out of
+         * order (due to push auto-creation or created via the push
          * creation API).
          * So we don't have that limitation any longer.  You may have the latest
-         * resultset, but an older one comes in that is between (wrt
-         * push_timestamp) two resultsets you have loaded.  We want to fill
+         * push, but an older one comes in that is between (wrt
+         * push_timestamp) two pushes you have loaded.  We want to fill
          * in that gap.
          */
-        var doResultSetPolling = function (rsParams) {
+        var doPushPolling = function (rsParams) {
             return (!_.has(rsParams, 'revision'));
         };
 
         var pollJobs = function () {
-            var resultSetIdList = repoData.resultSets
+            var pushIdList = repoData.pushes
                     .map(x => x.id);
 
             var jobUpdatesPromise;
@@ -126,12 +126,12 @@ treeherder.factory('ThResultSetStore', [
                 // getting updates can be extremely slow (and taxing on the
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
-                    resultSetIdList,
+                    pushIdList,
                     repoData.name
                 ));
             } else {
                 jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
-                    resultSetIdList,
+                    pushIdList,
                     repoData.name,
                     lastJobUpdate);
             }
@@ -141,12 +141,12 @@ treeherder.factory('ThResultSetStore', [
                     jobList = _.flatten(jobList);
                     if (jobList.length > 0) {
                         lastJobUpdate = getLastModifiedJobTime(jobList);
-                        var jobListByResultSet = _.values(
+                        var jobListByPush = _.values(
                             _.groupBy(jobList, 'result_set_id')
                         );
-                        jobListByResultSet
-                            .forEach(singleResultSetJobList =>
-                                     mapResultSetJobs(singleResultSetJobList));
+                        jobListByPush
+                            .forEach(singlePushJobList =>
+                                     mapPushJobs(singlePushJobList));
                     } else if (lastJobUpdate) {
                         // try to update the last poll interval to the greater of the
                         // last job update or the current time minus a small multiple of the
@@ -178,32 +178,32 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var mapResultSetJobs = function (jobList) {
+        var mapPushJobs = function (jobList) {
             if (jobList.length > 0) {
-                // jobList contains jobs belonging to the same resultset,
+                // jobList contains jobs belonging to the same push,
                 // so we can pick the result_set_id from the first job
-                var resultSetId = jobList[0].result_set_id;
-                var resultSet = _.find(repoData.resultSets,
-                                       { id: resultSetId });
-                if (_.isUndefined(resultSet)) { return $q.defer().resolve(); }
-                if (_.has(resultSet, 'jobList')) {
+                var pushId = jobList[0].result_set_id;
+                var push = _.find(repoData.pushes,
+                                       { id: pushId });
+                if (_.isUndefined(push)) { return $q.defer().resolve(); }
+                if (_.has(push, 'jobList')) {
                     // get the new job ids
                     var jobIds = _.map(jobList, 'id');
                     // remove the elements that need to be updated
-                    resultSet.jobList = resultSet.jobList.filter(job => jobIds.indexOf(job.id) === -1);
-                    resultSet.jobList = resultSet.jobList.concat(jobList);
+                    push.jobList = push.jobList.filter(job => jobIds.indexOf(job.id) === -1);
+                    push.jobList = push.jobList.concat(jobList);
                 } else {
-                    resultSet.jobList = jobList;
+                    push.jobList = jobList;
                 }
                 var sortAndGroupJobs = _.flowRight(
                     sortGroupedJobs,
                     groupJobByPlatform
                 );
-                _.extend(resultSet, sortAndGroupJobs(resultSet.jobList));
-                mapPlatforms(resultSet);
+                _.extend(push, sortAndGroupJobs(push.jobList));
+                mapPlatforms(push);
                 updateUnclassifiedFailureCountForTiers();
                 updateFilteredUnclassifiedFailureCount();
-                $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
+                $rootScope.$emit(thEvents.applyNewJobs, pushId);
             }
         };
 
@@ -250,7 +250,7 @@ treeherder.factory('ThResultSetStore', [
                     filteredUnclassifiedFailureCount: 0,
                     //used as the offset in paging
                     rsMapOldestTimestamp: null,
-                    resultSets: [],
+                    pushes: [],
 
                     // this is "watchable" by the controller now to update its scope.
                     loadingStatus: {
@@ -262,11 +262,11 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getAllShownJobs = function (spaceRemaining, errorMessage, resultsetId) {
+        var getAllShownJobs = function (spaceRemaining, errorMessage, pushId) {
             var shownJobs = [];
 
             var addIfShown = function (jMap) {
-                if (resultsetId && jMap.job_obj.result_set_id !== resultsetId) {
+                if (pushId && jMap.job_obj.result_set_id !== pushId) {
                     return;
                 }
                 if (jMap.job_obj.visible) {
@@ -301,21 +301,21 @@ treeherder.factory('ThResultSetStore', [
             return key;
         };
 
-        var addRunnableJobs = function (resultSet) {
-            getGeckoDecisionTaskId(resultSet.id).then(function (decisionTaskId) {
+        var addRunnableJobs = function (push) {
+            getGeckoDecisionTaskId(push.id).then(function (decisionTaskId) {
                 return ThRunnableJobModel.get_list(repoData.name, { decision_task_id: decisionTaskId }).then(function (jobList) {
-                    var id = resultSet.id;
+                    var id = push.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
                         job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
                     });
 
                     if (jobList.length === 0) {
-                        resultSet.isRunnableVisible = false;
+                        push.isRunnableVisible = false;
                         thNotify.send("No new jobs available");
                     }
 
-                    mapResultSetJobs(jobList);
+                    mapPushJobs(jobList);
                 }, function () {
                     thNotify.send("Error fetching runnable jobs", "danger");
                 });
@@ -334,11 +334,11 @@ treeherder.factory('ThResultSetStore', [
 
         /******
          * Build the Job and Resultset object mappings to make it faster and
-         * easier to find and update jobs and resultsets
+         * easier to find and update jobs and pushes
          *
-         * @param data The array of resultsets to map.
+         * @param data The array of pushes to map.
          */
-        var mapResultSets = function (data) {
+        var mapPushes = function (data) {
 
             for (var rs_i = 0; rs_i < data.length; rs_i++) {
                 var rs_obj = data[rs_i];
@@ -357,8 +357,8 @@ treeherder.factory('ThResultSetStore', [
                 }
             }
 
-            repoData.resultSets.sort(rsCompare);
-            repoData.rsMapOldestTimestamp = _.last(repoData.resultSets).push_timestamp;
+            repoData.pushes.sort(rsCompare);
+            repoData.rsMapOldestTimestamp = _.last(repoData.pushes).push_timestamp;
         };
 
         var mapPlatforms = function (rs_obj) {
@@ -390,7 +390,7 @@ treeherder.factory('ThResultSetStore', [
                     // object.  This would be set if a user explicitly clicked
                     // a group to toggle it expanded/collapsed.
                     // This value will have been overwritten by the _.extend
-                    // in mapResultSetJobs.
+                    // in mapPushJobs.
                     var oldGroup = repoData.grpMap[gr_obj.mapKey];
                     if (oldGroup) {
                         gr_obj.groupState = oldGroup.grp_obj.groupState;
@@ -465,7 +465,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         /**
-         * Sort the resultsets in place after updating the array
+         * Sort the pushes in place after updating the array
          */
         var rsCompare = function (rs_a, rs_b) {
             if (rs_a.push_timestamp > rs_b.push_timestamp) {
@@ -489,7 +489,7 @@ treeherder.factory('ThResultSetStore', [
             var plMapElement = rsMapElement.platforms[platformKey];
             if (!plMapElement) {
 
-                // this platform wasn't in the resultset, so add it.
+                // this platform wasn't in the push, so add it.
                 var pl_obj = {
                     name: newJob.platform,
                     option: newJob.platform_option,
@@ -500,7 +500,7 @@ treeherder.factory('ThResultSetStore', [
                 if (rsMapElement.rs_obj.hasOwnProperty('platforms')) {
                     rsMapElement.rs_obj.platforms.push(pl_obj);
 
-                    // add the new platform to the resultset map
+                    // add the new platform to the push map
                     rsMapElement.platforms[platformKey] = {
                         pl_obj: pl_obj,
                         parent: rsMapElement,
@@ -584,8 +584,8 @@ treeherder.factory('ThResultSetStore', [
 
         var aggregateJobPlatform = function (job, platformData) {
 
-            var resultsetId, platformName, platformOption, platformAggregateId,
-                platformKey, jobUpdated, resultsetAggregateId, revision,
+            var pushId, platformName, platformOption, platformAggregateId,
+                platformKey, jobUpdated, pushAggregateId, revision,
                 jobGroups;
 
             jobUpdated = updateJob(job);
@@ -596,12 +596,12 @@ treeherder.factory('ThResultSetStore', [
                 return;
             }
 
-            resultsetId = job.result_set_id;
+            pushId = job.result_set_id;
             platformName = job.platform;
             platformOption = job.platform_option;
 
-            if (_.isEmpty(repoData.rsMap[resultsetId])) {
-                //We don't have this resultset
+            if (_.isEmpty(repoData.rsMap[pushId])) {
+                //We don't have this push
                 return;
             }
 
@@ -614,29 +614,29 @@ treeherder.factory('ThResultSetStore', [
 
             if (!platformData[platformAggregateId]) {
 
-                if (!_.isEmpty(repoData.rsMap[resultsetId])) {
+                if (!_.isEmpty(repoData.rsMap[pushId])) {
 
-                    revision = repoData.rsMap[resultsetId].rs_obj.revision;
+                    revision = repoData.rsMap[pushId].rs_obj.revision;
 
-                    resultsetAggregateId = thAggregateIds.getPushTableId(
-                        repoData.name, resultsetId, revision
+                    pushAggregateId = thAggregateIds.getPushTableId(
+                        repoData.name, pushId, revision
                     );
 
                     platformKey = getPlatformKey(platformName, platformOption);
 
                     jobGroups = [];
-                    if (repoData.rsMap[resultsetId].platforms[platformKey] !== undefined) {
-                        jobGroups = repoData.rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+                    if (repoData.rsMap[pushId].platforms[platformKey] !== undefined) {
+                        jobGroups = repoData.rsMap[pushId].platforms[platformKey].pl_obj.groups;
                     }
 
                     platformData[platformAggregateId] = {
-                        platformName: platformName,
-                        revision: revision,
-                        platformOrder: repoData.rsMap[resultsetId].rs_obj.platforms,
-                        resultsetId: resultsetId,
-                        resultsetAggregateId: resultsetAggregateId,
-                        platformOption: platformOption,
-                        jobGroups: jobGroups,
+                        platformName,
+                        revision,
+                        platformOrder: repoData.rsMap[pushId].rs_obj.platforms,
+                        pushId,
+                        pushAggregateId,
+                        platformOption,
+                        jobGroups,
                         jobs: []
                     };
                 }
@@ -646,7 +646,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         /***
-         * update resultsets and jobs with those that were in the update queue
+         * update pushes and jobs with those that were in the update queue
          * @param jobList List of jobs to be placed in the data model and maps
          */
         var updateJobs = function (jobList) {
@@ -665,8 +665,8 @@ treeherder.factory('ThResultSetStore', [
         /******
          *
          * Add or update a new job.  Either we have it loaded already and the
-         * status and info need to be updated.  Or we have the resultset, and
-         * the job needs to be added to that resultset.
+         * status and info need to be updated.  Or we have the push, and
+         * the job needs to be added to that push.
          *
          * Check the map, and update.  or add by finding the right place.
          *
@@ -702,7 +702,7 @@ treeherder.factory('ThResultSetStore', [
             var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
             var rsMapElement = repoData.rsMap[newJob.result_set_id];
 
-            //We don't have this resultset id yet
+            //We don't have this push id yet
             if (_.isEmpty(rsMapElement)) {
                 return false;
             }
@@ -738,31 +738,31 @@ treeherder.factory('ThResultSetStore', [
             return true;
         };
 
-        var prependResultSets = function (data) {
-            // prepend the resultsets because they'll be newer.
+        var prependPushes = function (data) {
+            // prepend the pushes because they'll be newer.
             var added = [];
             for (var i = data.results.length - 1; i > -1; i--) {
                 if (data.results[i].push_timestamp >= repoData.rsMapOldestTimestamp &&
-                    isInResultSetRange(data.results[i].push_timestamp) &&
+                    isInPushRange(data.results[i].push_timestamp) &&
                     repoData.rsMap[data.results[i].id] === undefined) {
 
-                    repoData.resultSets.push(data.results[i]);
+                    repoData.pushes.push(data.results[i]);
                     added.push(data.results[i]);
                 }
             }
 
-            mapResultSets(added);
+            mapPushes(added);
 
             repoData.loadingStatus.prepending = false;
             $rootScope.$emit(thEvents.pushesLoaded);
         };
 
-        var appendResultSets = function (data) {
+        var appendPushes = function (data) {
             if (data.results.length > 0) {
 
-                var rsIds = repoData.resultSets.map(rs => rs.id);
+                var rsIds = repoData.pushes.map(rs => rs.id);
 
-                // ensure we only append resultsets we don't already have.
+                // ensure we only append pushes we don't already have.
                 // There could be overlap with fetching "next 10" because we use
                 // the latest ``push_timestamp`` and theoretically we could
                 // get
@@ -774,9 +774,9 @@ treeherder.factory('ThResultSetStore', [
                 });
 
                 Array.prototype.push.apply(
-                    repoData.resultSets, newResultsets
+                    repoData.pushes, newResultsets
                 );
-                mapResultSets(newResultsets);
+                mapPushes(newResultsets);
 
                 // only set the meta-data on the first pull for a repo.
                 // because this will establish ranges from then-on for auto-updates.
@@ -793,7 +793,7 @@ treeherder.factory('ThResultSetStore', [
          * Check if ``repoData`` had a range specified in its ``meta`` data
          * and whether or not ``push_timestamp`` falls within that range.
          */
-        var isInResultSetRange = function (push_timestamp) {
+        var isInPushRange = function (push_timestamp) {
             var result = true;
             if (repoData && repoData.length) {
                 var meta = repoData.meta;
@@ -814,14 +814,14 @@ treeherder.factory('ThResultSetStore', [
             return result;
         };
 
-        var getResultSetsArray = function () {
-            // this is "watchable" for when we add new resultsets and have to
+        var getPushArray = function () {
+            // this is "watchable" for when we add new pushes and have to
             // sort them
-            return repoData.resultSets;
+            return repoData.pushes;
         };
 
-        var getResultSet = function (resultsetId) {
-            return repoData.rsMap[resultsetId].rs_obj;
+        var getPush = function (pushId) {
+            return repoData.rsMap[pushId].rs_obj;
         };
 
         var getSelectedRunnableJobs = function (pushId) {
@@ -834,9 +834,9 @@ treeherder.factory('ThResultSetStore', [
             return repoData.rsMap[pushId].selected_runnable_jobs;
         };
 
-        var getGeckoDecisionJob = function (resultsetId) {
-            let resultSet = getResultSet(resultsetId);
-            let platform = _.find(resultSet.platforms, {
+        var getGeckoDecisionJob = function (pushId) {
+            let push = getPush(pushId);
+            let platform = _.find(push.platforms, {
                 name: "gecko-decision",
                 groups: [{ jobs: [{ state: "completed", job_type_symbol: "D" }] }] });
             if (platform) {
@@ -849,16 +849,16 @@ treeherder.factory('ThResultSetStore', [
             return undefined;
         };
 
-        var getGeckoDecisionTaskId = function (resultsetId) {
-            let resultSet = getResultSet(resultsetId);
-            let dtid = resultSet.geckoDecisionTaskId;
+        var getGeckoDecisionTaskId = function (pushId) {
+            let push = getPush(pushId);
+            let dtid = push.geckoDecisionTaskId;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
             if (dtid || dtid === "") {
                 return $q.when(dtid);
             }
 
-            let decisionTask = getGeckoDecisionJob(resultsetId);
+            let decisionTask = getGeckoDecisionJob(pushId);
             if (decisionTask) {
                 return ThJobModel.get(repoData.name, decisionTask.id).then(
                     function (job) {
@@ -875,8 +875,8 @@ treeherder.factory('ThResultSetStore', [
             return $q.reject("No decision task");
         };
 
-        var toggleSelectedRunnableJob = function (resultsetId, buildername) {
-            var selectedRunnableJobs = getSelectedRunnableJobs(resultsetId);
+        var toggleSelectedRunnableJob = function (pushId, buildername) {
+            var selectedRunnableJobs = getSelectedRunnableJobs(pushId);
             var jobIndex = selectedRunnableJobs.indexOf(buildername);
 
             if (jobIndex === -1) {
@@ -884,7 +884,7 @@ treeherder.factory('ThResultSetStore', [
             } else {
                 selectedRunnableJobs.splice(jobIndex, 1);
             }
-            $rootScope.$emit(thEvents.selectRunnableJob, selectedRunnableJobs, resultsetId);
+            $rootScope.$emit(thEvents.selectRunnableJob, selectedRunnableJobs, pushId);
             return selectedRunnableJobs;
         };
 
@@ -893,14 +893,14 @@ treeherder.factory('ThResultSetStore', [
             return repoData.jobMap;
         };
 
-        var fetchResultSets = function (count, keepFilters) {
+        var fetchPushes = function (count, keepFilters) {
             /**
-             * Get the next batch of resultsets based on our current offset.
+             * Get the next batch of pushes based on our current offset.
              * @param count How many to fetch
              */
             repoData.loadingStatus.appending = true;
-            var isAppend = (repoData.resultSets.length > 0);
-            var resultsets;
+            var isAppend = (repoData.pushes.length > 0);
+            var pushes;
             var loadRepositories = ThRepositoryModel.load({
                 name: repoData.name,
                 watchRepos: true
@@ -910,13 +910,13 @@ treeherder.factory('ThResultSetStore', [
                                                                 count,
                                                                 true,
                                                                 keepFilters)
-                    .then((data) => { resultsets = data.data; });
+                    .then((data) => { pushes = data.data; });
 
             return $q.all([loadRepositories, loadResultsets])
-                .then(() => appendResultSets(resultsets),
+                .then(() => appendPushes(pushes),
                      () => {
-                         thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
-                         appendResultSets({ results: [] });
+                         thNotify.send("Error retrieving push data!", "danger", { sticky: true });
+                         appendPushes({ results: [] });
                      })
                 .then(() => {
                     // if ``nojobs`` is on the query string, then don't load jobs.
@@ -926,12 +926,12 @@ treeherder.factory('ThResultSetStore', [
                         return;
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
-                        _.map(resultsets.results, 'id'),
+                        _.map(pushes.results, 'id'),
                         repoData.name
                     );
                     $q.all(jobsPromiseList)
-                        .then((resultSetJobList) => {
-                            var lastModifiedTimes = resultSetJobList
+                        .then((pushJobList) => {
+                            var lastModifiedTimes = pushJobList
                                 .map(jobList => getLastModifiedJobTime(jobList))
                                 .filter(x => x);
                             if (lastModifiedTimes.length) {
@@ -950,13 +950,13 @@ treeherder.factory('ThResultSetStore', [
                         });
                     /*
                      * this list of promises will tell us when the
-                     * mapResultSetJobs function will be applied to all the jobs
+                     * mapPushJobs function will be applied to all the jobs
                      * ie when we can register the job poller
                      */
-                    var mapResultSetJobsPromiseList = jobsPromiseList
+                    var mapPushJobsPromiseList = jobsPromiseList
                            .map(jobsPromise => jobsPromise
-                                .then(jobs => mapResultSetJobs(jobs)));
-                    $q.all(mapResultSetJobsPromiseList)
+                                .then(jobs => mapPushJobs(jobs)));
+                    $q.all(mapPushJobsPromiseList)
                         .then(() => {
                             $rootScope.$emit(thEvents.jobsLoaded);
                             if (!isAppend) {
@@ -1103,26 +1103,26 @@ treeherder.factory('ThResultSetStore', [
             aggregateJobPlatform: aggregateJobPlatform,
             deleteRunnableJobs: deleteRunnableJobs,
             fetchJobs: fetchJobs,
-            fetchResultSets: fetchResultSets,
+            fetchPushes: fetchPushes,
             getAllShownJobs: getAllShownJobs,
             getJobMap: getJobMap,
             addRunnableJobs: addRunnableJobs,
             getSelectedRunnableJobs: getSelectedRunnableJobs,
             getGeckoDecisionTaskId: getGeckoDecisionTaskId,
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
-            getResultSet: getResultSet,
-            getResultSetsArray: getResultSetsArray,
+            getPush: getPush,
+            getPushArray: getPushArray,
             getSelectedJob: getSelectedJob,
             getFilteredUnclassifiedFailureCount: getFilteredUnclassifiedFailureCount,
             getAllUnclassifiedFailureCount: getAllUnclassifiedFailureCount,
             setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
-            defaultResultSetCount: defaultResultSetCount,
+            defaultPushCount: defaultPushCount,
             reloadOnChangeParameters: reloadOnChangeParameters
 
         };
 
-        registerResultSetPollers();
+        registerPushPollers();
 
         return api;
 

@@ -72,7 +72,7 @@ describe('ThResultSetStore', function(){
 
         model = ThResultSetStore;
         model.initRepository(rootScope.repoName);
-        model.fetchResultSets(10);
+        model.fetchPushes(10);
 
         $httpBackend.flush();
     }));
@@ -81,10 +81,10 @@ describe('ThResultSetStore', function(){
         Tests ThResultSetStore
      */
     it('should have 2 resultset', function() {
-        expect(model.getResultSetsArray().length).toBe(2);
+        expect(model.getPushArray().length).toBe(2);
     });
 
     it('should have id of 1 in foreground (current) repo', function() {
-        expect(model.getResultSetsArray()[0].id).toBe(1);
+        expect(model.getPushArray()[0].id).toBe(1);
     });
 });
