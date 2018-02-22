@@ -458,14 +458,6 @@ treeherder.factory('thJobFilters', [
             return UNCLASSIFIED_IDS.indexOf(job.failure_classification_id) === -1;
         }
 
-        function stripFiltersFromQueryString(locationSearch) {
-            delete locationSearch[QS_CLASSIFIED_STATE];
-            delete locationSearch[QS_RESULT_STATUS];
-
-            _stripFieldFilters(locationSearch);
-            return locationSearch;
-        }
-
         /**
          * Removes field filters from the passed-in locationSearch without
          * actually setting it in the location bar
@@ -607,7 +599,6 @@ treeherder.factory('thJobFilters', [
             getResultStatusArray: getResultStatusArray,
             isJobUnclassifiedFailure: isJobUnclassifiedFailure,
             isFilterSetToShow: isFilterSetToShow,
-            stripFiltersFromQueryString: stripFiltersFromQueryString,
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
