@@ -46,7 +46,7 @@ export default class PushActionMenu extends React.PureComponent {
         return;
     }
 
-    this.ThResultSetStore.getGeckoDecisionTaskId(this.repoName, this.pushId)
+    this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
         this.ThResultSetModel.triggerMissingJobs(decisionTaskID)
           .then((msg) => {
@@ -70,7 +70,7 @@ export default class PushActionMenu extends React.PureComponent {
         times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
     }
 
-    this.ThResultSetStore.getGeckoDecisionTaskId(this.repoName, this.pushId)
+    this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
         this.ThResultSetModel.triggerAllTalosJobs(times, decisionTaskID)
           .then((msg) => {

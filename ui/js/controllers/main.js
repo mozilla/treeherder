@@ -34,9 +34,6 @@ treeherderApp.controller('MainCtrl', [
             $location.search("repo", $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
-        ThResultSetStore.addRepository($rootScope.repoName);
-
-
         thClassificationTypes.load();
 
         var checkServerRevision = function () {
@@ -83,7 +80,7 @@ treeherderApp.controller('MainCtrl', [
         });
 
         $rootScope.getWindowTitle = function () {
-            var ufc = $scope.getAllUnclassifiedFailureCount($rootScope.repoName);
+            var ufc = $scope.getAllUnclassifiedFailureCount();
             var params = $location.search();
 
             // repoName is undefined for the first few title update attempts, show something sensible
@@ -103,8 +100,8 @@ treeherderApp.controller('MainCtrl', [
             var revisions = [];
             var percentComplete;
 
-            if ($scope.currentRepo && ThResultSetStore.getResultSetsArray($scope.repoName)[0]) {
-                revisions = ThResultSetStore.getResultSetsArray($scope.repoName)[0].revisions;
+            if ($scope.currentRepo && ThResultSetStore.getResultSetsArray()[0]) {
+                revisions = ThResultSetStore.getResultSetsArray()[0].revisions;
             }
 
             // Revisions (and comments) might not be loaded the first few times this function is called
@@ -113,8 +110,8 @@ treeherderApp.controller('MainCtrl', [
             }
 
             //Job counts are calculated at a later point in the page load, so this is undefined for a while
-            if (ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts) {
-                percentComplete = ThResultSetStore.getResultSetsArray($scope.repoName)[0].job_counts.percentComplete;
+            if (ThResultSetStore.getResultSetsArray()[0].job_counts) {
+                percentComplete = ThResultSetStore.getResultSetsArray()[0].job_counts.percentComplete;
             }
 
             for (var i=0; i<revisions.length; i++) {
@@ -147,7 +144,7 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.$emit(thEvents.clearSelectedJob);
 
             // Reset selected job to null to initialize nav position
-            ThResultSetStore.setSelectedJob($rootScope.repoName);
+            ThResultSetStore.setSelectedJob();
         };
 
         $scope.repoModel = ThRepositoryModel;

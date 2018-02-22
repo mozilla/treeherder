@@ -94,18 +94,18 @@ export default class PushHeader extends React.PureComponent {
   }
 
   triggerNewJobs() {
-    const { repoName, loggedIn, pushId } = this.props;
+    const { loggedIn, pushId } = this.props;
 
     if (!window.confirm(
         'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
       return;
     }
     if (loggedIn) {
-      const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(repoName, pushId);
-      this.ThResultSetStore.getGeckoDecisionTaskId(repoName, pushId).then((decisionTaskID) => {
+      const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(pushId);
+      this.ThResultSetStore.getGeckoDecisionTaskId(pushId).then((decisionTaskID) => {
         this.ThResultSetModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
           this.thNotify.send(result, "success");
-          this.ThResultSetStore.deleteRunnableJobs(repoName, pushId);
+          this.ThResultSetStore.deleteRunnableJobs(pushId);
           this.props.hideRunnableJobsCb();
           this.setState({ runnableJobsSelected: false });
         }, (e) => {
@@ -139,7 +139,6 @@ export default class PushHeader extends React.PureComponent {
       return;
     }
     const shownJobs = this.ThResultSetStore.getAllShownJobs(
-      this.props.repoName,
       this.thPinboard.spaceRemaining(),
       this.thPinboardCountError,
       this.props.pushId

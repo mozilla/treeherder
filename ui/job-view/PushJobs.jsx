@@ -69,12 +69,12 @@ export default class PushJobs extends React.Component {
     );
 
     this.showRunnableJobsUnlisten = this.$rootScope.$on(this.thEvents.showRunnableJobs, (ev, pushId) => {
-      const { push, repoName } = this.props;
+      const { push } = this.props;
 
       if (push.id === pushId) {
         push.isRunnableVisible = true;
         this.setState({ isRunnableVisible: true });
-        this.ThResultSetStore.addRunnableJobs(repoName, push);
+        this.ThResultSetStore.addRunnableJobs(push);
       }
     });
 
@@ -125,7 +125,7 @@ export default class PushJobs extends React.Component {
   }
 
   getJobFromId(jobId) {
-    const jobMap = this.ThResultSetStore.getJobMap(this.props.repoName);
+    const jobMap = this.ThResultSetStore.getJobMap();
     return jobMap[`${jobId}`].job_obj;
   }
 
@@ -186,7 +186,6 @@ export default class PushJobs extends React.Component {
 
   handleRunnableClick(job) {
     this.ThResultSetStore.toggleSelectedRunnableJob(
-      this.props.repoName,
       this.pushId,
       job.ref_data_name
     );

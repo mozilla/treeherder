@@ -28,7 +28,7 @@ treeherder.factory('ThResultSetStore', [
         var defaultResultSetCount = 10;
 
         // the primary data model
-        var repositories = {};
+        var repoData = {};
 
         var resultSetPollInterval = 60000;
         var jobPollInterval = 60000;
@@ -61,28 +61,26 @@ treeherder.factory('ThResultSetStore', [
 
             // Register resultset poller if it's not registered
             var resultSetPoller = $interval(function () {
-                // resultset data for the current repository
-                var rsData = repositories[$rootScope.repoName];
 
                 // This case is if we already have at least 1 resultset and we're
                 // polling for more.
                 // If we already have one, and the revision param is passed in,
                 // don't poll for more, because "there can be only one."
-                if ((rsData.resultSets.length > 0) &&
-                    (!rsData.loadingStatus.prepending)) {
+                if ((repoData.resultSets.length > 0) &&
+                    (!repoData.loadingStatus.prepending)) {
                     if (doResultSetPolling(rsPollingParams)) {
                         // Get all resultsets from the oldest we have in memory
                         // to the newest possible.  This is so that, if a
                         // resultset has been created on the server out of
                         // order with regards to its push_timestamp, we will
                         // still pick it up.
-                        var fromChangeRev = rsData.resultSets[rsData.resultSets.length - 1].revision;
+                        var fromChangeRev = repoData.resultSets[repoData.resultSets.length - 1].revision;
                         ThResultSetModel.getResultSetsFromChange(
-                            $rootScope.repoName,
+                            repoData.name,
                             fromChangeRev,
                             rsPollingParams
                         ).then(function (data) {
-                            prependResultSets($rootScope.repoName, data.data);
+                            prependResultSets(data.data);
                         });
                     } else {
                         // cancel the interval for the polling, because
@@ -90,10 +88,10 @@ treeherder.factory('ThResultSetStore', [
                         $interval.cancel(resultSetPoller);
                     }
 
-                } else if ((rsData.resultSets.length === 0) &&
-                           (rsData.loadingStatus.prepending === false)) {
+                } else if ((repoData.resultSets.length === 0) &&
+                           (repoData.loadingStatus.prepending === false)) {
 
-                    fetchResultSets($rootScope.repoName, defaultResultSetCount);
+                    fetchResultSets(defaultResultSetCount);
 
                 }
             }, resultSetPollInterval);
@@ -118,7 +116,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var pollJobs = function () {
-            var resultSetIdList = repositories[$rootScope.repoName].resultSets
+            var resultSetIdList = repoData.resultSets
                     .map(x => x.id);
 
             var jobUpdatesPromise;
@@ -129,12 +127,12 @@ treeherder.factory('ThResultSetStore', [
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
                     resultSetIdList,
-                    $rootScope.repoName
+                    repoData.name
                 ));
             } else {
                 jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
                     resultSetIdList,
-                    $rootScope.repoName,
+                    repoData.name,
                     lastJobUpdate);
             }
             lastPolltime = Date.now();
@@ -148,8 +146,7 @@ treeherder.factory('ThResultSetStore', [
                         );
                         jobListByResultSet
                             .forEach(singleResultSetJobList =>
-                                     mapResultSetJobs($rootScope.repoName,
-                                                      singleResultSetJobList));
+                                     mapResultSetJobs(singleResultSetJobList));
                     } else if (lastJobUpdate) {
                         // try to update the last poll interval to the greater of the
                         // last job update or the current time minus a small multiple of the
@@ -181,12 +178,12 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var mapResultSetJobs = function (repoName, jobList) {
+        var mapResultSetJobs = function (jobList) {
             if (jobList.length > 0) {
                 // jobList contains jobs belonging to the same resultset,
                 // so we can pick the result_set_id from the first job
                 var resultSetId = jobList[0].result_set_id;
-                var resultSet = _.find(repositories[repoName].resultSets,
+                var resultSet = _.find(repoData.resultSets,
                                        { id: resultSetId });
                 if (_.isUndefined(resultSet)) { return $q.defer().resolve(); }
                 if (_.has(resultSet, 'jobList')) {
@@ -203,34 +200,31 @@ treeherder.factory('ThResultSetStore', [
                     groupJobByPlatform
                 );
                 _.extend(resultSet, sortAndGroupJobs(resultSet.jobList));
-                mapPlatforms(
-                    repoName,
-                    resultSet
-                );
-                updateUnclassifiedFailureCountForTiers(repoName);
-                updateFilteredUnclassifiedFailureCount(repoName);
+                mapPlatforms(resultSet);
+                updateUnclassifiedFailureCountForTiers();
+                updateFilteredUnclassifiedFailureCount();
                 $rootScope.$emit(thEvents.applyNewJobs, resultSetId);
             }
         };
 
         $rootScope.$on(thEvents.recalculateUnclassified, function () {
-            $timeout(function (repoName) {
-                updateUnclassifiedFailureCountForTiers(repoName);
-                updateFilteredUnclassifiedFailureCount(repoName);
-            }, 0, true, $rootScope.repoName);
+            $timeout(function () {
+                updateUnclassifiedFailureCountForTiers();
+                updateFilteredUnclassifiedFailureCount();
+            }, 0, true);
         });
         $rootScope.$on(thEvents.jobsClassified, function () {
-            $timeout(function (repoName) {
-                updateUnclassifiedFailureCountForTiers(repoName);
-                updateFilteredUnclassifiedFailureCount(repoName);
-            }, 0, true, $rootScope.repoName);
+            $timeout(function () {
+                updateUnclassifiedFailureCountForTiers();
+                updateFilteredUnclassifiedFailureCount();
+            }, 0, true);
         });
         $rootScope.$on(thEvents.globalFilterChanged, function () {
-            $timeout(updateFilteredUnclassifiedFailureCount, 0, true, $rootScope.repoName);
+            $timeout(updateFilteredUnclassifiedFailureCount, 0, true);
         });
 
-        var addRepository = function (repoName) {
-            //Initialize a new repository in the repositories structure
+        var initRepository = function (repoName) {
+            //Initialize a new repository in the repoData structure
 
             // only base the locationSearch on params that are NOT filters,
             // because filters don't effect the server side fetching of
@@ -239,9 +233,9 @@ treeherder.factory('ThResultSetStore', [
                 _.clone($location.search())
             );
 
-            if (_.isEmpty(repositories[repoName]) ||
-               !_.isEqual(locationSearch, repositories[repoName].search)) {
-                repositories[repoName] = {
+            if (_.isEmpty(repoData) ||
+               !_.isEqual(locationSearch, repoData.search)) {
+                repoData = {
 
                     name: repoName,
 
@@ -278,7 +272,7 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getAllShownJobs = function (repoName, spaceRemaining, errorMessage, resultsetId) {
+        var getAllShownJobs = function (spaceRemaining, errorMessage, resultsetId) {
             var shownJobs = [];
 
             var addIfShown = function (jMap) {
@@ -294,19 +288,19 @@ treeherder.factory('ThResultSetStore', [
                 }
                 return false;
             };
-            _.find(getJobMap(repoName), addIfShown);
+            _.find(getJobMap(), addIfShown);
 
             return shownJobs;
         };
 
-        var getSelectedJob = function (repoName) {
+        var getSelectedJob = function () {
             return {
-                job: repositories[repoName].lastJobObjSelected
+                job: repoData.lastJobObjSelected
             };
         };
 
-        var setSelectedJob = function (repoName, lastJobObjSelected) {
-            repositories[repoName].lastJobObjSelected = lastJobObjSelected;
+        var setSelectedJob = function (lastJobObjSelected) {
+            repoData.lastJobObjSelected = lastJobObjSelected;
         };
 
         var getPlatformKey = function (name, option) {
@@ -317,9 +311,9 @@ treeherder.factory('ThResultSetStore', [
             return key;
         };
 
-        var addRunnableJobs = function (repoName, resultSet) {
-            getGeckoDecisionTaskId(repoName, resultSet.id).then(function (decisionTaskId) {
-                return ThRunnableJobModel.get_list(repoName, { decision_task_id: decisionTaskId }).then(function (jobList) {
+        var addRunnableJobs = function (resultSet) {
+            getGeckoDecisionTaskId(resultSet.id).then(function (decisionTaskId) {
+                return ThRunnableJobModel.get_list(repoData.name, { decision_task_id: decisionTaskId }).then(function (jobList) {
                     var id = resultSet.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
@@ -331,7 +325,7 @@ treeherder.factory('ThResultSetStore', [
                         thNotify.send("No new jobs available");
                     }
 
-                    mapResultSetJobs(repoName, jobList);
+                    mapResultSetJobs(jobList);
                 }, function () {
                     thNotify.send("Error fetching runnable jobs", "danger");
                 });
@@ -340,8 +334,8 @@ treeherder.factory('ThResultSetStore', [
             });
         };
 
-        var deleteRunnableJobs = function (repoName, pushId) {
-            const push = repositories[repoName].rsMap[pushId];
+        var deleteRunnableJobs = function (pushId) {
+            const push = repoData.rsMap[pushId];
             push.selected_runnable_jobs = [];
             push.rs_obj.isRunnableVisible = false;
             $rootScope.$emit(thEvents.selectRunnableJob, []);
@@ -354,7 +348,7 @@ treeherder.factory('ThResultSetStore', [
          *
          * @param data The array of resultsets to map.
          */
-        var mapResultSets = function (repoName, data) {
+        var mapResultSets = function (data) {
 
             for (var rs_i = 0; rs_i < data.length; rs_i++) {
                 var rs_obj = data[rs_i];
@@ -365,30 +359,30 @@ treeherder.factory('ThResultSetStore', [
                     rs_obj: rs_obj,
                     platforms: {}
                 };
-                repositories[repoName].rsMap[rs_obj.id] = rsMapElement;
+                repoData.rsMap[rs_obj.id] = rsMapElement;
 
                 // platforms
                 if (rs_obj.platforms !== undefined) {
-                    mapPlatforms(repoName, rs_obj);
+                    mapPlatforms(rs_obj);
                 }
             }
 
-            repositories[repoName].resultSets.sort(rsCompare);
-            repositories[repoName].rsMapOldestTimestamp = _.last(repositories[repoName].resultSets).push_timestamp;
+            repoData.resultSets.sort(rsCompare);
+            repoData.rsMapOldestTimestamp = _.last(repoData.resultSets).push_timestamp;
         };
 
-        var mapPlatforms = function (repoName, rs_obj) {
+        var mapPlatforms = function (rs_obj) {
 
             for (var pl_i = 0; pl_i < rs_obj.platforms.length; pl_i++) {
                 var pl_obj = rs_obj.platforms[pl_i];
 
                 var plMapElement = {
                     pl_obj: pl_obj,
-                    parent: repositories[repoName].rsMap[rs_obj.id],
+                    parent: repoData.rsMap[rs_obj.id],
                     groups: {}
                 };
                 var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
-                repositories[repoName].rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
+                repoData.rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
 
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
@@ -407,11 +401,11 @@ treeherder.factory('ThResultSetStore', [
                     // a group to toggle it expanded/collapsed.
                     // This value will have been overwritten by the _.extend
                     // in mapResultSetJobs.
-                    var oldGroup = repositories[repoName].grpMap[gr_obj.mapKey];
+                    var oldGroup = repoData.grpMap[gr_obj.mapKey];
                     if (oldGroup) {
                         gr_obj.groupState = oldGroup.grp_obj.groupState;
                     }
-                    repositories[repoName].grpMap[gr_obj.mapKey] = grMapElement;
+                    repoData.grpMap[gr_obj.mapKey] = grMapElement;
 
                     // jobs
                     for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
@@ -423,22 +417,22 @@ treeherder.factory('ThResultSetStore', [
                             parent: grMapElement
                         };
                         grMapElement.jobs[key] = jobMapElement;
-                        repositories[repoName].jobMap[key] = jobMapElement;
-                        updateUnclassifiedFailureMap(repoName, job_obj);
+                        repoData.jobMap[key] = jobMapElement;
+                        updateUnclassifiedFailureMap(job_obj);
                     }
                 }
             }
         };
 
-        var updateUnclassifiedFailureMap = function (repoName, job) {
+        var updateUnclassifiedFailureMap = function (job) {
             if (thJobFilters.isJobUnclassifiedFailure(job)) {
                 // store a job here instead of just ``true`` so that when we
                 // go back and evaluate each one to see if it matches a tier,
                 // we can.  This also allows us to check other values of the job
                 // to see if it matches the current filters.
-                repositories[repoName].unclassifiedFailureMap[job.job_guid] = job;
+                repoData.unclassifiedFailureMap[job.job_guid] = job;
             } else {
-                delete repositories[repoName].unclassifiedFailureMap[job.job_guid];
+                delete repoData.unclassifiedFailureMap[job.job_guid];
             }
         };
 
@@ -446,15 +440,13 @@ treeherder.factory('ThResultSetStore', [
          * Go through map of loaded unclassified jobs and check against current
          * enabled tiers to get this count.
          */
-        var updateUnclassifiedFailureCountForTiers = function (repoName) {
-            if (_.has(repositories, repoName)) {
-                repositories[repoName].unclassifiedFailureCountForTiers = 0;
-                _.forEach(repositories[repoName].unclassifiedFailureMap, function (job) {
-                    if (thJobFilters.isFilterSetToShow("tier", job.tier)) {
-                        repositories[repoName].unclassifiedFailureCountForTiers += 1;
-                    }
-                });
-            }
+        var updateUnclassifiedFailureCountForTiers = function () {
+            repoData.unclassifiedFailureCountForTiers = 0;
+            _.forEach(repoData.unclassifiedFailureMap, function (job) {
+                if (thJobFilters.isFilterSetToShow("tier", job.tier)) {
+                    repoData.unclassifiedFailureCountForTiers += 1;
+                }
+            });
         };
 
         /**
@@ -463,36 +455,23 @@ treeherder.factory('ThResultSetStore', [
          * gives us the difference in unclassified failures and, of those jobs, the
          * ones that have been filtered out
          *
-         * @param {String} repoName - the name of the repository from which to match the unclassified jobs
          * @private
          */
-        var updateFilteredUnclassifiedFailureCount = function (repoName) {
-            if (!_.has(repositories, repoName)) {
-                return;
-            }
-
-            var repo = repositories[repoName];
-            repo.filteredUnclassifiedFailureCount = 0;
-            _.forEach(repo.unclassifiedFailureMap, function (job) {
+        var updateFilteredUnclassifiedFailureCount = function () {
+            repoData.filteredUnclassifiedFailureCount = 0;
+            _.forEach(repoData.unclassifiedFailureMap, function (job) {
                 if (thJobFilters.showJob(job)) {
-                    repo.filteredUnclassifiedFailureCount++;
+                    repoData.filteredUnclassifiedFailureCount++;
                 }
             });
         };
 
-        var getAllUnclassifiedFailureCount = function (repoName) {
-            if (repositories[repoName]) {
-                return repositories[repoName].unclassifiedFailureCountForTiers;
-            }
-            return 0;
+        var getAllUnclassifiedFailureCount = function () {
+            return repoData.unclassifiedFailureCountForTiers;
         };
 
-        var getFilteredUnclassifiedFailureCount = function (repoName) {
-            if (repositories.hasOwnProperty(repoName)) {
-                return repositories[repoName].filteredUnclassifiedFailureCount;
-            }
-
-            return 0;
+        var getFilteredUnclassifiedFailureCount = function () {
+            return repoData.filteredUnclassifiedFailureCount;
         };
 
         /**
@@ -514,8 +493,8 @@ treeherder.factory('ThResultSetStore', [
          * @param newJob
          * @returns plMapElement
          */
-        var getOrCreatePlatform = function (repoName, newJob) {
-            var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
+        var getOrCreatePlatform = function (newJob) {
+            var rsMapElement = repoData.rsMap[newJob.result_set_id];
             var platformKey = getPlatformKey(newJob.platform, newJob.platform_option);
             var plMapElement = rsMapElement.platforms[platformKey];
             if (!plMapElement) {
@@ -549,8 +528,8 @@ treeherder.factory('ThResultSetStore', [
          * @param newJob
          * @returns grpMapElement
          */
-        var getOrCreateGroup = function (repoName, newJob) {
-            var plMapElement = getOrCreatePlatform(repoName, newJob);
+        var getOrCreateGroup = function (newJob) {
+            var plMapElement = getOrCreatePlatform(newJob);
             var grMapElement;
 
             if (plMapElement) {
@@ -585,17 +564,16 @@ treeherder.factory('ThResultSetStore', [
         /**
          * Fetch the job objects for the ids in ``jobFetchList`` and update them
          * in the data model.
-         * @param {string} repoName - name of the project repository
          * @param {number[]} jobFetchList - project-specific ids of the jobs to fetch
          */
-        var fetchJobs = function (repoName, jobFetchList) {
+        var fetchJobs = function (jobFetchList) {
             // we could potentially have very large lists of jobs.  So we need
             // to chunk this fetching.
             var count = 40;
             var unavailableJobs = [];
             while (jobFetchList.length > 0) {
                 var jobFetchSlice = jobFetchList.splice(0, count);
-                ThJobModel.get_list(repoName, {
+                ThJobModel.get_list(repoData.name, {
                     id__in: jobFetchSlice.join(),
                     count: count
                 })
@@ -607,20 +585,20 @@ treeherder.factory('ThResultSetStore', [
                         }
                         return jobsFetched;
                     })
-                    .then(_.bind(updateJobs, $rootScope, repoName));
+                    .then(_.bind(updateJobs, $rootScope));
             }
             // retry to fetch the unfetched jobs later
-            _.delay(fetchJobs, 10000, repoName, unavailableJobs);
+            _.delay(fetchJobs, 10000, unavailableJobs);
 
         };
 
-        var aggregateJobPlatform = function (repoName, job, platformData) {
+        var aggregateJobPlatform = function (job, platformData) {
 
             var resultsetId, platformName, platformOption, platformAggregateId,
                 platformKey, jobUpdated, resultsetAggregateId, revision,
                 jobGroups;
 
-            jobUpdated = updateJob(repoName, job);
+            jobUpdated = updateJob(job);
 
             //the job was not updated or added to the model, don't include it
             //in the jobsLoaded broadcast
@@ -632,13 +610,13 @@ treeherder.factory('ThResultSetStore', [
             platformName = job.platform;
             platformOption = job.platform_option;
 
-            if (_.isEmpty(repositories[repoName].rsMap[resultsetId])) {
+            if (_.isEmpty(repoData.rsMap[resultsetId])) {
                 //We don't have this resultset
                 return;
             }
 
             platformAggregateId = thAggregateIds.getPlatformRowId(
-                repoName,
+                repoData.name,
                 job.result_set_id,
                 job.platform,
                 job.platform_option
@@ -646,25 +624,25 @@ treeherder.factory('ThResultSetStore', [
 
             if (!platformData[platformAggregateId]) {
 
-                if (!_.isEmpty(repositories[repoName].rsMap[resultsetId])) {
+                if (!_.isEmpty(repoData.rsMap[resultsetId])) {
 
-                    revision = repositories[repoName].rsMap[resultsetId].rs_obj.revision;
+                    revision = repoData.rsMap[resultsetId].rs_obj.revision;
 
                     resultsetAggregateId = thAggregateIds.getPushTableId(
-                        $rootScope.repoName, resultsetId, revision
+                        repoData.name, resultsetId, revision
                     );
 
                     platformKey = getPlatformKey(platformName, platformOption);
 
                     jobGroups = [];
-                    if (repositories[repoName].rsMap[resultsetId].platforms[platformKey] !== undefined) {
-                        jobGroups = repositories[repoName].rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
+                    if (repoData.rsMap[resultsetId].platforms[platformKey] !== undefined) {
+                        jobGroups = repoData.rsMap[resultsetId].platforms[platformKey].pl_obj.groups;
                     }
 
                     platformData[platformAggregateId] = {
                         platformName: platformName,
                         revision: revision,
-                        platformOrder: repositories[repoName].rsMap[resultsetId].rs_obj.platforms,
+                        platformOrder: repoData.rsMap[resultsetId].rs_obj.platforms,
                         resultsetId: resultsetId,
                         resultsetAggregateId: resultsetAggregateId,
                         platformOption: platformOption,
@@ -681,15 +659,15 @@ treeherder.factory('ThResultSetStore', [
          * update resultsets and jobs with those that were in the update queue
          * @param jobList List of jobs to be placed in the data model and maps
          */
-        var updateJobs = function (repoName, jobList) {
+        var updateJobs = function (jobList) {
 
             var platformData = {};
 
             jobList.forEach(function (job) {
-                aggregateJobPlatform(repoName, job, platformData);
+                aggregateJobPlatform(job, platformData);
             });
 
-            if (!_.isEmpty(platformData) && repoName === $rootScope.repoName) {
+            if (!_.isEmpty(platformData)) {
                 $timeout($rootScope.$emit(thEvents.jobsLoaded, platformData));
             }
         };
@@ -727,12 +705,12 @@ treeherder.factory('ThResultSetStore', [
          * @param newJob The new job object that was just fetched which needs
          *               to be added or updated.
          */
-        var updateJob = function (repoName, newJob) {
+        var updateJob = function (newJob) {
 
             var key = `${newJob.id}`;
-            var loadedJobMap = repositories[repoName].jobMap[key];
+            var loadedJobMap = repoData.jobMap[key];
             var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
-            var rsMapElement = repositories[repoName].rsMap[newJob.result_set_id];
+            var rsMapElement = repoData.rsMap[newJob.result_set_id];
 
             //We don't have this resultset id yet
             if (_.isEmpty(rsMapElement)) {
@@ -743,7 +721,7 @@ treeherder.factory('ThResultSetStore', [
                 _.extend(loadedJob, newJob);
             } else {
                 // this job is not yet in the model or the map.  add it to both
-                var grpMapElement = getOrCreateGroup(repoName, newJob);
+                var grpMapElement = getOrCreateGroup(newJob);
 
                 if (grpMapElement) {
 
@@ -760,39 +738,39 @@ treeherder.factory('ThResultSetStore', [
                         job_obj: newJob,
                         parent: grpMapElement
                     };
-                    repositories[repoName].jobMap[key] = jobMapElement;
+                    repoData.jobMap[key] = jobMapElement;
 
                 }
             }
 
-            updateUnclassifiedFailureMap(repoName, newJob);
+            updateUnclassifiedFailureMap(newJob);
 
             return true;
         };
 
-        var prependResultSets = function (repoName, data) {
+        var prependResultSets = function (data) {
             // prepend the resultsets because they'll be newer.
             var added = [];
             for (var i = data.results.length - 1; i > -1; i--) {
-                if (data.results[i].push_timestamp >= repositories[repoName].rsMapOldestTimestamp &&
-                    isInResultSetRange(repoName, data.results[i].push_timestamp) &&
-                    repositories[repoName].rsMap[data.results[i].id] === undefined) {
+                if (data.results[i].push_timestamp >= repoData.rsMapOldestTimestamp &&
+                    isInResultSetRange(data.results[i].push_timestamp) &&
+                    repoData.rsMap[data.results[i].id] === undefined) {
 
-                    repositories[repoName].resultSets.push(data.results[i]);
+                    repoData.resultSets.push(data.results[i]);
                     added.push(data.results[i]);
                 }
             }
 
-            mapResultSets(repoName, added);
+            mapResultSets(added);
 
-            repositories[repoName].loadingStatus.prepending = false;
+            repoData.loadingStatus.prepending = false;
             $rootScope.$emit(thEvents.pushesLoaded);
         };
 
-        var appendResultSets = function (repoName, data) {
+        var appendResultSets = function (data) {
             if (data.results.length > 0) {
 
-                var rsIds = repositories[repoName].resultSets.map(rs => rs.id);
+                var rsIds = repoData.resultSets.map(rs => rs.id);
 
                 // ensure we only append resultsets we don't already have.
                 // There could be overlap with fetching "next 10" because we use
@@ -806,29 +784,29 @@ treeherder.factory('ThResultSetStore', [
                 });
 
                 Array.prototype.push.apply(
-                    repositories[repoName].resultSets, newResultsets
+                    repoData.resultSets, newResultsets
                 );
-                mapResultSets(repoName, newResultsets);
+                mapResultSets(newResultsets);
 
                 // only set the meta-data on the first pull for a repo.
                 // because this will establish ranges from then-on for auto-updates.
-                if (_.isUndefined(repositories[repoName].meta)) {
-                    repositories[repoName].meta = data.meta;
+                if (_.isUndefined(repoData.meta)) {
+                    repoData.meta = data.meta;
                 }
             }
 
-            repositories[repoName].loadingStatus.appending = false;
+            repoData.loadingStatus.appending = false;
             $rootScope.$emit(thEvents.pushesLoaded);
         };
 
         /**
-         * Check if ``repoName`` had a range specified in its ``meta`` data
+         * Check if ``repoData`` had a range specified in its ``meta`` data
          * and whether or not ``push_timestamp`` falls within that range.
          */
-        var isInResultSetRange = function (repoName, push_timestamp) {
+        var isInResultSetRange = function (push_timestamp) {
             var result = true;
-            if (repositories[repoName] && repositories[repoName].length) {
-                var meta = repositories[repoName].meta;
+            if (repoData && repoData.length) {
+                var meta = repoData.meta;
                 if (_.has(meta, "push_timestamp__gte") &&
                     push_timestamp < meta.push_timestamp__gte) {
                     result = false;
@@ -846,28 +824,28 @@ treeherder.factory('ThResultSetStore', [
             return result;
         };
 
-        var getResultSetsArray = function (repoName) {
+        var getResultSetsArray = function () {
             // this is "watchable" for when we add new resultsets and have to
             // sort them
-            return repositories[repoName].resultSets;
+            return repoData.resultSets;
         };
 
-        var getResultSet = function (repoName, resultsetId) {
-            return repositories[repoName].rsMap[resultsetId].rs_obj;
+        var getResultSet = function (resultsetId) {
+            return repoData.rsMap[resultsetId].rs_obj;
         };
 
-        var getSelectedRunnableJobs = function (repoName, pushId) {
-            if (!repositories[repoName].rsMap[pushId]) {
+        var getSelectedRunnableJobs = function (pushId) {
+            if (!repoData.rsMap[pushId]) {
                 return 0;
             }
-            if (!repositories[repoName].rsMap[pushId].selected_runnable_jobs) {
-                repositories[repoName].rsMap[pushId].selected_runnable_jobs = [];
+            if (!repoData.rsMap[pushId].selected_runnable_jobs) {
+                repoData.rsMap[pushId].selected_runnable_jobs = [];
             }
-            return repositories[repoName].rsMap[pushId].selected_runnable_jobs;
+            return repoData.rsMap[pushId].selected_runnable_jobs;
         };
 
-        var getGeckoDecisionJob = function (repoName, resultsetId) {
-            let resultSet = getResultSet(repoName, resultsetId);
+        var getGeckoDecisionJob = function (resultsetId) {
+            let resultSet = getResultSet(resultsetId);
             let platform = _.find(resultSet.platforms, {
                 name: "gecko-decision",
                 groups: [{ jobs: [{ state: "completed", job_type_symbol: "D" }] }] });
@@ -881,8 +859,8 @@ treeherder.factory('ThResultSetStore', [
             return undefined;
         };
 
-        var getGeckoDecisionTaskId = function (repoName, resultsetId) {
-            let resultSet = getResultSet(repoName, resultsetId);
+        var getGeckoDecisionTaskId = function (resultsetId) {
+            let resultSet = getResultSet(resultsetId);
             let dtid = resultSet.geckoDecisionTaskId;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
@@ -890,9 +868,9 @@ treeherder.factory('ThResultSetStore', [
                 return $q.when(dtid);
             }
 
-            let decisionTask = getGeckoDecisionJob(repoName, resultsetId);
+            let decisionTask = getGeckoDecisionJob(resultsetId);
             if (decisionTask) {
-                return ThJobModel.get(repoName, decisionTask.id).then(
+                return ThJobModel.get(repoData.name, decisionTask.id).then(
                     function (job) {
                         // this failure case is unlikely, but I guess you
                         // never know
@@ -907,8 +885,8 @@ treeherder.factory('ThResultSetStore', [
             return $q.reject("No decision task");
         };
 
-        var toggleSelectedRunnableJob = function (repoName, resultsetId, buildername) {
-            var selectedRunnableJobs = getSelectedRunnableJobs(repoName, resultsetId);
+        var toggleSelectedRunnableJob = function (resultsetId, buildername) {
+            var selectedRunnableJobs = getSelectedRunnableJobs(resultsetId);
             var jobIndex = selectedRunnableJobs.indexOf(buildername);
 
             if (jobIndex === -1) {
@@ -920,35 +898,35 @@ treeherder.factory('ThResultSetStore', [
             return selectedRunnableJobs;
         };
 
-        var getJobMap = function (repoName) {
+        var getJobMap = function () {
             // this is a "watchable" for jobs
-            return repositories[repoName].jobMap;
+            return repoData.jobMap;
         };
 
-        var fetchResultSets = function (repoName, count, keepFilters) {
+        var fetchResultSets = function (count, keepFilters) {
             /**
              * Get the next batch of resultsets based on our current offset.
              * @param count How many to fetch
              */
-            repositories[repoName].loadingStatus.appending = true;
-            var isAppend = (repositories[repoName].resultSets.length > 0);
+            repoData.loadingStatus.appending = true;
+            var isAppend = (repoData.resultSets.length > 0);
             var resultsets;
             var loadRepositories = ThRepositoryModel.load({
-                name: repoName,
+                name: repoData.name,
                 watchRepos: true
             });
-            var loadResultsets = ThResultSetModel.getResultSets(repoName,
-                                                                repositories[repoName].rsMapOldestTimestamp,
+            var loadResultsets = ThResultSetModel.getResultSets(repoData.name,
+                                                                repoData.rsMapOldestTimestamp,
                                                                 count,
                                                                 true,
                                                                 keepFilters)
                     .then((data) => { resultsets = data.data; });
 
             return $q.all([loadRepositories, loadResultsets])
-                .then(() => appendResultSets(repoName, resultsets),
+                .then(() => appendResultSets(resultsets),
                      () => {
                          thNotify.send("Error retrieving resultset data!", "danger", { sticky: true });
-                         appendResultSets(repoName, { results: [] });
+                         appendResultSets({ results: [] });
                      })
                 .then(() => {
                     // if ``nojobs`` is on the query string, then don't load jobs.
@@ -959,7 +937,7 @@ treeherder.factory('ThResultSetStore', [
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         _.map(resultsets.results, 'id'),
-                        repoName
+                        repoData.name
                     );
                     $q.all(jobsPromiseList)
                         .then((resultSetJobList) => {
@@ -987,7 +965,7 @@ treeherder.factory('ThResultSetStore', [
                      */
                     var mapResultSetJobsPromiseList = jobsPromiseList
                            .map(jobsPromise => jobsPromise
-                                .then(jobs => mapResultSetJobs(repoName, jobs)));
+                                .then(jobs => mapResultSetJobs(jobs)));
                     $q.all(mapResultSetJobsPromiseList)
                         .then(() => {
                             $rootScope.$emit(thEvents.jobsLoaded);
@@ -1131,7 +1109,7 @@ treeherder.factory('ThResultSetStore', [
         //Public interface
         var api = {
 
-            addRepository: addRepository,
+            initRepository: initRepository,
             aggregateJobPlatform: aggregateJobPlatform,
             deleteRunnableJobs: deleteRunnableJobs,
             fetchJobs: fetchJobs,

@@ -25,13 +25,13 @@ treeherder.controller('AnnotationsPluginCtrl', [
         $scope.deleteClassification = function (classification) {
 
             var key = `${classification.job_id}`;
-            var jobMap = ThResultSetStore.getJobMap($rootScope.repoName);
+            var jobMap = ThResultSetStore.getJobMap();
             var job = jobMap[key].job_obj;
 
             // this $evalAsync will be sure that the * is added or removed in
             // the job in the jobs table when this change takes place.
             $scope.$evalAsync(function () { job.failure_classification_id = 1; });
-            ThResultSetStore.updateUnclassifiedFailureMap($rootScope.repoName, job);
+            ThResultSetStore.updateUnclassifiedFailureMap(job);
 
             classification.delete()
                 .then(
@@ -42,7 +42,7 @@ treeherder.controller('AnnotationsPluginCtrl', [
 
                         // also be sure the job object in question gets updated to the latest
                         // classification state (in case one was added or removed).
-                        ThResultSetStore.fetchJobs($scope.repoName, [$scope.job.id]);
+                        ThResultSetStore.fetchJobs([$scope.job.id]);
 
                         $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
                     },

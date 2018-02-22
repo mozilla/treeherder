@@ -93,7 +93,6 @@ treeherderApp.controller('JobFilterCtrl', [
                 return;
             }
             var shownJobs = ThResultSetStore.getAllShownJobs(
-                $rootScope.repoName,
                 thPinboard.spaceRemaining(),
                 thPinboardCountError
             );
