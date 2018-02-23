@@ -1,6 +1,5 @@
 import logging
 import uuid
-from collections import defaultdict
 
 import jsonschema
 import newrelic.agent
@@ -44,31 +43,21 @@ class JobLoader:
         "machine_platform": "runMachine"
     }
 
-    def process_job_list(self, all_jobs_list):
-        if not isinstance(all_jobs_list, list):
-            all_jobs_list = [all_jobs_list]
-
-        validated_jobs = self._get_validated_jobs_by_project(all_jobs_list)
-
-        for project, job_list in validated_jobs.items():
-            newrelic.agent.add_custom_parameter("project", project)
+    def process_job(self, pulse_job):
+        if self._is_valid_job(pulse_job):
             try:
+                project = pulse_job["origin"]["project"]
+                newrelic.agent.add_custom_parameter("project", project)
+
                 repository = Repository.objects.get(name=project)
 
-                storeable_job_list = []
-                for pulse_job in job_list:
-                    if pulse_job["state"] != "unscheduled":
-                        try:
-                            self.validate_revision(repository, pulse_job)
-                            storeable_job_list.append(
-                                self.transform(pulse_job)
-                            )
-                        except AttributeError:
-                            logger.warn("Skipping job due to bad attribute",
-                                        exc_info=1)
-
-                store_job_data(repository, storeable_job_list)
-
+                if pulse_job["state"] != "unscheduled":
+                    try:
+                        self.validate_revision(repository, pulse_job)
+                        store_job_data(repository, [self.transform(pulse_job)])
+                    except AttributeError:
+                        logger.warn("Skipping job due to bad attribute",
+                                    exc_info=1)
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: {}".format(project))
 
@@ -308,17 +297,14 @@ class JobLoader:
         resmap = self.TEST_RESULT_MAP if job["jobKind"] == "test" else self.BUILD_RESULT_MAP
         return resmap[result]
 
-    def _get_validated_jobs_by_project(self, jobs_list):
-        validated_jobs = defaultdict(list)
-        for pulse_job in jobs_list:
-            try:
-                jsonschema.validate(pulse_job, job_json_schema)
-                validated_jobs[pulse_job["origin"]["project"]].append(pulse_job)
-            except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-                logger.error(
-                    "JSON Schema validation error during job ingestion: {}".format(e))
-
-        return validated_jobs
+    def _is_valid_job(self, pulse_job):
+        try:
+            jsonschema.validate(pulse_job, job_json_schema)
+        except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
+            logger.error(
+                "JSON Schema validation error during job ingestion: {}".format(e))
+            return False
+        return True
 
 
 class MissingPushException(Exception):
