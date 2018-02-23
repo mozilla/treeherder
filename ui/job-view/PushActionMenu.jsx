@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import { getUrlParam } from "../helpers/locationHelper";
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -10,7 +11,6 @@ export default class PushActionMenu extends React.PureComponent {
     this.$rootScope = $injector.get('$rootScope');
     this.thEvents = $injector.get('thEvents');
     this.thNotify = $injector.get('thNotify');
-    this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThModelErrors = $injector.get('ThModelErrors');
     this.ThTaskclusterErrors = $injector.get('ThTaskclusterErrors');
@@ -33,6 +33,12 @@ export default class PushActionMenu extends React.PureComponent {
 
     // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
     this.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+  }
+
+  getRangeChangeUrl(param, revision) {
+      let url = window.location.href;
+      url = url.replace(`&${param}=${getUrlParam(param)}`, "");
+      return `${url}&${param}=${revision}`;
   }
 
   triggerMissingJobs() {
@@ -79,11 +85,9 @@ export default class PushActionMenu extends React.PureComponent {
       });
   }
 
-
   render() {
     const { loggedIn, isStaff, repoName, revision, pushId, runnableVisible,
             hideRunnableJobsCb, showRunnableJobsCb } = this.props;
-    const { addFilter } = this.thJobFilters;
 
     return (
       <span className="btn-group dropdown" dropdown="true">
@@ -95,68 +99,59 @@ export default class PushActionMenu extends React.PureComponent {
           data-hover="dropdown"
           data-toggle="dropdown"
           data-delay="1000"
-          data-ignore-job-clear-on-click="true"
         >
-          <span className="caret" data-ignore-job-clear-on-click="true" />
+          <span className="caret" />
         </button>
 
         <ul className="dropdown-menu pull-right">
           {runnableVisible ?
-            <li data-ignore-job-clear-on-click="true"
-                title="Hide Runnable Jobs"
+            <li title="Hide Runnable Jobs"
                 className="dropdown-item"
                 onClick={() => hideRunnableJobsCb()}
             >Hide Runnable Jobs</li> :
             <li
               title={loggedIn ? 'Add new jobs to this push' : 'Must be logged in'}
               className={loggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
-              data-ignore-job-clear-on-click
               onClick={() => showRunnableJobsCb()}
             >Add new jobs</li>
           }
-          <li
-            data-ignore-job-clear-on-click="true"
+          <li><a
+            target="_blank"
             className="dropdown-item"
             href={`https://secure.pub.build.mozilla.org/buildapi/self-serve/${repoName}/rev/${revision}`}
-          >BuildAPI</li>
+          >BuildAPI</a></li>
           {isStaff && this.triggerMissingRepos.includes(repoName) &&
             <li
-              data-ignore-job-clear-on-click="true"
               className="dropdown-item"
               onClick={() => this.triggerMissingJobs(revision)}
             >Trigger missing jobs</li>
           }
           {isStaff &&
             <li
-              data-ignore-job-clear-on-click="true"
               className="dropdown-item"
               onClick={() => this.triggerAllTalosJobs(revision)}
             >Trigger all Talos jobs</li>
           }
-          <li>
-            <a
-              target="_blank" data-ignore-job-clear-on-click="true"
-              rel="noopener noreferrer"
-              className="dropdown-item"
-              href={`https://bugherder.mozilla.org/?cset=${revision}&amp;tree=${repoName}`}
-              title="Use Bugherder to mark the bugs in this push"
-            >Mark with Bugherder</a></li>
+          <li><a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dropdown-item"
+            href={`https://bugherder.mozilla.org/?cset=${revision}&amp;tree=${repoName}`}
+            title="Use Bugherder to mark the bugs in this push"
+          >Mark with Bugherder</a></li>
           <li
-            data-ignore-job-clear-on-click="true"
             className="dropdown-item"
             onClick={() => this.customPushActions.open(repoName, pushId)}
             title="View/Edit/Submit Action tasks for this push"
           >Custom Push Action...</li>
-          <li
+          <li><a
             className="dropdown-item"
-            prevent-default-on-left-click="true"
-            onClick={() => addFilter('tochange', revision)}
-          >Set as top of range</li>
-          <li
+            href={this.getRangeChangeUrl('tochange', revision)}
+          >Set as top of range</a></li>
+          <li><a
             className="dropdown-item"
-            prevent-default-on-left-click="true"
-            onClick={() => addFilter('fromchange', revision)}
-          >Set as bottom of range</li>
+            href={this.getRangeChangeUrl('fromchange', revision)}
+          >Set as bottom of range</a></li>
         </ul>
       </span>
     );
