@@ -1,4 +1,4 @@
-/* Filters */
+import numeral from 'numeral';
 
 treeherder.filter('showOrHide', function () {
     // determine whether this is a label for a job group (like mochitest)
@@ -173,7 +173,7 @@ treeherder.filter('absoluteValue', function () {
     };
 });
 
-treeherder.filter('abbreviatedNumber', ['numeral', function (numeral) {
+treeherder.filter('abbreviatedNumber', function () {
     return input =>
         ((input.toString().length <= 5) ? input : numeral(input).format('0.0a'));
-}]);
+});

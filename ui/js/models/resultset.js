@@ -1,12 +1,13 @@
+import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';
 import thTaskcluster from '../services/taskcluster';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'thUrl', 'tcactions',
-    'thServiceDomain', 'ThJobModel', 'jsyaml',
+    'thServiceDomain', 'ThJobModel',
     function ($http, $location, $q, $interpolate, thUrl,
         tcactions, thServiceDomain,
-        ThJobModel, jsyaml) {
+        ThJobModel) {
 
         var MAX_RESULTSET_FETCH_SIZE = 100;
 

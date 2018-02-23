@@ -1,3 +1,5 @@
+import metricsgraphics from 'metrics-graphics';
+
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',
@@ -865,9 +867,9 @@ perf.controller('CompareSubtestResultsCtrl', [
     }]);
 
 perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q', 'ThRepositoryModel',
-    'PhSeries', 'ThResultSetModel', 'metricsgraphics',
+    'PhSeries', 'ThResultSetModel',
     function CompareSubtestDistributionCtrl($scope, $stateParams, $q, ThRepositoryModel,
-        PhSeries, ThResultSetModel, metricsgraphics) {
+        PhSeries, ThResultSetModel) {
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;

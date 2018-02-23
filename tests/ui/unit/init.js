@@ -15,7 +15,6 @@ require('angular-sanitize');
 require('angular-local-storage');
 require('angular-toarrayfilter');
 require('mousetrap');
-require('js-yaml');
 require('ngreact');
 require('angular1-ui-bootstrap4');
 require('angular-marked');

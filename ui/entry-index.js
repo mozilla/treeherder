@@ -25,7 +25,6 @@ require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
 require('angular1-ui-bootstrap4');
 require('mousetrap');
-require('js-yaml');
 require('angular-marked');
 require('ngreact');
 require('jquery.scrollto');

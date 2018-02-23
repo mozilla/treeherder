@@ -1,3 +1,4 @@
+import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';
 import thTaskcluster from '../js/services/taskcluster';
 import { getStatus } from '../helpers/jobHelper';
@@ -10,7 +11,7 @@ treeherder.controller('PluginCtrl', [
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'jsyaml', 'tcactions',
+    'PhSeries', 'thServiceDomain', 'tcactions',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         thUrl, ThJobClassificationModel,
@@ -19,7 +20,7 @@ treeherder.controller('PluginCtrl', [
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, jsyaml, tcactions) {
+        thServiceDomain, tcactions) {
 
         $scope.job = {};
         $scope.revisionList = [];
