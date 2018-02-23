@@ -575,91 +575,14 @@ treeherder.factory('ThResultSetStore', [
                         }
                         return jobsFetched;
                     })
-                    .then(_.bind(updateJobs, $rootScope));
+                    .then((jobList) => {
+                        jobList.forEach((job) => { updateJob(job); });
+                        $timeout($rootScope.$emit(thEvents.jobsLoaded));
+                    });
             }
             // retry to fetch the unfetched jobs later
             _.delay(fetchJobs, 10000, unavailableJobs);
 
-        };
-
-        var aggregateJobPlatform = function (job, platformData) {
-
-            var pushId, platformName, platformOption, platformAggregateId,
-                platformKey, jobUpdated, pushAggregateId, revision,
-                jobGroups;
-
-            jobUpdated = updateJob(job);
-
-            //the job was not updated or added to the model, don't include it
-            //in the jobsLoaded broadcast
-            if (jobUpdated === false) {
-                return;
-            }
-
-            pushId = job.result_set_id;
-            platformName = job.platform;
-            platformOption = job.platform_option;
-
-            if (_.isEmpty(repoData.rsMap[pushId])) {
-                //We don't have this push
-                return;
-            }
-
-            platformAggregateId = thAggregateIds.getPlatformRowId(
-                repoData.name,
-                job.result_set_id,
-                job.platform,
-                job.platform_option
-            );
-
-            if (!platformData[platformAggregateId]) {
-
-                if (!_.isEmpty(repoData.rsMap[pushId])) {
-
-                    revision = repoData.rsMap[pushId].rs_obj.revision;
-
-                    pushAggregateId = thAggregateIds.getPushTableId(
-                        repoData.name, pushId, revision
-                    );
-
-                    platformKey = getPlatformKey(platformName, platformOption);
-
-                    jobGroups = [];
-                    if (repoData.rsMap[pushId].platforms[platformKey] !== undefined) {
-                        jobGroups = repoData.rsMap[pushId].platforms[platformKey].pl_obj.groups;
-                    }
-
-                    platformData[platformAggregateId] = {
-                        platformName,
-                        revision,
-                        platformOrder: repoData.rsMap[pushId].rs_obj.platforms,
-                        pushId,
-                        pushAggregateId,
-                        platformOption,
-                        jobGroups,
-                        jobs: []
-                    };
-                }
-            }
-
-            platformData[platformAggregateId].jobs.push(job);
-        };
-
-        /***
-         * update pushes and jobs with those that were in the update queue
-         * @param jobList List of jobs to be placed in the data model and maps
-         */
-        var updateJobs = function (jobList) {
-
-            var platformData = {};
-
-            jobList.forEach(function (job) {
-                aggregateJobPlatform(job, platformData);
-            });
-
-            if (!_.isEmpty(platformData)) {
-                $timeout($rootScope.$emit(thEvents.jobsLoaded, platformData));
-            }
         };
 
         /******
@@ -704,7 +627,7 @@ treeherder.factory('ThResultSetStore', [
 
             //We don't have this push id yet
             if (_.isEmpty(rsMapElement)) {
-                return false;
+                return;
             }
 
             if (loadedJob) {
@@ -734,8 +657,6 @@ treeherder.factory('ThResultSetStore', [
             }
 
             updateUnclassifiedFailureMap(newJob);
-
-            return true;
         };
 
         var prependPushes = function (data) {
@@ -1100,7 +1021,6 @@ treeherder.factory('ThResultSetStore', [
         var api = {
 
             initRepository: initRepository,
-            aggregateJobPlatform: aggregateJobPlatform,
             deleteRunnableJobs: deleteRunnableJobs,
             fetchJobs: fetchJobs,
             fetchPushes: fetchPushes,
