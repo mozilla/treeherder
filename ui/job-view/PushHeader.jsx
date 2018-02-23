@@ -82,7 +82,15 @@ export default class PushHeader extends React.PureComponent {
 
   filterParams() {
     return Object.entries(this.thJobFilters.getActiveFilters())
-      .reduce((acc, [key, value]) => `&${key}=${value}`, "");
+      .reduce(function getFilterParamsStrings(acc, [key, value]) {
+          if (Array.isArray(value)) {
+            acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, "");
+          } else {
+            acc += `&${key}=${value}`;
+          }
+          return acc;
+        },
+        "");
   }
 
   triggerNewJobs() {
