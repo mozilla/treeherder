@@ -10,6 +10,7 @@ class Command(BaseCommand):
                      'repository_group',
                      'repository',
                      'failure_classification',
+                     'issue_tracker',
                      'performance_framework',
                      'performance_bug_templates')
         call_command('load_preseed')
