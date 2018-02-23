@@ -1,13 +1,15 @@
+import Ajv from 'ajv';
+import jsonSchemaDefaults from 'json-schema-defaults';
+import jsyaml from 'js-yaml';
 import { slugid } from 'taskcluster-client-web';
 
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$uibModalInstance', 'ThResultSetStore',
     'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
-    'jsyaml', 'Ajv', 'jsonSchemaDefaults',
     function ($scope, $uibModalInstance, ThResultSetStore,
              ThTaskclusterErrors, thNotify,
-             job, repoName, resultsetId, tcactions, jsyaml, Ajv, jsonSchemaDefaults) {
+             job, repoName, resultsetId, tcactions) {
         const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
         let decisionTaskId;
         let originalTaskId;

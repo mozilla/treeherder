@@ -1,11 +1,10 @@
+import jsone from 'json-e';
 import { Queue } from 'taskcluster-client-web';
 import thTaskcluster from './taskcluster';
 
 treeherder.factory('tcactions', [
     '$q', '$http', 'thNotify',
     function ($q, $http, thNotify) {
-        const jsone = require('json-e');
-
         return {
             render: (template, context) => jsone(template, context),
             submit: ({ action, actionTaskId, decisionTaskId, taskId,

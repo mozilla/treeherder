@@ -185,16 +185,6 @@ treeherder.factory('thPlatformName', [
         };
     }]);
 
-treeherder.factory('jsyaml', [
-    function () {
-        return require('js-yaml');
-    }]);
-
-treeherder.factory('Ajv', [
-    function () {
-        return require('ajv');
-    }]);
-
 // The Custom Actions modal is accessible from both the PushActionMenu and the
 // job-details-actionbar.  So leave this as Angular for now, till we
 // migrate job-details-actionbar to React.
@@ -221,11 +211,6 @@ treeherder.factory('customPushActions', [
         };
     }]);
 
-treeherder.factory('jsonSchemaDefaults', [
-    function () {
-        return require('json-schema-defaults');
-    }]);
-
 treeherder.factory('thExtendProperties', [
     /* Version of _.extend that works with property descriptors */
     function () {
@@ -250,14 +235,4 @@ treeherder.factory('thExtendProperties', [
             }
             return dest;
         };
-    }]);
-
-treeherder.factory('numeral', [
-    function () {
-        return require('numeral');
-    }]);
-
-treeherder.factory('metricsgraphics', [
-    function () {
-        return require('metrics-graphics');
     }]);
