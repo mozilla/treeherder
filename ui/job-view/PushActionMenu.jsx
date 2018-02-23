@@ -136,7 +136,7 @@ export default class PushActionMenu extends React.PureComponent {
             target="_blank"
             rel="noopener noreferrer"
             className="dropdown-item"
-            href={`https://bugherder.mozilla.org/?cset=${revision}&amp;tree=${repoName}`}
+            href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${repoName}`}
             title="Use Bugherder to mark the bugs in this push"
           >Mark with Bugherder</a></li>
           <li
