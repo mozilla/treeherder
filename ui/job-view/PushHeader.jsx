@@ -19,7 +19,7 @@ const PushCounts = (props) => {
   const inProgress = pending + running;
   const total = completed + inProgress;
   const percentComplete = total > 0 ?
-    Math.floor(((completed / total) * 100)) : undefined;
+    Math.floor(((completed / total) * 100)) : 0;
 
   return (
     <span className="push-progress">
