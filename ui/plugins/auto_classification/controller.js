@@ -1,4 +1,11 @@
 import treeherder from '../../js/treeherder';
+import staticOptionTemplate from '../../plugins/auto_classification/staticOption.html';
+import intermittentTemplate from '../../partials/main/intermittent.html';
+import optionTemplate from '../../plugins/auto_classification/option.html';
+import errorLineTemplate from '../../plugins/auto_classification/errorLine.html';
+import errorsTemplate from '../../plugins/auto_classification/errors.html';
+import toolbarTemplate from '../../plugins/auto_classification/toolbar.html';
+import panelTemplate from '../../plugins/auto_classification/panel.html';
 
 treeherder.factory('thStringOverlap', function () {
     return function (str1, str2) {
@@ -108,7 +115,7 @@ treeherder.controller('ThStaticClassificationOptionController', [
 ]);
 
 treeherder.component('thStaticClassificationOption', {
-    templateUrl: 'plugins/auto_classification/staticOption.html',
+    template: staticOptionTemplate,
     controller: 'ThStaticClassificationOptionController',
     bindings: {
         thJob: '<',
@@ -160,7 +167,7 @@ treeherder.controller('ThClassificationOptionController', [
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'partials/main/intermittent.html',
+                template: intermittentTemplate,
                 controller: 'BugFilerCtrl',
                 size: 'lg',
                 openedClass: "filer-open",
@@ -188,7 +195,7 @@ treeherder.controller('ThClassificationOptionController', [
 ]);
 
 treeherder.component('thClassificationOption', {
-    templateUrl: 'plugins/auto_classification/option.html',
+    template: optionTemplate,
     controller: 'ThClassificationOptionController',
     bindings: {
         thJob: '<',
@@ -688,7 +695,7 @@ treeherder.controller('ThErrorLineController', [
 ]);
 
 treeherder.component('thErrorLine', {
-    templateUrl: 'plugins/auto_classification/errorLine.html',
+    template: errorLineTemplate,
     controller: 'ThErrorLineController',
     bindings: {
         thJob: '<',
@@ -740,7 +747,7 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
 ]);
 
 treeherder.component('thAutoclassifyErrors', {
-    templateUrl: 'plugins/auto_classification/errors.html',
+    template: errorsTemplate,
     controller: "ThAutoclassifyErrorsController",
     bindings: {
         thJob: '<',
@@ -780,7 +787,7 @@ treeherder.controller('ThAutoclassifyToolbarController', [
 ]);
 
 treeherder.component('thAutoclassifyToolbar', {
-    templateUrl: 'plugins/auto_classification/toolbar.html',
+    template: toolbarTemplate,
     controller: "ThAutoclassifyToolbarController",
     bindings: {
         loadStatus: '<',
@@ -1254,7 +1261,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
 ]);
 
 treeherder.component('thAutoclassifyPanel', {
-    templateUrl: 'plugins/auto_classification/panel.html',
+    template: panelTemplate,
     controller: 'ThAutoclassifyPanelController',
     bindings: {
         thJob: '<',

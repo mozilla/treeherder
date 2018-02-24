@@ -2,6 +2,7 @@ import { Queue } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
 import thTaskcluster from './taskcluster';
+import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
 
 /* Services */
 treeherder.factory('thUrl', [
@@ -175,7 +176,7 @@ treeherder.factory('customPushActions', [
         return {
           open(repoName, pushId) {
             $uibModal.open({
-              templateUrl: 'partials/main/tcjobactions.html',
+              template: tcJobActionsTemplate,
               controller: 'TCJobActionsCtrl',
               size: 'lg',
               resolve: {
