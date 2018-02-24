@@ -25,22 +25,6 @@ treeherder.provider('thResultStatusList', function () {
     };
 });
 
-treeherder.provider('thResultStatusObject', function () {
-    var getResultStatusObject = function () {
-        return {
-            running: 0,
-            pending: 0,
-            completed: 0
-        };
-    };
-
-    this.$get = function () {
-        return {
-            getResultStatusObject: getResultStatusObject
-        };
-    };
-});
-
 /**
  * The set of custom Treeherder events.
  *

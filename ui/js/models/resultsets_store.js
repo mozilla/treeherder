@@ -1,12 +1,12 @@
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
     'ThResultSetModel', 'ThJobModel', 'thEvents',
-    'thResultStatusObject', 'thAggregateIds', 'thNotify',
+    'thAggregateIds', 'thNotify',
     'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
-        ThJobModel, thEvents, thResultStatusObject, thAggregateIds,
+        ThJobModel, thEvents, thAggregateIds,
         thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 
@@ -147,6 +147,7 @@ treeherder.factory('ThResultSetStore', [
                         jobListByPush
                             .forEach(singlePushJobList =>
                                      mapPushJobs(singlePushJobList));
+                        $rootScope.$emit(thEvents.jobsLoaded);
                     } else if (lastJobUpdate) {
                         // try to update the last poll interval to the greater of the
                         // last job update or the current time minus a small multiple of the
@@ -896,20 +897,12 @@ treeherder.factory('ThResultSetStore', [
             return undefined;
         };
 
-        var getJobCount = function (jobList) {
-            return _.reduce(
-                jobList,
-                function (memo, job) {
-
-                    // don't count superseded
-                    if (job.result !== 'superseded') {
-                        memo[job.state]++;
-                    }
-                    return memo;
-                },
-                thResultStatusObject.getResultStatusObject()
-            );
-        };
+        var getJobCount = jobList => (
+          jobList.reduce((memo, job) => (
+            job.result !== 'superseded' ? { ...memo, [job.state]: memo[job.state]+1 } : memo
+            ), { running: 0, pending: 0, completed: 0 }
+          )
+        );
 
         var getJobGroupInfo = function (job) {
 

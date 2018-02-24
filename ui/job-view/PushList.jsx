@@ -53,7 +53,7 @@ export default class PushList extends React.Component {
     });
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
-      const pushList = this.ThResultSetStore.getPushArray();
+      const pushList = [...this.ThResultSetStore.getPushArray()];
       this.$timeout(() => {
         this.setState({ pushList, jobsReady: true });
       }, 0);
