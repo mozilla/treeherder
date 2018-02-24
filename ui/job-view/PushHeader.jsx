@@ -63,6 +63,7 @@ export default class PushHeader extends React.PureComponent {
     this.state = {
       showConfirmCancelAll: false,
       runnableJobsSelected: false,
+      filterParams: this.getFilterParams(),
     };
   }
 
@@ -74,13 +75,19 @@ export default class PushHeader extends React.PureComponent {
         }
       }
     );
+    this.globalFilterChangedUnlisten = this.$rootScope.$on(
+      this.thEvents.globalFilterChanged, () => {
+        this.setState({ filterParams: this.getFilterParams() });
+      }
+    );
   }
 
   componentWillUnmount() {
     this.toggleRunnableJobUnlisten();
+    this.globalFilterChangedUnlisten();
   }
 
-  filterParams() {
+  getFilterParams() {
     return Object.entries(this.thJobFilters.getActiveFilters())
       .reduce(function getFilterParamsStrings(acc, [key, value]) {
           if (Array.isArray(value)) {
@@ -154,7 +161,7 @@ export default class PushHeader extends React.PureComponent {
     const { repoName, loggedIn, pushId, isTryRepo, isStaff, jobCounts, author,
             revision, runnableVisible, $injector,
             showRunnableJobsCb, hideRunnableJobsCb } = this.props;
-
+    const { filterParams } = this.state;
     const cancelJobsTitle = loggedIn ?
       "Cancel all jobs" :
       "Must be logged in to cancel jobs";
@@ -168,7 +175,7 @@ export default class PushHeader extends React.PureComponent {
             <span className="push-title-left">
               <span>
                 <a
-                  href={`${this.revisionPushFilterUrl}${this.filterParams()}`}
+                  href={`${this.revisionPushFilterUrl}${filterParams}`}
                   title="View only this push"
                   data-ignore-job-clear-on-click
                 >{this.pushDateStr} <span className="fa fa-external-link icon-superscript" />
