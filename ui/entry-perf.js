@@ -34,7 +34,6 @@ require('./js/filters.js');
 require('./js/models/option_collection.js');
 require('./js/services/main.js');
 require('./js/services/taskcluster.js');
-require('./js/services/jsonpushes.js');
 require('./js/models/repository.js');
 require('./js/models/job.js');
 require('./js/models/runnable_job.js');

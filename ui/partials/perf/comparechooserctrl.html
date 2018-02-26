@@ -35,7 +35,7 @@
         <div class="card-header">New</div>
         <div class="card-body">
           <label for="new-project-selector">Project</label>
-          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change="updateNewRevisionTips();getPreviousRevision()"></select>
+          <select id="new-project-selector" class="form-control" ng-model="newProject" ng-options="project.name for project in projects" ng-change="updateNewRevisionTips()"></select>
           <label for="new-revision-input">Revision</label>
           <div class="input-group" ng-class="{'has-danger': newRevisionError}">
             <input id="new-revision-input" maxlength="40" class="form-control" type="text" ng-model="newRevision" placeholder="Select or enter a revision"/>

@@ -132,24 +132,6 @@ describe('getRevisionUrl filter', function() {
     });
 });
 
-describe('showOrHide filter', function() {
-    var $filter;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-
-    it('says show', function() {
-        var showOrHide = $filter('showOrHide');
-        expect(showOrHide(' me', true)).toEqual('show me');
-    });
-
-    it('says hide', function() {
-        var showOrHide = $filter('showOrHide');
-        expect(showOrHide(' me', false)).toEqual('hide me');
-    });
-});
-
 describe('stripHtml filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));
