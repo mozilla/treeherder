@@ -5,9 +5,13 @@ const PushLoadErrors = (props) => {
   const urlParams = getAllUrlParams();
   urlParams.delete("revision");
 
+  const isRevision = revision => (
+    revision && (revision.length === 12 || revision.length === 40)
+  );
+
   return (
     <div className="push-load-errors">
-      {loadingPushes && revision && currentRepo && currentRepo.url &&
+      {!loadingPushes && isRevision(revision) && currentRepo && currentRepo.url &&
         <div className="push-body unknown-message-body">
           <span>
             {revision &&
@@ -25,7 +29,7 @@ const PushLoadErrors = (props) => {
           </span>
         </div>
       }
-      {!loadingPushes && revision &&
+      {!loadingPushes && !isRevision(revision) &&
         <div className="push-body unknown-message-body">
           This is an invalid or unknown revision. Please change it, or click
           <a href={`/#/jobs?${urlParams.toString()}`}> here</a> to reload the latest revisions from {repoName}.
