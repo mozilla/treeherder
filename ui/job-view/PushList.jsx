@@ -39,7 +39,7 @@ export default class PushList extends React.Component {
 
     // get our first set of resultsets
     this.ThResultSetStore.fetchPushes(
-        this.ThResultSetStore.defaultResultSetCount,
+        this.ThResultSetStore.defaultPushCount,
         true
     );
   }
@@ -54,6 +54,10 @@ export default class PushList extends React.Component {
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
       const pushList = [...this.ThResultSetStore.getPushArray()];
+      const selectedJobId = parseInt(this.$location.search().selectedJob);
+      if (selectedJobId) {
+        this.setSelectedJobFromQueryString(selectedJobId);
+      }
       this.$timeout(() => {
         this.setState({ pushList, jobsReady: true });
       }, 0);
@@ -74,15 +78,6 @@ export default class PushList extends React.Component {
     this.changeSelectionUnlisten = this.$rootScope.$on(
       this.thEvents.changeSelection, (ev, direction, jobNavSelector) => {
         this.changeSelectedJob(ev, direction, jobNavSelector);
-      }
-    );
-
-    this.jobsLoadedUnlisten = this.$rootScope.$on(
-      this.thEvents.jobsLoaded, () => {
-        const selectedJobId = parseInt(this.$location.search().selectedJob);
-        if (selectedJobId) {
-          this.setSelectedJobFromQueryString(selectedJobId);
-        }
       }
     );
 
