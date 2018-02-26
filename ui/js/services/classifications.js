@@ -36,9 +36,3 @@ treeherder.factory('thClassificationTypes', [
             load: load
         };
     }]);
-
-treeherder.factory('thValidBugNumber', [function () {
-    return function (bug_number) {
-        return parseInt(bug_number) >= 0;
-    };
-}]);

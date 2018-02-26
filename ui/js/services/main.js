@@ -57,27 +57,6 @@ treeherder.factory('thUrl', [
 
     }]);
 
-treeherder.factory('ThPaginator', function () {
-    //dead-simple implementation of an in-memory paginator
-
-    var ThPaginator = function (data, limit) {
-        this.data = data;
-        this.length = data.length;
-        this.limit = limit;
-    };
-
-    ThPaginator.prototype.get_page = function (n) {
-        return this.data.slice(n * this.limit - this.limit, n * this.limit);
-    };
-
-    ThPaginator.prototype.get_all = function () {
-        return this.data;
-    };
-
-    return ThPaginator;
-
-});
-
 treeherder.factory('thNotify', [
     '$timeout', 'localStorageService',
     function ($timeout, localStorageService) {

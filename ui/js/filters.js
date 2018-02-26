@@ -1,12 +1,5 @@
 import numeral from 'numeral';
 
-treeherder.filter('showOrHide', function () {
-    // determine whether this is a label for a job group (like mochitest)
-    return function (input, isCollapsed) {
-        return (isCollapsed === true) ? "show" + input : "hide" + input;
-    };
-});
-
 treeherder.filter('stripHtml', function () {
     return function (input) {
         var str = input || '';
@@ -144,13 +137,6 @@ treeherder.filter('getRevisionUrl', ['thServiceDomain', function (thServiceDomai
         return '';
     };
 }]);
-
-treeherder.filter('alertStatus', [
-    'phAlertSummaryResolutionMap', function (phAlertSummaryResolutionMap) {
-        return function (resolutionId) {
-            return phAlertSummaryResolutionMap[resolutionId];
-        };
-    }]);
 
 //http://stackoverflow.com/questions/16630471/how-can-i-invoke-encodeuricomponent-from-angularjs-template
 treeherder.filter('encodeURIComponent', function () {
