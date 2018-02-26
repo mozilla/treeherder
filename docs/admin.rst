@@ -33,6 +33,7 @@ The following SQL should be sufficient to generate such a user
     GRANT SELECT ON treeherder.failure_match to 'myuser';
     GRANT SELECT ON treeherder.group to 'myuser';
     GRANT SELECT ON treeherder.group_failure_lines to 'myuser';
+    GRANT SELECT ON treeherder.issue_tracker to 'myuser';
     GRANT SELECT ON treeherder.job to 'myuser';
     GRANT SELECT ON treeherder.job_detail to 'myuser';
     GRANT SELECT ON treeherder.job_group to 'myuser';
