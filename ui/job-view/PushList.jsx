@@ -54,10 +54,14 @@ export default class PushList extends React.Component {
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
       const pushList = [...this.ThResultSetStore.getPushArray()];
-      const selectedJobId = parseInt(this.$location.search().selectedJob);
-      if (selectedJobId) {
-        this.setSelectedJobFromQueryString(selectedJobId);
+
+      if (!this.state.jobsReady) {
+        const selectedJobId = parseInt(this.$location.search().selectedJob);
+        if (selectedJobId) {
+          this.setSelectedJobFromQueryString(selectedJobId);
+        }
       }
+
       this.$timeout(() => {
         this.setState({ pushList, jobsReady: true });
       }, 0);
