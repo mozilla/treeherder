@@ -16,6 +16,9 @@ require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
 require('./vendor/resizer.js');
 
+// Bootstrap the Angular modules against which everything will be registered
+require('./js/logviewer.js');
+
 // Logviewer JS
 require('./js/providers.js');
 require('./js/values.js');

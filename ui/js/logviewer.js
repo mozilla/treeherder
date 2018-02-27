@@ -1,4 +1,4 @@
-var logViewerApp = angular.module('logviewer', ['treeherder']);
+const logViewerApp = angular.module('logviewer', ['treeherder']);
 
 logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider',
     function ($compileProvider, $locationProvider, $resourceProvider) {
@@ -16,4 +16,4 @@ logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider
         $resourceProvider.defaults.cancellable = true;
     }]).run(require('./cache-templates'));
 
-module.exports = logViewerApp;
+export default logViewerApp;

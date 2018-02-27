@@ -255,7 +255,6 @@ module.exports = neutrino => {
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),
             treeherderApp: require.resolve(path.join(UI, 'js/treeherder_app.js')),
             perf: require.resolve(path.join(UI, 'js/perf.js')),
-            logViewerApp: require.resolve(path.join(UI, 'js/logviewer.js')),
         });
 
     neutrino.config.devtool('source-map');
