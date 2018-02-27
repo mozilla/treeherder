@@ -23,8 +23,10 @@ const PushCounts = (props) => {
 
   return (
     <span className="push-progress">
-      {percentComplete === 100 ?
-        <span>- Complete -</span> :
+      {percentComplete === 100 &&
+      <span>- Complete -</span>
+      }
+      {percentComplete < 100 && total > 0 &&
         <span
           title="Proportion of jobs that are complete"
         >{percentComplete}% - {inProgress} in progress</span>
