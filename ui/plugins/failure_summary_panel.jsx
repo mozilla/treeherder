@@ -46,6 +46,7 @@ class SuggestionsListItem extends React.Component {
                                     getBugUrl={this.props.getBugUrl} pinboardService={this.props.pinboardService}
                                     escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
                                     highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
+                                    $timeout={this.props.$timeout}
                         />))}
 
                 </ul>}
@@ -90,7 +91,8 @@ const ListItem = props => (
 
 const BugListItem = (props) => {
     const pinboardServiceEvent = () => {
-        props.pinboardService.addBug(props.bug, props.selectedJob);
+      const { bug, selectedJob, pinboardService, $timeout } = props;
+      $timeout(() => (pinboardService.addBug(bug, selectedJob)));
     };
 
     const getBugUrl = props.getBugUrl(props.bug.id);
@@ -140,6 +142,7 @@ class FailureSummaryPanel extends React.Component {
     render() {
         const escapeHTMLFilter = this.props.$injector.get('$filter')('escapeHTML');
         const highlightCommonTermsFilter = this.props.$injector.get('$filter')('highlightCommonTerms');
+        const $timeout = this.props.$injector.get('$timeout');
 
         return (
             <ul className="list-unstyled failure-summary-list">
@@ -151,6 +154,7 @@ class FailureSummaryPanel extends React.Component {
                                     escapeHTMLFilter={escapeHTMLFilter} getBugUrl={this.props.getBugUrl}
                                     bugLimit={this.props.bugLimit} pinboardService={this.props.pinboardService}
                                     selectedJob={this.props.selectedJob}
+                                    $timeout={$timeout}
                     />))}
 
                 {this.props.errors && this.props.errors.length > 0 &&
