@@ -3,6 +3,8 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 import jsyaml from 'js-yaml';
 import { slugid } from 'taskcluster-client-web';
 
+import treeherder from '../treeherder';
+
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$uibModalInstance', 'ThResultSetStore',
     'ThTaskclusterErrors',

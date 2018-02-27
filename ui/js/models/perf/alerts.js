@@ -1,3 +1,5 @@
+import treeherder from '../../treeherder';
+
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
     'phAlertSummaryStatusMap', 'phAlertSummaryIssueTrackersMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',

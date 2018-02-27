@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThFailureLinesModel', [
     '$http', '$q', 'thUrl',
     function ($http, $q, thUrl) {

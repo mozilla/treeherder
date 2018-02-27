@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThBugJobMapModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {

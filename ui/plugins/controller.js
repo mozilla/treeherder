@@ -1,5 +1,7 @@
 import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';
+
+import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import { getStatus } from '../helpers/jobHelper';
 

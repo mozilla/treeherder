@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import treeherder from '../js/treeherder';
+
 class SuggestionsListItem extends React.Component {
     constructor(props) {
         super(props);

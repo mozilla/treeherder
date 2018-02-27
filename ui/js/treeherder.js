@@ -1,3 +1,5 @@
-/*exported treeherder*/
-module.exports = angular.module('treeherder',
-    ['ngResource', 'ngSanitize', 'LocalStorageModule']);
+export default angular.module('treeherder', [
+  'ngResource',
+  'ngSanitize',
+  'LocalStorageModule',
+]);

@@ -252,7 +252,6 @@ module.exports = neutrino => {
             Popper: ['popper.js', 'default'],
             React: require.resolve('react'),
             _: require.resolve('lodash'),
-            treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),
         });
 
     neutrino.config.devtool('source-map');

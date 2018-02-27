@@ -1,3 +1,5 @@
+import treeherder from '../../treeherder';
+
 treeherder.factory('math', [
     function () {
         function percentOf(a, b) {

@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThTextLogErrorsModel', [
     '$http', '$q', 'thUrl',
     function ($http, $q, thUrl) {

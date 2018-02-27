@@ -1,3 +1,5 @@
+import treeherder from '../js/treeherder';
+
 treeherder.controller('PinboardCtrl', [
     '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify',
     function PinboardCtrl(

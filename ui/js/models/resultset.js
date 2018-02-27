@@ -1,5 +1,7 @@
 import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';
+
+import treeherder from '../treeherder';
 import thTaskcluster from '../services/taskcluster';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',

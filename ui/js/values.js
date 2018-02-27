@@ -1,3 +1,4 @@
+import treeherder from './treeherder';
 import treeFavicon from '../img/tree_open.png';
 import closedTreeFavicon from '../img/tree_closed.png';
 import { platformMap } from './constants';

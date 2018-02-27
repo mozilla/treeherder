@@ -1,5 +1,7 @@
 import numeral from 'numeral';
 
+import treeherder from './treeherder';
+
 treeherder.filter('stripHtml', function () {
     return function (input) {
         var str = input || '';

@@ -1,3 +1,5 @@
+import treeherder from '../../treeherder';
+
 treeherder.component('phCompareTable', {
     templateUrl: ['$attrs', function ($attrs) {
         if ($attrs.type === 'trend') {

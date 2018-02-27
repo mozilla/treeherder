@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('treeStatus', [
     '$http',
     function ($http) {

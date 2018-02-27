@@ -1,3 +1,5 @@
+import treeherder from '../js/treeherder';
+
 treeherder.factory('thTabs', [
     function () {
         var thTabs = {

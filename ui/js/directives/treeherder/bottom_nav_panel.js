@@ -1,3 +1,4 @@
+import treeherder from '../../treeherder';
 import { getBtnClass, getStatus } from "../../../helpers/jobHelper";
 
 treeherder.directive('thPinnedJob', function () {

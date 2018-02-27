@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('thPinboard', [
     'ThJobClassificationModel', '$rootScope', 'thEvents',
     'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThResultSetStore', 'thPinboardCountError',
