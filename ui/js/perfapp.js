@@ -78,5 +78,3 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
             }
         });
     }]).run(require('./cache-templates'));
-
-module.exports = perf;
