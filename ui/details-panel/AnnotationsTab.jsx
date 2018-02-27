@@ -4,10 +4,6 @@ const RelatedBugSaved = (props) => {
   const { deleteBug, bug } = props;
   const bug_id = bug.bug_id;
 
-  const deleteBugEvent = () => {
-    deleteBug(bug);
-  };
-
   return (
     <span className="btn-group pinboard-related-bugs-btn">
       <a
@@ -21,7 +17,7 @@ const RelatedBugSaved = (props) => {
       </a>
       <span
         className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
-        onClick={deleteBugEvent}
+        onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug_id}`}
       >
       <i className="fa fa-times-circle" />
@@ -50,7 +46,7 @@ const RelatedBug = (props) => {
   );
 };
 
-function TableRow(props) {
+const TableRow = (props) => {
   const { deleteClassification, classification, classificationTypes } = props;
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
@@ -67,7 +63,7 @@ function TableRow(props) {
             so it should probably be made its own component when we start using import */}
         <span title={name}>
           <i className={`fa ${iconClass}`} />
-            <span className="ml-1">{classificationName.name}</span>
+          <span className="ml-1">{classificationName.name}</span>
         </span>
       </td>
       <td>{text}</td>
@@ -82,9 +78,9 @@ function TableRow(props) {
       </td>
     </tr>
   );
-}
+};
 
-function AnnotationsTable(props) {
+const AnnotationsTable = (props) => {
   const {
     classifications, deleteClassification, classificationTypes, dateFilter
   } = props;
@@ -111,38 +107,118 @@ function AnnotationsTable(props) {
       </tbody>
     </table>
   );
-}
+};
 
 export default class AnnotationsTab extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const { $injector } = props;
+    this.$rootScope = $injector.get('$rootScope');
+    this.thEvents = $injector.get('thEvents');
+    this.thNotify = $injector.get('thNotify');
+    this.ThResultSetStore = $injector.get('ThResultSetStore');
+
+    this.deleteBug = this.deleteBug.bind(this);
+    this.deleteClassification = this.deleteClassification.bind(this);
+  }
+
+  componentWillMount() {
+    const { classifications, bugs } = this.props;
+
+    this.$rootScope.$on(this.thEvents.deleteClassification, () => {
+      if (classifications[0]) {
+        this.deleteClassification(classifications[0]);
+        // Delete any number of bugs if they exist
+        bugs.forEach((bug) => { this.deleteBug(bug); });
+      } else {
+        this.thNotify.send("No classification on this job to delete", 'warning');
+      }
+    });
+  }
+
+  deleteClassification(classification) {
+    const jobMap = this.ThResultSetStore.getJobMap();
+    const job = jobMap[`${classification.job_id}`].job_obj;
+
+    job.failure_classification_id = 1;
+    this.ThResultSetStore.updateUnclassifiedFailureMap(job);
+
+    classification.delete().then(
+      () => {
+        this.thNotify.send("Classification successfully deleted", "success");
+        // also be sure the job object in question gets updated to the latest
+        // classification state (in case one was added or removed).
+        this.ThResultSetStore.fetchJobs([job.id]);
+        this.$rootScope.$emit(
+          this.thEvents.jobsClassified,
+          { jobs: { [job.id]: job } }
+        );
+      },
+      () => {
+        this.thNotify.send(
+          "Classification deletion failed",
+          "danger",
+          { sticky: true }
+        );
+      });
+  }
+
+  deleteBug(bug) {
+    const { selectedJob } = this.props;
+
+    bug.delete()
+      .then(() => {
+          this.thNotify.send(
+            `Association to bug ${bug.bug_id} successfully deleted`,
+            "success"
+          );
+          this.$rootScope.$emit(
+            this.thEvents.bugsAssociated,
+            { jobs: { [selectedJob.id]: selectedJob } }
+          );
+        }, () => {
+          this.thNotify.send(
+            `Association to bug ${bug.bug_id} deletion failed`,
+            "danger",
+            { sticky: true }
+          );
+        }
+      );
+  }
+
+
   render() {
     const {
-      $injector, classifications, deleteClassification, classificationTypes,
-      bugs, getBugUrl, deleteBug
+      $injector, classifications, classificationTypes,
+      bugs, getBugUrl
     } = this.props;
     const dateFilter = $injector.get('$filter')('date');
 
     return (
-      <div className="row h-100">
-        <div className="col-sm-10 classifications-pane job-tabs-content">
-          {classifications && classifications.length > 0 ?
-            <AnnotationsTable
-              classifications={classifications}
-              dateFilter={dateFilter}
-              deleteClassification={deleteClassification}
-              classificationTypes={classificationTypes}
-            /> :
-            <p>This job has not been classified</p>
-          }
-        </div>
+      <div className="container-fluid">
+        <div className="row h-100">
+          <div className="col-sm-10 classifications-pane job-tabs-content">
+            {classifications && classifications.length > 0 ?
+              <AnnotationsTable
+                classifications={classifications}
+                dateFilter={dateFilter}
+                deleteClassification={this.deleteClassification}
+                classificationTypes={classificationTypes}
+              /> :
+              <p>This job has not been classified</p>
+            }
+          </div>
 
-        {classifications && classifications.length > 0 && bugs &&
-        <div className="col-sm-2 bug-list-pane">
-          <RelatedBug
-            bugs={bugs}
-            getBugUrl={getBugUrl}
-            deleteBug={deleteBug}
-          />
-        </div>}
+          {classifications && classifications.length > 0 && bugs &&
+          <div className="col-sm-2 bug-list-pane">
+            <RelatedBug
+              bugs={bugs}
+              getBugUrl={getBugUrl}
+              deleteBug={this.deleteBug}
+            />
+          </div>}
+          </div>
       </div>
     );
   }
@@ -150,13 +226,12 @@ export default class AnnotationsTab extends React.Component {
 
 AnnotationsTab.propTypes = {
   classifications: PropTypes.array,
-  deleteClassification: PropTypes.func,
   $injector: PropTypes.object,
   classificationTypes: PropTypes.object,
   getBugUrl: PropTypes.func,
   bugs: PropTypes.array,
-  deleteBug: PropTypes.func
+  selectedJob: PropTypes.object,
 };
 
-treeherder.directive('annotationsPanel', ['reactDirective', '$injector', (reactDirective, $injector) =>
+treeherder.directive('annotationsTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
   reactDirective(AnnotationsTab, undefined, {}, { $injector })]);

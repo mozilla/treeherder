@@ -82,7 +82,6 @@ require('./plugins/job_details_pane.jsx');
 require('./plugins/failure_summary_panel.jsx');
 require('./details-panel/AnnotationsTab.jsx');
 require('./plugins/pinboard.js');
-require('./plugins/annotations/controller.js');
 require('./plugins/failure_summary/controller.js');
 require('./plugins/similar_jobs/controller.js');
 require('./plugins/auto_classification/controller.js');

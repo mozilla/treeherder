@@ -1,8 +1,7 @@
-<div ng-controller="AnnotationsPluginCtrl" class="annotations-panel">
-    <div class="container-fluid">
-        <annotations-panel 
-                        classifications="classifications" deleteClassification="deleteClassification"
-                        classificationTypes="classificationTypes" bugs="bugs" getBugUrl="getBugUrl"
-                        deleteBug="deleteBug"></annotations-panel>
-    </div>
-</div>
+<annotations-tab
+  classifications="classifications"
+  classificationTypes="classificationTypes"
+  selectedJob="selectedJob"
+  bugs="bugs"
+  getBugUrl="getBugUrl"
+/>

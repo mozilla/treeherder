@@ -421,7 +421,7 @@ ul.failure-summary-list li .btn-xs {
  * Annotations
  */
 
-.annotations-panel {
+annotations-tab {
   overflow: auto;
   margin-right: 0;
 }
