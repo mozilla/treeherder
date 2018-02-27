@@ -1,3 +1,5 @@
+import perf from '../../perf';
+
 perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [

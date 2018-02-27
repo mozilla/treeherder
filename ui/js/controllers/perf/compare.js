@@ -1,5 +1,7 @@
 import metricsgraphics from 'metrics-graphics';
 
+import perf from '../../perf';
+
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
     'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',

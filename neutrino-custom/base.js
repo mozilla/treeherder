@@ -253,7 +253,6 @@ module.exports = neutrino => {
             React: require.resolve('react'),
             _: require.resolve('lodash'),
             treeherder: require.resolve(path.join(UI, 'js/treeherder.js')),
-            perf: require.resolve(path.join(UI, 'js/perf.js')),
         });
 
     neutrino.config.devtool('source-map');
