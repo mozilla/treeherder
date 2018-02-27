@@ -1,3 +1,5 @@
+import treeherderApp from '../treeherder_app';
+
 treeherderApp.controller('NotificationCtrl', [
     '$scope', 'thNotify',
     function NotificationCtrl($scope, thNotify) {

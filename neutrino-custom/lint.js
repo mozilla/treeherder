@@ -89,7 +89,6 @@ module.exports = neutrino => {
                     'React',
                     'SERVICE_DOMAIN',
                     'treeherder',
-                    'treeherderApp',
                 ]
             }
         }));

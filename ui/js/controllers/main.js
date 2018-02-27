@@ -1,3 +1,5 @@
+import treeherderApp from '../treeherder_app';
+
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
     'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
