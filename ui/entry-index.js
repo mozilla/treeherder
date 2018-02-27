@@ -30,6 +30,9 @@ require('ngreact');
 require('jquery.scrollto');
 require('./vendor/resizer.js');
 
+// Bootstrap the Angular modules against which everything will be registered
+require('./js/treeherder_app.js');
+
 // Treeherder React UI
 require('./job-view/PushList');
 

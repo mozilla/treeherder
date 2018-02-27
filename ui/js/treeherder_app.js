@@ -1,7 +1,12 @@
-var treeherderApp = angular.module('treeherder.app',
-    ['treeherder', 'ui.bootstrap', 'ngRoute',
-        'mc.resizer', 'angular-toArrayFilter', 'react',
-        'hc.marked']);
+const treeherderApp = angular.module('treeherder.app', [
+  'treeherder',
+  'ui.bootstrap',
+  'ngRoute',
+  'mc.resizer',
+  'angular-toArrayFilter',
+  'react',
+  'hc.marked',
+]);
 
 treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
     '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
@@ -42,4 +47,4 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
             .otherwise({ redirectTo: '/jobs' });
     }]).run(require('./cache-templates'));
 
-module.exports = treeherderApp;
+export default treeherderApp;

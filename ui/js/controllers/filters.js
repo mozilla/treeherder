@@ -1,3 +1,5 @@
+import treeherderApp from '../treeherder_app';
+
 treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope',
     'thResultStatusList', 'thEvents', 'thJobFilters',
