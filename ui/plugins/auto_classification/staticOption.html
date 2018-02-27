@@ -15,7 +15,7 @@
   </button>
   <span ng-if="option.bugResolution" class="classification-bug-resolution">[{{ option.bugResolution }}]</span>
   <a href="{{ ::getBugUrl(option.bugNumber) }}"
-     target="_blank">{{::option.bugNumber}} -
+     target="_blank" rel="noopener">{{::option.bugNumber}} -
     <span ng-bind-html="option.bugSummary | escapeHTML | highlightCommonTerms:line.data.bug_suggestions.search"></span>
   </a>
   <span>[ {{ option.score | number: 2 }} ]</span>
@@ -30,7 +30,7 @@
   Bug
   <a ng-if="$ctrl.selectedOption.manualBugNumber"
      href="{{ ::getBugUrl($ctrl.selectedOption.manualBugNumber) }}"
-     target="_blank">
+     target="_blank" rel="noopener">
     {{ $ctrl.selectedOption.manualBugNumber }}</a>
   <span ng-if="!$ctrl.selectedOption.manualBugNumber">
     No bug number specified</span>

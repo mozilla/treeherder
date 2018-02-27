@@ -11,7 +11,7 @@ treeherder.filter('linkifyURLs', function () {
     return function (input) {
         var str = input || '';
         var urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-        str = str.replace(urlpattern, '<a href="$1" target="_blank">$1</a>');
+        str = str.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
         return str;
     };
 });

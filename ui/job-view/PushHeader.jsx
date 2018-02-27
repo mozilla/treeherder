@@ -194,6 +194,7 @@ export default class PushHeader extends React.PureComponent {
               className="btn btn-sm btn-push test-view-btn"
               href={`/testview.html?repo=${repoName}&revision=${revision}`}
               target="_blank"
+              rel="noopener"
               title="View details on failed test results for this push"
             >View Tests</a>
             {canCancelJobs &&

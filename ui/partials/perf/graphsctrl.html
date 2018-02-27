@@ -70,11 +70,11 @@
       </div>
       <div>
         <p ng-show="tooltipContent.revision">
-          <a id="tt-cset" ng-href="{{tooltipContent.pushlogURL}}" target="_blank">
+          <a id="tt-cset" ng-href="{{tooltipContent.pushlogURL}}" target="_blank" rel="noopener">
             {{tooltipContent.revision| limitTo: 12}}
           </a>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
-            (<span ng-if="tooltipContent.jobId"><a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank">job</a>, </span><a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}&framework={{selectedDataPoint.frameworkId}}" target="_blank">compare</a>)
+            (<span ng-if="tooltipContent.jobId"><a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank" rel="noopener">job</a>, </span><a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}&framework={{selectedDataPoint.frameworkId}}" target="_blank" rel="noopener">compare</a>)
           </span>
         </p>
         <p ng-if="tooltipContent.alertSummary">
@@ -84,10 +84,10 @@
         <span class="text-muted">- {{tooltipContent.alert.isAcknowledged() ? tooltipContent.alertSummary.getStatusText() : tooltipContent.alert.getStatusText()}}
             <span ng-show="tooltipContent.alert.related_summary_id">
               <span ng-if="tooltipContent.alert.related_summary_id !== tooltipContent.alertSummary.id">
-              to <a href="#/alerts?id={{tooltipContent.alert.related_summary_id}}" target="_blank">alert #{{tooltipContent.alert.related_summary_id}}</a>
+              to <a href="#/alerts?id={{tooltipContent.alert.related_summary_id}}" target="_blank" rel="noopener">alert #{{tooltipContent.alert.related_summary_id}}</a>
             </span>
             <span ng-if="tooltipContent.alert.related_summary_id === tooltipContent.alertSummary.id">
-              from <a href="#/alerts?id={{tooltipContent.alert.related_summary_id}}" target="_blank">alert #{{tooltipContent.alert.related_summary_id}}</a>
+              from <a href="#/alerts?id={{tooltipContent.alert.related_summary_id}}" target="_blank" rel="noopener">alert #{{tooltipContent.alert.related_summary_id}}</a>
             </span>
             </span>
           </span>

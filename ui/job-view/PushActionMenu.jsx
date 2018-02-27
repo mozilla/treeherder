@@ -117,6 +117,7 @@ export default class PushActionMenu extends React.PureComponent {
           }
           <li><a
             target="_blank"
+            rel="noopener"
             className="dropdown-item"
             href={`https://secure.pub.build.mozilla.org/buildapi/self-serve/${repoName}/rev/${revision}`}
           >BuildAPI</a></li>
@@ -134,7 +135,7 @@ export default class PushActionMenu extends React.PureComponent {
           }
           <li><a
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             className="dropdown-item"
             href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${repoName}`}
             title="Use Bugherder to mark the bugs in this push"

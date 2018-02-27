@@ -40,7 +40,7 @@
               <span ng-switch-default></span>
               <small class="text-muted">{{::notification.created | date:'short'}}</small>
               {{::notification.message}}
-              <a ng-if="true" target="_blank"
+              <a ng-if="true" target="_blank" rel="noopener"
                  ng-href="{{notification.url}}">{{::notification.linkText}}</a>
             </span>
           </li>

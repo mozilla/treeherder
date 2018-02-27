@@ -54,6 +54,7 @@ class SuggestionsListItem extends React.Component {
                 {/* <!--All other bugs--> */}
                 {this.props.suggestion.valid_all_others && this.props.suggestion.valid_open_recent &&
                 <a target="_blank"
+                   rel="noopener"
                    href=""
                    onClick={this.clickShowMore}
                    className="show-hide-more"
@@ -110,6 +111,7 @@ const BugListItem = (props) => {
             <a className={`${props.bugClassName} ml-1`}
                href={getBugUrl}
                target="_blank"
+               rel="noopener"
                title={props.title}
             >{props.bug.id}
                 <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
@@ -124,6 +126,7 @@ const ErrorsList = (props) => {
         (<li key={index}>{error.name} : {error.result}.
             <a title="Open in Log Viewer"
                target="_blank"
+               rel="noopener"
                href={error.lvURL}
             ><span className="ml-1">View log</span></a>
         </li>));
@@ -177,6 +180,7 @@ class FailureSummaryPanel extends React.Component {
                         <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
                         <a title="Open the raw log in a new window"
                            target="_blank"
+                           rel="noopener"
                            href={job.url}
                         >The raw log</a>
                         <span>is available. This panel will automatically recheck every 5 seconds.</span></p>

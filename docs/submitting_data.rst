@@ -403,7 +403,7 @@ will be rendered. Here are the possible values:
 
     .. code-block:: html
 
-      {{title}}: <a title="{{value}}" href="{{url}}" target="_blank">{{value}}</a>
+      {{title}}: <a title="{{value}}" href="{{url}}" target="_blank" rel="noopener">{{value}}</a>
 
 * **Raw Html** - The last resource for when you need to show some formatted
   content.

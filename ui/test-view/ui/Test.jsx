@@ -71,6 +71,7 @@ class Platform extends React.Component {
         <Link
           to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
           target="_blank"
+          rel="noopener"
         >
           {this.getIcon(this.props.job.failureClassification.name)}
           {this.props.platform} {this.props.option}
@@ -143,6 +144,7 @@ class TestComponent extends React.Component {
           {Object.values(this.props.test.bugs).map((bug, key) => (
             <div key={key}><Link to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
                                  target="_blank"
+                                 rel="noopener"
             >{bug.id} - {bug.summary}</Link></div>
           ))}
         </div>}

@@ -48,7 +48,7 @@
           <li ng-if="jobExists">
             <a title="{{logError ? 'Raw log link no longer exists or has expired (click for path)' :
                       'Open the raw log in a new window'}}"
-               target="_blank"
+               target="_blank" rel="noopener"
                href="{{rawLogURL}}">
               <span ng-class="logError ? 'fa-warning actionbtn-warning' : 'fa-file-text-o actionbtn-icon'"
                     class="fa"></span>
@@ -59,7 +59,7 @@
           <!-- Ref test button -->
           <li ng-if="isReftest()" ng-cloak>
             <a title="Open the Reftest Analyser in a new window"
-               target="_blank"
+               target="_blank" rel="noopener"
                href="https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl={{rawLogURL}}&only_show_unexpected=1">
               <span class="fa fa-bar-chart-o actionbtn-icon"></span>
               <span>open analyser</span>
@@ -116,7 +116,7 @@
                 </th>
                 <td ng-cloak>
                   <a ng-if="line.url" title="{{line.value}}"
-                     href="{{line.url}}" target="_blank">{{line.value}}</a>
+                     href="{{line.url}}" target="_blank" rel="noopener">{{line.value}}</a>
                   <span ng-if="!line.url" ng-bind-html="line.value"></span>
                 </td>
               </tr>
