@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThRepositoryModel', [
     '$http', 'thUrl', '$rootScope', '$interval',
     '$q', 'treeStatus', 'thRepoGroupOrder',

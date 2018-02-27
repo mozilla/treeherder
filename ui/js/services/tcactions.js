@@ -1,5 +1,7 @@
 import jsone from 'json-e';
 import { Queue } from 'taskcluster-client-web';
+
+import treeherder from '../treeherder';
 import thTaskcluster from './taskcluster';
 
 treeherder.factory('tcactions', [

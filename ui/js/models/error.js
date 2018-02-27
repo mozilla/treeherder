@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 /**
 This object contains a few constants and helper functions related to error
 message handling.

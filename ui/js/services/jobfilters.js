@@ -1,4 +1,6 @@
+import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/jobHelper';
+
 /**
    This service handles whether or not a job, job group or platform row should
    be displayed based on the filter settings.

@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThJobGroupModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {

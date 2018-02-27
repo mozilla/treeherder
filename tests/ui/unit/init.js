@@ -26,7 +26,6 @@ const Enzyme = require('enzyme');
 Enzyme.configure({ adapter: new Adapter() });
 
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
-window.treeherder = jsContext('./treeherder.js');
 window.SERVICE_DOMAIN = process.env.SERVICE_DOMAIN || '';
 jsContext('./values.js');
 jsContext('./providers.js');

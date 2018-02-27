@@ -1,3 +1,5 @@
+import treeherder from '../../js/treeherder';
+
 treeherder.factory('thStringOverlap', function () {
     return function (str1, str2) {
         // Get a measure of the similarity of two strings by a simple process

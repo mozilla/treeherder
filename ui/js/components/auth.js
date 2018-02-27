@@ -1,3 +1,4 @@
+import treeherder from '../treeherder';
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 import thTaskcluster from '../services/taskcluster';

@@ -1,3 +1,4 @@
+import treeherder from '../../js/treeherder';
 import { getBtnClass, getStatus } from "../../helpers/jobHelper";
 
 treeherder.controller('SimilarJobsPluginCtrl', [

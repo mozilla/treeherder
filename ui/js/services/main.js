@@ -1,4 +1,6 @@
 import { Queue } from 'taskcluster-client-web';
+
+import treeherder from '../treeherder';
 import thTaskcluster from './taskcluster';
 
 /* Services */

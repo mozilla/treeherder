@@ -1,3 +1,4 @@
+import treeherder from './treeherder';
 import * as aggregateIds from '../job-view/aggregateIds';
 
 treeherder.provider('thServiceDomain', function () {

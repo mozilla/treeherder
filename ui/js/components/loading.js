@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.component('loading', {
     bindings: {
         data: '<'

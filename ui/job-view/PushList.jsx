@@ -1,4 +1,6 @@
 import React from 'react';
+
+import treeherder from '../js/treeherder';
 import Push from './Push';
 import {
   findInstance,

@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import treeherder from '../js/treeherder';
+
 // using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {
 

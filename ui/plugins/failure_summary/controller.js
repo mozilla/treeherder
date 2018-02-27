@@ -1,3 +1,5 @@
+import treeherder from '../../js/treeherder';
+
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents',

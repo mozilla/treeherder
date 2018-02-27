@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('thBuildApi', [
     '$http', 'thNotify',
     function ($http, thNotify) {

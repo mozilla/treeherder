@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThBuildPlatformModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {

@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import treeherder from '../js/treeherder';
+
 const RelatedBugSaved = (props) => {
   const { deleteBug, bug } = props;
   const bug_id = bug.bug_id;

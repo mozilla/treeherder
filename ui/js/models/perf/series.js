@@ -1,3 +1,5 @@
+import treeherder from '../../treeherder';
+
 treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function ($http, thServiceDomain, ThOptionCollectionModel, $q) {
 
     var _getTestName = function (signatureProps) {

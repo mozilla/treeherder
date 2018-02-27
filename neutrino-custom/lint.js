@@ -87,7 +87,6 @@ module.exports = neutrino => {
                     'Mousetrap',
                     'React',
                     'SERVICE_DOMAIN',
-                    'treeherder',
                 ]
             }
         }));

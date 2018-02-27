@@ -1,3 +1,4 @@
+import treeherder from '../../treeherder';
 import { getBtnClass } from '../../../helpers/jobHelper';
 
 treeherder.directive('thWatchedRepo', [

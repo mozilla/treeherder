@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThRunnableJobModel', [
     'thUrl', 'ThJobModel',
     function (thUrl, ThJobModel) {

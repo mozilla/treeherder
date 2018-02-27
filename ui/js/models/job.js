@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThJobModel', [
     '$http', 'thUrl', 'thPlatformName', '$q',
     function ($http, thUrl, thPlatformName, $q) {

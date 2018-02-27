@@ -1,3 +1,5 @@
+import treeherder from '../../treeherder';
+
 //Directive blurThis which removes focus from a specific element
 treeherder.directive('blurThis', ['$timeout', function ($timeout) {
     return function (scope, elem, attr) {

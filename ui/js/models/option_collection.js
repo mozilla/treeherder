@@ -1,3 +1,5 @@
+import treeherder from '../treeherder';
+
 treeherder.factory('ThOptionCollectionModel', [
     '$http', 'thUrl',
     function ($http, thUrl) {
