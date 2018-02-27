@@ -80,7 +80,7 @@ require('./plugins/tabs.js');
 require('./plugins/controller.js');
 require('./plugins/job_details_pane.jsx');
 require('./plugins/failure_summary_panel.jsx');
-require('./plugins/annotations_panel.jsx');
+require('./details-panel/AnnotationsTab.jsx');
 require('./plugins/pinboard.js');
 require('./plugins/annotations/controller.js');
 require('./plugins/failure_summary/controller.js');

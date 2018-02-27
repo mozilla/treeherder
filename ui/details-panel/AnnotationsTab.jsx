@@ -99,7 +99,7 @@ function AnnotationsTable(props) {
 }
 
 
-export default class AnnotationsPanel extends React.Component {
+export default class AnnotationsTab extends React.Component {
     render() {
         const dateFilter = this.props.$injector.get('$filter')('date');
 
@@ -127,7 +127,7 @@ export default class AnnotationsPanel extends React.Component {
     }
 }
 
-AnnotationsPanel.propTypes = {
+AnnotationsTab.propTypes = {
     classifications: PropTypes.array,
     deleteClassification: PropTypes.func,
     $injector: PropTypes.object,
@@ -138,4 +138,4 @@ AnnotationsPanel.propTypes = {
 };
 
 treeherder.directive('annotationsPanel', ['reactDirective', '$injector', (reactDirective, $injector) =>
-reactDirective(AnnotationsPanel, undefined, {}, { $injector })]);
+reactDirective(AnnotationsTab, undefined, {}, { $injector })]);
