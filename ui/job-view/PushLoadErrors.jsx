@@ -20,6 +20,7 @@ const PushLoadErrors = (props) => {
                   <a
                     href={currentRepo.getPushLogHref(revision)}
                     target="_blank"
+                    rel="noopener"
                     title={`open revision ${revision} on ${currentRepo.url}`}
                   >(view pushlog)</a>
                 <span className="fa fa-spinner fa-pulse th-spinner" />

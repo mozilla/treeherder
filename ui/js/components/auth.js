@@ -102,6 +102,7 @@ treeherder.component("login", {
              * if it's successful.
              */
             ctrl.login = function () {
+                // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
                 $window.open('/login.html', '_blank');
             };
 

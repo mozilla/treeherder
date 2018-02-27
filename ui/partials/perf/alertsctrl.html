@@ -54,12 +54,12 @@
             {{alertSummary.resultSetMetadata.revision | limitTo: 12}}
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="push-dropdown">
-            <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank" class="dropdown-item">Jobs</a></li>
-            <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank" class="dropdown-item">Pushlog</a></li>
+            <li role="menuitem"><a href="{{alertSummary.jobsURL}}" target="_blank" rel="noopener" class="dropdown-item">Jobs</a></li>
+            <li role="menuitem"><a href="{{alertSummary.pushlogURL}}" target="_blank" rel="noopener" class="dropdown-item">Pushlog</a></li>
           </ul>
         </span>
         <span ng-show="alertSummary.bug_number"> ·
-          <a href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank">
+          <a href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank" rel="noopener">
             Bug {{alertSummary.bug_number}}
           </a>
         </span>
@@ -121,17 +121,17 @@
           &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
             <!-- Reassigned or downstream *to* another alert -->
             <span ng-if="alert.related_summary_id !== alertSummary.id">
-              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank">alert #{{alert.related_summary_id}}</a>
+              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank" rel="noopener">alert #{{alert.related_summary_id}}</a>
             </span>
             <!-- Reassigned or downstream *from* the another alert -->
             <span ng-if="alert.related_summary_id === alertSummary.id">
-              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank" >alert #{{alert.summary_id}}</a>
+              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank" rel="noopener" >alert #{{alert.summary_id}}</a>
             </span>
           </span>)&nbsp;&nbsp;
           <span class="result-links">
-            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank">graph</a>
+            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank" rel="noopener">graph</a>
             <span ng-if="alert.series_signature.has_subtests"> · </span>
-            <a ng-if="alert.series_signature.has_subtests" href="{{alert.getSubtestsURL(alertSummary)}}" target="_blank">subtests</a>
+            <a ng-if="alert.series_signature.has_subtests" href="{{alert.getSubtestsURL(alertSummary)}}" target="_blank" rel="noopener">subtests</a>
           </span>
         </td>
         <td class="alert-value">{{alert.prev_value|number}}</td>

@@ -18,7 +18,7 @@
             <a ng-if="job_log_url.parse_status == 'parsed'"
                id="logviewer-btn"
                title="Open the log viewer in a new window"
-               target="_blank"
+               target="_blank" rel="noopener"
                href="{{::lvUrl}}"
                copy-value="{{::lvFullUrl}}"
                class="">
@@ -54,7 +54,7 @@
             <a id="raw-log-btn"
                class="raw-log-icon"
                title="Open the raw log in a new window"
-               target="_blank"
+               target="_blank" rel="noopener"
                href="{{::job_log_url.url}}"
                copy-value="{{::job_log_url.url}}">
               <span class="fa fa-file-text-o"></span>
@@ -87,7 +87,7 @@
           </li>
           <li ng-if="isReftest()" ng-repeat="job_log_url in job_log_urls">
             <a title="Launch the Reftest Analyser in a new window"
-               target="_blank"
+               target="_blank" rel="noopener"
                href="{{::reftestUrl}}">
               <span class="fa fa-bar-chart-o"></span>
             </a>
@@ -122,12 +122,12 @@
                    ng-click="!canBackfill() || backfillJob()">Backfill</button>
               </li>
               <li ng-if-start="job.taskcluster_metadata">
-                <a target="_blank" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
+                <a target="_blank" rel="noopener" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}">Inspect Task</a>
               </li>
-              <li><a target="_blank" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
+              <li><a target="_blank" rel="noopener" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
               </li>
               <li>
-                <a target="_blank" class="dropdown-item" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
+                <a target="_blank" rel="noopener" class="dropdown-item" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
               </li>
               <li ng-if-end>
                 <a ng-click="customJobAction()" class="dropdown-item">Custom Action...</a>

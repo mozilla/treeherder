@@ -55,19 +55,19 @@
         <input id="modalParsedLog" type="checkbox"
                ng-model="checkedLogLinks.parsedLog"
                ng-true-value="'{{parsedLog}}'"/>
-        <a target="_blank" href="{{ parsedLog }}">Include Parsed Log Link</a>
+        <a target="_blank" rel="noopener" href="{{ parsedLog }}">Include Parsed Log Link</a>
       </label><br/>
       <label>
         <input id="modalFullLog" type="checkbox"
                ng-model="checkedLogLinks.fullLog"
                ng-true-value="'{{fullLog}}'"/>
-        <a target="_blank"  href="{{ fullLog }}">Include Full Log Link</a>
+        <a target="_blank" rel="noopener"  href="{{ fullLog }}">Include Full Log Link</a>
       </label><br/>
       <label id="modalReftestLogLabel" ng-if="isReftest()">
         <input id="modalReftestLog" type="checkbox"
                ng-model="checkedLogLinks.reftest"
                ng-true-value="'{{reftest}}'"/>
-        <a target="_blank" href="{{ reftest }}">Include Reftest Viewer Link</a>
+        <a target="_blank" rel="noopener" href="{{ reftest }}">Include Reftest Viewer Link</a>
       </label>
     </div>
 

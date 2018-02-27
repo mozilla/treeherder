@@ -11,6 +11,7 @@ const RelatedBugSaved = (props) => {
             <a className="btn btn-xs annotations-bug related-bugs-link"
                href={props.getBugUrl(props.bug.bug_id)}
                target="_blank"
+               rel="noopener"
                title={`View bug ${props.bug.bug_id}`}
             >
             <em>{props.bug.bug_id}</em>

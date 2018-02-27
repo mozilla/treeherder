@@ -8,7 +8,7 @@ describe('linkifyURLs filter', function() {
     it('linkifies a URL', function() {
         var linkifyURLs = $filter('linkifyURLs');
         expect(linkifyURLs('https://www.mozilla.org'))
-          .toEqual('<a href="https://www.mozilla.org" target="_blank">https://www.mozilla.org</a>');
+          .toEqual('<a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a>');
     });
 
     it('does not linkify a non-URL', function() {
@@ -19,7 +19,7 @@ describe('linkifyURLs filter', function() {
     it('linkifies a mix of URL and non-URL', function() {
         var linkifyURLs = $filter('linkifyURLs');
         expect(linkifyURLs('This is a test: https://www.mozilla.org Did I pass?'))
-          .toEqual('This is a test: <a href="https://www.mozilla.org" target="_blank">https://www.mozilla.org</a> Did I pass?');
+          .toEqual('This is a test: <a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a> Did I pass?');
     });
 });
 
