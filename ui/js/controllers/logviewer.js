@@ -1,3 +1,5 @@
+import logViewerApp from '../logviewer';
+
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',
