@@ -26,6 +26,9 @@ require('jquery.flot');
 require('jquery.flot/jquery.flot.time.js');
 require('jquery.flot/jquery.flot.selection.js');
 
+// Bootstrap the Angular modules against which everything will be registered
+require('./js/perf.js');
+
 // Perf JS
 require('./js/services/treestatus.js');
 require('./js/providers.js');
@@ -41,7 +44,6 @@ require('./js/models/resultset.js');
 require('./js/services/tcactions.js');
 require('./js/models/user.js');
 require('./js/models/error.js');
-require('./js/perf.js');
 require('./js/models/perf/series.js');
 require('./js/models/perf/performance_framework.js');
 require('./js/models/perf/alerts.js');
