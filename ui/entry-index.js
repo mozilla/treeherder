@@ -71,7 +71,7 @@ import './js/controllers/bugfiler';
 import './js/controllers/tcjobactions';
 import './plugins/tabs';
 import './plugins/controller';
-import './plugins/job_details_pane';
+import './details-panel/JobDetailsPane';
 import './plugins/failure_summary_panel';
 import './details-panel/AnnotationsTab';
 import './plugins/pinboard';
