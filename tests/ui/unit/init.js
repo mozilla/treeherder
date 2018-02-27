@@ -30,7 +30,6 @@ window.treeherder = jsContext('./treeherder.js');
 window.treeherderApp = jsContext('./treeherder_app.js');
 window.perf = jsContext('./perf.js');
 window.logViewerApp = jsContext('./logviewer.js');
-window.userguideApp = jsContext('./userguide.js');
 window.SERVICE_DOMAIN = process.env.SERVICE_DOMAIN || '';
 jsContext('./values.js');
 jsContext('./providers.js');
