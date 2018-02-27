@@ -1,3 +1,5 @@
+import userguideApp from '../userguide';
+
 userguideApp.controller('UserguideCtrl', ['$scope',
     function UserguideCtrl($scope) {
 

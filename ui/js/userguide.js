@@ -1,4 +1,4 @@
-var userguideApp = angular.module('userguide', []);
+const userguideApp = angular.module('userguide', []);
 
 userguideApp.config(['$compileProvider', function ($compileProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
@@ -12,4 +12,4 @@ userguideApp.config(['$compileProvider', function ($compileProvider) {
     );
 }]);
 
-module.exports = userguideApp;
+export default userguideApp;

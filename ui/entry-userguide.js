@@ -8,6 +8,8 @@ require('./css/treeherder-userguide.css');
 require('./css/treeherder-job-buttons.css');
 require('font-awesome/css/font-awesome.css');
 
-// Userguide JS
+// Bootstrap the Angular modules against which everything will be registered
 require('./js/userguide.js');
+
+// Userguide JS
 require('./js/controllers/userguide.js');
