@@ -9,32 +9,33 @@ function ClassificationsPane(props) {
     const url = props.linkifyURLsFilter(text);
     return props.linkifyClassificationsFilter(url, props.repoName);
   };
-
   const repoURLHTML = { __html: filterClassificationsText(props.classifications[0].text) };
-
   const failureId = props.classifications[0].failure_classification_id;
-  let iconClass = (failureId === 7 ?
-        "fa-star-o" : "fa fa-star") + " star-" + props.job.result;
-
+  const iconClass = (failureId === 7 ?
+    "fa-star-o" : "fa fa-star") + " star-" + props.job.result;
   const classificationName = props.classificationTypes.classifications[failureId];
 
   return (
     <ul className="list-unstyled content-spacer">
       <li>
-        <span title={classificationName.name}><i className={`fa ${iconClass}`} />
-          <span className="ml-1">{classificationName.name}</span></span>
+        <span title={classificationName.name}>
+          <i className={`fa ${iconClass}`} />
+          <span className="ml-1">{classificationName.name}</span>
+        </span>
         {props.bugs.length > 0 &&
-        <a
-          target="_blank"
-          rel="noopener"
-          href={getBugUrl(props.bugs[0].bug_id)}
-          title={`View bug ${props.bugs[0].bug_id}`}
-        ><em> {props.bugs[0].bug_id}</em></a>}
+          <a
+            target="_blank"
+            rel="noopener"
+            href={getBugUrl(props.bugs[0].bug_id)}
+            title={`View bug ${props.bugs[0].bug_id}`}
+          ><em> {props.bugs[0].bug_id}</em></a>}
       </li>
       {props.classifications[0].text.length > 0 &&
-        <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>}
+        <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>
+      }
       <li className="revision-comment">
-        {props.dateFilter(props.classifications[0].created, 'EEE MMM d, H:mm:ss')}</li>
+        {props.dateFilter(props.classifications[0].created, 'EEE MMM d, H:mm:ss')}
+      </li>
       <li className="revision-comment">
         {props.classifications[0].who}
       </li>
@@ -165,13 +166,14 @@ class JobDetailsList extends React.Component {
         />
 
         {jobMachineName &&
-        <JobDetailsListItem
-          label="Machine: "
-          text={jobMachineName}
-          title="Inspect machine"
-          target="_blank"
-          href={this.state.machineUrl}
-        />}
+          <JobDetailsListItem
+            label="Machine: "
+            text={jobMachineName}
+            title="Inspect machine"
+            target="_blank"
+            href={this.state.machineUrl}
+          />
+        }
 
         {this.props.job.taskcluster_metadata &&
         <JobDetailsListItem
@@ -194,25 +196,40 @@ class JobDetailsList extends React.Component {
                />))}
 
         {this.props.visibleTimeFields && <span>
-          <JobDetailsListItem label="Requested:" text={this.props.visibleTimeFields.requestTime} />
-
+          <JobDetailsListItem
+            label="Requested:"
+            text={this.props.visibleTimeFields.requestTime}
+          />
           {this.props.visibleTimeFields.startTime &&
-            <JobDetailsListItem label="Started:" text={this.props.visibleTimeFields.startTime} />}
-
+            <JobDetailsListItem
+              label="Started:"
+              text={this.props.visibleTimeFields.startTime}
+            />
+          }
           {this.props.visibleTimeFields.endTime &&
-            <JobDetailsListItem label="Ended:" text={this.props.visibleTimeFields.endTime} />}
-
-          <JobDetailsListItem label="Duration:" text={this.props.visibleTimeFields.duration} />
+            <JobDetailsListItem
+              label="Ended:"
+              text={this.props.visibleTimeFields.endTime}
+            />
+          }
+          <JobDetailsListItem
+            label="Duration:"
+            text={this.props.visibleTimeFields.duration}
+          />
         </span>}
-
-        {!this.props.jobLogUrls ? <JobDetailsListItem label="Log parsing status: " text="No logs" /> :
-           this.props.jobLogUrls.map(data =>
-             <JobDetailsListItem label="Log parsing status: " text={data.parse_status} key={data} />)}
+        {!this.props.jobLogUrls ?
+          <JobDetailsListItem label="Log parsing status: " text="No logs" /> :
+          this.props.jobLogUrls.map(data => (
+            <JobDetailsListItem
+              label="Log parsing status: "
+              text={data.parse_status} key={data}
+            />
+          ))
+        }
       </ul>
     );
   }
 }
-
 
 class JobDetailsPane extends React.Component {
   constructor(props) {
@@ -247,21 +264,22 @@ class JobDetailsPane extends React.Component {
             <span className="fa fa-spinner fa-pulse th-spinner-lg" />
           </div>
         </div>}
-
         {this.state.classifications.length > 0 &&
-        <ClassificationsPane
+          <ClassificationsPane
+            job={this.props.job}
+            classifications={this.state.classifications}
+            bugs={this.state.bugs}
+            dateFilter={dateFilter}
+            linkifyURLsFilter={linkifyURLsFilter}
+            linkifyClassificationsFilter={linkifyClassificationsFilter}
+            classificationTypes={this.props.classificationTypes}
+            repoName={this.props.repoName}
+          />
+        }
+        <JobStatusPane
           job={this.props.job}
-          classifications={this.state.classifications}
-          bugs={this.state.bugs}
-          dateFilter={dateFilter}
-          linkifyURLsFilter={linkifyURLsFilter}
-          linkifyClassificationsFilter={linkifyClassificationsFilter}
-          classificationTypes={this.props.classificationTypes}
-          repoName={this.props.repoName}
-        />}
-
-        <JobStatusPane job={this.props.job} resultStatusShading={this.props.resultStatusShading} />
-
+          resultStatusShading={this.props.resultStatusShading}
+        />
         <JobDetailsList
           job={this.props.job}
           jobSearchSignatureHref={this.props.jobSearchSignatureHref}
@@ -300,4 +318,4 @@ JobDetailsPane.propTypes = {
 };
 
 treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>
-reactDirective(JobDetailsPane, undefined, {}, { $injector })]);
+  reactDirective(JobDetailsPane, undefined, {}, { $injector })]);
