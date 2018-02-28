@@ -28,9 +28,9 @@ pytest-selenium==1.11.4 \
     --hash=sha256:9a0c48c434b538387ed6fa9d0c2f0b2e32f4fb71a4c41754df49be0aa4c64ae1 \
     --hash=sha256:b66651fe7cbeee02b511f7b59f250ca77fcdb6024f193ca10da27d1d91240688
 
-PyPOM==1.2.0 \
-    --hash=sha256:f3b0e8af86fda2a05361b1862dcb3267ed316ad49c5a7410981b270e0754d525 \
-    --hash=sha256:068abbeffee51fcb703357a5db1e7d2b3e8e4ccd9828b8bbe64b0fae6db99365
+PyPOM==1.3.0 \
+    --hash=sha256:b2e1dec250d24b63fb66cb70822208085cbbbc975951ec23388b0484b9f3e86e \
+    --hash=sha256:a39f7d3401315c0e3a505c72e2b173e3d4dcf453bfab0f8fba374b99063bccdf
 
 # Required by django-extension's runserver_plus command.
 Werkzeug==0.14.1 \
