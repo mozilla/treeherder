@@ -67,8 +67,8 @@ simplejson==3.13.2 \
     --hash=sha256:c62045146474c41c5b9e4c758873b3b2872b3e0fefd2b87de3f08292c370fce6 \
     --hash=sha256:e95f107de632ae6effa6915f194f2c282db592b9aa449070a5f9c065c478ec47
 
-newrelic==2.104.0.86 \
-    --hash=sha256:a9969fa9706bbed6cace6c0c8bd08fd45cd6ecfa84c5d9d5b13f4eaf765e5b81
+newrelic==2.106.0.87 \
+    --hash=sha256:8f66edadcf8db74836fa804fcdd19d3fcfe9e080a8db411af34f2a9148e29eac
 
 # Required by Django
 mysqlclient==1.3.12 \
