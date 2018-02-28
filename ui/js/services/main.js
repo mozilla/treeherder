@@ -38,9 +38,6 @@ treeherder.factory('thUrl', [
                 }
                 return rv;
             },
-            getInspectTaskUrl: function (taskId) {
-                return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
-            },
             getWorkerExplorerUrl: async function (taskId) {
                 const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
                 const { status } = await queue.status(taskId);
