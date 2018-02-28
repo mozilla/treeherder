@@ -22,6 +22,10 @@ export const getWorkerExplorerUrl = async function (taskId) {
   return `https://tools.taskcluster.net/provisioners/${provisionerId}/worker-types/${workerType}/workers/${workerGroup}/${workerId}`;
 };
 
+// repoName here is necessary because this data comes from the /jobs endpoint
+// which is a "project" endpoint that requires the project name.  We shouldn't
+// need that since the ids are unique across projects.
+// Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
 export const getLogViewerUrl = (job_id, repoName, line_number) => {
   const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;

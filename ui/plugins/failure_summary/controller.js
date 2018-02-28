@@ -2,6 +2,7 @@ import angular from 'angular';
 
 import treeherder from '../../js/treeherder';
 import intermittentTemplate from '../../partials/main/intermittent.html';
+import { getLogViewerUrl } from '../../helpers/urlHelper';
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThTextLogStepModel',
@@ -70,8 +71,7 @@ treeherder.controller('BugsPluginCtrl', [
                                     return {
                                         name: step.name,
                                         result: step.result,
-                                        lvURL: thUrl.getLogViewerUrl(newValue) +
-                                            "#L" + step.finished_line_number
+                                        lvURL: getLogViewerUrl(newValue, $rootScope.repoName, step.finished_line_number)
                                     };
                                 });
                         });

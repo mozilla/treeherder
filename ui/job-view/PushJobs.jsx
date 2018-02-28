@@ -6,6 +6,7 @@ import * as aggregateIds from './aggregateIds';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
 import { getUrlParam } from '../helpers/locationHelper';
+import { getLogViewerUrl } from '../helpers/urlHelper';
 
 export default class PushJobs extends React.Component {
   constructor(props) {
@@ -173,13 +174,14 @@ export default class PushJobs extends React.Component {
 
   handleLogViewerClick(jobId) {
     // Open logviewer in a new window
+    const { repoName } = this.props;
     this.ThJobModel.get(
-      this.props.repoName,
+      repoName,
       jobId
     ).then((data) => {
       if (data.logs.length > 0) {
         window.open(location.origin + '/' +
-          this.ThJobModel.getLogViewerUrl(jobId));
+          getLogViewerUrl(jobId, repoName));
       }
     });
   }

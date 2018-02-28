@@ -5,7 +5,7 @@ import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import { getStatus } from '../helpers/jobHelper';
-import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl } from '../helpers/urlHelper';
+import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
@@ -189,7 +189,7 @@ treeherder.controller('PluginCtrl', [
                         return jlu.parse_status !== 'pending';
                     });
 
-                    $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                    $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     if ($scope.job_log_urls.length) {
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
