@@ -82,7 +82,6 @@ module.exports = neutrino => {
                 globals: [
                     '$',
                     '_',
-                    'angular',
                     'jQuery',
                     'Mousetrap',
                     'React',

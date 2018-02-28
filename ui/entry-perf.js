@@ -11,7 +11,6 @@ require('./css/treeherder-loading-overlay.css');
 require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
-require('angular');
 require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'

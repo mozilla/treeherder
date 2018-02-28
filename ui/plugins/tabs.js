@@ -1,3 +1,5 @@
+import angular from 'angular';
+
 import treeherder from '../js/treeherder';
 
 treeherder.factory('thTabs', [

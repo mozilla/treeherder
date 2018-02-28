@@ -16,7 +16,6 @@ require('./css/treeherder-bugfiler.css');
 require('./css/treeherder-loading-overlay.css');
 
 // Vendor JS
-require('angular');
 require('bootstrap/dist/js/bootstrap');
 require('mousetrap');
 require('jquery.scrollto');

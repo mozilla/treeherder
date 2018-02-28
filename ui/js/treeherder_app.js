@@ -1,3 +1,4 @@
+import angular from 'angular';
 import angularToArrayfilter from 'angular-toarrayfilter';
 import hcMarked from 'angular-marked';
 import ngReactModule from 'ngreact';

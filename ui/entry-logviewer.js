@@ -8,7 +8,6 @@ require('./css/treeherder-global.css');
 require('./css/logviewer.css');
 
 // Vendor JS
-require('angular');
 require('bootstrap/dist/js/bootstrap');
 
 // Bootstrap the Angular modules against which everything will be registered

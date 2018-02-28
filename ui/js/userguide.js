@@ -1,3 +1,5 @@
+import angular from 'angular';
+
 const userguideApp = angular.module('userguide', []);
 
 userguideApp.config(['$compileProvider', function ($compileProvider) {
