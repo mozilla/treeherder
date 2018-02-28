@@ -38,9 +38,6 @@ treeherder.factory('thUrl', [
                 }
                 return rv;
             },
-            getSlaveHealthUrl: function (machine_name) {
-                return "https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + machine_name;
-            },
             getInspectTaskUrl: function (taskId) {
                 return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
             },
