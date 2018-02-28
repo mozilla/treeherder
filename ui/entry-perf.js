@@ -1,13 +1,8 @@
 // Webpack entry point for perf.html
-// Scripts and styles included here are automatically included on the page at build time
 
-// Styles
+// Vendor Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
-require('./css/treeherder-global.css');
-require('./css/treeherder-navbar.css');
-require('./css/perf.css');
-require('./css/treeherder-loading-overlay.css');
 require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
@@ -18,6 +13,12 @@ require('bootstrap/dist/js/bootstrap');
 require('jquery.flot');
 require('jquery.flot/jquery.flot.time.js');
 require('jquery.flot/jquery.flot.selection.js');
+
+// Perf Styles
+require('./css/treeherder-global.css');
+require('./css/treeherder-navbar.css');
+require('./css/perf.css');
+require('./css/treeherder-loading-overlay.css');
 
 // Bootstrap the Angular modules against which everything will be registered
 require('./js/perf.js');

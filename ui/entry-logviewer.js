@@ -1,14 +1,15 @@
 // Webpack entry point for logviewer.html
-// Scripts and styles included here are automatically included on the page at build time
 
-// Styles
+// Vendor Styles
 require('bootstrap/dist/css/bootstrap.css');
 require('font-awesome/css/font-awesome.css');
-require('./css/treeherder-global.css');
-require('./css/logviewer.css');
 
 // Vendor JS
 require('bootstrap/dist/js/bootstrap');
+
+// Logviewer Styles
+require('./css/treeherder-global.css');
+require('./css/logviewer.css');
 
 // Bootstrap the Angular modules against which everything will be registered
 require('./js/logviewer.js');
