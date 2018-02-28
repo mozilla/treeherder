@@ -5,6 +5,7 @@ import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import { getStatus } from '../helpers/jobHelper';
+import { getBugUrl } from '../helpers/urlHelper';
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
@@ -639,7 +640,7 @@ treeherder.controller('PluginCtrl', [
         $scope.tabService = thTabs;
 
         //fetch URLs
-        $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.getBugUrl = getBugUrl;
         $scope.getSlaveHealthUrl = thUrl.getSlaveHealthUrl;
         $scope.getWorkerExplorerUrl = thUrl.getWorkerExplorerUrl;
         $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
