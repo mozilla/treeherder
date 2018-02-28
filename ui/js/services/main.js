@@ -3,18 +3,18 @@ import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
 
 /* Services */
 treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain',
-    function ($rootScope, thServiceDomain) {
+    '$rootScope',
+    function ($rootScope) {
 
         var thUrl = {
             getRootUrl: function (uri) {
-                return thServiceDomain + "/api" + uri;
+                return SERVICE_DOMAIN + "/api" + uri;
             },
             getProjectUrl: function (uri, repoName) {
                 if (_.isUndefined(repoName)) {
                     repoName = $rootScope.repoName;
                 }
-                return thServiceDomain + "/api/project/" + repoName + uri;
+                return SERVICE_DOMAIN + "/api/project/" + repoName + uri;
             },
             getProjectJobUrl: function (url, jobId, repoName) {
                 var uri = "/jobs/" + jobId + url;

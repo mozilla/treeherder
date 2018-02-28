@@ -7,10 +7,9 @@ import thTaskcluster from '../services/taskcluster';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'thUrl', 'tcactions',
-    'thServiceDomain', 'ThJobModel',
+    'ThJobModel',
     function ($http, $location, $q, $interpolate, thUrl,
-        tcactions, thServiceDomain,
-        ThJobModel) {
+        tcactions, ThJobModel) {
 
         var MAX_RESULTSET_FETCH_SIZE = 100;
 
@@ -124,7 +123,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 );
             },
             get: function (uri) {
-                return $http.get(thServiceDomain + uri);
+                return $http.get(SERVICE_DOMAIN + uri);
             },
             getResultSetJobsUpdates: function (resultSetIdList, repoName, lastModified,
                 locationParams) {

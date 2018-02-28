@@ -37,30 +37,30 @@ treeherder.component("login", {
            ng-click="$ctrl.login()">Login/Register</span>
         <span ng-if="!$ctrl.userCanLogin"
               class="midgray"
-              title="thServiceDomain does not match host domain">Login not available</span>
+              title="SERVICE_DOMAIN does not match host domain">Login not available</span>
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
         onUserChange: "&"
     },
     controller: ['$location', '$window', 'thNotify',
-        'ThUserModel', '$http', 'thUrl', '$timeout', 'thServiceDomain',
+        'ThUserModel', '$http', 'thUrl', '$timeout',
         function ($location, $window, thNotify,
-                  ThUserModel, $http, thUrl, $timeout, thServiceDomain) {
+                  ThUserModel, $http, thUrl, $timeout) {
             const authService = new AuthService();
             const ctrl = this;
 
             ctrl.user = {};
 
-            // check if the user can login.  thServiceDomain must match
+            // check if the user can login.  SERVICE_DOMAIN must match
             // host domain.  Remove this if we fix
             // Bug 1317752 - Enable logging in with Taskcluster Auth cross-domain
-            if (!thServiceDomain) {
-                // thServiceDomain isn't being used, so no mismatch possible.
+            if (!SERVICE_DOMAIN) {
+                // SERVICE_DOMAIN isn't being used, so no mismatch possible.
                 this.userCanLogin = true;
             } else {
                 var a = document.createElement('a');
-                a.href = thServiceDomain;
+                a.href = SERVICE_DOMAIN;
                 this.userCanLogin = (a.hostname === $location.host() && a.port === $location.port);
             }
 

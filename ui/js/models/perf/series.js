@@ -1,6 +1,6 @@
 import treeherder from '../../treeherder';
 
-treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionModel', '$q', function ($http, thServiceDomain, ThOptionCollectionModel, $q) {
+treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', function ($http, ThOptionCollectionModel, $q) {
 
     var _getTestName = function (signatureProps) {
         // only return suite name if testname is identical, and handle
@@ -56,36 +56,39 @@ treeherder.factory('PhSeries', ['$http', 'thServiceDomain', 'ThOptionCollectionM
         getSeriesName: _getSeriesName,
         getSeriesList: function (projectName, params) {
             return ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
-                return $http.get(thServiceDomain + '/api/project/' + projectName +
-                                 '/performance/signatures/', { params: params }).then(function (response) {
-                                     return _.map(response.data, function (signatureProps, signature) {
-                                         return _getSeriesSummary(projectName, signature,
-                                                                  signatureProps,
-                                                                  optionCollectionMap);
-                                     });
-                                 });
+                return $http.get(
+                    `${SERVICE_DOMAIN}/api/project/${projectName}/performance/signatures/`,
+                    { params: params }).then(function (response) {
+                         return _.map(response.data, function (signatureProps, signature) {
+                             return _getSeriesSummary(projectName, signature,
+                                                      signatureProps,
+                                                      optionCollectionMap);
+                         });
+                     });
             });
         },
         getPlatformList: function (projectName, params) {
-            return $http.get(thServiceDomain + '/api/project/' + projectName +
-                             '/performance/platforms/', { params: params }).then(
-                                 function (response) {
-                                     return response.data;
-                                 });
+            return $http.get(
+                `${SERVICE_DOMAIN}/api/project/${projectName}/performance/platforms/`,
+                { params: params }).then(function (response) {
+                    return response.data;
+                });
         },
         getSeriesData: function (projectName, params) {
-            return $http.get(thServiceDomain + '/api/project/' + projectName + '/performance/data/',
-                             { params: params }).then(function (response) {
-                                 if (response.data) {
-                                     return response.data;
-                                 }
-                                 return $q.reject("No series data found");
-                             });
+            return $http.get(
+                `${SERVICE_DOMAIN}/api/project/${projectName}/performance/data/`,
+                { params: params }).then(function (response) {
+                    if (response.data) {
+                        return response.data;
+                    }
+                    return $q.reject("No series data found");
+                });
         },
         getReplicateData: function (params) {
             params.value = 'perfherder-data.json';
-            return $http.get(thServiceDomain + '/api/jobdetail/'
-                , { params: params }).then(
+            return $http.get(
+                `${SERVICE_DOMAIN}/api/jobdetail/`,
+                { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {
                             let url = response.data.results[0].url;

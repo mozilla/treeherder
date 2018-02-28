@@ -132,14 +132,14 @@ treeherder.filter('escapeHTML', function () {
     };
 });
 
-treeherder.filter('getRevisionUrl', ['thServiceDomain', function (thServiceDomain) {
+treeherder.filter('getRevisionUrl', function () {
     return function (revision, projectName) {
         if (revision) {
-            return thServiceDomain + '/#/jobs?repo=' + projectName + '&revision=' + revision;
+            return `${SERVICE_DOMAIN}/#/jobs?repo=${projectName}&revision=${revision}`;
         }
         return '';
     };
-}]);
+});
 
 //http://stackoverflow.com/questions/16630471/how-can-i-invoke-encodeuricomponent-from-angularjs-template
 treeherder.filter('encodeURIComponent', function () {

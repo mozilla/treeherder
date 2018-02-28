@@ -6,10 +6,10 @@ import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
-    '$window', 'thServiceDomain', '$q', '$timeout', 'PhSeries', 'PhAlerts',
+    '$window', '$q', '$timeout', 'PhSeries', 'PhAlerts',
     'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
-        $uibModal, $window, thServiceDomain, $q, $timeout, PhSeries,
+        $uibModal, $window, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
         phTimeRanges, phDefaultTimeRangeValue) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
@@ -132,7 +132,7 @@ perf.controller('GraphsCtrl', [
                 $scope.tooltipContent = {
                     project: _.find($rootScope.repos,
                                     { name: phSeries.projectName }),
-                    revisionUrl: thServiceDomain + '#/jobs?repo=' + phSeries.projectName,
+                    revisionUrl: `${SERVICE_DOMAIN}#/jobs?repo=${phSeries.projectName}`,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
                     jobId: dataPoint.jobId,

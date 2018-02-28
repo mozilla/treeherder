@@ -1,14 +1,6 @@
 import treeherder from './treeherder';
 import * as aggregateIds from '../job-view/aggregateIds';
 
-treeherder.provider('thServiceDomain', function () {
-    this.$get = function () {
-        // The SERVICE_DOMAIN global is set by webpack's DefinePlugin.
-        // return (typeof SERVICE_DOMAIN !== 'undefined') ? SERVICE_DOMAIN : "";
-        return SERVICE_DOMAIN;
-    };
-});
-
 treeherder.provider('thResultStatusList', function () {
     var all = function () {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
