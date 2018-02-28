@@ -50,4 +50,3 @@ require('./js/components/perf/compare.js');
 require('./js/components/auth.js');
 require('./js/components/loading.js');
 require('./js/perfapp.js');
-require('./js/filters.js');
