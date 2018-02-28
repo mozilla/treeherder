@@ -1,21 +1,23 @@
 // Karma/webpack entry for tests
 
+import jQuery from 'jquery';
+import _ from 'lodash';
+import React from 'react';
 // Manually import angular since angular-mocks doesn't do so itself
 import 'angular';
 import 'angular-mocks';
+import 'jasmine-jquery';
+import { configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
 // Global variables are set here instead of with webpack.ProvidePlugin
 // because neutrino removes plugin definitions for karma runs
-window.$ = require('jquery');
-window.jQuery = require('jquery');
-window._ = require('lodash');
-window.React = require('react');
-require('jasmine-jquery');
+window.$ = jQuery;
+window.jQuery = jQuery;
+window._ = _;
+window.React = React;
 
-const Adapter = require('enzyme-adapter-react-16');
-const Enzyme = require('enzyme');
-
-Enzyme.configure({ adapter: new Adapter() });
+configure({ adapter: new Adapter() });
 
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
 window.SERVICE_DOMAIN = process.env.SERVICE_DOMAIN || '';

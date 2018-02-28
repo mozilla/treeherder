@@ -1,52 +1,52 @@
 // Webpack entry point for perf.html
 
 // Vendor Styles
-require('bootstrap/dist/css/bootstrap.css');
-require('font-awesome/css/font-awesome.css');
-require('metrics-graphics/dist/metricsgraphics.css');
+import 'bootstrap/dist/css/bootstrap.css';
+import 'font-awesome/css/font-awesome.css';
+import 'metrics-graphics/dist/metricsgraphics.css';
 
 // Vendor JS
-require('bootstrap/dist/js/bootstrap');
+import 'bootstrap/dist/js/bootstrap';
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
 // instead, which is identical to https://github.com/flot/flot
-require('jquery.flot');
-require('jquery.flot/jquery.flot.time.js');
-require('jquery.flot/jquery.flot.selection.js');
+import 'jquery.flot';
+import 'jquery.flot/jquery.flot.time';
+import 'jquery.flot/jquery.flot.selection';
 
 // Perf Styles
-require('./css/treeherder-global.css');
-require('./css/treeherder-navbar.css');
-require('./css/perf.css');
-require('./css/treeherder-loading-overlay.css');
+import './css/treeherder-global.css';
+import './css/treeherder-navbar.css';
+import './css/perf.css';
+import './css/treeherder-loading-overlay.css';
 
 // Bootstrap the Angular modules against which everything will be registered
-require('./js/perf.js');
+import './js/perf';
 
 // Perf JS
-require('./js/services/treestatus.js');
-require('./js/providers.js');
-require('./js/values.js');
-require('./js/filters.js');
-require('./js/models/option_collection.js');
-require('./js/services/main.js');
-require('./js/services/taskcluster.js');
-require('./js/models/repository.js');
-require('./js/models/job.js');
-require('./js/models/runnable_job.js');
-require('./js/models/resultset.js');
-require('./js/services/tcactions.js');
-require('./js/models/user.js');
-require('./js/models/error.js');
-require('./js/models/perf/series.js');
-require('./js/models/perf/performance_framework.js');
-require('./js/models/perf/alerts.js');
-require('./js/services/perf/math.js');
-require('./js/services/perf/compare.js');
-require('./js/controllers/perf/compare.js');
-require('./js/controllers/perf/graphs.js');
-require('./js/controllers/perf/alerts.js');
-require('./js/controllers/perf/dashboard.js');
-require('./js/components/perf/compare.js');
-require('./js/components/auth.js');
-require('./js/components/loading.js');
-require('./js/perfapp.js');
+import './js/services/treestatus';
+import './js/providers';
+import './js/values';
+import './js/filters';
+import './js/models/option_collection';
+import './js/services/main';
+import './js/services/taskcluster';
+import './js/models/repository';
+import './js/models/job';
+import './js/models/runnable_job';
+import './js/models/resultset';
+import './js/services/tcactions';
+import './js/models/user';
+import './js/models/error';
+import './js/models/perf/series';
+import './js/models/perf/performance_framework';
+import './js/models/perf/alerts';
+import './js/services/perf/math';
+import './js/services/perf/compare';
+import './js/controllers/perf/compare';
+import './js/controllers/perf/graphs';
+import './js/controllers/perf/alerts';
+import './js/controllers/perf/dashboard';
+import './js/components/perf/compare';
+import './js/components/auth';
+import './js/components/loading';
+import './js/perfapp';
