@@ -1,3 +1,5 @@
+import Mousetrap from 'mousetrap';
+
 import treeherderApp from '../treeherder_app';
 
 treeherderApp.controller('MainCtrl', [

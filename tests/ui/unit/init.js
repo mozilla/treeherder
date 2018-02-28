@@ -11,7 +11,6 @@ window.jQuery = require('jquery');
 window._ = require('lodash');
 window.React = require('react');
 require('jasmine-jquery');
-require('mousetrap');
 
 const Adapter = require('enzyme-adapter-react-16');
 const Enzyme = require('enzyme');

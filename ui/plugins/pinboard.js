@@ -1,3 +1,5 @@
+import Mousetrap from 'mousetrap';
+
 import treeherder from '../js/treeherder';
 
 treeherder.controller('PinboardCtrl', [
