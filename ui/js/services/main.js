@@ -1,7 +1,4 @@
-import { Queue } from 'taskcluster-client-web';
-
 import treeherder from '../treeherder';
-import thTaskcluster from './taskcluster';
 import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
 
 /* Services */
@@ -38,14 +35,6 @@ treeherder.factory('thUrl', [
                 }
                 return rv;
             },
-            getWorkerExplorerUrl: async function (taskId) {
-                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
-                const { status } = await queue.status(taskId);
-                const { provisionerId, workerType } = status;
-                const { workerGroup, workerId } = status.runs[status.runs.length - 1];
-
-                return `https://tools.taskcluster.net/provisioners/${provisionerId}/worker-types/${workerType}/workers/${workerGroup}/${workerId}`;
-            }
         };
         return thUrl;
 

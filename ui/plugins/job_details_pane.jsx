@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl } from '../helpers/urlHelper';
+import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
 
 import treeherder from '../js/treeherder';
 
@@ -119,7 +119,7 @@ class JobDetailsList extends React.Component {
         const { build_system_type, machine_name } = props.job;
         const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
             getSlaveHealthUrl(machine_name) :
-            props.getWorkerExplorerUrl(props.job.taskcluster_metadata.task_id);
+            getWorkerExplorerUrl(props.job.taskcluster_metadata.task_id);
 
         return machineUrl;
     }
@@ -254,7 +254,6 @@ class JobDetailsPane extends React.Component {
 
                 <JobDetailsList
                     job={this.props.job}
-                    getWorkerExplorerUrl={this.props.getWorkerExplorerUrl}
                     jobSearchSignatureHref={this.props.jobSearchSignatureHref}
                     jobSearchSignature={this.props.jobSearchSignature}
                     filterByJobSearchStr={this.props.filterByJobSearchStr}
@@ -274,7 +273,6 @@ JobDetailsPane.propTypes = {
     classifications: PropTypes.array,
     bugs: PropTypes.array,
     job: PropTypes.object,
-    getWorkerExplorerUrl: PropTypes.func,
     resultStatusShading: PropTypes.string,
     $injector: PropTypes.object,
     jobSearchSignatureHref: PropTypes.string,
