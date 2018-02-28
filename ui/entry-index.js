@@ -17,18 +17,9 @@ require('./css/treeherder-loading-overlay.css');
 
 // Vendor JS
 require('angular');
-require('angular-route');
-require('angular-resource');
-require('angular-sanitize');
-require('angular-toarrayfilter');
-require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
-require('angular1-ui-bootstrap4');
 require('mousetrap');
-require('angular-marked');
-require('ngreact');
 require('jquery.scrollto');
-require('./vendor/resizer.js');
 
 // Bootstrap the Angular modules against which everything will be registered
 require('./js/treeherder_app.js');

@@ -9,12 +9,7 @@ require('./css/logviewer.css');
 
 // Vendor JS
 require('angular');
-require('angular-route');
-require('angular-resource');
-require('angular-sanitize');
-require('angular-local-storage');
 require('bootstrap/dist/js/bootstrap');
-require('./vendor/resizer.js');
 
 // Bootstrap the Angular modules against which everything will be registered
 require('./js/logviewer.js');
