@@ -6,7 +6,6 @@ require('font-awesome/css/font-awesome.css');
 
 // Vendor JS
 require('bootstrap/dist/js/bootstrap');
-require('mousetrap');
 require('jquery.scrollto');
 
 // Treeherder Styles

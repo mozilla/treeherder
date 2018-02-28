@@ -83,7 +83,6 @@ module.exports = neutrino => {
                     '$',
                     '_',
                     'jQuery',
-                    'Mousetrap',
                     'React',
                     'SERVICE_DOMAIN',
                 ]

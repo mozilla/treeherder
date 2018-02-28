@@ -6,7 +6,6 @@ require('font-awesome/css/font-awesome.css');
 require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
-require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
 // instead, which is identical to https://github.com/flot/flot

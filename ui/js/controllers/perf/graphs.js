@@ -1,4 +1,5 @@
 import angular from 'angular';
+import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
 
