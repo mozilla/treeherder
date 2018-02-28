@@ -1,3 +1,4 @@
+import angular from 'angular';
 import numeral from 'numeral';
 
 import treeherder from './treeherder';

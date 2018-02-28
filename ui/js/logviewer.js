@@ -1,3 +1,5 @@
+import angular from 'angular';
+
 import treeherderModule from './treeherder';
 
 const logViewerApp = angular.module('logviewer', [treeherderModule.name]);

@@ -1,3 +1,5 @@
+import angular from 'angular';
+
 import perf from '../../perf';
 
 perf.controller('GraphsCtrl', [

@@ -1,14 +1,16 @@
 // Karma/webpack entry for tests
 
+// Manually import angular since angular-mocks doesn't do so itself
+import 'angular';
+import 'angular-mocks';
+
 // Global variables are set here instead of with webpack.ProvidePlugin
 // because neutrino removes plugin definitions for karma runs
 window.$ = require('jquery');
 window.jQuery = require('jquery');
 window._ = require('lodash');
-window.angular = require('angular');
 window.React = require('react');
 require('jasmine-jquery');
-require('angular-mocks');
 require('mousetrap');
 
 const Adapter = require('enzyme-adapter-react-16');

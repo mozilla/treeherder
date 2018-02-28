@@ -240,7 +240,6 @@ module.exports = neutrino => {
             return options;
         });
 
-    // Now provide a few globals (providing angular here does not seem to work, though)
     neutrino.config
         .plugin('provide')
         .use(webpack.ProvidePlugin, {
