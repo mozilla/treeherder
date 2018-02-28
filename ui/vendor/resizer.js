@@ -42,3 +42,5 @@ angular.module('mc.resizer', []).directive('resizer', ['$document', function($do
         }
     };
 }]);
+
+export default 'mc.resizer';

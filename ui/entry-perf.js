@@ -12,14 +12,8 @@ require('metrics-graphics/dist/metricsgraphics.css');
 
 // Vendor JS
 require('angular');
-require('angular-resource');
-require('angular-ui-router');
-require('angular-sanitize');
-require('angular-local-storage');
 require('mousetrap');
 require('bootstrap/dist/js/bootstrap');
-require('angular1-ui-bootstrap4');
-require('angular-clipboard');
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
 // instead, which is identical to https://github.com/flot/flot
 require('jquery.flot');

@@ -9,16 +9,7 @@ window.angular = require('angular');
 window.React = require('react');
 require('jasmine-jquery');
 require('angular-mocks');
-require('angular-resource');
-require('angular-route');
-require('angular-sanitize');
-require('angular-local-storage');
-require('angular-toarrayfilter');
 require('mousetrap');
-require('ngreact');
-require('angular1-ui-bootstrap4');
-require('angular-marked');
-require('../../../ui/vendor/resizer.js');
 
 const Adapter = require('enzyme-adapter-react-16');
 const Enzyme = require('enzyme');

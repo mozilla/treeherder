@@ -1,4 +1,6 @@
-const logViewerApp = angular.module('logviewer', ['treeherder']);
+import treeherderModule from './treeherder';
+
+const logViewerApp = angular.module('logviewer', [treeherderModule.name]);
 
 logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider',
     function ($compileProvider, $locationProvider, $resourceProvider) {

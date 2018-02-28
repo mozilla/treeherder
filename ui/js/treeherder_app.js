@@ -1,11 +1,20 @@
+import angularToArrayfilter from 'angular-toarrayfilter';
+import hcMarked from 'angular-marked';
+import ngReactModule from 'ngreact';
+import ngRoute from 'angular-route';
+import uiBootstrap from 'angular1-ui-bootstrap4';
+import mcResizer from '../vendor/resizer';
+
+import treeherderModule from './treeherder';
+
 const treeherderApp = angular.module('treeherder.app', [
-  'treeherder',
-  'ui.bootstrap',
-  'ngRoute',
-  'mc.resizer',
-  'angular-toArrayFilter',
-  'react',
-  'hc.marked',
+  treeherderModule.name,
+  uiBootstrap,
+  ngRoute,
+  mcResizer,
+  angularToArrayfilter,
+  ngReactModule.name,
+  hcMarked,
 ]);
 
 treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
