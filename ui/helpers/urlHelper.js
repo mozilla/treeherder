@@ -2,6 +2,7 @@ import { Queue } from "taskcluster-client-web";
 
 import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam } from './locationHelper';
+import { isSHA } from "./revisionHelper";
 
 export const getBugUrl = bug_id => (
   `https://bugzilla.mozilla.org/show_bug.cgi?id=${bug_id}`
@@ -48,3 +49,25 @@ export const getProjectJobUrl = (url, jobId) => (
 export const getRootUrl = uri => (
   `${SERVICE_DOMAIN}/api${uri}`
 );
+
+export const linkifyURLs = (input) => {
+  const urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+  return input.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+};
+
+/**
+ * Makes links out of any revisions in the text
+ * @param text - Text to linkify
+ * @param repo - Must be a repo object, not just a repoName string.  Needs to
+ *               have fields of ``dvcs_type`` and ``url``.
+ * @returns String of HTML with Linkified revision SHAs
+ */
+export const linkifyRevisions = (text, repo) => {
+  const urlText = linkifyURLs(text);
+  const trimText = (urlText || '').trim();
+
+  if (repo.dvcs_type === "hg" && isSHA(trimText)) {
+    return `<a href='${repo.url}/rev/${trimText}'>${trimText}</a>`;
+  }
+  return trimText;
+};

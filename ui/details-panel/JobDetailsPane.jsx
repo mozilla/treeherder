@@ -1,18 +1,21 @@
 import PropTypes from 'prop-types';
 
 import treeherder from '../js/treeherder';
-import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
+import {
+  getBugUrl,
+  getSlaveHealthUrl,
+  getInspectTaskUrl,
+  getWorkerExplorerUrl,
+  linkifyRevisions,
+} from '../helpers/urlHelper';
 
 const ClassificationsPane = (props) => {
   const {
-    linkifyURLsFilter, linkifyClassificationsFilter, dateFilter, repoName,
-    classifications, job, classificationTypes, bugs, getBugUrl
+    dateFilter, repoName, ThRepositoryModel,
+    classifications, job, classificationTypes, bugs,
   } = props;
-  const filterClassificationsText = (text) => {
-    const url = linkifyURLsFilter(text);
-    return linkifyClassificationsFilter(url, repoName);
-  };
-  const repoURLHTML = { __html: filterClassificationsText(classifications[0].text) };
+  const repo = ThRepositoryModel.getRepo(repoName);
+  const repoURLHTML = { __html: linkifyRevisions(classifications[0].text, repo) };
   const failureId = classifications[0].failure_classification_id;
   const iconClass = (failureId === 7 ?
     "fa-star-o" : "fa fa-star") + " star-" + job.result;
@@ -137,7 +140,7 @@ class JobDetailsList extends React.Component {
   }
 
   getJobMachineUrl(props) {
-    const { job, getSlaveHealthUrl, getWorkerExplorerUrl } = props;
+    const { job } = props;
     const { build_system_type, machine_name } = job;
     const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
       getSlaveHealthUrl(machine_name) :
@@ -154,7 +157,7 @@ class JobDetailsList extends React.Component {
   render() {
     const {
       job, jobLogUrls, jobSearchSignatureHref, jobSearchSignature,
-      jobSearchStrHref, jobSearchStr, getInspectTaskUrl, visibleFields,
+      jobSearchStrHref, jobSearchStr, visibleFields,
       visibleTimeFields
     } = this.props;
     const jobMachineName = job.machine_name;
@@ -251,8 +254,7 @@ class JobDetailsPane extends React.Component {
 
     const { $injector } = this.props;
     this.dateFilter = $injector.get('$filter')('date');
-    this.linkifyURLsFilter = $injector.get('$filter')('linkifyURLs');
-    this.linkifyClassificationsFilter = $injector.get('$filter')('linkifyClassifications');
+    this.ThRepositoryModel = $injector.get('ThRepositoryModel');
 
     this.state = {
       classifications: [],
@@ -273,10 +275,10 @@ class JobDetailsPane extends React.Component {
 
   render() {
     const {
-      jobDetailLoading, job, getBugUrl, classificationTypes, repoName,
-      resultStatusShading, getSlaveHealthUrl, getWorkerExplorerUrl, jobSearchSignatureHref,
+      jobDetailLoading, job, classificationTypes, repoName,
+      resultStatusShading, jobSearchSignatureHref,
       jobSearchSignature, filterByJobSearchStr, jobSearchStrHref, jobSearchStr,
-      visibleTimeFields, jobLogUrls, getInspectTaskUrl, visibleFields,
+      visibleTimeFields, jobLogUrls, visibleFields,
       buildUrl
     } = this.props;
     const { bugs, classifications } = this.state;
@@ -295,10 +297,9 @@ class JobDetailsPane extends React.Component {
             classifications={classifications}
             bugs={bugs}
             dateFilter={this.dateFilter}
-            linkifyURLsFilter={this.linkifyURLsFilter}
-            linkifyClassificationsFilter={this.linkifyClassificationsFilter}
             classificationTypes={classificationTypes}
             repoName={repoName}
+            ThRepositoryModel={this.ThRepositoryModel}
           />
         }
         <JobStatusPane

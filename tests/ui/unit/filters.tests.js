@@ -1,28 +1,3 @@
-describe('linkifyURLs filter', function() {
-    var $filter;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-
-    it('linkifies a URL', function() {
-        var linkifyURLs = $filter('linkifyURLs');
-        expect(linkifyURLs('https://www.mozilla.org'))
-          .toEqual('<a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a>');
-    });
-
-    it('does not linkify a non-URL', function() {
-        var linkifyURLs = $filter('linkifyURLs');
-        expect(linkifyURLs('h tee tee pee ess')).toEqual('h tee tee pee ess');
-    });
-
-    it('linkifies a mix of URL and non-URL', function() {
-        var linkifyURLs = $filter('linkifyURLs');
-        expect(linkifyURLs('This is a test: https://www.mozilla.org Did I pass?'))
-          .toEqual('This is a test: <a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a> Did I pass?');
-    });
-});
-
 describe('linkifyBugs filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));
@@ -142,33 +117,6 @@ describe('stripHtml filter', function() {
     it('deletes html tags', function() {
         var stripHtml = $filter('stripHtml');
         expect(stripHtml('My <html is> deleted')).toEqual('My  deleted');
-    });
-});
-
-describe('linkifyClassifications filter', function() {
-    var $filter;
-    var $rootScope;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-    beforeEach(inject(function($rootScope) {
-        $rootScope.repos = [{
-          'id': 1,
-          'repository_group': {
-            'description': '',
-            'name': 'development'
-          },
-          'name': 'mozilla-central',
-          'dvcs_type': 'hg',
-          'url': 'https://hg.mozilla.org/mozilla/central',
-        }];
-    }));
-
-    it('linkifies classifications', function() {
-        var linkifyClassifications = $filter('linkifyClassifications');
-        expect(linkifyClassifications('1234567890ab', 'mozilla-central'))
-          .toEqual("<a href='https://hg.mozilla.org/mozilla/central/rev/1234567890ab'>1234567890ab</a>");
     });
 });
 
