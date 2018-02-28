@@ -1,4 +1,5 @@
-require('../../../../ui/js/models/job.js');
+import '../../../../ui/js/models/job.js';
+
 describe('ThJobModel', function(){
 
     var $httpBackend,
