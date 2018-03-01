@@ -17,7 +17,9 @@ const App = () => (
       <main>
         <Switch>
           <Route
-            exact path="/testview.html" render={props => (hasProps(props.location.search) ?
+            exact
+            path="/testview.html"
+            render={props => (hasProps(props.location.search) ?
               <Groups {...props} /> :
               <NotFound {...props} />)}
           />

@@ -25,7 +25,9 @@ function ClassificationsPane(props) {
           <span className="ml-1">{classificationName.name}</span></span>
         {props.bugs.length > 0 &&
         <a
-          target="_blank" rel="noopener" href={getBugUrl(props.bugs[0].bug_id)}
+          target="_blank"
+          rel="noopener"
+          href={getBugUrl(props.bugs[0].bug_id)}
           title={`View bug ${props.bugs[0].bug_id}`}
         ><em> {props.bugs[0].bug_id}</em></a>}
       </li>
@@ -173,8 +175,10 @@ class JobDetailsList extends React.Component {
 
         {this.props.job.taskcluster_metadata &&
         <JobDetailsListItem
-          label="Task:" text={this.props.job.taskcluster_metadata.task_id}
-          href={getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank"
+          label="Task:"
+          text={this.props.job.taskcluster_metadata.task_id}
+          href={getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)}
+          target="_blank"
         />}
 
         {this.props.visibleFields &&
