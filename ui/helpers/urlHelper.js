@@ -43,3 +43,7 @@ export const getProjectUrl = (uri) => {
 export const getProjectJobUrl = (url, jobId) => (
   getProjectUrl(`/jobs/${jobId}${url}`)
 );
+
+export const getRootUrl = uri => (
+  `${SERVICE_DOMAIN}/api${uri}`
+);

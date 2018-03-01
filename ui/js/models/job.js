@@ -4,8 +4,8 @@ import treeherder from '../treeherder';
 import { getProjectUrl } from "../../helpers/urlHelper";
 
 treeherder.factory('ThJobModel', [
-    '$http', 'thUrl', 'thPlatformName', '$q',
-    function ($http, thUrl, thPlatformName, $q) {
+    '$http', 'thPlatformName', '$q',
+    function ($http, thPlatformName, $q) {
         // ThJobModel is the js counterpart of job
 
         var ThJobModel = function (data) {

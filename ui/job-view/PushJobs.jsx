@@ -18,7 +18,6 @@ export default class PushJobs extends React.Component {
     this.thEvents = $injector.get('thEvents');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThJobModel = $injector.get('ThJobModel');
-    this.thUrl = $injector.get('thUrl');
     this.thJobFilters = $injector.get('thJobFilters');
 
     this.pushId = push.id;

@@ -7,10 +7,10 @@ import { getLogViewerUrl } from '../../helpers/urlHelper';
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents',
-    'thTabs', 'thUrl', '$uibModal', '$location',
+    'thTabs', '$uibModal', '$location',
     function BugsPluginCtrl(
         $scope, $rootScope, ThTextLogStepModel, ThBugSuggestionsModel,
-        thPinboard, thEvents, thTabs, thUrl, $uibModal, $location) {
+        thPinboard, thEvents, thTabs, $uibModal, $location) {
 
         $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;

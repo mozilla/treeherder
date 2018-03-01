@@ -1,11 +1,11 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getProjectJobUrl } from '../../helpers/urlHelper';
+import { getProjectJobUrl, getRootUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThFailureLinesModel', [
-    '$http', '$q', 'thUrl',
-    function ($http, $q, thUrl) {
+    '$http', '$q',
+    function ($http, $q) {
 
         var ThFailureLinesModel = function (data) {
             angular.extend(this, data);
@@ -35,7 +35,7 @@ treeherder.factory('ThFailureLinesModel', [
         };
 
         ThFailureLinesModel.verify = function (line_id, best_classification) {
-            return $http.put(thUrl.getRootUrl("/failure-line/" + line_id + "/"),
+            return $http.put(getRootUrl("/failure-line/" + line_id + "/"),
                              { best_classification: best_classification });
         };
 
@@ -43,7 +43,7 @@ treeherder.factory('ThFailureLinesModel', [
             if (!data.length) {
                 return $q.resolve();
             }
-            return $http.put(thUrl.getRootUrl("/failure-line/"), data);
+            return $http.put(getRootUrl("/failure-line/"), data);
         };
 
         return ThFailureLinesModel;
