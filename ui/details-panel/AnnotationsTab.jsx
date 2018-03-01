@@ -16,16 +16,16 @@ function RelatedBugSaved(props) {
         rel="noopener"
         title={`View bug ${bug_id}`}
       >
-      <em>{bug_id}</em>
+        <em>{bug_id}</em>
       </a>
       <span
         className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug_id}`}
       >
-      <i className="fa fa-times-circle" />
+        <i className="fa fa-times-circle" />
       </span>
-      </span>
+    </span>
   );
 }
 
@@ -90,12 +90,12 @@ function AnnotationsTable(props) {
   return (
     <table className="table-super-condensed table-hover">
       <thead>
-      <tr>
-        <th>Classified</th>
-        <th>Author</th>
-        <th>Classification</th>
-        <th>Comment</th>
-      </tr>
+        <tr>
+          <th>Classified</th>
+          <th>Author</th>
+          <th>Classification</th>
+          <th>Comment</th>
+        </tr>
       </thead>
       <tbody>
         {classifications.map((classification, index) => (
@@ -171,21 +171,21 @@ export default class AnnotationsTab extends React.Component {
 
     bug.delete()
       .then(() => {
-          this.thNotify.send(
+        this.thNotify.send(
             `Association to bug ${bug.bug_id} successfully deleted`,
             "success"
           );
-          this.$rootScope.$emit(
+        this.$rootScope.$emit(
             this.thEvents.bugsAssociated,
             { jobs: { [selectedJob.id]: selectedJob } }
           );
-        }, () => {
-          this.thNotify.send(
+      }, () => {
+        this.thNotify.send(
             `Association to bug ${bug.bug_id} deletion failed`,
             "danger",
             { sticky: true }
           );
-        }
+      }
       );
   }
 
@@ -219,7 +219,7 @@ export default class AnnotationsTab extends React.Component {
               deleteBug={this.deleteBug}
             />
           </div>}
-          </div>
+        </div>
       </div>
     );
   }

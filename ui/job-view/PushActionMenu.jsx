@@ -37,14 +37,14 @@ export default class PushActionMenu extends React.PureComponent {
   }
 
   getRangeChangeUrl(param, revision) {
-      let url = window.location.href;
-      url = url.replace(`&${param}=${getUrlParam(param)}`, "");
-      return `${url}&${param}=${revision}`;
+    let url = window.location.href;
+    url = url.replace(`&${param}=${getUrlParam(param)}`, "");
+    return `${url}&${param}=${revision}`;
   }
 
   triggerMissingJobs() {
     if (!window.confirm(`This will trigger all missing jobs for revision ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
-        return;
+      return;
     }
 
     this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
@@ -64,12 +64,12 @@ export default class PushActionMenu extends React.PureComponent {
 
   triggerAllTalosJobs() {
     if (!window.confirm(`This will trigger all Talos jobs for revision  ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
-        return;
+      return;
     }
 
     let times = parseInt(window.prompt("Enter number of instances to have for each talos job", 6));
     while (times < 1 || times > 6 || isNaN(times)) {
-        times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
+      times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
     }
 
     this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
@@ -108,8 +108,8 @@ export default class PushActionMenu extends React.PureComponent {
         <ul className="dropdown-menu pull-right">
           {runnableVisible ?
             <li title="Hide Runnable Jobs"
-                className="dropdown-item"
-                onClick={() => hideRunnableJobsCb()}
+              className="dropdown-item"
+              onClick={() => hideRunnableJobsCb()}
             >Hide Runnable Jobs</li> :
             <li
               title={loggedIn ? 'Add new jobs to this push' : 'Must be logged in'}

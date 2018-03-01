@@ -6,13 +6,13 @@ import LoginCallback from './js/auth/LoginCallback';
 import './css/login.css';
 
 const load = () => render((
-    <AppContainer>
-        <LoginCallback />
-    </AppContainer>
+  <AppContainer>
+    <LoginCallback />
+  </AppContainer>
 ), document.getElementById('root'));
 
 if (module.hot) {
-    module.hot.accept('./js/auth/LoginCallback', load);
+  module.hot.accept('./js/auth/LoginCallback', load);
 }
 
 load();

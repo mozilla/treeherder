@@ -153,7 +153,7 @@ export default class JobGroup extends React.Component {
 }
 
 JobGroup.propTypes = {
-    group: PropTypes.object.isRequired,
-    repoName: PropTypes.string.isRequired,
-    $injector: PropTypes.object.isRequired,
+  group: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
+  $injector: PropTypes.object.isRequired,
 };

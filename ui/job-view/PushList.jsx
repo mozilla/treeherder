@@ -240,15 +240,15 @@ export default class PushList extends React.Component {
   // Clear the job if it occurs in a particular area
   clearJobOnClick(event) {
       // Suppress for various UI elements so selection is preserved
-      const ignoreClear = event.target.hasAttribute("data-ignore-job-clear-on-click");
+    const ignoreClear = event.target.hasAttribute("data-ignore-job-clear-on-click");
 
-      if (!ignoreClear && !this.thPinboard.hasPinnedJobs()) {
-        const selected = findSelectedInstance();
-        if (selected) {
-          selected.setSelected(false);
-        }
-        this.$timeout(this.$rootScope.closeJob);
+    if (!ignoreClear && !this.thPinboard.hasPinnedJobs()) {
+      const selected = findSelectedInstance();
+      if (selected) {
+        selected.setSelected(false);
       }
+      this.$timeout(this.$rootScope.closeJob);
+    }
   }
 
   render() {
@@ -289,11 +289,11 @@ export default class PushList extends React.Component {
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (
-            <div
-              className="btn btn-light-bordered"
-              onClick={() => (this.getNextPushes(count, true))}
-              key={count}
-            >{count}</div>
+              <div
+                className="btn btn-light-bordered"
+                onClick={() => (this.getNextPushes(count, true))}
+                key={count}
+              >{count}</div>
             ))}
           </div>
         </div>

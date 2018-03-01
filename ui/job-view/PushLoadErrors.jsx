@@ -17,12 +17,12 @@ function PushLoadErrors(props) {
             {revision &&
               <span>
                 <span>Waiting for a push with revision <strong>{revision}</strong></span>
-                  <a
-                    href={currentRepo.getPushLogHref(revision)}
-                    target="_blank"
-                    rel="noopener"
-                    title={`open revision ${revision} on ${currentRepo.url}`}
-                  >(view pushlog)</a>
+                <a
+                  href={currentRepo.getPushLogHref(revision)}
+                  target="_blank"
+                  rel="noopener"
+                  title={`open revision ${revision} on ${currentRepo.url}`}
+                >(view pushlog)</a>
                 <span className="fa fa-spinner fa-pulse th-spinner" />
                 <div>If the push exists, it will appear in a few minutes once it has been processed.</div>
               </span>
