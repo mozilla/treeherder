@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { parseAuthor } from '../helpers/revisionHelper';
 
-export const Initials = (props) => {
+export function Initials(props) {
     const str = props.author || '';
     const words = str.split(' ');
     const firstLetters = words.map(
@@ -23,7 +23,7 @@ export const Initials = (props) => {
         <div className="icon-superscript user-push-initials">{initials}</div>
       </span>
     );
-};
+}
 
 export class Revision extends React.PureComponent {
   constructor(props) {

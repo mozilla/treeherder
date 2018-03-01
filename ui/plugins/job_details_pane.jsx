@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import treeherder from '../js/treeherder';
 import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
 
-// using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {
 
     const filterClassificationsText = (text) => {
@@ -41,7 +40,8 @@ function ClassificationsPane(props) {
 }
 
 
-const JobStatusPane = props => (
+function JobStatusPane(props) {
+  return (
     <ul className="list-unstyled">
         <li id="result-status-pane" className={`small ${props.resultStatusShading}`}>
             <div>
@@ -54,10 +54,12 @@ const JobStatusPane = props => (
             </div>
         </li>
     </ul>
-);
+  );
+}
 
 
-const JobDetailsListItem = props => (
+function JobDetailsListItem(props) {
+  return (
     <li className="small">
         <label>{props.label}</label>
         {props.labelHref &&
@@ -79,7 +81,8 @@ const JobDetailsListItem = props => (
            {props.text}</a>}
            {props.iconClass && <span className={`ml-1${props.iconClass}`} />}
     </li>
-);
+  );
+}
 
 
 class JobDetailsList extends React.Component {

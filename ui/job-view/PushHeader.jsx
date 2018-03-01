@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 
-const Author = (props) => {
+function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
   const authorEmail = authorMatch ? authorMatch[1] : props.author;
 
@@ -12,9 +12,9 @@ const Author = (props) => {
       <a href={props.url} data-ignore-job-clear-on-click>{authorEmail}</a>
     </span>
   );
-};
+}
 
-const PushCounts = (props) => {
+function PushCounts(props) {
   const { pending, running, completed } = props;
   const inProgress = pending + running;
   const total = completed + inProgress;
@@ -33,7 +33,7 @@ const PushCounts = (props) => {
       }
     </span>
   );
-};
+}
 
 export default class PushHeader extends React.PureComponent {
 
@@ -283,4 +283,3 @@ PushHeader.propTypes = {
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
 };
-
