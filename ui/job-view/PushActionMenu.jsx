@@ -54,7 +54,8 @@ export default class PushActionMenu extends React.PureComponent {
           }, (e) => {
             this.thNotify.send(
               this.ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
-              'danger', true
+              'danger',
+              { sticky: true }
             );
           });
       });

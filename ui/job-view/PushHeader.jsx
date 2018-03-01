@@ -137,7 +137,8 @@ export default class PushHeader extends React.PureComponent {
     )).catch((e) => {
         this.thNotify.send(
           this.ThModelErrors.format(e, "Failed to cancel all jobs"),
-          'danger', true
+          'danger',
+          { sticky: true }
         );
     });
   }
