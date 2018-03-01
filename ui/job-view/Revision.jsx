@@ -2,27 +2,27 @@ import PropTypes from 'prop-types';
 import { parseAuthor } from '../helpers/revisionHelper';
 
 export function Initials(props) {
-    const str = props.author || '';
-    const words = str.split(' ');
-    const firstLetters = words.map(
+  const str = props.author || '';
+  const words = str.split(' ');
+  const firstLetters = words.map(
         word => word.replace(/[^A-Z]/gi, '')[0]
     ).filter(firstLetter => typeof firstLetter !== 'undefined');
-    let initials = '';
+  let initials = '';
 
-    if (firstLetters.length === 1) {
-        initials = firstLetters[0];
-    } else if (firstLetters.length > 1) {
-        initials = firstLetters[0] + firstLetters[firstLetters.length - 1];
-    }
+  if (firstLetters.length === 1) {
+    initials = firstLetters[0];
+  } else if (firstLetters.length > 1) {
+    initials = firstLetters[0] + firstLetters[firstLetters.length - 1];
+  }
 
-    return (
-      <span title={props.title}>
-        <span className="user-push-icon">
-          <i className="fa fa-user-o" aria-hidden="true" />
-        </span>
-        <div className="icon-superscript user-push-initials">{initials}</div>
+  return (
+    <span title={props.title}>
+      <span className="user-push-icon">
+        <i className="fa fa-user-o" aria-hidden="true" />
       </span>
-    );
+      <div className="icon-superscript user-push-initials">{initials}</div>
+    </span>
+  );
 }
 
 export class Revision extends React.PureComponent {
@@ -52,7 +52,7 @@ export class Revision extends React.PureComponent {
           </a>
         </span>
         <Initials title={`${name}: ${email}`}
-                  author={name}
+          author={name}
         />
         <span title={this.escapedComment}>
           <span className="revision-comment">

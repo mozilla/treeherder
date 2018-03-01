@@ -222,7 +222,7 @@ export default class PushJobs extends React.Component {
     return (
       <table id={this.aggregateId} className="table-hover">
         <tbody onMouseDown={this.onMouseDown}>
-        {platforms ? Object.keys(platforms).map((id, i) => (
+          {platforms ? Object.keys(platforms).map((id, i) => (
           platforms[id].visible &&
           <Platform
             platform={platforms[id]}

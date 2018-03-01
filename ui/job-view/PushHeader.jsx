@@ -92,13 +92,13 @@ export default class PushHeader extends React.PureComponent {
   getFilterParams() {
     return Object.entries(this.thJobFilters.getActiveFilters())
       .reduce(function getFilterParamsStrings(acc, [key, value]) {
-          if (Array.isArray(value)) {
-            acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, "");
-          } else {
-            acc += `&${key}=${value}`;
-          }
-          return acc;
-        },
+        if (Array.isArray(value)) {
+          acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, "");
+        } else {
+          acc += `&${key}=${value}`;
+        }
+        return acc;
+      },
         "");
   }
 
@@ -135,7 +135,7 @@ export default class PushHeader extends React.PureComponent {
     this.ThResultSetModel.cancelAll(pushId).then(() => (
         this.thBuildApi.cancelAll(repoName, revision)
     )).catch((e) => {
-        this.thNotify.send(
+      this.thNotify.send(
           this.ThModelErrors.format(e, "Failed to cancel all jobs"),
           'danger',
           { sticky: true }
