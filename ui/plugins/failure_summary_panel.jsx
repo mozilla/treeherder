@@ -46,9 +46,12 @@ class SuggestionsListItem extends React.Component {
         <ul className="list-unstyled failure-summary-bugs">
           {this.props.suggestion.bugs.open_recent.map((bug, index) =>
             (<BugListItem
-              key={index} bug={bug} selectedJob={this.props.selectedJob}
+              key={index}
+              bug={bug}
+              selectedJob={this.props.selectedJob}
               pinboardService={this.props.pinboardService}
-              escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
+              escapeHTMLFilter={this.props.escapeHTMLFilter}
+              suggestion={this.props.suggestion}
               highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
               $timeout={this.props.$timeout}
             />))}
@@ -70,9 +73,12 @@ class SuggestionsListItem extends React.Component {
           <ul className="list-unstyled failure-summary-bugs">
             {this.props.suggestion.bugs.all_others.map((bug, index) =>
               (<BugListItem
-                key={index} bug={bug} selectedJob={this.props.selectedJob}
+                key={index}
+                bug={bug}
+                selectedJob={this.props.selectedJob}
                 pinboardService={this.props.pinboardService}
-                escapeHTMLFilter={this.props.escapeHTMLFilter} suggestion={this.props.suggestion}
+                escapeHTMLFilter={this.props.escapeHTMLFilter}
+                suggestion={this.props.suggestion}
                 highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
                 bugClassName={bug.resolution !== "" ? "deleted" : ""}
                 title={bug.resolution !== "" ? bug.resolution : ""}
@@ -160,11 +166,16 @@ function FailureSummaryPanel(props) {
     <ul className="list-unstyled failure-summary-list">
       {props.suggestions && props.suggestions.map((suggestion, index) =>
         (<SuggestionsListItem
-          key={index} index={index} suggestion={suggestion} user={props.user}
-          filerInAddress={props.filerInAddress} fileBug={props.fileBug}
+          key={index}
+          index={index}
+          suggestion={suggestion}
+          user={props.user}
+          filerInAddress={props.filerInAddress}
+          fileBug={props.fileBug}
           highlightCommonTermsFilter={highlightCommonTermsFilter}
           escapeHTMLFilter={escapeHTMLFilter}
-          bugLimit={props.bugLimit} pinboardService={props.pinboardService}
+          bugLimit={props.bugLimit}
+          pinboardService={props.pinboardService}
           selectedJob={props.selectedJob}
           $timeout={$timeout}
         />))}

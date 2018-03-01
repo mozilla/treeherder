@@ -100,7 +100,8 @@ function AnnotationsTable(props) {
       <tbody>
         {classifications.map((classification, index) => (
           <TableRow
-            key={index} dateFilter={dateFilter}
+            key={index}
+            dateFilter={dateFilter}
             classification={classification}
             deleteClassification={deleteClassification}
             classificationTypes={classificationTypes}
