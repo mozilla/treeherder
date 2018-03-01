@@ -51,7 +51,8 @@ export class Revision extends React.PureComponent {
           >{commitRevision.substring(0, 12)}
           </a>
         </span>
-        <Initials title={`${name}: ${email}`}
+        <Initials
+          title={`${name}: ${email}`}
           author={name}
         />
         <span title={this.escapedComment}>

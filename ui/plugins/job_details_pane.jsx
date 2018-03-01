@@ -24,7 +24,8 @@ function ClassificationsPane(props) {
         <span title={classificationName.name}><i className={`fa ${iconClass}`} />
           <span className="ml-1">{classificationName.name}</span></span>
         {props.bugs.length > 0 &&
-        <a target="_blank" rel="noopener" href={getBugUrl(props.bugs[0].bug_id)}
+        <a
+          target="_blank" rel="noopener" href={getBugUrl(props.bugs[0].bug_id)}
           title={`View bug ${props.bugs[0].bug_id}`}
         ><em> {props.bugs[0].bug_id}</em></a>}
       </li>
@@ -63,7 +64,8 @@ function JobDetailsListItem(props) {
     <li className="small">
       <label>{props.label}</label>
       {props.labelHref &&
-        <a title={props.labelTitle}
+        <a
+          title={props.labelTitle}
           href={props.labelHref}
           onClick={props.labelOnclick}
           target={props.labelTarget}
@@ -71,7 +73,8 @@ function JobDetailsListItem(props) {
         >
           {props.labelText} <span className="fa fa-pencil-square-o icon-superscript" />: </a>}
       {!props.href ? <span className="ml-1">{props.text}</span> :
-      <a title={props.title}
+      <a
+        title={props.title}
         className="ml-1"
         href={props.href}
         onClick={props.onclick}

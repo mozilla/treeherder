@@ -64,7 +64,6 @@ module.exports = neutrino => {
                     'quotes': 'off',
                     'radix': 'off',
                     'react/forbid-prop-types': 'off',
-                    'react/jsx-first-prop-new-line': 'off',
                     'react/jsx-max-props-per-line': 'off',
                     'react/no-array-index-key': 'off',
                     'react/no-danger': 'off',
