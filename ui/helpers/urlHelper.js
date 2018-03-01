@@ -1,4 +1,5 @@
 import { Queue } from "taskcluster-client-web";
+
 import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam } from './locationHelper';
 

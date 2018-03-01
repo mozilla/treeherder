@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
 
 import treeherder from '../js/treeherder';
+import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
 
 // using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {

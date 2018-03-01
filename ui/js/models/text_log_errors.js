@@ -36,7 +36,7 @@ treeherder.factory('ThTextLogErrorsModel', [
 
         ThTextLogErrorsModel.verify = function (lineId, bestClassification, bugNumber) {
             return $http.put(
-                getRootUrl("/text-log-error/" + lineId + "/"), {
+                getRootUrl(`/text-log-error/${lineId}/`), {
                     best_classification: bestClassification,
                     bug_number: bugNumber
                 });

@@ -120,7 +120,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
             getResultSet: function (repoName, pk) {
                 return $http.get(
-                    getProjectUrl("/resultset/" + pk + "/")
+                    getProjectUrl(`/resultset/${pk}/`)
                 );
             },
             get: function (uri) {
@@ -160,7 +160,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             getRevisions: function (projectName, resultSetId) {
                 return $http.get(getProjectUrl(
-                    "/resultset/" + resultSetId + "/"), { cache: true }).then(
+                    `/resultset/${resultSetId}/`), { cache: true }).then(
                     function (response) {
                         if (response.data.revisions.length > 0) {
                             return _.map(response.data.revisions, function (r) {
@@ -174,7 +174,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             getResultSetsFromRevision: function (projectName, revision) {
                 return $http.get(getProjectUrl(
-                    "/resultset/?revision=" + revision),
+                    `/resultset/?revision=${revision}`),
                     { cache: true }).then(
                     function (response) {
                         if (response.data.results.length > 0) {

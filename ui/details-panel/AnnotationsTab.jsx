@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { getBugUrl } from '../helpers/urlHelper';
 
 import treeherder from '../js/treeherder';
+import { getBugUrl } from '../helpers/urlHelper';
 
 const RelatedBugSaved = (props) => {
   const { deleteBug, bug } = props;
