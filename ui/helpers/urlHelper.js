@@ -1,5 +1,6 @@
 import { Queue } from "taskcluster-client-web";
 import thTaskcluster from "../js/services/taskcluster";
+import { getUrlParam } from './locationHelper';
 
 export const getBugUrl = bug_id => (
   `https://bugzilla.mozilla.org/show_bug.cgi?id=${bug_id}`
@@ -30,3 +31,15 @@ export const getLogViewerUrl = (job_id, repoName, line_number) => {
   const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
+
+// if we can't find "repo" on the url (like in perfherder) they don't
+// care WHICH repo it is, just need one because of Bug 1441938 (see above).
+// So we default to mozilla-inbound.
+export const getProjectUrl = (uri) => {
+  const repo = getUrlParam("repo") || 'mozilla-inbound';
+  return `${SERVICE_DOMAIN}/api/project/${repo}${uri}`;
+};
+
+export const getProjectJobUrl = (url, jobId) => (
+  getProjectUrl(`/jobs/${jobId}${url}`)
+);

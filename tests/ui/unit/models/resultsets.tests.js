@@ -4,7 +4,7 @@ describe('ThResultSetStore', function(){
         rootScope,
         model,
         repoModel,
-        foregroundRepo = "mozilla-central",
+        foregroundRepo = "mozilla-inbound",
         projectPrefix = '/api/project/',
         foregroundPrefix = projectPrefix + foregroundRepo;
 
@@ -18,12 +18,12 @@ describe('ThResultSetStore', function(){
 
 
 
-        $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-central').respond(
+        $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-inbound').respond(
             {
                 "result": {
                     "status": "approval required",
                     "message_of_the_day": "I before E",
-                    "tree": "mozilla-central",
+                    "tree": "mozilla-inbound",
                     "reason": ""
                 }
             }
@@ -33,7 +33,7 @@ describe('ThResultSetStore', function(){
         $httpBackend.whenGET(foregroundPrefix + '/jobs/0/unclassified_failure_count/').respond(
             {
                 "unclassified_failure_count": 1152,
-                "repository": "mozilla-central"
+                "repository": "mozilla-inbound"
             }
         );
 

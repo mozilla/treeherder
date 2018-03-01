@@ -8,11 +8,11 @@ import JobButton from '../../../../ui/job-view/JobButton';
 
 describe('PushList component', () => {
   let $injector, $httpBackend, pushListEl, pushList;
-  const repoName = 'mozilla-central';
+  const repoName = 'mozilla-inbound';
 
   beforeEach(angular.mock.module('treeherder'));
   beforeEach(inject((_$injector_) => {
-    const projectPrefix = '/api/project/' + repoName + '/';
+    const projectPrefix = `/api/project/${repoName}/`;
     $injector = _$injector_;
 
     // TODO: Once we switch away from angular for fetching data, we may want to
@@ -43,12 +43,12 @@ describe('PushList component', () => {
       getJSONFixture('job_list/job_2.json')
     );
 
-    $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-central').respond(
+    $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-inbound').respond(
       {
         result: {
           status: "closed",
           message_of_the_day: "This is a message nstuff...",
-          tree: "mozilla-central",
+          tree: "mozilla-inbound",
           reason: "Bustage"
         }
       }
@@ -80,8 +80,8 @@ describe('PushList component', () => {
 
 describe('PushJobs component', () => {
   let $injector, pushJobsEl, pushList, ThResultSetStore;
-  const repoName = 'mozilla-central';
-  const projectPrefix = '/api/project/' + repoName + '/';
+  const repoName = 'mozilla-inbound';
+  const projectPrefix = `/api/project/${repoName}/`;
 
   beforeEach(angular.mock.module('treeherder'));
   beforeEach(inject((_$injector_) => {
@@ -104,12 +104,12 @@ describe('PushJobs component', () => {
     $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=2&return_type=list').respond(
       getJSONFixture('job_list/job_2.json')
     );
-    $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-central').respond(
+    $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-inbound').respond(
       {
         result: {
           status: "closed",
           message_of_the_day: "This is a message nstuff...",
-          tree: "mozilla-central",
+          tree: "mozilla-inbound",
           reason: "Bustage"
         }
       }

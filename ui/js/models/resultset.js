@@ -4,11 +4,12 @@ import { Queue, slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
 import thTaskcluster from '../services/taskcluster';
+import { getProjectUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
-    '$q', '$interpolate', 'thUrl', 'tcactions',
+    '$q', '$interpolate', 'tcactions',
     'ThJobModel',
-    function ($http, $location, $q, $interpolate, thUrl,
+    function ($http, $location, $q, $interpolate,
         tcactions, ThJobModel) {
 
         var MAX_RESULTSET_FETCH_SIZE = 100;
@@ -46,7 +47,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 });
 
                 return $http.get(
-                    thUrl.getProjectUrl("/resultset/", repoName),
+                    getProjectUrl("/resultset/"),
                     { params: locationParams }
                 );
             },
@@ -102,13 +103,13 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 }
 
                 return $http.get(
-                    thUrl.getProjectUrl("/resultset/", repoName),
+                    getProjectUrl("/resultset/"),
                     { params: params }
                 );
             },
             getResultSetList: function (repoName, resultSetList, full) {
                 return $http.get(
-                    thUrl.getProjectUrl("/resultset/", repoName), {
+                    getProjectUrl("/resultset/"), {
                         params: {
                             full: _.isUndefined(full) ? true : full,
                             offset: 0,
@@ -119,7 +120,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
             getResultSet: function (repoName, pk) {
                 return $http.get(
-                    thUrl.getProjectUrl("/resultset/" + pk + "/", repoName)
+                    getProjectUrl("/resultset/" + pk + "/")
                 );
             },
             get: function (uri) {
@@ -158,8 +159,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
 
             getRevisions: function (projectName, resultSetId) {
-                return $http.get(thUrl.getProjectUrl(
-                    "/resultset/" + resultSetId + "/", projectName), { cache: true }).then(
+                return $http.get(getProjectUrl(
+                    "/resultset/" + resultSetId + "/"), { cache: true }).then(
                     function (response) {
                         if (response.data.revisions.length > 0) {
                             return _.map(response.data.revisions, function (r) {
@@ -172,8 +173,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             getResultSetsFromRevision: function (projectName, revision) {
-                return $http.get(thUrl.getProjectUrl(
-                    "/resultset/?revision=" + revision, projectName),
+                return $http.get(getProjectUrl(
+                    "/resultset/?revision=" + revision),
                     { cache: true }).then(
                     function (response) {
                         if (response.data.results.length > 0) {
@@ -185,9 +186,9 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     });
             },
 
-            cancelAll: function (resultset_id, repoName) {
+            cancelAll: function (resultset_id) {
                 var uri = resultset_id + '/cancel_all/';
-                return $http.post(thUrl.getProjectUrl("/resultset/", repoName) + uri);
+                return $http.post(getProjectUrl("/resultset/") + uri);
             },
 
             triggerMissingJobs: function (decisionTaskId) {
