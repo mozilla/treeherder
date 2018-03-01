@@ -146,66 +146,64 @@ function ErrorsList(props) {
 }
 
 
-class FailureSummaryPanel extends React.Component {
-    render() {
-        const escapeHTMLFilter = this.props.$injector.get('$filter')('escapeHTML');
-        const highlightCommonTermsFilter = this.props.$injector.get('$filter')('highlightCommonTerms');
-        const $timeout = this.props.$injector.get('$timeout');
+function FailureSummaryPanel(props) {
+  const escapeHTMLFilter = props.$injector.get('$filter')('escapeHTML');
+  const highlightCommonTermsFilter = props.$injector.get('$filter')('highlightCommonTerms');
+  const $timeout = props.$injector.get('$timeout');
 
-        return (
-            <ul className="list-unstyled failure-summary-list">
-                {this.props.suggestions && this.props.suggestions.map((suggestion, index) =>
-                    (<SuggestionsListItem
-                                    key={index} index={index} suggestion={suggestion} user={this.props.user}
-                                    filerInAddress={this.props.filerInAddress} fileBug={this.props.fileBug}
-                                    highlightCommonTermsFilter={highlightCommonTermsFilter}
-                                    escapeHTMLFilter={escapeHTMLFilter}
-                                    bugLimit={this.props.bugLimit} pinboardService={this.props.pinboardService}
-                                    selectedJob={this.props.selectedJob}
-                                    $timeout={$timeout}
-                    />))}
+  return (
+    <ul className="list-unstyled failure-summary-list">
+      {props.suggestions && props.suggestions.map((suggestion, index) =>
+        (<SuggestionsListItem
+          key={index} index={index} suggestion={suggestion} user={props.user}
+          filerInAddress={props.filerInAddress} fileBug={props.fileBug}
+          highlightCommonTermsFilter={highlightCommonTermsFilter}
+          escapeHTMLFilter={escapeHTMLFilter}
+          bugLimit={props.bugLimit} pinboardService={props.pinboardService}
+          selectedJob={props.selectedJob}
+          $timeout={$timeout}
+        />))}
 
-                {this.props.errors && this.props.errors.length > 0 &&
-                <ErrorsList errors={this.props.errors} />}
+      {props.errors && props.errors.length > 0 &&
+        <ErrorsList errors={props.errors} />}
 
-                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && this.props.bugSuggestionsLoaded &&
-                 this.props.jobLogUrls.length === 0 && this.props.suggestions.length === 0 && this.props.errors.length === 0 &&
-                <ListItem text="Failure summary is empty" />}
+      {!props.tabs.failureSummary.is_loading && props.jobLogsAllParsed && props.bugSuggestionsLoaded &&
+        props.jobLogUrls.length === 0 && props.suggestions.length === 0 && props.errors.length === 0 &&
+        <ListItem text="Failure summary is empty" />}
 
-                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogsAllParsed && !this.props.bugSuggestionsLoaded
-                 && this.props.jobLogUrls.length && this.props.logParseStatus === 'success' &&
-                 <li>
-                    <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
-                    <span>The content of this panel will refresh in 5 seconds.</span></p>
-                </li>}
+      {!props.tabs.failureSummary.is_loading && props.jobLogsAllParsed && !props.bugSuggestionsLoaded
+        && props.jobLogUrls.length && props.logParseStatus === 'success' &&
+        <li>
+          <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
+            <span>The content of this panel will refresh in 5 seconds.</span></p>
+        </li>}
 
-                {this.props.jobLogUrls && !this.props.tabs.failureSummary.is_loading && !this.props.jobLogsAllParsed &&
-                this.props.jobLogUrls.map((job, index) =>
-                    (<li key={index}>
-                        <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
-                        <a title="Open the raw log in a new window"
-                           target="_blank"
-                           rel="noopener"
-                           href={job.url}
-                        >The raw log</a>
-                        <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
-                    </li>))}
+      {props.jobLogUrls && !props.tabs.failureSummary.is_loading && !props.jobLogsAllParsed &&
+       props.jobLogUrls.map((job, index) =>
+         (<li key={index}>
+           <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
+             <a title="Open the raw log in a new window"
+               target="_blank"
+               rel="noopener"
+               href={job.url}
+             >The raw log</a>
+             <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
+         </li>))}
 
-                {!this.props.tabs.failureSummary.is_loading && this.props.logParseStatus === 'failed' &&
-                <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
+      {!props.tabs.failureSummary.is_loading && props.logParseStatus === 'failed' &&
+        <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
 
-                {!this.props.tabs.failureSummary.is_loading && this.props.jobLogUrls && this.props.jobLogUrls.length === 0 &&
-                <ListItem text="No logs available for this job." />}
+      {!props.tabs.failureSummary.is_loading && props.jobLogUrls && props.jobLogUrls.length === 0 &&
+        <ListItem text="No logs available for this job." />}
 
-                {this.props.tabs.failureSummary.is_loading &&
-                <div className="overlay">
-                    <div>
-                        <span className="fa fa-spinner fa-pulse th-spinner-lg" />
-                    </div>
-                </div>}
-            </ul>
-        );
-    }
+      {props.tabs.failureSummary.is_loading &&
+        <div className="overlay">
+          <div>
+            <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+          </div>
+        </div>}
+    </ul>
+  );
 }
 
 FailureSummaryPanel.propTypes = {

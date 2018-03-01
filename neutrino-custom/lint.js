@@ -71,7 +71,6 @@ module.exports = neutrino => {
                     'react/no-array-index-key': 'off',
                     'react/no-danger': 'off',
                     'react/no-multi-comp': 'off',
-                    'react/prefer-stateless-function': 'off',
                     'react/prop-types': 'off',
                     'react/require-default-props': 'off',
                     'space-infix-ops': 'off',
