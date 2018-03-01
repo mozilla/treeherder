@@ -1,4 +1,6 @@
 import treeherder from '../../treeherder';
+import thPinnedJobTemplate from '../../../partials/main/thPinnedJob.html';
+import thRelatedBugQueuedTemplate from '../../../partials/main/thRelatedBugQueued.html';
 import { getBtnClass, getStatus } from "../../../helpers/jobHelper";
 
 treeherder.directive('thPinnedJob', function () {
@@ -24,7 +26,7 @@ treeherder.directive('thPinnedJob', function () {
 
             }, true);
         },
-        templateUrl: 'partials/main/thPinnedJob.html'
+        template: thPinnedJobTemplate
     };
 });
 
@@ -32,6 +34,6 @@ treeherder.directive('thRelatedBugQueued', function () {
 
     return {
         restrict: "E",
-        templateUrl: 'partials/main/thRelatedBugQueued.html'
+        template: thRelatedBugQueuedTemplate
     };
 });

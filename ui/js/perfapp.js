@@ -1,4 +1,14 @@
 import perf from './perf';
+import alertsCtrlTemplate from '../partials/perf/alertsctrl.html';
+import graphsCtrlTemplate from '../partials/perf/graphsctrl.html';
+import compareCtrlTemplate from '../partials/perf/comparectrl.html';
+import compareSubtestCtrlTemplate from '../partials/perf/comparesubtestctrl.html';
+import compareChooserCtrlTemplate from '../partials/perf/comparechooserctrl.html';
+import dashboardTemplate from '../partials/perf/dashboard.html';
+import dashboardSubtestTemplate from '../partials/perf/dashboardsubtest.html';
+import compareSubtestDistributionTemplate from '../partials/perf/comparesubtestdistribution.html';
+import helpMenuTemplate from '../partials/perf/helpMenu.html';
+import tooltipGraphsTemplate from '../partials/perf/tooltipgraphs.html';
 
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
@@ -23,49 +33,49 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
         $stateProvider
             .state('alerts', {
                 title: 'Alerts',
-                templateUrl: 'partials/perf/alertsctrl.html',
+                template: alertsCtrlTemplate,
                 url: '/alerts?id&status&framework&filter&hideImprovements&hideDwnToInv&page',
                 controller: 'AlertsCtrl'
             })
             .state('graphs', {
                 title: 'Graphs',
-                templateUrl: 'partials/perf/graphsctrl.html',
+                template: graphsCtrlTemplate,
                 url: '/graphs?timerange&series&highlightedRevisions&highlightAlerts&zoom&selected',
                 controller: 'GraphsCtrl'
             })
             .state('compare', {
                 title: 'Compare',
-                templateUrl: 'partials/perf/comparectrl.html',
+                template: compareCtrlTemplate,
                 url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident&selectedTimeRange&showOnlyNoise?',
                 controller: 'CompareResultsCtrl'
             })
             .state('comparesubtest', {
                 title: 'Compare - Subtests',
-                templateUrl: 'partials/perf/comparesubtestctrl.html',
+                template: compareSubtestCtrlTemplate,
                 url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange&showOnlyNoise?',
                 controller: 'CompareSubtestResultsCtrl'
             })
             .state('comparechooser', {
                 title: 'Compare Chooser',
-                templateUrl: 'partials/perf/comparechooserctrl.html',
+                template: compareChooserCtrlTemplate,
                 url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
                 controller: 'CompareChooserCtrl'
             })
             .state('dashboard', {
                 title: 'Perfherder Dashboard',
-                templateUrl: 'partials/perf/dashboard.html',
+                template: dashboardTemplate,
                 url: '/dashboard?topic&filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
                 controller: 'dashCtrl'
             })
             .state('dashboardsubtest', {
                 title: 'Perfherder Dashboard - Subtests',
-                templateUrl: 'partials/perf/dashboardsubtest.html',
+                template: dashboardSubtestTemplate,
                 url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
                 controller: 'dashSubtestCtrl'
             })
             .state('comparesubtestdistribution', {
                 title: 'Compare Subtest Distribution',
-                templateUrl: 'partials/perf/comparesubtestdistribution.html',
+                template: compareSubtestDistributionTemplate,
                 url: '/comparesubtestdistribution?originalProject&newProject&originalRevision&newRevision&originalSubtestSignature?newSubtestSignature',
                 controller: 'CompareSubtestDistributionCtrl'
             });
@@ -79,4 +89,9 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 window.document.title = $state.current.title;
             }
         });
-    }]).run(require('./cache-templates'));
+    }]).run(['$templateCache', ($templateCache) => {
+        // Templates used by ng-include have to be manually put in the template cache.
+        // Those used by directives should instead be imported at point of use.
+        $templateCache.put('partials/perf/helpMenu.html', helpMenuTemplate);
+        $templateCache.put('partials/perf/tooltipgraphs.html', tooltipGraphsTemplate);
+    }]);

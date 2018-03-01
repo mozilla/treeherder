@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import thNotificationsBoxTemplate from '../../../partials/main/thNotificationsBox.html';
 
 //Directive blurThis which removes focus from a specific element
 treeherder.directive('blurThis', ['$timeout', function ($timeout) {
@@ -98,7 +99,7 @@ treeherder.directive('thNotificationBox', [
     function (thNotify) {
         return {
             restrict: "E",
-            templateUrl: "partials/main/thNotificationsBox.html",
+            template: thNotificationsBoxTemplate,
             link: function (scope) {
                 scope.notifier = thNotify;
                 scope.alert_class_prefix = "alert-";

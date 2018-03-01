@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import lvLogStepsTemplate from '../../../partials/logviewer/lvLogSteps.html';
 
 treeherder.directive('lvLogSteps', ['$timeout', ($timeout) => {
     function getOffsetOfStep(order) {
@@ -14,7 +15,7 @@ treeherder.directive('lvLogSteps', ['$timeout', ($timeout) => {
 
     return {
         restrict: 'A',
-        templateUrl: 'partials/logviewer/lvLogSteps.html',
+        template: lvLogStepsTemplate,
         link: (scope) => {
             scope.toggleSuccessfulSteps = () => {
                 scope.showSuccessful = !scope.showSuccessful;

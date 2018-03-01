@@ -2,6 +2,7 @@ import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
+import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -817,7 +818,7 @@ perf.controller('GraphsCtrl', [
                 }
 
                 var modalInstance = $uibModal.open({
-                    templateUrl: 'partials/perf/testdatachooser.html',
+                    template: testDataChooserTemplate,
                     controller: 'TestChooserCtrl',
                     size: 'lg',
                     resolve: {

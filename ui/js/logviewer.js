@@ -18,6 +18,6 @@ logViewerApp.config(['$compileProvider', '$locationProvider', '$resourceProvider
 
         // All queries should be cancellable by default (why is this configurable??)
         $resourceProvider.defaults.cancellable = true;
-    }]).run(require('./cache-templates'));
+    }]);
 
 export default logViewerApp;

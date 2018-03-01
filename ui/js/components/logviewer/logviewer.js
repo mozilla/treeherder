@@ -1,7 +1,8 @@
 import treeherder from '../../treeherder';
+import logviewerTemplate from '../../../partials/logviewer/logviewer.html';
 
 treeherder.component('thLogViewer', {
-    templateUrl: 'partials/logviewer/logviewer.html',
+    template: logviewerTemplate,
     controller: ['$sce', '$location', '$element', '$scope', '$rootScope',
         ($sce, $location, $element, $scope, $rootScope) => {
             const unifiedLogviewerUrl = 'https://taskcluster.github.io/unified-logviewer/';

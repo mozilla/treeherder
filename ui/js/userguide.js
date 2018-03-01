@@ -1,17 +1,16 @@
 import angular from 'angular';
 
+import thShortcutTableTemplate from '../partials/main/thShortcutTable.html';
+
 const userguideApp = angular.module('userguide', []);
 
 userguideApp.config(['$compileProvider', function ($compileProvider) {
     // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
     $compileProvider.debugInfoEnabled(false);
 }]).run(['$templateCache', ($templateCache) => {
-    // The user guide only requires a single partial - just include it instead
-    // of requiring the full set of templates
-    $templateCache.put(
-        'partials/main/thShortcutTable.html',
-        require('../partials/main/thShortcutTable.html')
-    );
+    // Templates used by ng-include have to be manually put in the template cache.
+    // Those used by directives should instead be imported at point of use.
+    $templateCache.put('partials/main/thShortcutTable.html', thShortcutTableTemplate);
 }]);
 
 export default userguideApp;

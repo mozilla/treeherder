@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../../js/treeherder';
+import intermittentTemplate from '../../partials/main/intermittent.html';
 
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThTextLogStepModel',
@@ -107,7 +108,7 @@ treeherder.controller('BugsPluginCtrl', [
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'partials/main/intermittent.html',
+                template: intermittentTemplate,
                 controller: 'BugFilerCtrl',
                 size: 'lg',
                 openedClass: "filer-open",

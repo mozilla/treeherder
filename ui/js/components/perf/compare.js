@@ -1,11 +1,16 @@
 import treeherder from '../../treeherder';
+import trendTableTemplate from '../../../partials/perf/trendtable.html';
+import compareTableTemplate from '../../../partials/perf/comparetable.html';
+import averageTemplate from '../../../partials/perf/average.html';
+import revisionDescribeTemplate from '../../../partials/perf/revisiondescribe.html';
+import compareErrorTemplate from '../../../partials/perf/comparerror.html';
 
 treeherder.component('phCompareTable', {
-    templateUrl: ['$attrs', function ($attrs) {
+    template: ['$attrs', function ($attrs) {
         if ($attrs.type === 'trend') {
-            return 'partials/perf/trendtable.html';
+            return trendTableTemplate;
         }
-        return 'partials/perf/comparetable.html';
+        return compareTableTemplate;
     }],
     bindings: {
         baseTitle: '@',
@@ -81,7 +86,7 @@ treeherder.component('phCompareTable', {
 });
 
 treeherder.component('phAverage', {
-    templateUrl: 'partials/perf/average.html',
+    template: averageTemplate,
     bindings: {
         value: '@',
         stddev: '@',
@@ -91,7 +96,7 @@ treeherder.component('phAverage', {
 });
 
 treeherder.component('revisionInformation', {
-    templateUrl: 'partials/perf/revisiondescribe.html',
+    template: revisionDescribeTemplate,
     bindings: {
         originalProject: '<',
         originalRevision: '<',
@@ -104,7 +109,7 @@ treeherder.component('revisionInformation', {
 });
 
 treeherder.component('compareError', {
-    templateUrl: 'partials/perf/comparerror.html',
+    template: compareErrorTemplate,
     bindings: {
         errors: '<',
         originalProject: '<',

@@ -3,6 +3,7 @@ import { Queue, slugid } from 'taskcluster-client-web';
 
 import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
+import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import { getStatus } from '../helpers/jobHelper';
 
 treeherder.controller('PluginCtrl', [
@@ -503,7 +504,7 @@ treeherder.controller('PluginCtrl', [
 
         $scope.customJobAction = function () {
             $uibModal.open({
-                templateUrl: 'partials/main/tcjobactions.html',
+                template: tcJobActionsTemplate,
                 controller: 'TCJobActionsCtrl',
                 size: 'lg',
                 resolve: {

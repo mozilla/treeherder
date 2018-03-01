@@ -29,7 +29,6 @@ module.exports = neutrino => {
                     'consistent-return': 'off',
                     'default-case': 'off',
                     'func-names': 'off',
-                    'global-require': 'off',
                     // Indentation is disabled pending a switch from 4 to 2 space for JS.
                     'indent': 'off',
                     'jsx-a11y/label-has-for': 'off',

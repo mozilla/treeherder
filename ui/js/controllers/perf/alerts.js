@@ -1,4 +1,5 @@
 import perf from '../../perf';
+import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
@@ -293,7 +294,7 @@ perf.controller('AlertsCtrl', [
         };
         $scope.linkToBug = function (alertSummary) {
             $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
+                template: modifyAlertsCtrlTemplate,
                 controller: 'ModifyAlertSummaryCtrl',
                 size: 'sm',
                 resolve: {
@@ -312,7 +313,7 @@ perf.controller('AlertsCtrl', [
         };
         $scope.markAlertsDownstream = function (alertSummary) {
             $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
+                template: modifyAlertsCtrlTemplate,
                 controller: 'MarkDownstreamAlertsCtrl',
                 size: 'sm',
                 resolve: {
@@ -329,7 +330,7 @@ perf.controller('AlertsCtrl', [
         };
         $scope.reassignAlerts = function (alertSummary) {
             $uibModal.open({
-                templateUrl: 'partials/perf/modifyalertsctrl.html',
+                template: modifyAlertsCtrlTemplate,
                 controller: 'ReassignAlertsCtrl',
                 size: 'sm',
                 resolve: {

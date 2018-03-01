@@ -1,4 +1,8 @@
 import treeherder from '../../treeherder';
+import thWatchedRepoTemplate from '../../../partials/main/thWatchedRepo.html';
+import thWatchedRepoInfoDropDownTemplate from '../../../partials/main/thWatchedRepoInfoDropDown.html';
+import thRepoMenuItemTemplate from '../../../partials/main/thRepoMenuItem.html';
+import thResultStatusChickletTemplate from '../../../partials/main/thResultStatusChicklet.html';
 import { getBtnClass } from '../../../helpers/jobHelper';
 
 treeherder.directive('thWatchedRepo', [
@@ -72,7 +76,7 @@ treeherder.directive('thWatchedRepo', [
                     }
                 });
             },
-            templateUrl: 'partials/main/thWatchedRepo.html'
+            template: thWatchedRepoTemplate
         };
     }]);
 
@@ -95,7 +99,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
                     }
                 }, true);
             },
-            templateUrl: 'partials/main/thWatchedRepoInfoDropDown.html'
+            template: thWatchedRepoInfoDropDownTemplate
         };
     }]);
 
@@ -142,7 +146,7 @@ treeherder.directive('thRepoMenuItem',
                 }
 
             },
-            templateUrl: 'partials/main/thRepoMenuItem.html'
+            template: thRepoMenuItemTemplate
         };
     });
 
@@ -152,6 +156,6 @@ treeherder.directive('thResultStatusChicklet', function () {
         link: function (scope) {
             scope.chickletClass = `${getBtnClass(scope.filterName)}-filter-chicklet`;
         },
-        templateUrl: 'partials/main/thResultStatusChicklet.html'
+        template: thResultStatusChickletTemplate
     };
 });
