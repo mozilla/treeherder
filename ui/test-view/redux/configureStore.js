@@ -362,9 +362,11 @@ function getMatchingTestBugs(bs, testName) {
 
 function extractBugSuggestions(bugSuggestions, testName) {
   return bugSuggestions.data.allJobs.edges.reduce((jacc, { node: job }) => (
-    { ...jacc, ...job.textLogStep.reduce((tlsAcc, step) => (
+    { ...jacc,
+      ...job.textLogStep.reduce((tlsAcc, step) => (
       // Only add the bug suggestions that match the testName for this job
-      { ...tlsAcc, ...step.errors.reduce((sAcc, error) => (
+        { ...tlsAcc,
+          ...step.errors.reduce((sAcc, error) => (
           { ...sAcc, ...getMatchingTestBugs(error.bugSuggestions, testName) }
         ), {}) }
       ), {}) }
