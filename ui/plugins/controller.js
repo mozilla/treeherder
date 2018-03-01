@@ -491,7 +491,8 @@ treeherder.controller('PluginCtrl', [
             }).catch(function (e) {
                 thNotify.send(
                     ThModelErrors.format(e, "Unable to cancel job"),
-                    "danger", true
+                    "danger",
+                    { sticky: true }
                 );
             });
         };
