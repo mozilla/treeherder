@@ -86,14 +86,16 @@ class SuggestionsListItem extends React.Component {
 }
 
 
-const ListItem = props => (
+function ListItem(props) {
+  return (
     <li>
         <p className="failure-summary-line-empty mb-0">{props.text}</p>
     </li>
-);
+  );
+}
 
 
-const BugListItem = (props) => {
+function BugListItem(props) {
     const pinboardServiceEvent = () => {
       const { bug, selectedJob, pinboardService, $timeout } = props;
       $timeout(() => (pinboardService.addBug(bug, selectedJob)));
@@ -121,10 +123,10 @@ const BugListItem = (props) => {
             </a>
      </li>
     );
-};
+}
 
 
-const ErrorsList = (props) => {
+function ErrorsList(props) {
     const errorListItem = props.errors.map((error, index) =>
         (<li key={index}>{error.name} : {error.result}.
             <a title="Open in Log Viewer"
@@ -141,7 +143,7 @@ const ErrorsList = (props) => {
             <ul>{errorListItem}</ul>
         </li>
     );
-};
+}
 
 
 class FailureSummaryPanel extends React.Component {
@@ -225,4 +227,3 @@ FailureSummaryPanel.propTypes = {
 
 treeherder.directive('failureSummaryPanel', ['reactDirective', '$injector', (reactDirective, $injector) =>
 reactDirective(FailureSummaryPanel, undefined, {}, { $injector })]);
-

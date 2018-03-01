@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
 
-const RelatedBugSaved = (props) => {
+function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
   const bug_id = bug.bug_id;
 
@@ -27,9 +27,9 @@ const RelatedBugSaved = (props) => {
       </span>
       </span>
   );
-};
+}
 
-const RelatedBug = (props) => {
+function RelatedBug(props) {
   const { bugs, deleteBug } = props;
 
   return (
@@ -46,9 +46,9 @@ const RelatedBug = (props) => {
       </ul>
     </span>
   );
-};
+}
 
-const TableRow = (props) => {
+function TableRow(props) {
   const { deleteClassification, classification, classificationTypes } = props;
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
@@ -80,9 +80,9 @@ const TableRow = (props) => {
       </td>
     </tr>
   );
-};
+}
 
-const AnnotationsTable = (props) => {
+function AnnotationsTable(props) {
   const {
     classifications, deleteClassification, classificationTypes, dateFilter
   } = props;
@@ -109,7 +109,7 @@ const AnnotationsTable = (props) => {
       </tbody>
     </table>
   );
-};
+}
 
 export default class AnnotationsTab extends React.Component {
   constructor(props) {

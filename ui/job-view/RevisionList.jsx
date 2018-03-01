@@ -40,7 +40,8 @@ RevisionList.propTypes = {
   repo: PropTypes.object.isRequired,
 };
 
-export const MoreRevisionsLink = props => (
+export function MoreRevisionsLink(props) {
+  return (
     <li>
       <a href={props.href}
          data-ignore-job-clear-on-click
@@ -48,5 +49,5 @@ export const MoreRevisionsLink = props => (
          rel="noopener"
       >{`\u2026and more`}<i className="fa fa-external-link-square" /></a>
     </li>
-);
-
+  );
+}

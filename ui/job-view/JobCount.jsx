@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default (props) => {
+export default function JobCount(props) {
   const classes = [props.className, 'btn group-btn btn-xs job-group-count filter-shown'];
 
   return (
@@ -11,5 +11,4 @@ export default (props) => {
       key={props.countKey}
     >{props.count}</button>
   );
-};
-
+}

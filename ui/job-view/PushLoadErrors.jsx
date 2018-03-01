@@ -1,6 +1,6 @@
 import { getAllUrlParams } from '../helpers/locationHelper';
 
-const PushLoadErrors = (props) => {
+function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;
   const urlParams = getAllUrlParams();
   urlParams.delete("revision");
@@ -58,6 +58,6 @@ const PushLoadErrors = (props) => {
       }
     </div>
   );
-};
+}
 
 export default PushLoadErrors;
