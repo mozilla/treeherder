@@ -31,7 +31,8 @@ class SuggestionsListItem extends React.Component {
       <li>
         <div className="job-tabs-content">
           {(this.props.filerInAddress || this.props.user.is_staff) &&
-            <a className="btn btn-xs btn-light-bordered"
+            <a
+              className="btn btn-xs btn-light-bordered"
               onClick={this.fileBugEvent}
               title="file a bug for this failure"
             >
@@ -56,7 +57,8 @@ class SuggestionsListItem extends React.Component {
 
         {/* <!--All other bugs--> */}
         {this.props.suggestion.valid_all_others && this.props.suggestion.valid_open_recent &&
-        <a target="_blank"
+        <a
+          target="_blank"
           rel="noopener"
           href=""
           onClick={this.clickShowMore}
@@ -107,13 +109,15 @@ function BugListItem(props) {
 
   return (
     <li>
-      <button className="btn btn-xs btn-light-bordered"
+      <button
+        className="btn btn-xs btn-light-bordered"
         onClick={pinboardServiceEvent}
         title="add to list of bugs to associate with all pinned jobs"
       >
         <i className="fa fa-thumb-tack" />
       </button>
-      <a className={`${props.bugClassName} ml-1`}
+      <a
+        className={`${props.bugClassName} ml-1`}
         href={bugUrl}
         target="_blank"
         rel="noopener"
@@ -129,7 +133,8 @@ function BugListItem(props) {
 function ErrorsList(props) {
   const errorListItem = props.errors.map((error, index) =>
     (<li key={index}>{error.name} : {error.result}.
-      <a title="Open in Log Viewer"
+      <a
+        title="Open in Log Viewer"
         target="_blank"
         rel="noopener"
         href={error.lvURL}
@@ -182,7 +187,8 @@ function FailureSummaryPanel(props) {
        props.jobLogUrls.map((job, index) =>
          (<li key={index}>
            <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
-             <a title="Open the raw log in a new window"
+             <a
+               title="Open the raw log in a new window"
                target="_blank"
                rel="noopener"
                href={job.url}

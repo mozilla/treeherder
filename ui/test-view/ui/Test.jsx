@@ -36,7 +36,8 @@ class BugCountComponent extends React.Component {
 
   render() {
     return (
-      <td className="bug-count"
+      <td
+        className="bug-count"
         onClick={this.onClick}
       >
         {this.props.test.bugs === undefined ? <Icon name="minus" title="Click to expand and fetch bugs" /> : (
@@ -65,7 +66,8 @@ class Platform extends React.Component {
 
   render() {
     return (
-      <span className="platform badge"
+      <span
+        className="platform badge"
         title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
       >
         <Link
@@ -104,14 +106,16 @@ class TestComponent extends React.Component {
         <div className="bottom-separator"><strong>Test Group: {this.props.test.group}</strong></div>
         {this.props.test.jobs.map((job, key) => (
           <div key={key}>
-            <Platform job={job}
+            <Platform
+              job={job}
               key={key}
               platform={platformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}
               repo={this.props.repo}
               revision={this.props.revision}
             />
-            <LogViewer job={job}
+            <LogViewer
+              job={job}
               repo={this.props.repo}
             />
             {job.tier > 1 && <span className="tier badge">Tier-{job.tier}</span>}
@@ -142,7 +146,8 @@ class TestComponent extends React.Component {
         {this.props.test.bugs && <div>
           <div className="bottom-separator"><strong>Bugs:</strong></div>
           {Object.values(this.props.test.bugs).map((bug, key) => (
-            <div key={key}><Link to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
+            <div key={key}><Link
+              to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
               target="_blank"
               rel="noopener"
             >{bug.id} - {bug.summary}</Link></div>
@@ -155,12 +160,14 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span className="test"
+        <span
+          className="test"
           onClick={this.onClick}
         >{this.props.name}</span>
         <span className="platform-list">
           {this.props.test.jobs.map((job, key) => (
-            <Platform job={job}
+            <Platform
+              job={job}
               key={key}
               platform={platformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}

@@ -43,7 +43,8 @@ RevisionList.propTypes = {
 export function MoreRevisionsLink(props) {
   return (
     <li>
-      <a href={props.href}
+      <a
+        href={props.href}
         data-ignore-job-clear-on-click
         target="_blank"
         rel="noopener"

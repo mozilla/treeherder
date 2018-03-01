@@ -107,7 +107,8 @@ export default class PushActionMenu extends React.PureComponent {
 
         <ul className="dropdown-menu pull-right">
           {runnableVisible ?
-            <li title="Hide Runnable Jobs"
+            <li
+              title="Hide Runnable Jobs"
               className="dropdown-item"
               onClick={() => hideRunnableJobsCb()}
             >Hide Runnable Jobs</li> :
