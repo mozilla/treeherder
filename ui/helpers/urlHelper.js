@@ -33,11 +33,11 @@ export const getLogViewerUrl = (job_id, repoName, line_number) => {
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
 
-// if we can't find "repo" on the url (like in perfherder) they don't
-// care WHICH repo it is, just need one because of Bug 1441938 (see above).
-// So we default to mozilla-inbound.
-export const getProjectUrl = (uri) => {
-  const repo = getUrlParam("repo") || 'mozilla-inbound';
+// Take the repoName, if passed in.  If not, then try to find it on the
+// URL.  If not there, then try m-i and hope for the best.  The caller may
+// not actually need a repo if they're trying to get a job by ``id``.
+export const getProjectUrl = (uri, repoName) => {
+  const repo = repoName || getUrlParam("repo") || 'mozilla-inbound';
   return `${SERVICE_DOMAIN}/api/project/${repo}${uri}`;
 };
 
