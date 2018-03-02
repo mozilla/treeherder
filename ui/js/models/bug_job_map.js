@@ -1,17 +1,18 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
+import { getProjectUrl } from "../../helpers/urlHelper";
 
 treeherder.factory('ThBugJobMapModel', [
-    '$http', 'thUrl',
-    function ($http, thUrl) {
+    '$http',
+    function ($http) {
         // ThBugJobMap is a class which we can use for retrieving and
         // updating data on the server
         var ThBugJobMapModel = function (data) {
             angular.extend(this, data);
         };
 
-        ThBugJobMapModel.get_uri = function () { return thUrl.getProjectUrl("/bug-job-map/"); };
+        ThBugJobMapModel.get_uri = function () { return getProjectUrl("/bug-job-map/"); };
 
         // a static method to retrieve a list of ThBugJobMap
         // the options parameter is used to filter/limit the list of objects

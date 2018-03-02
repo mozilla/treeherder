@@ -5,25 +5,26 @@ import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import { getStatus } from '../helpers/jobHelper';
+import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
-    'thUrl', 'ThJobClassificationModel',
+    'ThJobClassificationModel',
     'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
     'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'thServiceDomain', 'tcactions',
+    'PhSeries', 'tcactions',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
-        thUrl, ThJobClassificationModel,
+        ThJobClassificationModel,
         thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
         numberFilter, ThBugJobMapModel, thJobFilters,
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        thServiceDomain, tcactions) {
+        tcactions) {
 
         $scope.job = {};
         $scope.revisionList = [];
@@ -188,7 +189,7 @@ treeherder.controller('PluginCtrl', [
                         return jlu.parse_status !== 'pending';
                     });
 
-                    $scope.lvUrl = thUrl.getLogViewerUrl($scope.job.id);
+                    $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     if ($scope.job_log_urls.length) {
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
@@ -206,7 +207,7 @@ treeherder.controller('PluginCtrl', [
                                 series: seriesList.find(s => d.signature_id === s.id),
                                 ...d
                             })).filter(d => !d.series.parentSignature).map(d => ({
-                                url: `${thServiceDomain}/perf.html#/graphs?series=` +
+                                url: `${SERVICE_DOMAIN}/perf.html#/graphs?series=` +
                                 [$scope.repoName, d.signature_id, 1, d.series.frameworkId] +
                                 '&selected=' +
                                 [$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id],
@@ -639,9 +640,8 @@ treeherder.controller('PluginCtrl', [
         $scope.tabService = thTabs;
 
         //fetch URLs
-        $scope.getBugUrl = thUrl.getBugUrl;
-        $scope.getSlaveHealthUrl = thUrl.getSlaveHealthUrl;
-        $scope.getWorkerExplorerUrl = thUrl.getWorkerExplorerUrl;
-        $scope.getInspectTaskUrl = thUrl.getInspectTaskUrl;
+        $scope.getBugUrl = getBugUrl;
+        $scope.getSlaveHealthUrl = getSlaveHealthUrl;
+        $scope.getInspectTaskUrl = getInspectTaskUrl;
     }
 ]);

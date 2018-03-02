@@ -2,14 +2,14 @@ import treeherder from '../../treeherder';
 
 treeherder.factory(
     'PhFramework', [
-        '$http', 'thServiceDomain',
-        function ($http, thServiceDomain) {
+        '$http',
+        function ($http) {
             return {
                 getFrameworkList: function () {
-                    return $http.get(thServiceDomain +
-                                     '/api/performance/framework/').then(function (response) {
-                                         return response.data;
-                                     });
+                    return $http.get(`${SERVICE_DOMAIN}/api/performance/framework/`)
+                      .then(function (response) {
+                        return response.data;
+                      });
                 }
             };
         }]);

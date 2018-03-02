@@ -1,10 +1,11 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
+import { getProjectUrl } from "../../helpers/urlHelper";
 
 treeherder.factory('ThJobModel', [
-    '$http', 'thUrl', 'thPlatformName', '$q',
-    function ($http, thUrl, thPlatformName, $q) {
+    '$http', 'thPlatformName', '$q',
+    function ($http, thPlatformName, $q) {
         // ThJobModel is the js counterpart of job
 
         var ThJobModel = function (data) {
@@ -38,7 +39,7 @@ treeherder.factory('ThJobModel', [
             ].filter(item => typeof item !== 'undefined').join(' ');
         };
 
-        ThJobModel.get_uri = function (repoName) { return thUrl.getProjectUrl("/jobs/", repoName); };
+        ThJobModel.get_uri = function () { return getProjectUrl("/jobs/"); };
 
         ThJobModel.get_list = function (repoName, options, config) {
             // a static method to retrieve a list of ThJobModel
@@ -48,7 +49,7 @@ treeherder.factory('ThJobModel', [
             // The `uri` config allows to fetch a list of jobs from an arbitrary
             // endpoint e.g. the similar jobs endpoint. It defaults to the job
             // list endpoint.
-            var uri = config.uri || ThJobModel.get_uri(repoName);
+            var uri = config.uri || ThJobModel.get_uri();
 
             return $http.get(uri, {
                 params: options,
@@ -91,7 +92,7 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.get(ThJobModel.get_uri(repoName)+pk+"/",
+            return $http.get(ThJobModel.get_uri()+pk+"/",
                              { timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
@@ -102,7 +103,7 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             // The similar jobs endpoints returns the same type of objects as
             // the job list endpoint, so let's reuse the get_list method logic.
-            config.uri = ThJobModel.get_uri(repoName)+pk+"/similar_jobs/";
+            config.uri = ThJobModel.get_uri()+pk+"/similar_jobs/";
             return ThJobModel.get_list(repoName, options, config);
         };
 
@@ -110,7 +111,7 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.post(ThJobModel.get_uri(repoName)+"retrigger/",
+            return $http.post(ThJobModel.get_uri()+"retrigger/",
                               { job_id_list: job_id_list, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);
@@ -121,7 +122,7 @@ treeherder.factory('ThJobModel', [
             config = config || {};
             var timeout = config.timeout || null;
 
-            return $http.post(ThJobModel.get_uri(repoName) + "cancel/",
+            return $http.post(ThJobModel.get_uri() + "cancel/",
                               { job_id_list: jobIds, timeout: timeout })
                 .then(function (response) {
                     return new ThJobModel(response.data);

@@ -1,10 +1,11 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
+import { getProjectUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThJobClassificationModel', [
-    '$http', 'thUrl',
-    function ($http, thUrl) {
+    '$http',
+    function ($http) {
 
         // ThJobClassificationModel is the js counterpart of note
 
@@ -14,7 +15,7 @@ treeherder.factory('ThJobClassificationModel', [
             angular.extend(this, data);
         };
 
-        ThJobClassificationModel.get_uri = function () { return thUrl.getProjectUrl("/note/"); };
+        ThJobClassificationModel.get_uri = function () { return getProjectUrl("/note/"); };
 
         ThJobClassificationModel.get_list = function (options) {
             // a static method to retrieve a list of ThJobClassificationModel

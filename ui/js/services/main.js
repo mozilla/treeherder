@@ -1,65 +1,7 @@
-import { Queue } from 'taskcluster-client-web';
-
 import treeherder from '../treeherder';
-import thTaskcluster from './taskcluster';
 import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
 
 /* Services */
-treeherder.factory('thUrl', [
-    '$rootScope', 'thServiceDomain',
-    function ($rootScope, thServiceDomain) {
-
-        var thUrl = {
-            getRootUrl: function (uri) {
-                return thServiceDomain + "/api" + uri;
-            },
-            getProjectUrl: function (uri, repoName) {
-                if (_.isUndefined(repoName)) {
-                    repoName = $rootScope.repoName;
-                }
-                return thServiceDomain + "/api/project/" + repoName + uri;
-            },
-            getProjectJobUrl: function (url, jobId, repoName) {
-                var uri = "/jobs/" + jobId + url;
-                return thUrl.getProjectUrl(uri, repoName);
-            },
-            getJobsUrl: function (repo, fromChange, toChange) {
-                return "index.html#/jobs?" + _.reduce({
-                    repo: repo, fromchange: fromChange, tochange: toChange
-                }, function (result, v, k) {
-                    if (result.length) result += '&';
-                    return result + k + '=' + v;
-                }, "");
-            },
-            getLogViewerUrl: function (job_id, line_number) {
-                var rv = "logviewer.html#?job_id=" + job_id + "&repo=" + $rootScope.repoName;
-                if (line_number) {
-                    rv += "&lineNumber=" + line_number;
-                }
-                return rv;
-            },
-            getBugUrl: function (bug_id) {
-                return "https://bugzilla.mozilla.org/show_bug.cgi?id=" + bug_id;
-            },
-            getSlaveHealthUrl: function (machine_name) {
-                return "https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=" + machine_name;
-            },
-            getInspectTaskUrl: function (taskId) {
-                return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
-            },
-            getWorkerExplorerUrl: async function (taskId) {
-                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
-                const { status } = await queue.status(taskId);
-                const { provisionerId, workerType } = status;
-                const { workerGroup, workerId } = status.runs[status.runs.length - 1];
-
-                return `https://tools.taskcluster.net/provisioners/${provisionerId}/worker-types/${workerType}/workers/${workerGroup}/${workerId}`;
-            }
-        };
-        return thUrl;
-
-    }]);
-
 treeherder.factory('thNotify', [
     '$timeout', 'localStorageService',
     function ($timeout, localStorageService) {

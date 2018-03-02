@@ -2,11 +2,11 @@ import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 
 perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter', 'thServiceDomain',
-    function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter, thServiceDomain) {
+    '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
+    function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter) {
         return {
             fileBug: function (alertSummary) {
-                $http.get(thServiceDomain + '/api/performance/bug-template/?framework=' + alertSummary.framework).then(function (response) {
+                $http.get(`${SERVICE_DOMAIN}/api/performance/bug-template/?framework=${alertSummary.framework}`).then(function (response) {
                     var template = response.data[0];
                     var repo = _.find($rootScope.repos, { name: alertSummary.repository });
                     var compiledText = $interpolate(template.text)({
@@ -147,14 +147,14 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'thUrl', 'ThRepositoryModel', 'ThOptionCollectionModel',
+    'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs', 'phTimeRanges',
     'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
     'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
-                        thUrl, ThRepositoryModel,
+                        ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs, phTimeRanges,
                         phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
@@ -391,6 +391,14 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
+        function getJobsUrl(repo, fromChange, toChange) {
+          const urlParams = new URLSearchParams();
+          Object
+            .entries({ repo: repo, fromchange: fromChange, tochange: toChange })
+                .forEach(([k, v]) => { if (v) urlParams.append(k, v); });
+          return `index.html#/jobs?${urlParams.toString()}`;
+        }
+
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
             $scope.getMoreAlertSummariesHref = getMoreAlertSummariesHref;
 
@@ -452,7 +460,7 @@ perf.controller('AlertsCtrl', [
 
                     if (summary.prevResultSetMetadata &&
                         summary.resultSetMetadata) {
-                        summary.jobsURL = thUrl.getJobsUrl(
+                        summary.jobsURL = getJobsUrl(
                             summary.repository,
                             summary.prevResultSetMetadata.revision,
                             summary.resultSetMetadata.revision);

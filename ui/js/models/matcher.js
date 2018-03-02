@@ -1,10 +1,11 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
+import { getRootUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThMatcherModel', [
-    '$http', 'thUrl',
-    function ($http, thUrl) {
+    '$http',
+    function ($http) {
 
         // ThJobTypeModel is the js counterpart of job_type
 
@@ -15,7 +16,7 @@ treeherder.factory('ThMatcherModel', [
         };
 
         ThMatcherModel.get_uri = function () {
-            var url = thUrl.getRootUrl("/matcher/");
+            var url = getRootUrl("/matcher/");
             return url;
         };
 

@@ -1,9 +1,9 @@
 import treeherder from '../../treeherder';
 
 treeherder.factory('PhAlerts', [
-    '$http', '$httpParamSerializer', '$q', 'thServiceDomain', 'ThOptionCollectionModel', 'PhSeries',
+    '$http', '$httpParamSerializer', '$q', 'ThOptionCollectionModel', 'PhSeries',
     'phAlertSummaryStatusMap', 'phAlertSummaryIssueTrackersMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
-    function ($http, $httpParamSerializer, $q, thServiceDomain, ThOptionCollectionModel, PhSeries,
+    function ($http, $httpParamSerializer, $q, ThOptionCollectionModel, PhSeries,
              phAlertSummaryStatusMap, phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
         var Alert = function (alertData, optionCollectionMap) {
@@ -49,8 +49,7 @@ treeherder.factory('PhAlerts', [
             return endpoint + '?' + $httpParamSerializer(urlParameters);
         };
         Alert.prototype.modify = function (modification) {
-            return $http.put(thServiceDomain +
-                             '/api/performance/alert/' + this.id + '/',
+            return $http.put(`${SERVICE_DOMAIN}/api/performance/alert/${this.id}/`,
                              modification);
         };
         _.forEach(phAlertStatusMap, function (status) {
@@ -142,16 +141,14 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.updateStatus = function (newStatus) {
             var alertSummary = this;
-            return $http.put(thServiceDomain +
-                             '/api/performance/alertsummary/' + this.id + '/',
+            return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
                              { status: newStatus.id }).then(function () {
                                  alertSummary.status = newStatus.id;
                              });
         };
         AlertSummary.prototype.update = function () {
             var alertSummary = this;
-            return $http.get(thServiceDomain +
-                             '/api/performance/alertsummary/' + this.id + '/').then(
+            return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`).then(
                                  function (response) {
                                      return ThOptionCollectionModel.getMap().then(
                                          function (optionCollectionMap) {
@@ -201,8 +198,7 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
             var alertSummary = this;
-            return $http.put(thServiceDomain +
-                             '/api/performance/alertsummary/' + this.id + '/',
+            return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
                              { bug_number: taskNumber, issue_tracker: issueTrackerId }).then(function () {
                                  return alertSummary.update();
                              });
@@ -227,7 +223,7 @@ treeherder.factory('PhAlerts', [
             var canceller = $q.defer();
             var promise = ThOptionCollectionModel.getMap().then(
                 function (optionCollectionMap) {
-                    return $http.get(thServiceDomain + '/api/performance/alertsummary/' + id + '/',
+                    return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${id}/`,
                                     { timeout: canceller.promise }).then(
                                         function (response) {
                                             return new AlertSummary(response.data,
@@ -255,7 +251,7 @@ treeherder.factory('PhAlerts', [
             getAlertSummaries: function (options) {
                 var href;
                 if (!options || !options.href) {
-                    href = thServiceDomain + '/api/performance/alertsummary/';
+                    href = `${SERVICE_DOMAIN}/api/performance/alertsummary/`;
 
                     // add filter parameters for status and framework
                     var params = [];
@@ -300,14 +296,14 @@ treeherder.factory('PhAlerts', [
                     });
             },
             createAlert: function (data) {
-                return $http.post(thServiceDomain + '/api/performance/alertsummary/', {
+                return $http.post(`${SERVICE_DOMAIN}/api/performance/alertsummary/`, {
                     repository_id: data.project.id,
                     framework_id: data.series.frameworkId,
                     push_id: data.resultSetId,
                     prev_push_id: data.prevResultSetId
                 }).then(function (response) {
                     var newAlertSummaryId = response.data.alert_summary_id;
-                    return $http.post(thServiceDomain + '/api/performance/alert/', {
+                    return $http.post(`${SERVICE_DOMAIN}/api/performance/alert/`, {
                         summary_id: newAlertSummaryId,
                         signature_id: data.series.id
                     }).then(function () {

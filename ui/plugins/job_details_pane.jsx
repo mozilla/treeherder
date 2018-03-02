@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import treeherder from '../js/treeherder';
+import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getWorkerExplorerUrl } from '../helpers/urlHelper';
 
 // using ES6 arrow function syntax throws an error for this particular component
 function ClassificationsPane(props) {
@@ -24,7 +25,7 @@ function ClassificationsPane(props) {
                 <span title={classificationName.name}><i className={`fa ${iconClass}`} />
                 <span className="ml-1">{classificationName.name}</span></span>
                 {props.bugs.length > 0 &&
-                <a target="_blank" rel="noopener" href={props.getBugUrl(props.bugs[0].bug_id)}
+                <a target="_blank" rel="noopener" href={getBugUrl(props.bugs[0].bug_id)}
                 title={`View bug ${props.bugs[0].bug_id}`}
                 ><em> {props.bugs[0].bug_id}</em></a>}
             </li>
@@ -117,8 +118,8 @@ class JobDetailsList extends React.Component {
     getJobMachineUrl(props) {
         const { build_system_type, machine_name } = props.job;
         const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
-            props.getSlaveHealthUrl(machine_name) :
-            props.getWorkerExplorerUrl(props.job.taskcluster_metadata.task_id);
+            getSlaveHealthUrl(machine_name) :
+            getWorkerExplorerUrl(props.job.taskcluster_metadata.task_id);
 
         return machineUrl;
     }
@@ -167,7 +168,7 @@ class JobDetailsList extends React.Component {
                 {this.props.job.taskcluster_metadata &&
                 <JobDetailsListItem
                                 label="Task:" text={this.props.job.taskcluster_metadata.task_id}
-                                href={this.props.getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank"
+                                href={getInspectTaskUrl(this.props.job.taskcluster_metadata.task_id)} target="_blank"
                 />}
 
                 {this.props.visibleFields &&
@@ -242,7 +243,6 @@ class JobDetailsPane extends React.Component {
                     job={this.props.job}
                     classifications={this.state.classifications}
                     bugs={this.state.bugs}
-                    getBugUrl={this.props.getBugUrl}
                     dateFilter={dateFilter}
                     linkifyURLsFilter={linkifyURLsFilter}
                     linkifyClassificationsFilter={linkifyClassificationsFilter}
@@ -254,8 +254,6 @@ class JobDetailsPane extends React.Component {
 
                 <JobDetailsList
                     job={this.props.job}
-                    getSlaveHealthUrl={this.props.getSlaveHealthUrl}
-                    getWorkerExplorerUrl={this.props.getWorkerExplorerUrl}
                     jobSearchSignatureHref={this.props.jobSearchSignatureHref}
                     jobSearchSignature={this.props.jobSearchSignature}
                     filterByJobSearchStr={this.props.filterByJobSearchStr}
@@ -263,7 +261,6 @@ class JobDetailsPane extends React.Component {
                     jobSearchStr={this.props.jobSearchStr}
                     visibleTimeFields={this.props.visibleTimeFields}
                     jobLogUrls={this.props.jobLogUrls}
-                    getInspectTaskUrl={this.props.getInspectTaskUrl}
                     visibleFields={this.props.visibleFields}
                     buildUrl={this.props.buildUrl}
                 />
@@ -275,10 +272,7 @@ class JobDetailsPane extends React.Component {
 JobDetailsPane.propTypes = {
     classifications: PropTypes.array,
     bugs: PropTypes.array,
-    getBugUrl: PropTypes.func,
     job: PropTypes.object,
-    getSlaveHealthUrl: PropTypes.func,
-    getWorkerExplorerUrl: PropTypes.func,
     resultStatusShading: PropTypes.string,
     $injector: PropTypes.object,
     jobSearchSignatureHref: PropTypes.string,
@@ -288,7 +282,6 @@ JobDetailsPane.propTypes = {
     jobSearchStr: PropTypes.string,
     visibleTimeFields: PropTypes.object,
     jobLogUrls: PropTypes.array,
-    getInspectTaskUrl: PropTypes.func,
     visibleFields: PropTypes.object,
     buildUrl: PropTypes.string,
     classificationTypes: PropTypes.object,

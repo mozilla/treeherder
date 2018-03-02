@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import treeherder from '../js/treeherder';
+import { getBugUrl } from '../helpers/urlHelper';
 
 const RelatedBugSaved = (props) => {
   const { deleteBug, bug } = props;
@@ -10,7 +11,7 @@ const RelatedBugSaved = (props) => {
     <span className="btn-group pinboard-related-bugs-btn">
       <a
         className="btn btn-xs annotations-bug related-bugs-link"
-        href={props.getBugUrl(bug_id)}
+        href={getBugUrl(bug_id)}
         target="_blank"
         rel="noopener"
         title={`View bug ${bug_id}`}
@@ -29,7 +30,7 @@ const RelatedBugSaved = (props) => {
 };
 
 const RelatedBug = (props) => {
-  const { bugs, getBugUrl, deleteBug } = props;
+  const { bugs, deleteBug } = props;
 
   return (
     <span>
@@ -39,7 +40,6 @@ const RelatedBug = (props) => {
           <li key={index}>
             <RelatedBugSaved
               bug={bug}
-              getBugUrl={getBugUrl}
               deleteBug={deleteBug}
             />
           </li>))}
@@ -193,7 +193,7 @@ export default class AnnotationsTab extends React.Component {
   render() {
     const {
       $injector, classifications, classificationTypes,
-      bugs, getBugUrl
+      bugs
     } = this.props;
     const dateFilter = $injector.get('$filter')('date');
 
@@ -216,7 +216,6 @@ export default class AnnotationsTab extends React.Component {
           <div className="col-sm-2 bug-list-pane">
             <RelatedBug
               bugs={bugs}
-              getBugUrl={getBugUrl}
               deleteBug={this.deleteBug}
             />
           </div>}
@@ -230,7 +229,6 @@ AnnotationsTab.propTypes = {
   classifications: PropTypes.array,
   $injector: PropTypes.object,
   classificationTypes: PropTypes.object,
-  getBugUrl: PropTypes.func,
   bugs: PropTypes.array,
   selectedJob: PropTypes.object,
 };

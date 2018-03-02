@@ -1,8 +1,8 @@
 import treeherder from '../../treeherder';
 
 treeherder.factory('PhCompare', [
-    '$q', '$http', '$httpParamSerializer', 'thServiceDomain', 'PhSeries', 'math', 'phTimeRanges',
-    function ($q, $http, $httpParamSerializer, thServiceDomain, PhSeries, math, phTimeRanges) {
+    '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math', 'phTimeRanges',
+    function ($q, $http, $httpParamSerializer, PhSeries, math, phTimeRanges) {
 
         // Used for t_test: default stddev if both sets have only a single value - 15%.
         // Should be rare case and it's unreliable, but at least have something.
@@ -211,7 +211,7 @@ treeherder.factory('PhCompare', [
                     if (!newSignature) errors.push('Missing input: newSignature');
                 }
 
-                $http.get(thServiceDomain + '/api/repository/').then(function (response) {
+                $http.get(`${SERVICE_DOMAIN}/api/repository/`).then(function (response) {
                     if (!_.find(response.data, { name: originalProject })) {
                         errors.push("Invalid project, doesn't exist: " + originalProject);
                     }

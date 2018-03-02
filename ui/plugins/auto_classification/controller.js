@@ -6,6 +6,7 @@ import errorLineTemplate from '../../plugins/auto_classification/errorLine.html'
 import errorsTemplate from '../../plugins/auto_classification/errors.html';
 import toolbarTemplate from '../../plugins/auto_classification/toolbar.html';
 import panelTemplate from '../../plugins/auto_classification/panel.html';
+import { getBugUrl, getLogViewerUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('thStringOverlap', function () {
     return function (str1, str2) {
@@ -100,11 +101,11 @@ treeherder.factory('ThClassificationOption', ['thExtendProperties',
  * Non-editable best option controller
  */
 treeherder.controller('ThStaticClassificationOptionController', [
-    '$scope', 'thPinboard', 'thUrl',
-    function ($scope, thPinboard, thUrl) {
+    '$scope', 'thPinboard',
+    function ($scope, thPinboard) {
         var ctrl = this;
 
-        $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.getBugUrl = getBugUrl;
         $scope.thPinboard = thPinboard;
 
         ctrl.$onChanges = () => {
@@ -132,12 +133,12 @@ treeherder.component('thStaticClassificationOption', {
  * Editable option component controller
  */
 treeherder.controller('ThClassificationOptionController', [
-    '$scope', '$uibModal', 'thPinboard', 'thUrl',
-    'thReftestStatus',
-    function ($scope, $uibModal, thPinboard, thUrl, thReftestStatus) {
+    '$scope', '$uibModal', 'thPinboard',
+    'thReftestStatus', '$rootScope',
+    function ($scope, $uibModal, thPinboard, thReftestStatus, $rootScope) {
         var ctrl = this;
 
-        $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.getBugUrl = getBugUrl;
         $scope.thPinboard = thPinboard;
 
         ctrl.$onChanges = () => {
@@ -175,7 +176,7 @@ treeherder.controller('ThClassificationOptionController', [
                     summary: () => ctrl.errorLine.data.bug_suggestions.search,
                     search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
                     fullLog: () => logUrl,
-                    parsedLog: () => location.origin + "/" + thUrl.getLogViewerUrl(ctrl.thJob.id),
+                    parsedLog: () => location.origin + "/" + getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName),
                     reftest: () => (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
                     selectedJob: () => ctrl.thJob,
                     allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
@@ -212,10 +213,10 @@ treeherder.component('thClassificationOption', {
  */
 treeherder.controller('ThErrorLineController', [
     '$scope', '$rootScope',
-    'thEvents', 'thUrl',
+    'thEvents',
     'ThClassificationOption', 'thStringOverlap',
     function ($scope, $rootScope,
-              thEvents, thUrl,
+              thEvents,
               ThClassificationOption, thStringOverlap) {
         var ctrl = this;
         var line;
@@ -227,7 +228,7 @@ treeherder.controller('ThErrorLineController', [
         var goodMatchScore = 0.75;
         var badMatchScore = 0.25;
 
-        $scope.getBugUrl = thUrl.getBugUrl;
+        $scope.getBugUrl = getBugUrl;
 
         // Show options that are marked as hidden
         $scope.showHidden = false;
@@ -247,7 +248,7 @@ treeherder.controller('ThErrorLineController', [
          */
         function build() {
             line = $scope.line = ctrl.errorLine;
-            $scope.logUrl = thUrl.getLogViewerUrl(ctrl.thJob.id, line.data.line_number + 1);
+            $scope.logUrl = getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName, line.data.line_number + 1);
             if (!line.verified) {
                 $scope.options = getOptions();
                 $scope.extraOptions = getExtraOptions($scope.options);
@@ -811,10 +812,10 @@ treeherder.component('thAutoclassifyToolbar', {
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q',
     'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
-    'thUrl', 'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
+    'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function ($scope, $rootScope, $q,
              thEvents, thNotify, thJobNavSelectors, thPinboard,
-             thUrl, ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
+             ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;
 
@@ -1055,7 +1056,7 @@ treeherder.controller('ThAutoclassifyPanelController', [
             if (selected.length) {
                 var lineNumber = selected[0].data.line_number + 1;
             }
-            window.open(thUrl.getLogViewerUrl(ctrl.thJob.id, lineNumber));
+            window.open(getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName, lineNumber));
         };
 
         function setEditable(lineIds, editable) {

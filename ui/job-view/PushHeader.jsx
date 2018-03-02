@@ -132,7 +132,7 @@ export default class PushHeader extends React.PureComponent {
     this.setState({ showConfirmCancelAll: false });
     if (!(isTryRepo || isStaff)) return;
 
-    this.ThResultSetModel.cancelAll(pushId, repoName).then(() => (
+    this.ThResultSetModel.cancelAll(pushId).then(() => (
         this.thBuildApi.cancelAll(repoName, revision)
     )).catch((e) => {
         this.thNotify.send(

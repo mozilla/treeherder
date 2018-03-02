@@ -1,11 +1,12 @@
 import treeherder from '../treeherder';
+import { getRootUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThOptionCollectionModel', [
-    '$http', 'thUrl',
-    function ($http, thUrl) {
+    '$http',
+    function ($http) {
         var optionCollectionMap = {};
         var loadPromise = $http.get(
-            thUrl.getRootUrl("/optioncollectionhash/")).then(
+            getRootUrl("/optioncollectionhash/")).then(
                 function (response) {
                     // return a map of option collection hashes to a string
                     // representation of their contents
