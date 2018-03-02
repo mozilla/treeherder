@@ -7,7 +7,9 @@ import {
   getInspectTaskUrl,
   getWorkerExplorerUrl,
   linkifyRevisions,
+  getJobSearchStrHref,
 } from '../helpers/urlHelper';
+import { getStatus, getSearchStr } from "../helpers/jobHelper";
 
 const ClassificationsPane = (props) => {
   const {
@@ -50,13 +52,14 @@ const ClassificationsPane = (props) => {
 };
 
 const JobStatusPane = (props) => {
-  const { resultStatusShading, job } = props;
+  const { job } = props;
+  const shadingClass = `result-status-shading-${getStatus(job)}`;
 
   return (
     <ul className="list-unstyled">
       <li
         id="result-status-pane"
-        className={`small ${resultStatusShading}`}
+        className={`small ${shadingClass}`}
       >
         <div>
           <label>Result:</label>
@@ -110,8 +113,6 @@ class JobDetailsList extends React.Component {
   constructor(props) {
     super(props);
 
-    this.filterTextEvent = this.filterTextEvent.bind(this);
-
     this.state = {
       machineUrl: ''
     };
@@ -149,18 +150,10 @@ class JobDetailsList extends React.Component {
     return machineUrl;
   }
 
-  filterTextEvent(event, input) {
-    event.preventDefault();
-    this.props.filterByJobSearchStr(input);
-  }
-
   render() {
-    const {
-      job, jobLogUrls, jobSearchSignatureHref, jobSearchSignature,
-      jobSearchStrHref, jobSearchStr, visibleFields,
-      visibleTimeFields
-    } = this.props;
+    const { job, jobLogUrls, visibleFields, visibleTimeFields } = this.props;
     const jobMachineName = job.machine_name;
+    const jobSearchStr = getSearchStr(job);
     let buildUrl = null;
     let iconCircleClass = null;
 
@@ -175,12 +168,10 @@ class JobDetailsList extends React.Component {
         <JobDetailsListItem
           label="Job"
           labelTitle="Filter jobs with this unique SHA signature"
-          labelHref={jobSearchSignatureHref}
-          labelOnclick={event => this.filterTextEvent(event, jobSearchSignature)}
+          labelHref={getJobSearchStrHref(job.signature)}
           labelText="(sig)"
           title="Filter jobs containing these keywords"
-          href={jobSearchStrHref}
-          onclick={event => this.filterTextEvent(event, jobSearchStr)}
+          href={getJobSearchStrHref(jobSearchStr)}
           text={jobSearchStr}
         />
         {jobMachineName &&
@@ -194,7 +185,8 @@ class JobDetailsList extends React.Component {
         }
         {job.taskcluster_metadata &&
           <JobDetailsListItem
-            label="Task:" text={job.taskcluster_metadata.task_id}
+            label="Task:"
+            text={job.taskcluster_metadata.task_id}
             href={getInspectTaskUrl(job.taskcluster_metadata.task_id)}
             target="_blank"
           />
@@ -239,7 +231,8 @@ class JobDetailsList extends React.Component {
           jobLogUrls.map(data => (
             <JobDetailsListItem
               label="Log parsing status: "
-              text={data.parse_status} key={data}
+              text={data.parse_status}
+              key={data}
             />
           ))
         }
@@ -276,8 +269,6 @@ class JobDetailsPane extends React.Component {
   render() {
     const {
       jobDetailLoading, job, classificationTypes, repoName,
-      resultStatusShading, jobSearchSignatureHref,
-      jobSearchSignature, filterByJobSearchStr, jobSearchStrHref, jobSearchStr,
       visibleTimeFields, jobLogUrls, visibleFields,
       buildUrl
     } = this.props;
@@ -304,15 +295,9 @@ class JobDetailsPane extends React.Component {
         }
         <JobStatusPane
           job={job}
-          resultStatusShading={resultStatusShading}
         />
         <JobDetailsList
           job={job}
-          jobSearchSignatureHref={jobSearchSignatureHref}
-          jobSearchSignature={jobSearchSignature}
-          filterByJobSearchStr={filterByJobSearchStr}
-          jobSearchStrHref={jobSearchStrHref}
-          jobSearchStr={jobSearchStr}
           visibleTimeFields={visibleTimeFields}
           jobLogUrls={jobLogUrls}
           visibleFields={visibleFields}
@@ -327,13 +312,7 @@ JobDetailsPane.propTypes = {
   classifications: PropTypes.array,
   bugs: PropTypes.array,
   job: PropTypes.object,
-  resultStatusShading: PropTypes.string,
   $injector: PropTypes.object,
-  jobSearchSignatureHref: PropTypes.string,
-  jobSearchSignature: PropTypes.string,
-  filterByJobSearchStr: PropTypes.func,
-  jobSearchStrHref: PropTypes.string,
-  jobSearchStr: PropTypes.string,
   visibleTimeFields: PropTypes.object,
   jobLogUrls: PropTypes.array,
   visibleFields: PropTypes.object,

@@ -1,3 +1,5 @@
+import { platformMap } from '../js/constants';
+
 const btnClasses = {
   busted: "btn-red",
   exception: "btn-purple",
@@ -106,3 +108,18 @@ const isOnScreen = function isOnScreen(el) {
   return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
 };
 
+export const getSearchStr = function getSearchStr(job) {
+  // we want to join the group and type information together
+  // so we can search for it as one token (useful when
+  // we want to do a search on something like `fxup-esr(`)
+  const symbolInfo = (job.job_group_symbol === '?') ? '' : job.job_group_symbol;
+
+  return [
+    platformMap[job.platform] || job.platform,
+    job.platform_option,
+    (job.job_group_name === 'unknown') ? undefined : job.job_group_name,
+    job.job_type_name,
+    `${symbolInfo}(${job.job_type_symbol})`
+  ].filter(item => typeof item !== 'undefined').join(' ');
+
+};

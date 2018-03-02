@@ -1,7 +1,7 @@
 import { Queue } from "taskcluster-client-web";
 
 import thTaskcluster from "../js/services/taskcluster";
-import { getUrlParam } from './locationHelper';
+import { getUrlParam, getAllUrlParams } from './locationHelper';
 import { isSHA } from "./revisionHelper";
 
 export const getBugUrl = bug_id => (
@@ -71,3 +71,15 @@ export const linkifyRevisions = (text, repo) => {
   }
   return trimText;
 };
+
+export const getJobSearchStrHref = (jobSearchStr) => {
+  const params = getAllUrlParams();
+  const fieldName = 'filter-searchStr';
+
+  if (params.get(fieldName)) {
+    params.delete(fieldName);
+  }
+  params.append(fieldName, jobSearchStr);
+  return `/#/jobs?${params.toString()}`;
+};
+

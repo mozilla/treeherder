@@ -31,33 +31,6 @@ treeherder.controller('PluginCtrl', [
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-        var getJobSearchStrHref = function (jobSearchStr) {
-            var absUrl = $location.absUrl();
-
-            // Don't double up the searchStr param
-            if (absUrl.indexOf('filter-searchStr=') !== -1) {
-                var replaceString = 'filter-searchStr=' +
-                                    absUrl.split('filter-searchStr=')[1].split('&')[0];
-                absUrl = absUrl.replace(replaceString, 'filter-searchStr=' +
-                         encodeURIComponent(jobSearchStr));
-            } else {
-                // If there are parameters, the parameter delimiter '&'
-                // should be used
-                var delimiter = '?';
-                if (absUrl.indexOf('?') !== -1) {
-                    delimiter = '&';
-                }
-
-                absUrl = absUrl + delimiter + 'filter-searchStr=' +
-                         encodeURIComponent(jobSearchStr);
-            }
-            return absUrl;
-        };
-
-        $scope.filterByJobSearchStr = function (jobSearchStr) {
-            thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
-        };
-
         // Show the Failure Classification tab, except if there's a URL parameter to disable it.
         var showAutoClassifyTab = function () {
             thTabs.tabs.autoClassification.enabled = $location.search().noautoclassify !== true;
@@ -148,12 +121,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.resultsetId = ThResultSetStore.getSelectedJob().job.result_set_id;
                     $scope.jobRevision = ThResultSetStore.getPush($scope.resultsetId).revision;
 
-                    // filtering values for data fields and signature
-                    $scope.jobSearchStr = $scope.job.get_title();
-                    $scope.jobSearchSignature = $scope.job.signature;
-                    $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
-                    $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
                     // the second result comes from the job detail promise
                     $scope.job_details = results[1];
 
@@ -194,7 +161,6 @@ treeherder.controller('PluginCtrl', [
                     if ($scope.job_log_urls.length) {
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
                     }
-                    $scope.resultStatusShading = "result-status-shading-" + getStatus($scope.job);
 
                     var performanceData = _.flatten(Object.values(results[3]));
                     if (performanceData) {
