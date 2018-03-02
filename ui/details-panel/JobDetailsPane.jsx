@@ -10,6 +10,7 @@ import {
   getJobSearchStrHref,
 } from '../helpers/urlHelper';
 import { getStatus, getSearchStr } from "../helpers/jobHelper";
+import { toDateStr } from "../helpers/displayHelper";
 
 const ClassificationsPane = (props) => {
   const {
@@ -150,8 +151,36 @@ class JobDetailsList extends React.Component {
     return machineUrl;
   }
 
+  getTimeFields(job) {
+    // time fields to show in detail panel, but that should be grouped together
+    const timeFields = {
+      requestTime: toDateStr(job.submit_timestamp)
+    };
+
+    // If start time is 0, then duration should be from requesttime to now
+    // If we have starttime and no endtime, then duration should be starttime to now
+    // If we have both starttime and endtime, then duration will be between those two
+    const endtime = job.end_timestamp || Date.now() / 1000;
+    const starttime = job.start_timestamp || job.submit_timestamp;
+    const duration = `${Math.round((endtime - starttime)/60, 0)} minute(s)`;
+
+    if (job.start_timestamp) {
+        timeFields.startTime = toDateStr(job.start_timestamp);
+        timeFields.duration = duration;
+    } else {
+        timeFields.duration = "Not started (queued for " + duration + ")";
+    }
+
+    if (job.end_timestamp) {
+        timeFields.endTime = toDateStr(job.end_timestamp);
+    }
+
+    return timeFields;
+  }
+
   render() {
-    const { job, jobLogUrls, visibleFields, visibleTimeFields } = this.props;
+    const { job, jobLogUrls } = this.props;
+    const timeFields = this.getTimeFields(job);
     const jobMachineName = job.machine_name;
     const jobSearchStr = getSearchStr(job);
     let buildUrl = null;
@@ -191,39 +220,44 @@ class JobDetailsList extends React.Component {
             target="_blank"
           />
         }
-        {visibleFields &&
-          Object.keys(visibleFields).map(keyName => (
-            <JobDetailsListItem
-              key={keyName}
-              label={`${keyName}:`}
-              title="Open build directory in a new tab"
-              href={buildUrl}
-              target="_blank"
-              text={visibleFields[keyName]}
-              iconClass={iconCircleClass}
-            />
-          ))
-        }
-        {visibleTimeFields && <span>
+        <JobDetailsListItem
+          key="Build"
+          label={`Build:`}
+          title="Open build directory in a new tab"
+          href={buildUrl}
+          target="_blank"
+          text={`${job.build_architecture} ${job.build_platform} ${job.build_os || ''}`}
+          iconClass={iconCircleClass}
+        />
+        <JobDetailsListItem
+          key="Job name"
+          label="Job name:"
+          title="Open build directory in a new tab"
+          href={buildUrl}
+          target="_blank"
+          text={job.job_type_name}
+          iconClass={iconCircleClass}
+        />
+        {timeFields && <span>
           <JobDetailsListItem
             label="Requested:"
-            text={visibleTimeFields.requestTime}
+            text={timeFields.requestTime}
           />
-          {visibleTimeFields.startTime &&
+          {timeFields.startTime &&
             <JobDetailsListItem
               label="Started:"
-              text={visibleTimeFields.startTime}
+              text={timeFields.startTime}
             />
           }
-          {visibleTimeFields.endTime &&
+          {timeFields.endTime &&
             <JobDetailsListItem
               label="Ended:"
-              text={visibleTimeFields.endTime}
+              text={timeFields.endTime}
             />
           }
           <JobDetailsListItem
             label="Duration:"
-            text={visibleTimeFields.duration}
+            text={timeFields.duration}
           />
         </span>}
         {!jobLogUrls ?
@@ -269,8 +303,7 @@ class JobDetailsPane extends React.Component {
   render() {
     const {
       jobDetailLoading, job, classificationTypes, repoName,
-      visibleTimeFields, jobLogUrls, visibleFields,
-      buildUrl
+      jobLogUrls, buildUrl
     } = this.props;
     const { bugs, classifications } = this.state;
     return (
@@ -298,9 +331,7 @@ class JobDetailsPane extends React.Component {
         />
         <JobDetailsList
           job={job}
-          visibleTimeFields={visibleTimeFields}
           jobLogUrls={jobLogUrls}
-          visibleFields={visibleFields}
           buildUrl={buildUrl}
         />
       </div>
@@ -313,9 +344,7 @@ JobDetailsPane.propTypes = {
   bugs: PropTypes.array,
   job: PropTypes.object,
   $injector: PropTypes.object,
-  visibleTimeFields: PropTypes.object,
   jobLogUrls: PropTypes.array,
-  visibleFields: PropTypes.object,
   buildUrl: PropTypes.string,
   classificationTypes: PropTypes.object,
   jobDetailLoading: PropTypes.bool,

@@ -186,59 +186,12 @@ treeherder.controller('PluginCtrl', [
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job, (Object.keys(performanceData).length > 0));
 
-                    updateVisibleFields();
                     $scope.updateClassifications();
                     $scope.updateBugs();
 
                     $scope.job_detail_loading = false;
                 });
             }
-        };
-
-        var updateVisibleFields = function () {
-            var undef = "",
-                duration = "";
-            // fields that will show in the job detail panel
-            $scope.visibleFields = {
-                Build: $scope.job.build_architecture + " " +
-                         $scope.job.build_platform + " " +
-                         $scope.job.build_os || undef,
-                "Job name": $scope.job.job_type_name || undef
-            };
-
-            // time fields to show in detail panel, but that should be grouped together
-            $scope.visibleTimeFields = {
-                requestTime: dateFilter($scope.job.submit_timestamp*1000,
-                                        thDateFormat)
-            };
-
-            /*
-                display appropriate times and duration
-
-                If start time is 0, then duration should be from requesttime to now
-                If we have starttime and no endtime, then duration should be starttime to now
-                If we have both starttime and endtime, then duration will be between those two
-            */
-            var endtime = $scope.job.end_timestamp || Date.now()/1000;
-            var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
-            duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
-
-            if ($scope.job.start_timestamp) {
-                $scope.visibleTimeFields.startTime = dateFilter(
-                    $scope.job.start_timestamp*1000, thDateFormat);
-                $scope.visibleTimeFields.duration = duration;
-            } else {
-                $scope.visibleTimeFields.duration = "Not started (queued for " + duration + ")";
-            }
-
-            if ($scope.job.end_timestamp) {
-                $scope.visibleTimeFields.endTime = dateFilter(
-                    $scope.job.end_timestamp*1000, thDateFormat);
-            }
-
-            // Scroll the job details pane to the top during job selection
-            var jobDetailsPane = document.getElementById('job-details-pane');
-            jobDetailsPane.scrollTop = 0;
         };
 
         $scope.getCountPinnedJobs = function () {
