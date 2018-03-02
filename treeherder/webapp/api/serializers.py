@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -253,8 +255,14 @@ class FailuresSerializer(serializers.ModelSerializer):
         fields = ('bug_id', 'bug_count')
 
 
+class TestSuiteField(serializers.Field):
+    """Removes all characters before /"""
+    def to_representation(self, field_value):
+        return re.sub(r'.+/', '', field_value)
+
+
 class FailuresByBugSerializer(serializers.ModelSerializer):
-    test_suite = serializers.CharField()
+    test_suite = TestSuiteField(source="job__signature__job_type_name")
     platform = serializers.CharField(source="job__machine_platform__platform")
     revision = serializers.CharField(source="job__push__revision")
     tree = serializers.CharField(source="job__repository__name")
@@ -266,7 +274,7 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
         fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id', 'bug_id')
 
 
-class FailureCount(serializers.ModelSerializer):
+class FailureCountSerializer(serializers.ModelSerializer):
     test_runs = serializers.IntegerField()
     date = serializers.DateField(format="%Y-%m-%d")
     failure_count = serializers.IntegerField()

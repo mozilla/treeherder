@@ -1,5 +1,4 @@
 import calendar
-import datetime
 import hashlib
 import logging
 import re
@@ -8,8 +7,6 @@ import newrelic.agent
 import requests
 from dateutil import parser
 from django.conf import settings
-
-from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
 REVISION_SHA_RE = re.compile(r'^[a-f\d]{12,40}$', re.IGNORECASE)
@@ -126,19 +123,3 @@ def get_guid_root(guid):
 def to_timestamp(datestr):
     """Converts a date string to a UTC timestamp"""
     return calendar.timegm(parser.parse(datestr).utctimetuple())
-
-
-def get_end_of_day(date):
-    new_date = datetime.datetime.strptime(date, '%Y-%m-%d') + datetime.timedelta(days=1, microseconds=-1)
-    return new_date.strftime('%Y-%m-%d %H:%M:%S.%f')
-
-
-def get_tree(param):
-    """Returns repository id's by name"""
-    if param == 'trunk':
-        param = settings.TRUNK_REPO_NAMES
-
-    else:
-        param = [param]
-
-    return Repository.objects.filter(name__in=param).values_list('id', flat=True)
