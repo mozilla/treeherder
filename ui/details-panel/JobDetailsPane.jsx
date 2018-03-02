@@ -15,11 +15,11 @@ import { toDateStr } from "../helpers/displayHelper";
 const ClassificationsPane = (props) => {
   const {
     dateFilter, repoName, ThRepositoryModel,
-    classifications, job, classificationTypes, bugs,
+    classification, job, classificationTypes, bugs,
   } = props;
   const repo = ThRepositoryModel.getRepo(repoName);
-  const repoURLHTML = { __html: linkifyRevisions(classifications[0].text, repo) };
-  const failureId = classifications[0].failure_classification_id;
+  const repoURLHTML = { __html: linkifyRevisions(classification.text, repo) };
+  const failureId = classification.failure_classification_id;
   const iconClass = (failureId === 7 ?
     "fa-star-o" : "fa fa-star") + " star-" + job.result;
   const classificationName = classificationTypes.classifications[failureId];
@@ -39,14 +39,14 @@ const ClassificationsPane = (props) => {
             title={`View bug ${bugs[0].bug_id}`}
           ><em> {bugs[0].bug_id}</em></a>}
       </li>
-      {classifications[0].text.length > 0 &&
+      {classification.text.length > 0 &&
         <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>
       }
       <li className="revision-comment">
-        {dateFilter(classifications[0].created, 'EEE MMM d, H:mm:ss')}
+        {dateFilter(classification.created, 'EEE MMM d, H:mm:ss')}
       </li>
       <li className="revision-comment">
-        {classifications[0].who}
+        {classification.who}
       </li>
     </ul>
   );
@@ -282,30 +282,13 @@ class JobDetailsPane extends React.Component {
     const { $injector } = this.props;
     this.dateFilter = $injector.get('$filter')('date');
     this.ThRepositoryModel = $injector.get('ThRepositoryModel');
-
-    this.state = {
-      classifications: [],
-      bugs: []
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.updateState(nextProps.classifications, { classifications: nextProps.classifications });
-    this.updateState(nextProps.bugs, { bugs: nextProps.bugs });
-  }
-
-  updateState(propsReceived, stateChanges) {
-    if (propsReceived) {
-      this.setState(stateChanges);
-    }
   }
 
   render() {
     const {
       jobDetailLoading, job, classificationTypes, repoName,
-      jobLogUrls, buildUrl
+      jobLogUrls, buildUrl, classification, bugs
     } = this.props;
-    const { bugs, classifications } = this.state;
     return (
       <div>
         {jobDetailLoading &&
@@ -315,10 +298,10 @@ class JobDetailsPane extends React.Component {
             </div>
           </div>
         }
-        {classifications.length > 0 &&
+        {classification &&
           <ClassificationsPane
             job={job}
-            classifications={classifications}
+            classification={classification}
             bugs={bugs}
             dateFilter={this.dateFilter}
             classificationTypes={classificationTypes}
@@ -340,7 +323,7 @@ class JobDetailsPane extends React.Component {
 }
 
 JobDetailsPane.propTypes = {
-  classifications: PropTypes.array,
+  classification: PropTypes.object,
   bugs: PropTypes.array,
   job: PropTypes.object,
   $injector: PropTypes.object,

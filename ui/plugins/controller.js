@@ -497,7 +497,7 @@ treeherder.controller('PluginCtrl', [
         $scope.updateClassifications = function () {
             ThJobClassificationModel.get_list({ job_id: $scope.job.id }).then(function (response) {
                 $scope.classifications = response;
-                $scope.job.note = $scope.classifications[0];
+                $scope.latestClassification = $scope.classifications[0];
             });
         };
 
