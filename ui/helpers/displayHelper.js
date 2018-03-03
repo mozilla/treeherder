@@ -1,3 +1,5 @@
+// Remove disabling when there is more than one export in the file.
+// eslint-disable-next-line import/prefer-default-export
 export const toDateStr = function toDateStr(timestamp) {
   const dateFormat = {
     weekday: 'short',
@@ -10,5 +12,3 @@ export const toDateStr = function toDateStr(timestamp) {
   };
   return new Date(timestamp * 1000).toLocaleString("en-US", dateFormat);
 };
-
-export default toDateStr;
