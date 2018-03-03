@@ -1,4 +1,5 @@
-import { bugzillaBugsApi, formatBugsForBugzilla } from "../helpers";
+import { formatBugs } from '../helpers';
+import { bugzillaBugsApi } from '../../helpers/urlHelper';
 
 export const fetchBugData = (url, name) => dispatch => (
   fetch(url).then(response => response.json())
@@ -10,11 +11,11 @@ export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
   dispatch(fetchBugData(url, name)
   ).then(() => {
     const { results } = getState().bugsData.data;
-    const bugs_list = formatBugsForBugzilla(results);
-    return dispatch(fetchBugData(bugzillaBugsApi("rest/bug", {
-      include_fields: "id,status,summary,whiteboard",
+    const bugs_list = formatBugs(results);
+    return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
+      include_fields: 'id,status,summary,whiteboard',
       id: bugs_list
-    }), "BUGZILLA"));
+    }), 'BUGZILLA'));
   })
 );
 
@@ -25,7 +26,7 @@ export const fetchBugDataSuccess = (data, name) => ({
 
 export const fetchBugDataFailure = name => ({
   type: `FETCH_${name}_FAILURE`,
-  message: "Oops, there was a problem retrieving the data. Please try again later."
+  message: 'Oops, there was a problem retrieving the data. Please try again later.'
 });
 
 export const updateDateRange = (from, to, name) => ({

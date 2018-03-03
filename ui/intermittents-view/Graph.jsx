@@ -1,18 +1,18 @@
-import React from "react";
-import MG from "metrics-graphics";
-import "metrics-graphics/dist/metricsgraphics.css";
+import React from 'react';
+import MG from 'metrics-graphics';
+import 'metrics-graphics/dist/metricsgraphics.css';
 
 // Pass a specs object and data array as props;
 // specs.target will be updated with a ref callback and
 // specs.data will be updated with your data prop
 // const yourSpecs = {
-//     title: "your title",
+//     title: 'your title',
 //     data: [],
-//     target: "",
+//     target: '',
 //     width: 700,
 //     height: 300,
-//     x_accessor: "date",
-//     y_accessor: "value"
+//     x_accessor: 'date',
+//     y_accessor: 'value'
 // };
 
 export default class Graph extends React.Component {
@@ -28,6 +28,7 @@ export default class Graph extends React.Component {
   updateSpecs(element) {
     if (element) {
       const { specs, data } = this.props;
+
       specs.target = element;
       specs.data = data;
       MG.data_graphic(this.props.specs);

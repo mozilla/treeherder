@@ -1,7 +1,8 @@
-import moment from "moment";
-import { setDateRange } from "../helpers";
+import moment from 'moment';
 
-export const fetchData = (name = "") => (state = { data: {}, message: "" }, action) => {
+import { setDateRange } from '../helpers';
+
+export const fetchData = (name = '') => (state = { data: {}, message: '' }, action) => {
   switch (action.type) {
     case `FETCH_${name}_SUCCESS`:
       return {
@@ -18,7 +19,7 @@ export const fetchData = (name = "") => (state = { data: {}, message: "" }, acti
   }
 };
 
-export const updateDates = (name = "") => (state = setDateRange(moment().utc(), 7), action) => {
+export const updateDates = (name = '') => (state = setDateRange(moment().utc(), 7), action) => {
   switch (action.type) {
     case `UPDATE_${name}_DATE_RANGE`:
       return {
@@ -31,7 +32,7 @@ export const updateDates = (name = "") => (state = setDateRange(moment().utc(), 
   }
 };
 
-export const updateTree = (name = "") => (state = { tree: "trunk" }, action) => {
+export const updateTree = (name = '') => (state = { tree: 'trunk' }, action) => {
   switch (action.type) {
     case `UPDATE_${name}_VIEW_TREE`:
       return {
@@ -43,7 +44,7 @@ export const updateTree = (name = "") => (state = { tree: "trunk" }, action) => 
   }
 };
 
-export const updateBugDetails = (name = "") => (state = { bugId: null, summary: null }, action) => {
+export const updateBugDetails = (name = '') => (state = { bugId: null, summary: null }, action) => {
   switch (action.type) {
     case `UPDATE_SELECTED_${name}`:
       return {

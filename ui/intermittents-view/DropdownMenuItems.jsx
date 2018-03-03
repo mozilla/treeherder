@@ -1,6 +1,7 @@
-import React from "react";
-import { DropdownMenu, DropdownItem } from "reactstrap";
-import Icon from "react-fontawesome";
+import React from 'react';
+import Icon from 'react-fontawesome';
+
+import { DropdownMenu, DropdownItem } from 'reactstrap';
 
 export default class DropdownMenuItems extends React.Component {
   constructor(props) {
@@ -34,7 +35,10 @@ export default class DropdownMenuItems extends React.Component {
       <DropdownMenu>
         {options.map((item, index) =>
           (<DropdownItem key={index} onClick={this.changeSelection}>
-            <Icon name="check" className={`pr-1 ${selectedItem === item ? "" : "hide"}`} />
+            <Icon
+              name="check"
+              className={`pr-1 ${selectedItem === item ? "" : "hide"}`}
+            />
             {item}
           </DropdownItem>))}
       </DropdownMenu>

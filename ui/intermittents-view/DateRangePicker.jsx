@@ -1,20 +1,22 @@
-import React from "react";
-import "react-day-picker/lib/style.css";
-import { connect } from "react-redux";
-import DayPickerInput from "react-day-picker/DayPickerInput";
-import moment from "moment";
-import { parseDate, formatDate } from "react-day-picker/moment";
-import { setTimeout } from "timers";
-import { Button } from "reactstrap";
-import { ISODate, createApiUrl } from "../helpers";
-import { fetchBugData, updateDateRange, fetchBugsThenBugzilla } from "./../redux/actions";
+import React from 'react';
+import 'react-day-picker/lib/style.css';
+import { connect } from 'react-redux';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import moment from 'moment';
+import { parseDate, formatDate } from 'react-day-picker/moment';
+import { setTimeout } from 'timers';
+import { Button } from 'reactstrap';
+
+import { ISODate } from './helpers';
+import { createApiUrl } from '../helpers/urlHelper';
+import { fetchBugData, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 
 class DateRangePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      from: null,
-      to: null,
+      from: undefined,
+      to: undefined,
     };
     this.fromChange = this.fromChange.bind(this);
     this.toChange = this.toChange.bind(this);
@@ -57,11 +59,11 @@ class DateRangePicker extends React.Component {
 
     if (bugId) {
       params.bug = bugId;
-      fetchData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+      fetchData(createApiUrl(tableApi, params), name);
     } else {
-      fetchFullBugData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+      fetchFullBugData(createApiUrl(tableApi, params), name);
     }
-    fetchData(createApiUrl(SERVICE_DOMAIN, graphApi, params), graphName);
+    fetchData(createApiUrl(graphApi, params), graphName);
     updateDates(from, to, name);
   }
 
@@ -87,25 +89,25 @@ class DateRangePicker extends React.Component {
         />
         <span className="ml-1 mr-1">-</span>
         <span className="InputFromTo-to">
-                    <DayPickerInput
-                      ref={(element) => {
-                        this.to = element;
-                      }}
-                      value={to}
-                      placeholder="To"
-                      formatDate={formatDate}
-                      parseDate={parseDate}
-                      format="ddd MMM D, YYYY"
-                      dayPickerProps={{
-                        selectedDays: [from, { from, to }],
-                        month: from,
-                        fromMonth: from,
-                        modifiers,
-                        numberOfMonths: 2
-                      }}
-                      onDayChange={this.toChange}
-                    />
-                </span>
+          <DayPickerInput
+            ref={(element) => {
+              this.to = element;
+            }}
+            value={to}
+            placeholder="To"
+            formatDate={formatDate}
+            parseDate={parseDate}
+            format="ddd MMM D, YYYY"
+            dayPickerProps={{
+              selectedDays: [from, { from, to }],
+              month: from,
+              fromMonth: from,
+              modifiers,
+              numberOfMonths: 2
+            }}
+            onDayChange={this.toChange}
+          />
+        </span>
         <Button color="secondary" className="ml-2" onClick={this.updateData}>update</Button>
       </div>
     );

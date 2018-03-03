@@ -1,15 +1,12 @@
-import React from "react";
-import { HashRouter, Route, Switch, Redirect } from "react-router-dom";
-import PropTypes from "prop-types";
-import { Provider } from "react-redux";
-import IntermittentsView from "./IntermittentsView";
-import BugDetailsView from "./BugDetailsView";
+import React from 'react';
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
 
-const App = ({ store }) => {
-  const { dates, mainTree } = store.getState();
-  const defaultPath = {
-    pathname: '/main', search: `?startday=${dates.from}&endday=${dates.to}&tree=${mainTree.tree}`
-  };
+import IntermittentsView from './IntermittentsView';
+import BugDetailsView from './BugDetailsView';
+
+function App({ store }) {
   return (
     <Provider store={store}>
       <HashRouter>
@@ -19,12 +16,13 @@ const App = ({ store }) => {
             <Route path="/main?startday=:startday&endday=:endday&tree=:tree" component={IntermittentsView} />
             <Route path="/bugdetails" component={BugDetailsView} />
             <Route path="/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug" component={BugDetailsView} />
-            <Redirect from="/" to={defaultPath} />
+            <Redirect from="/" to="/main" />
           </Switch>
         </main>
       </HashRouter>
-    </Provider>);
-};
+    </Provider>
+  );
+}
 
 App.propTypes = {
   store: PropTypes.object.isRequired

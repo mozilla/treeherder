@@ -1,55 +1,21 @@
-import moment from "moment";
-import { bugzillaDomain } from "./constants";
+import moment from 'moment';
 
 //be sure to wrap date arg in a moment()
-export const ISODate = date => date.format("YYYY-MM-DD");
+export const ISODate = function formatISODate(date) {
+  return date.format('YYYY-MM-DD');
+};
 
-export const prettyDate = date => moment(date).format("ddd MMM D, YYYY");
+export const prettyDate = function formatPrettyDate(date) {
+  return moment(date).format('ddd MMM D, YYYY');
+};
 
-export const setDateRange = (day, numDays) => {
+export const setDateRange = function setISODateRange(day, numDays) {
   const to = ISODate(day);
-  const from = ISODate(day.subtract(numDays, "days"));
+  const from = ISODate(day.subtract(numDays, 'days'));
   return { from, to };
 };
 
-export const createApiUrl = (domain, endpoint, params) => {
-  const query = createQueryParams(params);
-  return `${domain}${endpoint}${query}`;
-};
-
-//bugs can be one bug or a comma separated (no spaces) string of bugs
-export const bugzillaBugsApi = (endpoint, params) => {
-  const query = createQueryParams(params);
-  return `${bugzillaDomain}${endpoint}${query}`;
-};
-
-export const logviewerUrl = (tree, treeherderId) => `${SERVICE_DOMAIN}logviewer.html#?repo=${tree}&job_id=${treeherderId}`;
-
-export const jobsUrl = (tree, revision) => `${SERVICE_DOMAIN}#/jobs?repo=${tree}&revision=${revision}`;
-
-export const parseQueryParams = (search) => {
-  const params = new URLSearchParams(search);
-  let obj = {};
-  for (const [key, value] of params.entries()) {
-    obj[key] = value;
-  }
-  return obj;
-};
-
-export const createQueryParams = (params) => {
-  let query = new URLSearchParams(params);
-  return `?${query.toString()}`;
-};
-
-export const updateQueryParams = (view, queryParams, history, location) => {
-  if (queryParams !== history.location.search) {
-    history.replace(`${view}${queryParams}`);
-    //we do this so the api's won't be called twice (location/history updates will trigger this lifecycle hook)
-    location.search = queryParams;
-  }
-};
-
-export const formatBugsForBugzilla = (data) => {
+export const formatBugs = function formatBugsForBugzilla(data) {
   let bugs = '';
   for (let i = 0; i < data.length; i++) {
     bugs += `${data[i].bug_id},`;
@@ -57,7 +23,7 @@ export const formatBugsForBugzilla = (data) => {
   return bugs;
 };
 
-export const mergeBugsData = (data, bugs) => {
+export const mergeData = function mergeDataFromTwoApis(data, bugs) {
   let dict = {};
   for (let i = 0; i < data.length; i++) {
     dict[data[i].bug_id] = data[i].bug_count;
@@ -76,10 +42,10 @@ export const mergeBugsData = (data, bugs) => {
   return bugs;
 };
 
-export const calculateMetrics = (data) => {
-  let dateCounts = [];
-  let dateTestRunCounts = [];
-  let dateFreqs = [];
+export const calculateMetrics = function calculateMetricsForGraphs(data) {
+  const dateCounts = [];
+  const dateTestRunCounts = [];
+  const dateFreqs = [];
   let totalFailures = 0;
   let totalRuns = 0;
 
@@ -97,4 +63,12 @@ export const calculateMetrics = (data) => {
     dateFreqs.push({ date, value: freq });
   }
   return { graphOneData: dateFreqs, graphTwoData: [dateCounts, dateTestRunCounts], totalFailures, totalRuns };
+};
+
+export const updateQueryParams = function updateHistoryWithQueryParams(view, queryParams, history, location) {
+  if (queryParams !== history.location.search) {
+    history.replace(`${view}${queryParams}`);
+    //we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
+    location.search = queryParams;
+  }
 };

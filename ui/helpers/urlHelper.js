@@ -1,4 +1,4 @@
-import { Queue } from "taskcluster-client-web";
+import { Queue } from 'taskcluster-client-web';
 
 import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam, getAllUrlParams } from './locationHelper';
@@ -34,7 +34,7 @@ export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) 
 };
 
 // repoName here is necessary because this data comes from the /jobs endpoint
-// which is a "project" endpoint that requires the project name.  We shouldn't
+// which is a 'project' endpoint that requires the project name.  We shouldn't
 // need that since the ids are unique across projects.
 // Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
 export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_number) {
@@ -89,3 +89,44 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   return `/#/jobs?${params.toString()}`;
 };
 
+export const logviewerUrl = function getLogviewerUrl(tree, treeherderId) {
+  return `logviewer.html#?repo=${tree}&job_id=${treeherderId}`;
+};
+
+//TH domain is needed here because intermittents view currently uses hash router
+export const jobsUrl = function getJobsUrl(tree, revision) {
+  return `https://treeherder.mozilla.org/#/jobs?repo=${tree}&revision=${revision}`;
+};
+
+export const bugzillaDomain = 'https://bugzilla.mozilla.org/';
+
+export const bugsEndpoint = 'failures/';
+
+export const bugDetailsEndpoint = 'failuresbybug/';
+
+export const graphsEndpoint = 'failurecount/';
+
+export const parseQueryParams = function parseQueryParams(search) {
+  const params = new URLSearchParams(search);
+  let obj = {};
+  for (const [key, value] of params.entries()) {
+    obj[key] = value;
+  }
+  return obj;
+};
+
+export const createQueryParams = function createQueryParams(params) {
+  let query = new URLSearchParams(params);
+  return `?${query.toString()}`;
+};
+
+export const createApiUrl = function createApiUrl(api, params) {
+  const query = createQueryParams(params);
+  return `${SERVICE_DOMAIN}/api/${api}${query}`;
+};
+
+//bugs can be one bug or a comma separated (no spaces) string of bugs
+export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
+  const query = createQueryParams(params);
+  return `${bugzillaDomain}${api}${query}`;
+};

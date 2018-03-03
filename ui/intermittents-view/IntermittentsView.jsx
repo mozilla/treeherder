@@ -1,29 +1,25 @@
-import React from "react";
-import { connect } from "react-redux";
-import { Container, Row, Col } from "reactstrap";
-import PropTypes from "prop-types";
-import Navigation from "./Navigation";
-import GenericTable from "./GenericTable";
-import { fetchBugData, updateTreeName, updateDateRange, fetchBugsThenBugzilla } from "./../redux/actions";
-import BugColumn from "./BugColumn";
-import {
-  createApiUrl, calculateMetrics, mergeBugsData, parseQueryParams, createQueryParams,
-  prettyDate, updateQueryParams
-} from "../helpers";
-import GraphsContainer from "./GraphsContainer";
-import { bugsEndpoint, graphsEndpoint } from "../constants";
+import React from 'react';
+import { connect } from 'react-redux';
+import { Container, Row, Col } from 'reactstrap';
+import PropTypes from 'prop-types';
+
+import Navigation from './Navigation';
+import GenericTable from './GenericTable';
+import { fetchBugData, updateTreeName, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
+import BugColumn from './BugColumn';
+import { updateQueryParams, mergeData, calculateMetrics, prettyDate } from './helpers';
+import GraphsContainer from './GraphsContainer';
+import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/urlHelper';
 
 class IntermittentsView extends React.Component {
   constructor(props) {
     super(props);
     this.updateData = this.updateData.bind(this);
+    this.setQueryParams = this.setQueryParams.bind(this);
   }
 
   componentDidMount() {
-    const { graphs, from, to, tree, fetchData } = this.props;
-    if (!graphs.results) {
-      fetchData(createApiUrl(SERVICE_DOMAIN, graphsEndpoint, { startday: from, endday: to, tree }), "BUGS_GRAPHS");
-    }
+    this.setQueryParams();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -31,45 +27,67 @@ class IntermittentsView extends React.Component {
 
     //update all data if the user edits dates or tree via the query params
     if (location.search !== this.props.location.search) {
-      this.updateData(location.search);
+      this.updateData(parseQueryParams(location.search));
     }
     //update query params if dates or tree are updated via the UI
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
       const queryParams = createQueryParams({ startday: from, endday: to, tree });
-      updateQueryParams("/main", queryParams, history, this.props.location);
+
+      updateQueryParams('/main', queryParams, history, this.props.location);
+    }
+  }
+
+  setQueryParams() {
+    const { from, to, tree, location, history, graphs, fetchData } = this.props;
+
+    // if the query params are not specified, set params based on default props
+    // otherwise update data based on the params
+    if (location.search === '') {
+      const params = { startday: from, endday: to, tree };
+      const queryParams = createQueryParams(params);
+
+      updateQueryParams('/main', queryParams, history, location);
+
+      if (Object.keys(graphs).length === 0) {
+        //only fetch graph data on initial page load
+        fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
+      }
+    } else {
+      this.updateData(parseQueryParams(location.search));
     }
   }
 
   updateData(params) {
-    const { startday, endday, tree } = parseQueryParams(params);
+    const { startday, endday, tree } = params;
     const { updateTree, updateDates, fetchData, fetchFullBugData } = this.props;
-    updateDates(startday, endday, "BUGS");
-    updateTree(tree, "BUGS");
-    fetchData(createApiUrl(SERVICE_DOMAIN, graphsEndpoint, { startday, endday, tree }), "BUGS_GRAPHS");
-    fetchFullBugData(createApiUrl(SERVICE_DOMAIN, bugsEndpoint, { startday, endday, tree }), "BUGS");
+
+    updateDates(startday, endday, 'BUGS');
+    updateTree(tree, 'BUGS');
+    fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
+    fetchFullBugData(createApiUrl(bugsEndpoint, params), 'BUGS');
   }
 
   render() {
     const { bugs, tableFailureMessage, graphFailureMessage, from, to, tree, bugzillaData, graphs } = this.props;
     const columns = [
       {
-        Header: "Bug ID",
-        accessor: "id",
+        Header: 'Bug ID',
+        accessor: 'id',
         Cell: props => <BugColumn data={props.original} />
       },
       {
-        Header: "Count",
-        accessor: "count",
+        Header: 'Count',
+        accessor: 'count',
         maxWidth: 100,
       },
       {
-        Header: "Summary",
-        accessor: "summary",
+        Header: 'Summary',
+        accessor: 'summary',
         minWidth: 250,
       },
       {
-        Header: "Whiteboard",
-        accessor: "whiteboard",
+        Header: 'Whiteboard',
+        accessor: 'whiteboard',
         minWidth: 150
       }
     ];
@@ -81,7 +99,7 @@ class IntermittentsView extends React.Component {
     let totalRuns = 0;
 
     if (bugs.results && bugzillaData.bugs && bugzillaData.bugs.length > 0) {
-      bugsData = mergeBugsData(bugs.results, bugzillaData.bugs);
+      bugsData = mergeData(bugs.results, bugzillaData.bugs);
     }
 
     if (graphs && graphs.length > 0) {
@@ -91,10 +109,14 @@ class IntermittentsView extends React.Component {
     const params = { startday: from, endday: to, tree };
 
     return (
-      <Container fluid style={{ marginBottom: "5rem", marginTop: "5rem", maxWidth: "1200px" }}>
+      <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
         <Navigation
-          name="BUGS" graphName="BUGS_GRAPHS" tableApi={bugsEndpoint} params={params}
-          graphApi={graphsEndpoint} tree={tree}
+          name="BUGS"
+          graphName="BUGS_GRAPHS"
+          tableApi={bugsEndpoint}
+          params={params}
+          graphApi={graphsEndpoint}
+          tree={tree}
         />
         <Row>
           <Col xs="12" className="mx-auto pt-3"><h1>Intermittent Test Failures</h1></Col>
@@ -109,14 +131,27 @@ class IntermittentsView extends React.Component {
         </Row>
 
         {!graphFailureMessage && graphOneData && graphTwoData ?
-          <GraphsContainer 
-            graphOneData={graphOneData} graphTwoData={graphTwoData} name="BUGS" params={params}
-            graphName="BUGS_GRAPHS" tableApi={bugsEndpoint} graphApi={graphsEndpoint} tree={tree}
+          <GraphsContainer
+            graphOneData={graphOneData}
+            graphTwoData={graphTwoData}
+            name="BUGS"
+            params={params}
+            graphName="BUGS_GRAPHS"
+            tableApi={bugsEndpoint}
+            graphApi={graphsEndpoint}
+            tree={tree}
           /> : <p>{tableFailureMessage}</p>}
 
         {!tableFailureMessage ?
-          <GenericTable bugs={bugsData} columns={columns} name="BUGS" tableApi={bugsEndpoint} params={params}
-                        totalPages={bugs.total_pages} trStyling updateTable={this.updateTable}
+          <GenericTable
+            bugs={bugsData}
+            columns={columns}
+            name="BUGS"
+            tableApi={bugsEndpoint}
+            params={params}
+            totalPages={bugs.total_pages}
+            trStyling
+            updateTable={this.updateTable}
           /> : <p>{tableFailureMessage}</p>}
       </Container>);
   }

@@ -1,13 +1,14 @@
-import React from "react";
-import { Table } from "reactstrap";
-import ReactTable from "react-table";
-import "react-table/react-table.css";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { fetchBugData, fetchBugsThenBugzilla } from "../redux/actions";
-import { createApiUrl } from "../helpers";
+import React from 'react';
+import { Table } from 'reactstrap';
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-const GenericTable = ({ fetchData, fetchFullBugData, name, params, bugId, tableApi, bugs, columns, trStyling, totalPages }) => {
+import { fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
+import { createApiUrl } from '../helpers/urlHelper';
+
+function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bugs, columns, trStyling, totalPages }) {
 
   const updateTable = (state) => {
     // table's page count starts at 0
@@ -17,23 +18,23 @@ const GenericTable = ({ fetchData, fetchFullBugData, name, params, bugId, tableA
 
   const updateData = (page) => {
     params.page = page;
-    if (bugId) {
-      fetchData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+    if (name === 'BUGS') {
+      fetchFullBugData(createApiUrl(tableApi, params), name);
     } else {
-      fetchFullBugData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+      fetchData(createApiUrl(tableApi, params), name);
     }
   };
 
   const bugRowStyling = (state, bug) => {
     if (bug) {
-      let style = { color: "#aaa" };
+      let style = { color: '#aaa' };
 
-      if (bug.row.status === "RESOLVED" || bug.row.status === "VERIFIED") {
-        style.textDecoration = "line-through";
+      if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {
+        style.textDecoration = 'line-through';
         return { style };
       }
 
-      let disabledStrings = new RegExp("(disabled|annotated|marked)", "i");
+      let disabledStrings = new RegExp('(disabled|annotated|marked)', 'i');
       if (disabledStrings.test(bug.row.whiteboard)) {
         return { style };
       }
@@ -52,7 +53,7 @@ const GenericTable = ({ fetchData, fetchFullBugData, name, params, bugId, tableA
       getTrProps={trStyling ? bugRowStyling : () => ({})}
     />
   );
-};
+}
 
 Table.propTypes = {
   bordered: PropTypes.bool,

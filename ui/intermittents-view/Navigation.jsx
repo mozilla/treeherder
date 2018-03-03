@@ -1,10 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { Collapse, Navbar, Nav, UncontrolledDropdown, DropdownToggle } from "reactstrap";
-import { updateTreeName, fetchBugData, fetchBugsThenBugzilla } from "./../redux/actions";
-import { createApiUrl } from "../helpers";
-import DropdownMenuItems from "./DropdownMenuItems";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Collapse, Navbar, Nav, UncontrolledDropdown, DropdownToggle } from 'reactstrap';
+
+import { updateTreeName, fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
+import { createApiUrl } from '../helpers/urlHelper';
+import DropdownMenuItems from './DropdownMenuItems';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -22,17 +23,18 @@ class Navigation extends React.Component {
   updateData(tree) {
     const { updateTree, fetchData, fetchFullBugData, name, graphName, params, bugId, tableApi, graphApi } = this.props;
     params.tree = tree;
+
     if (bugId) {
-      fetchData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+      fetchData(createApiUrl(tableApi, params), name);
     } else {
-      fetchFullBugData(createApiUrl(SERVICE_DOMAIN, tableApi, params), name);
+      fetchFullBugData(createApiUrl(tableApi, params), name);
     }
-    fetchData(createApiUrl(SERVICE_DOMAIN, graphApi, params), graphName);
+    fetchData(createApiUrl(graphApi, params), graphName);
     updateTree(tree, name);
   }
 
   render() {
-    const treeOptions = ["trunk", "autoland"];
+    const treeOptions = ['trunk', 'autoland'];
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <span className="lightorange">Intermittents View </span>
@@ -42,7 +44,11 @@ class Navigation extends React.Component {
             <DropdownToggle className="btn-navbar navbar-link" nav caret>
               Tree
             </DropdownToggle>
-            <DropdownMenuItems options={treeOptions} updateData={this.updateData} default={this.props.tree} />
+            <DropdownMenuItems
+              options={treeOptions}
+              updateData={this.updateData}
+              default={this.props.tree}
+            />
           </UncontrolledDropdown>
         </Collapse>
       </Navbar>
