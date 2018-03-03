@@ -350,9 +350,9 @@ atob@^2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.0.3.tgz#19c7a760473774468f20b2d2d03372ad7d4cbf5d"
 
-auth0-js@9.3.1:
-  version "9.3.1"
-  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.3.1.tgz#d690a0778bed0997a9968ae7cfc4e9789c770502"
+auth0-js@9.3.2:
+  version "9.3.2"
+  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.3.2.tgz#e6c6a783803e5976296466d314f866b73e597c0f"
   dependencies:
     base64-js "^1.2.0"
     idtoken-verifier "^1.1.1"
