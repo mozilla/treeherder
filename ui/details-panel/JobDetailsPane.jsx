@@ -12,7 +12,7 @@ import {
 import { getStatus, getSearchStr } from "../helpers/jobHelper";
 import { toDateStr } from "../helpers/displayHelper";
 
-const ClassificationsPane = (props) => {
+function ClassificationsPane(props) {
   const {
     dateFilter, repoName, ThRepositoryModel,
     classification, job, classificationTypes, bugs,
@@ -50,9 +50,9 @@ const ClassificationsPane = (props) => {
       </li>
     </ul>
   );
-};
+}
 
-const JobStatusPane = (props) => {
+function JobStatusPane(props) {
   const { job } = props;
   const shadingClass = `result-status-shading-${getStatus(job)}`;
 
@@ -73,10 +73,10 @@ const JobStatusPane = (props) => {
       </li>
     </ul>
   );
-};
+}
 
 
-const JobDetailsListItem = (props) => {
+function JobDetailsListItem(props) {
   const {
     label, labelHref, labelTitle, labelOnclick, labelTarget, labelText,
     href, text, title, onclick, target, iconClass
@@ -107,7 +107,7 @@ const JobDetailsListItem = (props) => {
       {iconClass && <span className={`ml-1${iconClass}`} />}
     </li>
   );
-};
+}
 
 
 class JobDetailsList extends React.Component {
