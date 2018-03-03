@@ -31,33 +31,6 @@ treeherder.controller('PluginCtrl', [
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-        var getJobSearchStrHref = function (jobSearchStr) {
-            var absUrl = $location.absUrl();
-
-            // Don't double up the searchStr param
-            if (absUrl.indexOf('filter-searchStr=') !== -1) {
-                var replaceString = 'filter-searchStr=' +
-                                    absUrl.split('filter-searchStr=')[1].split('&')[0];
-                absUrl = absUrl.replace(replaceString, 'filter-searchStr=' +
-                         encodeURIComponent(jobSearchStr));
-            } else {
-                // If there are parameters, the parameter delimiter '&'
-                // should be used
-                var delimiter = '?';
-                if (absUrl.indexOf('?') !== -1) {
-                    delimiter = '&';
-                }
-
-                absUrl = absUrl + delimiter + 'filter-searchStr=' +
-                         encodeURIComponent(jobSearchStr);
-            }
-            return absUrl;
-        };
-
-        $scope.filterByJobSearchStr = function (jobSearchStr) {
-            thJobFilters.replaceFilter('searchStr', jobSearchStr || null);
-        };
-
         // Show the Failure Classification tab, except if there's a URL parameter to disable it.
         var showAutoClassifyTab = function () {
             thTabs.tabs.autoClassification.enabled = $location.search().noautoclassify !== true;
@@ -148,12 +121,6 @@ treeherder.controller('PluginCtrl', [
                     $scope.resultsetId = ThResultSetStore.getSelectedJob().job.result_set_id;
                     $scope.jobRevision = ThResultSetStore.getPush($scope.resultsetId).revision;
 
-                    // filtering values for data fields and signature
-                    $scope.jobSearchStr = $scope.job.get_title();
-                    $scope.jobSearchSignature = $scope.job.signature;
-                    $scope.jobSearchStrHref = getJobSearchStrHref($scope.jobSearchStr);
-                    $scope.jobSearchSignatureHref = getJobSearchStrHref($scope.job.signature);
-
                     // the second result comes from the job detail promise
                     $scope.job_details = results[1];
 
@@ -194,7 +161,6 @@ treeherder.controller('PluginCtrl', [
                     if ($scope.job_log_urls.length) {
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
                     }
-                    $scope.resultStatusShading = "result-status-shading-" + getStatus($scope.job);
 
                     var performanceData = _.flatten(Object.values(results[3]));
                     if (performanceData) {
@@ -220,59 +186,12 @@ treeherder.controller('PluginCtrl', [
                     // set the tab options and selections based on the selected job
                     initializeTabs($scope.job, (Object.keys(performanceData).length > 0));
 
-                    updateVisibleFields();
                     $scope.updateClassifications();
                     $scope.updateBugs();
 
                     $scope.job_detail_loading = false;
                 });
             }
-        };
-
-        var updateVisibleFields = function () {
-            var undef = "",
-                duration = "";
-            // fields that will show in the job detail panel
-            $scope.visibleFields = {
-                Build: $scope.job.build_architecture + " " +
-                         $scope.job.build_platform + " " +
-                         $scope.job.build_os || undef,
-                "Job name": $scope.job.job_type_name || undef
-            };
-
-            // time fields to show in detail panel, but that should be grouped together
-            $scope.visibleTimeFields = {
-                requestTime: dateFilter($scope.job.submit_timestamp*1000,
-                                        thDateFormat)
-            };
-
-            /*
-                display appropriate times and duration
-
-                If start time is 0, then duration should be from requesttime to now
-                If we have starttime and no endtime, then duration should be starttime to now
-                If we have both starttime and endtime, then duration will be between those two
-            */
-            var endtime = $scope.job.end_timestamp || Date.now()/1000;
-            var starttime = $scope.job.start_timestamp || $scope.job.submit_timestamp;
-            duration = numberFilter((endtime-starttime)/60, 0) + " minute(s)";
-
-            if ($scope.job.start_timestamp) {
-                $scope.visibleTimeFields.startTime = dateFilter(
-                    $scope.job.start_timestamp*1000, thDateFormat);
-                $scope.visibleTimeFields.duration = duration;
-            } else {
-                $scope.visibleTimeFields.duration = "Not started (queued for " + duration + ")";
-            }
-
-            if ($scope.job.end_timestamp) {
-                $scope.visibleTimeFields.endTime = dateFilter(
-                    $scope.job.end_timestamp*1000, thDateFormat);
-            }
-
-            // Scroll the job details pane to the top during job selection
-            var jobDetailsPane = document.getElementById('job-details-pane');
-            jobDetailsPane.scrollTop = 0;
         };
 
         $scope.getCountPinnedJobs = function () {
@@ -578,7 +497,7 @@ treeherder.controller('PluginCtrl', [
         $scope.updateClassifications = function () {
             ThJobClassificationModel.get_list({ job_id: $scope.job.id }).then(function (response) {
                 $scope.classifications = response;
-                $scope.job.note = $scope.classifications[0];
+                $scope.latestClassification = $scope.classifications[0];
             });
         };
 

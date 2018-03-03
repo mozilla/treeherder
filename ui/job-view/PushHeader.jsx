@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
+import { toDateStr } from '../helpers/displayHelper';
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -53,8 +54,7 @@ export default class PushHeader extends React.PureComponent {
     this.ThModelErrors = $injector.get('ThModelErrors');
     this.ThTaskclusterErrors = $injector.get('ThTaskclusterErrors');
 
-    const dateFormat = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false };
-    this.pushDateStr = new Date(pushTimestamp*1000).toLocaleString("en-US", dateFormat);
+    this.pushDateStr = toDateStr(pushTimestamp);
     this.revisionPushFilterUrl = `${urlBasePath}?repo=${repoName}&revision=${revision}`;
     this.authorPushFilterUrl = `${urlBasePath}?repo=${repoName}&author=${encodeURIComponent(author)}`;
 
