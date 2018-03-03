@@ -95,14 +95,14 @@ function JobDetailsListItem(props) {
         >{labelText} <span className="fa fa-pencil-square-o icon-superscript" />: </a>
       }
       {!href ? <span className="ml-1">{text}</span> :
-        <a
-          title={title}
-          className="ml-1"
-          href={href}
-          onClick={onclick}
-          target={target}
-          rel="noopener"
-        >{text}</a>
+      <a
+        title={title}
+        className="ml-1"
+        href={href}
+        onClick={onclick}
+        target={target}
+        rel="noopener"
+      >{text}</a>
       }
       {iconClass && <span className={`ml-1${iconClass}`} />}
     </li>
