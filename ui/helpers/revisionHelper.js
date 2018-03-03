@@ -5,7 +5,7 @@ export const parseAuthor = function parseAuthor(author) {
   return { name, email };
 };
 
-export const isSHA = (str) => {
+export const isSHA = function isSHA(str) {
   let code, i, len;
   // SHAs come in 12 and 40 character varieties
   if (str.length !== 12 && str.length !== 40) {

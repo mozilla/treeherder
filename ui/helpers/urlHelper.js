@@ -4,19 +4,19 @@ import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam, getAllUrlParams } from './locationHelper';
 import { isSHA } from "./revisionHelper";
 
-export const getBugUrl = bug_id => (
-  `https://bugzilla.mozilla.org/show_bug.cgi?id=${bug_id}`
-);
+export const getBugUrl = function getBugUrl(bug_id) {
+  return `https://bugzilla.mozilla.org/show_bug.cgi?id=${bug_id}`;
+};
 
-export const getSlaveHealthUrl = machine_name => (
-  `https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=${machine_name}`
-);
+export const getSlaveHealthUrl = function getSlaveHealthUrl(machine_name) {
+  return `https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=${machine_name}`;
+};
 
-export const getInspectTaskUrl = taskId => (
-  `https://tools.taskcluster.net/task-inspector/#${taskId}`
-);
+export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
+  return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
+};
 
-export const getWorkerExplorerUrl = async function (taskId) {
+export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
   const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
   const { status } = await queue.status(taskId);
   const { provisionerId, workerType } = status;
@@ -29,7 +29,7 @@ export const getWorkerExplorerUrl = async function (taskId) {
 // which is a "project" endpoint that requires the project name.  We shouldn't
 // need that since the ids are unique across projects.
 // Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
-export const getLogViewerUrl = (job_id, repoName, line_number) => {
+export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_number) {
   const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
@@ -37,20 +37,20 @@ export const getLogViewerUrl = (job_id, repoName, line_number) => {
 // Take the repoName, if passed in.  If not, then try to find it on the
 // URL.  If not there, then try m-i and hope for the best.  The caller may
 // not actually need a repo if they're trying to get a job by ``id``.
-export const getProjectUrl = (uri, repoName) => {
+export const getProjectUrl = function getProjectUrl(uri, repoName) {
   const repo = repoName || getUrlParam("repo") || 'mozilla-inbound';
   return `${SERVICE_DOMAIN}/api/project/${repo}${uri}`;
 };
 
-export const getProjectJobUrl = (url, jobId) => (
-  getProjectUrl(`/jobs/${jobId}${url}`)
-);
+export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
+  return getProjectUrl(`/jobs/${jobId}${url}`);
+};
 
-export const getRootUrl = uri => (
-  `${SERVICE_DOMAIN}/api${uri}`
-);
+export const getRootUrl = function getRootUrl(uri) {
+  return `${SERVICE_DOMAIN}/api${uri}`;
+};
 
-export const linkifyURLs = (input) => {
+export const linkifyURLs = function linkifyURLs(input) {
   const urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
   return input.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 };
@@ -62,7 +62,7 @@ export const linkifyURLs = (input) => {
  *               have fields of ``dvcs_type`` and ``url``.
  * @returns String of HTML with Linkified revision SHAs
  */
-export const linkifyRevisions = (text, repo) => {
+export const linkifyRevisions = function linkifyRevisions(text, repo) {
   const urlText = linkifyURLs(text);
   const trimText = (urlText || '').trim();
 
@@ -72,7 +72,7 @@ export const linkifyRevisions = (text, repo) => {
   return trimText;
 };
 
-export const getJobSearchStrHref = (jobSearchStr) => {
+export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   const params = getAllUrlParams();
   const fieldName = 'filter-searchStr';
 
