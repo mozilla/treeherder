@@ -31,9 +31,9 @@ treeherder.controller('PluginCtrl', [
 
         var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
-        // Show the Failure Classification tab, except if there's a URL parameter to disable it.
+        // Show the Failure Summary tab, except if there's a URL parameter to enable Failure Classification one.
         var showAutoClassifyTab = function () {
-            thTabs.tabs.autoClassification.enabled = $location.search().noautoclassify !== true;
+            thTabs.tabs.autoClassification.enabled = $location.search().autoclassify === true;
         };
         showAutoClassifyTab();
         $rootScope.$on('$locationChangeSuccess', function () {
