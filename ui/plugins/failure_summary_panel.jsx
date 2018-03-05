@@ -80,6 +80,7 @@ class SuggestionsListItem extends React.Component {
                 escapeHTMLFilter={this.props.escapeHTMLFilter}
                 suggestion={this.props.suggestion}
                 highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
+                $timeout={this.props.$timeout}
                 bugClassName={bug.resolution !== "" ? "deleted" : ""}
                 title={bug.resolution !== "" ? bug.resolution : ""}
               />))}
