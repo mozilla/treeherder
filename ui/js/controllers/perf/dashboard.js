@@ -158,6 +158,8 @@ perf.controller('dashCtrl', [
             filter: $stateParams.filter || "",
             showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                        parseInt($stateParams.showOnlyImportant)),
+            showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
+                                       parseInt($stateParams.showOnlyComparable)),
             showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                        parseInt($stateParams.showOnlyConfident)),
             showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
@@ -169,6 +171,7 @@ perf.controller('dashCtrl', [
                 topic: $scope.topic,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
@@ -190,6 +193,7 @@ perf.controller('dashCtrl', [
             $scope.$watchGroup([
                 'filterOptions.filter',
                 'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyComparable',
                 'filterOptions.showOnlyConfident',
                 'filterOptions.showOnlyBlockers'
             ], updateURL);
@@ -338,6 +342,8 @@ perf.controller('dashSubtestCtrl', [
             filter: $stateParams.filter || "",
             showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                        parseInt($stateParams.showOnlyImportant)),
+            showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
+                                       parseInt($stateParams.showOnlyComparable)),
             showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                        parseInt($stateParams.showOnlyConfident)),
             showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
@@ -348,6 +354,7 @@ perf.controller('dashSubtestCtrl', [
                 topic: $scope.topic,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
                 timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined
@@ -368,6 +375,7 @@ perf.controller('dashSubtestCtrl', [
             $scope.$watchGroup([
                 'filterOptions.filter',
                 'filterOptions.showOnlyImportant',
+                'filterOptions.showOnlyComparable',
                 'filterOptions.showOnlyConfident'
             ], updateURL);
 
