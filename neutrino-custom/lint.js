@@ -39,7 +39,6 @@ module.exports = neutrino => {
                     'no-continue': 'off',
                     'no-loop-func': 'off',
                     'no-mixed-operators': 'off',
-                    'no-multi-assign': 'off',
                     'no-nested-ternary': 'off',
                     'no-param-reassign': 'off',
                     'no-plusplus': 'off',

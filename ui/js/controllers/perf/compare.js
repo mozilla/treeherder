@@ -516,7 +516,8 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.titles[testName] = $scope.platformList[0] + ': ' + testName;
             $scope.compareResults[testName] = [];
 
-            window.document.title = $scope.subtestTitle = $scope.titles[testName];
+            $scope.subtestTitle = $scope.titles[testName];
+            window.document.title = $scope.subtestTitle;
 
             $scope.oldStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
             $scope.newStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
