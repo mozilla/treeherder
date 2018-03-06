@@ -1,8 +1,8 @@
 # Dependencies needed only for development/testing.
 
-pytest==3.4.1 \
-    --hash=sha256:8970e25181e15ab14ae895599a0a0e0ade7d1f1c4c8ca1072ce16f25526a184d \
-    --hash=sha256:9ddcb879c8cc859d2540204b5399011f842e5e8823674bf429f70ada281b3cc6
+pytest==3.4.2 \
+    --hash=sha256:062027955bccbc04d2fcd5d79690947e018ba31abe4c90b2c6721abec734261b \
+    --hash=sha256:117bad36c1a787e1a8a659df35de53ba05f9f3398fb9e4ac17e80ad5903eb8c5
 
 django-debug-toolbar==1.9.1 \
     --hash=sha256:4af2a4e1e932dadbda197b18585962d4fc20172b4e5a479490bc659fe998864d \
