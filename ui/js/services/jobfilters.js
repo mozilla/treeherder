@@ -49,7 +49,7 @@ treeherder.factory('thJobFilters', [
             tier: ["1", "2"]
         };
 
-        let NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
+        const NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
             'nojobs', 'startdate', 'enddate', 'revision'];
 
         // failure classification ids that should be shown in "unclassified" mode
@@ -152,7 +152,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function getFieldFiltersObj() {
-            let fieldFilters = {};
+            const fieldFilters = {};
             // get the search params and lay any defaults over it so we test
             // against those as well.
             const locationSearch = _.defaults(_.clone($location.search()),
@@ -221,7 +221,7 @@ treeherder.factory('thJobFilters', [
 
         function _checkFieldFilters(job) {
 
-            for (let field in cachedFieldFilters) {
+            for (const field in cachedFieldFilters) {
                 if (cachedFieldFilters.hasOwnProperty(field)) {
 
                     const values = cachedFieldFilters[field];

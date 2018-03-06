@@ -242,12 +242,12 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                     return $http.get(url).then(function (resp) {
                         let action = resp.data;
-                        let template = $interpolate(action);
+                        const template = $interpolate(action);
                         action = template({
                             action: 'add-talos',
                             action_args: '--decision-task-id=' + decisionTaskId + ' --times=' + times,
                         });
-                        let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                        const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                         return queue.createTask(actionTaskId, task).then(function () {
                             return `Request sent to trigger all talos jobs ${times} time(s) via actions.yml (${actionTaskId})`;
                         });
@@ -257,19 +257,19 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             triggerNewJobs: function (buildernames, decisionTaskId) {
                 const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
-                let url = queue.buildUrl(
+                const url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,
                     'public/full-task-graph.json'
                 );
                 return $http.get(url).then(function (resp) {
-                    let graph = resp.data;
+                    const graph = resp.data;
 
                     // Build a mapping of buildbot buildername to taskcluster tasklabel for bbb tasks
-                    let builderToTask = _.omit(_.invert(_.mapValues(graph, 'task.payload.buildername')), [undefined]);
-                    let allLabels = _.keys(graph);
+                    const builderToTask = _.omit(_.invert(_.mapValues(graph, 'task.payload.buildername')), [undefined]);
+                    const allLabels = _.keys(graph);
 
-                    let tclabels = [];
+                    const tclabels = [];
 
                     buildernames.forEach(function (name) {
                         // The following has 2 cases that it accounts for
@@ -306,16 +306,16 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                         }
 
                         // Otherwise we'll figure things out with actions.yml
-                        let url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
+                        const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                         return $http.get(url).then(function (resp) {
                             let action = resp.data;
-                            let template = $interpolate(action);
-                            let taskLabels = tclabels.join(',');
+                            const template = $interpolate(action);
+                            const taskLabels = tclabels.join(',');
                             action = template({
                                 action: 'add-tasks',
                                 action_args: `--decision-id=${decisionTaskId} --task-labels=${taskLabels}`,
                             });
-                            let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                            const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(() => `Request sent to trigger new jobs via actions.yml (${actionTaskId})`);
                         });
                     });

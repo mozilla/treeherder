@@ -265,7 +265,7 @@ function toggleHideClassified(store, fetchParams) {
 // What we care about is matching the path and search params.
 function stripHost(urlStr) {
   try {
-    let url = new URL(urlStr);
+    const url = new URL(urlStr);
     return `${url.pathname}${url.search}`;
   } catch (TypeError) {
     return urlStr;

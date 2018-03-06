@@ -623,7 +623,7 @@ perf.controller('GraphsCtrl', [
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
             return $q.all(partialSeriesList.map(function (partialSeries) {
-                let params = { framework: partialSeries.frameworkId };
+                const params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
                 } else {

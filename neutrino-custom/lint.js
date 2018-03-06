@@ -54,7 +54,6 @@ module.exports = neutrino => {
                     'one-var-declaration-per-line': 'off',
                     'padded-blocks': 'off',
                     'prefer-arrow-callback': 'off',
-                    'prefer-const': 'off',
                     'prefer-rest-params': 'off',
                     'prefer-template': 'off',
                     'quotes': 'off',

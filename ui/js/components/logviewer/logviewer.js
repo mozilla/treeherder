@@ -8,7 +8,7 @@ treeherder.component('thLogViewer', {
             const unifiedLogviewerUrl = 'https://taskcluster.github.io/unified-logviewer/';
             const logParams = () => {
                 const q = $location.search();
-                let params = { lineHeight: 13 };
+                const params = { lineHeight: 13 };
 
                 if (q.lineNumber) {
                     const lines = q.lineNumber.toString().split('-');

@@ -34,7 +34,7 @@ treeherder.factory('ThModelErrors', [function () {
  * This is useful to display Taskcluster errors nicely.
 */
 treeherder.factory('ThTaskclusterErrors', [function () {
-    let TC_ERROR_PREFIX = 'Taskcluster: ';
+    const TC_ERROR_PREFIX = 'Taskcluster: ';
     return {
         /**
         Helper method for constructing an error message from Taskcluster.
