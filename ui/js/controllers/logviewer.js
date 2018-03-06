@@ -184,7 +184,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     }
                 } else if (!q.lineNumber) {
                     for (let i = 0; i < $scope.steps.length; i++) {
-                        let step = $scope.steps[i];
+                        const step = $scope.steps[i];
 
                         if (step.result !== "success" && ($scope.result &&
                             $scope.result.value !== "success" && step.result !== "unknown")) {

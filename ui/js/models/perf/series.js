@@ -91,7 +91,7 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
                 { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {
-                            let url = response.data.results[0].url;
+                            const url = response.data.results[0].url;
                             return $http.get(url).then(function (response) {
                                 return response.data;
                             });

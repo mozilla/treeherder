@@ -55,7 +55,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 }
             }
 
-            let actionTaskId = slugid();
+            const actionTaskId = slugid();
             tcactions.submit({
                 action: $scope.input.selectedAction,
                 actionTaskId,

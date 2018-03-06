@@ -247,7 +247,7 @@ perf.controller('CompareResultsCtrl', [
                 });
             });
 
-            let noiseMetricTestName = 'Noise Metric';
+            const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
             $scope.platformList.forEach(function (platform) {
                 var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
@@ -447,7 +447,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.newRevision = $stateParams.newRevision;
 
             // always need to verify the new revision, only sometimes the original
-            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
@@ -608,7 +608,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 $scope.compareResults[testName].push(cmap);
             });
 
-            let noiseMetricTestName = 'Noise Metric';
+            const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
             var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
@@ -647,7 +647,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.newSignature = $stateParams.newSignature;
 
             // always need to verify the new revision, only sometimes the original
-            let verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
@@ -878,9 +878,9 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
         $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
         $scope.newSubtestSignature = $stateParams.newSubtestSignature;
         $scope.dataLoading = true;
-        let loadRepositories = ThRepositoryModel.load();
+        const loadRepositories = ThRepositoryModel.load();
         const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
-            let replicateData = {};
+            const replicateData = {};
             return ThResultSetModel.getResultSetsFromRevision(project, revision).then(
                 (revisionData) => {
                     replicateData.resultSet = revisionData[0];
@@ -894,13 +894,13 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                         return;
                     }
                     const numRuns = perfDatumList[subtestSignature].length;
-                    let replicatePromises = perfDatumList[subtestSignature].map(
+                    const replicatePromises = perfDatumList[subtestSignature].map(
                         value => PhSeries.getReplicateData({ job_id: value.job_id }));
                     return $q.all(replicatePromises).then((replicateData) => {
                         let replicateValues = replicateData.concat.apply([],
                                 replicateData.map((data) => {
-                                    let testSuite = data.suites.find(suite => suite.name === $scope.testSuite);
-                                    let subtest = testSuite.subtests.find(subtest => subtest.name === $scope.subtest);
+                                    const testSuite = data.suites.find(suite => suite.name === $scope.testSuite);
+                                    const subtest = testSuite.subtests.find(subtest => subtest.name === $scope.subtest);
                                     return subtest.replicates;
                                 })
                             );

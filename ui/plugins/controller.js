@@ -168,7 +168,7 @@ treeherder.controller('PluginCtrl', [
                         $q.all(_.chunk(signatureIds, 20).map(
                             signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
                         )).then((seriesListList) => {
-                            let seriesList = _.flatten(seriesListList);
+                            const seriesList = _.flatten(seriesListList);
                             $scope.perfJobDetail = performanceData.map(d => ({
                                 series: seriesList.find(s => d.signature_id === s.id),
                                 ...d
@@ -326,20 +326,20 @@ treeherder.controller('PluginCtrl', [
                             // JSON as a reponse due to how the client library is constructed. Since this
                             // result is yml, we'll fetch it manually using $http and can use the url
                             // returned by this method.
-                            let url = queue.buildUrl(
+                            const url = queue.buildUrl(
                                 queue.getLatestArtifact,
                                 decisionTaskId,
                                 'public/action.yml'
                             );
                             $http.get(url).then(function (resp) {
                                 let action = resp.data;
-                                let template = $interpolate(action);
+                                const template = $interpolate(action);
                                 action = template({
                                     action: 'backfill',
                                     action_args: '--project=' + $scope.repoName + ' --job=' + $scope.job.id,
                                 });
 
-                                let task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                                const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                                 queue.createTask(actionTaskId, task).then(function () {
                                     $scope.$apply(thNotify.send(`Request sent to backfill job via actions.yml (${actionTaskId})`, 'success'));
                                 }, function (e) {

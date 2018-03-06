@@ -132,9 +132,9 @@ treeherder.component('distributionGraph', {
         replicates: '<'
     },
     controller: [function () {
-        let ctrl = this;
-        let cvs = document.getElementById("distribution-graph-new");
-        let ctx = cvs.getContext("2d");
+        const ctrl = this;
+        const cvs = document.getElementById("distribution-graph-new");
+        const ctx = cvs.getContext("2d");
         cvs.setAttribute("id", "distribution-graph-current");
         ctrl.maxValue = Math.max.apply(null, ctrl.replicates);
         ctrl.minValue = Math.min.apply(null, ctrl.replicates);

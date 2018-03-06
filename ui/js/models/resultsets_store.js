@@ -759,8 +759,8 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getGeckoDecisionJob = function (pushId) {
-            let push = getPush(pushId);
-            let platform = _.find(push.platforms, {
+            const push = getPush(pushId);
+            const platform = _.find(push.platforms, {
                 name: "gecko-decision",
                 groups: [{ jobs: [{ state: "completed", job_type_symbol: "D" }] }] });
             if (platform) {
@@ -774,15 +774,15 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getGeckoDecisionTaskId = function (pushId) {
-            let push = getPush(pushId);
-            let dtid = push.geckoDecisionTaskId;
+            const push = getPush(pushId);
+            const dtid = push.geckoDecisionTaskId;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
             if (dtid || dtid === "") {
                 return $q.when(dtid);
             }
 
-            let decisionTask = getGeckoDecisionJob(pushId);
+            const decisionTask = getGeckoDecisionJob(pushId);
             if (decisionTask) {
                 return ThJobModel.get(repoData.name, decisionTask.id).then(
                     function (job) {

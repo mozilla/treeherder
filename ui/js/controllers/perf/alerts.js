@@ -434,7 +434,7 @@ perf.controller('AlertsCtrl', [
                                 resultSet.dateStr = dateFilter(
                                     resultSet.push_timestamp*1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
-                                let timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
+                                const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
                                 resultSet.timeRange = Math.max(timeRange, _.find(
                                     _.map(phTimeRanges, 'value'),
                                     function (t) {
