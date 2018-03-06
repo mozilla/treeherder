@@ -1,5 +1,3 @@
-// Remove disabling when there is more than one export in the file.
-// eslint-disable-next-line import/prefer-default-export
 export const platformMap = {
     linux32: "Linux",
     "linux32-devedition": "Linux DevEdition",
@@ -143,3 +141,5 @@ export const platformMap = {
     "release-mozilla-release-": "Balrog Publishing",
     other: "Other"
 };
+
+export const failedResults = ['testfailed', 'busted', 'exception'];
