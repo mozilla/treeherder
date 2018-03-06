@@ -59,19 +59,19 @@ export const findSelectedInstance = function findSelectedInstance() {
   }
 };
 
-// Fetch the React instance based on the jobId, and if scrollTo is true, then
-// scroll it into view.
-export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = $('.th-view-content')
-    .find(`button[data-job-id='${jobId}']`)
-    .first();
-
-  if (jobEl.length) {
-    if (scrollTo) {
-      scrollToElement(jobEl);
-    }
-    return findInstance(jobEl[0]);
-  }
+// Check if the element is visible on screen or not.
+const isOnScreen = function isOnScreen(el) {
+  const viewport = {};
+  viewport.top = $(window).scrollTop() + $('#global-navbar-container').height() + 30;
+  const filterbarheight = $('.active-filters-bar').height();
+  viewport.top = filterbarheight > 0 ? viewport.top + filterbarheight : viewport.top;
+  const updatebarheight = $('.update-alert-panel').height();
+  viewport.top = updatebarheight > 0 ? viewport.top + updatebarheight : viewport.top;
+  viewport.bottom = $(window).height() - $('#info-panel').height() - 20;
+  const bounds = {};
+  bounds.top = el.offset().top;
+  bounds.bottom = bounds.top + el.outerHeight();
+  return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
 };
 
 // Scroll the element into view.
@@ -93,19 +93,19 @@ export const scrollToElement = function scrollToElement(el, duration) {
   }
 };
 
-// Check if the element is visible on screen or not.
-const isOnScreen = function isOnScreen(el) {
-  const viewport = {};
-  viewport.top = $(window).scrollTop() + $('#global-navbar-container').height() + 30;
-  const filterbarheight = $('.active-filters-bar').height();
-  viewport.top = filterbarheight > 0 ? viewport.top + filterbarheight : viewport.top;
-  const updatebarheight = $('.update-alert-panel').height();
-  viewport.top = updatebarheight > 0 ? viewport.top + updatebarheight : viewport.top;
-  viewport.bottom = $(window).height() - $('#info-panel').height() - 20;
-  const bounds = {};
-  bounds.top = el.offset().top;
-  bounds.bottom = bounds.top + el.outerHeight();
-  return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
+// Fetch the React instance based on the jobId, and if scrollTo is true, then
+// scroll it into view.
+export const findJobInstance = function findJobInstance(jobId, scrollTo) {
+  const jobEl = $('.th-view-content')
+    .find(`button[data-job-id='${jobId}']`)
+    .first();
+
+  if (jobEl.length) {
+    if (scrollTo) {
+      scrollToElement(jobEl);
+    }
+    return findInstance(jobEl[0]);
+  }
 };
 
 export const getSearchStr = function getSearchStr(job) {

@@ -37,6 +37,55 @@ logViewerApp.controller('LogviewerCtrl', [
             $scope.showSuccessful = !$scope.hasFailedSteps();
         });
 
+        function errorLinesCss(errors) {
+            return errors
+              .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
+              .join(',')
+              .concat('{background:#fbe3e3;color:#a94442}');
+        }
+
+        function logCss() {
+            const hideToolbar = '#toolbar{display:none}';
+            const body = 'html,body{background:#f8f8f8;color:#333;font-size:12px}';
+            const highlight = '#log .highlight a,#log .highlight span{background:#f8eec7!important}';
+            const hover = '#log .line:hover{background:transparent}#log .line a:hover,#log .highlight a:hover{background:#f8eec7;color:#000}';
+            const stripe = '.lazy-list .line:nth-child(2n){background:#fff!important}.lazy-list .line:nth-child(2n+1){background:#f8f8f8!important}';
+            const linePadding = '#log .line{padding:0 15px 0 35px}';
+            const lineNumber = '#log .line a,#log .highlight a{color:rgba(0,0,0,.3)}';
+            const font = '#log{font-family:monospace}';
+
+            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + font;
+        }
+
+        function updateQuery(values) {
+            const data = typeof values === 'string' ? JSON.parse(values) : values;
+            const { lineNumber, highlightStart, highlightEnd } = data;
+
+            if (highlightStart !== highlightEnd) {
+                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`).replace();
+            } else if (highlightStart) {
+                $location.search('lineNumber', highlightStart).replace();
+            } else {
+                $location.search('lineNumber', lineNumber).replace();
+            }
+        }
+
+        function setLogListener() {
+            let workerReady = false;
+
+            $window.addEventListener('message', (e) => {
+                // Send initial css when child frame loads URL successfully
+                if (!workerReady) {
+                    workerReady = true;
+
+                    $scope.css += logCss();
+                    $scope.logPostMessage({ customStyle: $scope.css });
+                }
+
+                $timeout(updateQuery(e.data));
+            });
+        }
+
         $scope.logPostMessage = (values) => {
             const { lineNumber, highlightStart } = values;
 
@@ -213,56 +262,5 @@ logViewerApp.controller('LogviewerCtrl', [
 
             $scope.logPostMessage({ lineNumber: highlightStart, highlightStart, highlightEnd });
         };
-
-        function errorLinesCss(errors) {
-            return errors
-              .map(({ line_number }) => `a[id="${line_number + 1}"]+span`)
-              .join(',')
-              .concat('{background:#fbe3e3;color:#a94442}');
-        }
-
-        function logCss() {
-            const hideToolbar = '#toolbar{display:none}';
-            const body = 'html,body{background:#f8f8f8;color:#333;font-size:12px}';
-            const highlight = '#log .highlight a,#log .highlight span{background:#f8eec7!important}';
-            const hover = '#log .line:hover{background:transparent}#log .line a:hover,#log .highlight a:hover{background:#f8eec7;color:#000}';
-            const stripe = '.lazy-list .line:nth-child(2n){background:#fff!important}.lazy-list .line:nth-child(2n+1){background:#f8f8f8!important}';
-            const linePadding = '#log .line{padding:0 15px 0 35px}';
-            const lineNumber = '#log .line a,#log .highlight a{color:rgba(0,0,0,.3)}';
-            const font = '#log{font-family:monospace}';
-
-            return hideToolbar + body + highlight + hover + stripe + lineNumber + linePadding + font;
-        }
-
-        /** utility functions **/
-
-        function updateQuery(values) {
-            const data = typeof values === 'string' ? JSON.parse(values) : values;
-            const { lineNumber, highlightStart, highlightEnd } = data;
-
-            if (highlightStart !== highlightEnd) {
-                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`).replace();
-            } else if (highlightStart) {
-                $location.search('lineNumber', highlightStart).replace();
-            } else {
-                $location.search('lineNumber', lineNumber).replace();
-            }
-        }
-
-        function setLogListener() {
-            let workerReady = false;
-
-            $window.addEventListener('message', (e) => {
-                // Send initial css when child frame loads URL successfully
-                if (!workerReady) {
-                    workerReady = true;
-
-                    $scope.css += logCss();
-                    $scope.logPostMessage({ customStyle: $scope.css });
-                }
-
-                $timeout(updateQuery(e.data));
-            });
-        }
     }
 ]);

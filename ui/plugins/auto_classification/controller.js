@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+
 import treeherder from '../../js/treeherder';
 import staticOptionTemplate from '../../plugins/auto_classification/staticOption.html';
 import intermittentTemplate from '../../partials/main/intermittent.html';

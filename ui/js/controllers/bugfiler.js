@@ -155,6 +155,35 @@ treeherder.controller('BugFilerCtrl', [
 
         $scope.isFilerSummaryVisible = false;
 
+        // Add a product/component pair to suggestedProducts
+        var addProduct = function (product) {
+            // Don't allow duplicates to be added to the list
+            if (!$scope.suggestedProducts.includes(product)) {
+                $scope.suggestedProducts.push(product);
+                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+            }
+        };
+
+        // Some job types are special, lets explicitly handle them.
+        var injectProducts = function (fp) {
+            if ($scope.suggestedProducts.length === 0) {
+                var jg = selectedJob.job_group_name.toLowerCase();
+                if (jg.includes("web platform")) {
+                    addProduct("Testing :: web-platform-tests");
+                }
+                if (jg.includes("talos")) {
+                    addProduct("Testing :: Talos");
+                }
+                if (jg.includes("mochitest") && (fp.includes("webextensions/") || fp.includes("components/extensions"))) {
+                    addProduct("Toolkit :: WebExtensions: General");
+                }
+                if (jg.includes("mochitest") && fp.includes("webrtc/")) {
+                    addProduct("Core :: WebRTC");
+                }
+            }
+            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
+        };
+
         /*
          *  Attempt to find a good product/component for this failure
          */
@@ -256,35 +285,6 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             }
-        };
-
-        // Add a product/component pair to suggestedProducts
-        var addProduct = function (product) {
-            // Don't allow duplicates to be added to the list
-            if (!$scope.suggestedProducts.includes(product)) {
-                $scope.suggestedProducts.push(product);
-                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
-            }
-        };
-
-        // Some job types are special, lets explicitly handle them.
-        var injectProducts = function (fp) {
-            if ($scope.suggestedProducts.length === 0) {
-                var jg = selectedJob.job_group_name.toLowerCase();
-                if (jg.includes("web platform")) {
-                    addProduct("Testing :: web-platform-tests");
-                }
-                if (jg.includes("talos")) {
-                    addProduct("Testing :: Talos");
-                }
-                if (jg.includes("mochitest") && (fp.includes("webextensions/") || fp.includes("components/extensions"))) {
-                    addProduct("Toolkit :: WebExtensions: General");
-                }
-                if (jg.includes("mochitest") && fp.includes("webrtc/")) {
-                    addProduct("Core :: WebRTC");
-                }
-            }
-            $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
         /*

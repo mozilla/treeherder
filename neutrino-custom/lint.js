@@ -46,7 +46,6 @@ module.exports = neutrino => {
                     'no-restricted-syntax': 'off',
                     'no-shadow': 'off',
                     'no-underscore-dangle': 'off',
-                    'no-use-before-define': 'off',
                     'no-useless-escape': 'off',
                     'no-var': 'off',
                     'object-shorthand': 'off',

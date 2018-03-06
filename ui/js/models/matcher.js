@@ -20,6 +20,12 @@ treeherder.factory('ThMatcherModel', [
             return url;
         };
 
+        var matchers = $http
+                .get(ThMatcherModel.get_uri(), {
+                    cache: true
+                })
+                .then(response => response.data.map(elem => new ThMatcherModel(elem)));
+
         ThMatcherModel.get_list = function () {
             return matchers;
         };
@@ -33,12 +39,6 @@ treeherder.factory('ThMatcherModel', [
         ThMatcherModel.get = function (pk) {
             ThMatcherModel.by_id.then(map => map[pk]);
         };
-
-        var matchers = $http
-                .get(ThMatcherModel.get_uri(), {
-                    cache: true
-                })
-                .then(response => response.data.map(elem => new ThMatcherModel(elem)));
 
         return ThMatcherModel;
     }]);

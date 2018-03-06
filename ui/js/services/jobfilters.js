@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/jobHelper';
 
