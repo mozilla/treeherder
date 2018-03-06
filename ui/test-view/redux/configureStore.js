@@ -196,9 +196,11 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
 
     if (regexes.every(regex => regex.test(filterStr))) {
       // create the groupName if we haven't done so yet.
-      const newGroup = acc[groupName] = { ...acc[groupName] };
+      const newGroup = { ...acc[groupName] };
+      acc[groupName] = newGroup;
       // create the testName if we haven't done so yet.
-      const newTest = newGroup[testName] = { ...acc[groupName][testName] };
+      const newTest = { ...acc[groupName][testName] };
+      newGroup[testName] = newTest;
       newTest.group = test.group;
       newTest.jobGroup = groupName;
       newTest.name = testName;

@@ -247,7 +247,8 @@ treeherder.controller('ThErrorLineController', [
          * (Re)build the error line display
          */
         function build() {
-            line = $scope.line = ctrl.errorLine;
+            line = ctrl.errorLine;
+            $scope.line = line;
             $scope.logUrl = getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName, line.data.line_number + 1);
             if (!line.verified) {
                 $scope.options = getOptions();
@@ -304,7 +305,8 @@ treeherder.controller('ThErrorLineController', [
          * a selection in the UI
          */
         $scope.optionChanged = function () {
-            var option = $scope.currentOption = currentOption();
+            const option = currentOption();
+            $scope.currentOption = option;
             // If the best option is a classified failure with no associated bug number
             // then default to updating that option with a new bug number
             // TODO: consider adding the update/create options back here, although it's
