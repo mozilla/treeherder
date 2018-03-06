@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
 

@@ -83,23 +83,6 @@ treeherderApp.controller('MainCtrl', [
             }, revisionPollInterval);
         });
 
-        $rootScope.getWindowTitle = function () {
-            var ufc = $scope.getAllUnclassifiedFailureCount();
-            var params = $location.search();
-
-            // repoName is undefined for the first few title update attempts, show something sensible
-            var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
-
-            if (params.revision) {
-                var desc = getSingleRevisionTitleString();
-                var revtitle = desc[0] ? ": " + desc[0] : "";
-                var percentage = desc[1] ? desc[1] + "% - " : "";
-
-                title = percentage + title + revtitle;
-            }
-            return title;
-        };
-
         var getSingleRevisionTitleString = function () {
             var revisions = [];
             var percentComplete;
@@ -138,6 +121,23 @@ treeherderApp.controller('MainCtrl', [
                 }
             }
             return [title, percentComplete];
+        };
+
+        $rootScope.getWindowTitle = function () {
+            var ufc = $scope.getAllUnclassifiedFailureCount();
+            var params = $location.search();
+
+            // repoName is undefined for the first few title update attempts, show something sensible
+            var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
+
+            if (params.revision) {
+                var desc = getSingleRevisionTitleString();
+                var revtitle = desc[0] ? ": " + desc[0] : "";
+                var percentage = desc[1] ? desc[1] + "% - " : "";
+
+                title = percentage + title + revtitle;
+            }
+            return title;
         };
 
         $rootScope.closeJob = function () {

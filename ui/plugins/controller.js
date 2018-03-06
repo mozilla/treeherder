@@ -214,13 +214,6 @@ treeherder.controller('PluginCtrl', [
             $scope.isPinboardVisible = !$scope.isPinboardVisible;
         };
 
-        $scope.$watch('getCountPinnedJobs()', function (newVal, oldVal) {
-            if (oldVal === 0 && newVal > 0) {
-                $scope.isPinboardVisible = true;
-                getRevisionTips($scope.revisionList);
-            }
-        });
-
         var getRevisionTips = function (list) {
             list.splice(0, list.length);
             var rsArr = ThResultSetStore.getPushArray();
@@ -232,6 +225,13 @@ treeherder.controller('PluginCtrl', [
                 });
             });
         };
+
+        $scope.$watch('getCountPinnedJobs()', function (newVal, oldVal) {
+            if (oldVal === 0 && newVal > 0) {
+                $scope.isPinboardVisible = true;
+                getRevisionTips($scope.revisionList);
+            }
+        });
 
         $scope.canCancel = function () {
             return $scope.job &&

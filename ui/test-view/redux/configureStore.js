@@ -20,6 +20,74 @@ function getId(hash) {
   return atob(hash).split(':')[1];
 }
 
+function buildFailureLines(lsAcc, failureLine) {
+  if (failureLine.test) {
+    lsAcc[failureLine.test] = lsAcc[failureLine.test]
+      ? lsAcc[failureLine.test]
+      : { group: failureLine.group.length ? failureLine.group[0].name : "Unavailable", failureLines: [] };
+    lsAcc[failureLine.test].failureLines = [...lsAcc[failureLine.test].failureLines, failureLine];
+  }
+  return lsAcc;
+}
+
+/**
+ * Add jobs that pass the filter to the accumulator.
+ *
+ * @param acc - The accumulator.  Add/update group and test here if there
+ *              are jobs that pass the filter
+ * @param test - The test to traverse to determine what to add
+ * @param groupName - Name of the current group
+ * @param testName - Name of the test for which we're filtering jobs
+ * @param options - The map of optionCollectionHash to option strings
+ * @param regexes - Array of Regexes that ``filterStr`` must pass
+ */
+function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideClassified) {
+  test.jobs.forEach((job) => {
+    // Reconstruct this each time because the same ``job`` can exist on
+    // different test paths (more than one test can happen as a result of
+    // one job).  So we can't just store this ``filterStr`` in the job
+    // on data load.
+    if (hideClassified[job.failureClassification.name]) {
+      return;
+    }
+    const filterStr = [groupName, testName, test.group,
+      platformMap[job.buildPlatform.platform], options[job.optionCollectionHash]].join(' ');
+
+    if (regexes.every(regex => regex.test(filterStr))) {
+      // create the groupName if we haven't done so yet.
+      const newGroup = { ...acc[groupName] };
+      acc[groupName] = newGroup;
+      // create the testName if we haven't done so yet.
+      const newTest = { ...acc[groupName][testName] };
+      newGroup[testName] = newTest;
+      newTest.group = test.group;
+      newTest.jobGroup = groupName;
+      newTest.name = testName;
+      newTest.bugs = test.bugs;
+      newTest.jobs = newTest.jobs ? [...newTest.jobs, job] : [job];
+    }
+  });
+}
+
+/**
+ * Return a new filtered ``groups`` object.
+ *
+ * @param filter - Value from the UI filter field
+ * @param groups - The current UI display-able object that has all loaded test data
+ * @param options - Map of optionCollectionHash to option strings
+ * @returns Filtered UI display-able groups object
+ */
+function filterGroups(filter, groups, options, hideClassified) {
+  const filterRegexes = filter ? filter.split(' ').map(regexStr => new RegExp(regexStr, 'i')) : [new RegExp('', 'i')];
+
+  return Object.entries(groups).reduce((gacc, [groupName, tests]) => {
+    Object.entries(tests).forEach(([testName, test]) => {
+      addFilteredJobs(gacc, test, groupName, testName, options, filterRegexes, hideClassified);
+    });
+    return gacc;
+  }, {});
+}
+
 async function fetchTests(store, fetchParams) {
   let fetchStatus = 'No failed tests to show';
   const { url, filter, options, hideClassified, bugSuggestions } = fetchParams;
@@ -128,16 +196,6 @@ async function fetchTests(store, fetchParams) {
   });
 }
 
-function buildFailureLines(lsAcc, failureLine) {
-  if (failureLine.test) {
-    lsAcc[failureLine.test] = lsAcc[failureLine.test]
-      ? lsAcc[failureLine.test]
-      : { group: failureLine.group.length ? failureLine.group[0].name : "Unavailable", failureLines: [] };
-    lsAcc[failureLine.test].failureLines = [...lsAcc[failureLine.test].failureLines, failureLine];
-  }
-  return lsAcc;
-}
-
 async function fetchOptions(store, fetchParams) {
   const { url } = fetchParams;
   const resp = await fetch(`${SERVICE_DOMAIN}${url}`, fetchParams);
@@ -169,64 +227,6 @@ async function fetchCounts(store, fetchParams) {
       counts,
     }
   });
-}
-
-/**
- * Add jobs that pass the filter to the accumulator.
- *
- * @param acc - The accumulator.  Add/update group and test here if there
- *              are jobs that pass the filter
- * @param test - The test to traverse to determine what to add
- * @param groupName - Name of the current group
- * @param testName - Name of the test for which we're filtering jobs
- * @param options - The map of optionCollectionHash to option strings
- * @param regexes - Array of Regexes that ``filterStr`` must pass
- */
-function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideClassified) {
-  test.jobs.forEach((job) => {
-    // Reconstruct this each time because the same ``job`` can exist on
-    // different test paths (more than one test can happen as a result of
-    // one job).  So we can't just store this ``filterStr`` in the job
-    // on data load.
-    if (hideClassified[job.failureClassification.name]) {
-      return;
-    }
-    const filterStr = [groupName, testName, test.group,
-      platformMap[job.buildPlatform.platform], options[job.optionCollectionHash]].join(' ');
-
-    if (regexes.every(regex => regex.test(filterStr))) {
-      // create the groupName if we haven't done so yet.
-      const newGroup = { ...acc[groupName] };
-      acc[groupName] = newGroup;
-      // create the testName if we haven't done so yet.
-      const newTest = { ...acc[groupName][testName] };
-      newGroup[testName] = newTest;
-      newTest.group = test.group;
-      newTest.jobGroup = groupName;
-      newTest.name = testName;
-      newTest.bugs = test.bugs;
-      newTest.jobs = newTest.jobs ? [...newTest.jobs, job] : [job];
-    }
-  });
-}
-
-/**
- * Return a new filtered ``groups`` object.
- *
- * @param filter - Value from the UI filter field
- * @param groups - The current UI display-able object that has all loaded test data
- * @param options - Map of optionCollectionHash to option strings
- * @returns Filtered UI display-able groups object
- */
-function filterGroups(filter, groups, options, hideClassified) {
-  const filterRegexes = filter ? filter.split(' ').map(regexStr => new RegExp(regexStr, 'i')) : [new RegExp('', 'i')];
-
-  return Object.entries(groups).reduce((gacc, [groupName, tests]) => {
-    Object.entries(tests).forEach(([testName, test]) => {
-      addFilteredJobs(gacc, test, groupName, testName, options, filterRegexes, hideClassified);
-    });
-    return gacc;
-  }, {});
 }
 
 // Called when typing values into the filter
@@ -270,6 +270,38 @@ function stripHost(urlStr) {
   } catch (TypeError) {
     return urlStr;
   }
+}
+
+/**
+ *  Split up the test name, in case this is a reftest that won't match with a
+ *  bug summary very well.
+ * @param testName The testName that's shown in the UI
+ * @returns {Array}
+ */
+function splitTestName(testName) {
+  return testName.split(" == ").map(testSub => testSub.substring(testSub.lastIndexOf('/')));
+}
+
+function getMatchingTestBugs(bs, testName) {
+  return splitTestName(testName).some(sub => bs.search.includes(sub)) ?
+    bs.bugs.open_recent.reduce((bsAcc, bug) => (
+      // Since one test can have multiple jobs which could have multiples of the same bug,
+      // key this object off the bug id so we automatically eliminate duplicates.
+      { ...bsAcc, [bug.id]: bug }
+    ), {}) : {};
+}
+
+function extractBugSuggestions(bugSuggestions, testName) {
+  return bugSuggestions.data.allJobs.edges.reduce((jacc, { node: job }) => (
+    { ...jacc,
+      ...job.textLogStep.reduce((tlsAcc, step) => (
+      // Only add the bug suggestions that match the testName for this job
+        { ...tlsAcc,
+          ...step.errors.reduce((sAcc, error) => (
+          { ...sAcc, ...getMatchingTestBugs(error.bugSuggestions, testName) }
+        ), {}) }
+      ), {}) }
+  ), {});
 }
 
 async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
@@ -341,38 +373,6 @@ async function toggleExpanded(store, { toggled, testName, expanded }) {
       expanded: { ...expanded, [testName]: toggled },
     }
   });
-}
-
-/**
- *  Split up the test name, in case this is a reftest that won't match with a
- *  bug summary very well.
- * @param testName The testName that's shown in the UI
- * @returns {Array}
- */
-function splitTestName(testName) {
-  return testName.split(" == ").map(testSub => testSub.substring(testSub.lastIndexOf('/')));
-}
-
-function getMatchingTestBugs(bs, testName) {
-  return splitTestName(testName).some(sub => bs.search.includes(sub)) ?
-    bs.bugs.open_recent.reduce((bsAcc, bug) => (
-      // Since one test can have multiple jobs which could have multiples of the same bug,
-      // key this object off the bug id so we automatically eliminate duplicates.
-      { ...bsAcc, [bug.id]: bug }
-    ), {}) : {};
-}
-
-function extractBugSuggestions(bugSuggestions, testName) {
-  return bugSuggestions.data.allJobs.edges.reduce((jacc, { node: job }) => (
-    { ...jacc,
-      ...job.textLogStep.reduce((tlsAcc, step) => (
-      // Only add the bug suggestions that match the testName for this job
-        { ...tlsAcc,
-          ...step.errors.reduce((sAcc, error) => (
-          { ...sAcc, ...getMatchingTestBugs(error.bugSuggestions, testName) }
-        ), {}) }
-      ), {}) }
-  ), {});
 }
 
 const testDataMiddleware = store => next => (action) => {

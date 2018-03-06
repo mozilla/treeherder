@@ -220,44 +220,6 @@ perf.controller('AlertsCtrl', [
 
         }
 
-        $scope.filtersUpdated = function () {
-            var statusFilterChanged = (parseInt($state.params.status) !==
-                                       $scope.filterOptions.status.id);
-            var frameworkFilterChanged = (parseInt($state.params.framework) !==
-                                          $scope.filterOptions.framework.id);
-
-            $state.transitionTo('alerts', {
-                status: $scope.alertId ? undefined : $scope.filterOptions.status.id,
-                framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
-                filter: $scope.filterOptions.filter,
-                hideImprovements: $scope.filterOptions.hideImprovements ? 1 : undefined,
-                hideDwnToInv: $scope.filterOptions.hideDwnToInv ? 1 : undefined,
-                page: 1
-            }, {
-                location: true,
-                inherit: true,
-                relative: $state.$current,
-                notify: false
-            });
-
-            if (!$scope.alertId && (statusFilterChanged || frameworkFilterChanged)) {
-                // if the status or framework filter changed (and we're not looking
-                // at an individual summary), we should reload everything
-                $scope.alertSummaries = undefined;
-                PhAlerts.getAlertSummaries({
-                    statusFilter: $scope.filterOptions.status.id,
-                    frameworkFilter: $scope.filterOptions.framework.id
-                }).then(
-                    function (data) {
-                        addAlertSummaries(data.results, data.next);
-                        $scope.alertSummaryCount = data.count;
-                        $scope.alertSummaryCurrentPage = 1;
-                    });
-            } else {
-                updateAlertVisibility();
-            }
-        };
-
         // these methods handle the business logic of alert selection and
         // unselection
         $scope.anySelected = function (alerts) {
@@ -532,6 +494,44 @@ perf.controller('AlertsCtrl', [
         $scope.resetSummaryTitle = function () {
             $scope.summaryTitle.promise.cancel();
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
+        };
+
+        $scope.filtersUpdated = function () {
+            var statusFilterChanged = (parseInt($state.params.status) !==
+                                       $scope.filterOptions.status.id);
+            var frameworkFilterChanged = (parseInt($state.params.framework) !==
+                                          $scope.filterOptions.framework.id);
+
+            $state.transitionTo('alerts', {
+                status: $scope.alertId ? undefined : $scope.filterOptions.status.id,
+                framework: $scope.alertId ? undefined : $scope.filterOptions.framework.id,
+                filter: $scope.filterOptions.filter,
+                hideImprovements: $scope.filterOptions.hideImprovements ? 1 : undefined,
+                hideDwnToInv: $scope.filterOptions.hideDwnToInv ? 1 : undefined,
+                page: 1
+            }, {
+                location: true,
+                inherit: true,
+                relative: $state.$current,
+                notify: false
+            });
+
+            if (!$scope.alertId && (statusFilterChanged || frameworkFilterChanged)) {
+                // if the status or framework filter changed (and we're not looking
+                // at an individual summary), we should reload everything
+                $scope.alertSummaries = undefined;
+                PhAlerts.getAlertSummaries({
+                    statusFilter: $scope.filterOptions.status.id,
+                    frameworkFilter: $scope.filterOptions.framework.id
+                }).then(
+                    function (data) {
+                        addAlertSummaries(data.results, data.next);
+                        $scope.alertSummaryCount = data.count;
+                        $scope.alertSummaryCurrentPage = 1;
+                    });
+            } else {
+                updateAlertVisibility();
+            }
         };
 
         ThRepositoryModel.load().then(function () {
