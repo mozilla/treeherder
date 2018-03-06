@@ -180,7 +180,7 @@ perf.controller('CompareResultsCtrl', [
 
                     if ($scope.originalRevision) {
                         if (hasSubtests) {
-                            var detailsLink = 'perf.html#/comparesubtest?';
+                            let detailsLink = 'perf.html#/comparesubtest?';
                             detailsLink += $httpParamSerializer({
                                 originalProject: $scope.originalProject.name,
                                 originalRevision: $scope.originalRevision,
@@ -210,7 +210,7 @@ perf.controller('CompareResultsCtrl', [
                         });
                     } else {
                         if (hasSubtests) {
-                            var detailsLink = 'perf.html#/comparesubtest?';
+                            let detailsLink = 'perf.html#/comparesubtest?';
                             detailsLink += $httpParamSerializer({
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,

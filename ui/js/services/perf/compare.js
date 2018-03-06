@@ -76,12 +76,15 @@ treeherder.factory('PhCompare', [
 
                 // Some statistics for a single set of values
                 function analyzeSet(values, testName) {
+                    let average;
+                    let stddev;
+
                     if (testName === 'Noise Metric') {
-                        var average = Math.sqrt(_.sum(values.map(x => x ** 2))),
-                            stddev = 1;
+                        average = Math.sqrt(_.sum(values.map(x => x ** 2)));
+                        stddev = 1;
                     } else {
-                        var average = math.average(values),
-                            stddev = math.stddev(values, average);
+                        average = math.average(values);
+                        stddev = math.stddev(values, average);
                     }
 
                     return {
