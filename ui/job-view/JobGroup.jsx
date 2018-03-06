@@ -4,6 +4,7 @@ import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";
 import { getUrlParam } from "../helpers/locationHelper";
+import { failedResults } from "../js/constants";
 
 export default class JobGroup extends React.Component {
   constructor(props) {
@@ -36,6 +37,14 @@ export default class JobGroup extends React.Component {
       }
     );
     this.toggleExpanded = this.toggleExpanded.bind(this);
+
+    const { group } = this.props;
+    this.items = this.groupButtonsAndCounts(group.jobs);
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { group } = newProps;
+    this.items = this.groupButtonsAndCounts(group.jobs);
   }
 
   componentWillUnmount() {
@@ -63,7 +72,7 @@ export default class JobGroup extends React.Component {
           btnClass: getBtnClass(status, job.failure_classification_id),
           countText: status
         };
-        if (['testfailed', 'busted', 'exception'].includes(status) ||
+        if (failedResults.includes(status) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && this.state.showDuplicateJobs)) {
           // render the job itself, not a count
           buttons.push(job);
@@ -97,7 +106,6 @@ export default class JobGroup extends React.Component {
 
   render() {
     const { group, $injector, repoName, filterPlatformCb, platform } = this.props;
-    this.items = this.groupButtonsAndCounts(group.jobs);
 
     return (
       <span className="platform-group">
@@ -116,7 +124,7 @@ export default class JobGroup extends React.Component {
 
           <span className="group-content">
             <span className="group-job-list">
-              {this.items.buttons.map((job, i) => (
+              {this.items.buttons.map(job => (
                 <JobButton
                   job={job}
                   $injector={$injector}
@@ -126,10 +134,7 @@ export default class JobGroup extends React.Component {
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
                   platform={platform}
-                  hasGroup
                   key={job.id}
-                  ref={i}
-                  refOrder={i}
                 />
               ))}
             </span>

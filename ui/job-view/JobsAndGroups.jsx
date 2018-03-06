@@ -10,7 +10,7 @@ export default class JobsAndGroups extends React.Component {
 
     return (
       <td className="job-row">
-        {groups.map((group, i) => {
+        {groups.map((group) => {
           if (group.symbol !== '?') {
             return (
               group.visible && <JobGroup
@@ -19,9 +19,7 @@ export default class JobsAndGroups extends React.Component {
                 $injector={$injector}
                 filterPlatformCb={filterPlatformCb}
                 platform={platform}
-                refOrder={i}
                 key={group.mapKey}
-                ref={i}
               />
             );
           }
@@ -36,10 +34,7 @@ export default class JobsAndGroups extends React.Component {
                 failureClassificationId={job.failure_classification_id}
                 filterPlatformCb={filterPlatformCb}
                 platform={platform}
-                hasGroup={false}
                 key={job.id}
-                ref={i}
-                refOrder={i}
               />
             ))
           );
