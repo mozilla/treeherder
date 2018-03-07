@@ -381,6 +381,7 @@ perf.controller('CompareResultsCtrl', [
                 framework: $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 showOnlyNoise: $scope.filterOptions.showOnlyNoise ? 1 : undefined,
             };
@@ -434,6 +435,8 @@ perf.controller('CompareResultsCtrl', [
                 filter: $stateParams.filter || "",
                 showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                            parseInt($stateParams.showOnlyImportant)),
+                showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
+                                           parseInt($stateParams.showOnlyComparable)),
                 showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                            parseInt($stateParams.showOnlyConfident)),
                 showOnlyNoise: Boolean($stateParams.showOnlyNoise !== undefined &&
@@ -464,6 +467,7 @@ perf.controller('CompareResultsCtrl', [
                 }
                 $scope.$watchGroup(['filterOptions.filter',
                     'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyComparable',
                     'filterOptions.showOnlyConfident',
                     'filterOptions.showOnlyNoise'],
                     updateURL);
@@ -679,6 +683,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                     filter: $stateParams.filter || "",
                     showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                                parseInt($stateParams.showOnlyImportant)),
+                    showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
+                                               parseInt($stateParams.showOnlyComparable)),
                     showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                                parseInt($stateParams.showOnlyConfident)),
                     showOnlyNoise: Boolean($stateParams.showOnlyNoise !== undefined &&
@@ -688,12 +694,14 @@ perf.controller('CompareSubtestResultsCtrl', [
                 $scope.$watchGroup([
                     'filterOptions.filter',
                     'filterOptions.showOnlyImportant',
+                    'filterOptions.showOnlyComparable',
                     'filterOptions.showOnlyConfident',
                     'filterOptions.showOnlyNoise'
                 ], function () {
                     $state.transitionTo('comparesubtest', {
                         filter: $scope.filterOptions.filter,
                         showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                        showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                         showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                         showOnlyNoise: $scope.filterOptions.showOnlyNoise ? 1 : undefined
                     }, {
@@ -713,6 +721,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                     $state.go('comparesubtest', {
                         filter: $scope.filterOptions.filter,
                         showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
+                        showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                         showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                         selectedTimeRange: $scope.selectedTimeRange.value
                     });

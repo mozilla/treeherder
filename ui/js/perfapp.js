@@ -46,13 +46,13 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
             .state('compare', {
                 title: 'Compare',
                 template: compareCtrlTemplate,
-                url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyImportant&showOnlyConfident&selectedTimeRange&showOnlyNoise?',
+                url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&selectedTimeRange&showOnlyNoise?',
                 controller: 'CompareResultsCtrl'
             })
             .state('comparesubtest', {
                 title: 'Compare - Subtests',
                 template: compareSubtestCtrlTemplate,
-                url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange&showOnlyNoise?',
+                url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange&showOnlyNoise?',
                 controller: 'CompareSubtestResultsCtrl'
             })
             .state('comparechooser', {
@@ -64,13 +64,13 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
             .state('dashboard', {
                 title: 'Perfherder Dashboard',
                 template: dashboardTemplate,
-                url: '/dashboard?topic&filter&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
+                url: '/dashboard?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
                 controller: 'dashCtrl'
             })
             .state('dashboardsubtest', {
                 title: 'Perfherder Dashboard - Subtests',
                 template: dashboardSubtestTemplate,
-                url: '/dashboardsubtest?topic&filter&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
+                url: '/dashboardsubtest?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
                 controller: 'dashSubtestCtrl'
             })
             .state('comparesubtestdistribution', {

@@ -49,6 +49,7 @@ treeherder.component('phCompareTable', {
         }
         function shouldBeShown(result) {
             return (!ctrl.filterOptions.showOnlyImportant || result.isMeaningful) &&
+                (!ctrl.filterOptions.showOnlyComparable || 'newIsBetter' in result) &&
                 (!ctrl.filterOptions.showOnlyConfident || result.isConfident) &&
                 (!ctrl.filterOptions.showOnlyBlockers || result.isBlocker) &&
                 (!ctrl.filterOptions.showOnlyNoise || result.isNoiseMetric);

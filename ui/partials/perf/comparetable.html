@@ -12,6 +12,14 @@
            ng-change="$ctrl.updateFilteredTestList()"
            ng-model-options="{debounce: 250}"/>
   </div>
+  <div class="checkbox" uib-tooltip="At least 1 result for old and new revision">
+    <label>
+      <input type="checkbox"
+             ng-model="$ctrl.filterOptions.showOnlyComparable"
+             ng-change="$ctrl.updateFilteredTestList()"/>
+      Hide un-comparable results
+    </label>
+  </div>
   <div class="checkbox" uib-tooltip="Non-trivial changes (2%+)">
     <label>
       <input type="checkbox"
