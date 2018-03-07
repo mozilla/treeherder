@@ -910,20 +910,18 @@ treeherder.factory('ThResultSetStore', [
           )
         );
 
-        var getJobGroupInfo = function (job) {
+        const getJobGroupInfo = function (job) {
+          const {
+            job_group_name: name, job_group_symbol,
+            platform, platform_option, result_set_id, tier
+          } = job;
+          // this has to do with group sorting so that the tier-1 ungrouped
+          // jobs show first, and the tier>1 ungrouped jobs show last.
+          const symbol = tier > 1 ? '' : job_group_symbol;
+          const mapKey = thAggregateIds.getGroupMapKey(
+            result_set_id, symbol, tier, platform, platform_option);
 
-            var name = job.job_group_name;
-            var symbol = job.job_group_symbol;
-            var mapKey = thAggregateIds.getGroupMapKey(job.result_set_id, symbol, tier, job.platform, job.platform_option);
-            var tier;
-
-            if (job.tier && job.tier !== 1) {
-                if (symbol === "?") {
-                    symbol = "";
-                }
-                tier = job.tier;
-            }
-            return { name: name, tier: tier, symbol: symbol, mapKey: mapKey };
+          return { name, tier, symbol, mapKey };
         };
 
         /*
