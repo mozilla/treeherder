@@ -41,8 +41,11 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
     '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
     function ($compileProvider, $locationProvider, $routeProvider, $httpProvider, $logProvider,
              $resourceProvider, localStorageServiceProvider) {
-        // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
+        // Disable debug data & legacy comment/class directive syntax, as recommended by:
+        // https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
+        $compileProvider.commentDirectivesEnabled(false);
+        $compileProvider.cssClassDirectivesEnabled(false);
 
         // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
         // https://docs.angularjs.org/guide/migration#commit-aa077e8

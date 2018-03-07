@@ -13,8 +13,11 @@ import tooltipGraphsTemplate from '../partials/perf/tooltipgraphs.html';
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',
     function ($compileProvider, $locationProvider, $httpProvider, $stateProvider, $urlRouterProvider) {
-        // Disable debug data, as recommended by https://docs.angularjs.org/guide/production
+        // Disable debug data & legacy comment/class directive syntax, as recommended by:
+        // https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
+        $compileProvider.commentDirectivesEnabled(false);
+        $compileProvider.cssClassDirectivesEnabled(false);
 
         // Revert to the legacy Angular <=1.5 pre-assign bindings behaviour:
         // https://docs.angularjs.org/guide/migration#commit-bcd0d4
