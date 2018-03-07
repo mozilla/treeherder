@@ -37,7 +37,7 @@ export default class Push extends React.Component {
   }
 
   render() {
-    const { push, loggedIn, isStaff, isTryRepo, $injector, repoName } = this.props;
+    const { push, loggedIn, isStaff, $injector, repoName } = this.props;
     const { currentRepo, urlBasePath } = this.$rootScope;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
@@ -52,7 +52,6 @@ export default class Push extends React.Component {
           loggedIn={loggedIn}
           isStaff={isStaff}
           repoName={repoName}
-          isTryRepo={isTryRepo}
           urlBasePath={urlBasePath}
           $injector={$injector}
           runnableVisible={this.state.runnableVisible}
@@ -83,7 +82,6 @@ export default class Push extends React.Component {
 
 Push.propTypes = {
   push: PropTypes.object.isRequired,
-  isTryRepo: PropTypes.bool,
   loggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   repoName: PropTypes.string,
