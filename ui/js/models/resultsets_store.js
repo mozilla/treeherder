@@ -249,7 +249,6 @@ treeherder.factory('ThResultSetStore', [
                     // maps to help finding objects to update/add
                     rsMap: {},
                     jobMap: {},
-                    grpMap: {},
                     unclassifiedFailureMap: {},
                     // count of unclassified for the currently enabled tiers
                     unclassifiedFailureCountForTiers: 0,
@@ -392,17 +391,6 @@ treeherder.factory('ThResultSetStore', [
                         jobs: {}
                     };
                     plMapElement.groups[gr_obj.symbol] = grMapElement;
-
-                    // check if we need to copy groupState from an existing group
-                    // object.  This would be set if a user explicitly clicked
-                    // a group to toggle it expanded/collapsed.
-                    // This value will have been overwritten by the _.extend
-                    // in mapPushJobs.
-                    var oldGroup = repoData.grpMap[gr_obj.mapKey];
-                    if (oldGroup) {
-                        gr_obj.groupState = oldGroup.grp_obj.groupState;
-                    }
-                    repoData.grpMap[gr_obj.mapKey] = grMapElement;
 
                     // jobs
                     for (var j_i = 0; j_i < gr_obj.jobs.length; j_i++) {
