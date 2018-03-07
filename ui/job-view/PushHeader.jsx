@@ -127,10 +127,10 @@ export default class PushHeader extends React.PureComponent {
   }
 
   cancelAllJobs() {
-    const { repoName, revision, isTryRepo, isStaff, pushId } = this.props;
+    const { repoName, revision, loggedIn, pushId } = this.props;
 
     this.setState({ showConfirmCancelAll: false });
-    if (!(isTryRepo || isStaff)) return;
+    if (!loggedIn) return;
 
     this.ThResultSetModel.cancelAll(pushId).then(() => (
         this.thBuildApi.cancelAll(repoName, revision)
@@ -161,14 +161,13 @@ export default class PushHeader extends React.PureComponent {
   }
 
   render() {
-    const { repoName, loggedIn, pushId, isTryRepo, isStaff, jobCounts, author,
+    const { repoName, loggedIn, pushId, isStaff, jobCounts, author,
             revision, runnableVisible, $injector,
             showRunnableJobsCb, hideRunnableJobsCb } = this.props;
     const { filterParams } = this.state;
     const cancelJobsTitle = loggedIn ?
       "Cancel all jobs" :
       "Must be logged in to cancel jobs";
-    const canCancelJobs = isTryRepo || isStaff;
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
 
     return (
@@ -200,7 +199,7 @@ export default class PushHeader extends React.PureComponent {
               rel="noopener"
               title="View details on failed test results for this push"
             >View Tests</a>
-            {canCancelJobs &&
+            {loggedIn &&
               <button
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
@@ -276,7 +275,6 @@ PushHeader.propTypes = {
   loggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
-  isTryRepo: PropTypes.bool,
   urlBasePath: PropTypes.string,
   $injector: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,

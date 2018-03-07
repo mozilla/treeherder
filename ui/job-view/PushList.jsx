@@ -263,7 +263,6 @@ export default class PushList extends React.Component {
         {repoName && pushList.map(push => (
           <Push
             push={push}
-            isTryRepo={currentRepo.is_try_repo}
             loggedIn={loggedin || false}
             isStaff={is_staff}
             repoName={repoName}
