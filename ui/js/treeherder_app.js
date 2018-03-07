@@ -28,9 +28,12 @@ const treeherderApp = angular.module('treeherder.app', [
   treeherderModule.name,
   uiBootstrap,
   ngRoute,
+  // Remove when `ui/plugins/pluginpanel.html` converted to React.
   mcResizer,
+  // Remove when `ui/plugins/perf_details/main.html` converted to React.
   angularToArrayfilter,
   ngReactModule.name,
+  // Remove when `ui/partials/main/tcjobactions.html` converted to React.
   hcMarked,
 ]);
 
