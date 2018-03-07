@@ -66,11 +66,11 @@ export default class JobGroup extends React.Component {
   groupButtonsAndCounts(jobs, expanded, showDuplicateJobs) {
     let buttons = [];
     const counts = [];
-    const stateCounts = {};
     if (expanded) {
       // All buttons should be shown when the group is expanded
       buttons = jobs;
     } else {
+      const stateCounts = {};
       const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         if (!job.visible) return;
