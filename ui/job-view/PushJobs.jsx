@@ -29,7 +29,7 @@ export default class PushJobs extends React.Component {
 
     this.onMouseDown = this.onMouseDown.bind(this);
     this.selectJob = this.selectJob.bind(this);
-    this.filterPlatform = this.filterPlatform.bind(this);
+    this.filterPlatformCallback = this.filterPlatformCallback.bind(this);
 
     this.state = {
       platforms: {},
@@ -160,11 +160,6 @@ export default class PushJobs extends React.Component {
       const thisPlatform = { ...platform };
       thisPlatform.id = this.getIdForPlatform(platform);
       thisPlatform.name = platformMap[platform.name] || platform.name;
-      thisPlatform.groups.forEach((group) => {
-        if (group.symbol !== '?') {
-          group.grkey = group.mapKey;
-        }
-      });
       thisPlatform.visible = true;
       return { ...acc, [thisPlatform.id]: this.filterPlatform(thisPlatform, selectedJobId) };
     }, {});
@@ -209,10 +204,14 @@ export default class PushJobs extends React.Component {
         }
       });
     });
+    return platform;
+  }
+
+  filterPlatformCallback(platform, selectedJobId) {
+    this.filterPlatform(platform, selectedJobId);
     if (Object.keys(this.state.platforms).length) {
       this.setState({ platforms: { ...this.state.platforms } });
     }
-    return platform;
   }
 
   render() {
@@ -229,7 +228,7 @@ export default class PushJobs extends React.Component {
             repoName={repoName}
             $injector={$injector}
             key={id}
-            filterPlatformCb={this.filterPlatform}
+            filterPlatformCb={this.filterPlatformCallback}
           />
         )) : <tr>
           <td><span className="fa fa-spinner fa-pulse th-spinner" /></td>

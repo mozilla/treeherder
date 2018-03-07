@@ -6,6 +6,21 @@ import { getBtnClass, getStatus } from "../helpers/jobHelper";
 import { getUrlParam } from "../helpers/locationHelper";
 import { failedResults } from "../js/constants";
 
+class GroupSymbol extends React.PureComponent {
+  render() {
+    const { symbol, tier, toggleExpanded } = this.props;
+
+    return (
+      <button
+        className="btn group-symbol"
+        data-ignore-job-clear-on-click
+        onClick={toggleExpanded}
+      >{symbol}{tier && <span className="small text-muted">[tier {tier}]</span>}
+      </button>
+    );
+  }
+}
+
 export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
@@ -37,14 +52,6 @@ export default class JobGroup extends React.Component {
       }
     );
     this.toggleExpanded = this.toggleExpanded.bind(this);
-
-    const { group } = this.props;
-    this.items = this.groupButtonsAndCounts(group.jobs);
-  }
-
-  componentWillReceiveProps(newProps) {
-    const { group } = newProps;
-    this.items = this.groupButtonsAndCounts(group.jobs);
   }
 
   componentWillUnmount() {
@@ -56,14 +63,14 @@ export default class JobGroup extends React.Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
-  groupButtonsAndCounts(jobs) {
+  groupButtonsAndCounts(jobs, expanded, showDuplicateJobs) {
     let buttons = [];
     const counts = [];
-    const stateCounts = {};
-    if (this.state.expanded) {
+    if (expanded) {
       // All buttons should be shown when the group is expanded
       buttons = jobs;
     } else {
+      const stateCounts = {};
       const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         if (!job.visible) return;
@@ -73,7 +80,7 @@ export default class JobGroup extends React.Component {
           countText: status
         };
         if (failedResults.includes(status) ||
-          (typeSymbolCounts[job.job_type_symbol] > 1 && this.state.showDuplicateJobs)) {
+          (typeSymbolCounts[job.job_type_symbol] > 1 && showDuplicateJobs)) {
           // render the job itself, not a count
           buttons.push(job);
         } else {
@@ -105,26 +112,31 @@ export default class JobGroup extends React.Component {
   }
 
   render() {
-    const { group, $injector, repoName, filterPlatformCb, platform } = this.props;
+    const {
+      $injector, repoName, filterPlatformCb, platform,
+      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs }
+    } = this.props;
+    const { expanded, showDuplicateJobs } = this.state;
+    const { buttons, counts } = this.groupButtonsAndCounts(
+      groupJobs,
+      expanded,
+      showDuplicateJobs
+    );
 
     return (
       <span className="platform-group">
         <span
           className="disabled job-group"
-          title={group.name}
-          data-grkey={group.grkey}
+          title={groupName}
         >
-          <button
-            className="btn group-symbol"
-            data-ignore-job-clear-on-click
-            onClick={this.toggleExpanded}
-          >{group.symbol}{group.tier &&
-            <span className="small text-muted">[tier {group.tier}]</span>
-           }</button>
-
+          <GroupSymbol
+            symbol={groupSymbol}
+            tier={groupTier}
+            toggleExpanded={this.toggleExpanded}
+          />
           <span className="group-content">
             <span className="group-job-list">
-              {this.items.buttons.map(job => (
+              {buttons.map(job => (
                 <JobButton
                   job={job}
                   $injector={$injector}
@@ -139,7 +151,7 @@ export default class JobGroup extends React.Component {
               ))}
             </span>
             <span className="group-count-list">
-              {this.items.counts.map(countInfo => (
+              {counts.map(countInfo => (
                 <JobCountComponent
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
