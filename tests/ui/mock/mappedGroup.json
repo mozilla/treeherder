@@ -1,6 +1,7 @@
 {
   "name": "Web platform tests with e10s",
   "symbol": "W-e10s",
+  "tier": 1,
   "jobs": [
     {
       "build_architecture": "-",
@@ -120,6 +121,6 @@
       "selected": false
     }
   ],
-  "mapKey": "313281W-e10sundefinedlinux64debug",
+  "mapKey": "313281W-e10s1linux64debug",
   "visible": true
 }

@@ -9,13 +9,14 @@ import { failedResults } from "../js/constants";
 class GroupSymbol extends React.PureComponent {
   render() {
     const { symbol, tier, toggleExpanded } = this.props;
+    const groupSymbol = symbol === '?' ? '' : symbol;
 
     return (
       <button
         className="btn group-symbol"
         data-ignore-job-clear-on-click
         onClick={toggleExpanded}
-      >{symbol}{tier && <span className="small text-muted">[tier {tier}]</span>}
+      >{groupSymbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
       </button>
     );
   }

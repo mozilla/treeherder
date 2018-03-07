@@ -1,6 +1,7 @@
 {
   "name": "Spidermonkey builds",
   "symbol": "SM",
+  "tier": 1,
   "jobs": [
     {
       "build_architecture": "-",
@@ -276,6 +277,6 @@
       "selected": false
     }
   ],
-  "mapKey": "313293SMundefinedlinux64opt",
+  "mapKey": "313293SM1linux64opt",
   "visible": true
 }
