@@ -22,7 +22,6 @@ module.exports = neutrino => {
                 },
                 rules: {
                     // TODO: Fix & remove these deviations from AirBnB style (bug 1183749).
-                    'block-scoped-var': 'off',
                     'camelcase': 'off',
                     'class-methods-use-this': 'off',
                     'comma-dangle': 'off',
@@ -47,10 +46,7 @@ module.exports = neutrino => {
                     'no-shadow': 'off',
                     'no-underscore-dangle': 'off',
                     'no-useless-escape': 'off',
-                    'no-var': 'off',
                     'object-shorthand': 'off',
-                    'one-var': 'off',
-                    'one-var-declaration-per-line': 'off',
                     'padded-blocks': 'off',
                     'prefer-arrow-callback': 'off',
                     'prefer-rest-params': 'off',
@@ -65,7 +61,6 @@ module.exports = neutrino => {
                     'react/require-default-props': 'off',
                     'space-infix-ops': 'off',
                     'spaced-comment': 'off',
-                    'vars-on-top': 'off',
                 },
                 globals: [
                     '$',

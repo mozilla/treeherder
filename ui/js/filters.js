@@ -5,24 +5,24 @@ import treeherder from './treeherder';
 
 treeherder.filter('stripHtml', function () {
     return function (input) {
-        var str = input || '';
+        const str = input || '';
         return str.replace(/<\/?[^>]+>/gi, '');
     };
 });
 
 treeherder.filter('linkifyBugs', function () {
     return function (input) {
-        var str = input || '';
+        let str = input || '';
 
-        var bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
-        var pr_matches = str.match(/PR#([0-9]+)/ig);
+        const bug_matches = str.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
+        const pr_matches = str.match(/PR#([0-9]+)/ig);
 
         // Settings
-        var bug_title = 'bugzilla.mozilla.org';
-        var bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
+        const bug_title = 'bugzilla.mozilla.org';
+        const bug_url = '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=$1" ' +
             'data-bugid="$1" title="' + bug_title + '">$1</a>';
-        var pr_title = 'github.com';
-        var pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
+        const pr_title = 'github.com';
+        const pr_url = '<a href="https://github.com/mozilla-b2g/gaia/pull/$1" ' +
             'data-prid="$1" title="' + pr_title + '">$1</a>';
 
         if (bug_matches) {
@@ -44,7 +44,7 @@ treeherder.filter('linkifyBugs', function () {
 
 treeherder.filter('highlightLogLine', function () {
     return function (logLine) {
-        var parts = logLine.split(" | ", 3);
+        const parts = logLine.split(" | ", 3);
         if (parts[0].startsWith("TEST-UNEXPECTED")) {
             parts[0] = "<strong class='failure-line-status'>" + parts[0] + "</strong>";
             parts[1] = "<strong>" + parts[1] + "</strong>";
@@ -55,9 +55,9 @@ treeherder.filter('highlightLogLine', function () {
 
 treeherder.filter('highlightCommonTerms', function () {
     return function (input) {
-        var compareStr = Array.prototype.slice.call(arguments, 1).filter(
+        const compareStr = Array.prototype.slice.call(arguments, 1).filter(
             function (x) { return x; }).join(" ");
-        var tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
+        const tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
         tokens.sort(function (a, b) {
             return b.length - a.length;
         });

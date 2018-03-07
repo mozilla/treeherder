@@ -7,7 +7,7 @@ treeherder.factory('thNotify', [
     function ($timeout, localStorageService) {
         //a growl-like notification system
 
-        var thNotify = {
+        const thNotify = {
             // message queue
             notifications: [],
 
@@ -29,8 +29,8 @@ treeherder.factory('thNotify', [
                 opts = opts || {};
                 severity = severity || 'info';
 
-                var maxNsNotifications = 5;
-                var notification = {
+                const maxNsNotifications = 5;
+                const notification = {
                     ...opts,
                     message,
                     severity,
@@ -70,7 +70,7 @@ treeherder.factory('thNotify', [
              * Delete the first non-sticky element from the notifications queue
              */
             shift: function () {
-                for (var i=0; i<thNotify.notifications.length; i++) {
+                for (let i=0; i<thNotify.notifications.length; i++) {
                     if (!thNotify.notifications[i].sticky) {
                         thNotify.remove(i);
                         return;
@@ -101,7 +101,7 @@ treeherder.factory('thPlatformName', [
     function (thPlatformMap) {
 
         return function (name) {
-            var platformName = thPlatformMap[name];
+            let platformName = thPlatformMap[name];
             if (_.isUndefined(platformName)) {
                 platformName = name;
             }
@@ -140,11 +140,11 @@ treeherder.factory('thExtendProperties', [
     function () {
         return function (dest, src) {
             if (dest !== src) {
-                for (var key in src) {
+                for (const key in src) {
                     if (!src.hasOwnProperty(key)) {
                         continue;
                     }
-                    var descriptor = Object.getOwnPropertyDescriptor(src, key);
+                    const descriptor = Object.getOwnPropertyDescriptor(src, key);
                     if (descriptor && descriptor.get) {
                         Object.defineProperty(dest, key, {
                             get: descriptor.get,

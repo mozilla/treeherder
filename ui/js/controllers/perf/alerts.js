@@ -7,18 +7,18 @@ perf.factory('PhBugs', [
         return {
             fileBug: function (alertSummary) {
                 $http.get(`${SERVICE_DOMAIN}/api/performance/bug-template/?framework=${alertSummary.framework}`).then(function (response) {
-                    var template = response.data[0];
-                    var repo = _.find($rootScope.repos, { name: alertSummary.repository });
-                    var compiledText = $interpolate(template.text)({
+                    const template = response.data[0];
+                    const repo = _.find($rootScope.repos, { name: alertSummary.repository });
+                    const compiledText = $interpolate(template.text)({
                         revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
                             alertSummary.id,
                         alertSummary: alertSummary.getTextualSummary()
                     });
-                    var pushDate = dateFilter(
+                    const pushDate = dateFilter(
                         alertSummary.resultSetMetadata.push_timestamp*1000,
                         "EEE MMM d yyyy");
-                    var bugTitle = alertSummary.getTitle() +
+                    const bugTitle = alertSummary.getTitle() +
                         " regression on push " +
                         alertSummary.resultSetMetadata.revision + " (" +
                         pushDate + ")";
@@ -45,10 +45,10 @@ perf.controller(
             $scope.issue_trackers = phAlertSummaryIssueTrackersMap;
 
             $scope.update = function () {
-                var newId = parseInt(
+                const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
-                var selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
+                const selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
 
                 $scope.modifying = true;
                 alertSummary.assignBug(newId, selectedIssueTracker.id).then(function () {
@@ -76,7 +76,7 @@ perf.controller(
             $scope.placeholder = "Alert #";
 
             $scope.update = function () {
-                var newId = parseInt(
+                const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
                 alertSummary.modifySelectedAlerts({
@@ -84,7 +84,7 @@ perf.controller(
                     related_summary_id: newId
                 }).then(
                     function () {
-                        var summariesToUpdate = [alertSummary].concat(
+                        const summariesToUpdate = [alertSummary].concat(
                             _.find(allAlertSummaries, function (alertSummary) {
                                 return alertSummary.id === newId;
                             }) || []);
@@ -115,7 +115,7 @@ perf.controller(
 
             $scope.update = function () {
 
-                var newId = parseInt(
+                const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
                 // FIXME: validate that new summary id is on same repository?
@@ -124,7 +124,7 @@ perf.controller(
                     related_summary_id: newId
                 }).then(function () {
                     // FIXME: duplication with downstream alerts controller
-                    var summariesToUpdate = [alertSummary].concat(
+                    const summariesToUpdate = [alertSummary].concat(
                         _.find(allAlertSummaries, function (alertSummary) {
                             return alertSummary.id === newId;
                         }) || []);
@@ -333,7 +333,7 @@ perf.controller('AlertsCtrl', [
         $scope.resetAlerts = function (alertSummary) {
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
-            var summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
+            const summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
                 alertSummary.alerts.filter(alert => alert.selected),
                 function (alert) {
                     return _.find($scope.alertSummaries, function (alertSummary) {
@@ -369,7 +369,7 @@ perf.controller('AlertsCtrl', [
             // (this is sadly easier to do on the client side than the server
             // right now, because all the result set information is in a
             // different database than the perf data)
-            var resultSetToSummaryMap = {};
+            const resultSetToSummaryMap = {};
             alertSummaries.forEach(function (alertSummary) {
                 // initialize summary map for this repository, if not already
                 // initialized
@@ -380,7 +380,7 @@ perf.controller('AlertsCtrl', [
                     function (resultSetId) {
                         // skip nulls
                         if (resultSetId === null) return;
-                        var repoMap = resultSetToSummaryMap[alertSummary.repository];
+                        const repoMap = resultSetToSummaryMap[alertSummary.repository];
                         // initialize map for this result set, if not already
                         // initialized
                         _.defaults(repoMap, _.set({}, resultSetId, []));
@@ -417,7 +417,7 @@ perf.controller('AlertsCtrl', [
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 alertSummaries.forEach(function (summary) {
-                    var repo = _.find($rootScope.repos,
+                    const repo = _.find($rootScope.repos,
                                       { name: summary.repository });
 
                     if (summary.prevResultSetMetadata &&
@@ -497,9 +497,9 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.filtersUpdated = function () {
-            var statusFilterChanged = (parseInt($state.params.status) !==
+            const statusFilterChanged = (parseInt($state.params.status) !==
                                        $scope.filterOptions.status.id);
-            var frameworkFilterChanged = (parseInt($state.params.framework) !==
+            const frameworkFilterChanged = (parseInt($state.params.framework) !==
                                           $scope.filterOptions.framework.id);
 
             $state.transitionTo('alerts', {

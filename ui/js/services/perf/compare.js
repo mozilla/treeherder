@@ -6,11 +6,11 @@ treeherder.factory('PhCompare', [
 
         // Used for t_test: default stddev if both sets have only a single value - 15%.
         // Should be rare case and it's unreliable, but at least have something.
-        var STDDEV_DEFAULT_FACTOR = 0.15;
+        const STDDEV_DEFAULT_FACTOR = 0.15;
 
-        var RATIO_CARE_MIN = 1.02; // We don't care about less than ~2% diff
-        var T_VALUE_CARE_MIN = 3; // Anything below this is "low" in confidence
-        var T_VALUE_CONFIDENT = 5; // Anything above this is "high" in confidence
+        const RATIO_CARE_MIN = 1.02; // We don't care about less than ~2% diff
+        const T_VALUE_CARE_MIN = 3; // Anything below this is "low" in confidence
+        const T_VALUE_CONFIDENT = 5; // Anything above this is "high" in confidence
 
         function getClassName(newIsBetter, oldVal, newVal, abs_t_value) {
             // NOTE: we care about general ratio rather than how much is new compared
@@ -25,7 +25,7 @@ treeherder.factory('PhCompare', [
                 // handle null case
                 return "";
             }
-            var ratio = newVal / oldVal;
+            let ratio = newVal / oldVal;
             if (ratio < 1) {
                 ratio = 1 / ratio; // Direction agnostic and always >= 1.
             }
@@ -99,11 +99,11 @@ treeherder.factory('PhCompare', [
                 }
 
                 // Eventually the result object, after setting properties as required.
-                var cmap = { isEmpty: true };
+                const cmap = { isEmpty: true };
 
                 // It's possible to get an object with empty values, so check for that too.
-                var hasOrig = originalData && originalData.values.length;
-                var hasNew = newData && newData.values.length;
+                const hasOrig = originalData && originalData.values.length;
+                const hasNew = newData && newData.values.length;
 
                 if (!hasOrig && !hasNew) {
                     return cmap; // No data for either side
@@ -112,7 +112,7 @@ treeherder.factory('PhCompare', [
                 cmap.isEmpty = false;
 
                 if (hasOrig) {
-                    var orig = analyzeSet(originalData.values, testName);
+                    const orig = analyzeSet(originalData.values, testName);
                     cmap.originalValue = orig.average;
                     cmap.originalRuns = orig.runs;
                     cmap.originalStddev = orig.stddev;
@@ -121,7 +121,7 @@ treeherder.factory('PhCompare', [
                     cmap.originalRuns = [];
                 }
                 if (hasNew) {
-                    var newd = analyzeSet(newData.values, testName);
+                    const newd = analyzeSet(newData.values, testName);
                     cmap.newValue = newd.average;
                     cmap.newRuns = newd.runs;
                     cmap.newStddev = newd.stddev;
@@ -149,7 +149,7 @@ treeherder.factory('PhCompare', [
                 // at 100 (so 20% regression === 100% bad)
                 cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
 
-                var abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
+                const abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                 cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                 cmap.confidence = abs_t_value;
                 cmap.confidenceTextLong = "Result of running t-test on base versus new result distribution: ";
@@ -190,12 +190,12 @@ treeherder.factory('PhCompare', [
             },
 
             getInterval: function (oldTimestamp, newTimestamp) {
-                var now = (new Date()).getTime() / 1000;
-                var timeRange = Math.min(oldTimestamp, newTimestamp);
+                const now = (new Date()).getTime() / 1000;
+                let timeRange = Math.min(oldTimestamp, newTimestamp);
                 timeRange = Math.round(now - timeRange);
 
                 //now figure out which predefined set of data we can query from
-                var phTimeRange = _.find(phTimeRanges, function (i) { return timeRange <= i.value; });
+                const phTimeRange = _.find(phTimeRanges, function (i) { return timeRange <= i.value; });
                 return phTimeRange.value;
             },
 
@@ -203,7 +203,7 @@ treeherder.factory('PhCompare', [
                                     originalRevision, newRevision,
                                     originalSignature, newSignature) {
 
-                var errors = [];
+                const errors = [];
                 if (!originalProject) errors.push('Missing input: originalProject');
                 if (!newProject) errors.push('Missing input: newProject');
                 if (!originalRevision) errors.push('Missing input: originalRevision');
@@ -272,7 +272,7 @@ treeherder.factory('PhCompare', [
             },
 
             getGraphsLink: function (seriesList, resultSets, timeRange) {
-                var graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
+                let graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
                     series: _.map(seriesList, function (series) {
                         return [
                             series.projectName,
@@ -320,7 +320,7 @@ treeherder.factory('PhCompare', [
             getTrendMap: function getDisplayLineData(testName, baseData, newData) {
 
                 // Eventually the result object, after setting properties as required.
-                var trendMap = { isEmpty: true };
+                const trendMap = { isEmpty: true };
 
                 // It's possible to get an object with empty values, so check for that too.
                 if (!baseData.delta && !newData.delta) {

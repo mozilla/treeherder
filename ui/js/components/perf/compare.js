@@ -26,7 +26,7 @@ treeherder.component('phCompareTable', {
     controller: ['$attrs', function ($attrs) {
         // TODO: Use $onInit() so the legacy preAssignBindingsEnabled pref
         // doesn't have to be enabled in perfapp.js
-        var ctrl = this;
+        const ctrl = this;
 
         if (!ctrl.baseTitle) {
             ctrl.baseTitle = "Base";
@@ -59,7 +59,7 @@ treeherder.component('phCompareTable', {
                 return results;
             }
             return results.filter((result) => {
-                var testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
+                const testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
                 return _.every(ctrl.filterOptions.filter.split(' '), function (matchText) {
                     if ($attrs.type === 'trend') {
                         return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
@@ -72,7 +72,7 @@ treeherder.component('phCompareTable', {
         ctrl.updateFilteredTestList = function () {
             ctrl.filteredResultList = {};
             _.forEach(ctrl.compareResults, function (result, key) {
-                var compareResults = filterResult(result, key);
+                const compareResults = filterResult(result, key);
                 if (compareResults.length > 0) {
                     ctrl.filteredResultList[key] = compareResults;
                 }

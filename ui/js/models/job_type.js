@@ -9,14 +9,14 @@ treeherder.factory('ThJobTypeModel', [
 
         // ThJobTypeModel is the js counterpart of job_type
 
-        var ThJobTypeModel = function (data) {
+        const ThJobTypeModel = function (data) {
             // creates a new instance of ThJobTypeModel
             // using the provided properties
             angular.extend(this, data);
         };
 
         ThJobTypeModel.get_uri = function () {
-            var url = getRootUrl("/jobtype/");
+            const url = getRootUrl("/jobtype/");
             return url;
         };
 
@@ -28,7 +28,7 @@ treeherder.factory('ThJobTypeModel', [
                 params: options
             })
                 .then(function (response) {
-                    var item_list = [];
+                    const item_list = [];
                     angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobTypeModel(elem));
                     });

@@ -7,7 +7,7 @@ message handling.
 treeherder.factory('ThModelErrors', [function () {
     // Generic error message when we encounter 401 status codes from the
     // server.
-    var AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
+    const AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
 
     return {
         /**
@@ -24,7 +24,7 @@ treeherder.factory('ThModelErrors', [function () {
             }
 
             // If there is nothing in the server message use the HTTP response status.
-            var errorMessage = e.data.detail || e.status + ' ' + e.statusText;
+            const errorMessage = e.data.detail || e.status + ' ' + e.statusText;
             return message + ': ' + errorMessage;
         }
     };

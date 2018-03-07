@@ -1,4 +1,6 @@
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, no-var, vars-on-top */
+// TODO: Vet/fix the use-before-defines to ensure switching var
+// to let/const won't break anything (such as bug 1443667).
 
 import treeherder from '../treeherder';
 

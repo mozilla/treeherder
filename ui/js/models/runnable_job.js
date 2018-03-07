@@ -6,7 +6,7 @@ import { getProjectUrl } from "../../helpers/urlHelper";
 treeherder.factory('ThRunnableJobModel', [
     'ThJobModel',
     function (ThJobModel) {
-        var ThRunnableJobModel = function (data) {
+        const ThRunnableJobModel = function (data) {
             angular.extend(this, data);
         };
 

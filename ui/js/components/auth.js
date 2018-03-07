@@ -60,7 +60,7 @@ treeherder.component("login", {
                 // SERVICE_DOMAIN isn't being used, so no mismatch possible.
                 this.userCanLogin = true;
             } else {
-                var a = document.createElement('a');
+                const a = document.createElement('a');
                 a.href = SERVICE_DOMAIN;
                 this.userCanLogin = (a.hostname === $location.host() && a.port === $location.port);
             }

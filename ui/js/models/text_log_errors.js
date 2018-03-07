@@ -7,7 +7,7 @@ treeherder.factory('ThTextLogErrorsModel', [
     '$http', '$q',
     function ($http, $q) {
 
-        var ThTextLogErrorsModel = function (data) {
+        const ThTextLogErrorsModel = function (data) {
             if (data.metadata === null) {
                 data.metadata = {};
             }
@@ -23,7 +23,7 @@ treeherder.factory('ThTextLogErrorsModel', [
             // the timeout configuration parameter is a promise that can be used to abort
             // the ajax request
             config = config || {};
-            var timeout = config.timeout || null;
+            const timeout = config.timeout || null;
             return $http.get(ThTextLogErrorsModel.getUrl(job_id), {
                 timeout: timeout,
                 cache: false

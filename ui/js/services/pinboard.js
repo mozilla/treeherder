@@ -7,11 +7,11 @@ treeherder.factory('thPinboard', [
         ThJobClassificationModel, $rootScope, thEvents,
         ThBugJobMapModel, thNotify, ThModelErrors, ThResultSetStore, thPinboardCountError) {
 
-        var pinnedJobs = {};
-        var relatedBugs = {};
+        const pinnedJobs = {};
+        const relatedBugs = {};
 
-        var saveClassification = function (job) {
-            var classification = new ThJobClassificationModel(this);
+        const saveClassification = function (job) {
+            const classification = new ThJobClassificationModel(this);
 
             // classification can be left unset making this a no-op
             if (classification.failure_classification_id > 0) {
@@ -25,7 +25,7 @@ treeherder.factory('thPinboard', [
                     .then(() => {
                         thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
                     }).catch((response) => {
-                        var message = "Error saving classification for " + job.platform + " " + job.job_type_name;
+                        const message = "Error saving classification for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
                             ThModelErrors.format(response, message),
                             "danger"
@@ -34,9 +34,9 @@ treeherder.factory('thPinboard', [
             }
         };
 
-        var saveBugs = function (job) {
+        const saveBugs = function (job) {
             Object.values(relatedBugs).forEach(function (bug) {
-                var bjm = new ThBugJobMapModel({
+                const bjm = new ThBugJobMapModel({
                     bug_id: bug.id,
                     job_id: job.id,
                     type: 'annotation'
@@ -45,7 +45,7 @@ treeherder.factory('thPinboard', [
                     .then(() => {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
                     }).catch((response) => {
-                        var message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
+                        const message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
                         thNotify.send(
                             ThModelErrors.format(response, message),
                             "danger"
@@ -54,7 +54,7 @@ treeherder.factory('thPinboard', [
             });
         };
 
-        var api = {
+        const api = {
             toggleJobPin: function (job) {
                 if (pinnedJobs[job.id]) {
                     api.unPinJob(job.id);
@@ -84,10 +84,10 @@ treeherder.factory('thPinboard', [
 
             // clear all pinned jobs and related bugs
             unPinAll: function () {
-                for (var jid in pinnedJobs) {
+                for (const jid in pinnedJobs) {
                     if (pinnedJobs.hasOwnProperty(jid)) { delete pinnedJobs[jid]; }
                 }
-                for (var bid in relatedBugs) {
+                for (const bid in relatedBugs) {
                     if (relatedBugs.hasOwnProperty(bid)) { delete relatedBugs[bid]; }
                 }
                 api.count.numPinnedJobs = _.size(pinnedJobs);
@@ -119,8 +119,8 @@ treeherder.factory('thPinboard', [
             // save the classification and related bugs to all pinned jobs
             save: function (classification) {
 
-                var pinnedJobsClone = {};
-                var jid;
+                const pinnedJobsClone = {};
+                let jid;
                 for (jid in pinnedJobs) {
                     if (pinnedJobs.hasOwnProperty(jid)) {
                         pinnedJobsClone[jid] = pinnedJobs[jid];

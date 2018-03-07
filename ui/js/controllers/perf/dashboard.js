@@ -36,7 +36,7 @@ perf.controller('dashCtrl', [
         }
 
         function loadData() {
-            var resultsMap = {
+            const resultsMap = {
                 variant: {},
                 base: {}
             };
@@ -45,7 +45,8 @@ perf.controller('dashCtrl', [
             $scope.compareResults = {};
             $scope.titles = {};
 
-            var getSeriesList, resultSetId;
+            let getSeriesList;
+            let resultSetId;
             if ($scope.revision) {
                 getSeriesList = ThResultSetModel.getResultSetsFromRevision(
                     $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
@@ -71,7 +72,7 @@ perf.controller('dashCtrl', [
                 $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
 
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
-                    var params = {
+                    const params = {
                         signature_id: _.map(seriesChunk, 'id'),
                         framework: $scope.framework
                     };
@@ -83,8 +84,8 @@ perf.controller('dashCtrl', [
 
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
                         _.forIn(seriesData, function (data, signature) {
-                            var series = _.find(seriesChunk, { signature: signature });
-                            var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
+                            const series = _.find(seriesChunk, { signature: signature });
+                            const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                             resultsMap[type][signature] = {
                                 platform: series.platform,
                                 name: series.testName,
@@ -100,16 +101,16 @@ perf.controller('dashCtrl', [
                     $scope.testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
                         $scope.platformList.forEach(function (platform) {
-                            var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                            const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
                                 return resultsMap.base[sig].name === testName &&
                                     resultsMap.base[sig].platform === platform;
                             });
-                            var variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
+                            const variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
                                 return resultsMap.variant[sig].name === testName &&
                                     resultsMap.variant[sig].platform === platform;
                             });
                             if (variantSig && baseSig) {
-                                var cmap = PhCompare.getCounterMap(
+                                const cmap = PhCompare.getCounterMap(
                                     testName, resultsMap.base[baseSig],
                                     resultsMap.variant[variantSig], phBlockers);
                                 cmap.name = platform + ' ' + resultsMap.base[baseSig].option;
@@ -125,7 +126,7 @@ perf.controller('dashCtrl', [
                                         }))
                                 }];
                                 if (resultsMap.base[baseSig].hasSubTests) {
-                                    var params = {
+                                    const params = {
                                         topic: $stateParams.topic,
                                         baseSignature: baseSig,
                                         variantSignature: variantSig,
@@ -223,8 +224,8 @@ perf.controller('dashSubtestCtrl', [
              thDefaultRepo, phTimeRanges, defaultTimeRange,
              phDashboardValues) {
 
-        var baseSignature = $stateParams.baseSignature;
-        var variantSignature = $stateParams.variantSignature;
+        const baseSignature = $stateParams.baseSignature;
+        const variantSignature = $stateParams.variantSignature;
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
@@ -241,7 +242,7 @@ perf.controller('dashSubtestCtrl', [
             });
 
         function loadData() {
-            var resultsMap = {
+            const resultsMap = {
                 variant: {},
                 base: {}
             };
@@ -250,7 +251,8 @@ perf.controller('dashSubtestCtrl', [
             $scope.compareResults = {};
             $scope.titles = {};
 
-            var getSeriesList, resultSetId;
+            let getSeriesList;
+            let resultSetId;
             if ($scope.revision) {
                 getSeriesList = ThResultSetModel.getResultSetsFromRevision(
                     $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
@@ -269,12 +271,12 @@ perf.controller('dashSubtestCtrl', [
 
             // get base data
             getSeriesList.then(function (seriesList) {
-                var summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
+                const summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
                 return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
-                    var params = {
+                    const params = {
                         signature_id: _.map(seriesChunk, 'id'),
                         framework: $scope.framework
                     };
@@ -286,8 +288,8 @@ perf.controller('dashSubtestCtrl', [
                     return PhSeries.getSeriesData(
                         $scope.selectedRepo.name, params).then(function (seriesData) {
                             _.forIn(seriesData, function (data, signature) {
-                                var series = _.find(seriesList, { signature: signature });
-                                var type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
+                                const series = _.find(seriesList, { signature: signature });
+                                const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                                 resultsMap[type][signature] = {
                                     platform: series.platform,
                                     suite: series.suite,
@@ -299,19 +301,19 @@ perf.controller('dashSubtestCtrl', [
                         });
                 })).then(function () {
                     $scope.dataLoading = false;
-                    var subtestNames = _.map(resultsMap.base,
+                    const subtestNames = _.map(resultsMap.base,
                                              function (results) {
                                                  return results.name;
                                              });
                     subtestNames.forEach(function (subtestName) {
-                        var baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
+                        const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
                             return resultsMap.base[sig].name === subtestName;
                         });
-                        var variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
+                        const variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
                             return resultsMap.variant[sig].name === subtestName;
                         });
                         if (variantSig && baseSig) {
-                            var cmap = PhCompare.getCounterMap(
+                            const cmap = PhCompare.getCounterMap(
                                 subtestName, resultsMap.base[baseSig],
                                 resultsMap.variant[variantSig]);
                             cmap.name = subtestName;

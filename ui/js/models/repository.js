@@ -8,17 +8,17 @@ treeherder.factory('ThRepositoryModel', [
         $http, $rootScope, $interval, $q,
         treeStatus, thRepoGroupOrder) {
 
-        var repos = {};
-        var watchedRepos = [];
-        var orderedRepoGroups = {};
-        var maxWatchedRepos = 3;
+        const repos = {};
+        const watchedRepos = [];
+        const orderedRepoGroups = {};
+        const maxWatchedRepos = 3;
 
         // get the repositories (aka trees)
         // sample: 'resources/menu.json'
-        var getByName = function (name) {
+        const getByName = function (name) {
             if ($rootScope.repos !== undefined) {
-                for (var i = 0; i < $rootScope.repos.length; i++) {
-                    var repo = $rootScope.repos[i];
+                for (let i = 0; i < $rootScope.repos.length; i++) {
+                    const repo = $rootScope.repos[i];
                     if (repo.name === name) {
                         return repo;
                     }
@@ -28,9 +28,9 @@ treeherder.factory('ThRepositoryModel', [
         };
 
 
-        var getOrderedRepoGroups = function () {
+        const getOrderedRepoGroups = function () {
             if (!_.size(orderedRepoGroups)) {
-                var groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
+                const groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
                 _.each(groups, function (reposAr, gName) {
                     orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
                 });
@@ -44,7 +44,7 @@ treeherder.factory('ThRepositoryModel', [
          * setting the value to 'unsupported' means that it won't bother checking
          * treestatus again for that repo when the interval does the updates.
          */
-        var getUnsupportedTreeStatus = function (repoName) {
+        const getUnsupportedTreeStatus = function (repoName) {
             return {
                 status: "unsupported",
                 message_of_the_day: repoName +
@@ -58,7 +58,7 @@ treeherder.factory('ThRepositoryModel', [
          * if there's an error fetching data from treestatus, make that obvious
          * in the treestatus field in treeherder
          */
-        var getErrorTreeStatus = function (repoName) {
+        const getErrorTreeStatus = function (repoName) {
             return {
                 status: "error",
                 message_of_the_day: 'Error reaching <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
@@ -73,18 +73,18 @@ treeherder.factory('ThRepositoryModel', [
          * @param repoName
          * @returns a promise
          */
-        var updateTreeStatus = function (repoName) {
+        const updateTreeStatus = function (repoName) {
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            var repoNames = watchedRepos.indexOf(repoName) !== -1 ? [repoName] : watchedRepos;
+            let repoNames = watchedRepos.indexOf(repoName) !== -1 ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
             repoNames = repoNames.filter(repo => watchedRepos.indexOf(repo) !== -1 && repos[repo].treeStatus.status !== 'unsupported');
-            var newStatuses = {};
+            const newStatuses = {};
 
-            var updateStatusesIfDone = function () {
+            const updateStatusesIfDone = function () {
                 if (_.size(newStatuses) === repoNames.length) {
                     // we've received all the statuses we expect to
                     _.defer(function () {
@@ -95,7 +95,7 @@ treeherder.factory('ThRepositoryModel', [
                 }
             };
 
-            var getStatus = function (repo) {
+            const getStatus = function (repo) {
                 treeStatus.get(repo).then(
                     function (data) {
                         newStatuses[repo] = data.data.result;
@@ -114,7 +114,7 @@ treeherder.factory('ThRepositoryModel', [
             _.each(repoNames, getStatus);
         };
 
-        var addRepoAsUnwatched = function (repo) {
+        const addRepoAsUnwatched = function (repo) {
             repos[repo.name] = {
                 treeStatus: null,
                 unclassifiedFailureCount: 0,
@@ -122,7 +122,7 @@ treeherder.factory('ThRepositoryModel', [
             };
         };
 
-        var loadWatchedRepos = function () {
+        const loadWatchedRepos = function () {
             try {
                 return JSON.parse(localStorage.getItem("thWatchedRepos"));
             } catch (e) {
@@ -131,7 +131,7 @@ treeherder.factory('ThRepositoryModel', [
             }
         };
 
-        var saveWatchedRepos = function () {
+        const saveWatchedRepos = function () {
             try {
                 localStorage.setItem("thWatchedRepos", JSON.stringify(watchedRepos));
             } catch (e) {
@@ -143,7 +143,7 @@ treeherder.factory('ThRepositoryModel', [
          * We want to add this repo as watched, but we also
          * want to get the treestatus for it
          */
-        var watchRepo = function (name) {
+        const watchRepo = function (name) {
             // Safeguard: Don't allow duplicates in the watch list
             // Also, only add items for which we have data for
             if (watchedRepos.indexOf(name) !== -1 || !repos[name]) {
@@ -163,27 +163,27 @@ treeherder.factory('ThRepositoryModel', [
             saveWatchedRepos();
         };
 
-        var unwatchRepo = function (name) {
-            var pos = watchedRepos.indexOf(name);
+        const unwatchRepo = function (name) {
+            const pos = watchedRepos.indexOf(name);
             if (pos > -1) {
                 watchedRepos.splice(pos, 1);
             }
             saveWatchedRepos();
         };
 
-        var get_uri = function () {
+        const get_uri = function () {
             return getRootUrl("/repository/");
         };
 
-        var get_list = function () {
+        const get_list = function () {
             return $http.get(get_uri(), { cache: true });
         };
 
-        var getCurrent = function () {
+        const getCurrent = function () {
             return $rootScope.currentRepo;
         };
 
-        var setCurrent = function (name) {
+        const setCurrent = function (name) {
             if (!$rootScope.currentRepo || $rootScope.currentRepo.name !== name) {
                 $rootScope.currentRepo = getByName(name);
 
@@ -202,7 +202,7 @@ treeherder.factory('ThRepositoryModel', [
             }
         };
 
-        var load = function (options) {
+        const load = function (options) {
             options = options || {};
 
             if (!$rootScope.repos) {
@@ -266,8 +266,9 @@ treeherder.factory('ThRepositoryModel', [
                         // This needs to be done before `setCurrent` because
                         // `setCurrent` overwrites the entire listing
                         // with only the default repo
+                        let storedWatched;
                         if (options.watchRepos) {
-                            var storedWatched = loadWatchedRepos();
+                            storedWatched = loadWatchedRepos();
                         }
 
                         if (options.name) {
@@ -302,7 +303,7 @@ treeherder.factory('ThRepositoryModel', [
             });
         };
 
-        var toggleWatched = function (repoName) {
+        const toggleWatched = function (repoName) {
             if (watchedRepos[repoName]) {
                 unwatchRepo(repoName);
             } else {
@@ -311,7 +312,7 @@ treeherder.factory('ThRepositoryModel', [
 
         };
 
-        var getCurrentTreeStatus = function () {
+        const getCurrentTreeStatus = function () {
             try {
                 return repos[$rootScope.repoName].treeStatus.status;
             } catch (Exception) {

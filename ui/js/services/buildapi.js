@@ -4,9 +4,9 @@ treeherder.factory('thBuildApi', [
     '$http', 'thNotify',
     function ($http, thNotify) {
 
-        var selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
+        const selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
 
-        var notify = function (status, action) {
+        const notify = function (status, action) {
             /*
               Use this logic if self-serve can return us a parse-able response.
               currently it comes back here with status 0 for success and error, so

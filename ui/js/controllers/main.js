@@ -21,8 +21,8 @@ treeherderApp.controller('MainCtrl', [
          *  revisionPollInterval: How often we check revision.txt for changes
          *  revisionPollDelayedInterval: Aggressively notify about revision changes after this delay
          */
-        var revisionPollInterval = 1000 * 60 * 5;
-        var revisionPollDelayedInterval = 1000 * 60 * 60;
+        const revisionPollInterval = 1000 * 60 * 5;
+        const revisionPollDelayedInterval = 1000 * 60 * 60;
         $rootScope.serverChanged = false;
         $rootScope.serverChangedDelayed = false;
 
@@ -40,7 +40,7 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.revision = $location.search().revision;
         thClassificationTypes.load();
 
-        var checkServerRevision = function () {
+        const checkServerRevision = function () {
             return $q(function (resolve, reject) {
                 $http({
                     method: 'GET',
@@ -83,9 +83,9 @@ treeherderApp.controller('MainCtrl', [
             }, revisionPollInterval);
         });
 
-        var getSingleRevisionTitleString = function () {
-            var revisions = [];
-            var percentComplete;
+        const getSingleRevisionTitleString = function () {
+            let revisions = [];
+            let percentComplete;
 
             if ($scope.currentRepo && ThResultSetStore.getPushArray()[0]) {
                 revisions = ThResultSetStore.getPushArray()[0].revisions;
@@ -101,8 +101,9 @@ treeherderApp.controller('MainCtrl', [
                 percentComplete = ThResultSetStore.getPushArray()[0].job_counts.percentComplete;
             }
 
-            for (var i=0; i<revisions.length; i++) {
-                var title = _.unescape(revisions[i].comments);
+            let title;
+            for (let i=0; i<revisions.length; i++) {
+                title = _.unescape(revisions[i].comments);
 
                 /*
                  *  Strip out unwanted things like additional lines, trychooser
@@ -124,16 +125,16 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $rootScope.getWindowTitle = function () {
-            var ufc = $scope.getAllUnclassifiedFailureCount();
-            var params = $location.search();
+            const ufc = $scope.getAllUnclassifiedFailureCount();
+            const params = $location.search();
 
             // repoName is undefined for the first few title update attempts, show something sensible
-            var title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
+            let title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
 
             if (params.revision) {
-                var desc = getSingleRevisionTitleString();
-                var revtitle = desc[0] ? ": " + desc[0] : "";
-                var percentage = desc[1] ? desc[1] + "% - " : "";
+                const desc = getSingleRevisionTitleString();
+                const revtitle = desc[0] ? ": " + desc[0] : "";
+                const percentage = desc[1] ? desc[1] + "% - " : "";
 
                 title = percentage + title + revtitle;
             }
@@ -161,7 +162,7 @@ treeherderApp.controller('MainCtrl', [
          * check this each time a drop-down is invoked.
          */
         $scope.setDropDownPull = function (event) {
-            var element = event.target.offsetParent;
+            const element = event.target.offsetParent;
             if (element.offsetLeft > $(window).width() / 2) {
                 $(element).find(".dropdown-menu").addClass("pull-right");
             } else {
@@ -186,7 +187,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.groupState = $scope.getGroupState();
 
         $scope.toggleGroupState = function () {
-            var newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
+            const newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
             $location.search("group_state", newGroupState);
         };
 
@@ -223,9 +224,9 @@ treeherderApp.controller('MainCtrl', [
         $scope.updateTiers = function () {
             // If any tier has changed, update the tier menu check boxes and
             // throw an event.
-            var changed = false;
+            let changed = false;
             thJobFilters.tiers.forEach(function (tier) {
-                var isShowing = $scope.isTierShowing(tier);
+                const isShowing = $scope.isTierShowing(tier);
                 if (isShowing !== $scope.tiers[tier]) {
                     $scope.tiers[tier] = isShowing;
                     changed = true;
@@ -238,7 +239,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         // Setup key event handling
-        var stopOverrides = new Map();
+        const stopOverrides = new Map();
 
         Mousetrap.stopCallback = function (ev, element, combo) {
             // if the element has the class "mousetrap" then no need to stop
@@ -250,9 +251,9 @@ treeherderApp.controller('MainCtrl', [
             if ($document[0].body.classList.contains("filer-open")) {
                 return true;
             }
-            var overrideFunc = stopOverrides.get(combo);
+            const overrideFunc = stopOverrides.get(combo);
             if (overrideFunc) {
-                var override = overrideFunc(ev, element, combo);
+                const override = overrideFunc(ev, element, combo);
                 if (override !== null) {
                     return override;
                 }
@@ -267,7 +268,7 @@ treeherderApp.controller('MainCtrl', [
             return false;
         };
 
-        var keyShortcuts = [
+        const keyShortcuts = [
             // Shortcut: toggle display in-progress jobs (pending/running)
             ['i', function () {
                 $scope.$evalAsync($scope.toggleInProgress());
@@ -514,7 +515,7 @@ treeherderApp.controller('MainCtrl', [
         keyShortcuts.forEach(function (data) {
             Mousetrap.bind(data[0], data[1]);
             if (data[2]) {
-                var keys = data[0];
+                let keys = data[0];
                 if (!Array.isArray(keys)) {
                     keys = [keys];
                 }
@@ -532,7 +533,7 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.$emit(thEvents.recalculateUnclassified);
         };
 
-        var getNewReloadTriggerParams = function () {
+        const getNewReloadTriggerParams = function () {
             return _.pick(
                 $location.search(),
                 ThResultSetStore.reloadOnChangeParameters
@@ -631,10 +632,10 @@ treeherderApp.controller('MainCtrl', [
 
             $scope.filterBarFilters = $scope.getFiltersForBar();
 
-            var newReloadTriggerParams = getNewReloadTriggerParams();
+            const newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
             // set initially, then don't reload the page.
-            var defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
+            const defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
                              !$scope.cachedReloadTriggerParams.repo;
 
             if (!defaulting && $scope.cachedReloadTriggerParams &&
@@ -648,7 +649,7 @@ treeherderApp.controller('MainCtrl', [
 
             // handle a change in the groupState whether it was by the button
             // or directly in the url.
-            var newGroupState = $scope.getGroupState();
+            const newGroupState = $scope.getGroupState();
             if (newGroupState !== $scope.groupState) {
                 $scope.groupState = newGroupState;
                 $rootScope.$emit(thEvents.groupStateChanged, newGroupState);
@@ -656,7 +657,7 @@ treeherderApp.controller('MainCtrl', [
 
             // handle a change in the show duplicate jobs variable
             // whether it was by the button or directly in the url.
-            var showDuplicateJobs = $scope.isShowDuplicateJobs();
+            const showDuplicateJobs = $scope.isShowDuplicateJobs();
             if (showDuplicateJobs !== $scope.showDuplicateJobs) {
                 $scope.showDuplicateJobs = showDuplicateJobs;
                 $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
@@ -674,7 +675,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.filterParams = function () {
-            var filters = $httpParamSerializer(thJobFilters.getActiveFilters());
+            let filters = $httpParamSerializer(thJobFilters.getActiveFilters());
             if (filters) {
                 filters = "&" + filters;
             }
@@ -707,7 +708,7 @@ treeherderApp.controller('MainCtrl', [
         };
         $scope.showDuplicateJobs = $scope.isShowDuplicateJobs();
         $scope.toggleShowDuplicateJobs = function () {
-            var showDuplicateJobs = !$scope.showDuplicateJobs;
+            const showDuplicateJobs = !$scope.showDuplicateJobs;
 
             // $scope.showDuplicateJobs will be changed in watch function above
             $location.search("duplicate_jobs", showDuplicateJobs ? 'visible' : null);

@@ -2,11 +2,11 @@ import treeherder from './treeherder';
 import * as aggregateIds from '../job-view/aggregateIds';
 
 treeherder.provider('thResultStatusList', function () {
-    var all = function () {
+    const all = function () {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
     };
 
-    var defaultFilters = function () {
+    const defaultFilters = function () {
         return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'runnable'];
     };
 

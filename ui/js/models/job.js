@@ -8,7 +8,7 @@ treeherder.factory('ThJobModel', [
     function ($http, thPlatformName, $q) {
         // ThJobModel is the js counterpart of job
 
-        var ThJobModel = function (data) {
+        const ThJobModel = function (data) {
             // creates a new instance of ThJobModel
             // using the provided properties
             angular.extend(this, data);
@@ -18,7 +18,7 @@ treeherder.factory('ThJobModel', [
             // we want to join the group and type information together
             // so we can search for it as one token (useful when
             // we want to do a search on something like `fxup-esr(`)
-            var symbolInfo = (this.job_group_symbol === '?') ? '' :
+            let symbolInfo = (this.job_group_symbol === '?') ? '' :
                 this.job_group_symbol;
             symbolInfo += "(" + this.job_type_symbol + ")";
 
@@ -44,25 +44,25 @@ treeherder.factory('ThJobModel', [
         ThJobModel.get_list = function (repoName, options, config) {
             // a static method to retrieve a list of ThJobModel
             config = config || {};
-            var timeout = config.timeout || null;
-            var fetch_all = config.fetch_all || false;
+            const timeout = config.timeout || null;
+            const fetch_all = config.fetch_all || false;
             // The `uri` config allows to fetch a list of jobs from an arbitrary
             // endpoint e.g. the similar jobs endpoint. It defaults to the job
             // list endpoint.
-            var uri = config.uri || ThJobModel.get_uri();
+            const uri = config.uri || ThJobModel.get_uri();
 
             return $http.get(uri, {
                 params: options,
                 timeout: timeout
             })
                 .then(function (response) {
-                    var item_list;
-                    var next_pages_jobs = [];
+                    let item_list;
+                    let next_pages_jobs = [];
                     // if the number of elements returned equals the page size, fetch the next pages
                     if (fetch_all && (response.data.results.length === response.data.meta.count)) {
-                        var current_offset = parseInt(response.data.meta.offset);
-                        var page_size = parseInt(response.data.meta.count);
-                        var new_options = angular.copy(options);
+                        const current_offset = parseInt(response.data.meta.offset);
+                        const page_size = parseInt(response.data.meta.count);
+                        const new_options = angular.copy(options);
                         new_options.offset = page_size + current_offset;
                         new_options.count = page_size;
                         next_pages_jobs = ThJobModel.get_list(repoName, new_options, config);
@@ -90,7 +90,7 @@ treeherder.factory('ThJobModel', [
         ThJobModel.get = function (repoName, pk, config) {
             // a static method to retrieve a single instance of ThJobModel
             config = config || {};
-            var timeout = config.timeout || null;
+            const timeout = config.timeout || null;
 
             return $http.get(ThJobModel.get_uri()+pk+"/",
                              { timeout: timeout })
@@ -109,7 +109,7 @@ treeherder.factory('ThJobModel', [
 
         ThJobModel.retrigger = function (repoName, job_id_list, config) {
             config = config || {};
-            var timeout = config.timeout || null;
+            const timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri()+"retrigger/",
                               { job_id_list: job_id_list, timeout: timeout })
@@ -120,7 +120,7 @@ treeherder.factory('ThJobModel', [
 
         ThJobModel.cancel = function (repoName, jobIds, config) {
             config = config || {};
-            var timeout = config.timeout || null;
+            const timeout = config.timeout || null;
 
             return $http.post(ThJobModel.get_uri() + "cancel/",
                               { job_id_list: jobIds, timeout: timeout })

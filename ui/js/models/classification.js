@@ -9,7 +9,7 @@ treeherder.factory('ThJobClassificationModel', [
 
         // ThJobClassificationModel is the js counterpart of note
 
-        var ThJobClassificationModel = function (data) {
+        const ThJobClassificationModel = function (data) {
             // creates a new instance of ThJobClassificationModel
             // using the provided properties
             angular.extend(this, data);
@@ -19,10 +19,10 @@ treeherder.factory('ThJobClassificationModel', [
 
         ThJobClassificationModel.get_list = function (options) {
             // a static method to retrieve a list of ThJobClassificationModel
-            var query_string = $.param(options);
+            const query_string = $.param(options);
             return $http.get(ThJobClassificationModel.get_uri()+"?"+query_string)
                 .then(function (response) {
-                    var item_list = [];
+                    const item_list = [];
                     angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobClassificationModel(elem));
                     });
@@ -39,7 +39,7 @@ treeherder.factory('ThJobClassificationModel', [
 
         // an instance method to create a new ThJobClassificationModel
         ThJobClassificationModel.prototype.create = function () {
-            var note = this;
+            const note = this;
             return $http.post(ThJobClassificationModel.get_uri(), note);
         };
 

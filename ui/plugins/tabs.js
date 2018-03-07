@@ -4,7 +4,7 @@ import treeherder from '../js/treeherder';
 
 treeherder.factory('thTabs', [
     function () {
-        var thTabs = {
+        const thTabs = {
             tabs: {
                 jobDetails: {
                     title: "Job Details",

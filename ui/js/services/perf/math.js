@@ -32,20 +32,20 @@ treeherder.factory('math', [
         // (so quite small for 1 value). This default value is a parameter.
         // C/T mean control/test group (in our case original/new data).
         function t_test(valuesC, valuesT, stddev_default_factor) {
-            var lenC = valuesC.length,
-                lenT = valuesT.length;
+            const lenC = valuesC.length;
+            const lenT = valuesT.length;
 
             // We must have at least one value at each set
             if (lenC < 1 || lenT < 1) {
                 return 0;
             }
 
-            var avgC = average(valuesC);
-            var avgT = average(valuesT);
+            const avgC = average(valuesC);
+            const avgT = average(valuesT);
 
             // Use actual stddev if possible, or stddev_default_factor if one sample
-            var stddevC = (lenC > 1 ? stddev(valuesC, avgC) : stddev_default_factor * avgC),
-                stddevT = (lenT > 1 ? stddev(valuesT, avgT) : stddev_default_factor * avgT);
+            let stddevC = (lenC > 1 ? stddev(valuesC, avgC) : stddev_default_factor * avgC);
+            let stddevT = (lenT > 1 ? stddev(valuesT, avgT) : stddev_default_factor * avgT);
 
             // If one of the sets has only a single sample, assume its stddev is
             // the same as that of the other set (in percentage). If both sets
@@ -56,8 +56,8 @@ treeherder.factory('math', [
                 stddevT = valuesT[0] * stddevC / avgC;
             }
 
-            var delta = avgT - avgC;
-            var stdDiffErr = (
+            const delta = avgT - avgC;
+            const stdDiffErr = (
                 Math.sqrt(
                     stddevC * stddevC / lenC // control-variance / control-size
                         +
