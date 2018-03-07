@@ -1,4 +1,6 @@
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, no-var, vars-on-top */
+// TODO: Vet/fix the use-before-defines to ensure switching var
+// to let/const won't break anything.
 
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
@@ -115,12 +117,11 @@ perf.controller('GraphsCtrl', [
                 var prevFlotDataPointIndex = (flotData.pointIndex - 1);
                 var flotSeriesData = flotData.series.data;
 
-                var t = flotSeriesData[flotData.pointIndex][0],
-                    v = flotSeriesData[flotData.pointIndex][1],
-                    v0 = ((prevFlotDataPointIndex >= 0) ?
-                        flotSeriesData[prevFlotDataPointIndex][1] : v),
-                    dv = v - v0,
-                    dvp = v / v0 - 1;
+                var t = flotSeriesData[flotData.pointIndex][0];
+                var v = flotSeriesData[flotData.pointIndex][1];
+                var v0 = (prevFlotDataPointIndex >= 0) ? flotSeriesData[prevFlotDataPointIndex][1] : v;
+                var dv = v - v0;
+                var dvp = v / v0 - 1;
                 var alertSummary = _.find(phSeries.relatedAlertSummaries, function (alertSummary) {
                     return alertSummary.push_id === dataPoint.resultSetId;
                 });
@@ -805,7 +806,9 @@ perf.controller('GraphsCtrl', [
             }
 
             $scope.addTestData = function (option, seriesSignature) {
-                var defaultProjectName, defaultPlatform, defaultFrameworkId;
+                var defaultProjectName;
+                var defaultPlatform;
+                var defaultFrameworkId;
                 var options = {};
                 if ($scope.seriesList.length > 0) {
                     var lastSeries = $scope.seriesList.slice(-1)[0];

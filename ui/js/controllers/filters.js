@@ -66,7 +66,7 @@ treeherderApp.controller('JobFilterCtrl', [
          * on the nav bar
          */
         $scope.toggleResultStatusFilterChicklet = function (filter) {
-            var filterValues;
+            let filterValues;
             if (_.keys($scope.filterGroups).indexOf(filter) !== -1) {
                 // this is a filter grouping, so toggle all on/off
                 filterValues = $scope.filterGroups[filter].resultStatuses;
@@ -81,11 +81,11 @@ treeherderApp.controller('JobFilterCtrl', [
          * neither or both.
          */
         $scope.toggleClassifiedFilter = function () {
-            var func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            const func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
             func(thJobFilters.classifiedState, 'classified');
         };
         $scope.toggleUnClassifiedFilter = function () {
-            var func = $scope.unClassifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            const func = $scope.unClassifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
             func(thJobFilters.classifiedState, 'unclassified');
         };
 
@@ -94,7 +94,7 @@ treeherderApp.controller('JobFilterCtrl', [
                 thNotify.send(thPinboardCountError, 'danger', { sticky: true });
                 return;
             }
-            var shownJobs = ThResultSetStore.getAllShownJobs(
+            const shownJobs = ThResultSetStore.getAllShownJobs(
                 thPinboard.spaceRemaining(),
                 thPinboardCountError
             );
@@ -107,9 +107,9 @@ treeherderApp.controller('JobFilterCtrl', [
 
         $scope.thJobFilters = thJobFilters;
 
-        var updateToggleFilters = function () {
-            for (var i = 0; i < $scope.filterOptions.length; i++) {
-                var opt = $scope.filterOptions[i];
+        const updateToggleFilters = function () {
+            for (let i = 0; i < $scope.filterOptions.length; i++) {
+                const opt = $scope.filterOptions[i];
                 $scope.resultStatusFilters[opt] = thJobFilters.getResultStatusArray().indexOf(opt) !== -1;
             }
 
@@ -117,7 +117,7 @@ treeherderApp.controller('JobFilterCtrl', [
             // these are a special case of filtering because we're not checking
             // for a value, just whether the job has any value set or not.
             // just a boolean check either way
-            var classifiedState = thJobFilters.getClassifiedStateArray();
+            const classifiedState = thJobFilters.getClassifiedStateArray();
             $scope.classifiedFilter = classifiedState.indexOf('classified') !== -1;
             $scope.unClassifiedFilter = classifiedState.indexOf('unclassified') !== -1;
         };
@@ -135,8 +135,8 @@ treeherderApp.controller('SearchCtrl', [
     function SearchCtrl(
         $scope, $rootScope, thEvents, thJobFilters) {
 
-        var getSearchStr = function () {
-            var ss = thJobFilters.getFieldFiltersObj().searchStr;
+        const getSearchStr = function () {
+            const ss = thJobFilters.getFieldFiltersObj().searchStr;
             if (ss) {
                 return ss.join(" ");
             }
@@ -151,7 +151,7 @@ treeherderApp.controller('SearchCtrl', [
         $scope.search = function (ev) {
             //User hit enter
             if (ev.keyCode === 13) {
-                var filterVal = $scope.searchQueryStr === ""? null: $scope.searchQueryStr;
+                const filterVal = $scope.searchQueryStr === ""? null: $scope.searchQueryStr;
                 thJobFilters.replaceFilter("searchStr", filterVal);
                 $rootScope.$broadcast('blur-this', "quick-filter");
             }

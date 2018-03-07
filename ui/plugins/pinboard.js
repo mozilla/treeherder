@@ -83,7 +83,7 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.save = function () {
-            var errorFree = true;
+            let errorFree = true;
             if ($scope.enteringBugNumber) {
                 // we should save this for the user, as they likely
                 // just forgot to hit enter. Returns false if invalid
@@ -102,7 +102,7 @@ treeherder.controller('PinboardCtrl', [
             }
             if (errorFree) {
                 $scope.classification.who = $scope.user.email;
-                var classification = $scope.classification;
+                const classification = $scope.classification;
                 thPinboard.save(classification);
                 $scope.completeClassification();
                 $scope.classification = thPinboard.createNewClassification();
@@ -140,7 +140,7 @@ treeherder.controller('PinboardCtrl', [
         // or if the pasted data is an hg.m.o url, automatically select
         // the "fixed by commit" classification type
         $scope.pasteSHA = function (evt) {
-            var pastedData = evt.originalEvent.clipboardData.getData('text');
+            const pastedData = evt.originalEvent.clipboardData.getData('text');
             if ($scope.isSHAorCommit(pastedData)) {
                 $scope.classification.failure_classification_id = 2;
             }
@@ -162,7 +162,7 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.canCancelAllPinnedJobs = function () {
-            var cancellableJobs = _.values($scope.pinnedJobs).filter(
+            const cancellableJobs = _.values($scope.pinnedJobs).filter(
                 job => (job.state === 'pending' || job.state === 'running'));
             return $scope.user.loggedin && cancellableJobs.length > 0;
         };
@@ -174,7 +174,7 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.canSaveClassifications = function () {
-            var thisClass = $scope.classification;
+            const thisClass = $scope.classification;
             return $scope.hasPinnedJobs() && $scope.user.loggedin &&
                    (thPinboard.hasRelatedBugs() ||
                    (thisClass.failure_classification_id !== 4 && thisClass.failure_classification_id !== 2) ||
@@ -193,7 +193,7 @@ treeherder.controller('PinboardCtrl', [
 
         // Dynamic btn/anchor title for classification save
         $scope.saveUITitle = function (category) {
-            var title = "";
+            let title = "";
 
             if (!$scope.user.loggedin) {
                 title = title.concat("not logged in / ");
@@ -252,7 +252,7 @@ treeherder.controller('PinboardCtrl', [
                 // Rebind escape to canceling the bug entry, pressing escape
                 // again will close the pinboard as usual.
                 Mousetrap.bind('escape', function () {
-                    var cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
+                    const cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
                     $scope.$evalAsync(cancel);
                 });
 

@@ -53,10 +53,10 @@ treeherder.controller('BugFilerCtrl', [
          *  Pre-fill the form with information/metadata from the failure
          */
         $scope.initiate = function () {
-            var thisFailure = "";
+            let thisFailure = "";
 
-            for (var i = 0; i < allFailures.length; i++) {
-                for (var j=0; j < $scope.omittedLeads.length; j++) {
+            for (let i = 0; i < allFailures.length; i++) {
+                for (let j=0; j < $scope.omittedLeads.length; j++) {
                     if (allFailures[i][0].search($scope.omittedLeads[j]) >= 0 && allFailures[i].length > 1) {
                         allFailures[i].shift();
                     }
@@ -81,7 +81,7 @@ treeherder.controller('BugFilerCtrl', [
         /*
          *  Find the first thing in the summary line that looks like a filename.
          */
-        var findFilename = function (summary) {
+        const findFilename = function (summary) {
             // Take left side of any reftest comparisons, as the right side is the reference file
             summary = summary.split("==")[0];
             // Take the leaf node of unix paths
@@ -101,7 +101,7 @@ treeherder.controller('BugFilerCtrl', [
          */
         $scope.parseSummary = function (summary) {
             // Strip out some extra stuff at the start of some failure paths
-            var re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
+            let re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
             summary = summary.replace(re, "");
             re = /\/home\/worker\/workspace\/build\/src\//gi;
             summary = summary.replace(re, "");
@@ -125,7 +125,7 @@ treeherder.controller('BugFilerCtrl', [
             // contains any of the omittedLeads, that lead is needed
             // for the full string match, so don't omit it in this case.
             // If it's not needed, go ahead and omit it.
-            for (var i=0; i < $scope.omittedLeads.length; i++) {
+            for (let i=0; i < $scope.omittedLeads.length; i++) {
                 if ($scope.search_terms.length > 0 && summary.length > 1 &&
                     !$scope.search_terms[0].includes($scope.omittedLeads[i]) &&
                     summary[0].search($scope.omittedLeads[i]) >= 0) {
@@ -135,16 +135,16 @@ treeherder.controller('BugFilerCtrl', [
 
             // Some of the TEST-FOO bits aren't removed from the summary,
             // so we sometimes end up with them instead of the test path here.
-            var summaryName = summary[0].startsWith("TEST-") && summary.length > 1 ? summary[1] : summary[0];
+            const summaryName = summary[0].startsWith("TEST-") && summary.length > 1 ? summary[1] : summary[0];
             $uibModalInstance.possibleFilename = findFilename(summaryName);
 
             return [summary, $uibModalInstance.possibleFilename];
         };
 
         $uibModalInstance.parsedSummary = $scope.parseSummary(summary);
-        var summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
+        let summaryString = $uibModalInstance.parsedSummary[0].join(" | ");
         if (selectedJob.job_group_name.toLowerCase().includes("reftest")) {
-            var re = /layout\/reftests\//gi;
+            const re = /layout\/reftests\//gi;
             summaryString = summaryString.replace(re, "");
         }
         $scope.modalSummary = "Intermittent " + summaryString;
@@ -156,7 +156,7 @@ treeherder.controller('BugFilerCtrl', [
         $scope.isFilerSummaryVisible = false;
 
         // Add a product/component pair to suggestedProducts
-        var addProduct = function (product) {
+        const addProduct = function (product) {
             // Don't allow duplicates to be added to the list
             if (!$scope.suggestedProducts.includes(product)) {
                 $scope.suggestedProducts.push(product);
@@ -165,9 +165,9 @@ treeherder.controller('BugFilerCtrl', [
         };
 
         // Some job types are special, lets explicitly handle them.
-        var injectProducts = function (fp) {
+        const injectProducts = function (fp) {
             if ($scope.suggestedProducts.length === 0) {
-                var jg = selectedJob.job_group_name.toLowerCase();
+                const jg = selectedJob.job_group_name.toLowerCase();
                 if (jg.includes("web platform")) {
                     addProduct("Testing :: web-platform-tests");
                 }
@@ -191,14 +191,14 @@ treeherder.controller('BugFilerCtrl', [
             $scope.suggestedProducts = [];
 
             // Look up product suggestions via Bugzilla's api
-            var productSearch = $scope.productSearch;
+            const productSearch = $scope.productSearch;
 
             if (productSearch) {
                 $scope.searching = "Bugzilla";
                 $http.get(bzBaseUrl + "rest/prod_comp_search/" + productSearch + "?limit=5").then(function (request) {
-                    var data = request.data;
+                    const data = request.data;
                     // We can't file unless product and component are provided, this api can return just product. Cut those out.
-                    for (var i = data.products.length - 1; i >= 0; i--) {
+                    for (let i = data.products.length - 1; i >= 0; i--) {
                         if (!data.products[i].component) {
                             data.products.splice(i, 1);
                         }
@@ -214,7 +214,7 @@ treeherder.controller('BugFilerCtrl', [
                     $scope.selection.selectedProduct = $scope.suggestedProducts[0];
                 });
             } else {
-                var failurePath = $uibModalInstance.parsedSummary[0][0];
+                let failurePath = $uibModalInstance.parsedSummary[0][0];
 
                 // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
                 if (failurePath.includes("TEST-UNEXPECTED-")) {
@@ -240,7 +240,7 @@ treeherder.controller('BugFilerCtrl', [
                 $scope.searching = "Mercurial";
                 $http.get(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`).then(function (firstRequest) {
                     if (firstRequest.data.aggregate && firstRequest.data.aggregate.recommended_bug_component) {
-                        var suggested = firstRequest.data.aggregate.recommended_bug_component;
+                        const suggested = firstRequest.data.aggregate.recommended_bug_component;
                         addProduct(suggested[0] + " :: " + suggested[1]);
                     }
 
@@ -255,7 +255,7 @@ treeherder.controller('BugFilerCtrl', [
                             Accept: "application/json"
                         } }).then((secondRequest) => {
                             const results = secondRequest.data.results;
-                            var resultsCount = results.length;
+                            let resultsCount = results.length;
                             // If the search returns too many results, this probably isn't a good search term, so bail
                             if (resultsCount === 0) {
                                 $scope.searching = false;
@@ -306,9 +306,9 @@ treeherder.controller('BugFilerCtrl', [
          *  Actually send the gathered information to bugzilla.
          */
         $scope.submitFiler = function () {
-            var summarystring = $scope.modalSummary;
-            var productString = "";
-            var componentString = "";
+            const summarystring = $scope.modalSummary;
+            let productString = "";
+            let componentString = "";
 
             $scope.toggleForm(true);
 
@@ -319,7 +319,7 @@ treeherder.controller('BugFilerCtrl', [
             }
 
             if ($scope.selection.selectedProduct) {
-                var prodParts = $scope.selection.selectedProduct.split(" :: ");
+                const prodParts = $scope.selection.selectedProduct.split(" :: ");
                 productString += prodParts[0];
                 componentString += prodParts[1];
             } else {
@@ -328,7 +328,7 @@ treeherder.controller('BugFilerCtrl', [
                 return;
             }
 
-            var descriptionStrings = _.reduce($scope.checkedLogLinks, function (result, link) {
+            let descriptionStrings = _.reduce($scope.checkedLogLinks, function (result, link) {
                 if (link) {
                     result = result + link + "\n\n";
                 }
@@ -338,14 +338,14 @@ treeherder.controller('BugFilerCtrl', [
                 descriptionStrings += $scope.modalComment;
             }
 
-            var keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
+            const keywords = $scope.isIntermittent ? ["intermittent-failure"] : [];
 
-            var severity = "normal";
-            var priority = "P5";
-            var blocks = $scope.modalBlocks;
-            var dependsOn = $scope.modalDependsOn;
-            var seeAlso = $scope.modalSeeAlso;
-            var crashSignature = $scope.crashSignatures;
+            let severity = "normal";
+            const priority = "P5";
+            const blocks = $scope.modalBlocks;
+            const dependsOn = $scope.modalDependsOn;
+            const seeAlso = $scope.modalSeeAlso;
+            const crashSignature = $scope.crashSignatures;
             if (crashSignature.length > 0) {
                 keywords.push("crash");
                 severity = "critical";
@@ -355,11 +355,11 @@ treeherder.controller('BugFilerCtrl', [
             // Only request the versions because some products take quite a long time to fetch the full object
             $http.get(bzBaseUrl + "rest/product/" + productString + "?include_fields=versions")
                 .then(function (response) {
-                    var productJSON = response.data;
-                    var productObject = productJSON.products[0];
+                    const productJSON = response.data;
+                    const productObject = productJSON.products[0];
 
                     // Find the newest version for the product that is_active
-                    var version = _.findLast(productObject.versions, function (version) {
+                    const version = _.findLast(productObject.versions, function (version) {
                         return version.is_active === true;
                     });
 
@@ -387,9 +387,9 @@ treeherder.controller('BugFilerCtrl', [
                     });
                 })
                 .then((response) => {
-                    var data = response.data;
+                    const data = response.data;
                     if (data.failure) {
-                        var error = JSON.parse(data.failure.join(""));
+                        const error = JSON.parse(data.failure.join(""));
                         thNotify.send("Bugzilla error: " + error.message, "danger", { sticky: true });
                         $scope.toggleForm(false);
                     } else {
@@ -398,7 +398,7 @@ treeherder.controller('BugFilerCtrl', [
                     }
                 })
                 .catch((response) => {
-                    var failureString = "Bug Filer API returned status " + response.status + " (" + response.statusText + ")";
+                    let failureString = "Bug Filer API returned status " + response.status + " (" + response.statusText + ")";
                     if (response.data && response.data.failure) {
                         failureString += "\n\n" + response.data.failure;
                     }

@@ -9,7 +9,7 @@ treeherder.directive('thWatchedRepo', [
     'ThRepositoryModel',
     function (ThRepositoryModel) {
 
-        var statusInfo = {
+        const statusInfo = {
             open: {
                 icon: "fa-circle-o",
                 color: "tree-open",
@@ -67,7 +67,7 @@ treeherder.directive('thWatchedRepo', [
 
                 scope.$watch('repoData.treeStatus.status', function (newVal) {
                     if (newVal) {
-                        var si = statusInfo[newVal];
+                        const si = statusInfo[newVal];
                         scope.statusIcon = si.icon;
                         scope.statusIconClass = si.iconClass || "";
                         scope.statusColor = si.color;
@@ -90,7 +90,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
             link: function (scope, element, attrs) {
                 scope.name = attrs.name;
                 scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
-                var repo_obj = ThRepositoryModel.getRepo(attrs.name);
+                const repo_obj = ThRepositoryModel.getRepo(attrs.name);
                 scope.pushlog = repo_obj.pushlogURL;
                 scope.$watch('repoData.treeStatus', function (newVal) {
                     if (newVal) {
@@ -113,7 +113,7 @@ treeherder.directive('thCheckboxDropdownContainer', function () {
                 scope.closeable = true;
                 $(element).on({
                     "hide.bs.dropdown": function () {
-                        var closeable = scope.closeable;
+                        const closeable = scope.closeable;
                         scope.closeable = true;
                         return closeable;
                     }
@@ -139,7 +139,7 @@ treeherder.directive('thRepoMenuItem',
             restrict: "E",
             replace: true,
             link: function (scope, element) {
-                var elem = $(element);
+                const elem = $(element);
                 elem.find('.dropdown-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
                 if (scope.repo.name === scope.repoName) {
                     elem.find('.dropdown-checkbox').prop('disabled', 'disabled');

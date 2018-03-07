@@ -12,9 +12,9 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
     function ($http, $location, $q, $interpolate,
         tcactions, ThJobModel) {
 
-        var MAX_RESULTSET_FETCH_SIZE = 100;
+        const MAX_RESULTSET_FETCH_SIZE = 100;
 
-        var convertDates = function (locationParams) {
+        const convertDates = function (locationParams) {
             // support date ranges.  we must convert the strings to a timezone
             // appropriate timestamp
             if (_.has(locationParams, "startdate")) {
@@ -33,7 +33,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
         };
 
         // return whether an OLDEST resultset range is set.
-        var hasLowerRange = function (locationParams) {
+        const hasLowerRange = function (locationParams) {
             return locationParams.fromchange || locationParams.startdate;
         };
 
@@ -57,7 +57,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 full = _.isUndefined(full) ? true : full;
                 keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
-                var params = {
+                const params = {
                     full: full
                 };
 
@@ -77,7 +77,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     // pass directly to the set of resultsets.
                     // with the exception of ``repo``.  That has no effect on the
                     // service at this time, but it could be confusing.
-                    var locationParams = _.clone($location.search());
+                    let locationParams = _.clone($location.search());
                     delete locationParams.repo;
 
                     // if they submit an offset timestamp, then they have resultsets
@@ -135,7 +135,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     return;
                 }
 
-                var params = {
+                const params = {
                     result_set_id__in: resultSetIdList.join(","),
                     count: 2000,
                     last_modified__gt: lastModified.toISOString().replace("Z", ""),
@@ -147,7 +147,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             getResultSetJobs: function (resultSetIdList, repoName, locationParams) {
                 return _.map(resultSetIdList, function (resultSetId) {
-                    var params = {
+                    const params = {
                         return_type: "list",
                         result_set_id: resultSetId,
                         count: 2000
@@ -187,7 +187,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             cancelAll: function (resultset_id) {
-                var uri = resultset_id + '/cancel_all/';
+                const uri = resultset_id + '/cancel_all/';
                 return $http.post(getProjectUrl("/resultset/") + uri);
             },
 

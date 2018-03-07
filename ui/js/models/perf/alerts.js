@@ -6,7 +6,7 @@ treeherder.factory('PhAlerts', [
     function ($http, $httpParamSerializer, $q, ThOptionCollectionModel, PhSeries,
              phAlertSummaryStatusMap, phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
-        var Alert = function (alertData, optionCollectionMap) {
+        const Alert = function (alertData, optionCollectionMap) {
             _.assign(this, alertData);
             this.title = PhSeries.getSeriesName(
                 this.series_signature, optionCollectionMap,
@@ -31,8 +31,8 @@ treeherder.factory('PhAlerts', [
             return url;
         };
         Alert.prototype.getSubtestsURL = function (alertSummary) {
-            var endpoint = '#/comparesubtest';
-            var urlParameters = {
+            const endpoint = '#/comparesubtest';
+            const urlParameters = {
                 framework: alertSummary.framework,
                 originalProject: alertSummary.repository,
                 originalSignature: this.series_signature.signature_hash,
@@ -58,7 +58,7 @@ treeherder.factory('PhAlerts', [
             };
         });
 
-        var AlertSummary = function (alertSummaryData, optionCollectionMap) {
+        const AlertSummary = function (alertSummaryData, optionCollectionMap) {
             _.assign(this, alertSummaryData);
             this._initializeAlerts(optionCollectionMap);
         };
@@ -72,22 +72,22 @@ treeherder.factory('PhAlerts', [
         });
         AlertSummary.prototype.getIssueTrackerUrl = function () {
             if (this.issue_tracker) {
-                var issueTrackerUrl = _.find(phAlertSummaryIssueTrackersMap, { id: this.issue_tracker }).issueTrackerUrl;
+                const issueTrackerUrl = _.find(phAlertSummaryIssueTrackersMap, { id: this.issue_tracker }).issueTrackerUrl;
                 return issueTrackerUrl + this.bug_number;
             }
         };
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
-            var resultStr = "";
-            var improved = _.sortBy(
+            let resultStr = "";
+            const improved = _.sortBy(
                 this.alerts.filter(alert => !alert.is_regression && alert.visible),
                 'amount_pct'
             ).reverse();
-            var regressed = _.sortBy(
+            const regressed = _.sortBy(
                 this.alerts.filter(alert => alert.is_regression && alert.visible && !alert.isInvalid()),
                 'amount_pct'
             ).reverse();
 
-            var formatAlert = function (alert, alertList) {
+            const formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
                 _.padEnd(alert.title, _.max(alertList, function (alert) { return alert.title.length; }).title.length +5) +
                 displayNumberFilter(alert.prev_value) + " -> " + displayNumberFilter(alert.new_value);
@@ -95,7 +95,7 @@ treeherder.factory('PhAlerts', [
 
             // add summary header if getting text for clipboard only
             if (copySummary) {
-                var lastUpdated = new Date(this.last_updated);
+                const lastUpdated = new Date(this.last_updated);
                 resultStr += `== Change summary for alert #${this.id} (as of ${lastUpdated.toUTCString()}) ==\n`;
             }
             if (regressed.length > 0) {
@@ -120,7 +120,7 @@ treeherder.factory('PhAlerts', [
             }
             // include link to alert if getting text for clipboard only
             if (copySummary) {
-                var alertLink = window.location.origin + '/perf.html#/alerts?id=' + this.id;
+                const alertLink = window.location.origin + '/perf.html#/alerts?id=' + this.id;
                 resultStr += "\nFor up to date results, see: " + alertLink;
             }
             return resultStr;
@@ -140,14 +140,14 @@ treeherder.factory('PhAlerts', [
                 });
         };
         AlertSummary.prototype.updateStatus = function (newStatus) {
-            var alertSummary = this;
+            const alertSummary = this;
             return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
                              { status: newStatus.id }).then(function () {
                                  alertSummary.status = newStatus.id;
                              });
         };
         AlertSummary.prototype.update = function () {
-            var alertSummary = this;
+            const alertSummary = this;
             return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`).then(
                                  function (response) {
                                      return ThOptionCollectionModel.getMap().then(
@@ -159,11 +159,11 @@ treeherder.factory('PhAlerts', [
                                  });
         };
         AlertSummary.prototype.getTitle = function () {
-            var title;
+            let title;
 
             // we should never include downstream alerts in the description
-            var alertSummary = this;
-            var alertsInSummary = this.alerts.filter(alert =>
+            const alertSummary = this;
+            let alertsInSummary = this.alerts.filter(alert =>
                 (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
                         alert.summary_id === alertSummary.id)
             );
@@ -197,7 +197,7 @@ treeherder.factory('PhAlerts', [
             return title;
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
-            var alertSummary = this;
+            const alertSummary = this;
             return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
                              { bug_number: taskNumber, issue_tracker: issueTrackerId }).then(function () {
                                  return alertSummary.update();
@@ -220,8 +220,8 @@ treeherder.factory('PhAlerts', [
             // get a specific alert summary
             // in order to cancel the http request, a canceller must be used
             // http://odetocode.com/blogs/scott/archive/2014/04/24/canceling-http-requests-in-angularjs.aspx
-            var canceller = $q.defer();
-            var promise = ThOptionCollectionModel.getMap().then(
+            const canceller = $q.defer();
+            const promise = ThOptionCollectionModel.getMap().then(
                 function (optionCollectionMap) {
                     return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${id}/`,
                                     { timeout: canceller.promise }).then(
@@ -241,20 +241,20 @@ treeherder.factory('PhAlerts', [
         return {
             getAlertSummary: _getAlertSummary,
             getAlertSummaryTitle: function (id) {
-                var request = _getAlertSummary(id);
-                var promise = request.then(function (alertSummary) {
+                const request = _getAlertSummary(id);
+                const promise = request.then(function (alertSummary) {
                     return alertSummary.getTitle();
                 });
                 promise.cancel = request.cancel;
                 return promise;
             },
             getAlertSummaries: function (options) {
-                var href;
+                let href;
                 if (!options || !options.href) {
                     href = `${SERVICE_DOMAIN}/api/performance/alertsummary/`;
 
                     // add filter parameters for status and framework
-                    var params = [];
+                    const params = [];
                     if (options && !_.isUndefined(options.statusFilter) &&
                         options.statusFilter !== (-1)) {
                         params[params.length] = ("status=" + options.statusFilter);
@@ -302,7 +302,7 @@ treeherder.factory('PhAlerts', [
                     push_id: data.resultSetId,
                     prev_push_id: data.prevResultSetId
                 }).then(function (response) {
-                    var newAlertSummaryId = response.data.alert_summary_id;
+                    const newAlertSummaryId = response.data.alert_summary_id;
                     return $http.post(`${SERVICE_DOMAIN}/api/performance/alert/`, {
                         summary_id: newAlertSummaryId,
                         signature_id: data.series.id

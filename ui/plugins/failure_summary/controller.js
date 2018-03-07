@@ -17,11 +17,11 @@ treeherder.controller('BugsPluginCtrl', [
 
         $scope.filerInAddress = false;
 
-        var query;
+        let query;
 
         // update function triggered by the plugins controller
         thTabs.tabs.failureSummary.update = function () {
-            var newValue = thTabs.tabs.failureSummary.contentId;
+            const newValue = thTabs.tabs.failureSummary.contentId;
             $scope.suggestions = [];
             $scope.bugSuggestionsLoaded = false;
 
@@ -84,7 +84,7 @@ treeherder.controller('BugsPluginCtrl', [
             }
         };
 
-        var showBugFilerButton = function () {
+        const showBugFilerButton = function () {
             $scope.filerInAddress = $location.search().bugfiler === true;
         };
         showBugFilerButton();
@@ -93,21 +93,21 @@ treeherder.controller('BugsPluginCtrl', [
         });
 
         $scope.fileBug = function (index) {
-            var summary = $scope.suggestions[index].search;
-            var allFailures = [];
-            var crashSignatures = [];
-            var crashRegex = /application crashed \[@ (.+)\]$/g;
-            var crash = summary.match(crashRegex);
+            const summary = $scope.suggestions[index].search;
+            const allFailures = [];
+            const crashSignatures = [];
+            const crashRegex = /application crashed \[@ (.+)\]$/g;
+            const crash = summary.match(crashRegex);
             if (crash) {
-                var signature = crash[0].split("application crashed ")[1];
+                const signature = crash[0].split("application crashed ")[1];
                 crashSignatures.push(signature);
             }
 
-            for (var i=0; i<$scope.suggestions.length; i++) {
+            for (let i=0; i<$scope.suggestions.length; i++) {
                 allFailures.push($scope.suggestions[i].search.split(" | "));
             }
 
-            var modalInstance = $uibModal.open({
+            const modalInstance = $uibModal.open({
                 template: intermittentTemplate,
                 controller: 'BugFilerCtrl',
                 size: 'lg',

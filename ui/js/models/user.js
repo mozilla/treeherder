@@ -9,7 +9,7 @@ treeherder.factory('ThUserModel', [
 
         // ThUserModel is the js counterpart of user
 
-        var ThUserModel = function (data) {
+        const ThUserModel = function (data) {
             // creates a new instance of ThUserModel
             // using the provided properties
             angular.extend(this, data);

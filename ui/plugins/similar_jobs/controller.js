@@ -18,7 +18,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
         $scope.page_size = 20;
         $scope.get_similar_jobs = function () {
             thTabs.tabs.similarJobs.is_loading = true;
-            var options = {
+            const options = {
                 count: $scope.page_size + 1,
                 offset: ($scope.page - 1) * $scope.page_size
             };
@@ -37,7 +37,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                         }
                         data.pop();
                         // retrieve the list of result_set_ids
-                        var result_set_ids = _.uniq(
+                        const result_set_ids = _.uniq(
                             _.map(data, 'result_set_id')
                         );
 
@@ -46,7 +46,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
                             $scope.repoName, result_set_ids, true
                             ).then(function (response) {
                                 //decorate the list of jobs with their result sets
-                                var resultsets = _.keyBy(response.data.results, "id");
+                                const resultsets = _.keyBy(response.data.results, "id");
                                 angular.forEach(data, function (obj) {
                                     obj.result_set = resultsets[obj.result_set_id];
                                     obj.revisionResultsetFilterUrl = $scope.urlBasePath + "?repo=" +
@@ -108,7 +108,7 @@ treeherder.controller('SimilarJobsPluginCtrl', [
             .then(function (job) {
                 $scope.similar_job_selected = job;
                 $scope.similar_job_selected.result_status = getStatus($scope.similar_job_selected);
-                var duration = (
+                let duration = (
                     $scope.similar_job_selected.end_timestamp - $scope.similar_job_selected.start_timestamp
                  )/60;
                 if (duration) {

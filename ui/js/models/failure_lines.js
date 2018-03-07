@@ -7,7 +7,7 @@ treeherder.factory('ThFailureLinesModel', [
     '$http', '$q',
     function ($http, $q) {
 
-        var ThFailureLinesModel = function (data) {
+        const ThFailureLinesModel = function (data) {
             angular.extend(this, data);
         };
 
@@ -20,13 +20,13 @@ treeherder.factory('ThFailureLinesModel', [
             // the timeout configuration parameter is a promise that can be used to abort
             // the ajax request
             config = config || {};
-            var timeout = config.timeout || null;
+            const timeout = config.timeout || null;
             return $http.get(ThFailureLinesModel.get_url(job_id), {
                 timeout: timeout,
                 cache: false
             })
             .then(function (response) {
-                var item_list = [];
+                const item_list = [];
                 angular.forEach(response.data, function (elem) {
                     item_list.push(new ThFailureLinesModel(elem));
                 });

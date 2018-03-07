@@ -1,4 +1,6 @@
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, no-var, vars-on-top */
+// TODO: Vet/fix the use-before-defines to ensure switching var
+// to let/const won't break anything.
 
 import treeherder from '../../js/treeherder';
 import staticOptionTemplate from '../../plugins/auto_classification/staticOption.html';
@@ -1057,8 +1059,9 @@ treeherder.controller('ThAutoclassifyPanelController', [
 
         ctrl.onOpenLogViewer = function () {
             var selected = $scope.selectedLines();
+            var lineNumber;
             if (selected.length) {
-                var lineNumber = selected[0].data.line_number + 1;
+                lineNumber = selected[0].data.line_number + 1;
             }
             window.open(getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName, lineNumber));
         };

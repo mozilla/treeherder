@@ -42,8 +42,8 @@ treeherder.directive('copyValue', [
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
-                var cont = document.getElementById('clipboard-container'),
-                    clip = document.getElementById('clipboard');
+                const cont = document.getElementById('clipboard-container');
+                const clip = document.getElementById('clipboard');
                 element.on('mouseenter', function () {
                     cont.style.display = 'block';
                     clip.value = attrs.copyValue;

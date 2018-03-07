@@ -9,24 +9,24 @@ treeherder.factory('ThBuildPlatformModel', [
 
         // ThBuildPlatform is the js counterpart of buildplatform
 
-        var ThBuildPlatformModel = function (data) {
+        const ThBuildPlatformModel = function (data) {
             // creates a new instance of ThBuildPlatformModel
             // using the provided properties
             angular.extend(this, data);
         };
 
         ThBuildPlatformModel.get_uri = function () {
-            var url = getRootUrl("/buildplatform/");
+            const url = getRootUrl("/buildplatform/");
             return url;
         };
 
         ThBuildPlatformModel.get_list = function (options) {
             // a static method to retrieve a list of ThBuildPlatformModel
             options = options || {};
-            var query_string = $.param(options);
+            const query_string = $.param(options);
             return $http.get(ThBuildPlatformModel.get_uri()+"?"+query_string)
                 .then(function (response) {
-                    var item_list = [];
+                    const item_list = [];
                     angular.forEach(response.data, function (elem) {
                         item_list.push(new ThBuildPlatformModel(elem));
                     });

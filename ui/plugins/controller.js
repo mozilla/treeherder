@@ -29,10 +29,10 @@ treeherder.controller('PluginCtrl', [
         $scope.job = {};
         $scope.revisionList = [];
 
-        var reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
+        const reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
         // Show the Failure Summary tab, except if there's a URL parameter to enable Failure Classification one.
-        var showAutoClassifyTab = function () {
+        const showAutoClassifyTab = function () {
             thTabs.tabs.autoClassification.enabled = $location.search().autoclassify === true;
         };
         showAutoClassifyTab();
@@ -52,7 +52,7 @@ treeherder.controller('PluginCtrl', [
          * and some based on query string params (such as autoClassification).
          *
          */
-        var initializeTabs = function (job, hasPerformanceData) {
+        const initializeTabs = function (job, hasPerformanceData) {
             let successTab = "jobDetails";
             let failTab = "failureSummary";
 
@@ -78,9 +78,9 @@ treeherder.controller('PluginCtrl', [
 
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
-        var selectJobPromise = null;
+        let selectJobPromise = null;
 
-        var selectJob = function (job) {
+        const selectJob = function (job) {
             // make super-extra sure that the autoclassify tab shows up when it should
             showAutoClassifyTab();
 
@@ -94,19 +94,19 @@ treeherder.controller('PluginCtrl', [
 
                 $scope.job = {};
                 $scope.job_details = [];
-                var jobPromise = ThJobModel.get(
+                const jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
                     { timeout: selectJobPromise });
 
-                var jobDetailPromise = ThJobDetailModel.getJobDetails(
+                const jobDetailPromise = ThJobDetailModel.getJobDetails(
                     { job_guid: job.job_guid },
                     { timeout: selectJobPromise });
 
-                var jobLogUrlPromise = ThJobLogUrlModel.get_list(
+                const jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job.id,
                     { timeout: selectJobPromise });
 
-                var phSeriesPromise = PhSeries.getSeriesData(
+                const phSeriesPromise = PhSeries.getSeriesData(
                     $scope.repoName, { job_id: job.id });
 
                 return $q.all([
@@ -126,7 +126,7 @@ treeherder.controller('PluginCtrl', [
 
                     // incorporate the buildername into the job details if this is a buildbot job
                     // (i.e. it has a buildbot request id)
-                    var buildbotRequestIdDetail = _.find($scope.job_details,
+                    const buildbotRequestIdDetail = _.find($scope.job_details,
                                                    { title: 'buildbot_request_id' });
                     if (buildbotRequestIdDetail) {
                         $scope.job_details = $scope.job_details.concat({
@@ -162,9 +162,9 @@ treeherder.controller('PluginCtrl', [
                         $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
                     }
 
-                    var performanceData = _.flatten(Object.values(results[3]));
+                    const performanceData = _.flatten(Object.values(results[3]));
                     if (performanceData) {
-                        var signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
+                        const signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
                         $q.all(_.chunk(signatureIds, 20).map(
                             signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
                         )).then((seriesListList) => {
@@ -199,7 +199,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.getCountPinnedTitle = function () {
-            var title = "";
+            let title = "";
 
             if (thPinboard.count.numPinnedJobs === 1) {
                 title = "You have " + thPinboard.count.numPinnedJobs + " job pinned";
@@ -214,9 +214,9 @@ treeherder.controller('PluginCtrl', [
             $scope.isPinboardVisible = !$scope.isPinboardVisible;
         };
 
-        var getRevisionTips = function (list) {
+        const getRevisionTips = function (list) {
             list.splice(0, list.length);
-            var rsArr = ThResultSetStore.getPushArray();
+            const rsArr = ThResultSetStore.getPushArray();
             rsArr.forEach((rs) => {
                 list.push({
                     revision: rs.revision,
@@ -248,7 +248,7 @@ treeherder.controller('PluginCtrl', [
                     });
                 });
 
-                var job_id_list = _.map(jobs, 'id');
+                const job_id_list = _.map(jobs, 'id');
                 // The logic here is somewhat complicated because we need to support
                 // two use cases the first is the case where we notify a system other
                 // then buildbot that a retrigger has been requested (eg mozilla-taskcluster).
@@ -260,7 +260,7 @@ treeherder.controller('PluginCtrl', [
                         repository: $scope.repoName,
                         job_id__in: job_id_list.join(',')
                     }).then(function (data) {
-                        var requestIdList = _.map(data, 'value');
+                        const requestIdList = _.map(data, 'value');
                         requestIdList.forEach(function (requestId) {
                             thBuildApi.retriggerJob($scope.repoName, requestId);
                         });
@@ -362,7 +362,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.backfillButtonTitle = function () {
-            var title = "";
+            let title = "";
 
             // Ensure currentRepo is available on initial page load
             if (!$scope.currentRepo) {
@@ -390,7 +390,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.cancelJobs = function (jobs) {
-            var jobIdsToCancel = jobs.filter(job => (job.state === "pending" ||
+            const jobIdsToCancel = jobs.filter(job => (job.state === "pending" ||
                                                      job.state === "running")).map(
                                                          job => job.id);
             // get buildbot ids of any buildbot jobs we want to cancel
@@ -403,7 +403,7 @@ treeherder.controller('PluginCtrl', [
                     function () {
                         buildbotRequestIdDetails.forEach(
                             function (buildbotRequestIdDetail) {
-                                var requestId = parseInt(buildbotRequestIdDetail.value);
+                                const requestId = parseInt(buildbotRequestIdDetail.value);
                                 thBuildApi.cancelJob($scope.repoName, requestId);
                             });
                     });
@@ -448,7 +448,7 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
-        var selectJobAndRender = function (job) {
+        const selectJobAndRender = function (job) {
             $scope.jobLoadedPromise = selectJob(job);
             $('#info-panel').addClass('info-panel-slide');
             $scope.jobLoadedPromise.then(function () {
@@ -469,15 +469,15 @@ treeherder.controller('PluginCtrl', [
 
         $rootScope.$on(thEvents.selectNextTab, function () {
             // Establish the visible tabs for the job
-            var visibleTabs = [];
-            for (var i in thTabs.tabOrder) {
+            const visibleTabs = [];
+            for (const i in thTabs.tabOrder) {
                 if (thTabs.tabs[thTabs.tabOrder[i]].enabled) {
                     visibleTabs.push(thTabs.tabOrder[i]);
                 }
             }
 
             // Establish where we are and increment one tab
-            var t = visibleTabs.indexOf(thTabs.selectedTab);
+            let t = visibleTabs.indexOf(thTabs.selectedTab);
             if (t === visibleTabs.length - 1) {
                 t = 0;
             } else {
@@ -548,7 +548,7 @@ treeherder.controller('PluginCtrl', [
             ThResultSetStore.fetchJobs([$scope.job.id]);
             // Emit an event indicating that a job has been classified, although
             // it might in fact not have been
-            var jobs = {};
+            const jobs = {};
             jobs[$scope.job.id] = $scope.job;
             $rootScope.$emit(thEvents.jobsClassified, { jobs: jobs });
         });

@@ -2,36 +2,36 @@ import treeherder from '../../treeherder';
 
 treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', function ($http, ThOptionCollectionModel, $q) {
 
-    var _getTestName = function (signatureProps) {
+    const _getTestName = function (signatureProps) {
         // only return suite name if testname is identical, and handle
         // undefined test name
         return _.uniq(_.filter([signatureProps.suite, signatureProps.test])).join(" ");
     };
 
-    var _getSeriesOptions = function (signatureProps, optionCollectionMap) {
-        var options = [optionCollectionMap[signatureProps.option_collection_hash]];
+    const _getSeriesOptions = function (signatureProps, optionCollectionMap) {
+        let options = [optionCollectionMap[signatureProps.option_collection_hash]];
         if (signatureProps.extra_options) {
             options = options.concat(signatureProps.extra_options);
         }
         return _.uniq(options);
     };
 
-    var _getSeriesName = function (signatureProps, optionCollectionMap,
+    const _getSeriesName = function (signatureProps, optionCollectionMap,
                                   displayOptions) {
-        var platform = signatureProps.machine_platform;
-        var name = _getTestName(signatureProps);
+        const platform = signatureProps.machine_platform;
+        let name = _getTestName(signatureProps);
 
         if (displayOptions && displayOptions.includePlatformInName) {
             name = name + " " + platform;
         }
-        var options = _getSeriesOptions(signatureProps, optionCollectionMap);
+        const options = _getSeriesOptions(signatureProps, optionCollectionMap);
         return name + " " + options.join(" ");
     };
 
-    var _getSeriesSummary = function (projectName, signature, signatureProps,
+    const _getSeriesSummary = function (projectName, signature, signatureProps,
                                      optionCollectionMap) {
-        var platform = signatureProps.machine_platform;
-        var options = _getSeriesOptions(signatureProps, optionCollectionMap);
+        const platform = signatureProps.machine_platform;
+        const options = _getSeriesOptions(signatureProps, optionCollectionMap);
 
         return {
             id: signatureProps.id,

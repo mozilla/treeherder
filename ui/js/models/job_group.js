@@ -9,7 +9,7 @@ treeherder.factory('ThJobGroupModel', [
 
         // ThJobGroupModel is the js counterpart of job_type
 
-        var ThJobGroupModel = function (data) {
+        const ThJobGroupModel = function (data) {
             // creates a new instance of ThJobGroupModel
             // using the provided properties
             angular.extend(this, data);
@@ -27,7 +27,7 @@ treeherder.factory('ThJobGroupModel', [
                 params: options
             })
                 .then(function (response) {
-                    var item_list = [];
+                    const item_list = [];
                     angular.forEach(response.data, function (elem) {
                         item_list.push(new ThJobGroupModel(elem));
                     });

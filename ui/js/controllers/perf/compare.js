@@ -18,7 +18,7 @@ perf.controller('CompareChooserCtrl', [
             $scope.newTipList = [];
             $scope.revisionComparison = false;
 
-            var getParameter = function (paramName, defaultValue) {
+            const getParameter = function (paramName, defaultValue) {
                 if ($stateParams[paramName]) {
                     return $stateParams[paramName];
                 } else if (localStorageService.get(paramName)) {
@@ -37,12 +37,12 @@ perf.controller('CompareChooserCtrl', [
             $scope.originalRevision = getParameter('originalRevision', '');
             $scope.newRevision = getParameter('newRevision', '');
 
-            var getRevisionTips = function (projectName, list) {
+            const getRevisionTips = function (projectName, list) {
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.
                 list.splice(0, list.length);
                 ThResultSetModel.getResultSets(projectName).then(function (response) {
-                    var resultsets = response.data.results;
+                    const resultsets = response.data.results;
                     resultsets.forEach(function (revisionSet) {
                         list.push({
                             revision: revisionSet.revision,
@@ -70,7 +70,7 @@ perf.controller('CompareChooserCtrl', [
             };
 
             $scope.runCompare = function () {
-                var revisionPromises = [];
+                const revisionPromises = [];
                 if ($scope.revisionComparison) {
                     revisionPromises.push(ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
                         function () {
@@ -151,14 +151,14 @@ perf.controller('CompareResultsCtrl', [
                         $scope.newStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
                     }
 
-                    var oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
+                    const oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
                         return rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform;
                     });
-                    var newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
+                    const newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
                         return newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform;
                     });
 
-                    var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                    const cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
                     if (cmap.isEmpty) {
                         return;
                     }
@@ -250,7 +250,7 @@ perf.controller('CompareResultsCtrl', [
             const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
             $scope.platformList.forEach(function (platform) {
-                var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
+                const cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
                 if (cmap.isEmpty) {
                     return;
                 }
@@ -363,7 +363,7 @@ perf.controller('CompareResultsCtrl', [
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
                 function (resultSets) {
-                    var resultSet = resultSets[0];
+                    const resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid === 'original') {
                         $scope.originalResultSet = resultSet;
@@ -377,7 +377,7 @@ perf.controller('CompareResultsCtrl', [
         }
 
         function updateURL() {
-            var params = {
+            const params = {
                 framework: $scope.filterOptions.framework.id,
                 filter: $scope.filterOptions.filter,
                 showOnlyImportant: $scope.filterOptions.showOnlyImportant ? 1 : undefined,
@@ -407,8 +407,8 @@ perf.controller('CompareResultsCtrl', [
         };
         $scope.dataLoading = true;
 
-        var loadRepositories = ThRepositoryModel.load();
-        var loadFrameworks = PhFramework.getFrameworkList().then(
+        const loadRepositories = ThRepositoryModel.load();
+        const loadFrameworks = PhFramework.getFrameworkList().then(
             function (frameworks) {
                 $scope.frameworks = frameworks;
             });
@@ -494,7 +494,7 @@ perf.controller('CompareSubtestResultsCtrl', [
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
                function (resultSets) {
-                   var resultSet = resultSets[0];
+                   const resultSet = resultSets[0];
                     //TODO: this is a bit hacky to pass in 'original' as a text string
                    if (rsid === 'original') {
                        $scope.originalResultSet = resultSet;
@@ -524,9 +524,9 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.testsTooVariable = [{ testName: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
             $scope.pageList.sort();
             $scope.pageList.forEach(function (page) {
-                var mapsigs = [];
+                const mapsigs = [];
                 [rawResultsMap, newRawResultsMap].forEach(function (resultsMap) {
-                    var tempsig;
+                    let tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
                         tempsig = _.find(Object.keys(resultsMap), function (sig) {
@@ -539,10 +539,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                     }
                     mapsigs.push(tempsig);
                 });
-                var oldSig = mapsigs[0];
-                var newSig = mapsigs[1];
+                const oldSig = mapsigs[0];
+                const newSig = mapsigs[1];
 
-                var cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                const cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
                 if (oldSig === $scope.originalSignature ||
                     oldSig === $scope.newSignature ||
                     newSig === $scope.originalSignature ||
@@ -610,7 +610,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
-            var cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
+            const cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
                 cmap.name = testName;
                 cmap.isNoiseMetric = true;
@@ -666,8 +666,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                     return;
                 }
 
+                let resultSetIds;
                 if ($scope.originalRevision) {
-                    var resultSetIds = [$scope.originalResultSet.id];
+                    resultSetIds = [$scope.originalResultSet.id];
 
                     // Optimization - if old/new branches are the same collect data in one pass
                     if ($scope.originalProject === $scope.newProject) {
@@ -741,8 +742,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     { push_id: resultSetIds });
                             })
                     ]).then(function (results) {
-                        var originalSeriesMap = results[1][$scope.originalResultSet.id];
-                        var newSeriesMap = results[1][$scope.newResultSet.id];
+                        const originalSeriesMap = results[1][$scope.originalResultSet.id];
+                        const newSeriesMap = results[1][$scope.newResultSet.id];
                         [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
                             // If there is no data for a given signature, handle it gracefully
                             if (seriesMap) {
@@ -778,7 +779,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     newSeriesList,
                                     { push_id: [$scope.newResultSet.id] });
                             }).then(function (newSeriesMaps) {
-                                var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
+                                let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
                                 if (newSeriesMap) {
                                     Object.keys(newSeriesMap).forEach(function (series) {
@@ -827,7 +828,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             })
                     ]).then(
                         function (originalResults) {
-                            var originalSeriesMap = originalResults[1];
+                            const originalSeriesMap = originalResults[1];
                             if ($scope.newSignature) {
                                 PhSeries.getSeriesList(
                                 $scope.newProject.name, {
@@ -845,7 +846,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                         newSeriesList,
                                         { push_id: [$scope.newResultSet.id] });
                                 }).then(function (newSeriesMaps) {
-                                    var newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
+                                    let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                     // There is a chance that we haven't received data for the given signature/resultSet yet
                                     if (newSeriesMap) {
                                         Object.keys(newSeriesMap).forEach(function (series) {

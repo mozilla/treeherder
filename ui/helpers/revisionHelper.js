@@ -6,14 +6,13 @@ export const parseAuthor = function parseAuthor(author) {
 };
 
 export const isSHA = function isSHA(str) {
-  let code, i, len;
   // SHAs come in 12 and 40 character varieties
   if (str.length !== 12 && str.length !== 40) {
     return false;
   }
   // SHAs are a-f,0-9
-  for (i = 0, len = str.length; i < len; i++) {
-    code = str.charCodeAt(i);
+  for (let i = 0, len = str.length; i < len; i++) {
+    const code = str.charCodeAt(i);
     if (!(code > 47 && code < 58) && // numeric (0-9)
         !(code > 64 && code < 71) && // upper alpha (A-F)
         !(code > 96 && code < 103)) { // lower alpha (a-f)

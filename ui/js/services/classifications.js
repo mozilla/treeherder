@@ -5,10 +5,10 @@ treeherder.factory('thClassificationTypes', [
     '$http',
     function ($http) {
 
-        var classifications = {};
-        var classificationOptions = [];
+        const classifications = {};
+        const classificationOptions = [];
 
-        var classificationColors = {
+        const classificationColors = {
             1: "", // not classified
             2: "label-info", // expected fail",
             3: "label-success", // fixed by backout",
@@ -18,7 +18,7 @@ treeherder.factory('thClassificationTypes', [
             7: "label-warning" // autoclassified intermittent
         };
 
-        var addClassification = function (cl) {
+        const addClassification = function (cl) {
             classifications[cl.id] = {
                 name: cl.name,
                 star: classificationColors[cl.id]
@@ -26,7 +26,7 @@ treeherder.factory('thClassificationTypes', [
             classificationOptions.push(cl);
         };
 
-        var load = function () {
+        const load = function () {
             return $http.get(getRootUrl("/failureclassification/"), { cache: true })
                 .then(({ data }) => {
                     data.forEach(addClassification);

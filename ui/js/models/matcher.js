@@ -9,18 +9,18 @@ treeherder.factory('ThMatcherModel', [
 
         // ThJobTypeModel is the js counterpart of job_type
 
-        var ThMatcherModel = function (data) {
+        const ThMatcherModel = function (data) {
             // creates a new instance of ThJobTypeModel
             // using the provided properties
             angular.extend(this, data);
         };
 
         ThMatcherModel.get_uri = function () {
-            var url = getRootUrl("/matcher/");
+            const url = getRootUrl("/matcher/");
             return url;
         };
 
-        var matchers = $http
+        const matchers = $http
                 .get(ThMatcherModel.get_uri(), {
                     cache: true
                 })
