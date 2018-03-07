@@ -112,7 +112,6 @@ export default class JobGroup extends React.Component {
         <span
           className="disabled job-group"
           title={group.name}
-          data-grkey={group.grkey}
         >
           <button
             className="btn group-symbol"
