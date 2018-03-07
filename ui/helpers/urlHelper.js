@@ -108,7 +108,7 @@ export const graphsEndpoint = 'failurecount/';
 
 export const parseQueryParams = function parseQueryParams(search) {
   const params = new URLSearchParams(search);
-  let obj = {};
+  const obj = {};
   for (const [key, value] of params.entries()) {
     obj[key] = value;
   }
@@ -116,7 +116,7 @@ export const parseQueryParams = function parseQueryParams(search) {
 };
 
 export const createQueryParams = function createQueryParams(params) {
-  let query = new URLSearchParams(params);
+  const query = new URLSearchParams(params);
   return `?${query.toString()}`;
 };
 

@@ -10,12 +10,6 @@ import { createApiUrl } from '../helpers/urlHelper';
 
 function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bugs, columns, trStyling, totalPages }) {
 
-  const updateTable = (state) => {
-    // table's page count starts at 0
-    const page = state.page + 1;
-    updateData(page);
-  };
-
   const updateData = (page) => {
     params.page = page;
     if (name === 'BUGS') {
@@ -25,16 +19,22 @@ function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bug
     }
   };
 
+  const updateTable = (state) => {
+    // table's page count starts at 0
+    const page = state.page + 1;
+    updateData(page);
+  };
+
   const bugRowStyling = (state, bug) => {
     if (bug) {
-      let style = { color: '#aaa' };
+      const style = { color: '#aaa' };
 
       if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {
         style.textDecoration = 'line-through';
         return { style };
       }
 
-      let disabledStrings = new RegExp('(disabled|annotated|marked)', 'i');
+      const disabledStrings = new RegExp('(disabled|annotated|marked)', 'i');
       if (disabledStrings.test(bug.row.whiteboard)) {
         return { style };
       }

@@ -24,13 +24,13 @@ export const formatBugs = function formatBugsForBugzilla(data) {
 };
 
 export const mergeData = function mergeDataFromTwoApis(data, bugs) {
-  let dict = {};
+  const dict = {};
   for (let i = 0; i < data.length; i++) {
     dict[data[i].bug_id] = data[i].bug_count;
   }
 
   for (let i = 0; i < bugs.length; i++) {
-    let match = dict[bugs[i].id];
+    const match = dict[bugs[i].id];
     if (match) {
       bugs[i].count = match;
     }
@@ -50,11 +50,11 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
   let totalRuns = 0;
 
   for (let i = 0; i < data.length; i++) {
-    let failures = data[i].failure_count;
-    let testRuns = data[i].test_runs;
-    let freq = (testRuns < 1 || failures < 1) ? 0 : Math.round(failures / testRuns);
+    const failures = data[i].failure_count;
+    const testRuns = data[i].test_runs;
+    const freq = (testRuns < 1 || failures < 1) ? 0 : Math.round(failures / testRuns);
     // metrics graphics only accepts JS Date objects
-    let date = moment(data[i].date).toDate();
+    const date = moment(data[i].date).toDate();
 
     totalFailures += failures;
     totalRuns += testRuns;

@@ -33,6 +33,10 @@ h1, .subheader {
     color: lightgray;
 }
 
+.navbar-link:hover {
+    color: lightgray;
+}
+
 .navbar-link:visited {
     color: lightgray;
 }
