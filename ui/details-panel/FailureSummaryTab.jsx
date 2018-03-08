@@ -24,66 +24,72 @@ class SuggestionsListItem extends React.Component {
   }
 
   render() {
+    const {
+      filerInAddress, user, suggestion, selectedJob, escapeHTMLFilter,
+      highlightCommonTermsFilter, $timeout, pinboardService, bugLimit,
+      fileBug, index
+    } = this.props;
+
     return (
       <li>
         <div className="job-tabs-content">
-          {(this.props.filerInAddress || this.props.user.is_staff) &&
-            <a
-              className="btn btn-xs btn-light-bordered"
               onClick={this.fileBugEvent}
+          {(filerInAddress || user.is_staff) &&
+            <span
+              className="btn btn-xs btn-light-bordered link-style"
               title="file a bug for this failure"
             >
               <i className="fa fa-bug" />
-            </a>}
-          <span>{this.props.suggestion.search}</span>
+            </span>}
+          <span>{suggestion.search}</span>
         </div>
 
         {/* <!--Open recent bugs--> */}
-        {this.props.suggestion.valid_open_recent &&
+        {suggestion.valid_open_recent &&
         <ul className="list-unstyled failure-summary-bugs">
-          {this.props.suggestion.bugs.open_recent.map(bug =>
+          {suggestion.bugs.open_recent.map(bug =>
             (<BugListItem
               key={bug.id}
               bug={bug}
-              selectedJob={this.props.selectedJob}
-              pinboardService={this.props.pinboardService}
-              escapeHTMLFilter={this.props.escapeHTMLFilter}
-              suggestion={this.props.suggestion}
-              highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
-              $timeout={this.props.$timeout}
+              selectedJob={selectedJob}
+              pinboardService={pinboardService}
+              escapeHTMLFilter={escapeHTMLFilter}
+              suggestion={suggestion}
+              highlightCommonTermsFilter={highlightCommonTermsFilter}
+              $timeout={$timeout}
             />))}
 
         </ul>}
 
         {/* <!--All other bugs--> */}
-        {this.props.suggestion.valid_all_others && this.props.suggestion.valid_open_recent &&
+        {suggestion.valid_all_others && suggestion.valid_open_recent &&
         <span
           rel="noopener"
           onClick={this.clickShowMore}
           className="show-hide-more"
         >Show / Hide more</span>}
 
-        {this.props.suggestion.valid_all_others && (this.state.suggestionShowMore
-          || !this.props.suggestion.valid_open_recent) &&
+        {suggestion.valid_all_others && (this.state.suggestionShowMore
+          || !suggestion.valid_open_recent) &&
           <ul className="list-unstyled failure-summary-bugs">
-            {this.props.suggestion.bugs.all_others.map(bug =>
+            {suggestion.bugs.all_others.map(bug =>
               (<BugListItem
                 key={bug.id}
                 bug={bug}
-                selectedJob={this.props.selectedJob}
-                pinboardService={this.props.pinboardService}
-                escapeHTMLFilter={this.props.escapeHTMLFilter}
-                suggestion={this.props.suggestion}
-                highlightCommonTermsFilter={this.props.highlightCommonTermsFilter}
-                $timeout={this.props.$timeout}
+                selectedJob={selectedJob}
+                pinboardService={pinboardService}
+                escapeHTMLFilter={escapeHTMLFilter}
+                suggestion={suggestion}
+                highlightCommonTermsFilter={highlightCommonTermsFilter}
+                $timeout={$timeout}
                 bugClassName={bug.resolution !== "" ? "deleted" : ""}
                 title={bug.resolution !== "" ? bug.resolution : ""}
               />))}
           </ul>}
 
-        {(this.props.suggestion.bugs.too_many_open_recent || (this.props.suggestion.bugs.too_many_all_others
-            && !this.props.suggestion.valid_open_recent)) &&
-            <mark>Exceeded max {this.props.bugLimit} bug suggestions, most of which are likely false positives.</mark>}
+        {(suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others
+            && !suggestion.valid_open_recent)) &&
+            <mark>Exceeded max {bugLimit} bug suggestions, most of which are likely false positives.</mark>}
       </li>
     );
   }
@@ -104,10 +110,13 @@ function BugListItem(props) {
     const { bug, selectedJob, pinboardService, $timeout } = props;
     $timeout(() => (pinboardService.addBug(bug, selectedJob)));
   };
-
-  const bugUrl = getBugUrl(props.bug.id);
-  const bugSummaryText = props.escapeHTMLFilter(props.bug.summary);
-  const bugSummaryHTML = { __html: props.highlightCommonTermsFilter(bugSummaryText, props.suggestion.search) };
+  const {
+    bug, escapeHTMLFilter, highlightCommonTermsFilter, suggestion,
+    bugClassName, title, $timeout, pinboardService, selectedJob,
+  } = props;
+  const bugUrl = getBugUrl(bug.id);
+  const bugSummaryText = escapeHTMLFilter(bug.summary);
+  const bugSummaryHTML = { __html: highlightCommonTermsFilter(bugSummaryText, suggestion.search) };
 
   return (
     <li>
@@ -119,13 +128,13 @@ function BugListItem(props) {
         <i className="fa fa-thumb-tack" />
       </button>
       <a
-        className={`${props.bugClassName} ml-1`}
+        className={`${bugClassName} ml-1`}
         href={bugUrl}
         target="_blank"
         rel="noopener"
-        title={props.title}
-      >{props.bug.id}
-        <span className={`${props.bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
+        title={title}
+      >{bug.id}
+        <span className={`${bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
       </a>
     </li>
   );
@@ -157,44 +166,48 @@ function ErrorsList(props) {
 
 
 function FailureSummaryTab(props) {
-  const escapeHTMLFilter = props.$injector.get('$filter')('escapeHTML');
-  const highlightCommonTermsFilter = props.$injector.get('$filter')('highlightCommonTerms');
-  const $timeout = props.$injector.get('$timeout');
+  const {
+    $injector, suggestions, user, filerInAddress, fileBug, bugLimit, pinboardService, selectedJob,
+    errors, tabs, jobLogsAllParsed, bugSuggestionsLoaded, jobLogUrls, logParseStatus,
+  } = props;
+  const escapeHTMLFilter = $injector.get('$filter')('escapeHTML');
+  const highlightCommonTermsFilter = $injector.get('$filter')('highlightCommonTerms');
+  const $timeout = $injector.get('$timeout');
 
   return (
     <ul className="list-unstyled failure-summary-list">
-      {props.suggestions && props.suggestions.map((suggestion, index) =>
+      {suggestions && suggestions.map((suggestion, index) =>
         (<SuggestionsListItem
           key={index}  // eslint-disable-line react/no-array-index-key
           index={index}
           suggestion={suggestion}
-          user={props.user}
-          filerInAddress={props.filerInAddress}
-          fileBug={props.fileBug}
+          user={user}
+          filerInAddress={filerInAddress}
+          fileBug={fileBug}
           highlightCommonTermsFilter={highlightCommonTermsFilter}
           escapeHTMLFilter={escapeHTMLFilter}
-          bugLimit={props.bugLimit}
-          pinboardService={props.pinboardService}
-          selectedJob={props.selectedJob}
+          bugLimit={bugLimit}
+          pinboardService={pinboardService}
+          selectedJob={selectedJob}
           $timeout={$timeout}
         />))}
 
-      {props.errors && props.errors.length > 0 &&
-        <ErrorsList errors={props.errors} />}
+      {errors && errors.length > 0 &&
+        <ErrorsList errors={errors} />}
 
-      {!props.tabs.failureSummary.is_loading && props.jobLogsAllParsed && props.bugSuggestionsLoaded &&
-        props.jobLogUrls.length === 0 && props.suggestions.length === 0 && props.errors.length === 0 &&
+      {!tabs.failureSummary.is_loading && jobLogsAllParsed && bugSuggestionsLoaded &&
+        jobLogUrls.length === 0 && suggestions.length === 0 && errors.length === 0 &&
         <ListItem text="Failure summary is empty" />}
 
-      {!props.tabs.failureSummary.is_loading && props.jobLogsAllParsed && !props.bugSuggestionsLoaded
-        && props.jobLogUrls.length && props.logParseStatus === 'success' &&
+      {!tabs.failureSummary.is_loading && jobLogsAllParsed && !bugSuggestionsLoaded
+        && jobLogUrls.length && logParseStatus === 'success' &&
         <li>
           <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
             <span>The content of this panel will refresh in 5 seconds.</span></p>
         </li>}
 
-      {props.jobLogUrls && !props.tabs.failureSummary.is_loading && !props.jobLogsAllParsed &&
-       props.jobLogUrls.map(jobLog =>
+      {jobLogUrls && !tabs.failureSummary.is_loading && !jobLogsAllParsed &&
+       jobLogUrls.map(jobLog =>
          (<li key={jobLog.id}>
            <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
              <a
@@ -205,13 +218,13 @@ function FailureSummaryTab(props) {
              >The raw log</a> is available. This panel will automatically recheck every 5 seconds.</p>
          </li>))}
 
-      {!props.tabs.failureSummary.is_loading && props.logParseStatus === 'failed' &&
+      {!tabs.failureSummary.is_loading && logParseStatus === 'failed' &&
         <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
 
-      {!props.tabs.failureSummary.is_loading && props.jobLogUrls && props.jobLogUrls.length === 0 &&
+      {!tabs.failureSummary.is_loading && jobLogUrls && jobLogUrls.length === 0 &&
         <ListItem text="No logs available for this job." />}
 
-      {props.tabs.failureSummary.is_loading &&
+      {tabs.failureSummary.is_loading &&
         <div className="overlay">
           <div>
             <span className="fa fa-spinner fa-pulse th-spinner-lg" />
