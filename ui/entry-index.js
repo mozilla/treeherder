@@ -72,7 +72,7 @@ import './js/controllers/tcjobactions';
 import './plugins/tabs';
 import './plugins/controller';
 import './details-panel/JobDetailsPane';
-import './plugins/failure_summary_panel';
+import './details-panel/FailureSummaryTab';
 import './details-panel/AnnotationsTab';
 import './plugins/pinboard';
 import './plugins/failure_summary/controller';
