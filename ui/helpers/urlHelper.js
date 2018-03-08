@@ -39,6 +39,7 @@ export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_n
 // not actually need a repo if they're trying to get a job by ``id``.
 export const getProjectUrl = function getProjectUrl(uri, repoName) {
   const repo = repoName || getUrlParam("repo") || 'mozilla-inbound';
+
   return `${SERVICE_DOMAIN}/api/project/${repo}${uri}`;
 };
 
@@ -46,12 +47,17 @@ export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
   return getProjectUrl(`/jobs/${jobId}${url}`);
 };
 
-export const getRootUrl = function getRootUrl(uri) {
+export const getApiUrl = function getApiUrl(uri) {
   return `${SERVICE_DOMAIN}/api${uri}`;
+};
+
+export const getServiceUrl = function getServiceUrl(uri) {
+  return `${SERVICE_DOMAIN}${uri}`;
 };
 
 export const linkifyURLs = function linkifyURLs(input) {
   const urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+
   return input.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 };
 

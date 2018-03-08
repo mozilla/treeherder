@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThJobTypeModel', [
     '$http',
@@ -16,7 +16,7 @@ treeherder.factory('ThJobTypeModel', [
         };
 
         ThJobTypeModel.get_uri = function () {
-            const url = getRootUrl("/jobtype/");
+            const url = getApiUrl("/jobtype/");
             return url;
         };
 

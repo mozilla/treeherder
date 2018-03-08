@@ -1,5 +1,5 @@
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('thClassificationTypes', [
     '$http',
@@ -27,7 +27,7 @@ treeherder.factory('thClassificationTypes', [
         };
 
         const load = function () {
-            return $http.get(getRootUrl("/failureclassification/"), { cache: true })
+            return $http.get(getApiUrl("/failureclassification/"), { cache: true })
                 .then(({ data }) => {
                     data.forEach(addClassification);
                 });

@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThMatcherModel', [
     '$http',
@@ -16,7 +16,7 @@ treeherder.factory('ThMatcherModel', [
         };
 
         ThMatcherModel.get_uri = function () {
-            const url = getRootUrl("/matcher/");
+            const url = getApiUrl("/matcher/");
             return url;
         };
 

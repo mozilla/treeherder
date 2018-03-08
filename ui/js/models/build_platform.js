@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThBuildPlatformModel', [
     '$http',
@@ -16,7 +16,7 @@ treeherder.factory('ThBuildPlatformModel', [
         };
 
         ThBuildPlatformModel.get_uri = function () {
-            const url = getRootUrl("/buildplatform/");
+            const url = getApiUrl("/buildplatform/");
             return url;
         };
 

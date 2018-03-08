@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getProjectJobUrl, getRootUrl } from '../../helpers/urlHelper';
+import { getProjectJobUrl, getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThTextLogErrorsModel', [
     '$http', '$q',
@@ -36,7 +36,7 @@ treeherder.factory('ThTextLogErrorsModel', [
 
         ThTextLogErrorsModel.verify = function (lineId, bestClassification, bugNumber) {
             return $http.put(
-                getRootUrl(`/text-log-error/${lineId}/`), {
+                getApiUrl(`/text-log-error/${lineId}/`), {
                     best_classification: bestClassification,
                     bug_number: bugNumber
                 });
@@ -46,7 +46,7 @@ treeherder.factory('ThTextLogErrorsModel', [
             if (!data.length) {
                 return $q.resolve();
             }
-            return $http.put(getRootUrl("/text-log-error/"), data);
+            return $http.put(getApiUrl("/text-log-error/"), data);
         };
 
         return ThTextLogErrorsModel;
