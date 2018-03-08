@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import django.db.models.deletion
 import django.utils.timezone
-import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
 
@@ -199,7 +198,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255, unique=True)),
                 ('description', models.TextField(blank=True)),
-                ('info', jsonfield.fields.JSONField()),
+                # This is removed in a later migration so isn't needed.
+                # By commenting it out we get to remove the JSONfield package
+                # without having to wait for the squashed migrations to be removed.
+                # ('info', jsonfield.fields.JSONField()),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
