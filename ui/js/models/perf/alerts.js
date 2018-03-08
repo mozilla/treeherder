@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import { getApiUrl } from "../../../helpers/urlHelper";
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'ThOptionCollectionModel', 'PhSeries',
@@ -49,7 +50,7 @@ treeherder.factory('PhAlerts', [
             return endpoint + '?' + $httpParamSerializer(urlParameters);
         };
         Alert.prototype.modify = function (modification) {
-            return $http.put(`${SERVICE_DOMAIN}/api/performance/alert/${this.id}/`,
+            return $http.put(getApiUrl(`/performance/alert/${this.id}/`),
                              modification);
         };
         _.forEach(phAlertStatusMap, function (status) {
@@ -141,14 +142,14 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.updateStatus = function (newStatus) {
             const alertSummary = this;
-            return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
+            return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
                              { status: newStatus.id }).then(function () {
                                  alertSummary.status = newStatus.id;
                              });
         };
         AlertSummary.prototype.update = function () {
             const alertSummary = this;
-            return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`).then(
+            return $http.get(getApiUrl(`/performance/alertsummary/${this.id}/`)).then(
                                  function (response) {
                                      return ThOptionCollectionModel.getMap().then(
                                          function (optionCollectionMap) {
@@ -198,7 +199,7 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
             const alertSummary = this;
-            return $http.put(`${SERVICE_DOMAIN}/api/performance/alertsummary/${this.id}/`,
+            return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
                              { bug_number: taskNumber, issue_tracker: issueTrackerId }).then(function () {
                                  return alertSummary.update();
                              });
@@ -223,7 +224,7 @@ treeherder.factory('PhAlerts', [
             const canceller = $q.defer();
             const promise = ThOptionCollectionModel.getMap().then(
                 function (optionCollectionMap) {
-                    return $http.get(`${SERVICE_DOMAIN}/api/performance/alertsummary/${id}/`,
+                    return $http.get(getApiUrl(`/performance/alertsummary/${id}/`),
                                     { timeout: canceller.promise }).then(
                                         function (response) {
                                             return new AlertSummary(response.data,
@@ -251,7 +252,7 @@ treeherder.factory('PhAlerts', [
             getAlertSummaries: function (options) {
                 let href;
                 if (!options || !options.href) {
-                    href = `${SERVICE_DOMAIN}/api/performance/alertsummary/`;
+                    href = getApiUrl('/performance/alertsummary/');
 
                     // add filter parameters for status and framework
                     const params = [];
@@ -296,14 +297,14 @@ treeherder.factory('PhAlerts', [
                     });
             },
             createAlert: function (data) {
-                return $http.post(`${SERVICE_DOMAIN}/api/performance/alertsummary/`, {
+                return $http.post(getApiUrl('/performance/alertsummary/'), {
                     repository_id: data.project.id,
                     framework_id: data.series.frameworkId,
                     push_id: data.resultSetId,
                     prev_push_id: data.prevResultSetId
                 }).then(function (response) {
                     const newAlertSummaryId = response.data.alert_summary_id;
-                    return $http.post(`${SERVICE_DOMAIN}/api/performance/alert/`, {
+                    return $http.post(getApiUrl('/performance/alert/'), {
                         summary_id: newAlertSummaryId,
                         signature_id: data.series.id
                     }).then(function () {

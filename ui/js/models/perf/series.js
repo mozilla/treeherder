@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import { getApiUrl } from "../../../helpers/urlHelper";
 
 treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', function ($http, ThOptionCollectionModel, $q) {
 
@@ -87,7 +88,7 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
         getReplicateData: function (params) {
             params.value = 'perfherder-data.json';
             return $http.get(
-                `${SERVICE_DOMAIN}/api/jobdetail/`,
+                getApiUrl('/jobdetail/'),
                 { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {

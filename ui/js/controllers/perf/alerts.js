@@ -1,12 +1,13 @@
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
+import { getApiUrl } from "../../../helpers/urlHelper";
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
     function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter) {
         return {
             fileBug: function (alertSummary) {
-                $http.get(`${SERVICE_DOMAIN}/api/performance/bug-template/?framework=${alertSummary.framework}`).then(function (response) {
+                $http.get(getApiUrl(`/performance/bug-template/?framework=${alertSummary.framework}`)).then(function (response) {
                     const template = response.data[0];
                     const repo = _.find($rootScope.repos, { name: alertSummary.repository });
                     const compiledText = $interpolate(template.text)({
