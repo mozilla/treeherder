@@ -37,6 +37,7 @@ export const getTestDataQuery = revision => encodeURIComponent(`
                   }
                   jobLog {
                     failureLine {
+                      id
                       test
                       subtest
                       message

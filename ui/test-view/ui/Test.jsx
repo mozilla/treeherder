@@ -104,11 +104,10 @@ class TestComponent extends React.Component {
     return (
       <div className="test-detail-list">
         <div className="bottom-separator"><strong>Test Group: {this.props.test.group}</strong></div>
-        {this.props.test.jobs.map((job, key) => (
-          <div key={key}>
+        {this.props.test.jobs.map(job => (
+          <div key={job.id}>
             <Platform
               job={job}
-              key={key}
               platform={platformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}
               repo={this.props.repo}
@@ -119,8 +118,8 @@ class TestComponent extends React.Component {
               repo={this.props.repo}
             />
             {job.tier > 1 && <span className="tier badge">Tier-{job.tier}</span>}
-            <div>{job.failureLines.map((failureLine, jlkey) => (
-              <span key={jlkey}>
+            <div>{job.failureLines.map(failureLine => (
+              <span key={failureLine.id}>
                 {failureLine && <div>
                   <span>
                     {failureLine.action === 'TEST_RESULT' && <div className="failure-line">
@@ -145,8 +144,8 @@ class TestComponent extends React.Component {
         ))}
         {this.props.test.bugs && <div>
           <div className="bottom-separator"><strong>Bugs:</strong></div>
-          {Object.values(this.props.test.bugs).map((bug, key) => (
-            <div key={key}><Link
+          {Object.values(this.props.test.bugs).map(bug => (
+            <div key={bug.id}><Link
               to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
               target="_blank"
               rel="noopener"
@@ -165,10 +164,10 @@ class TestComponent extends React.Component {
           onClick={this.onClick}
         >{this.props.name}</span>
         <span className="platform-list">
-          {this.props.test.jobs.map((job, key) => (
+          {this.props.test.jobs.map(job => (
             <Platform
               job={job}
-              key={key}
+              key={job.id}
               platform={platformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}
               repo={this.props.repo}

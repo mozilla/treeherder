@@ -14,12 +14,12 @@ export class RevisionList extends React.PureComponent {
     return (
       <span className="revision-list col-5">
         <ul className="list-unstyled">
-          {push.revisions.map((revision, i) =>
+          {push.revisions.map(revision =>
             (<Revision
               linkifyBugsFilter={this.linkifyBugsFilter}
               revision={revision}
               repo={repo}
-              key={i}
+              key={revision.revision}
             />)
           )}
           {this.hasMore &&

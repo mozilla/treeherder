@@ -44,9 +44,9 @@ class SuggestionsListItem extends React.Component {
         {/* <!--Open recent bugs--> */}
         {this.props.suggestion.valid_open_recent &&
         <ul className="list-unstyled failure-summary-bugs">
-          {this.props.suggestion.bugs.open_recent.map((bug, index) =>
+          {this.props.suggestion.bugs.open_recent.map(bug =>
             (<BugListItem
-              key={index}
+              key={bug.id}
               bug={bug}
               selectedJob={this.props.selectedJob}
               pinboardService={this.props.pinboardService}
@@ -71,9 +71,9 @@ class SuggestionsListItem extends React.Component {
         {this.props.suggestion.valid_all_others && (this.state.suggestionShowMore
           || !this.props.suggestion.valid_open_recent) &&
           <ul className="list-unstyled failure-summary-bugs">
-            {this.props.suggestion.bugs.all_others.map((bug, index) =>
+            {this.props.suggestion.bugs.all_others.map(bug =>
               (<BugListItem
-                key={index}
+                key={bug.id}
                 bug={bug}
                 selectedJob={this.props.selectedJob}
                 pinboardService={this.props.pinboardService}
@@ -138,15 +138,18 @@ function BugListItem(props) {
 
 
 function ErrorsList(props) {
-  const errorListItem = props.errors.map((error, index) =>
-    (<li key={index}>{error.name} : {error.result}.
+  const errorListItem = props.errors.map((error, key) => (
+    <li
+      key={key} // eslint-disable-line react/no-array-index-key
+    >{error.name} : {error.result}.
       <a
         title="Open in Log Viewer"
         target="_blank"
         rel="noopener"
         href={error.lvURL}
       ><span className="ml-1">View log</span></a>
-    </li>));
+    </li>
+  ));
 
   return (
     <li>
@@ -167,7 +170,7 @@ function FailureSummaryPanel(props) {
     <ul className="list-unstyled failure-summary-list">
       {props.suggestions && props.suggestions.map((suggestion, index) =>
         (<SuggestionsListItem
-          key={index}
+          key={index}  // eslint-disable-line react/no-array-index-key
           index={index}
           suggestion={suggestion}
           user={props.user}
@@ -196,14 +199,14 @@ function FailureSummaryPanel(props) {
         </li>}
 
       {props.jobLogUrls && !props.tabs.failureSummary.is_loading && !props.jobLogsAllParsed &&
-       props.jobLogUrls.map((job, index) =>
-         (<li key={index}>
+       props.jobLogUrls.map(jobLog =>
+         (<li key={jobLog.id}>
            <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
              <a
                title="Open the raw log in a new window"
                target="_blank"
                rel="noopener"
-               href={job.url}
+               href={jobLog.url}
              >The raw log</a>
              <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
          </li>))}
