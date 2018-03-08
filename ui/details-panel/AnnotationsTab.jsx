@@ -36,8 +36,8 @@ function RelatedBug(props) {
     <span>
       <p className="annotations-bug-header font-weight-bold">Bugs</p>
       <ul className="annotations-bug-list">
-        {bugs.map((bug, index) => (
-          <li key={index}>
+        {bugs.map(bug => (
+          <li key={bug.bug_id}>
             <RelatedBugSaved
               bug={bug}
               deleteBug={deleteBug}
@@ -98,9 +98,9 @@ function AnnotationsTable(props) {
         </tr>
       </thead>
       <tbody>
-        {classifications.map((classification, index) => (
+        {classifications.map(classification => (
           <TableRow
-            key={index}
+            key={classification.id}
             dateFilter={dateFilter}
             classification={classification}
             deleteClassification={deleteClassification}
