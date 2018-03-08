@@ -8,6 +8,7 @@ import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 import * as groupsStore from './modules/groups';
 import { platformMap } from '../../js/constants';
+import { getServiceUrl } from "../../helpers/urlHelper";
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?
@@ -91,7 +92,7 @@ function filterGroups(filter, groups, options, hideClassified) {
 async function fetchTests(store, fetchParams) {
   let fetchStatus = 'No failed tests to show';
   const { url, filter, options, hideClassified, bugSuggestions } = fetchParams;
-  const response = await fetch(`${SERVICE_DOMAIN}${url}`, fetchParams);
+  const response = await fetch(getServiceUrl(url), fetchParams);
   const pushResp = await response.json();
   // Here the json is the job_detail result.
   // We need to take each entry and query for the errorsummary.log
@@ -198,7 +199,7 @@ async function fetchTests(store, fetchParams) {
 
 async function fetchOptions(store, fetchParams) {
   const { url } = fetchParams;
-  const resp = await fetch(`${SERVICE_DOMAIN}${url}`, fetchParams);
+  const resp = await fetch(getServiceUrl(url), fetchParams);
   const options = await resp.json();
   store.dispatch({
     type: groupsStore.types.STORE_OPTIONS,
@@ -213,7 +214,7 @@ async function fetchOptions(store, fetchParams) {
 
 async function fetchCounts(store, fetchParams) {
   const { url } = fetchParams;
-  const resp = await fetch(`${SERVICE_DOMAIN}${url}`, fetchParams);
+  const resp = await fetch(getServiceUrl(url), fetchParams);
   const pushStatus = await resp.json();
   const counts = {
     success: 0,
@@ -314,7 +315,7 @@ async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
 
   // Do a request for each url in the keys of the testMap.  Using them as keys eliminates
   // duplicate requests since multiple tests can be in the same job.
-  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(`${SERVICE_DOMAIN}${url}`)));
+  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(getServiceUrl(url))));
   const respData = await Promise.all(responses.map(promise => promise.json()));
   const updatedBugSuggestions = {
     ...bugSuggestions,
@@ -348,7 +349,7 @@ async function fetchBugs(store, { rowData, url }) {
   }, {});
   // Do a request for each url in the keys of the testMap.  Using them as keys eliminates
   // duplicate requests since multiple tests can be in the same job.
-  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(`${SERVICE_DOMAIN}${url}`)));
+  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(getServiceUrl(url))));
   const respData = await Promise.all(responses.map(promise => promise.json()));
   const bugSuggestions = respData.reduce((bsAcc, data, idx) => {
     testMap[stripHost(responses[idx].url)].forEach((test) => {
