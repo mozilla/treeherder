@@ -1,5 +1,6 @@
 import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 import thTaskcluster from '../services/taskcluster';
+import { getApiUrl } from "../../helpers/urlHelper";
 
 export default class AuthService {
   constructor() {
@@ -7,7 +8,7 @@ export default class AuthService {
   }
 
   _fetchUser(userSession) {
-    const loginUrl = `${location.protocol}//${location.host}/api/auth/login/`;
+    const loginUrl = getApiUrl('/auth/login/');
 
     return new Promise(async (resolve, reject) => {
       const userResponse = await fetch(loginUrl, {

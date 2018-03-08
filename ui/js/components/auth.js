@@ -2,7 +2,7 @@ import treeherder from '../treeherder';
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 import thTaskcluster from '../services/taskcluster';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -113,7 +113,7 @@ treeherder.component("login", {
              * the session token.  Then updates the UI
              */
             ctrl.logout = function () {
-                $http.get(getRootUrl("/auth/logout/"))
+                $http.get(getApiUrl("/auth/logout/"))
                     .then(function () {
                         ctrl.setLoggedOut();
                     }, function (data) {

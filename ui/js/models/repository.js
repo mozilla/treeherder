@@ -1,5 +1,5 @@
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThRepositoryModel', [
     '$http', '$rootScope', '$interval',
@@ -172,7 +172,7 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         const get_uri = function () {
-            return getRootUrl("/repository/");
+            return getApiUrl("/repository/");
         };
 
         const get_list = function () {

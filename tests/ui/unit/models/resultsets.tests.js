@@ -1,12 +1,12 @@
+import { getProjectUrl } from "../../../../ui/helpers/urlHelper";
+
 describe('ThResultSetStore', function(){
 
     var $httpBackend,
         rootScope,
         model,
         repoModel,
-        foregroundRepo = "mozilla-inbound",
-        projectPrefix = '/api/project/',
-        foregroundPrefix = projectPrefix + foregroundRepo;
+        foregroundRepo = "mozilla-inbound";
 
     beforeEach(angular.mock.module('treeherder'));
 
@@ -15,8 +15,6 @@ describe('ThResultSetStore', function(){
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
-
-
 
         $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-inbound').respond(
             {
@@ -30,23 +28,23 @@ describe('ThResultSetStore', function(){
 
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/0/unclassified_failure_count/').respond(
+        $httpBackend.whenGET(getProjectUrl('/jobs/0/unclassified_failure_count/', foregroundRepo)).respond(
             {
                 "unclassified_failure_count": 1152,
                 "repository": "mozilla-inbound"
             }
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/resultset/?count=10&full=true').respond(
+        $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', foregroundRepo)).respond(
             getJSONFixture('push_list.json')
         );
 
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=1&return_type=list').respond(
+        $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=1&return_type=list', foregroundRepo)).respond(
             getJSONFixture('job_list/job_1.json')
         );
 
-        $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2000&result_set_id=2&return_type=list').respond(
+        $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=2&return_type=list', foregroundRepo)).respond(
             getJSONFixture('job_list/job_2.json')
         );
 
@@ -61,8 +59,6 @@ describe('ThResultSetStore', function(){
         $httpBackend.whenGET('/api/jobgroup/').respond(
             getJSONFixture('job_group_list.json')
         );
-
-
 
         rootScope = $rootScope.$new();
         rootScope.repoName = foregroundRepo;

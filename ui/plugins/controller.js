@@ -173,10 +173,7 @@ treeherder.controller('PluginCtrl', [
                                 series: seriesList.find(s => d.signature_id === s.id),
                                 ...d
                             })).filter(d => !d.series.parentSignature).map(d => ({
-                                url: `${SERVICE_DOMAIN}/perf.html#/graphs?series=` +
-                                [$scope.repoName, d.signature_id, 1, d.series.frameworkId] +
-                                '&selected=' +
-                                [$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id],
+                                url: `/perf.html#/graphs?series=${[$scope.repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id]}`,
                                 value: d.value,
                                 title: d.series.name
                             }));

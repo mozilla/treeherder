@@ -90,7 +90,7 @@ treeherder.filter('escapeHTML', function () {
 treeherder.filter('getRevisionUrl', function () {
     return function (revision, projectName) {
         if (revision) {
-            return `${SERVICE_DOMAIN}/#/jobs?repo=${projectName}&revision=${revision}`;
+            return `/#/jobs?repo=${projectName}&revision=${revision}`;
         }
         return '';
     };

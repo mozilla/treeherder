@@ -4,7 +4,7 @@ import { Queue, slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
 import thTaskcluster from '../services/taskcluster';
-import { getProjectUrl } from '../../helpers/urlHelper';
+import { getProjectUrl, getServiceUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'tcactions',
@@ -124,7 +124,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 );
             },
             get: function (uri) {
-                return $http.get(SERVICE_DOMAIN + uri);
+                return $http.get(getServiceUrl(uri));
             },
             getResultSetJobsUpdates: function (resultSetIdList, repoName, lastModified,
                 locationParams) {

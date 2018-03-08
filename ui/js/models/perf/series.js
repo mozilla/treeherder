@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import { getProjectUrl, getApiUrl } from "../../../helpers/urlHelper";
 
 treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', function ($http, ThOptionCollectionModel, $q) {
 
@@ -57,7 +58,7 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
         getSeriesList: function (projectName, params) {
             return ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 return $http.get(
-                    `${SERVICE_DOMAIN}/api/project/${projectName}/performance/signatures/`,
+                    getProjectUrl('/performance/signatures/', projectName),
                     { params: params }).then(function (response) {
                          return _.map(response.data, function (signatureProps, signature) {
                              return _getSeriesSummary(projectName, signature,
@@ -69,14 +70,14 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
         },
         getPlatformList: function (projectName, params) {
             return $http.get(
-                `${SERVICE_DOMAIN}/api/project/${projectName}/performance/platforms/`,
+                getProjectUrl('/performance/platforms/', projectName),
                 { params: params }).then(function (response) {
                     return response.data;
                 });
         },
         getSeriesData: function (projectName, params) {
             return $http.get(
-                `${SERVICE_DOMAIN}/api/project/${projectName}/performance/data/`,
+                getProjectUrl('/performance/data/', projectName),
                 { params: params }).then(function (response) {
                     if (response.data) {
                         return response.data;
@@ -87,7 +88,7 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
         getReplicateData: function (params) {
             params.value = 'perfherder-data.json';
             return $http.get(
-                `${SERVICE_DOMAIN}/api/jobdetail/`,
+                getApiUrl('/jobdetail/'),
                 { params: params }).then(
                     function (response) {
                         if (response.data.results[0]) {

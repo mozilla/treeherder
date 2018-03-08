@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThJobGroupModel', [
     '$http',
@@ -16,7 +16,7 @@ treeherder.factory('ThJobGroupModel', [
         };
 
         ThJobGroupModel.get_uri = function () {
-            return getRootUrl("/jobgroup/");
+            return getApiUrl("/jobgroup/");
         };
 
         ThJobGroupModel.get_list = function (options) {

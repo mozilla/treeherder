@@ -1,4 +1,5 @@
 import treeherder from '../../treeherder';
+import { getApiUrl } from "../../../helpers/urlHelper";
 
 treeherder.factory('PhCompare', [
     '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math', 'phTimeRanges',
@@ -214,7 +215,7 @@ treeherder.factory('PhCompare', [
                     if (!newSignature) errors.push('Missing input: newSignature');
                 }
 
-                $http.get(`${SERVICE_DOMAIN}/api/repository/`).then(function (response) {
+                $http.get(getApiUrl('/repository/')).then(function (response) {
                     if (!_.find(response.data, { name: originalProject })) {
                         errors.push("Invalid project, doesn't exist: " + originalProject);
                     }

@@ -135,7 +135,7 @@ perf.controller('GraphsCtrl', [
                 $scope.tooltipContent = {
                     project: _.find($rootScope.repos,
                                     { name: phSeries.projectName }),
-                    revisionUrl: `${SERVICE_DOMAIN}#/jobs?repo=${phSeries.projectName}`,
+                    revisionUrl: `/#/jobs?repo=${phSeries.projectName}`,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
                     jobId: dataPoint.jobId,

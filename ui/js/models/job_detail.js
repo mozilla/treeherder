@@ -1,5 +1,5 @@
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThJobDetailModel', [
     '$http', function ($http) {
@@ -8,7 +8,7 @@ treeherder.factory('ThJobDetailModel', [
                 config = config || {};
                 const timeout = config.timeout || null;
 
-                return $http.get(getRootUrl("/jobdetail/"), {
+                return $http.get(getApiUrl("/jobdetail/"), {
                     params: params,
                     timeout: timeout
                 }).then(function (response) {

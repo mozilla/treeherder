@@ -5,6 +5,7 @@ import Push from '../../../../ui/job-view/Push';
 import PushJobs from '../../../../ui/job-view/PushJobs';
 import Platform from '../../../../ui/job-view/Platform';
 import JobButton from '../../../../ui/job-view/JobButton';
+import { getProjectUrl, getApiUrl } from "../../../../ui/helpers/urlHelper";
 
 describe('PushList component', () => {
   let $injector, $httpBackend, pushListEl, pushList;
@@ -12,7 +13,6 @@ describe('PushList component', () => {
 
   beforeEach(angular.mock.module('treeherder'));
   beforeEach(inject((_$injector_) => {
-    const projectPrefix = `/api/project/${repoName}/`;
     $injector = _$injector_;
 
     // TODO: Once we switch away from angular for fetching data, we may want to
@@ -23,23 +23,23 @@ describe('PushList component', () => {
 
     jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
 
-    $httpBackend.whenGET('/api/repository/').respond(
+    $httpBackend.whenGET(getApiUrl('/repository/')).respond(
       getJSONFixture('repositories.json')
     );
 
-    $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&full=true').respond(
+    $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', repoName)).respond(
       getJSONFixture('push_list.json')
     );
 
-    $httpBackend.whenGET(projectPrefix + 'resultset/?count=11&full=true&push_timestamp__lte=1424272126').respond(
+    $httpBackend.whenGET(getProjectUrl('/resultset/?count=11&full=true&push_timestamp__lte=1424272126', repoName)).respond(
       getJSONFixture('push_list.json')
     );
 
-    $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=1&return_type=list').respond(
+    $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=1&return_type=list', repoName)).respond(
       getJSONFixture('job_list/job_1.json')
     );
 
-    $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=2&return_type=list').respond(
+    $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=2&return_type=list', repoName)).respond(
       getJSONFixture('job_list/job_2.json')
     );
 
@@ -81,7 +81,6 @@ describe('PushList component', () => {
 describe('PushJobs component', () => {
   let $injector, pushJobsEl, pushList, ThResultSetStore;
   const repoName = 'mozilla-inbound';
-  const projectPrefix = `/api/project/${repoName}/`;
 
   beforeEach(angular.mock.module('treeherder'));
   beforeEach(inject((_$injector_) => {
@@ -92,16 +91,16 @@ describe('PushJobs component', () => {
 
     jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
 
-    $httpBackend.whenGET('/api/repository/').respond(
+    $httpBackend.whenGET(getApiUrl('/repository/')).respond(
       getJSONFixture('repositories.json')
     );
-    $httpBackend.whenGET(projectPrefix + 'resultset/?count=10&full=true').respond(
+    $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', repoName)).respond(
       getJSONFixture('push_list.json')
     );
-    $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=1&return_type=list').respond(
+    $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=1&return_type=list', repoName)).respond(
       getJSONFixture('job_list/job_1.json')
     );
-    $httpBackend.whenGET(projectPrefix + 'jobs/?count=2000&result_set_id=2&return_type=list').respond(
+    $httpBackend.whenGET(getProjectUrl('/jobs/?count=2000&result_set_id=2&return_type=list', repoName)).respond(
       getJSONFixture('job_list/job_2.json')
     );
     $httpBackend.whenGET('https://treestatus.mozilla-releng.net/trees/mozilla-inbound').respond(

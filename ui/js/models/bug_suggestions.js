@@ -1,7 +1,7 @@
 import treeherder from '../treeherder';
-import { getRootUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/urlHelper';
 
 treeherder.factory('ThBugSuggestionsModel', [
     '$resource', function ($resource) {
-        return $resource(getRootUrl('/project/:project/jobs/:jobId/bug_suggestions/'));
+        return $resource(getApiUrl('/project/:project/jobs/:jobId/bug_suggestions/'));
     }]);
