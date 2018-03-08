@@ -10,13 +10,7 @@ class SuggestionsListItem extends React.Component {
       suggestionShowMore: false
     };
 
-    this.fileBugEvent = this.fileBugEvent.bind(this);
     this.clickShowMore = this.clickShowMore.bind(this);
-  }
-
-  fileBugEvent(event) {
-    event.preventDefault();
-    this.props.fileBug(this.props.index);
   }
 
   clickShowMore() {
@@ -33,10 +27,10 @@ class SuggestionsListItem extends React.Component {
     return (
       <li>
         <div className="job-tabs-content">
-              onClick={this.fileBugEvent}
           {(filerInAddress || user.is_staff) &&
             <span
               className="btn btn-xs btn-light-bordered link-style"
+              onClick={() => fileBug(index)}
               title="file a bug for this failure"
             >
               <i className="fa fa-bug" />
@@ -106,10 +100,6 @@ function ListItem(props) {
 
 
 function BugListItem(props) {
-  const pinboardServiceEvent = () => {
-    const { bug, selectedJob, pinboardService, $timeout } = props;
-    $timeout(() => (pinboardService.addBug(bug, selectedJob)));
-  };
   const {
     bug, escapeHTMLFilter, highlightCommonTermsFilter, suggestion,
     bugClassName, title, $timeout, pinboardService, selectedJob,
@@ -122,7 +112,7 @@ function BugListItem(props) {
     <li>
       <button
         className="btn btn-xs btn-light-bordered"
-        onClick={pinboardServiceEvent}
+        onClick={() => $timeout(() => pinboardService.addBug(bug, selectedJob))}
         title="add to list of bugs to associate with all pinned jobs"
       >
         <i className="fa fa-thumb-tack" />
