@@ -1,4 +1,5 @@
 import treeherder from '../treeherder';
+import { getApiUrl } from "../../helpers/urlHelper";
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$uibModalInstance', '$http', 'summary',
@@ -364,7 +365,7 @@ treeherder.controller('BugFilerCtrl', [
                     });
 
                     return $http({
-                        url: "api/bugzilla/create_bug/",
+                        url: getApiUrl("/bugzilla/create_bug/"),
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json; charset=utf-8"

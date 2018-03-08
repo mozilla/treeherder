@@ -119,7 +119,8 @@ export const actions = {
     type: types.FETCH_COUNTS,
     meta: {
       type: 'api',
-      url: `/api/project/${repoName}/resultset/${pushId}/status/`,
+      url: `/resultset/${pushId}/status/`,
+      repoName,
       method: 'GET',
     },
   }),

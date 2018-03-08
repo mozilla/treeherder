@@ -8,7 +8,7 @@ import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 import * as groupsStore from './modules/groups';
 import { platformMap } from '../../js/constants';
-import { getServiceUrl } from "../../helpers/urlHelper";
+import { getServiceUrl, getProjectUrl } from "../../helpers/urlHelper";
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?
@@ -213,8 +213,8 @@ async function fetchOptions(store, fetchParams) {
 }
 
 async function fetchCounts(store, fetchParams) {
-  const { url } = fetchParams;
-  const resp = await fetch(getServiceUrl(url), fetchParams);
+  const { url, repoName } = fetchParams;
+  const resp = await fetch(getProjectUrl(url, repoName), fetchParams);
   const pushStatus = await resp.json();
   const counts = {
     success: 0,

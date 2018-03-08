@@ -1,12 +1,11 @@
 import '../../../../ui/js/models/job.js';
+import { getProjectUrl } from "../../../../ui/helpers/urlHelper";
 
 describe('ThJobModel', function(){
 
     var $httpBackend,
         $timeout,
         foregroundRepo = "mozilla-central",
-        projectPrefix = '/api/project/',
-        foregroundPrefix = projectPrefix + foregroundRepo,
         ThJobModel;
 
     beforeEach(angular.mock.module('treeherder'));
@@ -17,13 +16,13 @@ describe('ThJobModel', function(){
         jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
         ThJobModel = $injector.get('ThJobModel');
         ThJobModel.get_uri = function(){
-            return foregroundPrefix+"/jobs/";
+            return getProjectUrl("/jobs/", foregroundRepo);
         }
     }));
-    
+
     describe("get_list", function(){
         beforeEach(inject(function () {
-            $httpBackend.whenGET(foregroundPrefix + '/jobs/').respond(
+            $httpBackend.whenGET(getProjectUrl('/jobs/', foregroundRepo)).respond(
                 getJSONFixture('job_list/job_1.json')
             );
         }));
@@ -37,10 +36,10 @@ describe('ThJobModel', function(){
 
         describe("pagination", function(){
             beforeEach(inject(function () {
-                $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2').respond(
+                $httpBackend.whenGET(getProjectUrl('/jobs/?count=2', foregroundRepo)).respond(
                     getJSONFixture('job_list/pagination/page_1.json')
                 );
-                $httpBackend.whenGET(foregroundPrefix + '/jobs/?count=2&offset=2').respond(
+                $httpBackend.whenGET(getProjectUrl('/jobs/?count=2&offset=2', foregroundRepo)).respond(
                     getJSONFixture('job_list/pagination/page_2.json')
                 );
             }));
