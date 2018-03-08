@@ -11,6 +11,7 @@ class SuggestionsListItem extends React.Component {
     };
 
     this.fileBugEvent = this.fileBugEvent.bind(this);
+    this.clickShowMore = this.clickShowMore.bind(this);
   }
 
   fileBugEvent(event) {
@@ -18,15 +19,11 @@ class SuggestionsListItem extends React.Component {
     this.props.fileBug(this.props.index);
   }
 
-  clickShowMore(event) {
-    event.preventDefault();
+  clickShowMore() {
     this.setState({ suggestionShowMore: !this.state.suggestionShowMore });
   }
 
   render() {
-    //If this method is bound in the constructor it gives me a warning about only setting state in a mounted component
-    // but if we move to allowing the arrow function in classes at some point, this problem should be solved.
-    this.clickShowMore = this.clickShowMore.bind(this);
     return (
       <li>
         <div className="job-tabs-content">
@@ -60,13 +57,11 @@ class SuggestionsListItem extends React.Component {
 
         {/* <!--All other bugs--> */}
         {this.props.suggestion.valid_all_others && this.props.suggestion.valid_open_recent &&
-        <a
-          target="_blank"
+        <span
           rel="noopener"
-          href=""
           onClick={this.clickShowMore}
           className="show-hide-more"
-        >Show / Hide more</a>}
+        >Show / Hide more</span>}
 
         {this.props.suggestion.valid_all_others && (this.state.suggestionShowMore
           || !this.props.suggestion.valid_open_recent) &&
