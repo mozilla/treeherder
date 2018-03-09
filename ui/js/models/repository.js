@@ -47,8 +47,7 @@ treeherder.factory('ThRepositoryModel', [
         const getUnsupportedTreeStatus = function (repoName) {
             return {
                 status: "unsupported",
-                message_of_the_day: repoName +
-                    ' is not supported in <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
+                message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
                 reason: "",
                 tree: repoName
             };
@@ -61,8 +60,8 @@ treeherder.factory('ThRepositoryModel', [
         const getErrorTreeStatus = function (repoName) {
             return {
                 status: "error",
-                message_of_the_day: 'Error reaching <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
-                reason: 'Error reaching <a href="https://api.pub.build.mozilla.org/treestatus">api.pub.build.mozilla.org/treestatus</a>',
+                message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
+                reason: '',
                 tree: repoName
             };
         };

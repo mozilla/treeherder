@@ -6,7 +6,7 @@ treeherder.factory('treeStatus', [
         const urlBase = "https://treestatus.mozilla-releng.net/trees/";
 
         const getTreeStatusName = function (name) {
-            // the thunderbird names in api.pub.build.mozilla.org/treestatus don't match what
+            // The thunderbird names in TreeStatus don't match what
             // we use, so translate them.  pretty hacky, yes...
             // TODO: Move these to the repository fixture in the service.
             if (name.indexOf("comm-") >= 0 && name !== "try-comm-central") {
