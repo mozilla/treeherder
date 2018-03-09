@@ -57,7 +57,7 @@
     "reactstrap": "5.0.0-beta",
     "redux": "3.7.2",
     "redux-debounce": "1.0.1",
-    "taskcluster-client-web": "5.1.0"
+    "taskcluster-client-web": "5.2.1"
   },
   "devDependencies": {
     "angular-mocks": "1.6.9",
