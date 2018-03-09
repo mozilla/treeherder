@@ -207,8 +207,7 @@ function FailureSummaryPanel(props) {
                target="_blank"
                rel="noopener"
                href={jobLog.url}
-             >The raw log</a>
-             <span>is available. This panel will automatically recheck every 5 seconds.</span></p>
+             >The raw log</a> is available. This panel will automatically recheck every 5 seconds.</p>
          </li>))}
 
       {!props.tabs.failureSummary.is_loading && props.logParseStatus === 'failed' &&
