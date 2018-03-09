@@ -41,7 +41,7 @@ module.exports = neutrino => {
             'angular-ui-router',
             'angular1-ui-bootstrap4',
             'auth0-js',
-            'bootstrap/dist/js/bootstrap',
+            'bootstrap',
             'hawk',
             'jquery',
             'jquery.scrollto',
@@ -247,8 +247,6 @@ module.exports = neutrino => {
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
-            // Required by Bootstrap 4: https://getbootstrap.com/docs/4.0/getting-started/webpack/
-            Popper: ['popper.js', 'default'],
             React: require.resolve('react'),
             _: require.resolve('lodash'),
         });
