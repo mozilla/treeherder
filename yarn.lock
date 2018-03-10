@@ -350,12 +350,12 @@ atob@^2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.0.3.tgz#19c7a760473774468f20b2d2d03372ad7d4cbf5d"
 
-auth0-js@9.3.2:
-  version "9.3.2"
-  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.3.2.tgz#e6c6a783803e5976296466d314f866b73e597c0f"
+auth0-js@9.3.3:
+  version "9.3.3"
+  resolved "https://registry.yarnpkg.com/auth0-js/-/auth0-js-9.3.3.tgz#c4573ffefba102171982d4a2044eade73baa1b8d"
   dependencies:
     base64-js "^1.2.0"
-    idtoken-verifier "^1.1.1"
+    idtoken-verifier "^1.1.2"
     qs "^6.4.0"
     superagent "^3.8.2"
     url-join "^1.1.0"
@@ -3795,9 +3795,9 @@ icss-replace-symbols@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/icss-replace-symbols/-/icss-replace-symbols-1.1.0.tgz#06ea6f83679a7749e386cfe1fe812ae5db223ded"
 
-idtoken-verifier@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/idtoken-verifier/-/idtoken-verifier-1.1.1.tgz#bc6eb46e6a153bb2058aed1cac2c27ac6751b5e5"
+idtoken-verifier@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/idtoken-verifier/-/idtoken-verifier-1.1.2.tgz#bd5125aaccc221c1e0c57c9393dc68c0f7134b69"
   dependencies:
     base64-js "^1.2.0"
     crypto-js "^3.1.9-1"
