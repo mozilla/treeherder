@@ -1,5 +1,6 @@
 import React from 'react';
 import { Row, Button, Col } from 'reactstrap';
+import PropTypes from 'prop-types';
 
 import Graph from './Graph';
 import DateOptions from './DateOptions';
@@ -62,3 +63,42 @@ export default class GraphsContainer extends React.Component {
     );
   }
 }
+
+GraphsContainer.propTypes = {
+  graphOneData: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.shape({ Date: PropTypes.string }),
+      value: PropTypes.number
+    })
+  ),
+  graphTwoData: PropTypes.arrayOf(
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.shape({ Date: PropTypes.string }),
+        value: PropTypes.number
+      })
+    ), PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.shape({ Date: PropTypes.string }),
+        value: PropTypes.number
+      })
+    )
+  ),
+  dateOptions: PropTypes.bool,
+  tree: PropTypes.string.isRequired,
+  bugId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  name: PropTypes.string.isRequired,
+  tableApi: PropTypes.string.isRequired,
+  graphApi: PropTypes.string.isRequired,
+  graphName: PropTypes.string.isRequired
+};
+
+GraphsContainer.defaultProps = {
+  bugId: null,
+  graphOneData: null,
+  graphTwoData: null,
+  dateOptions: false
+};

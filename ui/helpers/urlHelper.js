@@ -93,7 +93,7 @@ export const logviewerUrl = function getLogviewerUrl(tree, treeherderId) {
   return `logviewer.html#?repo=${tree}&job_id=${treeherderId}`;
 };
 
-//TH domain is needed here because intermittents view currently uses hash router
+//TH domain is needed here because Intermittent Failures View currently uses hash router
 export const jobsUrl = function getJobsUrl(tree, revision) {
   return `https://treeherder.mozilla.org/#/jobs?repo=${tree}&revision=${revision}`;
 };

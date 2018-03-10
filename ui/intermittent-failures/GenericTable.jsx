@@ -62,6 +62,34 @@ Table.propTypes = {
   responsive: PropTypes.bool
 };
 
+GenericTable.propTypes = {
+  bugs: PropTypes.arrayOf(PropTypes.shape({})),
+  columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  params: PropTypes.shape({
+    startday: PropTypes.string.isRequired,
+    endday: PropTypes.string.isRequired,
+    tree: PropTypes.string.isRequired,
+    bug: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+  }).isRequired,
+  fetchData: PropTypes.func,
+  fetchFullBugData: PropTypes.func,
+  name: PropTypes.string.isRequired,
+  tableApi: PropTypes.string.isRequired,
+  trStyling: PropTypes.bool,
+  totalPages: PropTypes.number
+};
+
+GenericTable.defaultProps = {
+  trStyling: false,
+  fetchData: null,
+  fetchFullBugData: null,
+  totalPages: null,
+  bugs: undefined
+};
+
 const mapDispatchToProps = dispatch => ({
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),
   fetchFullBugData: (url, name) => dispatch(fetchBugsThenBugzilla(url, name)),

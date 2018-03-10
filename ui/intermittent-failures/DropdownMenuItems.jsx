@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from 'react-fontawesome';
+import PropTypes from 'prop-types';
 
 import { DropdownMenu, DropdownItem } from 'reactstrap';
 
@@ -33,8 +34,8 @@ export default class DropdownMenuItems extends React.Component {
 
     return (
       <DropdownMenu>
-        {options.map((item, index) =>
-          (<DropdownItem key={index} onClick={this.changeSelection}>
+        {options.map(item =>
+          (<DropdownItem key={item} onClick={this.changeSelection}>
             <Icon
               name="check"
               className={`pr-1 ${selectedItem === item ? "" : "hide"}`}
@@ -46,3 +47,13 @@ export default class DropdownMenuItems extends React.Component {
   }
 }
 
+DropdownMenuItems.propTypes = {
+  updateData: PropTypes.func,
+  default: PropTypes.string,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+DropdownMenuItems.defaultProps = {
+  updateData: null,
+  default: null
+};

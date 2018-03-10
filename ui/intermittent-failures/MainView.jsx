@@ -11,7 +11,7 @@ import { updateQueryParams, mergeData, calculateMetrics, prettyDate } from './he
 import GraphsContainer from './GraphsContainer';
 import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/urlHelper';
 
-class IntermittentsView extends React.Component {
+class MainView extends React.Component {
   constructor(props) {
     super(props);
     this.updateData = this.updateData.bind(this);
@@ -107,7 +107,6 @@ class IntermittentsView extends React.Component {
     }
 
     const params = { startday: from, endday: to, tree };
-
     return (
       <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
         <Navigation
@@ -161,6 +160,64 @@ Container.propTypes = {
   fluid: PropTypes.bool
 };
 
+MainView.propTypes = {
+  bugs: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.shape({
+      count: PropTypes.number,
+      total_pages: PropTypes.number,
+      results: PropTypes.arrayOf(
+        PropTypes.shape({
+          bug_id: PropTypes.number,
+          bug_count: PropTypes.number,
+        })
+      )
+    })
+  ]).isRequired,
+  graphs: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        failure_count: PropTypes.number,
+        test_runs: PropTypes.number,
+        date: PropTypes.string
+      })
+    )
+  ]).isRequired,
+  bugzillaData: PropTypes.shape({
+    bugs: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number,
+        status: PropTypes.string,
+        summary: PropTypes.string,
+        whiteboard: PropTypes.string
+      })
+    )
+  }).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string
+  }).isRequired,
+  fetchData: PropTypes.func,
+  updateDates: PropTypes.func,
+  updateTree: PropTypes.func,
+  fetchFullBugData: PropTypes.func,
+  from: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+  tree: PropTypes.string.isRequired,
+  tableFailureMessage: PropTypes.string,
+  graphFailureMessage: PropTypes.string,
+};
+
+MainView.defaultProps = {
+  tableFailureMessage: '',
+  graphFailureMessage: '',
+  fetchData: null,
+  updateTree: null,
+  updateDates: null,
+  fetchFullBugData: null
+};
+
 const mapStateToProps = state => ({
   bugs: state.bugsData.data,
   graphs: state.bugsGraphData.data,
@@ -179,4 +236,4 @@ const mapDispatchToProps = dispatch => ({
   updateTree: (tree, name) => dispatch(updateTreeName(tree, name))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(IntermittentsView);
+export default connect(mapStateToProps, mapDispatchToProps)(MainView);

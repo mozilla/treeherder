@@ -3,7 +3,7 @@ import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 
-import IntermittentsView from './IntermittentsView';
+import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
 
 function App({ store }) {
@@ -12,8 +12,8 @@ function App({ store }) {
       <HashRouter>
         <main>
           <Switch>
-            <Route exact path="/main" component={IntermittentsView} />
-            <Route path="/main?startday=:startday&endday=:endday&tree=:tree" component={IntermittentsView} />
+            <Route exact path="/main" component={MainView} />
+            <Route path="/main?startday=:startday&endday=:endday&tree=:tree" component={MainView} />
             <Route path="/bugdetails" component={BugDetailsView} />
             <Route path="/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug" component={BugDetailsView} />
             <Redirect from="/" to="/main" />
@@ -25,7 +25,7 @@ function App({ store }) {
 }
 
 App.propTypes = {
-  store: PropTypes.object.isRequired
+  store: PropTypes.shape({}).isRequired
 };
 
 export default App;

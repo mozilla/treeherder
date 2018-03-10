@@ -37,7 +37,7 @@ class Navigation extends React.Component {
     const treeOptions = ['trunk', 'autoland'];
     return (
       <Navbar expand fixed="top" className="top-navbar">
-        <span className="lightorange">Intermittents View </span>
+        <span className="lightorange">Intermittent Failures View </span>
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav navbar />
           <UncontrolledDropdown>
@@ -58,6 +58,37 @@ class Navigation extends React.Component {
 
 Nav.propTypes = {
   caret: PropTypes.bool,
+};
+
+Navigation.propTypes = {
+  params: PropTypes.shape({
+    startday: PropTypes.string.isRequired,
+    endday: PropTypes.string.isRequired,
+    tree: PropTypes.string.isRequired,
+    bug: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+  }).isRequired,
+  updateTree: PropTypes.func,
+  fetchData: PropTypes.func,
+  fetchFullBugData: PropTypes.func,
+  name: PropTypes.string.isRequired,
+  tree: PropTypes.string.isRequired,
+  bugId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  tableApi: PropTypes.string.isRequired,
+  graphApi: PropTypes.string.isRequired,
+  graphName: PropTypes.string.isRequired,
+};
+
+Navigation.defaultProps = {
+  bugId: null,
+  updateTree: null,
+  fetchData: null,
+  fetchFullBugData: null,
 };
 
 const mapDispatchToProps = dispatch => ({

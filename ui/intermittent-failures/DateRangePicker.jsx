@@ -6,6 +6,7 @@ import moment from 'moment';
 import { parseDate, formatDate } from 'react-day-picker/moment';
 import { setTimeout } from 'timers';
 import { Button } from 'reactstrap';
+import PropTypes from 'prop-types';
 
 import { ISODate } from './helpers';
 import { createApiUrl } from '../helpers/urlHelper';
@@ -113,6 +114,28 @@ class DateRangePicker extends React.Component {
     );
   }
 }
+
+DateRangePicker.propTypes = {
+  updateDates: PropTypes.func,
+  fetchData: PropTypes.func,
+  fetchFullBugData: PropTypes.func,
+  tree: PropTypes.string.isRequired,
+  bugId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  name: PropTypes.string.isRequired,
+  tableApi: PropTypes.string.isRequired,
+  graphApi: PropTypes.string.isRequired,
+  graphName: PropTypes.string.isRequired
+};
+
+DateRangePicker.defaultProps = {
+  fetchData: null,
+  updateDates: null,
+  fetchFullBugData: null,
+  bugId: null
+};
 
 const mapDispatchToProps = dispatch => ({
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),

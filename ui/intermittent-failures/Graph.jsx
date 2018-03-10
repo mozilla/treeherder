@@ -1,6 +1,7 @@
 import React from 'react';
 import MG from 'metrics-graphics';
 import 'metrics-graphics/dist/metricsgraphics.css';
+import PropTypes from 'prop-types';
 
 // Pass a specs object and data array as props;
 // specs.target will be updated with a ref callback and
@@ -43,3 +44,39 @@ export default class Graph extends React.Component {
     );
   }
 }
+
+Graph.propTypes = {
+  specs: PropTypes.shape({
+    legend: PropTypes.oneOfType([
+      PropTypes.string, PropTypes.arrayOf(PropTypes.string)
+    ])
+  }).isRequired,
+  data: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.shape({ Date: PropTypes.string }),
+        value: PropTypes.number
+      })
+    ),
+    PropTypes.arrayOf(
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          date: PropTypes.shape({ Date: PropTypes.string }),
+          value: PropTypes.number
+        })
+      ), PropTypes.arrayOf(
+        PropTypes.shape({
+          date: PropTypes.shape({ Date: PropTypes.string }),
+          value: PropTypes.number
+        })
+      )
+    ),
+    ])
+};
+
+Graph.defaultProps = {
+  graphOneData: null,
+  graphTwoData: null,
+  data: null
+};

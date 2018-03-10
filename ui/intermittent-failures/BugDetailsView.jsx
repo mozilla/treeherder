@@ -46,7 +46,7 @@ class BugDetailsView extends React.Component {
   setQueryParams() {
     const { from, to, tree, location, bugId, fetchData } = this.props;
 
-    // data for bug details is provided by intermittents view, so if the props are undefined
+    // data for bug details is provided by MainView, so if the props are undefined
     // (i.e. user pastes in url with query params into browswer), update all data
     if (!from || !to || !tree || !bugId) {
       this.updateData(parseQueryParams(location.search));
@@ -159,7 +159,7 @@ class BugDetailsView extends React.Component {
             dateOptions
           /> : <p>{tableFailureMessage}</p>}
 
-        {!tableFailureMessage || (bugDetails && bugId) ?
+        {!tableFailureMessage || (bugDetails&& bugId) ?
           <GenericTable
             bugs={bugDetails.results}
             columns={columns}
@@ -177,11 +177,81 @@ Container.propTypes = {
   fluid: PropTypes.bool
 };
 
+BugDetailsView.propTypes = {
+  bugDetails: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.shape({
+      count: PropTypes.number,
+      total_pages: PropTypes.number,
+      results: PropTypes.arrayOf(
+        PropTypes.shape({
+          push_time: PropTypes.string.isRequired,
+          platform: PropTypes.string.isRequired,
+          revision: PropTypes.string.isRequired,
+          test_suite: PropTypes.string.isRequired,
+          tree: PropTypes.string.isRequired,
+          build_type: PropTypes.string.isRequired,
+          job_id: PropTypes.number.isRequired,
+          bug_id: PropTypes.number.isRequired,
+        })
+      )
+    })
+  ]),
+  graphs: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        failure_count: PropTypes.number,
+        test_runs: PropTypes.number,
+        date: PropTypes.string
+      })
+    )
+  ]).isRequired,
+  bugzillaData: PropTypes.shape({
+    bugs: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number,
+        summary: PropTypes.string,
+      })
+    )
+  }).isRequired,
+  history: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string
+  }).isRequired,
+  fetchData: PropTypes.func,
+  updateDates: PropTypes.func,
+  updateTree: PropTypes.func,
+  updateBugDetails: PropTypes.func,
+  from: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+  tree: PropTypes.string.isRequired,
+  bugId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  summary: PropTypes.string,
+  tableFailureMessage: PropTypes.string,
+  graphFailureMessage: PropTypes.string,
+};
+
+BugDetailsView.defaultProps = {
+  tableFailureMessage: '',
+  graphFailureMessage: '',
+  fetchData: null,
+  updateTree: null,
+  updateDates: null,
+  updateBugDetails: null,
+  bugDetails: null,
+  bugId: null,
+  summary: null
+};
+
 const mapStateToProps = state => ({
   bugDetails: state.bugDetailsData.data,
   graphs: state.bugDetailsGraphData.data,
   tableFailureMessage: state.bugDetailsData.message,
-  graphsFailureMessage: state.bugDetailsGraphData.message,
+  graphFailureMessage: state.bugDetailsGraphData.message,
   from: state.bugDetailsDates.from,
   to: state.bugDetailsDates.to,
   tree: state.bugDetailsTree.tree,

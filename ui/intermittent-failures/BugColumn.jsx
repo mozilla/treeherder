@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { updateSelectedBugDetails, updateDateRange, updateTreeName } from './redux/actions';
 import { getBugUrl } from '../helpers/urlHelper';
@@ -43,6 +44,25 @@ class BugColumn extends React.Component {
     );
   }
 }
+
+BugColumn.propTypes = {
+  data: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    summary: PropTypes.string.isRequired
+  }).isRequired,
+  updateDates: PropTypes.func,
+  updateTree: PropTypes.func,
+  updateBugDetails: PropTypes.func,
+  from: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+  tree: PropTypes.string.isRequired,
+};
+
+BugColumn.defaultProps = {
+  updateTree: null,
+  updateDates: null,
+  updateBugDetails: null,
+};
 
 const mapStateToProps = state => ({
     from: state.dates.from,

@@ -2,8 +2,9 @@ import React from 'react';
 import { ButtonDropdown, DropdownToggle } from 'reactstrap';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import DateRangePicker from './DateRangePicker';
+import PropTypes from 'prop-types';
 
+import DateRangePicker from './DateRangePicker';
 import { fetchBugData, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 import { setDateRange } from './helpers';
 import { createApiUrl } from '../helpers/urlHelper';
@@ -88,6 +89,28 @@ class DateOptions extends React.Component {
     );
   }
 }
+
+DateOptions.propTypes = {
+  updateDates: PropTypes.func,
+  fetchData: PropTypes.func,
+  fetchFullBugData: PropTypes.func,
+  tree: PropTypes.string.isRequired,
+  bugId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  name: PropTypes.string.isRequired,
+  tableApi: PropTypes.string.isRequired,
+  graphApi: PropTypes.string.isRequired,
+  graphName: PropTypes.string.isRequired
+};
+
+DateOptions.defaultProps = {
+  fetchData: null,
+  updateDates: null,
+  fetchFullBugData: null,
+  bugId: null
+};
 
 const mapDispatchToProps = dispatch => ({
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),
