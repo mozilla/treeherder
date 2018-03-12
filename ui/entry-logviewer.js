@@ -1,11 +1,11 @@
 // Webpack entry point for logviewer.html
 
 // Vendor Styles
-import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.css';
 
 // Vendor JS
-import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap';
 
 // Logviewer Styles
 import './css/treeherder-global.css';

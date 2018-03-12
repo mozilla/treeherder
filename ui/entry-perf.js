@@ -1,12 +1,12 @@
 // Webpack entry point for perf.html
 
 // Vendor Styles
-import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.css';
 import 'metrics-graphics/dist/metricsgraphics.css';
 
 // Vendor JS
-import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap';
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
 // instead, which is identical to https://github.com/flot/flot
 import 'jquery.flot';
