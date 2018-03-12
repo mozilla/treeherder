@@ -1,16 +1,34 @@
 import PropTypes from 'prop-types';
+import createHistory from 'history/createBrowserHistory';
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
+import { getAllUrlParams } from '../helpers/locationHelper';
 
 class SuggestionsListItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      suggestionShowMore: false
+      suggestionShowMore: false,
+      filerInAddress: false,
     };
 
+    this.history = createHistory();
+    this.updateFilerInAddress = this.updateFilerInAddress.bind(this);
     this.clickShowMore = this.clickShowMore.bind(this);
+  }
+
+  componentWillMount() {
+    this.unlistenHistory = this.history.listen(this.updateFilerInAddress);
+    this.updateFilerInAddress();
+  }
+
+  componentWillUnmount() {
+    this.unlistenHistory();
+  }
+
+  updateFilerInAddress() {
+    this.setState({ filerInAddress: getAllUrlParams().has('bugfiler') });
   }
 
   clickShowMore() {
@@ -19,10 +37,11 @@ class SuggestionsListItem extends React.Component {
 
   render() {
     const {
-      filerInAddress, user, suggestion, selectedJob, escapeHTMLFilter,
+      user, suggestion, selectedJob, escapeHTMLFilter,
       highlightCommonTermsFilter, $timeout, pinboardService, bugLimit,
       fileBug, index
     } = this.props;
+    const { filerInAddress, suggestionShowMore } = this.state;
 
     return (
       <li>
@@ -63,7 +82,7 @@ class SuggestionsListItem extends React.Component {
           className="show-hide-more"
         >Show / Hide more</span>}
 
-        {suggestion.valid_all_others && (this.state.suggestionShowMore
+        {suggestion.valid_all_others && (suggestionShowMore
           || !suggestion.valid_open_recent) &&
           <ul className="list-unstyled failure-summary-bugs">
             {suggestion.bugs.all_others.map(bug =>
@@ -157,7 +176,7 @@ function ErrorsList(props) {
 
 function FailureSummaryTab(props) {
   const {
-    $injector, suggestions, user, filerInAddress, fileBug, bugLimit, pinboardService, selectedJob,
+    $injector, suggestions, user, fileBug, bugLimit, pinboardService, selectedJob,
     errors, tabs, jobLogsAllParsed, bugSuggestionsLoaded, jobLogUrls, logParseStatus,
   } = props;
   const escapeHTMLFilter = $injector.get('$filter')('escapeHTML');
@@ -172,7 +191,6 @@ function FailureSummaryTab(props) {
           index={index}
           suggestion={suggestion}
           user={user}
-          filerInAddress={filerInAddress}
           fileBug={fileBug}
           highlightCommonTermsFilter={highlightCommonTermsFilter}
           escapeHTMLFilter={escapeHTMLFilter}
@@ -227,7 +245,6 @@ function FailureSummaryTab(props) {
 FailureSummaryTab.propTypes = {
   tabs: PropTypes.object,
   suggestions: PropTypes.array,
-  filerInAddress: PropTypes.bool,
   fileBug: PropTypes.func,
   user: PropTypes.object,
   pinboardService: PropTypes.object,

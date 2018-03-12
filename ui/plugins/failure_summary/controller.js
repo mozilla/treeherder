@@ -7,15 +7,13 @@ import { getLogViewerUrl } from '../../helpers/urlHelper';
 treeherder.controller('BugsPluginCtrl', [
     '$scope', '$rootScope', 'ThTextLogStepModel',
     'ThBugSuggestionsModel', 'thPinboard', 'thEvents',
-    'thTabs', '$uibModal', '$location',
+    'thTabs', '$uibModal',
     function BugsPluginCtrl(
         $scope, $rootScope, ThTextLogStepModel, ThBugSuggestionsModel,
-        thPinboard, thEvents, thTabs, $uibModal, $location) {
+        thPinboard, thEvents, thTabs, $uibModal) {
 
         $scope.bug_limit = 20;
         $scope.tabs = thTabs.tabs;
-
-        $scope.filerInAddress = false;
 
         let query;
 
@@ -83,14 +81,6 @@ treeherder.controller('BugsPluginCtrl', [
                 });
             }
         };
-
-        const showBugFilerButton = function () {
-            $scope.filerInAddress = $location.search().bugfiler === true;
-        };
-        showBugFilerButton();
-        $rootScope.$on('$locationChangeSuccess', function () {
-            showBugFilerButton();
-        });
 
         $scope.fileBug = function (index) {
             const summary = $scope.suggestions[index].search;
