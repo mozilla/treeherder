@@ -1,7 +1,6 @@
 import React from 'react';
 import Icon from 'react-fontawesome';
 import PropTypes from 'prop-types';
-
 import { DropdownMenu, DropdownItem } from 'reactstrap';
 
 export default class DropdownMenuItems extends React.Component {
