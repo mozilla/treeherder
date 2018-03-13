@@ -67,7 +67,7 @@ Navigation.propTypes = {
     tree: PropTypes.string.isRequired,
     bug: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.number
+      PropTypes.number,
     ]),
   }).isRequired,
   updateTree: PropTypes.func,
@@ -77,7 +77,7 @@ Navigation.propTypes = {
   tree: PropTypes.string.isRequired,
   bugId: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
   ]),
   tableApi: PropTypes.string.isRequired,
   graphApi: PropTypes.string.isRequired,
@@ -94,7 +94,7 @@ Navigation.defaultProps = {
 const mapDispatchToProps = dispatch => ({
   updateTree: (tree, name) => dispatch(updateTreeName(tree, name)),
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),
-  fetchFullBugData: (url, name) => dispatch(fetchBugsThenBugzilla(url, name))
+  fetchFullBugData: (url, name) => dispatch(fetchBugsThenBugzilla(url, name)),
 });
 
 export default connect(null, mapDispatchToProps)(Navigation);

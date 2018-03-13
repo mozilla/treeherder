@@ -25,7 +25,7 @@ export const updateDates = (name = '') => (state = setDateRange(moment().utc(), 
       return {
         ...state,
         from: action.from,
-        to: action.to
+        to: action.to,
       };
     default:
       return state;
@@ -37,7 +37,7 @@ export const updateTree = (name = '') => (state = { tree: 'trunk' }, action) => 
     case `UPDATE_${name}_VIEW_TREE`:
       return {
         ...state,
-        tree: action.tree
+        tree: action.tree,
       };
     default:
       return state;

@@ -15,7 +15,7 @@ class DateOptions extends React.Component {
     super(props);
     this.state = {
       dropdownOpen: false,
-      dateRange: ''
+      dateRange: '',
     };
     this.toggle = this.toggle.bind(this);
     this.updateData = this.updateData.bind(this);
@@ -24,7 +24,7 @@ class DateOptions extends React.Component {
 
   toggle() {
     this.setState({
-      dropdownOpen: !this.state.dropdownOpen
+      dropdownOpen: !this.state.dropdownOpen,
     });
   }
 
@@ -76,7 +76,7 @@ class DateOptions extends React.Component {
             updateData={this.updateDateRange}
           />
         </ButtonDropdown>
-        {dateRange === "custom range" &&
+        {dateRange === 'custom range' &&
         <DateRangePicker
           tree={tree}
           tableApi={tableApi}
@@ -97,19 +97,19 @@ DateOptions.propTypes = {
   tree: PropTypes.string.isRequired,
   bugId: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
   ]),
   name: PropTypes.string.isRequired,
   tableApi: PropTypes.string.isRequired,
   graphApi: PropTypes.string.isRequired,
-  graphName: PropTypes.string.isRequired
+  graphName: PropTypes.string.isRequired,
 };
 
 DateOptions.defaultProps = {
   fetchData: null,
   updateDates: null,
   fetchFullBugData: null,
-  bugId: null
+  bugId: null,
 };
 
 const mapDispatchToProps = dispatch => ({

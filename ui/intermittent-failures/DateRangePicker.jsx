@@ -84,7 +84,7 @@ class DateRangePicker extends React.Component {
             selectedDays: [from, { from, to }],
             toMonth: to,
             modifiers,
-            numberOfMonths: 2
+            numberOfMonths: 2,
           }}
           onDayChange={this.fromChange}
         />
@@ -104,7 +104,7 @@ class DateRangePicker extends React.Component {
               month: from,
               fromMonth: from,
               modifiers,
-              numberOfMonths: 2
+              numberOfMonths: 2,
             }}
             onDayChange={this.toChange}
           />
@@ -122,19 +122,19 @@ DateRangePicker.propTypes = {
   tree: PropTypes.string.isRequired,
   bugId: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
   ]),
   name: PropTypes.string.isRequired,
   tableApi: PropTypes.string.isRequired,
   graphApi: PropTypes.string.isRequired,
-  graphName: PropTypes.string.isRequired
+  graphName: PropTypes.string.isRequired,
 };
 
 DateRangePicker.defaultProps = {
   fetchData: null,
   updateDates: null,
   fetchFullBugData: null,
-  bugId: null
+  bugId: null,
 };
 
 const mapDispatchToProps = dispatch => ({

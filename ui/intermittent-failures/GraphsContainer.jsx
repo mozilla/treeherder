@@ -21,7 +21,6 @@ export default class GraphsContainer extends React.Component {
   }
 
   render() {
-
     const { graphOneData, graphTwoData, dateOptions, name, graphName, tree, bugId, tableApi, graphApi } = this.props;
     const { showGraphTwo } = this.state;
 
@@ -33,7 +32,7 @@ export default class GraphsContainer extends React.Component {
         <Row>
           <Col xs="12" className="mx-auto pb-5">
             <Button color="secondary" onClick={this.toggleGraph} className="d-inline-block mr-3">
-              {`${showGraphTwo ? "less" : "more"} graphs`}</Button>
+              {`${showGraphTwo ? 'less' : 'more'} graphs`}</Button>
             {dateOptions ?
               <DateOptions
                 name={name}
@@ -68,37 +67,37 @@ GraphsContainer.propTypes = {
   graphOneData: PropTypes.arrayOf(
     PropTypes.shape({
       date: PropTypes.shape({ Date: PropTypes.string }),
-      value: PropTypes.number
-    })
+      value: PropTypes.number,
+    }),
   ),
   graphTwoData: PropTypes.arrayOf(
     PropTypes.arrayOf(
       PropTypes.shape({
         date: PropTypes.shape({ Date: PropTypes.string }),
-        value: PropTypes.number
-      })
+        value: PropTypes.number,
+      }),
     ), PropTypes.arrayOf(
       PropTypes.shape({
         date: PropTypes.shape({ Date: PropTypes.string }),
-        value: PropTypes.number
-      })
-    )
+        value: PropTypes.number,
+      }),
+    ),
   ),
   dateOptions: PropTypes.bool,
   tree: PropTypes.string.isRequired,
   bugId: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
   ]),
   name: PropTypes.string.isRequired,
   tableApi: PropTypes.string.isRequired,
   graphApi: PropTypes.string.isRequired,
-  graphName: PropTypes.string.isRequired
+  graphName: PropTypes.string.isRequired,
 };
 
 GraphsContainer.defaultProps = {
   bugId: null,
   graphOneData: null,
   graphTwoData: null,
-  dateOptions: false
+  dateOptions: false,
 };

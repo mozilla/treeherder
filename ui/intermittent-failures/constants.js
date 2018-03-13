@@ -11,7 +11,7 @@ export const graphOneSpecs = {
   color: '#dd6602',
   target: '',
   x_accessor: 'date',
-  y_accessor: 'value'
+  y_accessor: 'value',
 };
 
 export const graphTwoSpecs = {
@@ -25,5 +25,5 @@ export const graphTwoSpecs = {
   x_accessor: 'date',
   y_accessor: 'value',
   legend: ['Orange Count', 'Push Count'],
-  legend_target: '.legend'
+  legend_target: '.legend',
 };

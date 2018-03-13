@@ -34,8 +34,8 @@ class BugColumn extends React.Component {
     const { id } = this.props.data;
     return (
       <div onMouseEnter={this.displayBugText} onMouseLeave={this.displayBugText}>
-        <span className="text-primary">{id}</span><span className={`ml-1 small-text ${this.state.displayBugDetails ? "" : "hidden"}`}>
-          <Link onClick={this.updateStateData} to={{ pathname: "/bugdetails", search: `?startday=${from}&endday=${to}&tree=${tree}&bug=${id}` }}>
+        <span className="text-primary">{id}</span><span className={`ml-1 small-text ${this.state.displayBugDetails ? '' : 'hidden'}`}>
+          <Link onClick={this.updateStateData} to={{ pathname: '/bugdetails', search: `?startday=${from}&endday=${to}&tree=${tree}&bug=${id}` }}>
             details
           </Link>
           <a className="ml-1" target="_blank" href={getBugUrl(id)}>bugzilla</a>
@@ -48,7 +48,7 @@ class BugColumn extends React.Component {
 BugColumn.propTypes = {
   data: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    summary: PropTypes.string.isRequired
+    summary: PropTypes.string.isRequired,
   }).isRequired,
   updateDates: PropTypes.func,
   updateTree: PropTypes.func,
@@ -65,15 +65,15 @@ BugColumn.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    from: state.dates.from,
-    to: state.dates.to,
-    tree: state.mainTree.tree
+  from: state.dates.from,
+  to: state.dates.to,
+  tree: state.mainTree.tree,
 });
 
 const mapDispatchToProps = dispatch => ({
-    updateBugDetails: (bugId, summary, name) => dispatch(updateSelectedBugDetails(bugId, summary, name)),
-    updateDates: (from, to, name) => dispatch(updateDateRange(from, to, name)),
-    updateTree: (tree, name) => dispatch(updateTreeName(tree, name))
+  updateBugDetails: (bugId, summary, name) => dispatch(updateSelectedBugDetails(bugId, summary, name)),
+  updateDates: (from, to, name) => dispatch(updateDateRange(from, to, name)),
+  updateTree: (tree, name) => dispatch(updateTreeName(tree, name)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BugColumn);

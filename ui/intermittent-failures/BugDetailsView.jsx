@@ -32,7 +32,7 @@ class BugDetailsView extends React.Component {
       this.updateData(parseQueryParams(location.search));
     }
 
-    //update query params in the address bar if dates or tree are updated via the UI
+    // update query params in the address bar if dates or tree are updated via the UI
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
       const queryParams = createQueryParams({ startday: from, endday: to, tree, bug: bugId });
 
@@ -75,7 +75,7 @@ class BugDetailsView extends React.Component {
     const columns = [
       {
         Header: 'Push Time',
-        accessor: 'push_time'
+        accessor: 'push_time',
       },
       {
         Header: 'Tree',
@@ -84,7 +84,7 @@ class BugDetailsView extends React.Component {
       {
         Header: 'Revision',
         accessor: 'revision',
-        Cell: props => <a href={jobsUrl(props.original.tree, props.value)} target="_blank">{props.value}</a>
+        Cell: props => <a href={jobsUrl(props.original.tree, props.value)} target="_blank">{props.value}</a>,
       },
       {
         Header: 'Platform',
@@ -102,8 +102,8 @@ class BugDetailsView extends React.Component {
       {
         Header: 'Log',
         accessor: 'job_id',
-        Cell: props => <a href={logviewerUrl(props.original.tree, props.value)} target="_blank">view details</a>
-      }
+        Cell: props => <a href={logviewerUrl(props.original.tree, props.value)} target="_blank">view details</a>,
+      },
     ];
     const params = { startday: from, endday: to, tree, bug: bugId };
 
@@ -159,7 +159,7 @@ class BugDetailsView extends React.Component {
             dateOptions
           /> : <p>{tableFailureMessage}</p>}
 
-        {!tableFailureMessage || (bugDetails&& bugId) ?
+        {!tableFailureMessage || (bugDetails && bugId) ?
           <GenericTable
             bugs={bugDetails.results}
             columns={columns}
@@ -174,7 +174,7 @@ class BugDetailsView extends React.Component {
 }
 
 Container.propTypes = {
-  fluid: PropTypes.bool
+  fluid: PropTypes.bool,
 };
 
 BugDetailsView.propTypes = {
@@ -193,9 +193,9 @@ BugDetailsView.propTypes = {
           build_type: PropTypes.string.isRequired,
           job_id: PropTypes.number.isRequired,
           bug_id: PropTypes.number.isRequired,
-        })
-      )
-    })
+        }),
+      ),
+    }),
   ]),
   graphs: PropTypes.oneOfType([
     PropTypes.shape({}),
@@ -203,21 +203,21 @@ BugDetailsView.propTypes = {
       PropTypes.shape({
         failure_count: PropTypes.number,
         test_runs: PropTypes.number,
-        date: PropTypes.string
-      })
-    )
+        date: PropTypes.string,
+      }),
+    ),
   ]).isRequired,
   bugzillaData: PropTypes.shape({
     bugs: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.number,
         summary: PropTypes.string,
-      })
-    )
+      }),
+    ),
   }).isRequired,
   history: PropTypes.shape({}).isRequired,
   location: PropTypes.shape({
-    search: PropTypes.string
+    search: PropTypes.string,
   }).isRequired,
   fetchData: PropTypes.func,
   updateDates: PropTypes.func,
@@ -228,7 +228,7 @@ BugDetailsView.propTypes = {
   tree: PropTypes.string.isRequired,
   bugId: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
   ]),
   summary: PropTypes.string,
   tableFailureMessage: PropTypes.string,
@@ -244,7 +244,7 @@ BugDetailsView.defaultProps = {
   updateBugDetails: null,
   bugDetails: null,
   bugId: null,
-  summary: null
+  summary: null,
 };
 
 const mapStateToProps = state => ({
@@ -257,14 +257,14 @@ const mapStateToProps = state => ({
   tree: state.bugDetailsTree.tree,
   bugId: state.bugDetails.bugId,
   summary: state.bugDetails.summary,
-  bugzillaData: state.bugzillaBugDetails.data
+  bugzillaData: state.bugzillaBugDetails.data,
 });
 
 const mapDispatchToProps = dispatch => ({
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),
   updateDates: (from, to, name) => dispatch(updateDateRange(from, to, name)),
   updateTree: (tree, name) => dispatch(updateTreeName(tree, name)),
-  updateBugDetails: (bugId, summary, name) => dispatch(updateSelectedBugDetails(bugId, summary, name))
+  updateBugDetails: (bugId, summary, name) => dispatch(updateSelectedBugDetails(bugId, summary, name)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BugDetailsView);

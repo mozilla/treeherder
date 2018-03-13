@@ -25,7 +25,7 @@ function App({ store }) {
 }
 
 App.propTypes = {
-  store: PropTypes.shape({}).isRequired
+  store: PropTypes.shape({}).isRequired,
 };
 
 export default App;

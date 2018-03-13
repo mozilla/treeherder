@@ -48,35 +48,35 @@ export default class Graph extends React.Component {
 Graph.propTypes = {
   specs: PropTypes.shape({
     legend: PropTypes.oneOfType([
-      PropTypes.string, PropTypes.arrayOf(PropTypes.string)
-    ])
+      PropTypes.string, PropTypes.arrayOf(PropTypes.string),
+    ]),
   }).isRequired,
   data: PropTypes.oneOfType([
     PropTypes.shape({}),
     PropTypes.arrayOf(
       PropTypes.shape({
         date: PropTypes.shape({ Date: PropTypes.string }),
-        value: PropTypes.number
-      })
+        value: PropTypes.number,
+      }),
     ),
     PropTypes.arrayOf(
       PropTypes.arrayOf(
         PropTypes.shape({
           date: PropTypes.shape({ Date: PropTypes.string }),
-          value: PropTypes.number
-        })
+          value: PropTypes.number,
+        }),
       ), PropTypes.arrayOf(
         PropTypes.shape({
           date: PropTypes.shape({ Date: PropTypes.string }),
-          value: PropTypes.number
-        })
-      )
+          value: PropTypes.number,
+        }),
+      ),
     ),
-    ])
+  ]),
 };
 
 Graph.defaultProps = {
   graphOneData: null,
   graphTwoData: null,
-  data: null
+  data: null,
 };

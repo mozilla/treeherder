@@ -25,11 +25,11 @@ class MainView extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { from, to, tree, location, history } = nextProps;
 
-    //update all data if the user edits dates or tree via the query params
+    // update all data if the user edits dates or tree via the query params
     if (location.search !== this.props.location.search) {
       this.updateData(parseQueryParams(location.search));
     }
-    //update query params if dates or tree are updated via the UI
+    // update query params if dates or tree are updated via the UI
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
       const queryParams = createQueryParams({ startday: from, endday: to, tree });
 
@@ -49,7 +49,7 @@ class MainView extends React.Component {
       updateQueryParams('/main', queryParams, history, location);
 
       if (Object.keys(graphs).length === 0) {
-        //only fetch graph data on initial page load
+        // only fetch graph data on initial page load
         fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
       }
     } else {
@@ -73,7 +73,7 @@ class MainView extends React.Component {
       {
         Header: 'Bug ID',
         accessor: 'id',
-        Cell: props => <BugColumn data={props.original} />
+        Cell: props => <BugColumn data={props.original} />,
       },
       {
         Header: 'Count',
@@ -88,8 +88,8 @@ class MainView extends React.Component {
       {
         Header: 'Whiteboard',
         accessor: 'whiteboard',
-        minWidth: 150
-      }
+        minWidth: 150,
+      },
     ];
 
     let bugsData = [];
@@ -157,7 +157,7 @@ class MainView extends React.Component {
 }
 
 Container.propTypes = {
-  fluid: PropTypes.bool
+  fluid: PropTypes.bool,
 };
 
 MainView.propTypes = {
@@ -170,9 +170,9 @@ MainView.propTypes = {
         PropTypes.shape({
           bug_id: PropTypes.number,
           bug_count: PropTypes.number,
-        })
-      )
-    })
+        }),
+      ),
+    }),
   ]).isRequired,
   graphs: PropTypes.oneOfType([
     PropTypes.shape({}),
@@ -180,9 +180,9 @@ MainView.propTypes = {
       PropTypes.shape({
         failure_count: PropTypes.number,
         test_runs: PropTypes.number,
-        date: PropTypes.string
-      })
-    )
+        date: PropTypes.string,
+      }),
+    ),
   ]).isRequired,
   bugzillaData: PropTypes.shape({
     bugs: PropTypes.arrayOf(
@@ -190,13 +190,13 @@ MainView.propTypes = {
         id: PropTypes.number,
         status: PropTypes.string,
         summary: PropTypes.string,
-        whiteboard: PropTypes.string
-      })
-    )
+        whiteboard: PropTypes.string,
+      }),
+    ),
   }).isRequired,
   history: PropTypes.shape({}).isRequired,
   location: PropTypes.shape({
-    search: PropTypes.string
+    search: PropTypes.string,
   }).isRequired,
   fetchData: PropTypes.func,
   updateDates: PropTypes.func,
@@ -215,7 +215,7 @@ MainView.defaultProps = {
   fetchData: null,
   updateTree: null,
   updateDates: null,
-  fetchFullBugData: null
+  fetchFullBugData: null,
 };
 
 const mapStateToProps = state => ({
@@ -233,7 +233,7 @@ const mapDispatchToProps = dispatch => ({
   fetchData: (url, name) => dispatch(fetchBugData(url, name)),
   fetchFullBugData: (url, name) => dispatch(fetchBugsThenBugzilla(url, name)),
   updateDates: (from, to, name) => dispatch(updateDateRange(from, to, name)),
-  updateTree: (tree, name) => dispatch(updateTreeName(tree, name))
+  updateTree: (tree, name) => dispatch(updateTreeName(tree, name)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainView);

@@ -9,7 +9,6 @@ import { fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
 import { createApiUrl } from '../helpers/urlHelper';
 
 function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bugs, columns, trStyling, totalPages }) {
-
   const updateData = (page) => {
     params.page = page;
     if (name === 'BUGS') {
@@ -59,7 +58,7 @@ Table.propTypes = {
   bordered: PropTypes.bool,
   striped: PropTypes.bool,
   hover: PropTypes.bool,
-  responsive: PropTypes.bool
+  responsive: PropTypes.bool,
 };
 
 GenericTable.propTypes = {
@@ -71,7 +70,7 @@ GenericTable.propTypes = {
     tree: PropTypes.string.isRequired,
     bug: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.number
+      PropTypes.number,
     ]),
   }).isRequired,
   fetchData: PropTypes.func,
@@ -79,7 +78,7 @@ GenericTable.propTypes = {
   name: PropTypes.string.isRequired,
   tableApi: PropTypes.string.isRequired,
   trStyling: PropTypes.bool,
-  totalPages: PropTypes.number
+  totalPages: PropTypes.number,
 };
 
 GenericTable.defaultProps = {
@@ -87,7 +86,7 @@ GenericTable.defaultProps = {
   fetchData: null,
   fetchFullBugData: null,
   totalPages: null,
-  bugs: undefined
+  bugs: undefined,
 };
 
 const mapDispatchToProps = dispatch => ({

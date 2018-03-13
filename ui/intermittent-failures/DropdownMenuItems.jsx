@@ -8,7 +8,7 @@ export default class DropdownMenuItems extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedItem: this.props.default
+      selectedItem: this.props.default,
     };
     this.changeSelection = this.changeSelection.bind(this);
   }
@@ -38,7 +38,7 @@ export default class DropdownMenuItems extends React.Component {
           (<DropdownItem key={item} onClick={this.changeSelection}>
             <Icon
               name="check"
-              className={`pr-1 ${selectedItem === item ? "" : "hide"}`}
+              className={`pr-1 ${selectedItem === item ? '' : 'hide'}`}
             />
             {item}
           </DropdownItem>))}
@@ -50,10 +50,10 @@ export default class DropdownMenuItems extends React.Component {
 DropdownMenuItems.propTypes = {
   updateData: PropTypes.func,
   default: PropTypes.string,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 DropdownMenuItems.defaultProps = {
   updateData: null,
-  default: null
+  default: null,
 };

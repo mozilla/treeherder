@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-//be sure to wrap date arg in a moment()
+// be sure to wrap date arg in a moment()
 export const ISODate = function formatISODate(date) {
   return date.format('YYYY-MM-DD');
 };
@@ -36,9 +36,7 @@ export const mergeData = function mergeDataFromTwoApis(data, bugs) {
     }
   }
 
-  bugs.sort(function (a, b) {
-    return b.count - a.count;
-  });
+  bugs.sort((a, b) => b.count - a.count);
   return bugs;
 };
 
@@ -68,7 +66,7 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
 export const updateQueryParams = function updateHistoryWithQueryParams(view, queryParams, history, location) {
   if (queryParams !== history.location.search) {
     history.replace(`${view}${queryParams}`);
-    //we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
+    // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
     location.search = queryParams;
   }
 };

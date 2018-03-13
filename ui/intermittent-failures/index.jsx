@@ -14,7 +14,7 @@ function load() {
     <AppContainer>
       <App store={store} />
     </AppContainer>
-  ), document.getElementById("root"));
+  ), document.getElementById('root'));
 }
 
 load();
