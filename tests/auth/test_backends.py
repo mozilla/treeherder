@@ -1,12 +1,15 @@
 import time
+from importlib import import_module
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 
 from treeherder.auth.backends import (AuthBackend,
                                       AuthenticationFailed)
+
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 @pytest.mark.parametrize(
@@ -63,8 +66,7 @@ def test_existing_email_create_user(test_user, webapp, monkeypatch, exp_username
     webapp.get(reverse("auth-login"), headers={"Authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)})
 
     session_key = webapp.cookies["sessionid"]
-    session = Session.objects.get(session_key=session_key)
-    session_data = session.get_decoded()
+    session_data = SessionStore(session_key=session_key)
 
     new_user = User.objects.get(id=session_data.get('_auth_user_id'))
 

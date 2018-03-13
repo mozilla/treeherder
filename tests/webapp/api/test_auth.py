@@ -1,7 +1,8 @@
 import time
+from importlib import import_module
 
 import pytest
-from django.contrib.sessions.models import Session
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from mohawk import Sender
 from rest_framework import status
@@ -12,6 +13,8 @@ from rest_framework.test import APIRequestFactory
 from treeherder.auth.backends import AuthBackend
 from treeherder.model.models import User
 from treeherder.webapp.api import permissions
+
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 class AuthenticatedView(APIView):
@@ -125,8 +128,7 @@ def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
                status=200)
 
     session_key = webapp.cookies["sessionid"]
-    session = Session.objects.get(session_key=session_key)
-    session_data = session.get_decoded()
+    session_data = SessionStore(session_key=session_key)
     user = User.objects.get(id=session_data.get('_auth_user_id'))
 
     assert user.id == test_ldap_user.id
