@@ -95,6 +95,9 @@ AUTHENTICATION_BACKENDS = [
     'treeherder.auth.backends.AuthBackend',
 ]
 
+# Use the cache-based backend rather than the default of database.
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/'
 
@@ -107,7 +110,6 @@ LOGOUT_REDIRECT_URL = '/'
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`.
     'whitenoise.runserver_nostatic',
