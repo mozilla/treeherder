@@ -1,18 +1,15 @@
 <div ng-controller="BugsPluginCtrl">
   <div class="w-100 h-100">
     <failure-summary-tab
-      tabs="tabs"
       suggestions="suggestions"
       fileBug="fileBug"
       user="user"
-      bugLimit="bug_limit"
-      pinboardService="pinboard_service"
       selectedJob="selectedJob"
       errors="errors"
-      bugSuggestionsLoaded="bugSuggestionsLoaded"
-      jobLogsAllParsed="jobLogsAllParsed"
+      bugSuggestionsLoading="bugSuggestionsLoading"
+      logs="job_log_urls"
       jobLogUrls="job_log_urls"
-      logParseStatus="logParseStatus">
-    </failure-summary-tab>
+      logParseStatus="logParseStatus"
+    />
   </div>
 </div>

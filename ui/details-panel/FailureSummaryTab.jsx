@@ -4,23 +4,24 @@ import createHistory from 'history/createBrowserHistory';
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
 import { getAllUrlParams } from '../helpers/locationHelper';
+import { escapeHTML, highlightCommonTerms } from "../helpers/displayHelper";
+
+const BUG_LIMIT = 20;
 
 class SuggestionsListItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       suggestionShowMore: false,
-      filerInAddress: false,
+      filerInAddress: getAllUrlParams().has('bugfiler'),
     };
 
-    this.history = createHistory();
     this.updateFilerInAddress = this.updateFilerInAddress.bind(this);
     this.clickShowMore = this.clickShowMore.bind(this);
   }
 
   componentWillMount() {
-    this.unlistenHistory = this.history.listen(this.updateFilerInAddress);
-    this.updateFilerInAddress();
+    this.unlistenHistory = this.props.history.listen(this.updateFilerInAddress);
   }
 
   componentWillUnmount() {
@@ -37,9 +38,7 @@ class SuggestionsListItem extends React.Component {
 
   render() {
     const {
-      user, suggestion, selectedJob, escapeHTMLFilter,
-      highlightCommonTermsFilter, $timeout, pinboardService, bugLimit,
-      fileBug, index
+      user, suggestion, selectedJob, $timeout, pinboardService, fileBug, index
     } = this.props;
     const { filerInAddress, suggestionShowMore } = this.state;
 
@@ -66,9 +65,7 @@ class SuggestionsListItem extends React.Component {
               bug={bug}
               selectedJob={selectedJob}
               pinboardService={pinboardService}
-              escapeHTMLFilter={escapeHTMLFilter}
               suggestion={suggestion}
-              highlightCommonTermsFilter={highlightCommonTermsFilter}
               $timeout={$timeout}
             />))}
 
@@ -91,9 +88,7 @@ class SuggestionsListItem extends React.Component {
                 bug={bug}
                 selectedJob={selectedJob}
                 pinboardService={pinboardService}
-                escapeHTMLFilter={escapeHTMLFilter}
                 suggestion={suggestion}
-                highlightCommonTermsFilter={highlightCommonTermsFilter}
                 $timeout={$timeout}
                 bugClassName={bug.resolution !== "" ? "deleted" : ""}
                 title={bug.resolution !== "" ? bug.resolution : ""}
@@ -102,7 +97,7 @@ class SuggestionsListItem extends React.Component {
 
         {(suggestion.bugs.too_many_open_recent || (suggestion.bugs.too_many_all_others
             && !suggestion.valid_open_recent)) &&
-            <mark>Exceeded max {bugLimit} bug suggestions, most of which are likely false positives.</mark>}
+            <mark>Exceeded max {BUG_LIMIT} bug suggestions, most of which are likely false positives.</mark>}
       </li>
     );
   }
@@ -120,12 +115,12 @@ function ListItem(props) {
 
 function BugListItem(props) {
   const {
-    bug, escapeHTMLFilter, highlightCommonTermsFilter, suggestion,
+    bug, suggestion,
     bugClassName, title, $timeout, pinboardService, selectedJob,
   } = props;
   const bugUrl = getBugUrl(bug.id);
-  const bugSummaryText = escapeHTMLFilter(bug.summary);
-  const bugSummaryHTML = { __html: highlightCommonTermsFilter(bugSummaryText, suggestion.search) };
+  const bugSummaryText = escapeHTML(bug.summary);
+  const highlightedTerms = highlightCommonTerms(bugSummaryText, suggestion.search);
 
   return (
     <li>
@@ -143,7 +138,7 @@ function BugListItem(props) {
         rel="noopener"
         title={title}
       >{bug.id}
-        <span className={`${bugClassName} ml-1`} dangerouslySetInnerHTML={bugSummaryHTML} />
+        <span className={`${bugClassName} ml-1`} >{highlightedTerms}</span>
       </a>
     </li>
   );
@@ -174,89 +169,95 @@ function ErrorsList(props) {
 }
 
 
-function FailureSummaryTab(props) {
-  const {
-    $injector, suggestions, user, fileBug, bugLimit, pinboardService, selectedJob,
-    errors, tabs, jobLogsAllParsed, bugSuggestionsLoaded, jobLogUrls, logParseStatus,
-  } = props;
-  const escapeHTMLFilter = $injector.get('$filter')('escapeHTML');
-  const highlightCommonTermsFilter = $injector.get('$filter')('highlightCommonTerms');
-  const $timeout = $injector.get('$timeout');
+class FailureSummaryTab extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <ul className="list-unstyled failure-summary-list">
-      {suggestions && suggestions.map((suggestion, index) =>
-        (<SuggestionsListItem
-          key={index}  // eslint-disable-line react/no-array-index-key
-          index={index}
-          suggestion={suggestion}
-          user={user}
-          fileBug={fileBug}
-          highlightCommonTermsFilter={highlightCommonTermsFilter}
-          escapeHTMLFilter={escapeHTMLFilter}
-          bugLimit={bugLimit}
-          pinboardService={pinboardService}
-          selectedJob={selectedJob}
-          $timeout={$timeout}
-        />))}
+    const { $injector } = this.props;
+    this.$timeout = $injector.get('$timeout');
+    this.thPinboard = $injector.get('thPinboard');
 
-      {errors && errors.length > 0 &&
-        <ErrorsList errors={errors} />}
+    this.history = createHistory();
+  }
 
-      {!tabs.failureSummary.is_loading && jobLogsAllParsed && bugSuggestionsLoaded &&
-        jobLogUrls.length === 0 && suggestions.length === 0 && errors.length === 0 &&
-        <ListItem text="Failure summary is empty" />}
+  render() {
+    const {
+      user, fileBug, jobLogUrls, logParseStatus, suggestions, errors,
+      bugSuggestionsLoading, selectedJob
+    } = this.props;
+    const logs = jobLogUrls;
+    const jobLogsAllParsed = logs ? logs.every(jlu => (jlu.parse_status !== 'pending')) : false;
 
-      {!tabs.failureSummary.is_loading && jobLogsAllParsed && !bugSuggestionsLoaded
-        && jobLogUrls.length && logParseStatus === 'success' &&
-        <li>
-          <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
-            <span>The content of this panel will refresh in 5 seconds.</span></p>
-        </li>}
+    return (
+      <ul className="list-unstyled failure-summary-list" ref={this.fsMount}>
+        {suggestions && suggestions.map((suggestion, index) =>
+          (<SuggestionsListItem
+            key={index}  // eslint-disable-line react/no-array-index-key
+            index={index}
+            history={this.history}
+            suggestion={suggestion}
+            user={user}
+            fileBug={fileBug}
+            pinboardService={this.thPinboard}
+            selectedJob={selectedJob}
+            $timeout={this.$timeout}
+          />))}
 
-      {jobLogUrls && !tabs.failureSummary.is_loading && !jobLogsAllParsed &&
-       jobLogUrls.map(jobLog =>
-         (<li key={jobLog.id}>
-           <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
-             <a
-               title="Open the raw log in a new window"
-               target="_blank"
-               rel="noopener"
-               href={jobLog.url}
-             >The raw log</a> is available. This panel will automatically recheck every 5 seconds.</p>
-         </li>))}
+        {errors && errors.length > 0 &&
+          <ErrorsList errors={errors} />}
 
-      {!tabs.failureSummary.is_loading && logParseStatus === 'failed' &&
-        <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
+        {!bugSuggestionsLoading && jobLogsAllParsed && logs &&
+          logs.length === 0 && suggestions.length === 0 && errors.length === 0 &&
+          <ListItem text="Failure summary is empty" />}
 
-      {!tabs.failureSummary.is_loading && jobLogUrls && jobLogUrls.length === 0 &&
-        <ListItem text="No logs available for this job." />}
+        {!bugSuggestionsLoading && jobLogsAllParsed && logs && logs.length > 0 &&
+          logParseStatus === 'success' &&
+          <li>
+            <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
+              <span>The content of this panel will refresh in 5 seconds.</span></p>
+          </li>}
 
-      {tabs.failureSummary.is_loading &&
-        <div className="overlay">
-          <div>
-            <span className="fa fa-spinner fa-pulse th-spinner-lg" />
-          </div>
-        </div>}
-    </ul>
-  );
+        {logs && !bugSuggestionsLoading && !jobLogsAllParsed &&
+         logs.map(jobLog =>
+           (<li key={jobLog.id}>
+             <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
+               <a
+                 title="Open the raw log in a new window"
+                 target="_blank"
+                 rel="noopener"
+                 href={jobLog.url}
+               >The raw log</a> is available. This panel will automatically recheck every 5 seconds.</p>
+           </li>))}
+
+        {!bugSuggestionsLoading && logParseStatus === 'failed' &&
+          <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
+
+        {!bugSuggestionsLoading && logs && logs.length === 0 &&
+          <ListItem text="No logs available for this job." />}
+
+        {bugSuggestionsLoading &&
+          <div className="overlay">
+            <div>
+              <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+            </div>
+          </div>}
+      </ul>
+    );
+  }
 }
 
 FailureSummaryTab.propTypes = {
-  tabs: PropTypes.object,
   suggestions: PropTypes.array,
   fileBug: PropTypes.func,
   user: PropTypes.object,
-  pinboardService: PropTypes.object,
   selectedJob: PropTypes.object,
   $injector: PropTypes.object,
-  bugLimit: PropTypes.number,
   errors: PropTypes.array,
-  bugSuggestionsLoaded: PropTypes.bool,
-  jobLogsAllParsed: PropTypes.bool,
+  bugSuggestionsLoading: PropTypes.bool,
+  // logs: PropTypes.array,
   jobLogUrls: PropTypes.array,
   logParseStatus: PropTypes.string
 };
 
 treeherder.directive('failureSummaryTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
-reactDirective(FailureSummaryTab, undefined, {}, { $injector })]);
+  reactDirective(FailureSummaryTab, undefined, {}, { $injector })]);

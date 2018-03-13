@@ -15,7 +15,7 @@ treeherder.controller('PluginCtrl', [
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'tcactions',
+    'PhSeries', 'tcactions', 'ThBugSuggestionsModel', 'ThTextLogStepModel',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         ThJobClassificationModel,
@@ -24,7 +24,7 @@ treeherder.controller('PluginCtrl', [
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        tcactions) {
+        tcactions, ThBugSuggestionsModel, ThTextLogStepModel) {
 
         $scope.job = {};
         $scope.revisionList = [];
@@ -76,11 +76,62 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.loadBugSuggestions = function () {
+            ThBugSuggestionsModel.query({
+                project: $rootScope.repoName,
+                jobId: $scope.job.id
+            }, (suggestions) => {
+                suggestions.forEach(function (suggestion) {
+                    suggestion.bugs.too_many_open_recent = (
+                        suggestion.bugs.open_recent.length > $scope.bug_limit
+                    );
+                    suggestion.bugs.too_many_all_others = (
+                        suggestion.bugs.all_others.length > $scope.bug_limit
+                    );
+                    suggestion.valid_open_recent = (
+                        suggestion.bugs.open_recent.length > 0 &&
+                            !suggestion.bugs.too_many_open_recent
+                    );
+                    suggestion.valid_all_others = (
+                        suggestion.bugs.all_others.length > 0 &&
+                            !suggestion.bugs.too_many_all_others &&
+                            // If we have too many open_recent bugs, we're unlikely to have
+                            // relevant all_others bugs, so don't show them either.
+                            !suggestion.bugs.too_many_open_recent
+                    );
+                });
+
+                // if we have no bug suggestions, populate with the raw errors from
+                // the log (we can do this asynchronously, it should normally be
+                // fast)
+                if (!suggestions.length) {
+                    ThTextLogStepModel.query({
+                        project: $rootScope.repoName,
+                        jobId: $scope.job.id
+                    }, function (textLogSteps) {
+                        $scope.errors = textLogSteps
+                            .filter(step => step.result !== 'success')
+                            .map(function (step) {
+                                return {
+                                    name: step.name,
+                                    result: step.result,
+                                    lvURL: getLogViewerUrl($scope.job.id, $rootScope.repoName, step.finished_line_number)
+                                };
+                            });
+                    });
+                }
+                $scope.suggestions = suggestions;
+                $scope.bugSuggestionsLoading = false;
+            });
+
+        };
+
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
         let selectJobPromise = null;
 
         const selectJob = function (job) {
+            $scope.bugSuggestionsLoading = true;
             // make super-extra sure that the autoclassify tab shows up when it should
             showAutoClassifyTab();
 
@@ -151,11 +202,6 @@ treeherder.controller('PluginCtrl', [
                         $scope.logParseStatus = $scope.job_log_urls[0].parse_status;
                     }
 
-                    // Provide a parse status for the model
-                    $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function (jlu) {
-                        return jlu.parse_status !== 'pending';
-                    });
-
                     $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     if ($scope.job_log_urls.length) {
@@ -185,6 +231,7 @@ treeherder.controller('PluginCtrl', [
 
                     $scope.updateClassifications();
                     $scope.updateBugs();
+                    $scope.loadBugSuggestions();
 
                     $scope.job_detail_loading = false;
                 });
