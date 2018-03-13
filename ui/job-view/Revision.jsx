@@ -30,9 +30,9 @@ export class Revision extends React.PureComponent {
     super(props);
     const { revision, linkifyBugsFilter } = this.props;
 
-    this.escapedComment = _.escape(revision.comments.split('\n')[0]);
-    this.escapedCommentHTML = { __html: linkifyBugsFilter(this.escapedComment) };
-    this.tags = this.escapedComment.search('Backed out') >= 0 || this.escapedComment.search('Back out') >= 0 ?
+    this.comment = revision.comments.split('\n')[0];
+    this.escapedCommentHTML = { __html: linkifyBugsFilter(_.escape(this.comment)) };
+    this.tags = this.comment.search('Backed out') >= 0 || this.comment.search('Back out') >= 0 ?
         'backout' : '';
   }
 
@@ -55,7 +55,7 @@ export class Revision extends React.PureComponent {
           title={`${name}: ${email}`}
           author={name}
         />
-        <span title={this.escapedComment}>
+        <span title={this.comment}>
           <span className="revision-comment">
             <em dangerouslySetInnerHTML={this.escapedCommentHTML} />
           </span>
