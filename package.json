@@ -46,7 +46,7 @@
     "neutrino-preset-react": "4.2.3",
     "ngreact": "0.5.1",
     "numeral": "2.0.6",
-    "popper.js": "1.12.9",
+    "popper.js": "1.14.0",
     "prop-types": "15.6.1",
     "react": "16.2.0",
     "react-dom": "16.2.0",
