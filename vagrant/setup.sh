@@ -16,7 +16,7 @@ PYTHON_DIR="$HOME/python"
 cd "$SRC_DIR"
 
 ELASTICSEARCH_VERSION="5.5.0"
-GECKODRIVER_VERSION="0.19.1"
+GECKODRIVER_VERSION="0.20.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="9.0.1"
 # Keep in sync with the version pre-installed on Travis.
