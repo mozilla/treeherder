@@ -278,7 +278,7 @@ treeherder.factory('ThRepositoryModel', [
 
                                 // To get the current repo to display first, we must
                                 // ensure it's added to the array last, as per normal user interaction
-                                storedWatched = _.without(storedWatched, options.name);
+                                storedWatched = storedWatched.filter(value => (value !== options.name));
                                 unwatchRepo(options.name);
 
                                 // Add the repos in reverse order, like the user would (oldest to newest)

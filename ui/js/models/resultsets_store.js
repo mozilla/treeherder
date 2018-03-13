@@ -147,7 +147,7 @@ treeherder.factory('ThResultSetStore', [
                     jobList = _.flatten(jobList);
                     if (jobList.length > 0) {
                         lastJobUpdate = getLastModifiedJobTime(jobList);
-                        var jobListByPush = _.values(
+                        var jobListByPush = Object.values(
                             _.groupBy(jobList, 'result_set_id')
                         );
                         jobListByPush
@@ -364,7 +364,7 @@ treeherder.factory('ThResultSetStore', [
             }
 
             repoData.pushes.sort(rsCompare);
-            repoData.rsMapOldestTimestamp = _.last(repoData.pushes).push_timestamp;
+            repoData.rsMapOldestTimestamp = repoData.pushes[repoData.pushes.length - 1].push_timestamp;
         };
 
         var mapPlatforms = function (rs_obj) {
