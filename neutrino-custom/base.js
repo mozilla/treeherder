@@ -86,6 +86,10 @@ module.exports = neutrino => {
         .entry('testview')
         .add(path.join(UI, 'test-view', 'index.jsx'))
         .end();
+    neutrino.config
+        .entry('intermittent-failures')
+        .add(path.join(UI, 'intermittent-failures', 'index.jsx'))
+        .end();
 
     // Likewise, we must modify the include paths for the compile rule to look in ui/ instead of src/:
     neutrino.config
@@ -214,6 +218,30 @@ module.exports = neutrino => {
                 {
                     "name": "description",
                     "content": "Treeherder TestView"
+                },
+                {
+                    "name": "author",
+                    "content": "Mozilla Treeherder"
+                }
+            ]
+        });
+
+    neutrino.config
+        .plugin('html-intermittent-failures')
+        .use(HtmlPlugin, {
+            inject: false,
+            template: htmlTemplate,
+            filename: 'intermittent-failures.html',
+            chunks: ['intermittent-failures', 'vendor', 'manifest'],
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: "Treeherder Intermittent Failures",
+            meta: [
+                {
+                    "name": "description",
+                    "content": "Treeherder Intermittent Failures"
                 },
                 {
                     "name": "author",

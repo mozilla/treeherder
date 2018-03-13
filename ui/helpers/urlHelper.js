@@ -1,4 +1,4 @@
-import { Queue } from "taskcluster-client-web";
+import { Queue } from 'taskcluster-client-web';
 
 import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam, getAllUrlParams } from './locationHelper';
@@ -89,3 +89,38 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   return `/#/jobs?${params.toString()}`;
 };
 
+//TH domain is needed here because Intermittent Failures View currently uses hash router
+export const jobsUrl = function getJobsUrl(tree, revision) {
+  return `https://treeherder.mozilla.org/#/jobs?repo=${tree}&revision=${revision}`;
+};
+
+export const bugsEndpoint = 'failures/';
+
+export const bugDetailsEndpoint = 'failuresbybug/';
+
+export const graphsEndpoint = 'failurecount/';
+
+export const parseQueryParams = function parseQueryParams(search) {
+  const params = new URLSearchParams(search);
+  const obj = {};
+  for (const [key, value] of params.entries()) {
+    obj[key] = value;
+  }
+  return obj;
+};
+
+export const createQueryParams = function createQueryParams(params) {
+  const query = new URLSearchParams(params);
+  return `?${query.toString()}`;
+};
+
+export const createApiUrl = function createApiUrl(api, params) {
+  const query = createQueryParams(params);
+  return `${SERVICE_DOMAIN}/api/${api}${query}`;
+};
+
+//bugs can be one bug or a comma separated (no spaces) string of bugs
+export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
+  const query = createQueryParams(params);
+  return `https://bugzilla.mozilla.org/${api}${query}`;
+};

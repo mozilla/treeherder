@@ -604,3 +604,5 @@ ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
 }
+
+TRUNK_REPO_NAMES = ['mozilla-central', 'mozilla-inbound', 'autoland', 'fx-team']
