@@ -11,7 +11,7 @@ import GenericTable from './GenericTable';
 import GraphsContainer from './GraphsContainer';
 import { updateQueryParams, calculateMetrics, prettyDate } from './helpers';
 import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl, jobsUrl,
-  logviewerUrl, bugzillaBugsApi } from '../helpers/urlHelper';
+  getLogViewerUrl, bugzillaBugsApi } from '../helpers/urlHelper';
 
 class BugDetailsView extends React.Component {
   constructor(props) {
@@ -102,7 +102,7 @@ class BugDetailsView extends React.Component {
       {
         Header: 'Log',
         accessor: 'job_id',
-        Cell: props => <a href={logviewerUrl(props.original.tree, props.value)} target="_blank">view details</a>,
+        Cell: props => <a href={getLogViewerUrl(props.value, props.original.tree)} target="_blank">view details</a>,
       },
     ];
     const params = { startday: from, endday: to, tree, bug: bugId };
