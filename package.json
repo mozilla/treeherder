@@ -51,7 +51,7 @@
     "popper.js": "1.14.0",
     "prop-types": "15.6.1",
     "react": "16.2.0",
-    "react-day-picker": "7.1.2",
+    "react-day-picker": "7.1.4",
     "react-dom": "16.2.0",
     "react-fontawesome": "1.6.1",
     "react-hot-loader": "3.1.3",
