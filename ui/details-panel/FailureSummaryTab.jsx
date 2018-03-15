@@ -120,7 +120,7 @@ function BugListItem(props) {
   } = props;
   const bugUrl = getBugUrl(bug.id);
   const bugSummaryText = escapeHTML(bug.summary);
-  const highlightedTerms = highlightCommonTerms(bugSummaryText, suggestion.search);
+  const highlightedTerms = { __html: highlightCommonTerms(bugSummaryText, suggestion.search) };
 
   return (
     <li>
@@ -138,7 +138,7 @@ function BugListItem(props) {
         rel="noopener"
         title={title}
       >{bug.id}
-        <span className={`${bugClassName} ml-1`} >{highlightedTerms}</span>
+        <span className={`${bugClassName} ml-1`} dangerouslySetInnerHTML={highlightedTerms} />
       </a>
     </li>
   );

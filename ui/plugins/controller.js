@@ -4,6 +4,7 @@ import { Queue, slugid } from 'taskcluster-client-web';
 import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
+import intermittentTemplate from '../partials/main/intermittent.html';
 import { getStatus } from '../helpers/jobHelper';
 import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
 
@@ -77,6 +78,7 @@ treeherder.controller('PluginCtrl', [
         };
 
         $scope.loadBugSuggestions = function () {
+            $scope.errors = [];
             ThBugSuggestionsModel.query({
                 project: $rootScope.repoName,
                 jobId: $scope.job.id
@@ -123,7 +125,46 @@ treeherder.controller('PluginCtrl', [
                 $scope.suggestions = suggestions;
                 $scope.bugSuggestionsLoading = false;
             });
+        };
 
+        $scope.fileBug = function (index) {
+          const summary = $scope.suggestions[index].search;
+          const crashRegex = /application crashed \[@ (.+)\]$/g;
+          const crash = summary.match(crashRegex);
+          const crashSignatures = crash ? [crash[0].split("application crashed ")[1]] : [];
+          const allFailures = $scope.suggestions.map(sugg => (sugg.search.split(" | ")));
+
+          const modalInstance = $uibModal.open({
+            template: intermittentTemplate,
+            controller: 'BugFilerCtrl',
+            size: 'lg',
+            openedClass: "filer-open",
+            resolve: {
+              summary: () => (summary),
+              search_terms: () => ($scope.suggestions[index].search_terms),
+              fullLog: () => ($scope.job_log_urls[0].url),
+              parsedLog: () => ($scope.lvFullUrl),
+              reftest: () => ($scope.isReftest() ? $scope.reftestUrl : ""),
+              selectedJob: () => ($scope.selectedJob),
+              allFailures: () => (allFailures),
+              crashSignatures: () => (crashSignatures),
+              successCallback: () => (data) => {
+                // Auto-classify this failure now that the bug has been filed
+                // and we have a bug number
+                thPinboard.addBug({ id: data.success });
+                $rootScope.$evalAsync(
+                  $rootScope.$emit(
+                    thEvents.saveClassification));
+                // Open the newly filed bug in a new tab or window for further editing
+                window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + data.success);
+              }
+            }
+          });
+          thPinboard.pinJob($scope.selectedJob);
+
+          modalInstance.opened.then(function () {
+            window.setTimeout(() => modalInstance.initiate(), 0);
+          });
         };
 
         // this promise will void all the ajax requests

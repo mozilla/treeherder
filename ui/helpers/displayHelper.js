@@ -23,20 +23,17 @@ export const escapeHTML = function escapeHTML(text) {
   return '';
 };
 
-export const highlightCommonTerms = function highlightCommonTerms(matchText, items) {
-  const compareStr = items.filter(x => (x)).join(" ");
+export const highlightCommonTerms = function highlightCommonTerms(input, compareStr) {
   const tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
-  tokens.sort(function (a, b) {
-    return b.length - a.length;
-  });
 
+  tokens.sort((a, b) => (b.length - a.length));
   tokens.forEach((elem) => {
     if (elem.length > 0) {
-      matchText = matchText.replace(
-        new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"),
+      input = input.replace(
+        new RegExp(`(^|\\W)(${elem})($|\\W)`, 'gi'),
         (match, prefix, token, suffix) => `${prefix}<strong>${token}</strong>${suffix}`
       );
     }
   });
-  return matchText;
+  return input;
 };

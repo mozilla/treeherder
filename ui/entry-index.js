@@ -75,7 +75,6 @@ import './details-panel/JobDetailsPane';
 import './details-panel/FailureSummaryTab';
 import './details-panel/AnnotationsTab';
 import './plugins/pinboard';
-import './plugins/failure_summary/controller';
 import './plugins/similar_jobs/controller';
 import './plugins/auto_classification/controller';
 import './js/filters';
