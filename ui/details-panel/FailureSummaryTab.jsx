@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import createHistory from 'history/createBrowserHistory';
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
@@ -160,8 +159,6 @@ class FailureSummaryTab extends React.Component {
     const { $injector } = this.props;
     this.$timeout = $injector.get('$timeout');
     this.thPinboard = $injector.get('thPinboard');
-
-    this.history = createHistory();
   }
 
   render() {
@@ -178,7 +175,6 @@ class FailureSummaryTab extends React.Component {
           (<SuggestionsListItem
             key={index}  // eslint-disable-line react/no-array-index-key
             index={index}
-            history={this.history}
             suggestion={suggestion}
             fileBug={fileBug}
             pinboardService={this.thPinboard}
