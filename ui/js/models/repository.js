@@ -29,7 +29,7 @@ treeherder.factory('ThRepositoryModel', [
 
 
         const getOrderedRepoGroups = function () {
-            if (!_.size(orderedRepoGroups)) {
+            if (!Object.keys(orderedRepoGroups).length) {
                 const groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
                 _.each(groups, function (reposAr, gName) {
                     orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
@@ -84,7 +84,7 @@ treeherder.factory('ThRepositoryModel', [
             const newStatuses = {};
 
             const updateStatusesIfDone = function () {
-                if (_.size(newStatuses) === repoNames.length) {
+                if (Object.keys(newStatuses).length === repoNames.length) {
                     // we've received all the statuses we expect to
                     _.defer(function () {
                         _.each(newStatuses, function (status) {
@@ -189,7 +189,7 @@ treeherder.factory('ThRepositoryModel', [
                 // don't want to just replace the watchedRepos object because
                 // controllers, etc, are watching the reference to it, which would
                 // be lost by replacing.
-                if (_.size(watchedRepos) <= 1) {
+                if (watchedRepos.length <= 1) {
                     _.each(watchedRepos, function (r, rname) {
                         unwatchRepo(rname);
                     });

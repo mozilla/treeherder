@@ -66,7 +66,7 @@ treeherder.factory('thPinboard', [
             pinJob: function (job) {
                 if (api.spaceRemaining() > 0) {
                     pinnedJobs[job.id] = job;
-                    api.count.numPinnedJobs = _.size(pinnedJobs);
+                    api.count.numPinnedJobs = Object.keys(pinnedJobs).length;
                     $rootScope.$emit(thEvents.pulsePinCount);
                 } else {
                     thNotify.send(thPinboardCountError, 'danger');
@@ -79,7 +79,7 @@ treeherder.factory('thPinboard', [
 
             unPinJob: function (id) {
                 delete pinnedJobs[id];
-                api.count.numPinnedJobs = _.size(pinnedJobs);
+                api.count.numPinnedJobs = Object.keys(pinnedJobs).length;
             },
 
             // clear all pinned jobs and related bugs
@@ -90,12 +90,12 @@ treeherder.factory('thPinboard', [
                 for (const bid in relatedBugs) {
                     if (relatedBugs.hasOwnProperty(bid)) { delete relatedBugs[bid]; }
                 }
-                api.count.numPinnedJobs = _.size(pinnedJobs);
+                api.count.numPinnedJobs = Object.keys(pinnedJobs).length;
             },
 
             addBug: (bug, job) => {
                 relatedBugs[bug.id] = bug;
-                api.count.numRelatedBugs = _.size(relatedBugs);
+                api.count.numRelatedBugs = Object.keys(relatedBugs).length;
 
                 if (job) {
                     api.pinJob(job);
@@ -104,7 +104,7 @@ treeherder.factory('thPinboard', [
 
             removeBug: function (id) {
                 delete relatedBugs[id];
-                api.count.numRelatedBugs = _.size(relatedBugs);
+                api.count.numRelatedBugs = Object.keys(relatedBugs).length;
             },
 
             // open form to create a new note. default to intermittent
@@ -176,4 +176,3 @@ treeherder.factory('thPinboard', [
 
         return api;
     }]);
-
