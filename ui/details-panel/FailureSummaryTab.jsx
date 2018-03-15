@@ -3,7 +3,6 @@ import createHistory from 'history/createBrowserHistory';
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
-import { getAllUrlParams } from '../helpers/locationHelper';
 import { escapeHTML, highlightCommonTerms } from "../helpers/displayHelper";
 
 const BUG_LIMIT = 20;
@@ -13,23 +12,9 @@ class SuggestionsListItem extends React.Component {
     super(props);
     this.state = {
       suggestionShowMore: false,
-      filerInAddress: getAllUrlParams().has('bugfiler'),
     };
 
-    this.updateFilerInAddress = this.updateFilerInAddress.bind(this);
     this.clickShowMore = this.clickShowMore.bind(this);
-  }
-
-  componentWillMount() {
-    this.unlistenHistory = this.props.history.listen(this.updateFilerInAddress);
-  }
-
-  componentWillUnmount() {
-    this.unlistenHistory();
-  }
-
-  updateFilerInAddress() {
-    this.setState({ filerInAddress: getAllUrlParams().has('bugfiler') });
   }
 
   clickShowMore() {
@@ -38,21 +23,20 @@ class SuggestionsListItem extends React.Component {
 
   render() {
     const {
-      user, suggestion, selectedJob, $timeout, pinboardService, fileBug, index
+      suggestion, selectedJob, $timeout, pinboardService, fileBug, index
     } = this.props;
-    const { filerInAddress, suggestionShowMore } = this.state;
+    const { suggestionShowMore } = this.state;
 
     return (
       <li>
         <div className="job-tabs-content">
-          {(filerInAddress || user.is_staff) &&
-            <span
-              className="btn btn-xs btn-light-bordered link-style"
-              onClick={() => fileBug(index)}
-              title="file a bug for this failure"
-            >
-              <i className="fa fa-bug" />
-            </span>}
+          <span
+            className="btn btn-xs btn-light-bordered link-style"
+            onClick={() => fileBug(index)}
+            title="file a bug for this failure"
+          >
+            <i className="fa fa-bug" />
+          </span>
           <span>{suggestion.search}</span>
         </div>
 
@@ -182,7 +166,7 @@ class FailureSummaryTab extends React.Component {
 
   render() {
     const {
-      user, fileBug, jobLogUrls, logParseStatus, suggestions, errors,
+      fileBug, jobLogUrls, logParseStatus, suggestions, errors,
       bugSuggestionsLoading, selectedJob
     } = this.props;
     const logs = jobLogUrls;
@@ -196,7 +180,6 @@ class FailureSummaryTab extends React.Component {
             index={index}
             history={this.history}
             suggestion={suggestion}
-            user={user}
             fileBug={fileBug}
             pinboardService={this.thPinboard}
             selectedJob={selectedJob}
@@ -249,12 +232,10 @@ class FailureSummaryTab extends React.Component {
 FailureSummaryTab.propTypes = {
   suggestions: PropTypes.array,
   fileBug: PropTypes.func,
-  user: PropTypes.object,
   selectedJob: PropTypes.object,
   $injector: PropTypes.object,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
-  // logs: PropTypes.array,
   jobLogUrls: PropTypes.array,
   logParseStatus: PropTypes.string
 };
