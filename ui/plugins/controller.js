@@ -156,7 +156,7 @@ treeherder.controller('PluginCtrl', [
                   $rootScope.$emit(
                     thEvents.saveClassification));
                 // Open the newly filed bug in a new tab or window for further editing
-                window.open("https://bugzilla.mozilla.org/show_bug.cgi?id=" + data.success);
+                window.open(getBugUrl(data.success));
               }
             }
           });
