@@ -9,15 +9,7 @@ import { getBugUrl } from '../helpers/urlHelper';
 class BugColumn extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      displayBugDetails: false,
-    };
-    this.displayBugText = this.displayBugText.bind(this);
     this.updateStateData = this.updateStateData.bind(this);
-  }
-
-  displayBugText() {
-    this.setState({ displayBugDetails: !this.state.displayBugDetails });
   }
 
   updateStateData() {
@@ -33,12 +25,13 @@ class BugColumn extends React.Component {
     const { tree, from, to } = this.props;
     const { id } = this.props.data;
     return (
-      <div onMouseEnter={this.displayBugText} onMouseLeave={this.displayBugText}>
-        <span className="text-primary">{id}</span><span className={`ml-1 small-text ${this.state.displayBugDetails ? '' : 'hidden'}`}>
+      <div>
+        <a className="ml-1" target="_blank" href={getBugUrl(id)}>{id}</a>
+        &nbsp;
+        <span className="ml-1 small-text bug-details">
           <Link onClick={this.updateStateData} to={{ pathname: '/bugdetails', search: `?startday=${from}&endday=${to}&tree=${tree}&bug=${id}` }}>
             details
           </Link>
-          <a className="ml-1" target="_blank" href={getBugUrl(id)}>bugzilla</a>
         </span>
       </div>
     );
