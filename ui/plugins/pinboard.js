@@ -148,7 +148,7 @@ treeherder.controller('PinboardCtrl', [
 
         $scope.retriggerAllPinnedJobs = function () {
             // pushing pinned jobs to a list.
-            $scope.retriggerJob(_.values($scope.pinnedJobs));
+            $scope.retriggerJob(Object.values($scope.pinnedJobs));
         };
 
         $scope.cancelAllPinnedJobsTitle = function () {
@@ -162,14 +162,14 @@ treeherder.controller('PinboardCtrl', [
         };
 
         $scope.canCancelAllPinnedJobs = function () {
-            const cancellableJobs = _.values($scope.pinnedJobs).filter(
+            const cancellableJobs = Object.values($scope.pinnedJobs).filter(
                 job => (job.state === 'pending' || job.state === 'running'));
             return $scope.user.loggedin && cancellableJobs.length > 0;
         };
 
         $scope.cancelAllPinnedJobs = function () {
             if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
-                $scope.cancelJobs(_.values($scope.pinnedJobs));
+                $scope.cancelJobs(Object.values($scope.pinnedJobs));
             }
         };
 

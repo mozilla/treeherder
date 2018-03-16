@@ -165,7 +165,7 @@ export default class PushList extends React.Component {
     // since we fetched more pushes, we need to persist the
     // push state in the URL.
     const rsArray = this.ThResultSetStore.getPushArray();
-    const updatedLastRevision = _.last(rsArray).revision;
+    const updatedLastRevision = rsArray[rsArray.length - 1].revision;
     if (this.$location.search().fromchange !== updatedLastRevision) {
       this.$rootScope.skipNextPageReload = true;
       this.$location.search('fromchange', updatedLastRevision);

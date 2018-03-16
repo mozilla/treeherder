@@ -212,7 +212,7 @@ treeherderApp.controller('MainCtrl', [
          */
 
         $scope.isSingleTierSelected = function () {
-            return _.without(_.values($scope.tiers), false).length === 1;
+            return Object.values($scope.tiers).filter(value => (value !== false)).length === 1;
         };
 
         $scope.isTierShowing = function (tier) {
