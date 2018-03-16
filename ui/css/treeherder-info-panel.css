@@ -415,6 +415,7 @@ ul.failure-summary-list li .btn-xs {
 .show-hide-more {
   padding: 0 0 0 37px;
   color: #0000ee;
+  cursor: pointer;
 }
 
 /*

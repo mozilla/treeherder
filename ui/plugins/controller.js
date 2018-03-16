@@ -4,6 +4,7 @@ import { Queue, slugid } from 'taskcluster-client-web';
 import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
+import intermittentTemplate from '../partials/main/intermittent.html';
 import { getStatus } from '../helpers/jobHelper';
 import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
 
@@ -15,7 +16,7 @@ treeherder.controller('PluginCtrl', [
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
     'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
-    'PhSeries', 'tcactions',
+    'PhSeries', 'tcactions', 'ThBugSuggestionsModel', 'ThTextLogStepModel',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         ThJobClassificationModel,
@@ -24,7 +25,7 @@ treeherder.controller('PluginCtrl', [
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
         $timeout, thReftestStatus, ThResultSetStore, PhSeries,
-        tcactions) {
+        tcactions, ThBugSuggestionsModel, ThTextLogStepModel) {
 
         $scope.job = {};
         $scope.revisionList = [];
@@ -76,11 +77,102 @@ treeherder.controller('PluginCtrl', [
             }
         };
 
+        $scope.loadBugSuggestions = function () {
+            $scope.errors = [];
+            ThBugSuggestionsModel.query({
+                project: $rootScope.repoName,
+                jobId: $scope.job.id
+            }, (suggestions) => {
+                suggestions.forEach(function (suggestion) {
+                    suggestion.bugs.too_many_open_recent = (
+                        suggestion.bugs.open_recent.length > $scope.bug_limit
+                    );
+                    suggestion.bugs.too_many_all_others = (
+                        suggestion.bugs.all_others.length > $scope.bug_limit
+                    );
+                    suggestion.valid_open_recent = (
+                        suggestion.bugs.open_recent.length > 0 &&
+                            !suggestion.bugs.too_many_open_recent
+                    );
+                    suggestion.valid_all_others = (
+                        suggestion.bugs.all_others.length > 0 &&
+                            !suggestion.bugs.too_many_all_others &&
+                            // If we have too many open_recent bugs, we're unlikely to have
+                            // relevant all_others bugs, so don't show them either.
+                            !suggestion.bugs.too_many_open_recent
+                    );
+                });
+
+                // if we have no bug suggestions, populate with the raw errors from
+                // the log (we can do this asynchronously, it should normally be
+                // fast)
+                if (!suggestions.length) {
+                    ThTextLogStepModel.query({
+                        project: $rootScope.repoName,
+                        jobId: $scope.job.id
+                    }, function (textLogSteps) {
+                        $scope.errors = textLogSteps
+                            .filter(step => step.result !== 'success')
+                            .map(function (step) {
+                                return {
+                                    name: step.name,
+                                    result: step.result,
+                                    lvURL: getLogViewerUrl($scope.job.id, $rootScope.repoName, step.finished_line_number)
+                                };
+                            });
+                    });
+                }
+                $scope.suggestions = suggestions;
+                $scope.bugSuggestionsLoading = false;
+            });
+        };
+
+        $scope.fileBug = function (index) {
+          const summary = $scope.suggestions[index].search;
+          const crashRegex = /application crashed \[@ (.+)\]$/g;
+          const crash = summary.match(crashRegex);
+          const crashSignatures = crash ? [crash[0].split("application crashed ")[1]] : [];
+          const allFailures = $scope.suggestions.map(sugg => (sugg.search.split(" | ")));
+
+          const modalInstance = $uibModal.open({
+            template: intermittentTemplate,
+            controller: 'BugFilerCtrl',
+            size: 'lg',
+            openedClass: "filer-open",
+            resolve: {
+              summary: () => (summary),
+              search_terms: () => ($scope.suggestions[index].search_terms),
+              fullLog: () => ($scope.job_log_urls[0].url),
+              parsedLog: () => ($scope.lvFullUrl),
+              reftest: () => ($scope.isReftest() ? $scope.reftestUrl : ""),
+              selectedJob: () => ($scope.selectedJob),
+              allFailures: () => (allFailures),
+              crashSignatures: () => (crashSignatures),
+              successCallback: () => (data) => {
+                // Auto-classify this failure now that the bug has been filed
+                // and we have a bug number
+                thPinboard.addBug({ id: data.success });
+                $rootScope.$evalAsync(
+                  $rootScope.$emit(
+                    thEvents.saveClassification));
+                // Open the newly filed bug in a new tab or window for further editing
+                window.open(getBugUrl(data.success));
+              }
+            }
+          });
+          thPinboard.pinJob($scope.selectedJob);
+
+          modalInstance.opened.then(function () {
+            window.setTimeout(() => modalInstance.initiate(), 0);
+          });
+        };
+
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
         let selectJobPromise = null;
 
         const selectJob = function (job) {
+            $scope.bugSuggestionsLoading = true;
             // make super-extra sure that the autoclassify tab shows up when it should
             showAutoClassifyTab();
 
@@ -151,11 +243,6 @@ treeherder.controller('PluginCtrl', [
                         $scope.logParseStatus = $scope.job_log_urls[0].parse_status;
                     }
 
-                    // Provide a parse status for the model
-                    $scope.jobLogsAllParsed = _.every($scope.job_log_urls, function (jlu) {
-                        return jlu.parse_status !== 'pending';
-                    });
-
                     $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     if ($scope.job_log_urls.length) {
@@ -185,6 +272,7 @@ treeherder.controller('PluginCtrl', [
 
                     $scope.updateClassifications();
                     $scope.updateBugs();
+                    $scope.loadBugSuggestions();
 
                     $scope.job_detail_loading = false;
                 });
