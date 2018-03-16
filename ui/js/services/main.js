@@ -131,29 +131,3 @@ treeherder.factory('customPushActions', [
           }
         };
     }]);
-
-treeherder.factory('thExtendProperties', [
-    /* Version of _.extend that works with property descriptors */
-    function () {
-        return function (dest, src) {
-            if (dest !== src) {
-                for (const key in src) {
-                    if (!src.hasOwnProperty(key)) {
-                        continue;
-                    }
-                    const descriptor = Object.getOwnPropertyDescriptor(src, key);
-                    if (descriptor && descriptor.get) {
-                        Object.defineProperty(dest, key, {
-                            get: descriptor.get,
-                            set: descriptor.set,
-                            enumerable: descriptor.enumerable,
-                            configurable: descriptor.configurable
-                        });
-                    } else {
-                        dest[key] = src[key];
-                    }
-                }
-            }
-            return dest;
-        };
-    }]);

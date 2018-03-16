@@ -11,29 +11,11 @@ export const toDateStr = function toDateStr(timestamp) {
   return new Date(timestamp * 1000).toLocaleString("en-US", dateFormat);
 };
 
-export const escapeHTML = function escapeHTML(text) {
-  if (text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/'/g, '&#39;')
-      .replace(/"/g, '&quot;');
-  }
-  return '';
-};
+// remove any words that are 1 letter long for matching
+export const getSearchWords = function getHighlighterArray(text) {
+  const tokens = text.split(/[^a-zA-Z0-9_-]+/);
 
-export const highlightCommonTerms = function highlightCommonTerms(input, compareStr) {
-  const tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
-
-  tokens.sort((a, b) => (b.length - a.length));
-  tokens.forEach((elem) => {
-    if (elem.length > 0) {
-      input = input.replace(
-        new RegExp(`(^|\\W)(${elem})($|\\W)`, 'gi'),
-        (match, prefix, token, suffix) => `${prefix}<strong>${token}</strong>${suffix}`
-      );
-    }
-  });
-  return input;
+  return tokens.reduce((acc, token) => (
+    token.length > 1 ? [...acc, token] : acc
+  ), []);
 };

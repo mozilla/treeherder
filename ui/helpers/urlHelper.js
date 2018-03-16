@@ -24,6 +24,10 @@ export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
   return `https://tools.taskcluster.net/tasks/${taskId}`;
 };
 
+export const getReftestUrl = function getReftestUrl(logUrl) {
+  return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}`;
+};
+
 export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
   const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
   const { status } = await queue.status(taskId);

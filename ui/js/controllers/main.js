@@ -351,7 +351,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            ['ctrl+i', () => {
+            ['shift+i', () => {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
                 }
@@ -365,7 +365,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select next unverified log line
-            ['ctrl+j', (ev) => {
+            [['down', 'shift+down'], (ev) => {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
                                                        'next',
@@ -381,7 +381,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: select previous unverified log line
-            ['ctrl+k', (ev) => {
+            [['up', 'shift+up'], (ev) => {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
                                                        'previous',
@@ -412,7 +412,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: save all in the autoclasify panel
-            ['ctrl+s', () => {
+            ['s', () => {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySaveAll));
                 }

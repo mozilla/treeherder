@@ -6,7 +6,13 @@ import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import intermittentTemplate from '../partials/main/intermittent.html';
 import { getStatus, isReftest } from '../helpers/jobHelper';
-import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
+import {
+  getBugUrl,
+  getSlaveHealthUrl,
+  getInspectTaskUrl,
+  getLogViewerUrl,
+  getReftestUrl,
+} from '../helpers/urlHelper';
 import { thEvents } from "../js/constants";
 
 treeherder.controller('PluginCtrl', [
@@ -30,8 +36,6 @@ treeherder.controller('PluginCtrl', [
 
         $scope.job = {};
         $scope.revisionList = [];
-
-        const reftestUrlRoot = "https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=";
 
         // Show the Failure Summary tab, except if there's a URL parameter to enable Failure Classification one.
         const showAutoClassifyTab = function () {
@@ -252,7 +256,7 @@ treeherder.controller('PluginCtrl', [
                     $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
                     if ($scope.job_log_urls.length) {
-                        $scope.reftestUrl = reftestUrlRoot + $scope.job_log_urls[0].url + "&only_show_unexpected=1";
+                        $scope.reftestUrl = `${getReftestUrl($scope.job_log_urls[0].url)}&only_show_unexpected=1`;
                     }
 
                     const performanceData = _.flatten(Object.values(results[3]));

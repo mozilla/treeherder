@@ -1,10 +1,9 @@
-<span style="display:none"></span><!-- because otherwise the entire panel seems to be blank -->
-<th-autoclassify-panel
-   th-job="job"
-   logs-parsed="jobLogsAllParsed"
-   has-logs="job_log_urls.length > 0"
-   log-parse-status="logParseStatus"
-   autoclassify-status="job.autoclassify_status"
-   th-user="user"
-   >
-</th-autoclassify-panel>
+<autoclassify-tab
+  job="job"
+  logsParsed="jobLogsAllParsed"
+  hasLogs="job_log_urls.length > 0"
+  logParseStatus="logParseStatus"
+  autoclassifyStatus="job.autoclassify_status"
+  user="user"
+  watch-depth="reference"
+/>
