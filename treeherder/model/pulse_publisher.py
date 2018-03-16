@@ -163,9 +163,14 @@ class PulsePublisher(object):
         :param list: list of available schemas.
         """
         # Validate properties
-        assert hasattr(self, 'title'), "Title is required"
-        assert hasattr(self, 'description'), "description is required"
-        assert hasattr(self, 'exchange_prefix'), "exchange_prefix is required"
+        if not hasattr(self, 'title'):
+            raise AttributeError("Title is required")
+
+        if not hasattr(self, 'description'):
+            raise AttributeError("description is required")
+
+        if not hasattr(self, 'exchange_prefix'):
+            raise AttributeError("exchange_prefix is required")
 
         # Set attributes
         self.schemas = schemas
