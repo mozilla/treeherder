@@ -1,4 +1,5 @@
 import copy
+import functools
 
 
 def analyze(revision_data, weight_fn=None):
@@ -72,6 +73,7 @@ def calc_t(w1, w2, weight_fn=None):
     return delta_s / (((s1['variance'] / s1['n']) + (s2['variance'] / s2['n'])) ** 0.5)
 
 
+@functools.total_ordering
 class RevisionDatum(object):
     '''
     This class represents a specific revision and the set of values for it
@@ -94,8 +96,11 @@ class RevisionDatum(object):
         # Whether a perf regression or improvement was found
         self.change_detected = False
 
-    def __cmp__(self, o):
-        return cmp(self.push_timestamp, o.push_timestamp)
+    def __eq__(self, o):
+        return self.push_timestamp == o.push_timestamp
+
+    def __lt__(self, o):
+        return self.push_timestamp < o.push_timestamp
 
     def __repr__(self):
         values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in
