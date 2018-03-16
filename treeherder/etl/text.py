@@ -10,7 +10,7 @@ if len(u"\U0010FFFF") != 1:
 if six.PY3:
     filter_re = re.compile(r"([\U00010000-\U0010FFFF])")
 else:
-    filter_re = re.compile(ur"([\U00010000-\U0010FFFF])", re.U)
+    filter_re = re.compile(ur"([\U00010000-\U0010FFFF])", re.U)  # noqa: E999
 
 
 def convert_unicode_character_to_ascii_repr(match_obj):
