@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import re
 
+import six
+
 if len(u"\U0010FFFF") != 1:
     raise Exception('Python has been compiled in UCS-2 mode which is not supported.')
 
 # Regexp that matches all non-BMP unicode characters.
-filter_re = re.compile(ur"([\U00010000-\U0010FFFF])", re.U)
+if six.PY3:
+    filter_re = re.compile(r"([\U00010000-\U0010FFFF])")
+else:
+    filter_re = re.compile(ur"([\U00010000-\U0010FFFF])", re.U)
 
 
 def convert_unicode_character_to_ascii_repr(match_obj):
