@@ -30,9 +30,9 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     ),
     (
         (
-            "TEST-UNEXPECTED-FAIL "
-            "| mainthreadio "
-            "| File 'c:\users\cltbld~1.t-w' was accessed and we were not expecting it: {'Count': 6, 'Duration': 0.112512, 'RunCount': 6}"
+            r"TEST-UNEXPECTED-FAIL "
+            r"| mainthreadio "
+            r"| File 'c:\users\cltbld~1.t-w' was accessed and we were not expecting it: {'Count': 6, 'Duration': 0.112512, 'RunCount': 6}"
         ),
         'mainthreadio'
     ),
