@@ -120,7 +120,7 @@ def test_get_recent_resolved_bugs(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
-    print suggestions
+    print(suggestions)
     assert len(suggestions['open_recent']) == 0
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs

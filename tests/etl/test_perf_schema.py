@@ -23,7 +23,7 @@ def test_perf_schema(suite_value, test_value, expected_fail):
     }
     datum['suites'][0].update(suite_value)
     datum['suites'][0]['subtests'][0].update(test_value)
-    print datum
+    print(datum)
     if expected_fail:
         with pytest.raises(jsonschema.ValidationError):
             jsonschema.validate(datum, perf_schema)

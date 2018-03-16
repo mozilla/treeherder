@@ -24,7 +24,7 @@ for item in code.body:
         queues_list = item.value
 
 if queues_list is None:
-    print "Failed to find list of queues in settings file"
+    print("Failed to find list of queues in settings file")
     sys.exit(1)
 
 for call in queues_list.elts:
@@ -33,11 +33,11 @@ for call in queues_list.elts:
 procfile_queues = set(procfile_queues)
 
 if settings_queues != procfile_queues:
-    print "ERROR - mismatches found"
+    print("ERROR - mismatches found")
     missing_procfile = procfile_queues - settings_queues
     if missing_procfile:
-        print "The following queues were in the Procfile, but not in the settings file:\n%s\n" % "\n".join(missing_procfile)
+        print("The following queues were in the Procfile, but not in the settings file:\n%s\n" % "\n".join(missing_procfile))
     missing_settings = settings_queues - procfile_queues
     if missing_settings:
-        print "The following queues were in the settings, but not in the Procfile:\n%s\n" % "\n".join(missing_settings)
+        print("The following queues were in the settings, but not in the Procfile:\n%s\n" % "\n".join(missing_settings))
     sys.exit(1)
