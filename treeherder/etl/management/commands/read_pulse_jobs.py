@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
 from kombu import (Connection,
                    Exchange)
@@ -17,9 +18,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         config = settings.PULSE_DATA_INGESTION_CONFIG
-        assert config, "PULSE_DATA_INGESTION_CONFIG must be set"
+        if not config:
+            raise ImproperlyConfigured("PULSE_DATA_INGESTION_CONFIG must be set")
+
         sources = settings.PULSE_DATA_INGESTION_SOURCES
-        assert sources, "PULSE_DATA_INGESTION_SOURCES must be set"
+        if not sources:
+            raise ImproperlyConfigured("PULSE_DATA_INGESTION_SOURCES must be set")
 
         new_bindings = []
 
