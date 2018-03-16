@@ -7,6 +7,7 @@ import newrelic.agent
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
+from past.builtins import long
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
