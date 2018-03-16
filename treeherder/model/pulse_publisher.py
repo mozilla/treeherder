@@ -28,7 +28,10 @@ def load_schemas(folder):
         # Read file and insert into schemas
         with open(os.path.join(folder, filename)) as f:
             data = json.load(f)
-            assert 'id' in data, "JSON schemas must have an 'id' property"
+
+            if 'id' not in data:
+                raise ValueError("JSON schemas must have an 'id' property")
+
             schemas[data['id']] = data
 
     # Return schemas loaded
