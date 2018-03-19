@@ -62,7 +62,7 @@
     "redux": "3.7.2",
     "redux-debounce": "1.0.1",
     "redux-thunk": "2.2.0",
-    "taskcluster-client-web": "5.1.0"
+    "taskcluster-client-web": "6.0.0"
   },
   "devDependencies": {
     "angular-mocks": "1.6.9",

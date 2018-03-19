@@ -7163,9 +7163,9 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-taskcluster-client-web@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-5.1.0.tgz#f3652a826e7714f483ac90b37b4d179fde3a0feb"
+taskcluster-client-web@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-6.0.0.tgz#1464255089476b32b0ddf8986b4e04dbb3f992d7"
   dependencies:
     hawk "^6.0.2"
     query-string "^5.0.0"
