@@ -71,8 +71,11 @@ class MainView extends React.Component {
     const { bugs, tableFailureMessage, graphFailureMessage, from, to, tree, bugzillaData, graphs } = this.props;
     const columns = [
       {
-        Header: 'Bug ID',
+        Header: 'Bug',
         accessor: 'id',
+        headerClassName: 'bug-column-header',
+        className: 'bug-column',
+        maxWidth: 150,
         Cell: props => <BugColumn data={props.original} />,
       },
       {
