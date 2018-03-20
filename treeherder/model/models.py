@@ -1156,12 +1156,16 @@ class MatcherManager(models.Manager):
 
     @classmethod
     def register_matcher(cls, matcher_cls):
-        assert cls._matcher_funcs is not None
+        if cls._matcher_funcs is None:
+            raise AssertionError
+
         return cls._register(matcher_cls, cls._matcher_funcs)
 
     @classmethod
     def register_detector(cls, detector_cls):
-        assert cls._detector_funcs is not None
+        if cls._detector_funcs is None:
+            raise AssertionError
+
         return cls._register(detector_cls, cls._detector_funcs)
 
     @staticmethod
