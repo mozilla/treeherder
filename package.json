@@ -41,6 +41,7 @@
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.5",
     "metrics-graphics": "2.13.0",
+    "minimatch": "3.0.4",
     "moment": "2.21.0",
     "mousetrap": "1.6.1",
     "neutrino": "4.3.1",

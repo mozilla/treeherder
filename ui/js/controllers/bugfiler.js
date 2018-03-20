@@ -1,6 +1,8 @@
 import treeherder from '../treeherder';
 import { getApiUrl } from "../../helpers/urlHelper";
 
+const minimatch = require("minimatch");
+
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$uibModalInstance', '$http', 'summary',
     'search_terms', 'fullLog', 'parsedLog', 'reftest', 'selectedJob',
@@ -185,6 +187,13 @@ treeherder.controller('BugFilerCtrl', [
             $scope.selection.selectedProduct = $scope.suggestedProducts[0];
         };
 
+        const checkMetaDataSearchesDone = function (resultsCount, failurePath) {
+            if (resultsCount === 0) {
+                $scope.searching = false;
+                injectProducts(failurePath);
+            }
+        };
+
         /*
          *  Attempt to find a good product/component for this failure
          */
@@ -237,54 +246,120 @@ treeherder.controller('BugFilerCtrl', [
                         `testing/web-platform/tests/${failurePath}`;
                 }
 
-                // Search mercurial's moz.build metadata to find products/components
-                $scope.searching = "Mercurial";
-                $http.get(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`).then(function (firstRequest) {
-                    if (firstRequest.data.aggregate && firstRequest.data.aggregate.recommended_bug_component) {
-                        const suggested = firstRequest.data.aggregate.recommended_bug_component;
-                        addProduct(suggested[0] + " :: " + suggested[1]);
-                    }
-
-                    $scope.searching = false;
-
-                    // Make an attempt to find the file path via a dxr file search
-                    if ($scope.suggestedProducts.length === 0 && $uibModalInstance.possibleFilename.length > 4) {
-                        $scope.searching = "DXR & Mercurial";
-                        const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${$uibModalInstance.possibleFilename}&redirect=false&limit=5`;
-                        // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
-                        $http.get(dxrlink, { headers: {
-                            Accept: "application/json"
-                        } }).then((secondRequest) => {
-                            const results = secondRequest.data.results;
-                            let resultsCount = results.length;
-                            // If the search returns too many results, this probably isn't a good search term, so bail
-                            if (resultsCount === 0) {
-                                $scope.searching = false;
-                                injectProducts(failurePath);
+                // Make an attempt to find the file path via a dxr file search
+                if ($scope.suggestedProducts.length === 0 && $uibModalInstance.possibleFilename.length > 4) {
+                    $scope.searching = "DXR & Mercurial";
+                    const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${$uibModalInstance.possibleFilename}&redirect=false&limit=5`;
+                    // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
+                    $http.get(dxrlink, { headers: {
+                        Accept: "application/json"
+                    } }).then((secondRequest) => {
+                        const results = secondRequest.data.results;
+                        let resultsCount = results.length;
+                        // If the search returns too many results, this probably isn't a good search term, so bail
+                        if (resultsCount === 0) {
+                            $scope.searching = false;
+                            injectProducts(failurePath);
+                        }
+                        results.forEach((result) => {
+                            /* Web platform tests have their meta data stored in files whose name is the concatenation of
+                               the name of the test file + ".ini". Skip those to prevent the product and component for the
+                               .ini files (Testing :: web-platform-tests) from getting suggested */
+                            if ((/^testing\/web-platform\/meta\/.*\.ini$/).test(result.path)) {
+                                resultsCount--;
+                                checkMetaDataSearchesDone(resultsCount, failurePath);
+                                return;
                             }
-                            results.forEach((result) => {
-                                $scope.searching = "DXR & Mercurial";
-                                $http.get(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`)
-                                    .then((thirdRequest) => {
-                                        if (thirdRequest.data.aggregate && thirdRequest.data.aggregate.recommended_bug_component) {
-                                            const suggested = thirdRequest.data.aggregate.recommended_bug_component;
-                                            addProduct(suggested[0] + " :: " + suggested[1]);
+                            /* checkForMatchingBzData iteratively walks the folder path from the file's directory to the root
+                               root directory until it finds a moz.build with Bugzilla meta data which apply to the file. */
+                            const checkForMatchingBzData = function (folderArray, subfolderArray, fileName) {
+                                let folderPath = folderArray.join("/");
+                                // Include slash for last folder to prevent two subsequent slashes if the root folder is used.
+                                if (folderPath) {
+                                    folderPath += "/";
+                                }
+                                $http.get(`${hgBaseUrl}mozilla-central/raw-file/tip/${folderPath}moz.build`, { headers: {
+                                    Accept: "text/plain"
+                                } }).then((thirdRequest) => {
+                                        const mozBuildLines = thirdRequest.data.split("\n");
+                                        const bugzillaMetaData = new Map();
+                                        for (let lineNr = 0; lineNr < mozBuildLines.length; lineNr++) {
+                                            /* The filter for files affected by a meta data definition are in this format:
+                                               |with Files("**"):|
+                                               ** can be any glob filter. */
+                                            const matches = /^with Files\(\s*['"](.+)['"]\s*\):\s*$/.exec(mozBuildLines[lineNr]);
+                                            if (!matches) {
+                                                continue;
+                                            }
+                                            const pattern = matches[1];
+                                            let subpath = subfolderArray.join("/");
+                                            if (subpath) {
+                                                subpath += "/";
+                                            }
+                                            if (minimatch(subpath + fileName, pattern)) {
+                                                for (lineNr++; lineNr < mozBuildLines.length; lineNr++) {
+                                                    /* Check the rules for that |with Files| pattern. They are intended
+                                                       with 4 whitespaces. */
+                                                    if (!mozBuildLines[lineNr].startsWith("    ")) {
+                                                        /* New top level string, must be reprocessed and checked for
+                                                           |with Files|. */
+                                                        lineNr--;
+                                                        break;
+                                                    }
+                                                    /* Bugzilla meta data about in which product and component bugs in a file
+                                                       should be reported are in this format:
+                                                       |    BUG_COMPONENT = ("A Product", "A Component")| */
+                                                    const bugzillaData = /^ {4}BUG_COMPONENT\s*=\s*\(['"](.+)['"]\s*,\s*['"](.+)['"]\)\s*$/.exec(mozBuildLines[lineNr]);
+                                                    if (!bugzillaData) {
+                                                        continue;
+                                                    }
+                                                    // Later matches in the same moz.build file overwrite earlier data.
+                                                    bugzillaMetaData.set("product", bugzillaData[1]);
+                                                    bugzillaMetaData.set("component", bugzillaData[2]);
+                                                }
+                                            }
                                         }
-                                        // Only get rid of the throbber when all of these searches have completed
-                                        resultsCount -= 1;
-                                        if (resultsCount === 0) {
-                                            $scope.searching = false;
-                                            injectProducts(failurePath);
+                                        if (bugzillaMetaData.size > 0) {
+                                            addProduct(bugzillaMetaData.get("product") + " :: " + bugzillaMetaData.get("component"));
+                                            resultsCount--;
+                                            checkMetaDataSearchesDone(resultsCount, failurePath);
+                                        } else if (folderArray.length > 0) {
+                                            // No matching meta data found, go one folder up.
+                                            subfolderArray.splice(0, 0, folderArray.pop());
+                                            checkForMatchingBzData(folderArray, subfolderArray, fileName);
+                                        } else {
+                                            // Root folder
+                                            resultsCount--;
+                                            checkMetaDataSearchesDone(resultsCount, failurePath);
+                                        }
+                                    }, () => {
+                                        /* Ignore errors, e.g. attempts to load files which don't exist.
+                                           Meta data is often defined in upper directories. */
+                                        if (folderArray.length > 0) {
+                                            subfolderArray.splice(0, 0, folderArray.pop());
+                                            checkForMatchingBzData(folderArray, subfolderArray, fileName);
+                                        } else {
+                                            // Root folder
+                                            resultsCount--;
+                                            checkMetaDataSearchesDone(resultsCount, failurePath);
                                         }
                                     });
-                            });
+                            };
+                            // Generate hierarchic list of folders containing the file and the file name itself.
+                            const folders = result.path.split("/");
+                            const file = folders.pop();
+                            /* Find the moz.build files which contain meta data in which Bugzilla products and components bugs for files
+                               should be filed and parse that data. Stop once product and component have been found after processing a
+                               whole file.
+                            */
+                            checkForMatchingBzData(folders, [], file);
                         });
-                    } else {
-                        injectProducts(failurePath);
-                    }
+                    });
+                } else {
+                    injectProducts(failurePath);
+                }
 
-                    $scope.selection.selectedProduct = $scope.suggestedProducts[0];
-                });
+                $scope.selection.selectedProduct = $scope.suggestedProducts[0];
             }
         };
 
