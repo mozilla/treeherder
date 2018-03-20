@@ -90,8 +90,8 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
 };
 
 //TH domain is needed here because Intermittent Failures View currently uses hash router
-export const jobsUrl = function getJobsUrl(tree, revision) {
-  return `https://treeherder.mozilla.org/#/jobs?repo=${tree}&revision=${revision}`;
+export const jobsUrl = function getJobsUrl(tree, revision, jobId) {
+  return `https://treeherder.mozilla.org/#/jobs?repo=${tree}&revision=${revision}&selectedJob=${jobId}`;
 };
 
 export const bugsEndpoint = 'failures/';
