@@ -84,7 +84,7 @@ class BugDetailsView extends React.Component {
       {
         Header: 'Revision',
         accessor: 'revision',
-        Cell: props => <a href={jobsUrl(props.original.tree, props.value)} target="_blank">{props.value}</a>,
+        Cell: props => <a href={jobsUrl(props.original.tree, props.value, props.original.job_id)} target="_blank">{props.value}</a>,
       },
       {
         Header: 'Platform',
