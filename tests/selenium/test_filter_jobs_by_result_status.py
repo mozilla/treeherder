@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import pytest
 
 from pages.treeherder import Treeherder
