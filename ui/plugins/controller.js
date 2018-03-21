@@ -244,7 +244,9 @@ treeherder.controller('PluginCtrl', [
                     }
 
                     // Provide a parse status for the model
-                    $scope.jobLogsAllParsed = $scope.job_log_urls ? $scope.job_log_urls.every(jlu => (jlu.parse_status !== 'pending')) : false;
+                    $scope.jobLogsAllParsed = ($scope.job_log_urls ?
+                      $scope.job_log_urls.every(jlu => jlu.parse_status !== 'pending') :
+                      false);
 
                     $scope.lvUrl = getLogViewerUrl($scope.job.id, $scope.repoName);
                     $scope.lvFullUrl = location.origin + "/" + $scope.lvUrl;
