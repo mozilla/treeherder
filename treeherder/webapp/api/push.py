@@ -7,12 +7,12 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from serializers import PushSerializer
 from treeherder.model.models import (Job,
                                      Push,
                                      Repository)
 from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import permissions
+from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
 
