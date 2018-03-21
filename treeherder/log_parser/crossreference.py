@@ -49,7 +49,7 @@ def _crossreference(job):
         return False
 
     match_iter = structured_iterator(list(failure_lines.all()))
-    failure_line, _, fn = match_iter.next()
+    failure_line, _, fn = next(match_iter)
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
@@ -58,7 +58,7 @@ def _crossreference(job):
             logger.debug("Matched '%s'" % (error.line,))
             TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
                                                        failure_line=failure_line)
-            failure_line, _, fn = match_iter.next()
+            failure_line, _, fn = next(match_iter)
         else:
             logger.debug("Failed to match '%s'" % (error.line,))
 
