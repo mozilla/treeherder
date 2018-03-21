@@ -1,9 +1,9 @@
 import datetime
 import time
 
+import six.moves
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from django.utils.six.moves import input
 
 from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceDatum,
@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        confirm = input("""
+        confirm = six.moves.input("""
 You have a requested a load of test performance data, this is a destructive
 operation that should only be performed on a development instance.
 
