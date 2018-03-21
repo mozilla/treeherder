@@ -552,7 +552,7 @@ treeherder.factory('thJobFilters', [
             if (_.isUndefined(value)) {
                 return value;
             }
-            if (!_.isArray(value)) {
+            if (!Array.isArray(value)) {
                 return [value];
             }
             return value;

@@ -878,9 +878,7 @@ perf.filter('testNameContainsWords', function () {
         }
 
         var filters = textFilter.split(/\s+/);
-        return tests.filter(test => _.every(filters, function (filter) {
-            return test.name.toLowerCase().indexOf(filter) !== -1;
-        }));
+        return tests.filter(test => filters.every(filter => test.name.toLowerCase().indexOf(filter) !== -1));
     };
 });
 

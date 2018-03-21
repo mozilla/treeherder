@@ -30,11 +30,10 @@ treeherderApp.controller('JobFilterCtrl', [
         };
 
         $scope.resultStatusFilters = {};
-        $scope.filterChicklets = _.flatten([
-            "failures",
-            $scope.filterGroups.nonfailures.resultStatuses,
-            "in progress"
-        ]);
+        // flatten filter groups
+        $scope.filterChicklets =
+          ["failures", $scope.filterGroups.nonfailures.resultStatuses, "in progress"].reduce(
+            (acc, val) => acc.concat(val), []);
 
         /**
          * Handle toggling one of the individual result status filters in
@@ -51,12 +50,9 @@ treeherderApp.controller('JobFilterCtrl', [
         };
 
         $scope.isFilterOn = function (filter) {
-            if (_.keys($scope.filterGroups).indexOf(filter) !== -1) {
-                // this is a filter grouping, so toggle all on/off
-                return _.some(
-                    _.at($scope.resultStatusFilters,
-                    $scope.filterGroups[filter].resultStatuses)
-                );
+            if (Object.keys($scope.filterGroups).indexOf(filter) !== -1) {
+                return $scope.filterGroups[filter].resultStatuses.map(val =>
+                  $scope.resultStatusFilters[val]).some(val => val);
             }
             return $scope.resultStatusFilters[filter];
         };

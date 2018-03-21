@@ -8,7 +8,7 @@ treeherder.factory('PhAlerts', [
              phAlertSummaryStatusMap, phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
         const Alert = function (alertData, optionCollectionMap) {
-            _.assign(this, alertData);
+            Object.assign(this, alertData);
             this.title = PhSeries.getSeriesName(
                 this.series_signature, optionCollectionMap,
                 { includePlatformInName: true });
@@ -60,7 +60,7 @@ treeherder.factory('PhAlerts', [
         });
 
         const AlertSummary = function (alertSummaryData, optionCollectionMap) {
-            _.assign(this, alertSummaryData);
+            Object.assign(this, alertSummaryData);
             this._initializeAlerts(optionCollectionMap);
         };
         _.forEach(phAlertSummaryStatusMap, function (status) {
@@ -153,7 +153,7 @@ treeherder.factory('PhAlerts', [
                                  function (response) {
                                      return ThOptionCollectionModel.getMap().then(
                                          function (optionCollectionMap) {
-                                             _.assign(alertSummary, response.data);
+                                             Object.assign(alertSummary, response.data);
                                              alertSummary._initializeAlerts(
                                                  optionCollectionMap);
                                          });
