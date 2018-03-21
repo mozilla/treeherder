@@ -7,7 +7,7 @@ from treeherder.etl.runnable_jobs import (list_runnable_jobs,
 logger = logging.getLogger(__name__)
 
 
-class RunnableJobsClient():
+class RunnableJobsClient(object):
     def __init__(self):
         self.cache = {}
 

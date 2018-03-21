@@ -23,7 +23,7 @@ from treeherder.model.models import (BuildPlatform,
 logger = logging.getLogger(__name__)
 
 
-class RunnableJobsTransformerMixin:
+class RunnableJobsTransformerMixin(object):
 
     def transform(self, extracted_content):
         logger.info('About to import allthethings.json builder data.')

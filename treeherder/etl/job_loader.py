@@ -14,7 +14,7 @@ from treeherder.model.models import (Push,
 logger = logging.getLogger(__name__)
 
 
-class JobLoader:
+class JobLoader(object):
     """Validate, transform and load a list of Jobs"""
 
     TEST_RESULT_MAP = {

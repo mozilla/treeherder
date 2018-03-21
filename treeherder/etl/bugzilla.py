@@ -24,7 +24,7 @@ def fetch_intermittent_bugs(offset, limit):
     return response.get('bugs', [])
 
 
-class BzApiBugProcess():
+class BzApiBugProcess(object):
 
     def run(self):
         bug_list = []

@@ -19,7 +19,7 @@ from treeherder.seta.update_job_priority import update_job_priority_table
 logger = logging.getLogger(__name__)
 
 
-class AnalyzeFailures:
+class AnalyzeFailures(object):
     def __init__(self, **options):
         self.dry_run = options.get('dry_run', False)
 

@@ -15,7 +15,7 @@ SCHEMA_FOLDER = os.path.join(SOURCE_FOLDER, '..', '..', 'schemas')
 PULSE_SCHEMAS = load_schemas(SCHEMA_FOLDER)
 
 
-class LazyPublisher():
+class LazyPublisher(object):
     """
     Singleton for lazily connecting to the pulse publisher.
     """
