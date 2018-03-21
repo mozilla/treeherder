@@ -147,6 +147,11 @@ if DEBUG:
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'formatters': {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
@@ -159,6 +164,12 @@ LOGGING = {
         },
     },
     'loggers': {
+        'django': {
+            'filters': ['require_debug_true'],
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['console'],
             'level': 'WARNING',
@@ -170,7 +181,8 @@ LOGGING = {
         },
         'treeherder': {
             'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'DEBUG' if DEBUG else 'WARNING',
+            'propagate': not DEBUG,
         },
         'kombu': {
             'handlers': ['console'],
@@ -178,41 +190,6 @@ LOGGING = {
         }
     }
 }
-
-if DEBUG:
-    # TODO: Fold this into the logging config above, as part of bug 1318021.
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-        'formatters': {
-            'standard': {
-                'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            },
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'standard'
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-            'hawkrest': {
-                'handlers': ['console'],
-                'level': 'WARNING',
-            },
-            'treeherder': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            }
-        }
-    }
 
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
