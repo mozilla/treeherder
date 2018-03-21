@@ -12,7 +12,7 @@ from treeherder.model.models import Repository
 logger = logging.getLogger(__name__)
 
 
-class PushLoader:
+class PushLoader(object):
     """Transform and load a list of pushes"""
 
     def process(self, message_body, exchange):
@@ -58,7 +58,7 @@ class PushLoader:
             "Unsupported push exchange: {}".format(exchange))
 
 
-class GithubTransformer:
+class GithubTransformer(object):
 
     CREDENTIALS = {
         "client_id": settings.GITHUB_CLIENT_ID,
@@ -195,7 +195,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.fetch_push(pr_url, repository)
 
 
-class HgPushTransformer:
+class HgPushTransformer(object):
     # {
     #   "root": {
     #     "payload": {
