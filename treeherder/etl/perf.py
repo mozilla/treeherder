@@ -196,7 +196,7 @@ def store_performance_artifact(job, artifact):
     blob = json.loads(artifact['blob'])
     performance_data = blob['performance_data']
 
-    if type(performance_data) == list:
+    if isinstance(performance_data, list):
         for perfdatum in performance_data:
             _load_perf_datum(job, perfdatum)
     else:

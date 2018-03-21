@@ -174,7 +174,7 @@ def refresh_all():
 def doctypes():
     """List of all DocType subclasses"""
     return [item for item in globals().values()
-            if type(item) == type(DocType) and
+            if isinstance(item, type(DocType)) and
             issubclass(item, DocType) and
             item._doc_type.index]
 
