@@ -34,9 +34,14 @@ matrix:
           - ${HOME}/venv
       install:
         - source ./bin/travis-setup.sh python_env
+        # Create the test database for `manage.py check --deploy`.
+        - mysql -u root -e 'create database test_treeherder;'
       script:
         - pip check
         - flake8 --show-source
+        # Temporarily running this in the linters job so we get Python 3 coverage.
+        # ELASTICSEARCH_URL has to be cleared since Elasticsearch isn't running in this job. 
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ELASTICSEARCH_URL= ./manage.py check --deploy --fail-level WARNING
 
     # Job 3: Nodejs UI tests
     - env: ui-tests
