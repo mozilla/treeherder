@@ -169,9 +169,6 @@ treeherder.controller('BugFilerCtrl', [
         const injectProducts = function (fp) {
             if ($scope.suggestedProducts.length === 0) {
                 const jg = selectedJob.job_group_name.toLowerCase();
-                if (jg.includes("web platform")) {
-                    addProduct("Testing :: web-platform-tests");
-                }
                 if (jg.includes("talos")) {
                     addProduct("Testing :: Talos");
                 }
