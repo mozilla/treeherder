@@ -2,17 +2,16 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from rest_framework import generics
 
-from pagination import CustomPagePagination
 from treeherder.model.models import (BugJobMap,
                                      Job,
                                      OptionCollection,
                                      Push)
+from treeherder.webapp.api.pagination import CustomPagePagination
+from treeherder.webapp.api.serializers import (FailureCountSerializer,
+                                               FailuresByBugSerializer,
+                                               FailuresSerializer)
 from treeherder.webapp.api.utils import (get_end_of_day,
                                          get_repository)
-
-from .serializers import (FailureCountSerializer,
-                          FailuresByBugSerializer,
-                          FailuresSerializer)
 
 
 class Failures(generics.ListAPIView):

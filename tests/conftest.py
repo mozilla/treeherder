@@ -572,8 +572,8 @@ def webapp():
 
 @pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
+    from tests.autoclassify.utils import create_text_log_errors
     from treeherder.model.models import FailureLine
-    from autoclassify.utils import create_text_log_errors
 
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job.guid).values()]
 
