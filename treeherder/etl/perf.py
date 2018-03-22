@@ -36,6 +36,23 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
+def _create_or_update_signature(repository, signature_hash, framework, defaults):
+    signature, created = PerformanceSignature.objects.get_or_create(
+        repository=repository,
+        signature_hash=signature_hash,
+        framework=framework,
+        defaults=defaults)
+    if not created:
+        if signature.last_updated > defaults['last_updated']:
+            defaults['last_updated'] = signature.last_updated
+        signature, _ = PerformanceSignature.objects.update_or_create(
+            repository=repository,
+            signature_hash=signature_hash,
+            framework=framework,
+            defaults=defaults)
+    return signature
+
+
 def _load_perf_datum(job, perf_datum):
     validate(perf_datum, PERFHERDER_SCHEMA)
 
@@ -84,12 +101,8 @@ def _load_perf_datum(job, perf_datum):
             summary_properties.update(suite_extra_properties)
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
-
-            signature, _ = PerformanceSignature.objects.update_or_create(
-                repository=job.repository,
-                signature_hash=summary_signature_hash,
-                framework=framework,
-                defaults={
+            signature = _create_or_update_signature(
+                job.repository, summary_signature_hash, framework, {
                     'test': '',
                     'suite': suite['name'],
                     'option_collection': option_collection,
@@ -138,11 +151,8 @@ def _load_perf_datum(job, perf_datum):
             subtest_signature_hash = _get_signature_hash(subtest_properties)
             value = list(subtest['value'] for subtest in suite['subtests'] if
                          subtest['name'] == subtest_properties['test'])
-            signature, _ = PerformanceSignature.objects.update_or_create(
-                repository=job.repository,
-                signature_hash=subtest_signature_hash,
-                framework=framework,
-                defaults={
+            signature = _create_or_update_signature(
+                job.repository, subtest_signature_hash, framework, {
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'option_collection': option_collection,

@@ -37,14 +37,19 @@ def _generate_perf_data_range(test_repository,
                               enable_framework=True,
                               add_suite_value=False,
                               extra_suite_metadata=None,
-                              extra_subtest_metadata=None):
+                              extra_subtest_metadata=None,
+                              reverse_push_range=False):
     framework_name = "cheezburger"
     if create_perf_framework:
         PerformanceFramework.objects.create(name=framework_name, enabled=enable_framework)
 
     now = int(time.time())
 
-    for (i, value) in zip(range(30), [1]*15 + [2]*15):
+    push_range = range(30)
+    if reverse_push_range:
+        push_range = reversed(push_range)
+
+    for (i, value) in zip(push_range, [1]*15 + [2]*15):
         push_time = datetime.datetime.fromtimestamp(now+i)
         push = Push.objects.create(
             repository=test_repository,
@@ -469,3 +474,13 @@ def test_framework_not_enabled(test_repository,
 
     assert 0 == PerformanceSignature.objects.all().count()
     assert 0 == PerformanceDatum.objects.all().count()
+
+
+def test_last_updated(test_repository, failure_classifications,
+                      generic_reference_data):
+    _generate_perf_data_range(test_repository,
+                              generic_reference_data,
+                              reverse_push_range=True)
+    assert PerformanceSignature.objects.count() == 1
+    signature = PerformanceSignature.objects.all()[0]
+    assert signature.last_updated == max(Push.objects.values_list('time', flat=True))
