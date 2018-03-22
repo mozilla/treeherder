@@ -44,7 +44,7 @@ treeherder.controller('BugFilerCtrl', [
             if (search_terms.length === 0) {
                 return "Selected failure does not contain any searchable terms.";
             }
-            if (_.every(search_terms, function (term) { return !$scope.modalSummary.includes(term); })) {
+            if (search_terms.every(term => !$scope.modalSummary.includes(term))) {
                 return "Summary does not include the full text of any of the selected failure's search terms:";
             }
             return "";
@@ -326,7 +326,7 @@ treeherder.controller('BugFilerCtrl', [
                 return;
             }
 
-            let descriptionStrings = _.reduce($scope.checkedLogLinks, function (result, link) {
+            let descriptionStrings = Object.values($scope.checkedLogLinks).reduce((result, link) => {
                 if (link) {
                     result = result + link + "\n\n";
                 }
@@ -416,4 +416,3 @@ treeherder.controller('BugFilerCtrl', [
         };
     }
 ]);
-

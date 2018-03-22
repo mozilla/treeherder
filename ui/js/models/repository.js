@@ -215,7 +215,7 @@ treeherder.factory('ThRepositoryModel', [
                         // FIXME: only supporting github + hg for now for pushlog
                         // + revision info (we also assume dvcs_type git===github)
                         function Repo(props) {
-                            _.assign(this, props);
+                            Object.assign(this, props);
                             if (this.dvcs_type === 'git') {
                                 // FIXME: assuming master branch, which may not
                                 // always be right -- unfortunately fixing this
