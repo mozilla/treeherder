@@ -168,9 +168,9 @@ hawkrest==1.0.0 \
     --hash=sha256:a3b9c52ee86b0e437aa16819356e57ea79706e58b52ffa4cb908a02d1ebd4875 \
     --hash=sha256:47d0878352bc0491534da6df7be1fd2f18a515ab4ea55c0c943056b21f286132
 
-python-dateutil==2.7.0 \
-    --hash=sha256:07009062406cffd554a9b4135cd2ff167c9bf6b7aac61fe946c93e69fad1bbd8 \
-    --hash=sha256:8f95bb7e6edbb2456a51a1fb58c8dca942024b4f5844cae62c90aa88afe6e300
+python-dateutil==2.7.1 \
+    --hash=sha256:6c0e72580272b561d8594362ab0e6b5b2191c703982150fc06ed45f7fae725be \
+    --hash=sha256:14eb44faa298942c6385636bfd76bd5c21361632cf8ebc9c20d63fd00f6a069f
 
 requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
