@@ -970,10 +970,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     $scope.testsToAdd = _.clone(seriesList.filter(series =>
                         series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name &&
-                        !_.some(testsDisplayed, {
-                            projectName: series.projectName,
-                            signature: series.signature
-                        })
+                        !testsDisplayed.map(test =>
+                          (test.projectName === series.projectName &&
+                           test.signature === series.signature)).some(x => x)
                     ));
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
@@ -1003,10 +1002,10 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 seriesList = _.flatten(seriesList);
 
                 // filter out tests which are already displayed
-                $scope.testsToAdd = seriesList.filter(series => !_.some(testsDisplayed, {
-                    projectName: series.projectName,
-                    signature: series.signature
-                }));
+                $scope.testsToAdd = seriesList.filter(series =>
+                  !testsDisplayed.map(test =>
+                    (test.projectName === series.projectName &&
+                     test.signature === series.signature)).some(x => x));
             }).then(function () {
                 loadingExtraDataPromise.resolve($scope.testsToAdd.length);
             });

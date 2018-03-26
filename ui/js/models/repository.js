@@ -274,7 +274,7 @@ treeherder.factory('ThRepositoryModel', [
                             setCurrent(options.name);
                         }
                         if (options.watchRepos) {
-                            if (_.isArray(storedWatched)) {
+                            if (Array.isArray(storedWatched)) {
 
                                 // To get the current repo to display first, we must
                                 // ensure it's added to the array last, as per normal user interaction
