@@ -10,6 +10,7 @@ import {
   phDefaultTimeRangeValue,
   phTimeRangeValues,
   phAlertSummaryStatusMap,
+  phAlertSummaryIssueTrackersMap,
 } from "../../constants";
 
 perf.factory('PhBugs', [
@@ -49,8 +50,8 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'phAlertSummaryIssueTrackersMap',
-        function ($scope, $uibModalInstance, alertSummary, phAlertSummaryIssueTrackersMap) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
+        function ($scope, $uibModalInstance, alertSummary) {
             $scope.title = "Link to bug";
             $scope.placeholder = "Task #";
             $scope.issue_trackers = phAlertSummaryIssueTrackersMap;

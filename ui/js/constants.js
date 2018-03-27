@@ -241,3 +241,8 @@ export const phAlertSummaryStatusMap = {
   FIXED: { id: 7, text: "fixed" },
   BACKEDOUT: { id: 8, text: "backedout" }
 };
+
+export const phAlertSummaryIssueTrackersMap = {
+  BUGZILLA: { id: 1, text: "Bugzilla", issueTrackerUrl: "https://bugzilla.mozilla.org/show_bug.cgi?id=" },
+  GITHUB_SERVO: { id: 2, text: "Github - Servo", issueTrackerUrl: "https://github.com/servo/servo/pull/" }
+};
