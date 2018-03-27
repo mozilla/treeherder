@@ -1,13 +1,5 @@
 import treeherder from './treeherder';
 
-treeherder.value("phAlertStatusMap", {
-    UNTRIAGED: { id: 0, text: "untriaged" },
-    DOWNSTREAM: { id: 1, text: "downstream" },
-    REASSIGNED: { id: 2, text: "reassigned" },
-    INVALID: { id: 3, text: "invalid" },
-    ACKNOWLEDGED: { id: 4, text: "acknowledged" }
-});
-
 treeherder.value("thJobNavSelectors",
     {
         ALL_JOBS: {

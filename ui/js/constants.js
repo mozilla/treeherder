@@ -246,3 +246,11 @@ export const phAlertSummaryIssueTrackersMap = {
   BUGZILLA: { id: 1, text: "Bugzilla", issueTrackerUrl: "https://bugzilla.mozilla.org/show_bug.cgi?id=" },
   GITHUB_SERVO: { id: 2, text: "Github - Servo", issueTrackerUrl: "https://github.com/servo/servo/pull/" }
 };
+
+export const phAlertStatusMap = {
+  UNTRIAGED: { id: 0, text: "untriaged" },
+  DOWNSTREAM: { id: 1, text: "downstream" },
+  REASSIGNED: { id: 2, text: "reassigned" },
+  INVALID: { id: 3, text: "invalid" },
+  ACKNOWLEDGED: { id: 4, text: "acknowledged" }
+};

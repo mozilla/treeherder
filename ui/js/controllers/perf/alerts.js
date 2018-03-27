@@ -11,6 +11,7 @@ import {
   phTimeRangeValues,
   phAlertSummaryStatusMap,
   phAlertSummaryIssueTrackersMap,
+  phAlertStatusMap,
 } from "../../constants";
 
 perf.factory('PhBugs', [
@@ -113,9 +114,8 @@ perf.controller(
         }]);
 perf.controller(
     'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries,
-                 phAlertStatusMap) {
+        'allAlertSummaries',
+        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
             $scope.title = "Mark alerts downstream";
             $scope.placeholder = "Alert #";
 
@@ -151,8 +151,8 @@ perf.controller(
 
 perf.controller(
     'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries, phAlertStatusMap) {
+        'allAlertSummaries',
+        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
 
             $scope.title = "Reassign alerts";
             $scope.placeholder = "Alert #";
@@ -194,14 +194,12 @@ perf.controller('AlertsCtrl', [
     'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs',
-    'phAlertStatusMap',
     'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs,
-                        phAlertStatusMap,
                         dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
