@@ -75,7 +75,7 @@ in this one.  Just run **Celery**::
 
 That's it!  With those processes running, you will begin ingesting Treeherder
 data.  To see the data, you will need to run the Treeherder UI.
-See unminified_ui_ for more info.
+See :ref:`unminified_ui` for more info.
 
 Advanced Configuration
 ----------------------
