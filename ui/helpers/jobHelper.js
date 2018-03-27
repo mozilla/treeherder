@@ -40,6 +40,11 @@ export const getStatus = function getStatus(job) {
   return job.state === 'completed' ? job.result : job.state;
 };
 
+export const isReftest = function isReftest(job) {
+  return [job.job_group_name, job.job_type_name]
+    .some(name => name.toLowerCase().includes('reftest'));
+};
+
 // Fetch the React instance of an object from a DOM element.
 // Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
 export const findInstance = function findInstance(el) {

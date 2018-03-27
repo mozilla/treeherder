@@ -1,17 +1,16 @@
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl } from "../../helpers/urlHelper";
+import { isReftest } from "../../helpers/jobHelper";
 import { thDateFormat } from "../constants";
 
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',
     'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
-    'thReftestStatus',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
         $timeout, ThTextLogStepModel, ThJobDetailModel,
-        ThJobModel, thNotify, dateFilter, ThResultSetModel,
-        thReftestStatus) {
+        ThJobModel, thNotify, dateFilter, ThResultSetModel) {
 
         const query_string = $location.search();
         $scope.css = '';
@@ -187,7 +186,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 // Test to expose the reftest button in the logviewer actionbar
                 $scope.isReftest = () => {
                     if (job.job_group_name) {
-                        return thReftestStatus(job);
+                        return isReftest(job);
                     }
                 };
 

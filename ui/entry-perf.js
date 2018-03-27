@@ -24,7 +24,6 @@ import './js/perf';
 
 // Perf JS
 import './js/services/treestatus';
-import './js/providers';
 import './js/filters';
 import './js/models/option_collection';
 import './js/services/main';

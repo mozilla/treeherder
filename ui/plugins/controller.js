@@ -5,7 +5,7 @@ import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import intermittentTemplate from '../partials/main/intermittent.html';
-import { getStatus } from '../helpers/jobHelper';
+import { getStatus, isReftest } from '../helpers/jobHelper';
 import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
 import { thEvents } from "../js/constants";
 
@@ -16,7 +16,7 @@ treeherder.controller('PluginCtrl', [
     'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
-    'thTabs', '$timeout', 'thReftestStatus', 'ThResultSetStore',
+    'thTabs', '$timeout', 'ThResultSetStore',
     'PhSeries', 'tcactions', 'ThBugSuggestionsModel', 'ThTextLogStepModel',
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
@@ -25,7 +25,7 @@ treeherder.controller('PluginCtrl', [
         numberFilter, ThBugJobMapModel, thJobFilters,
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,
-        $timeout, thReftestStatus, ThResultSetStore, PhSeries,
+        $timeout, ThResultSetStore, PhSeries,
         tcactions, ThBugSuggestionsModel, ThTextLogStepModel) {
 
         $scope.job = {};
@@ -535,7 +535,7 @@ treeherder.controller('PluginCtrl', [
         // Test to expose the reftest button in the job details navbar
         $scope.isReftest = function () {
             if ($scope.selectedJob) {
-                return thReftestStatus($scope.selectedJob);
+                return isReftest($scope.selectedJob);
             }
         };
 

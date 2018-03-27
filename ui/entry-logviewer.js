@@ -15,7 +15,6 @@ import './css/logviewer.css';
 import './js/logviewer';
 
 // Logviewer JS
-import './js/providers';
 import './js/directives/treeherder/log_viewer_steps';
 import './js/directives/treeherder/main';
 import './js/components/logviewer/logviewer';
