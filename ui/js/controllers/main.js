@@ -1,20 +1,21 @@
 import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';
+import { thTitleSuffixLimit, thDefaultRepo } from "../constants";
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
     'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', 'thEvents', '$interval', '$window',
     'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
+    'thJobNavSelectors', '$http',
     '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $location, $timeout, $q,
         ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, thEvents, $interval, $window,
         thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
+        thJobNavSelectors, $http,
         $httpParamSerializer) {
 
         /*

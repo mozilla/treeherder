@@ -1,10 +1,6 @@
 import treeherder from './treeherder';
 
 
-treeherder.value("thTitleSuffixLimit", 70);
-
-treeherder.value("thDefaultRepo", "mozilla-inbound");
-
 treeherder.value("thDateFormat", "EEE MMM d, HH:mm:ss");
 
 treeherder.value("phTimeRanges", [

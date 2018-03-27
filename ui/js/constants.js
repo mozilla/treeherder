@@ -157,6 +157,8 @@ export const thOptionOrder = {
   addon: 6
 };
 
+export const thTitleSuffixLimit = 70;
+
 export const thFavicons = {
   closed: closedTreeFavicon,
   open: treeFavicon,
@@ -173,6 +175,8 @@ export const thRepoGroupOrder = {
   try: 6,
   taskcluster: 7
 };
+
+export const thDefaultRepo = "mozilla-inbound";
 
 export const phCompareDefaultOriginalRepo = "mozilla-central";
 
