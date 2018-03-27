@@ -1,9 +1,10 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import JobGroup from '../../../../ui/job-view/JobGroup';
+import { thEvents } from "../../../../ui/js/constants";
 
 describe('JobGroup component', () => {
-  let $injector, $rootScope, thEvents, countGroup, dupGroup;
+  let $injector, $rootScope, countGroup, dupGroup;
   const repoName = 'mozilla-inbound';
 
   beforeEach(angular.mock.module('treeherder'));
@@ -13,7 +14,6 @@ describe('JobGroup component', () => {
     countGroup = getJSONFixture('mappedGroup.json');
     dupGroup = getJSONFixture('mappedGroupDups.json');
     $rootScope = $injector.get('$rootScope');
-    thEvents = $injector.get('thEvents');
   }));
 
   /*
