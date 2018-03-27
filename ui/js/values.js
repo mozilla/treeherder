@@ -1,19 +1,7 @@
 import treeherder from './treeherder';
 import treeFavicon from '../img/tree_open.png';
 import closedTreeFavicon from '../img/tree_closed.png';
-import { platformMap } from './constants';
 
-treeherder.value("thPlatformMap", platformMap);
-
-treeherder.value("thOptionOrder", {
-    opt: 0,
-    pgo: 1,
-    asan: 2,
-    tsan: 3,
-    debug: 4,
-    cc: 5,
-    addon: 6
-});
 
 treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
 

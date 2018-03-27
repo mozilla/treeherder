@@ -1,4 +1,4 @@
-import { platformMap } from '../js/constants';
+import { thPlatformMap } from '../js/constants';
 
 const btnClasses = {
   busted: "btn-red",
@@ -115,7 +115,7 @@ export const getSearchStr = function getSearchStr(job) {
   const symbolInfo = (job.job_group_symbol === '?') ? '' : job.job_group_symbol;
 
   return [
-    platformMap[job.platform] || job.platform,
+    thPlatformMap[job.platform] || job.platform,
     job.platform_option,
     (job.job_group_name === 'unknown') ? undefined : job.job_group_name,
     job.job_type_name,

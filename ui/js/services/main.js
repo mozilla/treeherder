@@ -1,5 +1,7 @@
 import treeherder from '../treeherder';
 import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
+import { thPlatformMap } from '../constants';
+
 
 /* Services */
 treeherder.factory('thNotify', [
@@ -96,18 +98,13 @@ treeherder.factory('thNotify', [
 
     }]);
 
-treeherder.factory('thPlatformName', [
-    'thPlatformMap',
-    function (thPlatformMap) {
-
-        return function (name) {
-            let platformName = thPlatformMap[name];
-            if (_.isUndefined(platformName)) {
-                platformName = name;
-            }
-            return platformName;
-        };
-    }]);
+treeherder.factory('thPlatformName', () => (name) => {
+    let platformName = thPlatformMap[name];
+    if (_.isUndefined(platformName)) {
+        platformName = name;
+    }
+    return platformName;
+});
 
 // The Custom Actions modal is accessible from both the PushActionMenu and the
 // job-details-actionbar.  So leave this as Angular for now, till we

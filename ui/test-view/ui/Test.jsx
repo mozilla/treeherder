@@ -4,7 +4,7 @@ import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
 import { store, actions } from '../redux/store';
-import { platformMap } from '../../js/constants';
+import { thPlatformMap } from '../../js/constants';
 import LogViewer from './LogViewer';
 
 
@@ -108,7 +108,7 @@ class TestComponent extends React.Component {
           <div key={job.id}>
             <Platform
               job={job}
-              platform={platformMap[job.buildPlatform.platform]}
+              platform={thPlatformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}
               repo={this.props.repo}
               revision={this.props.revision}
@@ -168,7 +168,7 @@ class TestComponent extends React.Component {
             <Platform
               job={job}
               key={job.id}
-              platform={platformMap[job.buildPlatform.platform]}
+              platform={thPlatformMap[job.buildPlatform.platform]}
               option={this.props.options[job.optionCollectionHash]}
               repo={this.props.repo}
               revision={this.props.revision}

@@ -1,4 +1,4 @@
-export const platformMap = {
+export const thPlatformMap = {
     linux32: "Linux",
     "linux32-devedition": "Linux DevEdition",
     "linux32-qr": "Linux QuantumRender",
@@ -143,3 +143,13 @@ export const platformMap = {
 };
 
 export const failedResults = ['testfailed', 'busted', 'exception'];
+export const thOptionOrder = {
+  opt: 0,
+  pgo: 1,
+  asan: 2,
+  tsan: 3,
+  debug: 4,
+  cc: 5,
+  addon: 6
+};
+

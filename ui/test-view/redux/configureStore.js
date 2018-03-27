@@ -7,7 +7,7 @@ import {
 import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 import * as groupsStore from './modules/groups';
-import { platformMap } from '../../js/constants';
+import { thPlatformMap } from '../../js/constants';
 import { getServiceUrl, getProjectUrl } from "../../helpers/urlHelper";
 
 function getGroupText(group) {
@@ -52,7 +52,7 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
       return;
     }
     const filterStr = [groupName, testName, test.group,
-      platformMap[job.buildPlatform.platform], options[job.optionCollectionHash]].join(' ');
+      thPlatformMap[job.buildPlatform.platform], options[job.optionCollectionHash]].join(' ');
 
     if (regexes.every(regex => regex.test(filterStr))) {
       // create the groupName if we haven't done so yet.

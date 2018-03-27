@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash';
-import { platformMap } from '../js/constants';
+import { thPlatformMap } from '../js/constants';
 import * as aggregateIds from './aggregateIds';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
@@ -159,7 +159,7 @@ export default class PushJobs extends React.Component {
     const platforms = rsPlatforms.reduce((acc, platform) => {
       const thisPlatform = { ...platform };
       thisPlatform.id = this.getIdForPlatform(platform);
-      thisPlatform.name = platformMap[platform.name] || platform.name;
+      thisPlatform.name = thPlatformMap[platform.name] || platform.name;
       thisPlatform.visible = true;
       return { ...acc, [thisPlatform.id]: this.filterPlatform(thisPlatform, selectedJobId) };
     }, {});

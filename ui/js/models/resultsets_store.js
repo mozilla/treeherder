@@ -2,18 +2,19 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything (such as bug 1443667).
 
+import { thPlatformMap, thOptionOrder } from '../constants';
 import treeherder from '../treeherder';
 
 treeherder.factory('ThResultSetStore', [
-    '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
+    '$rootScope', '$q', '$location', '$interval',
     'ThResultSetModel', 'ThJobModel', 'thEvents',
     'thAggregateIds', 'thNotify',
-    'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
+    'thJobFilters', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
-        $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
+        $rootScope, $q, $location, $interval, ThResultSetModel,
         ThJobModel, thEvents, thAggregateIds,
-        thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
+        thNotify, thJobFilters, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array
