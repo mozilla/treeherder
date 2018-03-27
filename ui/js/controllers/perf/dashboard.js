@@ -1,5 +1,5 @@
 import perf from '../../perf';
-import { thDefaultRepo, phBlockers } from "../../constants";
+import { thDefaultRepo, phBlockers, phTimeRanges } from "../../constants";
 
 const phDashboardValues = {
     /*
@@ -24,10 +24,9 @@ perf.value('defaultTimeRange', 86400 * 2);
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'phTimeRanges', 'defaultTimeRange',
+    'defaultTimeRange',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-                      phTimeRanges,
                       defaultTimeRange) {
 
         $scope.dataLoading = true;
@@ -237,10 +236,10 @@ perf.controller('dashCtrl', [
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'phTimeRanges', 'defaultTimeRange',
+    'defaultTimeRange',
     function ($state, $stateParams, $scope, $rootScope, $q,
              ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-             phTimeRanges, defaultTimeRange) {
+             defaultTimeRange) {
 
         const baseSignature = $stateParams.baseSignature;
         const variantSignature = $stateParams.variantSignature;

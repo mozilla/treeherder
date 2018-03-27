@@ -489,11 +489,11 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope',
     'ThRepositoryModel',
     'ThResultSetModel', '$q', 'PhSeries',
-    'PhCompare', 'phTimeRanges', '$httpParamSerializer',
+    'PhCompare', '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope,
                                        ThRepositoryModel, ThResultSetModel,
                                        $q, PhSeries,
-                                       PhCompare, phTimeRanges,
+                                       PhCompare,
                                        $httpParamSerializer) {
          //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
