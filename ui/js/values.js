@@ -1,7 +1,5 @@
 import treeherder from './treeherder';
 
-treeherder.value("phDefaultTimeRangeValue", 1209600);
-
 treeherder.value("phTimeRangeValues", {
     "mozilla-beta": 7776000
 });

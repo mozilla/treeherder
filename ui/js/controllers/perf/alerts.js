@@ -4,7 +4,7 @@ import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl } from "../../../helpers/urlHelper";
-import { thDateFormat, phTimeRanges } from "../../constants";
+import { thDateFormat, phTimeRanges, phDefaultTimeRangeValue } from "../../constants";
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -187,14 +187,14 @@ perf.controller('AlertsCtrl', [
     'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs',
-    'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
+    'phAlertSummaryStatusMap', 'phAlertStatusMap',
     'dateFilter', 'clipboard', 'phTimeRangeValues',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs,
-                        phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
+                        phAlertSummaryStatusMap, phAlertStatusMap,
                         dateFilter, clipboard, phTimeRangeValues) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
