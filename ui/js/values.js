@@ -3,8 +3,6 @@ import treeFavicon from '../img/tree_open.png';
 import closedTreeFavicon from '../img/tree_closed.png';
 
 
-treeherder.value("thFailureResults", ["testfailed", "busted", "exception"]);
-
 treeherder.value("thTitleSuffixLimit", 70);
 
 treeherder.value("thFavicons", {

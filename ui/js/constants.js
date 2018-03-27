@@ -142,7 +142,8 @@ export const thPlatformMap = {
     other: "Other"
 };
 
-export const failedResults = ['testfailed', 'busted', 'exception'];
+export const thFailureResults = ['testfailed', 'busted', 'exception'];
+
 export const thOptionOrder = {
   opt: 0,
   pgo: 1,

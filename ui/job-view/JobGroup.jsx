@@ -4,7 +4,7 @@ import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";
 import { getUrlParam } from "../helpers/locationHelper";
-import { failedResults } from "../js/constants";
+import { thFailureResults } from "../js/constants";
 
 class GroupSymbol extends React.PureComponent {
   render() {
@@ -80,7 +80,7 @@ export default class JobGroup extends React.Component {
           btnClass: getBtnClass(status, job.failure_classification_id),
           countText: status
         };
-        if (failedResults.includes(status) ||
+        if (thFailureResults.includes(status) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && showDuplicateJobs)) {
           // render the job itself, not a count
           buttons.push(job);
