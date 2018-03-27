@@ -1,16 +1,7 @@
 import treeherder from './treeherder';
-import treeFavicon from '../img/tree_open.png';
-import closedTreeFavicon from '../img/tree_closed.png';
 
 
 treeherder.value("thTitleSuffixLimit", 70);
-
-treeherder.value("thFavicons", {
-    closed: closedTreeFavicon,
-    open: treeFavicon,
-    "approval required": treeFavicon,
-    unavailable: treeFavicon
-});
 
 treeherder.value("thDefaultRepo", "mozilla-inbound");
 

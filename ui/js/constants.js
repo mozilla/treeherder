@@ -1,3 +1,6 @@
+import treeFavicon from '../img/tree_open.png';
+import closedTreeFavicon from '../img/tree_closed.png';
+
 export const thPlatformMap = {
     linux32: "Linux",
     "linux32-devedition": "Linux DevEdition",
@@ -152,6 +155,13 @@ export const thOptionOrder = {
   debug: 4,
   cc: 5,
   addon: 6
+};
+
+export const thFavicons = {
+  closed: closedTreeFavicon,
+  open: treeFavicon,
+  "approval required": treeFavicon,
+  unavailable: treeFavicon
 };
 
 export const thRepoGroupOrder = {
