@@ -1,16 +1,34 @@
 import perf from '../../perf';
 import { thDefaultRepo, phBlockers } from "../../constants";
 
+const phDashboardValues = {
+    /*
+    Expected dashboard configs structure:
+    <dashboard_name>: {
+        baseTitle: string,
+        defaultRepo: string,
+        descP1: string,
+        descP2: string,
+        framework: integer,
+        header: string,
+        linkDesc: string,
+        linkUrl: urlString,
+        variantDataOpt: string,
+        variantTitle: string
+     }, ...
+     */
+};
+
 perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
+    'phTimeRanges', 'defaultTimeRange',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       phTimeRanges,
-                      defaultTimeRange, phDashboardValues) {
+                      defaultTimeRange) {
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
@@ -219,11 +237,10 @@ perf.controller('dashCtrl', [
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
+    'phTimeRanges', 'defaultTimeRange',
     function ($state, $stateParams, $scope, $rootScope, $q,
              ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-             phTimeRanges, defaultTimeRange,
-             phDashboardValues) {
+             phTimeRanges, defaultTimeRange) {
 
         const baseSignature = $stateParams.baseSignature;
         const variantSignature = $stateParams.variantSignature;
