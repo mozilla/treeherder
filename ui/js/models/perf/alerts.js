@@ -1,11 +1,12 @@
 import treeherder from '../../treeherder';
 import { getApiUrl } from "../../../helpers/urlHelper";
+import { phAlertSummaryStatusMap } from '../../constants';
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'ThOptionCollectionModel', 'PhSeries',
-    'phAlertSummaryStatusMap', 'phAlertSummaryIssueTrackersMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
+    'phAlertSummaryIssueTrackersMap', 'phAlertStatusMap', 'thPerformanceBranches', 'displayNumberFilter',
     function ($http, $httpParamSerializer, $q, ThOptionCollectionModel, PhSeries,
-             phAlertSummaryStatusMap, phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
+             phAlertSummaryIssueTrackersMap, phAlertStatusMap, thPerformanceBranches, displayNumberFilter) {
 
         const Alert = function (alertData, optionCollectionMap) {
             Object.assign(this, alertData);
