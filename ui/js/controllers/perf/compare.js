@@ -1,15 +1,19 @@
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
-import { phCompareDefaultOriginalRepo, phCompareDefaultNewRepo, phTimeRanges } from "../../constants";
+import {
+  phCompareDefaultOriginalRepo,
+  phCompareDefaultNewRepo,
+  phTimeRanges,
+  phCompareBaseLineDefaultTimeRange,
+} from "../../constants";
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
-    'localStorageService', 'compareBaseLineDefaultTimeRange',
+    'localStorageService',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
                                 ThRepositoryModel, ThResultSetModel,
-                                localStorageService,
-                                compareBaseLineDefaultTimeRange) {
+                                localStorageService) {
         ThRepositoryModel.get_list().then(({ data: projects }) => {
             $scope.projects = projects;
             $scope.originalTipList = [];
@@ -107,7 +111,7 @@ perf.controller('CompareChooserCtrl', [
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                selectedTimeRange: compareBaseLineDefaultTimeRange
+                                selectedTimeRange: phCompareBaseLineDefaultTimeRange
                             });
                         }
                     }
@@ -120,11 +124,11 @@ perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
     'ThRepositoryModel',
     'ThResultSetModel', '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
-    'PhCompare', 'compareBaseLineDefaultTimeRange',
+    'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 ThRepositoryModel, ThResultSetModel, $httpParamSerializer,
                                 $q, PhFramework, PhSeries,
-                                PhCompare, compareBaseLineDefaultTimeRange) {
+                                PhCompare) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
             $scope.titles = {};
@@ -454,7 +458,7 @@ perf.controller('CompareResultsCtrl', [
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
-                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
+                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange
                 });
             }
             $q.all(verifyPromises).then(function () {
@@ -485,11 +489,11 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope',
     'ThRepositoryModel',
     'ThResultSetModel', '$q', 'PhSeries',
-    'PhCompare', 'phTimeRanges', 'compareBaseLineDefaultTimeRange', '$httpParamSerializer',
+    'PhCompare', 'phTimeRanges', '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope,
                                        ThRepositoryModel, ThResultSetModel,
                                        $q, PhSeries,
-                                       PhCompare, phTimeRanges, compareBaseLineDefaultTimeRange,
+                                       PhCompare, phTimeRanges,
                                        $httpParamSerializer) {
          //TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
@@ -655,7 +659,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
-                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : compareBaseLineDefaultTimeRange
+                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange
                 });
             }
 

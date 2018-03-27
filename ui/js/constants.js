@@ -267,3 +267,5 @@ export const phAlertStatusMap = {
   INVALID: { id: 3, text: "invalid" },
   ACKNOWLEDGED: { id: 4, text: "acknowledged" }
 };
+
+export const phCompareBaseLineDefaultTimeRange = 86400 * 2;
