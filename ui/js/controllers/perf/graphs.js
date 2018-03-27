@@ -7,7 +7,7 @@ import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
-import { thDefaultRepo, phTimeRanges, phDefaultTimeRangeValue } from "../../constants";
+import { thDefaultRepo, phTimeRanges, phDefaultTimeRangeValue, phDefaultFramework } from "../../constants";
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -885,11 +885,10 @@ perf.filter('testNameContainsWords', function () {
 perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
     'projects', 'timeRange', 'PhSeries',
     'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
-    '$q', 'testsDisplayed', 'options', 'thPerformanceBranches', 'phDefaultFramework',
+    '$q', 'testsDisplayed', 'options', 'thPerformanceBranches',
     function ($scope, $uibModalInstance, projects, timeRange,
         PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
-        defaultPlatform, $q, testsDisplayed, options, thPerformanceBranches,
-        phDefaultFramework) {
+        defaultPlatform, $q, testsDisplayed, options, thPerformanceBranches) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = _.find(projects, {

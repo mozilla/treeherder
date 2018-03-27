@@ -1,16 +1,16 @@
 import perf from '../../perf';
-import { thDefaultRepo } from "../../constants";
+import { thDefaultRepo, phBlockers } from "../../constants";
 
 perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
     'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'phTimeRanges', 'defaultTimeRange', 'phBlockers', 'phDashboardValues',
+    'phTimeRanges', 'defaultTimeRange', 'phDashboardValues',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
                       ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
                       phTimeRanges,
-                      defaultTimeRange, phBlockers, phDashboardValues) {
+                      defaultTimeRange, phDashboardValues) {
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
