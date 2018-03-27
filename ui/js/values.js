@@ -7,10 +7,6 @@ treeherder.value("thDefaultRepo", "mozilla-inbound");
 
 treeherder.value("thDateFormat", "EEE MMM d, HH:mm:ss");
 
-treeherder.value("phCompareDefaultOriginalRepo", "mozilla-central");
-
-treeherder.value("phCompareDefaultNewRepo", "try");
-
 treeherder.value("phTimeRanges", [
       { value: 86400, text: "Last day" },
       { value: 86400*2, text: "Last 2 days" },

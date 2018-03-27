@@ -174,3 +174,7 @@ export const thRepoGroupOrder = {
   taskcluster: 7
 };
 
+export const phCompareDefaultOriginalRepo = "mozilla-central";
+
+export const phCompareDefaultNewRepo = "try";
+

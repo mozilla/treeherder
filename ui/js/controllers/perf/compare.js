@@ -1,15 +1,13 @@
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
+import { phCompareDefaultOriginalRepo, phCompareDefaultNewRepo } from "../../constants";
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
-    'phCompareDefaultNewRepo', 'phCompareDefaultOriginalRepo',
     'localStorageService', 'compareBaseLineDefaultTimeRange',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
                                 ThRepositoryModel, ThResultSetModel,
-                                phCompareDefaultNewRepo,
-                                phCompareDefaultOriginalRepo,
                                 localStorageService,
                                 compareBaseLineDefaultTimeRange) {
         ThRepositoryModel.get_list().then(({ data: projects }) => {
