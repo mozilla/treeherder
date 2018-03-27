@@ -28,7 +28,6 @@ import './job-view/PushList';
 
 // Treeherder JS
 import './js/providers';
-import './js/values';
 import './js/components/auth';
 import './js/directives/treeherder/main';
 import './js/directives/treeherder/top_nav_bar';

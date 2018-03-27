@@ -1,11 +1,12 @@
 import treeherder from '../treeherder';
+import { thPinboardCountError } from "../constants";
 
 treeherder.factory('thPinboard', [
     'ThJobClassificationModel', '$rootScope', 'thEvents',
-    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThResultSetStore', 'thPinboardCountError',
+    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThResultSetStore',
     function (
         ThJobClassificationModel, $rootScope, thEvents,
-        ThBugJobMapModel, thNotify, ThModelErrors, ThResultSetStore, thPinboardCountError) {
+        ThBugJobMapModel, thNotify, ThModelErrors, ThResultSetStore) {
 
         const pinnedJobs = {};
         const relatedBugs = {};

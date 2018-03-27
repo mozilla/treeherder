@@ -21,7 +21,6 @@ configure({ adapter: new Adapter() });
 
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
 window.SERVICE_DOMAIN = process.env.SERVICE_DOMAIN || '';
-jsContext('./values.js');
 jsContext('./providers.js');
 jsContext('./filters.js');
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/displayHelper';
+import { thPinboardCountError } from "../js/constants";
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -47,7 +48,6 @@ export default class PushHeader extends React.PureComponent {
     this.thJobFilters = $injector.get('thJobFilters');
     this.thNotify = $injector.get('thNotify');
     this.thPinboard = $injector.get('thPinboard');
-    this.thPinboardCountError = $injector.get('thPinboardCountError');
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
@@ -145,12 +145,12 @@ export default class PushHeader extends React.PureComponent {
 
   pinAllShownJobs() {
     if (!this.thPinboard.spaceRemaining()) {
-      this.thNotify.send(this.thPinboardCountError, 'danger');
+      this.thNotify.send(thPinboardCountError, 'danger');
       return;
     }
     const shownJobs = this.ThResultSetStore.getAllShownJobs(
       this.thPinboard.spaceRemaining(),
-      this.thPinboardCountError,
+      thPinboardCountError,
       this.props.pushId
     );
     this.thPinboard.pinJobs(shownJobs);

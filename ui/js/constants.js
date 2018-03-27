@@ -191,6 +191,8 @@ export const thJobNavSelectors = {
   }
 };
 
+export const thPinboardCountError = "Max pinboard size of 500 reached.";
+
 export const thPerformanceBranches = ["autoland", "mozilla-inbound"];
 
 export const phCompareDefaultOriginalRepo = "mozilla-central";
