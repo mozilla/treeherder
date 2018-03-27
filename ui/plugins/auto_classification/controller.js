@@ -11,6 +11,7 @@ import errorsTemplate from '../../plugins/auto_classification/errors.html';
 import toolbarTemplate from '../../plugins/auto_classification/toolbar.html';
 import panelTemplate from '../../plugins/auto_classification/panel.html';
 import { getBugUrl, getLogViewerUrl } from '../../helpers/urlHelper';
+import { thJobNavSelectors } from "../../js/constants";
 
 treeherder.factory('thStringOverlap', function () {
     return function (str1, str2) {
@@ -817,10 +818,10 @@ treeherder.component('thAutoclassifyToolbar', {
  */
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q',
-    'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
+    'thEvents', 'thNotify', 'thPinboard',
     'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function ($scope, $rootScope, $q,
-             thEvents, thNotify, thJobNavSelectors, thPinboard,
+             thEvents, thNotify, thPinboard,
              ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;

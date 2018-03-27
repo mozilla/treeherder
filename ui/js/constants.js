@@ -180,6 +180,17 @@ export const thDefaultRepo = "mozilla-inbound";
 
 export const thDateFormat = "EEE MMM d, HH:mm:ss";
 
+export const thJobNavSelectors = {
+  ALL_JOBS: {
+    name: "jobs",
+    selector: ".job-btn, .selected-job"
+  },
+  UNCLASSIFIED_FAILURES: {
+    name: "unclassified failures",
+    selector: ".selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple, .job-btn.autoclassified"
+  }
+};
+
 export const phCompareDefaultOriginalRepo = "mozilla-central";
 
 export const phCompareDefaultNewRepo = "try";
