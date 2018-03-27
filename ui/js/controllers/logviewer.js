@@ -1,16 +1,17 @@
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl } from "../../helpers/urlHelper";
+import { thDateFormat } from "../constants";
 
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
     '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',
     'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
-    'thDateFormat', 'thReftestStatus',
+    'thReftestStatus',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
         $timeout, ThTextLogStepModel, ThJobDetailModel,
         ThJobModel, thNotify, dateFilter, ThResultSetModel,
-        thDateFormat, thReftestStatus) {
+        thReftestStatus) {
 
         const query_string = $location.search();
         $scope.css = '';

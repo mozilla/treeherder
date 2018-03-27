@@ -1,7 +1,7 @@
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
-import { phCompareDefaultOriginalRepo, phCompareDefaultNewRepo } from "../../constants";
+import { phCompareDefaultOriginalRepo, phCompareDefaultNewRepo, phTimeRanges } from "../../constants";
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
@@ -120,11 +120,10 @@ perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
     'ThRepositoryModel',
     'ThResultSetModel', '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
-    'phTimeRanges', 'PhCompare', 'compareBaseLineDefaultTimeRange',
+    'PhCompare', 'compareBaseLineDefaultTimeRange',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 ThRepositoryModel, ThResultSetModel, $httpParamSerializer,
                                 $q, PhFramework, PhSeries,
-                                phTimeRanges,
                                 PhCompare, compareBaseLineDefaultTimeRange) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};

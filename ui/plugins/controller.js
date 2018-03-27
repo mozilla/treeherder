@@ -11,7 +11,7 @@ import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
     'ThJobClassificationModel',
-    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter', 'thDateFormat',
+    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
@@ -20,7 +20,7 @@ treeherder.controller('PluginCtrl', [
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         ThJobClassificationModel,
-        thClassificationTypes, ThJobModel, thEvents, dateFilter, thDateFormat,
+        thClassificationTypes, ThJobModel, thEvents, dateFilter,
         numberFilter, ThBugJobMapModel, thJobFilters,
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,

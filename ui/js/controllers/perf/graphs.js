@@ -7,16 +7,16 @@ import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
-import { thDefaultRepo } from "../../constants";
+import { thDefaultRepo, phTimeRanges } from "../../constants";
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
     '$window', '$q', '$timeout', 'PhSeries', 'PhAlerts',
-    'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
+    'ThRepositoryModel', 'ThResultSetModel', 'phDefaultTimeRangeValue',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout, PhSeries,
         PhAlerts, ThRepositoryModel, ThResultSetModel,
-        phTimeRanges, phDefaultTimeRangeValue) {
+        phDefaultTimeRangeValue) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
