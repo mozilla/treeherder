@@ -208,8 +208,7 @@ perf.controller('AlertsCtrl', [
                     // reset alert's selected status if it is no longer visible
                     alert.selected = alert.selected && alert.visible;
                 });
-                alertSummary.anyVisible = _.some(alertSummary.alerts,
-                                                 'visible');
+                alertSummary.anyVisible = alertSummary.alerts.map(x => x.visible).some(x => x);
 
                 // if all are selected with this alert summary, update which
                 // ones are selected
@@ -224,12 +223,10 @@ perf.controller('AlertsCtrl', [
         // these methods handle the business logic of alert selection and
         // unselection
         $scope.anySelected = function (alerts) {
-            return _.some(_.map(alerts, 'selected'));
+            return alerts.map(alert => alert.selected).some(x => x);
         };
         $scope.anySelectedAndTriaged = function (alerts) {
-            return _.some(alerts, function (alert) {
-                return (!alert.isUntriaged() && alert.selected);
-            });
+            return alerts.map(alert => !alert.isUntriaged() && alert.selected).some(x => x);
         };
         $scope.selectNoneOrSelectAll = function (alertSummary) {
             // if some are not selected, then select all if checked
@@ -389,9 +386,9 @@ perf.controller('AlertsCtrl', [
                     });
             });
 
-            $q.all(_.map(_.keys(resultSetToSummaryMap), function (repo) {
+            $q.all(_.map(Object.keys(resultSetToSummaryMap), function (repo) {
                 return ThResultSetModel.getResultSetList(
-                    repo, _.keys(resultSetToSummaryMap[repo]), true).then(
+                    repo, Object.keys(resultSetToSummaryMap[repo]), true).then(
                         function (response) {
                             response.data.results.forEach(function (resultSet) {
                                 resultSet.dateStr = dateFilter(

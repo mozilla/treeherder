@@ -63,7 +63,7 @@ treeherderApp.controller('JobFilterCtrl', [
          */
         $scope.toggleResultStatusFilterChicklet = function (filter) {
             let filterValues;
-            if (_.keys($scope.filterGroups).indexOf(filter) !== -1) {
+            if (Object.keys($scope.filterGroups).indexOf(filter) !== -1) {
                 // this is a filter grouping, so toggle all on/off
                 filterValues = $scope.filterGroups[filter].resultStatuses;
             } else {

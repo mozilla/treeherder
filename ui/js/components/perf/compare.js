@@ -77,7 +77,7 @@ treeherder.component('phCompareTable', {
                     ctrl.filteredResultList[key] = compareResults;
                 }
             });
-            ctrl.filteredResultList = _.map(_.keys(ctrl.filteredResultList), function (testName) {
+            ctrl.filteredResultList = _.map(Object.keys(ctrl.filteredResultList), function (testName) {
                 return { testName: testName, results: ctrl.filteredResultList[testName] };
             });
         };
