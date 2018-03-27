@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash';
 import { thPlatformMap, thEvents } from '../js/constants';
-import * as aggregateIds from './aggregateIds';
+import { getPushTableId, getPlatformRowId } from '../helpers/aggregateIdHelper';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
 import { getUrlParam } from '../helpers/locationHelper';
@@ -20,7 +20,7 @@ export default class PushJobs extends React.Component {
     this.thJobFilters = $injector.get('thJobFilters');
 
     this.pushId = push.id;
-    this.aggregateId = aggregateIds.getPushTableId(
+    this.aggregateId = getPushTableId(
       repoName,
       this.pushId,
       push.revision
@@ -108,7 +108,7 @@ export default class PushJobs extends React.Component {
   }
 
   getIdForPlatform(platform) {
-    return aggregateIds.getPlatformRowId(
+    return getPlatformRowId(
       this.props.repoName,
       this.props.push.id,
       platform.name,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
-import * as aggregateIds from './aggregateIds';
+import { getPushTableId } from '../helpers/aggregateIdHelper';
 import { thEvents } from "../js/constants";
 
 const watchCycleStates = [
@@ -22,7 +22,7 @@ export default class Push extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
-    this.aggregateId = aggregateIds.getPushTableId(repoName, pushId, revision);
+    this.aggregateId = getPushTableId(repoName, pushId, revision);
     this.showRunnableJobs = this.showRunnableJobs.bind(this);
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
 
