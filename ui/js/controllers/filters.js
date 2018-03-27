@@ -1,16 +1,16 @@
 import treeherderApp from '../treeherder_app';
-import { thFailureResults, thPinboardCountError } from "../constants";
+import { thFailureResults, thPinboardCountError, thAllResultStates } from "../constants";
 
 treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope',
-    'thResultStatusList', 'thEvents', 'thJobFilters',
+    'thEvents', 'thJobFilters',
     'ThResultSetStore', 'thPinboard', 'thNotify',
     function JobFilterCtrl(
         $scope, $rootScope,
-        thResultStatusList, thEvents, thJobFilters,
+        thEvents, thJobFilters,
         ThResultSetStore, thPinboard, thNotify) {
 
-        $scope.filterOptions = thResultStatusList.all();
+        $scope.filterOptions = thAllResultStates;
 
         $scope.filterGroups = {
             failures: {

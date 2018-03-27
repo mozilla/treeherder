@@ -1,23 +1,6 @@
 import treeherder from './treeherder';
 import * as aggregateIds from '../job-view/aggregateIds';
 
-treeherder.provider('thResultStatusList', function () {
-    const all = function () {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
-    };
-
-    const defaultFilters = function () {
-        return ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'runnable'];
-    };
-
-    this.$get = function () {
-        return {
-            all: all,
-            defaultFilters: defaultFilters
-        };
-    };
-});
-
 /**
  * The set of custom Treeherder events.
  *

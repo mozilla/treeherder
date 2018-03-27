@@ -147,6 +147,31 @@ export const thPlatformMap = {
 
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
 
+export const thAllResultStates = [
+  'success',
+  'testfailed',
+  'busted',
+  'exception',
+  'retry',
+  'usercancel',
+  'running',
+  'pending',
+  'superseded',
+  'runnable'
+];
+
+export const thDefaultFilterResultStates = [
+  'success',
+  'testfailed',
+  'busted',
+  'exception',
+  'retry',
+  'usercancel',
+  'running',
+  'pending',
+  'runnable'
+];
+
 export const thOptionOrder = {
   opt: 0,
   pgo: 1,
