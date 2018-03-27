@@ -4,7 +4,7 @@ import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";
 import { getUrlParam } from "../helpers/locationHelper";
-import { thFailureResults } from "../js/constants";
+import { thFailureResults, thEvents } from "../js/constants";
 
 class GroupSymbol extends React.PureComponent {
   render() {
@@ -27,7 +27,6 @@ export default class JobGroup extends React.Component {
     super(props);
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = getUrlParam('group_state');
@@ -40,14 +39,14 @@ export default class JobGroup extends React.Component {
 
   componentWillMount() {
     this.duplicateJobsVisibilityChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.duplicateJobsVisibilityChanged,
+      thEvents.duplicateJobsVisibilityChanged,
       () => {
         this.setState({ showDuplicateJobs: !this.state.showDuplicateJobs });
       }
     );
 
     this.groupStateChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.groupStateChanged,
+      thEvents.groupStateChanged,
       (e, newState) => {
         this.setState({ expanded: newState === 'expanded' });
       }

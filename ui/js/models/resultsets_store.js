@@ -2,18 +2,18 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything (such as bug 1443667).
 
-import { thPlatformMap, thOptionOrder } from '../constants';
+import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
 import treeherder from '../treeherder';
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval',
-    'ThResultSetModel', 'ThJobModel', 'thEvents',
+    'ThResultSetModel', 'ThJobModel',
     'thAggregateIds', 'thNotify',
     'thJobFilters', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, ThResultSetModel,
-        ThJobModel, thEvents, thAggregateIds,
+        ThJobModel, thAggregateIds,
         thNotify, thJobFilters, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 

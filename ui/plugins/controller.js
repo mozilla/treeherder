@@ -7,11 +7,12 @@ import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import intermittentTemplate from '../partials/main/intermittent.html';
 import { getStatus } from '../helpers/jobHelper';
 import { getBugUrl, getSlaveHealthUrl, getInspectTaskUrl, getLogViewerUrl } from '../helpers/urlHelper';
+import { thEvents } from "../js/constants";
 
 treeherder.controller('PluginCtrl', [
     '$scope', '$rootScope', '$location', '$http', '$interpolate', '$uibModal',
     'ThJobClassificationModel',
-    'thClassificationTypes', 'ThJobModel', 'thEvents', 'dateFilter',
+    'thClassificationTypes', 'ThJobModel', 'dateFilter',
     'numberFilter', 'ThBugJobMapModel', 'thJobFilters',
     '$q', 'thPinboard',
     'ThJobDetailModel', 'thBuildApi', 'thNotify', 'ThJobLogUrlModel', 'ThModelErrors', 'ThTaskclusterErrors',
@@ -20,7 +21,7 @@ treeherder.controller('PluginCtrl', [
     function PluginCtrl(
         $scope, $rootScope, $location, $http, $interpolate, $uibModal,
         ThJobClassificationModel,
-        thClassificationTypes, ThJobModel, thEvents, dateFilter,
+        thClassificationTypes, ThJobModel, dateFilter,
         numberFilter, ThBugJobMapModel, thJobFilters,
         $q, thPinboard,
         ThJobDetailModel, thBuildApi, thNotify, ThJobLogUrlModel, ThModelErrors, ThTaskclusterErrors, thTabs,

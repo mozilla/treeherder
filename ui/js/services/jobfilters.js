@@ -2,7 +2,7 @@
 
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/jobHelper';
-import { thFailureResults, thDefaultFilterResultStates } from "../constants";
+import { thFailureResults, thDefaultFilterResultStates, thEvents } from "../constants";
 
 /**
    This service handles whether or not a job, job group or platform row should
@@ -24,12 +24,12 @@ import { thFailureResults, thDefaultFilterResultStates } from "../constants";
  */
 treeherder.factory('thJobFilters', [
     '$rootScope', '$location',
-    'thEvents', '$timeout',
+    '$timeout',
     'thClassificationTypes',
     'thPlatformName',
     function (
         $rootScope, $location,
-        thEvents, $timeout,
+        $timeout,
         thClassificationTypes,
         thPlatformName) {
 

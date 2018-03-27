@@ -1,13 +1,13 @@
 import treeherderApp from '../treeherder_app';
-import { thFailureResults, thPinboardCountError, thAllResultStates } from "../constants";
+import { thFailureResults, thPinboardCountError, thAllResultStates, thEvents } from "../constants";
 
 treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope',
-    'thEvents', 'thJobFilters',
+    'thJobFilters',
     'ThResultSetStore', 'thPinboard', 'thNotify',
     function JobFilterCtrl(
         $scope, $rootScope,
-        thEvents, thJobFilters,
+        thJobFilters,
         ThResultSetStore, thPinboard, thNotify) {
 
         $scope.filterOptions = thAllResultStates;
@@ -128,9 +128,9 @@ treeherderApp.controller('JobFilterCtrl', [
 ]);
 
 treeherderApp.controller('SearchCtrl', [
-    '$scope', '$rootScope', 'thEvents', 'thJobFilters',
+    '$scope', '$rootScope', 'thJobFilters',
     function SearchCtrl(
-        $scope, $rootScope, thEvents, thJobFilters) {
+        $scope, $rootScope, thJobFilters) {
 
         const getSearchStr = function () {
             const ss = thJobFilters.getFieldFiltersObj().searchStr;

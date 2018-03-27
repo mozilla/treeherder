@@ -220,6 +220,61 @@ export const thPinboardCountError = "Max pinboard size of 500 reached.";
 
 export const thPerformanceBranches = ["autoland", "mozilla-inbound"];
 
+/**
+ * The set of custom Treeherder events.
+ */
+export const thEvents = {
+  // fired (surprisingly) when a job is clicked
+  jobClick: "job-click-EVT",
+  // fired with a selected job on 't'
+  selectNextTab: "select-next-tab-EVT",
+  // fired with a selected job on spacebar
+  jobPin: "job-pin-EVT",
+  // fired with a selected job on ctrl/cmd-click
+  toggleJobPin: "job-togglepin-EVT",
+  // fired with api call to increment the pinned jobs
+  pulsePinCount: "pulse-pin-count-EVT",
+  // fired with a selected job on 'r'
+  jobRetrigger: "job-retrigger-EVT",
+  // fired when jobs are classified locally
+  jobsClassified: "jobs-classified-EVT",
+  // fired when bugs are associated to jobs locally
+  bugsAssociated: "bugs-associated-EVT",
+  // after loading a group of jobs
+  jobsLoaded: "jobs-loaded-EVT",
+  // when new pushes are prepended, or appended
+  pushesLoaded: "pushes-loaded-EVT",
+  // after deselecting a job via click outside/esc
+  clearSelectedJob: "clear-selected-job-EVT",
+  // fired when a global filter has changed
+  globalFilterChanged: "status-filter-changed-EVT",
+  // after something happened that requires the number
+  // of unclassified jobs by tier to be recalculated
+  recalculateUnclassified: "recalc-unclassified-EVT",
+  groupStateChanged: "group-state-changed-EVT",
+  duplicateJobsVisibilityChanged: "duplicate-jobs-visibility-changed-EVT",
+  showRunnableJobs: "show-runnable-jobs-EVT",
+  deleteRunnableJobs: "delete-runnable-jobs-EVT",
+  toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
+  changeSelection: "next-previous-job-EVT",
+  addRelatedBug: "add-related-bug-EVT",
+  saveClassification: "save-classification-EVT",
+  deleteClassification: "delete-classification-EVT",
+  clearPinboard: "clear-pinboard-EVT",
+  selectJob: "select-job-EVT",
+  applyNewJobs: "apply-new-jobs-EVT",
+  openLogviewer: "open-logviewer-EVT",
+  autoclassifyVerified: "ac-verified-EVT",
+  autoclassifySaveAll: "ac-save-all-EVT",
+  autoclassifySave: "ac-save-EVT",
+  autoclassifyIgnore: "ac-ignore-EVT",
+  autoclassifySelectOption: "ac-select-EVT",
+  autoclassifyChangeSelection: "ac-change-selection-EVT",
+  autoclassifyToggleExpandOptions: "ac-toggle-expand-options-EVT",
+  autoclassifyToggleEdit: "ac-toggle-edit-EVT",
+  selectRunnableJob: "select-runnable-job-EVT",
+};
+
 export const phCompareDefaultOriginalRepo = "mozilla-central";
 
 export const phCompareDefaultNewRepo = "try";

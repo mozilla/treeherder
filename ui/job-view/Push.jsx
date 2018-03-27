@@ -4,6 +4,7 @@ import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
 import * as aggregateIds from './aggregateIds';
+import { thEvents } from "../js/constants";
 
 const watchCycleStates = [
   "none",
@@ -19,7 +20,6 @@ export default class Push extends React.Component {
     const { id: pushId, revision, job_counts } = push;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.aggregateId = aggregateIds.getPushTableId(repoName, pushId, revision);
@@ -90,13 +90,13 @@ export default class Push extends React.Component {
   }
 
   showRunnableJobs() {
-    this.$rootScope.$emit(this.thEvents.showRunnableJobs, this.props.push.id);
+    this.$rootScope.$emit(thEvents.showRunnableJobs, this.props.push.id);
     this.setState({ runnableVisible: true });
   }
 
   hideRunnableJobs() {
     this.ThResultSetStore.deleteRunnableJobs(this.props.push.id);
-    this.$rootScope.$emit(this.thEvents.deleteRunnableJobs, this.props.push.id);
+    this.$rootScope.$emit(thEvents.deleteRunnableJobs, this.props.push.id);
     this.setState({ runnableVisible: false });
   }
 

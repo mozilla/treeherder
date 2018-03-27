@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash';
-import { thPlatformMap } from '../js/constants';
+import { thPlatformMap, thEvents } from '../js/constants';
 import * as aggregateIds from './aggregateIds';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
@@ -15,7 +15,6 @@ export default class PushJobs extends React.Component {
 
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
-    this.thEvents = $injector.get('thEvents');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThJobModel = $injector.get('ThJobModel');
     this.thJobFilters = $injector.get('thJobFilters');
@@ -43,7 +42,7 @@ export default class PushJobs extends React.Component {
 
   componentDidMount() {
     this.applyNewJobsUnlisten = this.$rootScope.$on(
-      this.thEvents.applyNewJobs, (ev, appliedpushId) => {
+      thEvents.applyNewJobs, (ev, appliedpushId) => {
         if (appliedpushId === this.pushId) {
           this.applyNewJobs();
         }
@@ -51,24 +50,18 @@ export default class PushJobs extends React.Component {
     );
 
     this.globalFilterChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.globalFilterChanged, () => {
+      thEvents.globalFilterChanged, () => {
         this.filterJobs();
       }
     );
 
     this.groupStateChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.groupStateChanged, () => {
+      thEvents.groupStateChanged, () => {
         this.filterJobs();
       }
     );
 
-    this.searchPageUnlisten = this.$rootScope.$on(
-      this.thEvents.searchPage, () => {
-        this.filterJobs();
-      }
-    );
-
-    this.showRunnableJobsUnlisten = this.$rootScope.$on(this.thEvents.showRunnableJobs, (ev, pushId) => {
+    this.showRunnableJobsUnlisten = this.$rootScope.$on(thEvents.showRunnableJobs, (ev, pushId) => {
       const { push } = this.props;
 
       if (push.id === pushId) {
@@ -78,7 +71,7 @@ export default class PushJobs extends React.Component {
       }
     });
 
-    this.deleteRunnableJobsUnlisten = this.$rootScope.$on(this.thEvents.deleteRunnableJobs, (ev, pushId) => {
+    this.deleteRunnableJobsUnlisten = this.$rootScope.$on(thEvents.deleteRunnableJobs, (ev, pushId) => {
       const { push } = this.props;
 
       if (push.id === pushId) {
@@ -93,7 +86,6 @@ export default class PushJobs extends React.Component {
     this.applyNewJobsUnlisten();
     this.globalFilterChangedUnlisten();
     this.groupStateChangedUnlisten();
-    this.searchPageUnlisten();
     this.showRunnableJobsUnlisten();
     this.deleteRunnableJobsUnlisten();
   }
@@ -106,7 +98,7 @@ export default class PushJobs extends React.Component {
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(jobId);
       } else if (ev.metaKey || ev.ctrlKey) { // Pin job
-        this.$rootScope.$emit(this.thEvents.toggleJobPin, job);
+        this.$rootScope.$emit(thEvents.toggleJobPin, job);
       } else if (job.state === 'runnable') { // Toggle runnable
         this.handleRunnableClick(job);
       } else {
@@ -144,7 +136,7 @@ export default class PushJobs extends React.Component {
     if (selected) selected.setSelected(false);
     const jobInstance = findInstance(el);
     jobInstance.setSelected(true);
-    this.$rootScope.$emit(this.thEvents.jobClick, job);
+    this.$rootScope.$emit(thEvents.jobClick, job);
   }
 
   applyNewJobs() {

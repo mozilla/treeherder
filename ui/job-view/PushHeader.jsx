@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/displayHelper';
-import { thPinboardCountError } from "../js/constants";
+import { thPinboardCountError, thEvents } from "../js/constants";
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -44,7 +44,6 @@ export default class PushHeader extends React.PureComponent {
     const { $injector, pushTimestamp, urlBasePath, repoName, revision, author } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.thJobFilters = $injector.get('thJobFilters');
     this.thNotify = $injector.get('thNotify');
     this.thPinboard = $injector.get('thPinboard');
@@ -71,14 +70,14 @@ export default class PushHeader extends React.PureComponent {
 
   componentWillMount() {
     this.toggleRunnableJobUnlisten = this.$rootScope.$on(
-      this.thEvents.selectRunnableJob, (ev, runnableJobs, pushId) => {
+      thEvents.selectRunnableJob, (ev, runnableJobs, pushId) => {
         if (this.props.pushId === pushId) {
           this.setState({ runnableJobsSelected: runnableJobs.length > 0 });
         }
       }
     );
     this.globalFilterChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.globalFilterChanged, () => {
+      thEvents.globalFilterChanged, () => {
         this.setState({ filterParams: this.getFilterParams() });
       }
     );
@@ -156,7 +155,7 @@ export default class PushHeader extends React.PureComponent {
     this.thPinboard.pinJobs(shownJobs);
 
     if (!this.$rootScope.selectedJob) {
-      this.$rootScope.$emit(this.thEvents.jobClick, shownJobs[0]);
+      this.$rootScope.$emit(thEvents.jobClick, shownJobs[0]);
     }
   }
 
