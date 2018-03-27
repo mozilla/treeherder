@@ -196,3 +196,6 @@ export const phTimeRanges = [
 
 export const phDefaultTimeRangeValue = 1209600;
 
+export const phTimeRangeValues = {
+  "mozilla-beta": 7776000
+};

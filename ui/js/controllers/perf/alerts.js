@@ -4,7 +4,7 @@ import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl } from "../../../helpers/urlHelper";
-import { thDateFormat, phTimeRanges, phDefaultTimeRangeValue } from "../../constants";
+import { thDateFormat, phTimeRanges, phDefaultTimeRangeValue, phTimeRangeValues } from "../../constants";
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -188,14 +188,14 @@ perf.controller('AlertsCtrl', [
     'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs',
     'phAlertSummaryStatusMap', 'phAlertStatusMap',
-    'dateFilter', 'clipboard', 'phTimeRangeValues',
+    'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs,
                         phAlertSummaryStatusMap, phAlertStatusMap,
-                        dateFilter, clipboard, phTimeRangeValues) {
+                        dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {

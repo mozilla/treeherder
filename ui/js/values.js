@@ -1,9 +1,5 @@
 import treeherder from './treeherder';
 
-treeherder.value("phTimeRangeValues", {
-    "mozilla-beta": 7776000
-});
-
 treeherder.value("phBlockers", {
     "cart summary": 2.0,
     "damp summary": 2.0,
