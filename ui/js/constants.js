@@ -191,6 +191,8 @@ export const thJobNavSelectors = {
   }
 };
 
+export const thPerformanceBranches = ["autoland", "mozilla-inbound"];
+
 export const phCompareDefaultOriginalRepo = "mozilla-central";
 
 export const phCompareDefaultNewRepo = "try";

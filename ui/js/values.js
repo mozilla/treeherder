@@ -1,9 +1,5 @@
 import treeherder from './treeherder';
 
-treeherder.value("thPerformanceBranches", [
-    "autoland", "mozilla-inbound"
-]);
-
 treeherder.value("phDashboardValues",
     {
         /*
