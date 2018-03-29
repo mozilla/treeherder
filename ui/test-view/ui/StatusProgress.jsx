@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Progress } from 'reactstrap';
 import { connect } from 'react-redux';
 
@@ -12,5 +13,9 @@ const StatusProgress = props => (
     <Progress bar color="default" value={props.counts.pending} />
   </Progress>
 );
+
+StatusProgress.propTypes = {
+  counts: PropTypes.object.isRequired,
+};
 
 export default connect(mapStateToProps)(StatusProgress);

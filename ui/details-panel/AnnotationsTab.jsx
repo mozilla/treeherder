@@ -30,6 +30,11 @@ function RelatedBugSaved(props) {
   );
 }
 
+RelatedBugSaved.propTypes = {
+  deleteBug: PropTypes.func.isRequired,
+  bug: PropTypes.object.isRequired,
+};
+
 function RelatedBug(props) {
   const { bugs, deleteBug } = props;
 
@@ -49,8 +54,13 @@ function RelatedBug(props) {
   );
 }
 
+RelatedBug.propTypes = {
+  deleteBug: PropTypes.func.isRequired,
+  bugs: PropTypes.array.isRequired,
+};
+
 function TableRow(props) {
-  const { deleteClassification, classification, classificationTypes } = props;
+  const { deleteClassification, classification, classificationTypes, dateFilter } = props;
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
   const failureId = classification.failure_classification_id;
@@ -59,7 +69,7 @@ function TableRow(props) {
 
   return (
     <tr>
-      <td>{props.dateFilter(created, 'EEE MMM d, H:mm:ss')}</td>
+      <td>{dateFilter(created, 'EEE MMM d, H:mm:ss')}</td>
       <td>{who}</td>
       <td>
         {/* TODO: the classification label & star has been used in the job_details_pane.jxs
@@ -82,6 +92,13 @@ function TableRow(props) {
     </tr>
   );
 }
+
+TableRow.propTypes = {
+  deleteClassification: PropTypes.func.isRequired,
+  classification: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  dateFilter: PropTypes.func.isRequired,
+};
 
 function AnnotationsTable(props) {
   const {
@@ -112,6 +129,13 @@ function AnnotationsTable(props) {
     </table>
   );
 }
+
+AnnotationsTable.propTypes = {
+  deleteClassification: PropTypes.func.isRequired,
+  classifications: PropTypes.array.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  dateFilter: PropTypes.func.isRequired,
+};
 
 export default class AnnotationsTab extends React.Component {
   constructor(props) {
@@ -190,7 +214,6 @@ export default class AnnotationsTab extends React.Component {
       );
   }
 
-
   render() {
     const {
       $injector, classifications, classificationTypes,
@@ -227,9 +250,9 @@ export default class AnnotationsTab extends React.Component {
 }
 
 AnnotationsTab.propTypes = {
+  $injector: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
   classifications: PropTypes.array,
-  $injector: PropTypes.object,
-  classificationTypes: PropTypes.object,
   bugs: PropTypes.array,
   selectedJob: PropTypes.object,
 };

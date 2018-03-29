@@ -25,6 +25,11 @@ export function Initials(props) {
   );
 }
 
+Initials.propTypes = {
+  author: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+};
+
 export class Revision extends React.PureComponent {
   constructor(props) {
     super(props);

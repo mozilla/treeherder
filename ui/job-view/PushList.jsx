@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import treeherder from '../js/treeherder';
 import Push from './Push';
@@ -300,6 +301,14 @@ export default class PushList extends React.Component {
     );
   }
 }
+
+PushList.propTypes = {
+  $injector: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
+  revision: PropTypes.string,
+  currentRepo: PropTypes.object,
+};
 
 treeherder.directive('pushList', ['reactDirective', '$injector',
   (reactDirective, $injector) => reactDirective(

@@ -52,6 +52,16 @@ function ClassificationsPane(props) {
   );
 }
 
+ClassificationsPane.propTypes = {
+  dateFilter: PropTypes.func.isRequired,
+  repoName: PropTypes.string.isRequired,
+  ThRepositoryModel: PropTypes.object.isRequired,
+  classification: PropTypes.object.isRequired,
+  job: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  bugs: PropTypes.array,
+};
+
 function JobStatusPane(props) {
   const { job } = props;
   const shadingClass = `result-status-shading-${getStatus(job)}`;
@@ -75,6 +85,9 @@ function JobStatusPane(props) {
   );
 }
 
+JobStatusPane.propTypes = {
+  job: PropTypes.object.isRequired,
+};
 
 function JobDetailsListItem(props) {
   const {
@@ -109,6 +122,20 @@ function JobDetailsListItem(props) {
   );
 }
 
+JobDetailsListItem.propTypes = {
+  label: PropTypes.string.isRequired,
+  labelHref: PropTypes.string,
+  labelTitle: PropTypes.string,
+  labelText: PropTypes.string,
+  href: PropTypes.string,
+  text: PropTypes.string,
+  title: PropTypes.string,
+  target: PropTypes.string,
+  iconClass: PropTypes.string,
+  labelOnclick: PropTypes.func,
+  labelTarget: PropTypes.string,
+  onclick: PropTypes.func,
+};
 
 class JobDetailsList extends React.Component {
   constructor(props) {
@@ -275,6 +302,11 @@ class JobDetailsList extends React.Component {
   }
 }
 
+JobDetailsList.propTypes = {
+  job: PropTypes.object.isRequired,
+  jobLogUrls: PropTypes.array,
+};
+
 class JobDetailsPane extends React.Component {
   constructor(props) {
     super(props);
@@ -323,15 +355,15 @@ class JobDetailsPane extends React.Component {
 }
 
 JobDetailsPane.propTypes = {
+  job: PropTypes.object.isRequired,
+  $injector: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
+  jobLogUrls: PropTypes.array,
+  jobDetailLoading: PropTypes.bool,
   classification: PropTypes.object,
   bugs: PropTypes.array,
-  job: PropTypes.object,
-  $injector: PropTypes.object,
-  jobLogUrls: PropTypes.array,
   buildUrl: PropTypes.string,
-  classificationTypes: PropTypes.object,
-  jobDetailLoading: PropTypes.bool,
-  repoName: PropTypes.string
 };
 
 treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>

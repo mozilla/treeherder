@@ -86,6 +86,14 @@ class SuggestionsListItem extends React.Component {
   }
 }
 
+SuggestionsListItem.propTypes = {
+  suggestion: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
+  $timeout: PropTypes.func.isRequired,
+  pinboardService: PropTypes.object.isRequired,
+  fileBug: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
+};
 
 function ListItem(props) {
   return (
@@ -95,6 +103,9 @@ function ListItem(props) {
   );
 }
 
+ListItem.propTypes = {
+  text: PropTypes.string.isRequired,
+};
 
 function BugListItem(props) {
   const {
@@ -127,6 +138,15 @@ function BugListItem(props) {
   );
 }
 
+BugListItem.propTypes = {
+  bug: PropTypes.object.isRequired,
+  suggestion: PropTypes.object.isRequired,
+  $timeout: PropTypes.func.isRequired,
+  pinboardService: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
+  bugClassName: PropTypes.string,
+  title: PropTypes.string,
+};
 
 function ErrorsList(props) {
   const errorListItem = props.errors.map((error, key) => (
@@ -151,6 +171,9 @@ function ErrorsList(props) {
   );
 }
 
+ErrorsList.propTypes = {
+  errors: PropTypes.array.isRequired,
+};
 
 class FailureSummaryTab extends React.Component {
   constructor(props) {
@@ -226,14 +249,14 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
+  $injector: PropTypes.object.isRequired,
+  fileBug: PropTypes.func.isRequired,
   suggestions: PropTypes.array,
-  fileBug: PropTypes.func,
   selectedJob: PropTypes.object,
-  $injector: PropTypes.object,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
   jobLogUrls: PropTypes.array,
-  logParseStatus: PropTypes.string
+  logParseStatus: PropTypes.string,
 };
 
 treeherder.directive('failureSummaryTab', ['reactDirective', '$injector', (reactDirective, $injector) =>

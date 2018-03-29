@@ -1,5 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+
 import logUrl from '../../img/logviewerIcon.png';
 
 export default function LogViewer(props) {
@@ -16,3 +18,8 @@ export default function LogViewer(props) {
     </span>
   );
 }
+
+LogViewer.propTypes = {
+  repo: PropTypes.string.isRequired,
+  job: PropTypes.object.isRequired,
+};

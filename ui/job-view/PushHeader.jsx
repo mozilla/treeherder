@@ -16,6 +16,11 @@ function Author(props) {
   );
 }
 
+Author.propTypes = {
+  author: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+};
+
 function PushCounts(props) {
   const { pending, running, completed } = props;
   const inProgress = pending + running;
@@ -36,6 +41,12 @@ function PushCounts(props) {
     </span>
   );
 }
+
+PushCounts.propTypes = {
+  pending: PropTypes.number.isRequired,
+  running: PropTypes.number.isRequired,
+  completed: PropTypes.number.isRequired,
+};
 
 export default class PushHeader extends React.PureComponent {
 

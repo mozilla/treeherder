@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Form, FormGroup, Input, Label, Row, Col, Table, Container } from 'reactstrap';
 import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
+
 import { Test, BugCount } from './Test';
 import StatusProgress from './StatusProgress';
 import StatusNavbar from './StatusNavbar';
@@ -129,5 +131,15 @@ class Groups extends React.Component {
     );
   }
 }
+
+Groups.propTypes = {
+  options: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
+  hideClassified: PropTypes.object.isRequired,
+  bugSuggestions: PropTypes.object.isRequired,
+  groups: PropTypes.object.isRequired,
+  rowData: PropTypes.object.isRequired,
+  fetchStatus: PropTypes.string,
+};
 
 export default connect(mapStateToProps)(Groups);

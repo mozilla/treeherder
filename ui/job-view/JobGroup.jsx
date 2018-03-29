@@ -22,6 +22,13 @@ class GroupSymbol extends React.PureComponent {
   }
 }
 
+GroupSymbol.propTypes = {
+  symbol: PropTypes.string.isRequired,
+  tier: PropTypes.number.isRequired,
+  toggleExpanded: PropTypes.func.isRequired,
+};
+
+
 export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
@@ -172,5 +179,7 @@ export default class JobGroup extends React.Component {
 JobGroup.propTypes = {
   group: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  filterPlatformCb: PropTypes.func.isRequired,
+  platform: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
 };
