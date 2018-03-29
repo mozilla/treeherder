@@ -63,6 +63,10 @@ treeherder.factory('PhAlerts', [
             Object.assign(this, alertSummaryData);
             this._initializeAlerts(optionCollectionMap);
         };
+        AlertSummary.prototype.modify = function (modification) {
+            return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
+                             modification);
+        };
         _.forEach(phAlertSummaryStatusMap, function (status) {
             AlertSummary.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
@@ -215,6 +219,17 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.getStatusText = function () {
             return _.find(phAlertSummaryStatusMap, { id: this.status }).text;
+        };
+
+        AlertSummary.prototype.saveNotes = function () {
+            const alertSummary = this;
+            return this.modify({ notes: this.notes }).then(() => {
+                                alertSummary.originalNotes = alertSummary.notes;
+                                alertSummary.notesChanged = false;
+                             });
+        };
+        AlertSummary.prototype.editingNotes = function () {
+            this.notesChanged = (this.notes !== this.originalNotes);
         };
 
         function _getAlertSummary(id) {

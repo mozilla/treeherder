@@ -205,6 +205,8 @@ class PerformanceAlertSummary(models.Model):
 
     manually_created = models.BooleanField(default=False)
 
+    notes = models.TextField(null=True, blank=True)
+
     last_updated = models.DateTimeField(db_index=True)
 
     UNTRIAGED = 0

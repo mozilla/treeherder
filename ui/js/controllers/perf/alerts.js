@@ -1,5 +1,8 @@
+import angular from 'angular';
+
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
+import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl } from "../../../helpers/urlHelper";
 
 perf.factory('PhBugs', [
@@ -67,7 +70,39 @@ perf.controller(
                 }
             });
         }]);
+perf.controller(
+    'EditAlertSummaryNotesCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
+        function ($scope, $uibModalInstance, alertSummary) {
+            $scope.title = "Edit notes";
+            $scope.placeholder = "Leave notes here...";
+            $scope.error = false;
+            $scope.alertSummaryCopy = angular.copy(alertSummary);
 
+            $scope.saveChanges = function () {
+                $scope.modifying = true;
+                $scope.alertSummaryCopy.saveNotes().then(function () {
+                    _.merge(alertSummary, $scope.alertSummaryCopy);
+                    $scope.modifying = false;
+                    $scope.error = false;
+
+                    $uibModalInstance.close();
+                }, function () {
+                    $scope.error = true;
+                    $scope.modifying = false;
+                }
+                );
+            };
+
+            $scope.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+            };
+
+            $scope.$on('modal.closing', function (event) {
+                if ($scope.modifying) {
+                    event.preventDefault();
+                }
+            });
+        }]);
 perf.controller(
     'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
         'allAlertSummaries', 'phAlertStatusMap',
@@ -168,6 +203,19 @@ perf.controller('AlertsCtrl', [
             return Math.min(Math.abs(percent)*5, 100);
         };
 
+        $scope.editAlertSummaryNotes = function (alertSummary) {
+            $uibModal.open({
+                template: editAlertSummaryNotesCtrlTemplate,
+                controller: 'EditAlertSummaryNotesCtrl',
+                size: 'md',
+                resolve: {
+                    alertSummary: function () {
+                        return alertSummary;
+                    }
+                }
+            });
+        };
+
         // can filter by alert statuses or just show everything
         $scope.statuses = _.map(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({ id: -1, text: "all" });
@@ -217,7 +265,6 @@ perf.controller('AlertsCtrl', [
                 }
             });
             $scope.numFilteredAlertSummaries = $scope.alertSummaries.filter(summary => !summary.anyVisible).length;
-
         }
 
         // these methods handle the business logic of alert selection and
@@ -373,6 +420,8 @@ perf.controller('AlertsCtrl', [
                 // initialized
                 _.defaults(resultSetToSummaryMap,
                            _.set({}, alertSummary.repository, {}));
+
+                alertSummary.originalNotes = alertSummary.notes;
 
                 [alertSummary.push_id, alertSummary.prev_push_id].forEach(
                     function (resultSetId) {
