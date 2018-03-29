@@ -162,13 +162,19 @@ export default class PushHeader extends React.PureComponent {
 
   render() {
     const { repoName, loggedIn, pushId, isStaff, jobCounts, author,
-            revision, runnableVisible, $injector,
-            showRunnableJobsCb, hideRunnableJobsCb } = this.props;
+            revision, runnableVisible, $injector, watchState,
+            showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState } = this.props;
     const { filterParams } = this.state;
     const cancelJobsTitle = loggedIn ?
       "Cancel all jobs" :
       "Must be logged in to cancel jobs";
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
+
+    const watchStateLabel = {
+      none: "Watch",
+      push: "Notifying (per-push)",
+      job: "Notifying (per-job)"
+    }[watchState];
 
     return (
       <div className="push-header">
@@ -192,6 +198,13 @@ export default class PushHeader extends React.PureComponent {
             completed={counts.completed}
           />
           <span className="push-buttons">
+            {counts.pending + counts.running > 0 &&
+            <button
+              className="btn btn-sm btn-push watch-commit-btn"
+              title="Get Desktop Notifications for this Push"
+              data-watch-state={watchState}
+              onClick={() => cycleWatchState()}
+            >{watchStateLabel}</button>}
             <a
               className="btn btn-sm btn-push test-view-btn"
               href={`/testview.html?repo=${repoName}&revision=${revision}`}
@@ -272,6 +285,7 @@ PushHeader.propTypes = {
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   jobCounts: PropTypes.object,
+  watchState: PropTypes.string,
   loggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
@@ -280,4 +294,5 @@ PushHeader.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
+  cycleWatchState: PropTypes.func.isRequired,
 };

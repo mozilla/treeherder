@@ -4,7 +4,7 @@
 
 .push-bar {
   border-top: 1px solid black;
-  padding: 2px 0 0 34px;
+  padding: 2px 0 1px 34px;
   white-space: nowrap;
   display: flex;
   flex-flow: row nowrap;
@@ -59,6 +59,11 @@
   margin-right: 25px;
 }
 
+.push-buttons > .btn,
+.push-buttons > .btn-group{
+  margin: 0 5px;
+}
+
 .btn-push {
   color: #666;
   background-color: transparent;
@@ -91,6 +96,12 @@ fieldset[disabled] .btn-push:hover {
 th-action-button .btn-push {
   padding-left: 6px;
   font-size: 14px;
+}
+
+.watch-commit-btn:not([data-watch-state="none"]) {
+  border: 1px solid;
+  border-radius: 3px;
+  overflow: visible;
 }
 
 /* Encompasses unknown push,repo */
