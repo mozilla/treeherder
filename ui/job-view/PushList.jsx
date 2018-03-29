@@ -310,6 +310,11 @@ PushList.propTypes = {
   currentRepo: PropTypes.object,
 };
 
+PushList.defaultProps = {
+  revision: null,
+  currentRepo: null,
+};
+
 treeherder.directive('pushList', ['reactDirective', '$injector',
   (reactDirective, $injector) => reactDirective(
     PushList,

@@ -294,15 +294,23 @@ PushHeader.propTypes = {
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
-  jobCounts: PropTypes.object,
-  watchState: PropTypes.string,
-  loggedIn: PropTypes.bool,
-  isStaff: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
-  urlBasePath: PropTypes.string,
   $injector: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
+  jobCounts: PropTypes.object,
+  watchState: PropTypes.string,
+  loggedIn: PropTypes.bool,
+  isStaff: PropTypes.bool,
+  urlBasePath: PropTypes.string,
+};
+
+PushHeader.defaultProps = {
+  jobCounts: null,
+  watchState: 'none',
+  loggedIn: false,
+  isStaff: false,
+  urlBasePath: '',
 };

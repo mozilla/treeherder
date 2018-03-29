@@ -37,4 +37,8 @@ App.propTypes = {
   location: PropTypes.object,
 };
 
+App.defaultProps = {
+  location: null,
+};
+
 export default App;

@@ -142,4 +142,8 @@ Groups.propTypes = {
   fetchStatus: PropTypes.string,
 };
 
+Groups.defaultProps = {
+  fetchStatus: null,
+};
+
 export default connect(mapStateToProps)(Groups);

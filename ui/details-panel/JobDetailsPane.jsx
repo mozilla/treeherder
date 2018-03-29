@@ -31,7 +31,7 @@ function ClassificationsPane(props) {
           <i className={`fa ${iconClass}`} />
           <span className="ml-1">{classificationName.name}</span>
         </span>
-        {bugs.length > 0 &&
+        {!!bugs.length &&
           <a
             target="_blank"
             rel="noopener"
@@ -60,6 +60,10 @@ ClassificationsPane.propTypes = {
   job: PropTypes.object.isRequired,
   classificationTypes: PropTypes.object.isRequired,
   bugs: PropTypes.array,
+};
+
+ClassificationsPane.defaultProps = {
+  bugs: [],
 };
 
 function JobStatusPane(props) {
@@ -135,6 +139,20 @@ JobDetailsListItem.propTypes = {
   labelOnclick: PropTypes.func,
   labelTarget: PropTypes.string,
   onclick: PropTypes.func,
+};
+
+JobDetailsListItem.defaultProps = {
+  labelHref: null,
+  labelTitle: null,
+  labelText: null,
+  href: null,
+  text: null,
+  title: null,
+  target: null,
+  iconClass: null,
+  labelOnclick: null,
+  labelTarget: null,
+  onclick: null,
 };
 
 class JobDetailsList extends React.Component {
@@ -213,7 +231,7 @@ class JobDetailsList extends React.Component {
     let buildUrl = null;
     let iconCircleClass = null;
 
-    if (job.build_system_type === 'buildbot' && jobLogUrls.length > 0) {
+    if (job.build_system_type === 'buildbot' && !!jobLogUrls.length) {
       buildUrl = jobLogUrls[0].buildUrl;
     }
     if (job.job_type_description) {
@@ -287,7 +305,7 @@ class JobDetailsList extends React.Component {
             text={timeFields.duration}
           />
         </span>}
-        {!jobLogUrls ?
+        {!jobLogUrls.length ?
           <JobDetailsListItem label="Log parsing status: " text="No logs" /> :
           jobLogUrls.map(data => (
             <JobDetailsListItem
@@ -305,6 +323,10 @@ class JobDetailsList extends React.Component {
 JobDetailsList.propTypes = {
   job: PropTypes.object.isRequired,
   jobLogUrls: PropTypes.array,
+};
+
+JobDetailsList.defaultProps = {
+  jobLogUrls: [],
 };
 
 class JobDetailsPane extends React.Component {
@@ -364,6 +386,14 @@ JobDetailsPane.propTypes = {
   classification: PropTypes.object,
   bugs: PropTypes.array,
   buildUrl: PropTypes.string,
+};
+
+JobDetailsPane.defaultProps = {
+  jobLogUrls: [],
+  jobDetailLoading: false,
+  classification: null,
+  bugs: [],
+  buildUrl: null,
 };
 
 treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>

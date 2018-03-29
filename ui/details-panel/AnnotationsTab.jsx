@@ -225,7 +225,7 @@ export default class AnnotationsTab extends React.Component {
       <div className="container-fluid">
         <div className="row h-100">
           <div className="col-sm-10 classifications-pane job-tabs-content">
-            {classifications && classifications.length > 0 ?
+            {classifications.length ?
               <AnnotationsTable
                 classifications={classifications}
                 dateFilter={dateFilter}
@@ -236,7 +236,7 @@ export default class AnnotationsTab extends React.Component {
             }
           </div>
 
-          {classifications && classifications.length > 0 && bugs &&
+          {!!classifications.length && !!bugs.length &&
           <div className="col-sm-2 bug-list-pane">
             <RelatedBug
               bugs={bugs}
@@ -255,6 +255,12 @@ AnnotationsTab.propTypes = {
   classifications: PropTypes.array,
   bugs: PropTypes.array,
   selectedJob: PropTypes.object,
+};
+
+AnnotationsTab.defaultProps = {
+  classifications: [],
+  bugs: [],
+  selectedJob: null,
 };
 
 treeherder.directive('annotationsTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
