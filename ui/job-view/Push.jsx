@@ -5,18 +5,24 @@ import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
 import * as aggregateIds from './aggregateIds';
 
+const watchCycleStates = [
+  "none",
+  "push",
+  "job",
+  "none"
+];
+
 export default class Push extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, repoName, push } = props;
+    const { id: pushId, revision, job_counts } = push;
 
     this.$rootScope = $injector.get('$rootScope');
     this.thEvents = $injector.get('thEvents');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
-    this.aggregateId = aggregateIds.getPushTableId(
-      repoName, push.id, push.revision
-    );
+    this.aggregateId = aggregateIds.getPushTableId(repoName, pushId, revision);
     this.showRunnableJobs = this.showRunnableJobs.bind(this);
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
 
@@ -26,7 +32,7 @@ export default class Push extends React.Component {
 
       // props.push isn't actually immutable due to the way it hooks up to angular, therefore we
       // need to keep the previous value in the state.
-      last_job_counts: props.push.job_counts ? Object.assign({}, props.push.job_counts) : null,
+      last_job_counts: job_counts ? { ...job_counts } : null,
     };
   }
 
@@ -35,31 +41,34 @@ export default class Push extends React.Component {
   }
 
   showUpdateNotifications(nextProps) {
-    if (Notification.permission !== "granted" || this.state.watched === "none") {
+    const { watched, last_job_counts } = this.state;
+    const { repoName, push: { revision, id: pushId } } = this.props;
+
+    if (Notification.permission !== "granted" || watched === "none") {
       return;
     }
 
     const nextCounts = nextProps.push.job_counts;
-    if (this.state.last_job_counts) {
+    if (last_job_counts) {
       const nextUncompleted = nextCounts.pending + nextCounts.running;
-      const lastUncompleted = this.state.last_job_counts.pending + this.state.last_job_counts.running;
+      const lastUncompleted = last_job_counts.pending + last_job_counts.running;
 
       const nextCompleted = nextCounts.completed;
-      const lastCompleted = this.state.last_job_counts.completed;
+      const lastCompleted = last_job_counts.completed;
 
       let message;
       if (lastUncompleted > 0 && nextUncompleted === 0) {
         message = "Push completed";
         this.setState({ watched: "none" });
-      } else if (this.state.watched === "job" && lastCompleted < nextCompleted) {
+      } else if (watched === "job" && lastCompleted < nextCompleted) {
         const completeCount = nextCompleted - lastCompleted;
         message = completeCount + " jobs completed";
       }
 
       if (message) {
         const notification = new Notification(message, {
-          body: `${this.props.repoName} rev ${this.props.push.revision.substring(0, 12)}`,
-          tag: this.props.push.id
+          body: `${repoName} rev ${revision.substring(0, 12)}`,
+          tag: pushId
         });
 
         notification.onerror = (event) => {
@@ -92,8 +101,7 @@ export default class Push extends React.Component {
   }
 
   async cycleWatchState() {
-    const states = ["none", "push", "job", "none"];
-    let next = states[states.indexOf(this.state.watched) + 1];
+    let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
 
     if (next !== "none" && Notification.permission !== "granted") {
       const result = await Notification.requestPermission();
@@ -109,6 +117,7 @@ export default class Push extends React.Component {
 
   render() {
     const { push, loggedIn, isStaff, $injector, repoName } = this.props;
+    const { watched, runnableVisible } = this.state;
     const { currentRepo, urlBasePath } = this.$rootScope;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
@@ -120,13 +129,13 @@ export default class Push extends React.Component {
           author={author}
           revision={revision}
           jobCounts={job_counts}
-          watchState={this.state.watched}
+          watchState={watched}
           loggedIn={loggedIn}
           isStaff={isStaff}
           repoName={repoName}
           urlBasePath={urlBasePath}
           $injector={$injector}
-          runnableVisible={this.state.runnableVisible}
+          runnableVisible={runnableVisible}
           showRunnableJobsCb={this.showRunnableJobs}
           hideRunnableJobsCb={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
