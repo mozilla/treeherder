@@ -1520,3 +1520,16 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
+
+
+class OtherTextLogError(models.Model):
+    """
+    A detected error line in the textual (unstructured) log
+    """
+    line = models.TextField()
+
+    class Meta:
+        db_table = "other_text_log_error"
+
+    def __str__(self):
+        return "{0} {1}".format(self.id, self.line[:100])
