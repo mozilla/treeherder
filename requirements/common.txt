@@ -224,9 +224,9 @@ graphene-django==2.0.0 \
     --hash=sha256:70d9358bc48c806b6a9458e8344f0a1211cd1f1ef923a092aa55e6bcacc2c3fc
 
 # Used by graphene-django
-graphene==2.0.1 \
-    --hash=sha256:698543001858c908c5e3526ddf38ae1d13049c6c1313ec3bb0afad02c81bd242 \
-    --hash=sha256:0763563fdccb6817311f15d0f0a4d4fe820a46cbe5de022076f95cd99413fd0f
+graphene==2.1 \
+    --hash=sha256:dc95daa3f808fa1c1b26b780d103216a3d562eb95f72744a054b5bf6609d5c5c \
+    --hash=sha256:cf8c7fd4dc74c959a44cd817d9e1b07abad185bbf586aac1f75650c1abdd5d31
 graphql-core==2.0 \
     --hash=sha256:539355351343dede3ecb771e0d273a1b72405cb6d64f45bb8f92ecc4d7109af0 \
     --hash=sha256:4830699be53f9154273fa15726fc8b0c90bc22bbb8fc7c932586503b3cb9330e
@@ -246,6 +246,9 @@ iso8601==0.1.12 \
     --hash=sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3 \
     --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd \
     --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82
+aniso8601==3.0.0 \
+    --hash=sha256:7cf068e7aec00edeb21879c2bbda048656c34d281e133a77425be03b352122d8 \
+    --hash=sha256:f7052eb342bf2000c6264a253acedb362513bf9270800be2bc8e3e229fe08b5a
 
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
