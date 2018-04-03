@@ -410,6 +410,10 @@ span.compare-notsure {
   border-bottom: 1px solid transparent;
 }
 
+.notes-preview {
+    white-space: pre-wrap;
+}
+
 .alert-summary-header-element {
     flex: none;
     padding: 8px;

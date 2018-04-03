@@ -88,6 +88,12 @@
             <li role="menuitem" ng-show="alertSummary.bug_number && user.is_staff">
               <a ng-click="unlinkBug(alertSummary)" class="dropdown-item">Unlink from bug</a>
             </li>
+            <li role="menuitem" ng-show="user.is_staff">
+              <a ng-click="editAlertSummaryNotes(alertSummary)" class="dropdown-item">
+                <span ng-if="!alertSummary.notes">Add notes</span>
+                <span ng-if="alertSummary.notes">Edit notes</span>
+              </a>
+            </li>
             <li role="menuitem" ng-show="user.is_staff" ng-if="alertSummary.isResolved()">
               <a ng-click="alertSummary.markInvestigating()" class="dropdown-item">Re-open</a>
             </li>
@@ -195,31 +201,40 @@
         </span>
       </p>
     </div>
-    <div class="card-body" uib-collapse="!anySelected(alertSummary.alerts)">
-      <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
-              ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
-        Reset
-      </button>
-      <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
-        <button class="btn btn-light-bordered" role="button"
-                ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
-          <span class="fa fa-check"></span> Acknowledge
+    <div class="card-body" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
+      <div ng-show="anySelected(alertSummary.alerts)">
+        <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
+                ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
+          Reset
         </button>
-        <button class="btn btn-light-bordered" role="button"
-                ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
-          <span class="fa fa-ban"></span> Mark invalid
-        </button>
-        <button class="btn btn-light-bordered" role="button"
-                ng-click="markAlertsDownstream(alertSummary)"
-                title="Mark selected alerts as downstream from an alert summary on another branch">
-          <span class="fa fa-level-down"></span> Mark downstream
-        </button>
-        <button class="btn btn-light-bordered" role="button"
-                ng-click="reassignAlerts(alertSummary)"
-                title="Reassign selected alerts to another alert summary on the same branch">
-          <span class="fa fa-arrow-circle-o-right"></span> Reassign
-        </button>
-      </span>
+        <span ng-if="!anySelectedAndTriaged(alertSummary.alerts)">
+          <button class="btn btn-light-bordered" role="button"
+                  ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
+            <span class="fa fa-check"></span> Acknowledge
+          </button>
+          <button class="btn btn-light-bordered" role="button"
+                  ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
+            <span class="fa fa-ban"></span> Mark invalid
+          </button>
+          <button class="btn btn-light-bordered" role="button"
+                  ng-click="markAlertsDownstream(alertSummary)"
+                  title="Mark selected alerts as downstream from an alert summary on another branch">
+            <span class="fa fa-level-down"></span> Mark downstream
+          </button>
+          <button class="btn btn-light-bordered" role="button"
+                  ng-click="reassignAlerts(alertSummary)"
+                  title="Reassign selected alerts to another alert summary on the same branch">
+            <span class="fa fa-arrow-circle-o-right"></span> Reassign
+          </button>
+        </span>
+      </div>
+      <div ng-show="alertSummary.notes">
+        <p class="notes-preview bg-light rounded mt-2"
+           ng-text-truncate="alertSummary.notes"
+           ng-tt-chars-threshold="40"
+           ng-tt-more-label="Show"
+           ng-tt-less-label="Hide"></p>
+      </div>
     </div>
   </div>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">

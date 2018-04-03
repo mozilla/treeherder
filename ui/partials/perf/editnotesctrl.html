@@ -1,0 +1,28 @@
+<form name="modifyAlert">
+  <div class="modal-header">
+    <h3 class="modal-title">{{title}}</h3>
+    <button type="button" class="close" ng-model="closeButton" ng-show="!modifying" ng-click="cancel()">
+      <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-danger': error}">
+      <textarea
+          class="form-control"
+          ng-model="alertSummaryCopy.notes"
+          ng-change="alertSummaryCopy.editingNotes()"
+          ng-disabled="modifying"
+          name="editableNotes"
+          placeholder="{{placeholder}}"
+          cols="50" rows="10"
+          autofocus>
+      </textarea>
+    </div>
+    </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary-soft" ng-click="saveChanges()" ng-disabled="modifying || !alertSummaryCopy.notesChanged">
+      <span ng-if="!modifying">Save</span>
+      <span ng-if="modifying">Saving...</span>
+    </button>
+  </div>
+</form>
