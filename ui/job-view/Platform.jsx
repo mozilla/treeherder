@@ -11,6 +11,11 @@ function PlatformName(props) {
   );
 }
 
+PlatformName.propTypes = {
+  name: PropTypes.string.isRequired,
+  option: PropTypes.string.isRequired,
+};
+
 export default function Platform(props) {
   const { platform, $injector, repoName, filterPlatformCb } = props;
   const { name, option, groups, id } = platform;
@@ -33,4 +38,5 @@ Platform.propTypes = {
   platform: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterPlatformCb: PropTypes.func.isRequired,
 };

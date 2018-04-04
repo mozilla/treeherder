@@ -166,4 +166,9 @@ PushActionMenu.propTypes = {
   isStaff: PropTypes.bool.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
+  repoName: PropTypes.string.isRequired,
+  pushId: PropTypes.number.isRequired,
+  hideRunnableJobsCb: PropTypes.func.isRequired,
+  showRunnableJobsCb: PropTypes.func.isRequired,
+  $injector: PropTypes.object.isRequired,
 };

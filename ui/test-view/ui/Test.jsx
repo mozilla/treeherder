@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
+
 import { store, actions } from '../redux/store';
 import { thPlatformMap } from '../../js/constants';
 import LogViewer from './LogViewer';
@@ -50,6 +52,13 @@ class BugCountComponent extends React.Component {
   }
 }
 
+BugCountComponent.propTypes = {
+  testName: PropTypes.string.isRequired,
+  expanded: PropTypes.object.isRequired,
+  test: PropTypes.object.isRequired,
+  bugSuggestions: PropTypes.object.isRequired,
+};
+
 class Platform extends React.Component {
   getIcon(failureClassification) {
     switch (failureClassification) {
@@ -82,6 +91,14 @@ class Platform extends React.Component {
     );
   }
 }
+
+Platform.propTypes = {
+  option: PropTypes.string.isRequired,
+  job: PropTypes.object.isRequired,
+  repo: PropTypes.string.isRequired,
+  revision: PropTypes.string.isRequired,
+  platform: PropTypes.string.isRequired,
+};
 
 class TestComponent extends React.Component {
   constructor(props) {
@@ -180,6 +197,16 @@ class TestComponent extends React.Component {
     );
   }
 }
+
+TestComponent.propTypes = {
+  name: PropTypes.string.isRequired,
+  test: PropTypes.object.isRequired,
+  repo: PropTypes.string.isRequired,
+  revision: PropTypes.string.isRequired,
+  options: PropTypes.object.isRequired,
+  bugSuggestions: PropTypes.object.isRequired,
+  expanded: PropTypes.object.isRequired,
+};
 
 export const Test = connect(mapStateToProps)(TestComponent);
 export const BugCount = connect(mapStateToProps)(BugCountComponent);

@@ -164,8 +164,14 @@ export default class Push extends React.Component {
 
 Push.propTypes = {
   push: PropTypes.object.isRequired,
+  $injector: PropTypes.object.isRequired,
   loggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   repoName: PropTypes.string,
-  $injector: PropTypes.object.isRequired,
+};
+
+Push.defaultProps = {
+  loggedIn: false,
+  isStaff: false,
+  repoName: 'mozilla-inbound',
 };

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+
 import { Revision } from './Revision';
 
 export class RevisionList extends React.PureComponent {
@@ -52,3 +53,7 @@ export function MoreRevisionsLink(props) {
     </li>
   );
 }
+
+MoreRevisionsLink.propTypes = {
+  href: PropTypes.string.isRequired,
+};

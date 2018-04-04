@@ -1,5 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
 import Navigation from './Navigation';
 import Groups from './Groups';
 import NotFound from './NotFound';
@@ -30,5 +32,13 @@ const App = () => (
     </div>
   </BrowserRouter>
 );
+
+App.propTypes = {
+  location: PropTypes.object,
+};
+
+App.defaultProps = {
+  location: null,
+};
 
 export default App;
