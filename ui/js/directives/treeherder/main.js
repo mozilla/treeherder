@@ -1,5 +1,6 @@
 import treeherder from '../../treeherder';
 import thNotificationsBoxTemplate from '../../../partials/main/thNotificationsBox.html';
+import { thFavicons } from "../../constants";
 
 //Directive blurThis which removes focus from a specific element
 treeherder.directive('blurThis', ['$timeout', function ($timeout) {
@@ -108,8 +109,8 @@ treeherder.directive('thNotificationBox', [
     }]);
 
 treeherder.directive('thFaviconLink', [
-    '$sce', 'ThRepositoryModel', 'thFavicons',
-    function ($sce, ThRepositoryModel, thFavicons) {
+    '$sce', 'ThRepositoryModel',
+    function ($sce, ThRepositoryModel) {
         return {
             restrict: "E",
             link: function (scope) {

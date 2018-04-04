@@ -1,4 +1,7 @@
-export const platformMap = {
+import treeFavicon from '../img/tree_open.png';
+import closedTreeFavicon from '../img/tree_closed.png';
+
+export const thPlatformMap = {
     linux32: "Linux",
     "linux32-devedition": "Linux DevEdition",
     "linux32-qr": "Linux QuantumRender",
@@ -142,4 +145,209 @@ export const platformMap = {
     other: "Other"
 };
 
-export const failedResults = ['testfailed', 'busted', 'exception'];
+export const thFailureResults = ['testfailed', 'busted', 'exception'];
+
+export const thAllResultStates = [
+  'success',
+  'testfailed',
+  'busted',
+  'exception',
+  'retry',
+  'usercancel',
+  'running',
+  'pending',
+  'superseded',
+  'runnable'
+];
+
+export const thDefaultFilterResultStates = [
+  'success',
+  'testfailed',
+  'busted',
+  'exception',
+  'retry',
+  'usercancel',
+  'running',
+  'pending',
+  'runnable'
+];
+
+export const thOptionOrder = {
+  opt: 0,
+  pgo: 1,
+  asan: 2,
+  tsan: 3,
+  debug: 4,
+  cc: 5,
+  addon: 6
+};
+
+export const thTitleSuffixLimit = 70;
+
+export const thFavicons = {
+  closed: closedTreeFavicon,
+  open: treeFavicon,
+  "approval required": treeFavicon,
+  unavailable: treeFavicon
+};
+
+export const thRepoGroupOrder = {
+  development: 1,
+  "release-stabilization": 2,
+  "project repositories": 3,
+  "comm-repositories": 4,
+  "qa automation tests": 5,
+  try: 6,
+  taskcluster: 7
+};
+
+export const thDefaultRepo = "mozilla-inbound";
+
+export const thDateFormat = "EEE MMM d, HH:mm:ss";
+
+export const thJobNavSelectors = {
+  ALL_JOBS: {
+    name: "jobs",
+    selector: ".job-btn, .selected-job"
+  },
+  UNCLASSIFIED_FAILURES: {
+    name: "unclassified failures",
+    selector: ".selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple, .job-btn.autoclassified"
+  }
+};
+
+export const thPinboardCountError = "Max pinboard size of 500 reached.";
+
+export const thPerformanceBranches = ["autoland", "mozilla-inbound"];
+
+/**
+ * The set of custom Treeherder events.
+ */
+export const thEvents = {
+  // fired (surprisingly) when a job is clicked
+  jobClick: "job-click-EVT",
+  // fired with a selected job on 't'
+  selectNextTab: "select-next-tab-EVT",
+  // fired with a selected job on spacebar
+  jobPin: "job-pin-EVT",
+  // fired with a selected job on ctrl/cmd-click
+  toggleJobPin: "job-togglepin-EVT",
+  // fired with api call to increment the pinned jobs
+  pulsePinCount: "pulse-pin-count-EVT",
+  // fired with a selected job on 'r'
+  jobRetrigger: "job-retrigger-EVT",
+  // fired when jobs are classified locally
+  jobsClassified: "jobs-classified-EVT",
+  // fired when bugs are associated to jobs locally
+  bugsAssociated: "bugs-associated-EVT",
+  // after loading a group of jobs
+  jobsLoaded: "jobs-loaded-EVT",
+  // when new pushes are prepended, or appended
+  pushesLoaded: "pushes-loaded-EVT",
+  // after deselecting a job via click outside/esc
+  clearSelectedJob: "clear-selected-job-EVT",
+  // fired when a global filter has changed
+  globalFilterChanged: "status-filter-changed-EVT",
+  // after something happened that requires the number
+  // of unclassified jobs by tier to be recalculated
+  recalculateUnclassified: "recalc-unclassified-EVT",
+  groupStateChanged: "group-state-changed-EVT",
+  duplicateJobsVisibilityChanged: "duplicate-jobs-visibility-changed-EVT",
+  showRunnableJobs: "show-runnable-jobs-EVT",
+  deleteRunnableJobs: "delete-runnable-jobs-EVT",
+  toggleUnclassifiedFailures: "toggle-unclassified-failures-EVT",
+  changeSelection: "next-previous-job-EVT",
+  addRelatedBug: "add-related-bug-EVT",
+  saveClassification: "save-classification-EVT",
+  deleteClassification: "delete-classification-EVT",
+  clearPinboard: "clear-pinboard-EVT",
+  selectJob: "select-job-EVT",
+  applyNewJobs: "apply-new-jobs-EVT",
+  openLogviewer: "open-logviewer-EVT",
+  autoclassifyVerified: "ac-verified-EVT",
+  autoclassifySaveAll: "ac-save-all-EVT",
+  autoclassifySave: "ac-save-EVT",
+  autoclassifyIgnore: "ac-ignore-EVT",
+  autoclassifySelectOption: "ac-select-EVT",
+  autoclassifyChangeSelection: "ac-change-selection-EVT",
+  autoclassifyToggleExpandOptions: "ac-toggle-expand-options-EVT",
+  autoclassifyToggleEdit: "ac-toggle-edit-EVT",
+  selectRunnableJob: "select-runnable-job-EVT",
+};
+
+export const phCompareDefaultOriginalRepo = "mozilla-central";
+
+export const phCompareDefaultNewRepo = "try";
+
+export const phTimeRanges = [
+  { value: 86400, text: "Last day" },
+  { value: 86400*2, text: "Last 2 days" },
+  { value: 604800, text: "Last 7 days" },
+  { value: 1209600, text: "Last 14 days" },
+  { value: 2592000, text: "Last 30 days" },
+  { value: 5184000, text: "Last 60 days" },
+  { value: 7776000, text: "Last 90 days" },
+  { value: 31536000, text: "Last year" }];
+
+export const phDefaultTimeRangeValue = 1209600;
+
+export const phTimeRangeValues = {
+  "mozilla-beta": 7776000
+};
+
+export const phBlockers = {
+  "cart summary": 2.0,
+  "damp summary": 2.0,
+  "dromaeo_css summary": 2.0,
+  "dromaeo_dom summary": 2.0,
+  "glterrain summary": 5.0,
+  "kraken summary": 2.0,
+  sessionrestore: 5.0,
+  sessionrestore_no_auto_restore: 5.0,
+  "tart summary": 5.0,
+  "tcanvasmark summary": 5.0,
+  "tp5o % Processor Time": 2.0,
+  "tp5o Main_RSS": 2.0,
+  "tp5o Modified Page List Bytes": 2.0,
+  "tp5o Private Bytes": 2.0,
+  "tp5o XRes": 2.0,
+  "tp5o responsiveness": 2.0,
+  "tp5o summary": 5.0,
+  "tp5o_scroll summary": 2.0,
+  tpaint: 5.0,
+  "tps summary": 5.0,
+  tresize: 5.0,
+  ts_paint: 2.0,
+  tscrollx: 2.0,
+  "tsvgr_opacity summary": 5.0,
+  "tsvgx summary": 5.0
+};
+
+export const phDefaultFramework = "talos";
+
+export const phAlertSummaryStatusMap = {
+  UNTRIAGED: { id: 0, text: "untriaged" },
+  DOWNSTREAM: { id: 1, text: "downstream" },
+  REASSIGNED: { id: 2, text: "reassigned" },
+  INVALID: { id: 3, text: "invalid" },
+  IMPROVEMENT: { id: 4, text: "improvement" },
+  INVESTIGATING: { id: 5, text: "investigating" },
+  WONTFIX: { id: 6, text: "wontfix" },
+  FIXED: { id: 7, text: "fixed" },
+  BACKEDOUT: { id: 8, text: "backedout" }
+};
+
+export const phAlertSummaryIssueTrackersMap = {
+  BUGZILLA: { id: 1, text: "Bugzilla", issueTrackerUrl: "https://bugzilla.mozilla.org/show_bug.cgi?id=" },
+  GITHUB_SERVO: { id: 2, text: "Github - Servo", issueTrackerUrl: "https://github.com/servo/servo/pull/" }
+};
+
+export const phAlertStatusMap = {
+  UNTRIAGED: { id: 0, text: "untriaged" },
+  DOWNSTREAM: { id: 1, text: "downstream" },
+  REASSIGNED: { id: 2, text: "reassigned" },
+  INVALID: { id: 3, text: "invalid" },
+  ACKNOWLEDGED: { id: 4, text: "acknowledged" }
+};
+
+export const phCompareBaseLineDefaultTimeRange = 86400 * 2;

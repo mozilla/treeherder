@@ -2,18 +2,20 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything (such as bug 1443667).
 
+import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
+import { escapeId, getGroupMapKey } from '../../helpers/aggregateIdHelper';
 import treeherder from '../treeherder';
 
 treeherder.factory('ThResultSetStore', [
-    '$rootScope', '$q', '$location', '$interval', 'thPlatformMap',
-    'ThResultSetModel', 'ThJobModel', 'thEvents',
-    'thAggregateIds', 'thNotify',
-    'thJobFilters', 'thOptionOrder', 'ThRepositoryModel', '$timeout',
+    '$rootScope', '$q', '$location', '$interval',
+    'ThResultSetModel', 'ThJobModel',
+    'thNotify',
+    'thJobFilters', 'ThRepositoryModel', '$timeout',
     'ThRunnableJobModel',
     function (
-        $rootScope, $q, $location, $interval, thPlatformMap, ThResultSetModel,
-        ThJobModel, thEvents, thAggregateIds,
-        thNotify, thJobFilters, thOptionOrder, ThRepositoryModel,
+        $rootScope, $q, $location, $interval, ThResultSetModel,
+        ThJobModel,
+        thNotify, thJobFilters, ThRepositoryModel,
         $timeout, ThRunnableJobModel) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array
@@ -313,7 +315,7 @@ treeherder.factory('ThResultSetStore', [
                     var id = push.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
-                        job.id = thAggregateIds.escape(job.result_set_id + job.ref_data_name);
+                        job.id = escapeId(job.result_set_id + job.ref_data_name);
                     });
 
                     if (jobList.length === 0) {
@@ -383,7 +385,7 @@ treeherder.factory('ThResultSetStore', [
                 // groups
                 for (var gp_i = 0; gp_i < pl_obj.groups.length; gp_i++) {
                     var gr_obj = pl_obj.groups[gp_i];
-                    gr_obj.mapKey = thAggregateIds.getGroupMapKey(rs_obj.id, gr_obj.symbol, gr_obj.tier, pl_obj.name, pl_obj.option);
+                    gr_obj.mapKey = getGroupMapKey(rs_obj.id, gr_obj.symbol, gr_obj.tier, pl_obj.name, pl_obj.option);
 
                     var grMapElement = {
                         grp_obj: gr_obj,
@@ -906,7 +908,7 @@ treeherder.factory('ThResultSetStore', [
           // this has to do with group sorting so that the tier-1 ungrouped
           // jobs show first, and the tier>1 ungrouped jobs show last.
           const symbol = tier > 1 ? '' : job_group_symbol;
-          const mapKey = thAggregateIds.getGroupMapKey(
+          const mapKey = getGroupMapKey(
             result_set_id, symbol, tier, platform, platform_option);
 
           return { name, tier, symbol, mapKey };

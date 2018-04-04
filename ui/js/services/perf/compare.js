@@ -1,9 +1,10 @@
 import treeherder from '../../treeherder';
 import { getApiUrl } from "../../../helpers/urlHelper";
+import { phTimeRanges } from "../../constants";
 
 treeherder.factory('PhCompare', [
-    '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math', 'phTimeRanges',
-    function ($q, $http, $httpParamSerializer, PhSeries, math, phTimeRanges) {
+    '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math',
+    function ($q, $http, $httpParamSerializer, PhSeries, math) {
 
         // Used for t_test: default stddev if both sets have only a single value - 15%.
         // Should be rare case and it's unreliable, but at least have something.

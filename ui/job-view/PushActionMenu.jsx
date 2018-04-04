@@ -9,7 +9,6 @@ export default class PushActionMenu extends React.PureComponent {
     const { $injector } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');

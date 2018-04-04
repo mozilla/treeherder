@@ -7,15 +7,21 @@ import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
+import {
+  thDefaultRepo,
+  phTimeRanges,
+  phDefaultTimeRangeValue,
+  phDefaultFramework,
+  thPerformanceBranches,
+} from "../../constants";
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
     '$window', '$q', '$timeout', 'PhSeries', 'PhAlerts',
-    'ThRepositoryModel', 'ThResultSetModel', 'phTimeRanges', 'phDefaultTimeRangeValue',
+    'ThRepositoryModel', 'ThResultSetModel',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout, PhSeries,
-        PhAlerts, ThRepositoryModel, ThResultSetModel,
-        phTimeRanges, phDefaultTimeRangeValue) {
+        PhAlerts, ThRepositoryModel, ThResultSetModel) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
@@ -883,13 +889,12 @@ perf.filter('testNameContainsWords', function () {
 });
 
 perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
-    'projects', 'timeRange', 'thDefaultRepo', 'PhSeries',
+    'projects', 'timeRange', 'PhSeries',
     'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
-    '$q', 'testsDisplayed', 'options', 'thPerformanceBranches', 'phDefaultFramework',
+    '$q', 'testsDisplayed', 'options',
     function ($scope, $uibModalInstance, projects, timeRange,
-        thDefaultRepo, PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
-        defaultPlatform, $q, testsDisplayed, options, thPerformanceBranches,
-        phDefaultFramework) {
+        PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
+        defaultPlatform, $q, testsDisplayed, options) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = _.find(projects, {

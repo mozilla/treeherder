@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
+import { thEvents } from "../js/constants";
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -118,7 +119,6 @@ export default class AnnotationsTab extends React.Component {
 
     const { $injector } = props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
@@ -129,7 +129,7 @@ export default class AnnotationsTab extends React.Component {
   componentWillMount() {
     const { classifications, bugs } = this.props;
 
-    this.$rootScope.$on(this.thEvents.deleteClassification, () => {
+    this.$rootScope.$on(thEvents.deleteClassification, () => {
       if (classifications[0]) {
         this.deleteClassification(classifications[0]);
         // Delete any number of bugs if they exist
@@ -154,7 +154,7 @@ export default class AnnotationsTab extends React.Component {
         // classification state (in case one was added or removed).
         this.ThResultSetStore.fetchJobs([job.id]);
         this.$rootScope.$emit(
-          this.thEvents.jobsClassified,
+          thEvents.jobsClassified,
           { jobs: { [job.id]: job } }
         );
       },
@@ -177,7 +177,7 @@ export default class AnnotationsTab extends React.Component {
             "success"
           );
         this.$rootScope.$emit(
-            this.thEvents.bugsAssociated,
+            thEvents.bugsAssociated,
             { jobs: { [selectedJob.id]: selectedJob } }
           );
       }, () => {

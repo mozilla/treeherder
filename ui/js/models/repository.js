@@ -1,12 +1,13 @@
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/urlHelper';
+import { thRepoGroupOrder } from "../constants";
 
 treeherder.factory('ThRepositoryModel', [
     '$http', '$rootScope', '$interval',
-    '$q', 'treeStatus', 'thRepoGroupOrder',
+    '$q', 'treeStatus',
     function (
         $http, $rootScope, $interval, $q,
-        treeStatus, thRepoGroupOrder) {
+        treeStatus) {
 
         const repos = {};
         const watchedRepos = [];

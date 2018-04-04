@@ -1,4 +1,4 @@
-import { platformMap } from '../js/constants';
+import { thPlatformMap } from '../js/constants';
 
 const btnClasses = {
   busted: "btn-red",
@@ -38,6 +38,11 @@ export const getBtnClass = function getBtnClass(resultState, failureClassificati
 // I can't think of a reason that would hurt anything.
 export const getStatus = function getStatus(job) {
   return job.state === 'completed' ? job.result : job.state;
+};
+
+export const isReftest = function isReftest(job) {
+  return [job.job_group_name, job.job_type_name]
+    .some(name => name.toLowerCase().includes('reftest'));
 };
 
 // Fetch the React instance of an object from a DOM element.
@@ -115,7 +120,7 @@ export const getSearchStr = function getSearchStr(job) {
   const symbolInfo = (job.job_group_symbol === '?') ? '' : job.job_group_symbol;
 
   return [
-    platformMap[job.platform] || job.platform,
+    thPlatformMap[job.platform] || job.platform,
     job.platform_option,
     (job.job_group_name === 'unknown') ? undefined : job.job_group_name,
     job.job_type_name,

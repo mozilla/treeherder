@@ -9,6 +9,7 @@ import {
   scrollToElement
 } from '../helpers/jobHelper';
 import PushLoadErrors from './PushLoadErrors';
+import { thEvents } from "../js/constants";
 
 export default class PushList extends React.Component {
 
@@ -19,7 +20,6 @@ export default class PushList extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
     this.$timeout = $injector.get('$timeout');
-    this.thEvents = $injector.get('thEvents');
     this.thNotify = $injector.get('thNotify');
     this.thPinboard = $injector.get('thPinboard');
     this.thJobFilters = $injector.get('thJobFilters');
@@ -47,14 +47,14 @@ export default class PushList extends React.Component {
   }
 
   componentWillMount() {
-    this.pushesLoadedUnlisten = this.$rootScope.$on(this.thEvents.pushesLoaded, () => {
+    this.pushesLoadedUnlisten = this.$rootScope.$on(thEvents.pushesLoaded, () => {
       const pushList = this.ThResultSetStore.getPushArray();
       this.$timeout(() => {
         this.setState({ pushList, loadingPushes: false });
       }, 0);
     });
 
-    this.jobsLoadedUnlisten = this.$rootScope.$on(this.thEvents.jobsLoaded, () => {
+    this.jobsLoadedUnlisten = this.$rootScope.$on(thEvents.jobsLoaded, () => {
       const pushList = [...this.ThResultSetStore.getPushArray()];
 
       if (!this.state.jobsReady) {
@@ -69,7 +69,7 @@ export default class PushList extends React.Component {
       }, 0);
     });
 
-    this.jobClickUnlisten = this.$rootScope.$on(this.thEvents.jobClick, (ev, job) => {
+    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (ev, job) => {
       this.$location.search('selectedJob', job.id);
       const { repoName } = this.props;
       if (repoName) {
@@ -77,22 +77,22 @@ export default class PushList extends React.Component {
       }
     });
 
-    this.clearSelectedJobUnlisten = this.$rootScope.$on(this.thEvents.clearSelectedJob, () => {
+    this.clearSelectedJobUnlisten = this.$rootScope.$on(thEvents.clearSelectedJob, () => {
       this.$location.search('selectedJob', null);
     });
 
     this.changeSelectionUnlisten = this.$rootScope.$on(
-      this.thEvents.changeSelection, (ev, direction, jobNavSelector) => {
+      thEvents.changeSelection, (ev, direction, jobNavSelector) => {
         this.changeSelectedJob(ev, direction, jobNavSelector);
       }
     );
 
     this.jobsClassifiedUnlisten = this.$rootScope.$on(
-      this.thEvents.jobsClassified, (ev, { jobs }) => {
+      thEvents.jobsClassified, (ev, { jobs }) => {
         Object.values(jobs).forEach((job) => {
           findJobInstance(job.id).props.job.failure_classification_id = job.failure_classification_id;
         });
-        this.$rootScope.$emit(this.thEvents.globalFilterChanged);
+        this.$rootScope.$emit(thEvents.globalFilterChanged);
       }
     );
   }
@@ -135,7 +135,7 @@ export default class PushList extends React.Component {
 
     // select the job in question
     if (selectedJobEl) {
-      this.$rootScope.$emit(this.thEvents.jobClick, selectedJobEl.job_obj);
+      this.$rootScope.$emit(thEvents.jobClick, selectedJobEl.job_obj);
     } else {
       // If the ``selectedJob`` was not mapped, then we need to notify
       // the user it's not in the range of the current result set list.
@@ -233,7 +233,7 @@ export default class PushList extends React.Component {
       window.clearTimeout(this.jobChangedTimeout);
     }
     this.jobChangedTimeout = window.setTimeout(() => {
-      this.$rootScope.$emit(this.thEvents.jobClick, job);
+      this.$rootScope.$emit(thEvents.jobClick, job);
     }, 200);
   }
 

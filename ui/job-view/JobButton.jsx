@@ -9,7 +9,6 @@ export default class JobButtonComponent extends React.Component {
     const { $injector } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 

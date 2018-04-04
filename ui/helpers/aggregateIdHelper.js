@@ -1,17 +1,17 @@
-export const escape = id => (
+export const escapeId = id => (
   id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-')
 );
 
 export const getPlatformRowId = (repoName, pushId, platformName, platformOptions) => (
   // ensure there are no invalid characters in the id (like spaces, etc)
-  escape(repoName + pushId + platformName + platformOptions)
+  escapeId(repoName + pushId + platformName + platformOptions)
 );
 
 export const getPushTableId = (repoName, pushId, revision) => (
-  escape(repoName + pushId + revision)
+  escapeId(repoName + pushId + revision)
 );
 
 export const getGroupMapKey = (pushId, grSymbol, grTier, plName, plOpt) => (
   //Build string key for groupMap entries
-  escape(pushId + grSymbol + grTier + plName + plOpt)
+  escapeId(pushId + grSymbol + grTier + plName + plOpt)
 );
