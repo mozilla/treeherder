@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+
 import JobGroup from '../../../../ui/job-view/JobGroup';
 import { thEvents } from "../../../../ui/js/constants";
 
