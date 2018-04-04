@@ -40,6 +40,8 @@ production site. You do not need to set up the Vagrant VM, but login will be una
 
   This will run the unminified UI using ``<url>`` as the service domain.
 
+.. _unminified_ui:
+
 Running the unminified UI with Vagrant
 --------------------------------------
 You may also run the unminified UI using the full treeherder Vagrant project.
