@@ -46,6 +46,7 @@
     "neutrino": "4.3.1",
     "neutrino-lint-base": "4.3.1",
     "neutrino-preset-react": "4.2.3",
+    "ng-text-truncate-2": "1.0.1",
     "ngreact": "0.5.1",
     "numeral": "2.0.6",
     "popper.js": "1.14.2",
