@@ -5095,6 +5095,10 @@ neutrino@4.3.1:
     webpack-dev-server "^2.4.1"
     yargs "^6.6.0"
 
+ng-text-truncate-2@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/ng-text-truncate-2/-/ng-text-truncate-2-1.0.1.tgz#167b92b04f092e940cc6d60a336fa604570392bd"
+
 ngreact@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/ngreact/-/ngreact-0.5.1.tgz#2dcccc1541771796689d13e51bb8d5010af41c57"
