@@ -5622,7 +5622,11 @@ pluralize@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-1.2.1.tgz#d1a21483fd22bb41e58a12fa3421823140897c45"
 
-popper.js@1.14.1, popper.js@^1.12.9:
+popper.js@1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.2.tgz#066e8e1613e65e69ba050f4b78e7bd4c8d54e443"
+
+popper.js@^1.12.9:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.1.tgz#b8815e5cda6f62fc2042e47618649f75866e6753"
 
