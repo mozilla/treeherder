@@ -61,7 +61,6 @@ import './js/models/bug_suggestions';
 import './js/models/text_log_step';
 import './js/models/perf/series';
 import './js/controllers/main';
-import './js/controllers/settings';
 import './js/controllers/repository';
 import './js/controllers/notification';
 import './js/controllers/filters';
