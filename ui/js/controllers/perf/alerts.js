@@ -111,24 +111,19 @@ perf.controller(
             $scope.title = "Mark alerts downstream";
             $scope.placeholder = "Alert #";
 
-            $scope.update = function () {
+            $scope.update = () => {
                 const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
                 alertSummary.modifySelectedAlerts({
                     status: phAlertStatusMap.DOWNSTREAM.id,
                     related_summary_id: newId
-                }).then(
-                    function () {
+                }).then(() => {
                         const summariesToUpdate = [alertSummary].concat(
-                            _.find(allAlertSummaries, function (alertSummary) {
-                                return alertSummary.id === newId;
-                            }) || []);
-                        $q.all(_.map(summariesToUpdate, function (alertSummary) {
-                            return alertSummary.update();
-                        })).then(function () {
-                            $uibModalInstance.close('downstreamed');
-                        });
+                            _.find(allAlertSummaries, alertSummary =>
+                                alertSummary.id === newId) || []);
+                        $q.all(summariesToUpdate.map(alertSummary => alertSummary.update()
+                      )).then(() => $uibModalInstance.close('downstreamed'));
                     });
             };
             $scope.cancel = function () {
@@ -161,14 +156,10 @@ perf.controller(
                 }).then(function () {
                     // FIXME: duplication with downstream alerts controller
                     const summariesToUpdate = [alertSummary].concat(
-                        _.find(allAlertSummaries, function (alertSummary) {
-                            return alertSummary.id === newId;
-                        }) || []);
-                    $q.all(_.map(summariesToUpdate, function (alertSummary) {
-                        return alertSummary.update();
-                    })).then(function () {
-                        $uibModalInstance.close('downstreamed');
-                    });
+                        _.find(allAlertSummaries, alertSummary =>
+                          alertSummary.id === newId) || []);
+                    $q.all(summariesToUpdate.map(alertSummary => alertSummary.update()
+                  )).then(() => $uibModalInstance.close('downstreamed'));
                 });
             };
             $scope.cancel = function () {
@@ -217,7 +208,8 @@ perf.controller('AlertsCtrl', [
         };
 
         // can filter by alert statuses or just show everything
-        $scope.statuses = _.map(phAlertSummaryStatusMap);
+        $scope.statuses = Object.keys(phAlertSummaryStatusMap).map(
+          status => phAlertSummaryStatusMap[status]);
         $scope.statuses = $scope.statuses.concat({ id: -1, text: "all" });
 
         $scope.changeAlertSummaryStatus = function (alertSummary, open) {
@@ -378,13 +370,11 @@ perf.controller('AlertsCtrl', [
         $scope.resetAlerts = function (alertSummary) {
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
-            const summariesToUpdate = [alertSummary].concat(_.flatten(_.map(
-                alertSummary.alerts.filter(alert => alert.selected),
-                function (alert) {
-                    return _.find($scope.alertSummaries, function (alertSummary) {
-                        return alertSummary.id === alert.related_summary_id;
-                    }) || [];
-                })));
+            const summariesToUpdate = [alertSummary].concat(_.flatten(
+                alertSummary.alerts.filter(alert => alert.selected).map(
+                alert => (_.find($scope.alertSummaries, alertSummary =>
+                        alertSummary.id === alert.related_summary_id) || [])
+                )));
 
             alertSummary.modifySelectedAlerts({
                 status: phAlertStatusMap.UNTRIAGED.id,
@@ -392,7 +382,7 @@ perf.controller('AlertsCtrl', [
             }).then(
                 function () {
                     // update the alert summaries appropriately
-                    summariesToUpdate.forEach(function (alertSummary) {
+                    summariesToUpdate.forEach((alertSummary) => {
                         updateAlertSummary(alertSummary);
                     });
                 });
@@ -435,22 +425,20 @@ perf.controller('AlertsCtrl', [
                     });
             });
 
-            $q.all(_.map(Object.keys(resultSetToSummaryMap), function (repo) {
-                return ThResultSetModel.getResultSetList(
+            $q.all(Object.keys(resultSetToSummaryMap).map(repo =>
+              ThResultSetModel.getResultSetList(
                     repo, Object.keys(resultSetToSummaryMap[repo]), true).then(
-                        function (response) {
-                            response.data.results.forEach(function (resultSet) {
+                        (response) => {
+                            response.data.results.forEach((resultSet) => {
                                 resultSet.dateStr = dateFilter(
                                     resultSet.push_timestamp*1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
                                 const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
                                 resultSet.timeRange = Math.max(timeRange, _.find(
-                                    _.map(phTimeRanges, 'value'),
-                                    function (t) {
-                                        return ((Date.now() / 1000.0) - resultSet.push_timestamp) < t;
-                                    }));
+                                    phTimeRanges.map(timeRange => timeRange.value),
+                                    (t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t)));
                                 resultSetToSummaryMap[repo][resultSet.id].forEach(
-                                          function (summary) {
+                                          (summary) => {
                                               if (summary.push_id === resultSet.id) {
                                                   summary.resultSetMetadata = resultSet;
                                               } else if (summary.prev_push_id === resultSet.id) {
@@ -459,11 +447,11 @@ perf.controller('AlertsCtrl', [
                                           });
                             });
 
-                        });
-            })).then(function () {
+                        })
+            )).then(function () {
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
-                alertSummaries.forEach(function (summary) {
+                alertSummaries.forEach((summary) => {
                     const repo = _.find($rootScope.repos,
                                       { name: summary.repository });
 
@@ -479,13 +467,12 @@ perf.controller('AlertsCtrl', [
                         });
                     }
 
-                    summary.downstreamSummaryIds = _.uniq(_.flatten(_.map(
-                        summary.alerts, function (alert) {
+                    summary.downstreamSummaryIds = _.uniq(_.flatten(
+                        summary.alerts.map((alert) => {
                             if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                                 alert.summary_id !== summary.id) {
                                 return alert.summary_id;
                             }
-
                             return [];
                         })));
 
