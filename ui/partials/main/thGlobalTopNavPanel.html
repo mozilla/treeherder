@@ -174,19 +174,6 @@
         </ul>
       </span>
 
-      <!-- Settings Button - currently suppressed -->
-      <span ng-show="false"
-            class="btn btn-view-nav btn-right-navbar nav-menu-btn"
-            ng-class="{'active': (isSettingsPanelShowing)}"
-            ng-click="setSettingsPanelShowing(!isSettingsPanelShowing)"
-            tabindex="0"
-            role="button"><span>Settings</span>
-        <i class="fa fa-angle-down lightgray"
-           ng-hide="isSettingsPanelShowing"></i>
-        <i class="fa fa-angle-up lightgray"
-           ng-show="isSettingsPanelShowing"></i>
-      </span>
-
       <!-- Login/Register Button -->
       <login on-user-change="$root.user = $event.user"></login>
     </span>
