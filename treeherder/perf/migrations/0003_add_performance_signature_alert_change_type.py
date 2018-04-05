@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='performancesignature',
             name='alert_change_type',
-            field=models.IntegerField(choices=[(0, b'percentage'), (1, b'absolute')], null=True),
+            field=models.IntegerField(choices=[(0, 'percentage'), (1, 'absolute')], null=True),
         ),
     ]

@@ -11,11 +11,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     replaces = [
-        (b'perf', '0001_squashed_0032_remove_redundant_indexes'),
-        (b'perf', '0002_remove_signature_hash_index'),
-        (b'perf', '0003_add_performance_signature_alert_change_type'),
-        (b'perf', '0004_add_per_push_performance_datum_index'),
-        (b'perf', '0005_permit_github_links'),
+        ('perf', '0001_squashed_0032_remove_redundant_indexes'),
+        ('perf', '0002_remove_signature_hash_index'),
+        ('perf', '0003_add_performance_signature_alert_change_type'),
+        ('perf', '0004_add_per_push_performance_datum_index'),
+        ('perf', '0005_permit_github_links'),
     ]
 
     initial = True
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
                 ('has_subtests', models.BooleanField()),
                 ('extra_options', models.CharField(blank=True, max_length=60)),
                 ('should_alert', models.NullBooleanField()),
-                ('alert_change_type', models.IntegerField(choices=[(0, b'percentage'), (1, b'absolute')], null=True)),
+                ('alert_change_type', models.IntegerField(choices=[(0, 'percentage'), (1, 'absolute')], null=True)),
                 ('alert_threshold', models.FloatField(null=True)),
                 ('min_back_window', models.IntegerField(null=True)),
                 ('max_back_window', models.IntegerField(null=True)),
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('value', models.FloatField()),
                 ('push_timestamp', models.DateTimeField()),
-                ('ds_job_id', models.PositiveIntegerField(db_column=b'ds_job_id', null=True)),
+                ('ds_job_id', models.PositiveIntegerField(db_column='ds_job_id', null=True)),
                 ('result_set_id', models.PositiveIntegerField(null=True)),
                 ('job', models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, to='model.Job')),
                 ('push', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='model.Push')),
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('manually_created', models.BooleanField(default=False)),
                 ('last_updated', models.DateTimeField(db_index=True)),
-                ('status', models.IntegerField(choices=[(0, b'Untriaged'), (1, b'Downstream'), (3, b'Invalid'), (4, b'Improvement'), (5, b'Investigating'), (6, b"Won't fix"), (7, b'Fixed'), (8, b'Backed out')], default=0)),
+                ('status', models.IntegerField(choices=[(0, 'Untriaged'), (1, 'Downstream'), (3, 'Invalid'), (4, 'Improvement'), (5, 'Investigating'), (6, "Won't fix"), (7, 'Fixed'), (8, 'Backed out')], default=0)),
                 ('bug_number', models.PositiveIntegerField(null=True)),
                 ('framework', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='perf.PerformanceFramework')),
                 ('prev_push', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='model.Push')),
@@ -131,12 +131,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('is_regression', models.BooleanField()),
-                ('status', models.IntegerField(choices=[(0, b'Untriaged'), (1, b'Downstream'), (2, b'Reassigned'), (3, b'Invalid'), (4, b'Acknowledged')], default=0)),
-                ('amount_pct', models.FloatField(help_text=b'Amount in percentage that series has changed')),
-                ('amount_abs', models.FloatField(help_text=b'Absolute amount that series has changed')),
-                ('prev_value', models.FloatField(help_text=b'Previous value of series before change')),
-                ('new_value', models.FloatField(help_text=b'New value of series after change')),
-                ('t_value', models.FloatField(help_text=b"t value out of analysis indicating confidence that change is 'real'", null=True)),
+                ('status', models.IntegerField(choices=[(0, 'Untriaged'), (1, 'Downstream'), (2, 'Reassigned'), (3, 'Invalid'), (4, 'Acknowledged')], default=0)),
+                ('amount_pct', models.FloatField(help_text='Amount in percentage that series has changed')),
+                ('amount_abs', models.FloatField(help_text='Absolute amount that series has changed')),
+                ('prev_value', models.FloatField(help_text='Previous value of series before change')),
+                ('new_value', models.FloatField(help_text='New value of series after change')),
+                ('t_value', models.FloatField(help_text="t value out of analysis indicating confidence that change is 'real'", null=True)),
                 ('manually_created', models.BooleanField(default=False)),
                 ('classifier', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
                 ('related_summary', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='related_alerts', to='perf.PerformanceAlertSummary')),
