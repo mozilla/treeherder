@@ -39,9 +39,13 @@ matrix:
       script:
         - pip check
         - flake8 --show-source
-        # Temporarily running this in the linters job so we get Python 3 coverage.
-        # ELASTICSEARCH_URL has to be cleared since Elasticsearch isn't running in this job. 
-        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ELASTICSEARCH_URL= ./manage.py check --deploy --fail-level WARNING
+        # Temporarily running these in the linters job to avoid impacting job count and thus Travis end-to-end times.
+        # Prevent connections during check/migrate/makemigrations to a non-existent Elasticsearch server.
+        - unset ELASTICSEARCH_URL
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
+        # Remove these once we get the roughly equivalent pytest sanity tests working under Python 3.
+        - ./manage.py migrate
+        - ./manage.py makemigrations --check
 
     # Job 3: Nodejs UI tests
     - env: ui-tests
