@@ -860,9 +860,10 @@ class FailureLine(models.Model):
     ACTION_LIST = ("test_result", "log", "crash", "truncated")
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
 
-    ACTION_CHOICES = zip(ACTION_LIST, ACTION_LIST)
-    STATUS_CHOICES = zip(STATUS_LIST, STATUS_LIST)
-    LEVEL_CHOICES = zip(LEVEL_LIST, LEVEL_LIST)
+    # Python 3's zip produces an iterable rather than a list, which Django's `choices` can't handle.
+    ACTION_CHOICES = list(zip(ACTION_LIST, ACTION_LIST))
+    STATUS_CHOICES = list(zip(STATUS_LIST, STATUS_LIST))
+    LEVEL_CHOICES = list(zip(LEVEL_LIST, LEVEL_LIST))
 
     id = models.BigAutoField(primary_key=True)
     job_guid = models.CharField(max_length=50)
