@@ -1,4 +1,4 @@
-import { curveLinear } from 'd3';
+import { curveLinear, format } from 'd3';
 
 // data is passed as a prop and target is updated via a ref in graph.jsx
 export const graphOneSpecs = {
@@ -12,6 +12,9 @@ export const graphOneSpecs = {
   target: '',
   x_accessor: 'date',
   y_accessor: 'value',
+  // this is a temporary fix until a bug with the decimals attribute is fixed;
+  // should be replaced with: decimals: 2
+  y_mouseover: d => format('.2f')(d.value),
 };
 
 export const graphTwoSpecs = {
