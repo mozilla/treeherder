@@ -468,7 +468,7 @@ treeherder.factory('thJobFilters', [
          * actually setting it in the location bar
          */
         function _stripFieldFilters(locationSearch) {
-            _.forEach(locationSearch, function (val, field) {
+            Object.keys(locationSearch).forEach((field) => {
                 if (_isFieldFilter(field)) {
                     delete locationSearch[field];
                 }
@@ -477,7 +477,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function _stripClearableFieldFilters(locationSearch) {
-            _.forEach(locationSearch, function (val, field) {
+            Object.keys(locationSearch).forEach((field) => {
                 if (_isClearableFilter(field)) {
                     delete locationSearch[field];
                 }
