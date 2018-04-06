@@ -106,7 +106,7 @@ class RevisionDatum(object):
 
     def __repr__(self):
         values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in
-                                          self.values])
+                                           self.values])
         return "<%s: %s, %s, %.3f, %s>" % (self.push_timestamp,
                                            self.push_id, values_str,
                                            self.t, self.change_detected)

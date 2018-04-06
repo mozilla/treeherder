@@ -290,8 +290,8 @@ def test_push_list_bad_count(webapp, test_repository):
     bad_count = "ZAP%n%s%n%s"
 
     resp = webapp.get(
-            reverse("push-list", kwargs={"project": test_repository.name}),
-            params={'count': bad_count}, expect_errors=True)
+        reverse("push-list", kwargs={"project": test_repository.name}),
+        params={'count': bad_count}, expect_errors=True)
 
     assert resp.status_code == 400
     assert resp.json == {'detail': 'Valid count value required'}

@@ -340,21 +340,21 @@ def pulse_consumer(exchange, request):
     connection = kombu.Connection(settings.PULSE_URI)
 
     exchange = kombu.Exchange(
-            name=exchange_name,
-            type='topic'
-            )
+        name=exchange_name,
+        type='topic'
+    )
 
     queue = kombu.Queue(
-            no_ack=True,
-            exchange=exchange,  # Exchange name
-            routing_key='#',  # Bind to all messages
-            auto_delete=True,  # Delete after each test
-            exclusive=False)  # Disallow multiple consumers
+        no_ack=True,
+        exchange=exchange,  # Exchange name
+        routing_key='#',  # Bind to all messages
+        auto_delete=True,  # Delete after each test
+        exclusive=False)  # Disallow multiple consumers
 
     simpleQueue = connection.SimpleQueue(
-            name=queue,
-            channel=connection,
-            no_ack=True)
+        name=queue,
+        channel=connection,
+        no_ack=True)
 
     def fin():
         connection.release()

@@ -41,29 +41,29 @@ class Command(BaseCommand):
         # machine platforms
         for machine_platform in c.get_machine_platforms():
             MachinePlatform.objects.get_or_create(
-                    os_name=machine_platform['os_name'],
-                    platform=machine_platform['platform'],
-                    architecture=machine_platform['architecture'])
+                os_name=machine_platform['os_name'],
+                platform=machine_platform['platform'],
+                architecture=machine_platform['architecture'])
 
         # machine
         for machine in c.get_machines():
             Machine.objects.get_or_create(
-                    id=machine['id'],
-                    name=machine['name'],
-                    defaults={
-                        'first_timestamp': machine['first_timestamp'],
-                        'last_timestamp': machine['last_timestamp']
-                    })
+                id=machine['id'],
+                name=machine['name'],
+                defaults={
+                    'first_timestamp': machine['first_timestamp'],
+                    'last_timestamp': machine['last_timestamp']
+                })
 
         # job group
         for job_group in c.get_job_groups():
             JobGroup.objects.get_or_create(
-                    id=job_group['id'],
-                    symbol=job_group['symbol'],
-                    name=job_group['name'],
-                    defaults={
-                        'description': job_group['description']
-                    })
+                id=job_group['id'],
+                symbol=job_group['symbol'],
+                name=job_group['name'],
+                defaults={
+                    'description': job_group['description']
+                })
 
         # job type
         for job_type in c.get_job_types():
@@ -78,45 +78,45 @@ class Command(BaseCommand):
         # product
         for product in c.get_products():
             Product.objects.get_or_create(
-                    id=product['id'],
-                    name=product['name'],
-                    defaults={
-                        'description': product['description']
-                    })
+                id=product['id'],
+                name=product['name'],
+                defaults={
+                    'description': product['description']
+                })
 
         # failure classification
         for failure_classification in c.get_failure_classifications():
             FailureClassification.objects.get_or_create(
-                    id=failure_classification['id'],
-                    name=failure_classification['name'],
-                    defaults={
-                        'description': failure_classification['description']
-                    })
+                id=failure_classification['id'],
+                name=failure_classification['name'],
+                defaults={
+                    'description': failure_classification['description']
+                })
 
         # build platform
         for build_platform in c.get_build_platforms():
             BuildPlatform.objects.get_or_create(
-                    id=build_platform['id'],
-                    os_name=build_platform['os_name'],
-                    defaults={
-                        'platform': build_platform['platform'],
-                        'architecture': build_platform['architecture']
-                    })
+                id=build_platform['id'],
+                os_name=build_platform['os_name'],
+                defaults={
+                    'platform': build_platform['platform'],
+                    'architecture': build_platform['architecture']
+                })
 
         # repository and repository group
         for repository in c.get_repositories():
             rgroup, _ = RepositoryGroup.objects.get_or_create(
-                    name=repository['repository_group']['name'],
-                    description=repository['repository_group']['description']
-                    )
+                name=repository['repository_group']['name'],
+                description=repository['repository_group']['description']
+                )
             Repository.objects.get_or_create(
-                    id=repository['id'],
-                    repository_group=rgroup,
-                    name=repository['name'],
-                    dvcs_type=repository['dvcs_type'],
-                    url=repository['url'],
-                    defaults={
-                        'codebase': repository['codebase'],
-                        'description': repository['description'],
-                        'active_status': repository['active_status']
-                    })
+                id=repository['id'],
+                repository_group=rgroup,
+                name=repository['name'],
+                dvcs_type=repository['dvcs_type'],
+                url=repository['url'],
+                defaults={
+                    'codebase': repository['codebase'],
+                    'description': repository['description'],
+                    'active_status': repository['active_status']
+                })

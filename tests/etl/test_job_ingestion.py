@@ -263,7 +263,7 @@ def test_ingest_buildbot_tier2_job(test_repository, sample_data, sample_push,
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
     job = Job.objects.all().first()
     lower_tier_signatures = {
-            job.signature.signature: 2
+        job.signature.signature: 2
     }
     job_data_2 = copy.deepcopy(job_data)
     job_data_2[0]['job']['job_guid'] = "foo"

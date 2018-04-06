@@ -154,8 +154,8 @@ def test_bug_job_map_bad_job_id(webapp, test_repository):
     bad_job_id = "aaaa"
 
     resp = webapp.get(
-            reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
-            params={'job_id': bad_job_id}, expect_errors=True)
+        reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
+        params={'job_id': bad_job_id}, expect_errors=True)
 
     assert resp.status_code == 400
     assert resp.json == {'message': 'Valid job_id required'}

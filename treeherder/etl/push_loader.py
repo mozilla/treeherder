@@ -67,8 +67,7 @@ class GithubTransformer(object):
 
     def __init__(self, message_body):
         self.message_body = message_body
-        self.repo_url = message_body["details"]["event.head.repo.url"].replace(
-                ".git", "")
+        self.repo_url = message_body["details"]["event.head.repo.url"].replace(".git", "")
         self.branch = self.get_branch()
 
     def get_branch(self):
