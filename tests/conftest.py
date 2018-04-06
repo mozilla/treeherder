@@ -204,7 +204,6 @@ def push_stored(test_repository, sample_push):
 
 @pytest.fixture
 def mock_message_broker(monkeypatch):
-    from django.conf import settings
     monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
 
 
@@ -548,7 +547,6 @@ def test_perf_signature(test_repository, test_perf_framework):
 
 @pytest.fixture
 def mock_autoclassify_jobs_true(monkeypatch):
-    from django.conf import settings
     monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
 
 

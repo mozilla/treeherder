@@ -27,7 +27,6 @@ def test_repository_onhold(transactional_db):
 
 @pytest.fixture
 def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
-    from treeherder.perf.models import PerformanceAlertSummary
     for i in range(2):
         Push.objects.create(
             repository=test_repository_onhold,
