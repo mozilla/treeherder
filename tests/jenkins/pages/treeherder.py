@@ -29,11 +29,6 @@ class TreeherderPage(Page):
         return self
 
     @property
-    def all_emails(self):
-        return list(itertools.chain.from_iterable(
-            r.emails for r in self.pushes))
-
-    @property
     def all_jobs(self):
         return list(itertools.chain.from_iterable(
             r.jobs for r in self.pushes))
@@ -45,11 +40,6 @@ class TreeherderPage(Page):
     @property
     def pinboard(self):
         return self.Pinboard(self)
-
-    @property
-    def random_email_name(self):
-        random_email_name = random.choice(self.all_emails)
-        return random_email_name.get_name
 
     @property
     def pushes(self):
@@ -131,13 +121,6 @@ class TreeherderPage(Page):
     def select_previous_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_LEFT)
 
-    def select_random_email(self):
-        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-        el = self.find_element(By.CSS_SELECTOR, 'body')
-        random.choice(self.all_emails).click()
-        self.wait.until(EC.staleness_of(el))
-        self.wait_for_page_to_load()
-
     def select_random_job(self):
         random_job = random.choice(self.all_jobs)
         random_job.click()
@@ -146,7 +129,6 @@ class TreeherderPage(Page):
 
         _busted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-red')
         _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
-        _email_locator = (By.CSS_SELECTOR, '.push-title-left > .push-author > span > a')
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
@@ -160,14 +142,6 @@ class TreeherderPage(Page):
         @property
         def busted_jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._busted_jobs_locator)]
-
-        @property
-        def emails(self):
-            return [self.Email(self.page, root=el) for el in self.find_elements(*self._email_locator)]
-
-        @property
-        def email_name(self):
-            return self.find_element(*self._email_locator).text
 
         @property
         def exception_jobs(self):
@@ -222,15 +196,6 @@ class TreeherderPage(Page):
             self.find_element(*self._datestamp_locator).click()
             self.wait.until(EC.staleness_of(el))
             self.page.wait_for_page_to_load()
-
-        class Email(Region):
-
-            @property
-            def get_name(self):
-                return self.root.text
-
-            def click(self):
-                self.root.click()
 
         class Job(Region):
 

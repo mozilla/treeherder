@@ -32,6 +32,10 @@ class Treeherder(Base):
         return self
 
     @property
+    def active_filters(self):
+        return self.ActiveFilters(self)
+
+    @property
     def active_watched_repo(self):
         return self.find_element(*self._active_watched_repo_locator).text
 
@@ -133,6 +137,39 @@ class Treeherder(Base):
         def toggle_testfailed_jobs(self):
             self.find_element(*self._testfailed_locator).click()
 
+    class ActiveFilters(Region):
+
+        _root_locator = (By.CSS_SELECTOR, '.active-filters-bar')
+        _clear_locator = (By.CSS_SELECTOR, '.pointable')
+        _filters_locator = (By.CSS_SELECTOR, '.filtersbar-filter')
+
+        def clear(self):
+            self.find_element(*self._clear_locator).click()
+            return self.page.wait_for_page_to_load()
+
+        @property
+        def filters(self):
+            els = self.find_elements(*self._filters_locator)
+            return [self.Filter(self.page, el) for el in els]
+
+        class Filter(Region):
+
+            _clear_locator = (By.CSS_SELECTOR, '.pointable')
+            _field_locator = (By.CSS_SELECTOR, 'span:nth-child(2) b')
+            _value_locator = (By.CSS_SELECTOR, 'span:nth-child(2) span')
+
+            @property
+            def field(self):
+                return self.find_element(*self._field_locator).text
+
+            @property
+            def value(self):
+                return self.find_element(*self._value_locator).text
+
+            def clear(self):
+                self.find_element(*self._clear_locator).click()
+                return self.page.wait_for_page_to_load()
+
     class ResultSet(Region):
 
         _author_locator = (By.CSS_SELECTOR, '.push-title-left .push-author a')
@@ -163,6 +200,10 @@ class Treeherder(Base):
         @property
         def commits(self):
             return [self.page.Commit(self.page, el) for el in self.find_elements(*self._commits_locator)]
+
+        def filter_by_author(self):
+            self.find_element(*self._author_locator).click()
+            return self.page.wait_for_page_to_load()
 
         def set_as_bottom_of_range(self):
             # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
