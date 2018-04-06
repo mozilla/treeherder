@@ -12,8 +12,8 @@ export const graphOneSpecs = {
   target: '',
   x_accessor: 'date',
   y_accessor: 'value',
-  // this is a temporary fix until a bug with the decimals attribute is fixed;
-  // should be replaced with: decimals: 2
+  // this is a temporary fix until a bug (https://github.com/metricsgraphics/metrics-graphics/issues/844)
+  // with the decimals attribute is fixed; it should be replaced with: decimals: 2
   y_mouseover: d => format('.2f')(d.value),
 };
 
