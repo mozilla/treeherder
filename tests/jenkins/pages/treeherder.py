@@ -148,7 +148,6 @@ class TreeherderPage(Page):
         _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
         _email_locator = (By.CSS_SELECTOR, '.push-title-left > .push-author > span > a')
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
-        _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
@@ -185,10 +184,6 @@ class TreeherderPage(Page):
         @property
         def in_progress_jobs(self):
             return self.pending_jobs + self.running_jobs
-
-        @property
-        def job_groups(self):
-            return [self.JobGroup(self.page, root=el) for el in self.find_elements(*self._job_groups_locator)]
 
         @property
         def jobs(self):

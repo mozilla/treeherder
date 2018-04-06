@@ -40,6 +40,11 @@ class Treeherder(Base):
         return list(itertools.chain.from_iterable(
             r.jobs for r in self.pushes))
 
+    @property
+    def all_job_groups(self):
+        return list(itertools.chain.from_iterable(
+            r.job_groups for r in self.pushes))
+
     @contextmanager
     def filters_menu(self):
         el = self.find_element(*self._filters_menu_locator)
@@ -134,6 +139,7 @@ class Treeherder(Base):
         _datestamp_locator = (By.CSS_SELECTOR, '.push-title-left > span a')
         _dropdown_toggle_locator = (By.CLASS_NAME, 'dropdown-toggle')
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
+        _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(6)')
         _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(5)')
@@ -145,6 +151,10 @@ class Treeherder(Base):
         @property
         def datestamp(self):
             return self.find_element(*self._datestamp_locator).text
+
+        @property
+        def job_groups(self):
+            return [self.JobGroup(self.page, root=el) for el in self.find_elements(*self._job_groups_locator)]
 
         @property
         def jobs(self):
@@ -186,6 +196,24 @@ class Treeherder(Base):
             @property
             def selected(self):
                 return 'selected-job' in self.root.get_attribute('class')
+
+        class JobGroup(Region):
+
+            _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
+            _expand_locator = (By.CSS_SELECTOR, '.group-btn')
+
+            def expand(self):
+                assert not self.expanded
+                self.find_element(*self._expand_locator).click()
+                self.wait.until(lambda _: self.expanded)
+
+            @property
+            def expanded(self):
+                return not self.is_element_present(*self._expand_locator)
+
+            @property
+            def jobs(self):
+                return [Treeherder.ResultSet.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
 
     class Commit(Region):
 
