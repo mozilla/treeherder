@@ -59,7 +59,7 @@ class JobLoader(object):
                         logger.warn("Skipping job due to bad attribute",
                                     exc_info=1)
             except Repository.DoesNotExist:
-                logger.info("Job with unsupported project: {}".format(project))
+                logger.info("Job with unsupported project: %s", project)
 
     def validate_revision(self, repository, pulse_job):
         revision = pulse_job["origin"].get("revision")
@@ -301,8 +301,7 @@ class JobLoader(object):
         try:
             jsonschema.validate(pulse_job, job_json_schema)
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-            logger.error(
-                "JSON Schema validation error during job ingestion: {}".format(e))
+            logger.error("JSON Schema validation error during job ingestion: %s", e)
             return False
         return True
 

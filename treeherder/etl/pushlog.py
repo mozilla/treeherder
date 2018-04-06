@@ -60,8 +60,8 @@ class HgPushlogProcess(object):
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
             logger.info("Extracted last push for '%s', '%s', from cache, "
-                        "attempting to get changes only from that point at: %s" %
-                        (repository_name, last_push_id, startid_url))
+                        "attempting to get changes only from that point at: %s",
+                        repository_name, last_push_id, startid_url)
             # Use the cached ``last_push_id`` value (saved from the last time
             # this API was called) for this repo.  Use that value as the
             # ``startID`` to get all new pushes from that point forward.
@@ -74,25 +74,24 @@ class HgPushlogProcess(object):
                 # the Mercurial IDs were reset.
                 # In this circumstance, we can't rely on the cached id, so must
                 # throw it out and get the latest 10 pushes.
-                logger.warning(("Got a ``lastpushid`` value of {} lower than "
-                                "the cached value of {} due to Mercurial repo reset.  "
-                                "Getting latest changes for '{}' instead").format(
-                                    extracted_content['lastpushid'],
-                                    last_push_id,
-                                    repository_name
-                                    )
-                               )
+                logger.warning(
+                    "Got a ``lastpushid`` value of %s lower than the cached value of %s "
+                    "due to Mercurial repo reset. Getting latest changes for '%s' instead",
+                    extracted_content['lastpushid'],
+                    last_push_id,
+                    repository_name
+                )
                 cache.delete(cache_key)
                 extracted_content = self.extract(source_url)
         else:
             if changeset:
                 logger.info("Getting all pushes for '%s' corresponding to "
-                            "changeset '%s'" % (repository_name, changeset))
+                            "changeset '%s'", repository_name, changeset)
                 extracted_content = self.extract(source_url + "&changeset=" +
                                                  changeset)
             else:
                 logger.warning("Unable to get last push from cache for '%s', "
-                               "getting all pushes" % repository_name)
+                               "getting all pushes", repository_name)
                 extracted_content = self.extract(source_url)
 
         pushes = extracted_content['pushes']

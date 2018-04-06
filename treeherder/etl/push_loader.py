@@ -33,17 +33,17 @@ class PushLoader(object):
             })
             newrelic.agent.record_custom_event("skip_unknown_repository",
                                                repo_info)
-            logger.warn("Skipping unsupported repo: {} {}".format(
-                transformer.repo_url,
-                transformer.branch))
+            logger.warn("Skipping unsupported repo: %s %s",
+                        transformer.repo_url,
+                        transformer.branch)
             return
 
         transformed_data = transformer.transform(repo.name)
 
-        logger.info("Storing push for {} {} {}".format(
-            repo.name,
-            transformer.repo_url,
-            transformer.branch))
+        logger.info("Storing push for %s %s %s",
+                    repo.name,
+                    transformer.repo_url,
+                    transformer.branch)
         store_push_data(repo, [transformed_data])
 
     def get_transformer_class(self, exchange):
@@ -86,7 +86,7 @@ class GithubTransformer(object):
         params = {"sha": sha} if sha else {}
         params.update(self.CREDENTIALS)
 
-        logger.info("Fetching push details: {}".format(url))
+        logger.info("Fetching push details: %s", url)
         newrelic.agent.add_custom_parameter("sha", sha)
 
         commits = self.get_cleaned_commits(fetch_json(url, params))
@@ -230,14 +230,14 @@ class HgPushTransformer(object):
         return self.message_body["payload"]
 
     def transform(self, repository):
-        logger.info("transforming for {}".format(repository))
+        logger.info("transforming for %s", repository)
         url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
         newrelic.agent.add_custom_parameter("sha", sha)
 
-        logger.info("fetching for {} {}".format(repository, url))
+        logger.info("fetching for %s %s", repository, url)
         # there will only ever be one, with this url
         push = list(fetch_json(url)["pushes"].values())[0]
 

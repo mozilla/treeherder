@@ -147,7 +147,7 @@ class AuthBackend(object):
 
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(username))
+            logger.warning("Creating new user: %s", username)
             return User.objects.create_user(username, email=user_info['email'])
 
     def get_user(self, user_id):

@@ -62,8 +62,8 @@ def build_removals(active_jobs, failures, target):
                     failed_revisions.append(revision)
                     failures_root_cause.append(revision)
 
-            logger.info("jobtype: %s is the root failure(s) of these %s revisions" % (
-                jobtype, failed_revisions))
+            logger.info("jobtype: %s is the root failure(s) of these %s revisions",
+                        jobtype, failed_revisions)
 
     return low_value_jobs, failures_root_cause
 
@@ -76,7 +76,7 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
         Percentage of failures to analyze
     """
     total = len(fixed_by_commit_jobs)
-    logger.info("Processing %s revision(s)" % total)
+    logger.info("Processing %s revision(s)", total)
     active_jobs = job_priorities_to_jobtypes()
 
     low_value_jobs, failures_root_cause = build_removals(
@@ -89,12 +89,12 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
         try:
             active_jobs.remove(low_value_job)
         except ValueError:
-            logger.warning("%s is missing from the job list" % low_value_job)
+            logger.warning("%s is missing from the job list", low_value_job)
 
     total = len(fixed_by_commit_jobs)
     total_detected = check_removal(fixed_by_commit_jobs, low_value_jobs)
     percent_detected = 100 * len(total_detected) / total
-    logger.info("We will detect %.2f%% (%s) of the %s failures" % (
-        percent_detected, len(total_detected), total))
+    logger.info("We will detect %.2f%% (%s) of the %s failures",
+                percent_detected, len(total_detected), total)
 
     return active_jobs

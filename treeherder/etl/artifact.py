@@ -32,10 +32,8 @@ def store_job_info_artifact(job, job_info_artifact):
         for (k, v) in job_detail_dict.items():
             max_field_length = JobDetail._meta.get_field(k).max_length
             if v is not None and len(v) > max_field_length:
-                logger.warning("Job detail '{}' for job_guid {} too long, "
-                               "truncating".format(
-                                   v[:max_field_length],
-                                   job.guid))
+                logger.warning("Job detail '%s' for job_guid %s too long, truncating",
+                               v[:max_field_length], job.guid)
                 job_detail_dict[k] = v[:max_field_length]
 
         # move the url field to be updated in defaults now that it's
@@ -107,22 +105,18 @@ def store_job_artifacts(artifact_data):
         if artifact:
             artifact_name = artifact.get('name')
             if not artifact_name:
-                logger.error("load_job_artifacts: Unnamed job artifact, "
-                             "skipping")
+                logger.error("load_job_artifacts: Unnamed job artifact, skipping")
                 continue
             job_guid = artifact.get('job_guid')
             if not job_guid:
-                logger.error("load_job_artifacts: Artifact '{}' with no "
-                             "job guid set, skipping".format(
-                                 artifact_name))
+                logger.error("load_job_artifacts: Artifact '%s' with no "
+                             "job guid set, skipping", artifact_name)
                 continue
 
             try:
                 job = Job.objects.get(guid=job_guid)
             except Job.DoesNotExist:
-                logger.error(
-                    ('load_job_artifacts: No job_id for '
-                     'guid {}'.format(job_guid)))
+                logger.error('load_job_artifacts: No job_id for guid %s', job_guid)
                 continue
 
             if artifact_name == 'performance_data':
@@ -149,9 +143,7 @@ def store_job_artifacts(artifact_data):
                 logger.warning("Unknown artifact type: %s submitted with job %s",
                                artifact_name, job.guid)
         else:
-            logger.error(
-                ('store_job_artifacts: artifact type '
-                 '{} not understood'.format(artifact_name)))
+            logger.error('store_job_artifacts: artifact type %s not understood', artifact_name)
 
 
 def serialize_artifact_json_blobs(artifacts):

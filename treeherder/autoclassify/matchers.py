@@ -48,7 +48,7 @@ class Matcher(object):
         best_match = self.query_best(text_log_error)
         if best_match:
             classified_failure_id, score = best_match
-            logger.debug("Matched using %s" % self.__class__.__name__)
+            logger.debug("Matched using %s", self.__class__.__name__)
             return Match(text_log_error,
                          classified_failure_id,
                          score)
@@ -104,7 +104,7 @@ class id_window(object):
             lower_cutoff = max(upper_cutoff - self.size, 0)
             window_queryset = query.filter(
                 text_log_error__id__range=(lower_cutoff, upper_cutoff))
-            logger.debug("[time_window] Queryset: %s" % window_queryset.query)
+            logger.debug("[time_window] Queryset: %s", window_queryset.query)
             match = window_queryset.first()
             if match is not None:
                 score = match.score * score_multiplier[0] / score_multiplier[1]
@@ -118,7 +118,7 @@ class id_window(object):
                 # run it once, which is useful for testing
                 break
 
-        logger.debug("[time_window] Used %i queries" % count)
+        logger.debug("[time_window] Used %i queries", count)
         if matches:
             matches.sort(key=lambda x: (-x[1], -x[0].classified_failure_id))
             best = matches[0]
@@ -149,7 +149,7 @@ class PreciseTestMatcher(Matcher):
                time_budget=500)
     def query_best(self, text_log_error):
         failure_line = text_log_error.metadata.failure_line
-        logger.debug("Looking for test match in failure %d" % failure_line.id)
+        logger.debug("Looking for test match in failure %d", failure_line.id)
 
         if failure_line.action != "test_result" or failure_line.message is None:
             return
