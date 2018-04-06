@@ -43,7 +43,7 @@ class PushViewSet(viewsets.ViewSet):
         for param in ["fromchange", "tochange", "startdate", "enddate", "revision"]:
             v = filter_params.get(param, None)
             if v:
-                del(filter_params[param])
+                del filter_params[param]
                 meta[param] = v
 
         try:
