@@ -151,10 +151,6 @@ class TreeherderPage(Page):
         def failed_jobs(self):
             return self.busted_jobs + self.exception_jobs + self.tests_failed_jobs
 
-        def contains_platform(self, value):
-            locator = (By.CSS_SELECTOR, '.job-list tr[style=\'display: table-row;\'] .platform > span[title~={} i]'.format(value))
-            return any(self.find_elements(*locator))
-
         @property
         def in_progress_jobs(self):
             return self.pending_jobs + self.running_jobs

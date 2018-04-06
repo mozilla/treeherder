@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from django.conf import settings
 from pypom import Region
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as expected
 
 from .base import Base
@@ -48,6 +49,11 @@ class Treeherder(Base):
     def all_job_groups(self):
         return list(itertools.chain.from_iterable(
             r.job_groups for r in self.pushes))
+
+    def filter_by(self, term):
+        el = self.selenium.find_element(*self._quick_filter_locator)
+        el.send_keys(term + Keys.RETURN)
+        return self.wait_for_page_to_load()
 
     @contextmanager
     def filters_menu(self):
