@@ -183,7 +183,7 @@ def is_helpful_search_term(search_term):
 
     ]
 
-    return len(search_term) > 4 and not (search_term in blacklist)
+    return len(search_term) > 4 and search_term not in blacklist
 
 
 def get_filtered_error_lines(job):
