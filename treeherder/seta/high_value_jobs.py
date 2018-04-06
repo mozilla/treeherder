@@ -45,7 +45,6 @@ def build_removals(active_jobs, failures, target):
     # A failure is a revision + all of the jobs that were fixed by it
     number_of_failures = int((target / 100) * len(failures))
     low_value_jobs = []
-    failures_root_cause = []
 
     for jobtype in active_jobs:
         # Determine if removing an active job will reduce the number of failures we would catch
@@ -60,12 +59,11 @@ def build_removals(active_jobs, failures, target):
             for revision in failures:
                 if revision not in remaining_failures:
                     failed_revisions.append(revision)
-                    failures_root_cause.append(revision)
 
             logger.info("jobtype: %s is the root failure(s) of these %s revisions",
                         jobtype, failed_revisions)
 
-    return low_value_jobs, failures_root_cause
+    return low_value_jobs
 
 
 def get_high_value_jobs(fixed_by_commit_jobs, target=100):
@@ -79,7 +77,7 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
     logger.info("Processing %s revision(s)", total)
     active_jobs = job_priorities_to_jobtypes()
 
-    low_value_jobs, failures_root_cause = build_removals(
+    low_value_jobs = build_removals(
         active_jobs=active_jobs,
         failures=fixed_by_commit_jobs,
         target=target)

@@ -36,8 +36,7 @@ def test_no_throttle():
     # first request ok
     assert response.status_code == 200
 
-    for i in range(1):
-        response = MockView.as_view()(request)
+    response = MockView.as_view()(request)
     # subsequent requests still ok
     assert response.status_code == 200
 
@@ -52,7 +51,6 @@ def test_hawk_client_throttle(monkeypatch):
     # first request, everything ok
     assert response.status_code == 200
 
-    for i in range(1):
-        response = MockView.as_view()(request)
+    response = MockView.as_view()(request)
     # subsequent requests should get throttled
     assert response.status_code == 429

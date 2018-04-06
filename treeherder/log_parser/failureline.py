@@ -120,7 +120,7 @@ def create_failure_line(job_log, failure_line):
                  })
 
         # Save the value regardless
-        group, saved = Group.objects.get_or_create(name=group_path[:255])
+        group, _ = Group.objects.get_or_create(name=group_path[:255])
         group.failure_lines.add(fl)
 
     return fl

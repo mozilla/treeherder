@@ -34,7 +34,7 @@ def test_create_bug_job_map(test_job, mock_message_broker,
     else:
         num_times = 1
 
-    for i in range(num_times):
+    for _ in range(num_times):
         resp = client.post(
             reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
             submit_obj, expect_errors=test_no_auth)

@@ -69,7 +69,7 @@ def test_job_details(test_repository, failure_classifications,
             result = resp.json['results'][0]
             del result['job_guid']
             del result['job_id']
-            assert result == details[guid]
+            assert result == detail
 
     # filter to get first with (just) job_id
     resp = webapp.get(reverse('jobdetail-list') +

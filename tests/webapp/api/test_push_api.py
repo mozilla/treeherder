@@ -237,9 +237,9 @@ def test_push_list_filter_by_id(webapp,
     """
     test filtering by id in various ways
     """
-    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
-                                   (2, '2234abcd', 'foo2@bar.com'),
-                                   (3, '3234abcd', 'foo3@bar.com')]:
+    for (revision, author) in [('1234abcd', 'foo@bar.com'),
+                               ('2234abcd', 'foo2@bar.com'),
+                               ('3234abcd', 'foo3@bar.com')]:
         Push.objects.create(repository=test_repository,
                             revision=revision,
                             author=author,
@@ -257,9 +257,9 @@ def test_push_list_id_in(webapp, test_repository):
     """
     test the id__in parameter
     """
-    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
-                                   (2, '2234abcd', 'foo2@bar.com'),
-                                   (3, '3234abcd', 'foo3@bar.com')]:
+    for (revision, author) in [('1234abcd', 'foo@bar.com'),
+                               ('2234abcd', 'foo2@bar.com'),
+                               ('3234abcd', 'foo3@bar.com')]:
         Push.objects.create(repository=test_repository,
                             revision=revision,
                             author=author,
@@ -301,9 +301,9 @@ def test_push_author(webapp, test_repository):
     """
     test the author parameter
     """
-    for (id, revision, author) in [(1, '1234abcd', 'foo@bar.com'),
-                                   (2, '2234abcd', 'foo@bar.com'),
-                                   (3, '3234abcd', 'foo2@bar.com')]:
+    for (revision, author) in [('1234abcd', 'foo@bar.com'),
+                               ('2234abcd', 'foo@bar.com'),
+                               ('3234abcd', 'foo2@bar.com')]:
         Push.objects.create(repository=test_repository,
                             revision=revision,
                             author=author,

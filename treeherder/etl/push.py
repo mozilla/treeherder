@@ -24,7 +24,7 @@ def store_push(repository, push_dict):
                     push_dict['push_timestamp'])
             })
         for revision in push_dict['revisions']:
-            commit, _ = Commit.objects.update_or_create(
+            Commit.objects.update_or_create(
                 push=push,
                 revision=revision['revision'],
                 defaults={

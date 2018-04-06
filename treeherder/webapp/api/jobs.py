@@ -181,7 +181,7 @@ class JobsViewSet(viewsets.ViewSet):
                 "")
             # some values need to be transformed
             values = list(values)
-            for (i, value) in enumerate(values):
+            for (i, _) in enumerate(values):
                 func = self._property_query_mapping[i][2]
                 if func:
                     values[i] = func(values[i])

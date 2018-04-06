@@ -163,7 +163,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     if not reference_data_name:
         reference_data_name = signature_hash
 
-    signature, created = ReferenceDataSignatures.objects.get_or_create(
+    signature, _ = ReferenceDataSignatures.objects.get_or_create(
         name=reference_data_name,
         signature=signature_hash,
         build_system_type=build_system_type,
@@ -331,7 +331,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
         _schedule_log_parsing(job, job_logs, result)
 
-    return (job_guid, signature_hash)
+    return job_guid
 
 
 def _schedule_log_parsing(job, job_logs, result):
@@ -458,8 +458,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
                 revision__startswith=datum['revision'])
 
             # load job
-            (job_guid, reference_data_signature) = _load_job(
-                repository, job, push_id, lower_tier_signatures)
+            job_guid = _load_job(repository, job, push_id, lower_tier_signatures)
 
             for superseded_guid in superseded:
                 superseded_job_guid_placeholders.append(

@@ -100,7 +100,7 @@ def store_job_artifacts(artifact_data):
         }
 
     """
-    for index, artifact in enumerate(artifact_data):
+    for artifact in artifact_data:
         # Determine what type of artifact we have received
         if artifact:
             artifact_name = artifact.get('name')
