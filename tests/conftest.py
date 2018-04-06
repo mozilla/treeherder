@@ -91,6 +91,32 @@ def sample_push(sample_data):
     return copy.deepcopy(sample_data.push_data)
 
 
+@pytest.fixture(name='create_push')
+def fixture_create_push():
+    """Return a function to create a push"""
+    def create(repository,
+               revision='4c45a777949168d16c03a4cba167678b7ab65f76',
+               author='foo@bar.com'):
+        return Push.objects.create(
+            repository=repository,
+            revision=revision,
+            author=author,
+            time=datetime.datetime.now())
+    return create
+
+
+@pytest.fixture(name='create_commit')
+def fixture_create_commit():
+    """Return a function to create a commit"""
+    def create(push, comments='Bug 12345 - This is a message'):
+        return Commit.objects.create(
+            push=push,
+            revision=push.revision,
+            author=push.author,
+            comments=comments)
+    return create
+
+
 @pytest.fixture
 def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
@@ -127,21 +153,13 @@ def test_repository_2(test_repository):
 
 
 @pytest.fixture
-def test_push(test_repository):
-    return Push.objects.create(
-        repository=test_repository,
-        revision="4c45a777949168d16c03a4cba167678b7ab65f76",
-        author="foo@bar.com",
-        time=datetime.datetime.now())
+def test_push(create_push, test_repository):
+    return create_push(test_repository)
 
 
 @pytest.fixture
-def test_commit(test_push):
-    return Commit.objects.create(
-        push=test_push,
-        revision=test_push.revision,
-        author=test_push.author,
-        comments="Bug 12345 - This is a message")
+def test_commit(create_commit, test_push):
+    return create_commit(test_push)
 
 
 @pytest.fixture
