@@ -162,22 +162,25 @@ def test_commit(create_commit, test_push):
     return create_commit(test_push)
 
 
-@pytest.fixture
-def test_job(test_repository, failure_classifications, eleven_job_blobs):
+@pytest.fixture(name='create_jobs')
+def fixture_create_jobs(test_repository, failure_classifications):
+    """Return a function to create jobs"""
     from treeherder.model.models import Job
 
-    store_job_data(test_repository, eleven_job_blobs[0:1])
-
-    return Job.objects.get(id=1)
+    def create(jobs):
+        store_job_data(test_repository, jobs)
+        return [Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+    return create
 
 
 @pytest.fixture
-def test_job_2(eleven_job_blobs, test_job):
-    from treeherder.model.models import Job
+def test_job(eleven_job_blobs, create_jobs):
+    return create_jobs(eleven_job_blobs[0:1])[0]
 
-    store_job_data(test_job.repository, eleven_job_blobs[1:2])
 
-    return Job.objects.get(id=2)
+@pytest.fixture
+def test_job_2(eleven_job_blobs, create_jobs):
+    return create_jobs(eleven_job_blobs[0:2])[1]
 
 
 @pytest.fixture

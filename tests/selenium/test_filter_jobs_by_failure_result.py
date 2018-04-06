@@ -1,16 +1,15 @@
 import pytest
 
 from pages.treeherder import Treeherder
-from treeherder.etl.jobs import store_job_data
 
 RESULTS = ['testfailed', 'busted', 'exception']
 
 
 @pytest.fixture
-def test_jobs(eleven_job_blobs, failure_classifications, test_repository):
+def test_jobs(eleven_job_blobs, create_jobs):
     for i, status in enumerate(RESULTS):
         eleven_job_blobs[i]['job']['result'] = status
-    store_job_data(test_repository, eleven_job_blobs[0:len(RESULTS)])
+    return create_jobs(eleven_job_blobs[0:len(RESULTS)])
 
 
 @pytest.mark.parametrize('result', RESULTS)

@@ -1,17 +1,13 @@
 import pytest
 
 from pages.treeherder import Treeherder
-from treeherder.etl.jobs import store_job_data
-from treeherder.model.models import Job
 
 
 @pytest.fixture
-def test_jobs(eleven_job_blobs, failure_classifications, test_repository):
-    jobs = eleven_job_blobs[0:2]
-    for job in jobs:
-        job['job']['result'] = 'testfailed'
-    store_job_data(test_repository, jobs)
-    return [Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+def test_jobs(eleven_job_blobs, create_jobs):
+    job_blobs = eleven_job_blobs[0:2]
+    [b['job'].update({'result': 'testfailed'}) for b in job_blobs]
+    return create_jobs(job_blobs)
 
 
 def test_select_next_unclassified_job(base_url, selenium, test_jobs):

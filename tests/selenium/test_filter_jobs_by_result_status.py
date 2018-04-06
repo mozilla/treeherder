@@ -3,8 +3,6 @@ from __future__ import print_function
 import pytest
 
 from pages.treeherder import Treeherder
-from treeherder.etl.jobs import store_job_data
-from treeherder.model.models import Job
 
 JOB_DATA = [
     {'result': 'testfailed'},
@@ -16,13 +14,11 @@ JOB_DATA = [
 
 
 @pytest.fixture
-def test_jobs(eleven_job_blobs, failure_classifications, test_repository):
+def test_jobs(eleven_job_blobs, create_jobs):
     job_blobs = [j for j in eleven_job_blobs if 'superseded' not in j]
     for i, job in enumerate(JOB_DATA):
         job_blobs[i]['job'].update(job)
-        print(job_blobs[i])
-    store_job_data(test_repository, job_blobs[0:len(JOB_DATA)])
-    return [Job.objects.get(id=i) for i in range(1, len(JOB_DATA) + 1)]
+    return create_jobs(job_blobs[0:len(JOB_DATA)])
 
 
 def test_default_filters(base_url, selenium, test_jobs):
