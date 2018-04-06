@@ -43,7 +43,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
     artifacts_ref = {}
 
     blobs = []
-    for index, blob in enumerate(job_data):
+    for blob in job_data:
 
         if push_index > max_index:
             push_index = 0

@@ -22,7 +22,7 @@ def test_get_error(text_log_errors_failure_lines):
     """
     test getting a single failure line
     """
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client = APIClient()
     resp = client.get(
@@ -177,7 +177,7 @@ def test_update_error_mark_job_with_human_note(test_job,
                                                text_log_errors_failure_lines,
                                                classified_failures, test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
@@ -211,7 +211,7 @@ def test_update_error_line_mark_job_with_auto_note(test_job,
                                                    classified_failures,
                                                    test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()

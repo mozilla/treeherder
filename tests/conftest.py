@@ -221,7 +221,7 @@ def push_with_three_jobs(sample_data, sample_push, test_repository):
     store_push_data(test_repository, [push])
 
     blobs = []
-    for index, blob in enumerate(jobs):
+    for blob in jobs:
         # Modify job structure to sync with the push sample data
         if 'sources' in blob:
             del blob['sources']
@@ -251,7 +251,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
     push_index = 0
 
     blobs = []
-    for index, blob in enumerate(jobs):
+    for blob in jobs:
 
         if push_index > max_index:
             push_index = 0

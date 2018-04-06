@@ -178,7 +178,7 @@ def test_update_failure_line_mark_job_with_human_note(test_job,
                                                       text_log_errors_failure_lines,
                                                       classified_failures, test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    _, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()
@@ -213,7 +213,7 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
                                                      classified_failures,
                                                      test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    _, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
     client = APIClient()

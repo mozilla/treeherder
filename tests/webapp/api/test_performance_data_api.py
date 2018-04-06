@@ -198,7 +198,7 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
                                   test_perf_signature_same_hash_different_framework):
     signature2 = test_perf_signature_same_hash_different_framework
     push = Push.objects.get(id=1)
-    for (i, signature) in enumerate([test_perf_signature, signature2]):
+    for signature in [test_perf_signature, signature2]:
         PerformanceDatum.objects.create(
             repository=signature.repository,
             push=push,
