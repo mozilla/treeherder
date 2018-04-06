@@ -9,9 +9,6 @@ class ObjectScalar(graphene.types.scalars.Scalar):
     as a field of a graph.
     """
 
-    def __init__(self):
-        super(ObjectScalar, self).__init__()
-
     @staticmethod
     def serialize(dt):
         return dt
