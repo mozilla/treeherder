@@ -6,7 +6,7 @@ import ast
 import re
 import sys
 
-procfile_re = re.compile("worker_\w*: .* -Q ([^ ]*)")
+procfile_re = re.compile(r"worker_\w*: .* -Q ([^ ]*)")
 
 procfile_queues = []
 with open("Procfile") as f:
