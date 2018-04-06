@@ -110,6 +110,16 @@ class Key(object):
 
 
 class PulsePublisher(object):
+    """
+    Base class for pulse publishers.
+
+    All subclasses of this class must define the properties:
+      * title
+      * description
+      * exchange_prefix
+
+    Additional properties of type `Exchange` will be declared as exchanges.
+    """
 
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
@@ -144,17 +154,6 @@ class PulsePublisher(object):
             )
 
         return publish
-
-    """
-        Base class for pulse publishers.
-
-        All subclasses of this class must define the properties:
-          * title
-          * description
-          * exchange_prefix
-
-        Additional properties of type `Exchange` will be declared as exchanges.
-    """
 
     def __init__(self, namespace, uri, schemas):
         """
