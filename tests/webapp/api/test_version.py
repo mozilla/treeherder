@@ -14,27 +14,27 @@ factory = APIRequestFactory()
 
 
 def test_unsupported_version():
-        view = RequestVersionView.as_view()
-        request = factory.get('/endpoint/', HTTP_ACCEPT='application/json; version=foo.bar')
-        try:
-            response = view(request)
-        except NotAcceptable:
-            pass
-        assert response.data == {u'detail': u'Invalid version in "Accept" header.'}
+    view = RequestVersionView.as_view()
+    request = factory.get('/endpoint/', HTTP_ACCEPT='application/json; version=foo.bar')
+    try:
+        response = view(request)
+    except NotAcceptable:
+        pass
+    assert response.data == {u'detail': u'Invalid version in "Accept" header.'}
 
 
 def test_correct_version():
-        view = RequestVersionView.as_view()
-        version = settings.REST_FRAMEWORK['ALLOWED_VERSIONS'][0]
-        request = factory.get('/endpoint/',
-                              HTTP_ACCEPT='application/json; version={0}'.format(version))
-        response = view(request)
-        assert response.data == {'version': version}
+    view = RequestVersionView.as_view()
+    version = settings.REST_FRAMEWORK['ALLOWED_VERSIONS'][0]
+    request = factory.get('/endpoint/',
+                          HTTP_ACCEPT='application/json; version={0}'.format(version))
+    response = view(request)
+    assert response.data == {'version': version}
 
 
 def test_default_version():
-        view = RequestVersionView.as_view()
-        request = factory.get('/endpoint/', HTTP_ACCEPT='application/json')
-        response = view(request)
-        version = settings.REST_FRAMEWORK['DEFAULT_VERSION']
-        assert response.data == {'version': version}
+    view = RequestVersionView.as_view()
+    request = factory.get('/endpoint/', HTTP_ACCEPT='application/json')
+    response = view(request)
+    version = settings.REST_FRAMEWORK['DEFAULT_VERSION']
+    assert response.data == {'version': version}

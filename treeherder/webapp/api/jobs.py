@@ -300,9 +300,9 @@ class JobsViewSet(viewsets.ViewSet):
             offset = int(filter_params.get("offset", 0))
             count = int(filter_params.get("count", 10))
         except ValueError:
-                    return Response(
-                        "Invalid value for offset or count",
-                        status=HTTP_400_BAD_REQUEST)
+            return Response(
+                "Invalid value for offset or count",
+                status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
 
         if count > MAX_JOBS_COUNT:
