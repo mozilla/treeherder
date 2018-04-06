@@ -906,7 +906,7 @@ class FailureLine(models.Model):
             ('signature', 'test', 'created')
         )
         unique_together = (
-            ('job_log',  'line')
+            ('job_log', 'line')
         )
 
     def __str__(self):
