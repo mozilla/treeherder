@@ -57,8 +57,8 @@ class Command(BaseCommand):
         if options['last_n_pushes']:
             last_push_id = last_push_id_from_server(repo)
             fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
-            logger.info('last server push id: %d; fetching push %d and newer'
-                        % (last_push_id, fetch_push_id))
+            logger.info('last server push id: %d; fetching push %d and newer',
+                        last_push_id, fetch_push_id)
         else:
             fetch_push_id = None
 

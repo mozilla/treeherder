@@ -76,15 +76,13 @@ class Builds4hTransformerMixin(object):
             # corresponds to the request that was used to schedule the job.
             request_id = request_ids[-1]
         except KeyError:
-            logger.error("({0})request_id not found in {1}".format(
-                prop["branch"], build))
+            logger.error("(%s)request_id not found in %s", prop["branch"], build)
             raise
 
         try:
             buildername = prop['buildername']
         except KeyError:
-            logger.error("({0})buildername not found in {1}".format(
-                prop["branch"], build))
+            logger.error("(%s)buildername not found in %s", prop["branch"], build)
             raise
 
         endtime = None
@@ -92,8 +90,7 @@ class Builds4hTransformerMixin(object):
             try:
                 endtime = build['endtime']
             except KeyError:
-                logger.error("({0})endtime not found in {1}".format(
-                    prop["branch"], build))
+                logger.error("(%s)endtime not found in %s", prop["branch"], build)
                 raise
 
         job_guid_data = {'job_guid': '', 'superseded': []}

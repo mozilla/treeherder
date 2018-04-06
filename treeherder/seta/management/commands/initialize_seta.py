@@ -26,21 +26,21 @@ class Command(BaseCommand):
         )
 
     def clear_job_priority_table(self):
-        logger.info('Number of items in table: %d' % JobPriority.objects.count())
+        logger.info('Number of items in table: %d', JobPriority.objects.count())
         logger.info('Deleting all entries in the job priority table.')
         JobPriority.objects.all().delete()
-        logger.info('Number of items in table: %d' % JobPriority.objects.count())
+        logger.info('Number of items in table: %d', JobPriority.objects.count())
 
     def initialize_seta(self):
         logger.info('Updating runnable jobs table (this will take few minutes).')
         RunnableJobsProcess().run()
         logger.info('Updating JobPriority table.')
-        logger.info('Number of items in table: %d' % JobPriority.objects.count())
+        logger.info('Number of items in table: %d', JobPriority.objects.count())
         update_job_priority_table()
         logger.info('Loading preseed table.')
-        logger.info('Number of items in table: %d' % JobPriority.objects.count())
+        logger.info('Number of items in table: %d', JobPriority.objects.count())
         load_preseed()
-        logger.info('Number of items in table: %d' % JobPriority.objects.count())
+        logger.info('Number of items in table: %d', JobPriority.objects.count())
 
     def handle(self, *args, **options):
         if options['clear_jp_table']:

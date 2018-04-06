@@ -122,8 +122,8 @@ def get_failures_fixed_by_commit():
                 if is_job_blacklisted(testtype):
                     continue
             else:
-                logger.warning('We were unable to parse {}/{}'.format(
-                               job_note.job.job_type.name, job_note.job.signature.name))
+                logger.warning('We were unable to parse %s/%s',
+                               job_note.job.job_type.name, job_note.job.signature.name)
                 continue
 
             # we now have a legit fixed-by-commit job failure
@@ -133,8 +133,8 @@ def get_failures_fixed_by_commit():
                 platform=job_note.job.signature.build_platform
             ))
         except models.Job.DoesNotExist:
-            logger.warning('job_note {} has no job associated to it'.format(job_note.id))
+            logger.warning('job_note %s has no job associated to it', job_note.id)
             continue
 
-    logger.warn("Number of fixed_by_commit revisions: {}".format(len(failures)))
+    logger.warn("Number of fixed_by_commit revisions: %s", len(failures))
     return failures

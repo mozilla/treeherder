@@ -537,10 +537,10 @@ class Job(models.Model):
             step__job=self).count()
 
         if unverified_errors:
-            logger.error("Job %r has unverified TextLogErrors" % self)
+            logger.error("Job %r has unverified TextLogErrors", self)
             return False
 
-        logger.info("Job %r is fully verified" % self)
+        logger.info("Job %r is fully verified", self)
         return True
 
     def update_after_verification(self, user):

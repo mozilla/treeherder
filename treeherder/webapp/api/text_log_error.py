@@ -79,8 +79,8 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
 
         jobs = set()
         for line_id, classification_id, bug_number in ids:
-            logger.debug("line_id: %s, classification_id: %s, bug_number: %s" %
-                         (line_id, classification_id, bug_number))
+            logger.debug("line_id: %s, classification_id: %s, bug_number: %s",
+                         line_id, classification_id, bug_number)
             error_line = error_lines[line_id]
             if classification_id is not None:
                 logger.debug("Using classification id")

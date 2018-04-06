@@ -60,10 +60,8 @@ class PulseConsumer(ConsumerMixin):
         try:
             bindings = self.get_bindings(self.queue_name)["bindings"]
         except Exception:
-            logger.error("Unable to fetch existing bindings for {}".format(
-                self.queue_name))
-            logger.error("Data ingestion may proceed, "
-                         "but no bindings will be pruned")
+            logger.error("Unable to fetch existing bindings for %s. Data ingestion may proceed, "
+                         "but no bindings will be pruned", self.queue_name)
 
         # Now prune any bindings from the queue that were not
         # established above.
@@ -77,7 +75,7 @@ class PulseConsumer(ConsumerMixin):
                 if binding_str not in new_bindings:
                     self.unbind_from(Exchange(binding["source"]),
                                      binding["routing_key"])
-                    logger.info("Unbound from: {}".format(binding_str))
+                    logger.info("Unbound from: %s", binding_str)
 
     def get_binding_str(self, exchange, routing_key):
         """Use consistent string format for binding comparisons"""
@@ -94,7 +92,7 @@ class JobConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
-        logger.info('received job message from %s#%s' % (exchange, routing_key))
+        logger.info('received job message from %s#%s', exchange, routing_key)
         store_pulse_jobs.apply_async(
             args=[body, exchange, routing_key],
             routing_key='store_pulse_jobs'
@@ -107,7 +105,7 @@ class PushConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
-        logger.info('received push message from %s#%s' % (exchange, routing_key))
+        logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_resultsets.apply_async(
             args=[body, exchange, routing_key],
             routing_key='store_pulse_resultsets'

@@ -21,9 +21,9 @@ def if_not_parsed(f):
     def inner(job_log):
         newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
 
-        logger.debug("parser_task for %s" % job_log.id)
+        logger.debug("parser_task for %s", job_log.id)
         if job_log.status == JobLog.PARSED:
-            logger.info("%s log already parsed" % job_log.id)
+            logger.info("%s log already parsed", job_log.id)
             return True
 
         return f(job_log)
@@ -43,7 +43,7 @@ def parse_logs(job_id, job_log_ids, priority):
                                      job=job)
 
     if len(job_log_ids) != len(job_logs):
-        logger.warning("Failed to load all expected job ids: %s" % ", ".join(job_log_ids))
+        logger.warning("Failed to load all expected job ids: %s", ", ".join(job_log_ids))
 
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
@@ -73,7 +73,7 @@ def parse_logs(job_id, job_log_ids, priority):
         success = crossreference_error_lines(job)
 
         if success and settings.AUTOCLASSIFY_JOBS:
-            logger.debug("Scheduling autoclassify for job %i" % job_id)
+            logger.debug("Scheduling autoclassify for job %i", job_id)
             autoclassify.apply_async(
                 args=[job_id],
                 routing_key="autoclassify.%s" % priority)
@@ -89,7 +89,7 @@ def parse_unstructured_log(job_log):
     """
     Call ArtifactBuilderCollection on the given job.
     """
-    logger.debug('Running parse_unstructured_log for job %s' % job_log.job.id)
+    logger.debug('Running parse_unstructured_log for job %s', job_log.job.id)
     post_log_artifacts(job_log)
 
 
@@ -97,13 +97,13 @@ def parse_unstructured_log(job_log):
 def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
-    logger.debug('Running store_failure_lines for job %s' % job_log.job.id)
+    logger.debug('Running store_failure_lines for job %s', job_log.job.id)
     failureline.store_failure_lines(job_log)
 
 
 def crossreference_error_lines(job):
     """Match structured (FailureLine) and unstructured (TextLogError) lines
     for a job."""
-    logger.debug("Crossreference %s: started" % job.id)
+    logger.debug("Crossreference %s: started", job.id)
     success = crossreference_job(job)
     return success
