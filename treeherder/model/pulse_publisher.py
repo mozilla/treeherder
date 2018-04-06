@@ -114,18 +114,18 @@ class PulsePublisher(object):
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
         exchange_path = "exchange/%s/%s%s" % (
-                            self.namespace,
-                            self.exchange_prefix,
-                            exchange.exchange
-                        )
+            self.namespace,
+            self.exchange_prefix,
+            exchange.exchange
+        )
         producer = kombu.Producer(
             channel=self.connection,
             exchange=kombu.Exchange(
-                                name=exchange_path,
-                                type='topic',
-                                durable=True,
-                                delivery_mode='persistent'
-                            ),
+                name=exchange_path,
+                type='topic',
+                durable=True,
+                delivery_mode='persistent'
+            ),
             auto_declare=True
         )
 

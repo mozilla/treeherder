@@ -69,7 +69,7 @@ PLATFORMS_BUILDERNAME = [
             'os': 'linux',
             'os_platform': 'linux64-qr',
             'arch': 'x86_64',
-         }
+        }
     },
     {
         'regex': re.compile(r'Windows 10 64-bit.*stylo-disabled.*test.*', re.IGNORECASE),
@@ -85,7 +85,7 @@ PLATFORMS_BUILDERNAME = [
             'os': 'linux',
             'os_platform': 'linux64-stylo-sequential',
             'arch': 'x86_64',
-         }
+        }
     },
     {
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 Stylo', re.IGNORECASE),
@@ -93,7 +93,7 @@ PLATFORMS_BUILDERNAME = [
             'os': 'linux',
             'os_platform': 'linux64-stylo',
             'arch': 'x86_64',
-         }
+        }
     },
     {
         'regex': re.compile(r'^(?:Linux|Ubuntu).*64 devedition', re.IGNORECASE),
@@ -101,7 +101,7 @@ PLATFORMS_BUILDERNAME = [
             'os': 'linux',
             'os_platform': 'linux64-devedition',
             'arch': 'x86_64',
-         }
+        }
     },
     {
         'regex': re.compile(r'(?:linux|ubuntu).*64.+|dxr', re.IGNORECASE),

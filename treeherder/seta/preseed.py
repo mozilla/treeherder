@@ -53,12 +53,12 @@ def create_new_entry(job):
 
     logger.debug("Adding a new job to the database: %s" % job)
     JobPriority.objects.create(
-            testtype=job['testtype'],
-            buildtype=job['buildtype'],
-            platform=job['platform'],
-            priority=job['priority'],
-            expiration_date=job['expiration_date'],
-            buildsystem=job['buildsystem']
+        testtype=job['testtype'],
+        buildtype=job['buildtype'],
+        platform=job['platform'],
+        priority=job['priority'],
+        expiration_date=job['expiration_date'],
+        buildsystem=job['buildsystem']
     )
 
 

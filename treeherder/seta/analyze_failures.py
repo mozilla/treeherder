@@ -63,15 +63,15 @@ def get_failures_fixed_by_commit():
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
     fixed_by_commit_data_set = models.JobNote.objects.filter(
-                failure_classification=2,
-                created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
-                text__isnull=False,
-                job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
-            ).exclude(
-                job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
-            ).exclude(
-                text=""
-            ).select_related('job', 'job__signature', 'job__job_type')
+            failure_classification=2,
+            created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
+            text__isnull=False,
+            job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
+        ).exclude(
+            job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
+        ).exclude(
+            text=""
+        ).select_related('job', 'job__signature', 'job__job_type')
 
     # check if at least one fixed by commit job meets our requirements without populating queryset
     if not fixed_by_commit_data_set.exists():
