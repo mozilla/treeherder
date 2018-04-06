@@ -509,10 +509,10 @@ def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
 
 
 @pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [
-    ("last_modified__gt",  "2016-07-18T22:16:58.000", 200, 8),
-    ("last_modified__lt",  "2016-07-18T22:16:58.000", 200, 3),
-    ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
-    ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
+    ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
+    ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),
+    ("last_modified__gt", "-Infinity", HTTP_400_BAD_REQUEST, 0),
+    ("last_modified__gt", "whatever", HTTP_400_BAD_REQUEST, 0),
     ])
 def test_last_modified(webapp, eleven_jobs_stored, test_repository,
                        lm_key, lm_value, exp_status, exp_job_count):
