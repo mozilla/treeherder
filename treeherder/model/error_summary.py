@@ -15,8 +15,8 @@ CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(
     r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
-REFTEST_RE = re.compile("\s+[=!]=\s+.*")
-OUTPUT_RE = re.compile("^\s*(?:GECKO\(\d+\)|PID \d+)\s*$")
+REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
+OUTPUT_RE = re.compile(r'^\s*(?:GECKO\(\d+\)|PID \d+)\s*$')
 
 
 def get_error_summary(job):
