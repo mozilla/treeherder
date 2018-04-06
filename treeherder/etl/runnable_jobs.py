@@ -104,6 +104,7 @@ class RunnableJobsProcess(RunnableJobsTransformerMixin):
                     defaults={'build_platform': build_platform,
                               'machine_platform': machine_platform,
                               'job_type': job_type,
+                              'job_group': job_group,
                               'option_collection_hash': option_collection_hash,
                               'repository': repo})
 
