@@ -50,7 +50,7 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
   for (let i = 0; i < data.length; i++) {
     const failures = data[i].failure_count;
     const testRuns = data[i].test_runs;
-    const freq = (testRuns < 1 || failures < 1) ? 0 : Math.round(failures / testRuns);
+    const freq = (testRuns < 1 || failures < 1) ? 0 : failures / testRuns;
     // metrics graphics only accepts JS Date objects
     const date = moment(data[i].date).toDate();
 
