@@ -1,3 +1,5 @@
+from __future__ import division
+
 import logging
 import time
 from abc import (ABCMeta,
