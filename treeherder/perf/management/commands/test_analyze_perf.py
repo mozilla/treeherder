@@ -114,7 +114,7 @@ class Command(BaseCommand):
                             pct_change = 0.0
                         delta = (new_value - initial_value)
                         print(','.join(map(
-                            lambda v: str(v),
+                            str,
                             [project, series_properties['machine_platform'],
                              signature, self._get_series_description(
                                  option_collection_hash,

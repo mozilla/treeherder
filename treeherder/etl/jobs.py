@@ -148,7 +148,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
     sh = sha1()
     sh.update(''.join(
-        map(lambda x: str(x),
+        map(str,
             [build_system_type, repository.name, build_platform.os_name,
              build_platform.platform, build_platform.architecture,
              machine_platform.os_name, machine_platform.platform,
