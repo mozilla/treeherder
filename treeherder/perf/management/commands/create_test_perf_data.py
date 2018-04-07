@@ -1,3 +1,5 @@
+from __future__ import division
+
 import datetime
 import time
 
@@ -40,8 +42,8 @@ Type 'yes' to continue, or 'no' to cancel: """)
             time=datetime.datetime.now())
 
         for (t, v) in zip([i for i in range(INTERVAL)],
-                          ([0.5 for i in range(INTERVAL/2)] +
-                           [1.0 for i in range(INTERVAL/2)])):
+                          ([0.5 for i in range(int(INTERVAL / 2))] +
+                           [1.0 for i in range(int(INTERVAL / 2))])):
             PerformanceDatum.objects.create(
                 repository=s.repository,
                 result_set_id=t,

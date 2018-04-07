@@ -1,3 +1,5 @@
+from __future__ import division
+
 import datetime
 import time
 
@@ -62,10 +64,10 @@ def test_detect_alerts_in_series(test_repository,
     INTERVAL = 30
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, 1, 0.5, INTERVAL/2)
+                               base_time, 1, 0.5, int(INTERVAL / 2))
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
+                               base_time, int(INTERVAL / 2) + 1, 1.0, int(INTERVAL / 2))
 
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -134,10 +136,10 @@ def test_no_alerts_with_old_data(
     INTERVAL = 30
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, 1, 0.5, INTERVAL/2)
+                               base_time, 1, 0.5, int(INTERVAL / 2))
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, (INTERVAL/2) + 1, 1.0, INTERVAL/2)
+                               base_time, int(INTERVAL / 2) + 1, 1.0, int(INTERVAL / 2))
 
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -159,13 +161,13 @@ def test_custom_alert_threshold(
     base_time = time.time()
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, 1, 0.5, INTERVAL/3)
+                               base_time, 1, 0.5, int(INTERVAL / 3))
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, (INTERVAL/3) + 1, 0.6, INTERVAL/3)
+                               base_time, int(INTERVAL / 3) + 1, 0.6, int(INTERVAL / 3))
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, 2*(INTERVAL/3) + 1, 2.0, INTERVAL/3)
+                               base_time, 2 * int(INTERVAL / 3) + 1, 2.0, int(INTERVAL / 3))
 
     generate_new_alerts_in_series(test_perf_signature)
 
@@ -190,11 +192,11 @@ def test_alert_change_type_absolute(test_repository,
     INTERVAL = 30
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, 1, 0.5, INTERVAL/2)
+                               base_time, 1, 0.5, int(INTERVAL / 2))
     _generate_performance_data(test_repository, test_perf_signature,
                                generic_reference_data,
-                               base_time, (INTERVAL/2) + 1, new_value,
-                               INTERVAL/2)
+                               base_time, int(INTERVAL / 2) + 1, new_value,
+                               int(INTERVAL / 2))
 
     generate_new_alerts_in_series(test_perf_signature)
 
