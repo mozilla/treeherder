@@ -496,6 +496,6 @@ class PerformanceParser(ParserBase):
                                line)
             except jsonschema.ValidationError as e:
                 logger.warning("Perfherder line '%s' does not comply with "
-                               "json schema: %s", line, e.message)
+                               "json schema: %s", line, e)
 
             # Don't mark the parser as complete, in case there are multiple performance artifacts.
