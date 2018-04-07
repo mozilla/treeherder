@@ -2,13 +2,15 @@ import logging
 from abc import (ABCMeta,
                  abstractmethod)
 
+from six import add_metaclass
+
 from treeherder.model.models import MatcherManager
 
 logger = logging.getLogger(__name__)
 
 
+@add_metaclass(ABCMeta)
 class Detector(object):
-    __metaclass__ = ABCMeta
     name = None
 
     """Class that is called with a list of lines that correspond to
