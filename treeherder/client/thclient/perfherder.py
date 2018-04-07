@@ -102,7 +102,8 @@ class PerformanceSeries(list):
     '''
 
     def __getitem__(self, key):
-        return map(lambda el: el[key], self)
+        # Casting to list since Python 3's `map` produces an iterator rather than a list.
+        return list(map(lambda el: el[key], self))
 
 
 class PerfherderClient(TreeherderClient):
