@@ -31,7 +31,7 @@ def _get_signature_hash(signature_properties):
     signature_prop_values.extend(str_values)
 
     sha = sha1()
-    sha.update(''.join(map(lambda x: str(x), sorted(signature_prop_values))))
+    sha.update(''.join(map(str, sorted(signature_prop_values))))
 
     return sha.hexdigest()
 

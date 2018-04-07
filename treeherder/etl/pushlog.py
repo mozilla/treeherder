@@ -100,7 +100,7 @@ class HgPushlogProcess(object):
         if not pushes:
             return None
 
-        last_push_id = max(map(lambda x: int(x), pushes.keys()))
+        last_push_id = max(map(int, pushes.keys()))
         last_push = pushes[str(last_push_id)]
         top_revision = last_push["changesets"][-1]["node"]
 
