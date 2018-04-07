@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from six import iteritems
 
 from treeherder.config.settings import TASKCLUSTER_INDEX_URL
 from treeherder.etl.buildbot import get_symbols_and_platforms
@@ -30,7 +31,7 @@ class RunnableJobsTransformerMixin(object):
 
         jobs_per_branch = collections.defaultdict(list)
 
-        for builder, content in extracted_content['builders'].iteritems():
+        for builder, content in iteritems(extracted_content['builders']):
             job = get_symbols_and_platforms(builder)
 
             branch = content['properties']['branch']
@@ -143,7 +144,7 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
             e.response.status_code, tc_graph_url))
         return []
 
-    for label, node in tc_graph.iteritems():
+    for label, node in iteritems(tc_graph):
         ret.append({
             'build_platform': node.get('platform', ''),
             'build_system_type': 'taskcluster',

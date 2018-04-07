@@ -6,6 +6,7 @@ import unittest
 
 import responses
 from requests_hawk import HawkAuth
+from six import iteritems
 
 from treeherder.client.thclient import (TreeherderClient,
                                         TreeherderClientError,
@@ -34,7 +35,7 @@ class DataSetup(unittest.TestCase):
     def compare_structs(self, struct1, struct2):
         """Compare two dictionary structures"""
 
-        for k1, v1 in struct1.iteritems():
+        for k1, v1 in iteritems(struct1):
 
             self.assertTrue(
                 k1 in struct2,

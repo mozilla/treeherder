@@ -1,3 +1,5 @@
+from six import iteritems
+
 from .client import TreeherderClient
 
 
@@ -46,7 +48,7 @@ class PerformanceSignatureCollection(dict):
             signatures = signatures.filter(('suite', 'tp5o'), ('machine_platform', 'windowsxp'))
         '''
         filtered_signatures = {}
-        for (signature, signature_value) in self.iteritems():
+        for (signature, signature_value) in iteritems(self):
             skip = False
             for (key, val) in args:
                 if signature_value.get(key) != val:

@@ -6,6 +6,7 @@ import newrelic.agent
 import simplejson as json
 from django.conf import settings
 from django.core.cache import cache
+from six import iteritems
 
 from treeherder.client.thclient import TreeherderJobCollection
 from treeherder.etl import (buildbot,
@@ -296,11 +297,11 @@ class PendingRunningTransformerMixin(object):
         revision_dict = defaultdict(list)
 
         # loop to catch all the revisions
-        for project, revisions in data[source].iteritems():
+        for project, revisions in iteritems(data[source]):
             if common.should_skip_project(project, valid_projects, project_filter):
                 continue
 
-            for rev in revisions.iterkeys():
+            for rev in revisions:
                 if common.should_skip_revision(rev, revision_filter):
                     continue
                 revision_dict[project].append(rev)
@@ -310,7 +311,7 @@ class PendingRunningTransformerMixin(object):
 
         th_collections = {}
 
-        for project, revisions in data[source].iteritems():
+        for project, revisions in iteritems(data[source]):
             if common.should_skip_project(project, valid_projects, project_filter):
                 continue
 
@@ -474,7 +475,7 @@ class RunningJobsProcess(PendingRunningTransformerMixin):
 
 def store_jobs(job_collections, chunk_size):
     errors = []
-    for repository_name, jobs in job_collections.iteritems():
+    for repository_name, jobs in iteritems(job_collections):
         for collection in jobs.get_chunks(chunk_size=chunk_size):
             try:
                 repository = Repository.objects.get(

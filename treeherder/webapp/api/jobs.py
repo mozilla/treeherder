@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
@@ -314,7 +315,7 @@ class JobsViewSet(viewsets.ViewSet):
             return Response({
                 "detail": "No project with name {}".format(project)
             }, status=HTTP_404_NOT_FOUND)
-        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+        jobs = JobFilter({k: v for (k, v) in iteritems(filter_params)},
                          queryset=Job.objects.filter(
                              repository=repository).select_related(
                                  *self._default_select_related)).qs
@@ -477,7 +478,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return_type = filter_params.get("return_type", "dict").lower()
 
-        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+        jobs = JobFilter({k: v for (k, v) in iteritems(filter_params)},
                          queryset=Job.objects.filter(
                              job_type_id=job.job_type_id,
                              repository=repository).exclude(
