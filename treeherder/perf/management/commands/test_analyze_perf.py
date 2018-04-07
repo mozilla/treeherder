@@ -105,10 +105,7 @@ class Command(BaseCommand):
                 for r in detect_changes(data):
                     if r.state == 'regression':
                         pushes = pc.get_pushes(project, id=r.testrun_id)
-                        if len(pushes):
-                            revision = pushes[0]['revision']
-                        else:
-                            revision = ''
+                        revision = pushes[0]['revision'] if pushes else ''
                         initial_value = r.historical_stats['avg']
                         new_value = r.forward_stats['avg']
                         if initial_value != 0:

@@ -123,7 +123,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         symbol=job_datum.get('group_symbol') or 'unknown')
 
     product_name = job_datum.get('product_name', 'unknown')
-    if len(product_name.strip()) == 0:
+    if not product_name.strip():
         product_name = 'unknown'
     product, _ = Product.objects.get_or_create(name=product_name)
 

@@ -60,7 +60,7 @@ def calc_t(w1, w2, weight_fn=None):
 
     See the analyze() function for a description of the `weight_fn` argument.
     """
-    if len(w1) == 0 or len(w2) == 0:
+    if not w1 or not w2:
         return 0
 
     s1 = analyze(w1, weight_fn)

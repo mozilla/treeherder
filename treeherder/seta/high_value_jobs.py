@@ -27,7 +27,7 @@ def check_removal(failures, removals):
             if not found:
                 results[failure].append(failure_job)
 
-        if len(results[failure]) == 0:
+        if not results[failure]:
             del results[failure]
 
     return results

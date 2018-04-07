@@ -103,7 +103,7 @@ def test_job_details(test_repository, failure_classifications,
                       '?repository={}&job_id__in=3'.format(
                           test_repository.name))
     assert resp.status_int == 200
-    assert len(resp.json['results']) == 0
+    assert resp.json['results'] == []
 
     # add an extra one, but filter to just get those with a specific title.
     # we should only have one

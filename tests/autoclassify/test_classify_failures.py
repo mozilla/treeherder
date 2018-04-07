@@ -168,8 +168,8 @@ def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
         error_line.refresh_from_db()
         failure_line.refresh_from_db()
 
-    assert len(test_error_lines[0].matches.all()) == 0
-    assert len(test_failure_lines[0].matches.all()) == 0
+    assert not test_error_lines[0].matches.all().exists()
+    assert not test_failure_lines[0].matches.all().exists()
 
 
 def test_autoclassified_no_update_after_manual_classification_2(test_user, test_job_2,
@@ -189,7 +189,7 @@ def test_autoclassified_no_update_after_manual_classification_2(test_user, test_
     for item in test_failure_lines:
         item.refresh_from_db()
 
-    assert len(test_failure_lines[0].matches.all()) == 0
+    assert not test_failure_lines[0].matches.all().exists()
 
 
 def test_classify_skip_ignore(test_job_2,

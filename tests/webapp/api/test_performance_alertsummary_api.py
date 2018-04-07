@@ -97,7 +97,7 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
         'related_summary_id',
         'classifier'
     ])
-    assert len(resp.json['results'][0]['related_alerts']) == 0
+    assert resp.json['results'][0]['related_alerts'] == []
 
 
 def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
@@ -141,7 +141,7 @@ def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
         'related_summary_id',
         'classifier'
     ])
-    assert len(resp.json['results'][0]['related_alerts']) == 0
+    assert resp.json['results'][0]['related_alerts'] == []
 
 
 def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
