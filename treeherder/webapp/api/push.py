@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
 from treeherder.model.models import (Job,
                                      Push,
@@ -54,7 +55,7 @@ class PushViewSet(viewsets.ViewSet):
 
         pushes = Push.objects.filter(repository=repository).order_by('-time')
 
-        for (param, value) in meta.iteritems():
+        for (param, value) in iteritems(meta):
             if param == 'fromchange':
                 frompush_time = Push.objects.values_list('time', flat=True).get(
                     repository=repository, revision__startswith=value)

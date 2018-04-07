@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 
 from django.db.utils import IntegrityError
+from six import iteritems
 
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch,
@@ -81,7 +82,7 @@ def update_db(job, matches, all_matched):
         classified_failure = classified_failures[match.classified_failure_id]
         matches_by_error[match.text_log_error].add((matcher, match, classified_failure))
 
-    for text_log_error, matches in matches_by_error.iteritems():
+    for text_log_error, matches in iteritems(matches_by_error):
         for (matcher, match, classified_failure) in matches:
             try:
                 TextLogErrorMatch.objects.create(

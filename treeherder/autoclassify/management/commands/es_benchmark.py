@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from six import iteritems
 
 from treeherder.autoclassify import matchers
 from treeherder.etl.common import fetch_text
@@ -81,7 +82,7 @@ class Command(BaseCommand):
 
         total_lines = 0
         t0 = time.time()
-        for job_guid, failure_lines in failure_lines_by_job.iteritems():
+        for job_guid, failure_lines in iteritems(failure_lines_by_job):
             total_lines += len(failure_lines)
             matches = matcher(failure_lines)
             all_matches[job_guid] = matches
@@ -97,7 +98,7 @@ class Command(BaseCommand):
             prof.dump_stats(options["profile"])
 
         json_data = {}
-        for key, values in all_matches.iteritems():
+        for key, values in iteritems(all_matches):
             json_values = [[item[0].id, item[1].id, item[2]] for item in values]
             json_data[key] = json_values
 

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
+from six import iteritems
 
 from treeherder.model import models
 from treeherder.webapp.api import serializers as th_serializers
@@ -27,7 +28,7 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
         option_collection_map = models.OptionCollection.objects.get_option_collection_map(options_as_list=True)
 
         ret = []
-        for (option_hash, option_names) in option_collection_map.iteritems():
+        for (option_hash, option_names) in iteritems(option_collection_map):
             ret.append({'option_collection_hash': option_hash,
                         'options': [{'name': name} for
                                     name in option_names]})
