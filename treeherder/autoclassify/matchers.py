@@ -8,6 +8,7 @@ from difflib import SequenceMatcher
 from django.conf import settings
 from django.db.models import Q
 from elasticsearch_dsl.query import Match as ESMatch
+from six import add_metaclass
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
 from treeherder.model.models import (MatcherManager,
@@ -21,9 +22,8 @@ logger = logging.getLogger(__name__)
 Match = namedtuple('Match', ['text_log_error', 'classified_failure_id', 'score'])
 
 
+@add_metaclass(ABCMeta)
 class Matcher(object):
-    __metaclass__ = ABCMeta
-
     """Class that is called with a list of unmatched failure lines
     from a specific job, and returns a list of Match tuples
     containing the failure_line that matched, the failure it
