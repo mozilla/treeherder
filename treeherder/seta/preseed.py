@@ -32,7 +32,7 @@ def load_preseed():
                 queryset = queryset.filter(**{field: job[field]})
 
         # Deal with the case where we have a new entry in preseed
-        if len(queryset) == 0:
+        if not queryset:
             create_new_entry(job)
         else:
             # We can have wildcards, so loop on all returned values in data

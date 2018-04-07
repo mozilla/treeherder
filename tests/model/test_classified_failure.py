@@ -43,7 +43,7 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     # Check we picked the better of the two scores for the new match.
     assert matches[0].score == Decimal("0.8")
     # Ensure we deleted the ClassifiedFailure on which we tried to set the bug
-    assert len(ClassifiedFailure.objects.filter(id=classified_failures[1].id)) == 0
+    assert not ClassifiedFailure.objects.filter(id=classified_failures[1].id).exists()
 
 
 def test_update_autoclassification_bug(test_job, test_job_2,

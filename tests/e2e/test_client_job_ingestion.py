@@ -117,7 +117,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
     post_collection(test_repository.name, tjc)
     # should have no text log errors or bug suggestions
     assert TextLogError.objects.count() == 0
-    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 0
+    assert get_error_summary(Job.objects.get(guid=job_guid)) == []
 
     # the second time, post a log that will get parsed
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")

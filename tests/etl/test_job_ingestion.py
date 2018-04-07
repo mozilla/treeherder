@@ -228,7 +228,7 @@ def test_remove_existing_jobs_single_existing(test_repository, failure_classific
     assert Job.objects.count() == 1
 
     data = _remove_existing_jobs(job_data)
-    assert len(data) == 0
+    assert data == []
 
 
 def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_classifications,
