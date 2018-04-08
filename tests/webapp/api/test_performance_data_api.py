@@ -62,10 +62,6 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
     resp = webapp.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}))
     assert resp.status_int == 200
-
-    assert resp.json.get('subtests', None) is None
-    assert len(resp.json.keys()) == 1
-    assert resp.json.keys()[0] == test_perf_signature.signature_hash
     assert resp.json == {
         test_perf_signature.signature_hash: {
             'id': test_perf_signature.id,

@@ -21,7 +21,7 @@ PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
 
 
 def _get_signature_hash(signature_properties):
-    signature_prop_values = signature_properties.keys()
+    signature_prop_values = list(signature_properties.keys())
     str_values = []
     for value in signature_properties.values():
         if not isinstance(value, six.string_types):

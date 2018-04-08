@@ -63,7 +63,7 @@ class PerformanceSignatureCollection(dict):
         '''
         Return all signature hashes in this collection
         '''
-        return self.keys()
+        return list(self.keys())
 
     def get_property_names(self):
         '''
