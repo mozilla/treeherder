@@ -240,7 +240,7 @@ class HgPushTransformer(object):
 
         logger.info("fetching for {} {}".format(repository, url))
         # there will only ever be one, with this url
-        push = fetch_json(url)["pushes"].values()[0]
+        push = list(fetch_json(url)["pushes"].values())[0]
 
         commits = []
         # we only want to ingest the last 200 commits for each push,

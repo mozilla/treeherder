@@ -39,7 +39,7 @@ def test_ingest_hg_pushlog_already_stored(test_repository, test_base_dir,
     pushlog_path = os.path.join(test_base_dir, 'sample_data', 'hg_pushlog.json')
     with open(pushlog_path) as f:
         pushlog_json = json.load(f)
-    pushes = pushlog_json['pushes'].values()
+    pushes = list(pushlog_json['pushes'].values())
     first_push, second_push = pushes[0:2]
 
     pushlog_fake_url = "http://www.thisismypushlog.com/?full=1&version=2"
@@ -96,7 +96,7 @@ def test_ingest_hg_pushlog_cache_last_push(test_repository,
 
     pushlog_dict = json.loads(pushlog_content)
     pushes = pushlog_dict['pushes']
-    max_push_id = max([int(k) for k in pushes.keys()])
+    max_push_id = max(int(k) for k in pushes.keys())
 
     cache_key = "{}:last_push_id".format(test_repository.name)
     assert cache.get(cache_key) == max_push_id
