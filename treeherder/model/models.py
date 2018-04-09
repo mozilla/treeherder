@@ -366,8 +366,10 @@ class JobManager(models.Manager):
     """
 
     def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
-        """Delete data older than cycle_interval, splitting the target data
-into chunks of chunk_size size. Returns the number of result sets deleted"""
+        """
+        Delete data older than cycle_interval, splitting the target data into
+        chunks of chunk_size size. Returns the number of result sets deleted
+        """
         from treeherder.model.search import bulk_delete as es_delete
         from treeherder.model.search import TestFailureLine
 

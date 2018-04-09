@@ -121,10 +121,12 @@ def es_connected(default=None):
 
 @es_connected()
 def bulk_insert(items):
-    """Insert multiple items into ElasticSearch.
+    """
+    Insert multiple items into ElasticSearch setting their routing value
 
     :param items: An iterable containing items that are
-    instances of subclasses of elasticsearch_dsl.DocType"""
+    instances of subclasses of elasticsearch_dsl.DocType
+    """
     bulk_data = []
     for item in items:
         data = item.to_dict(include_meta=True)
