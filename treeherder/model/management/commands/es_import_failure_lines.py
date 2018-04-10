@@ -7,6 +7,7 @@ from treeherder.model.models import FailureLine
 from treeherder.model.search import (TestFailureLine,
                                      bulk_insert,
                                      connection)
+from treeherder.utils.queryset import chunked_qs
 
 
 class Command(BaseCommand):
@@ -39,9 +40,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        min_id = FailureLine.objects.order_by('id').values_list("id", flat=True)[0] - 1
-        chunk_size = options['chunk_size']
-
         if options["recreate"]:
             connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
             TestFailureLine.init()
@@ -49,13 +47,21 @@ class Command(BaseCommand):
             self.stderr.write("Index already exists; can't perform import")
             return
 
-        while True:
-            rows = (FailureLine.objects
-                    .filter(id__gt=min_id)
-                    .order_by('id')
-                    .values("id", "job_guid", "action", "test", "subtest",
-                            "status", "expected", "message", "best_classification_id",
-                            "best_is_verified"))[:chunk_size]
+        fields = [
+            'id',
+            'action',
+            'job_guid',
+            'test',
+            'subtest',
+            'status',
+            'expected',
+            'message',
+            'best_classification_id',
+            'best_is_verified',
+        ]
+
+        failure_lines = FailureLine.objects.filter(action='test_result')
+        for rows in chunked_qs(failure_lines, options['chunk_size'], fields=fields):
             if not rows:
                 break
             es_lines = []
@@ -65,8 +71,9 @@ class Command(BaseCommand):
                     es_lines.append(es_line)
             self.stdout.write("Inserting %i rows" % len(es_lines))
             bulk_insert(es_lines)
-            min_id = rows[len(rows) - 1]["id"]
+
             time.sleep(options['sleep'])
+
         count = Search(doc_type=TestFailureLine).count()
         self.stdout.write("Index contains %i documents" % count)
 
