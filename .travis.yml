@@ -48,7 +48,7 @@ matrix:
         - ./manage.py makemigrations --check
 
     # Job 3: Nodejs UI tests
-    - env: ui-tests
+    - env: js-tests
       language: node_js
       node_js: "8"
       cache:
@@ -60,7 +60,7 @@ matrix:
         - yarn test
         - yarn build
 
-    # Job 4: Python Tests Chunk A
+    # Job 4: Python Tests - Main
     - env: python-tests-main
       language: python
       python: "2.7.14"
@@ -76,33 +76,9 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - pytest tests/ --runslow --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/api/ --ignore=tests/selenium/ --ignore=tests/jenkins/
+        - pytest tests/ --runslow --ignore=tests/selenium/ --ignore=tests/jenkins/
 
-    # Job 5: Python Tests Chunk B
-    - env: python-tests-etl-logparser
-      language: python
-      python: "2.7.14"
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-      script:
-        - pytest tests/etl/ tests/log_parser/ --runslow
-
-    # Job 6: Python Tests Chunk C
-    - env: python-tests-rest-api
-      language: python
-      python: "2.7.14"
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-      script:
-        - pytest tests/webapp/api/ --runslow
-
-    # Job 7: Python Tests - Selenium integration
+    # Job 5: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
       python: "2.7.14"
