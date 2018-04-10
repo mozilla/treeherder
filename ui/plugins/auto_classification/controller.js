@@ -748,7 +748,8 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
                 }
                 elem = elem.parent();
             }
-            ctrl.onToggleSelect({ lineIds: [id], clear: !event.ctrlKey });
+            // ctrl+click on mac is same as right-click, so use meta key instead
+            ctrl.onToggleSelect({ lineIds: [id], clear: !(event.ctrlKey || event.metaKey) });
         };
     }
 ]);
