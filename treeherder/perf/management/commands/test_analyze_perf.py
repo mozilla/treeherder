@@ -8,7 +8,7 @@ from six import iteritems
 
 from treeherder.client.thclient import (PerfherderClient,
                                         PerformanceTimeInterval)
-from treeherder.perfalert.perfalert import (Datum,
+from treeherder.perfalert.perfalert import (RevisionDatum,
                                             detect_changes)
 
 
@@ -100,7 +100,7 @@ class Command(BaseCommand):
                 for (push_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    data.append(Datum(timestamp, value, testrun_id=push_id))
+                    data.append(RevisionDatum(timestamp, value, testrun_id=push_id))
 
                 for r in detect_changes(data):
                     if r.state == 'regression':
