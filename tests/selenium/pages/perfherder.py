@@ -9,10 +9,9 @@ class Perfherder(Base):
 
     _add_test_data_locator = (By.ID, 'add-test-data-button')
 
-    def wait_for_page_to_load(self):
-        self.wait.until(lambda _: self.is_element_displayed(
-            By.CSS_SELECTOR, '#graph canvas'))
-        return self
+    @property
+    def loaded(self):
+        return self.is_element_displayed(By.CSS_SELECTOR, '#graph canvas')
 
     def add_test_data(self):
         self.find_element(*self._add_test_data_locator).click()

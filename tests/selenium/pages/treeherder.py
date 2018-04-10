@@ -33,9 +33,9 @@ class Treeherder(Base):
     _unclassified_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
     _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar th-watched-repo')
 
-    def wait_for_page_to_load(self):
-        self.wait.until(lambda _: self.find_elements(*self._watched_repos_locator))
-        return self
+    @property
+    def loaded(self):
+        return self.find_elements(*self._watched_repos_locator)
 
     @property
     def active_filters(self):
