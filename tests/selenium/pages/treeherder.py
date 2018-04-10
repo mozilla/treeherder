@@ -67,6 +67,10 @@ class Treeherder(Base):
         return self.InfoPanel(self)
 
     @property
+    def pinboard(self):
+        return self.Pinboard(self)
+
+    @property
     def pushes(self):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
@@ -184,6 +188,7 @@ class Treeherder(Base):
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
+        _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(6)')
         _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(5)')
 
@@ -210,6 +215,10 @@ class Treeherder(Base):
         def filter_by_author(self):
             self.find_element(*self._author_locator).click()
             return self.page.wait_for_page_to_load()
+
+        def pin_all_jobs(self):
+            self.find_element(*self._pin_all_jobs_locator).click()
+            self.wait.until(lambda _: self.page.pinboard.is_displayed)
 
         def set_as_bottom_of_range(self):
             # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
@@ -243,6 +252,10 @@ class Treeherder(Base):
             @property
             def selected(self):
                 return 'selected-job' in self.root.get_attribute('class')
+
+            @property
+            def symbol(self):
+                return self.root.text
 
         class JobGroup(Region):
 
@@ -299,6 +312,7 @@ class Treeherder(Base):
 
             _root_locator = (By.ID, 'job-details-panel')
             _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
+            _pin_job_locator = (By.ID, 'pin-job-btn')
             _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
             @property
@@ -311,3 +325,38 @@ class Treeherder(Base):
 
             def filter_by_keywords(self):
                 self.find_element(*self._keywords_locator).click()
+
+            def pin_job(self, method='pointer'):
+                if method == 'keyboard':
+                    el = self.page.find_element(By.CSS_SELECTOR, 'body')
+                    el.send_keys(Keys.SPACE)
+                else:
+                    self.find_element(*self._pin_job_locator).click()
+                self.wait.until(lambda _: self.page.pinboard.is_displayed)
+
+    class Pinboard(Region):
+
+        _root_locator = (By.ID, 'pinboard-panel')
+        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(5) a')
+        _jobs_locator = (By.CLASS_NAME, 'pinned-job')
+        _save_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .save-btn-dropdown')
+
+        def clear(self):
+            el = self.find_element(*self._save_menu_locator)
+            el.click()
+            self.wait.until(lambda _: el.get_attribute('aria-expanded') == 'true')
+            self.find_element(*self._clear_all_locator).click()
+
+        @property
+        def is_displayed(self):
+            return self.root.is_displayed()
+
+        @property
+        def jobs(self):
+            return [self.Job(self.page, el) for el in self.find_elements(*self._jobs_locator)]
+
+        class Job(Region):
+
+            @property
+            def symbol(self):
+                return self.root.text

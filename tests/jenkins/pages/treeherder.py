@@ -38,10 +38,6 @@ class TreeherderPage(Page):
         return self.InfoPanel(self)
 
     @property
-    def pinboard(self):
-        return self.Pinboard(self)
-
-    @property
     def pushes(self):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
@@ -111,10 +107,6 @@ class TreeherderPage(Page):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
         self.wait.until(lambda _: self.info_panel.is_open)
 
-    def pin_using_spacebar(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.SPACE)
-        self.wait.until(lambda _: self.pinboard.is_pinboard_open)
-
     def select_next_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
 
@@ -132,7 +124,6 @@ class TreeherderPage(Page):
         _exception_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-purple')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pending_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-ltgray')
-        _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _restarted_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkblue')
         _running_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-dkgray')
         _successful_jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown.btn-green')
@@ -162,9 +153,6 @@ class TreeherderPage(Page):
         @property
         def pending_jobs(self):
             return [self.Job(self.page, root=el) for el in self.find_elements(*self._pending_jobs_locator)]
-
-        def pin_all_jobs(self):
-            return self.find_element(*self._pin_all_jobs_locator).click()
 
         @property
         def restarted_jobs(self):
@@ -203,10 +191,6 @@ class TreeherderPage(Page):
             @property
             def selected(self):
                 return 'selected-job' in self.root.get_attribute('class')
-
-            @property
-            def symbol(self):
-                return self.root.text
 
             @property
             def title(self):
@@ -253,7 +237,6 @@ class TreeherderPage(Page):
             _root_locator = (By.ID, 'job-details-panel')
             _job_keyword_locator = (By.CSS_SELECTOR, '#job-details-pane > ul > li > a:nth-last-child(1)')
             _logviewer_button_locator = (By.ID, 'logviewer-btn')
-            _pin_job_locator = (By.ID, 'pin-job-btn')
 
             @property
             def job_keyword_name(self):
@@ -268,46 +251,6 @@ class TreeherderPage(Page):
                 for handle in window_handles:
                     self.selenium.switch_to.window(handle)
                 return LogviewerPage(self.selenium, self.page.base_url).wait_for_page_to_load()
-
-            def pin_job(self):
-                self.find_element(*self._pin_job_locator).click()
-                self.wait.until(lambda _: self.page.pinboard.is_pinboard_open)
-
-    class Pinboard(Region):
-
-        _root_locator = (By.ID, 'pinboard-panel')
-        _clear_all_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(5) a')
-        _jobs_locator = (By.CLASS_NAME, 'pinned-job')
-        _open_save_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .save-btn-dropdown')
-        _pinboard_remove_job_locator = (By.CSS_SELECTOR, '#pinned-job-list .pinned-job-close-btn')
-
-        @property
-        def is_pinboard_open(self):
-            return self.root.is_displayed()
-
-        @property
-        def jobs(self):
-            return [self.Job(self.page, el) for el in self.find_elements(*self._jobs_locator)]
-
-        @property
-        def selected_job(self):
-            return next(j for j in self.jobs if j.is_selected)
-
-        def clear_pinboard(self):
-            el = self.find_element(*self._open_save_menu_locator)
-            el.click()
-            self.wait.until(lambda _: el.get_attribute('aria-expanded') == 'true')
-            self.find_element(*self._clear_all_menu_locator).click()
-
-        class Job(Region):
-
-            @property
-            def is_selected(self):
-                return 'selected-job' in self.root.get_attribute('class')
-
-            @property
-            def symbol(self):
-                return self.root.text
 
 
 class LogviewerPage(Page):
