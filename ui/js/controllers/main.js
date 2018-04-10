@@ -443,7 +443,7 @@ treeherderApp.controller('MainCtrl', [
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
-            ['i', function () {
+            ['ctrl+i', function () {
                 if (thTabs.selectedTab === "autoClassification") {
                     $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
                 }
