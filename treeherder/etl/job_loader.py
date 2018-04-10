@@ -56,8 +56,7 @@ class JobLoader(object):
                         self.validate_revision(repository, pulse_job)
                         store_job_data(repository, [self.transform(pulse_job)])
                     except AttributeError:
-                        logger.warn("Skipping job due to bad attribute",
-                                    exc_info=1)
+                        logger.warning("Skipping job due to bad attribute", exc_info=1)
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: %s", project)
 

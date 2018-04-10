@@ -33,9 +33,9 @@ class PushLoader(object):
             })
             newrelic.agent.record_custom_event("skip_unknown_repository",
                                                repo_info)
-            logger.warn("Skipping unsupported repo: %s %s",
-                        transformer.repo_url,
-                        transformer.branch)
+            logger.warning("Skipping unsupported repo: %s %s",
+                           transformer.repo_url,
+                           transformer.branch)
             return
 
         transformed_data = transformer.transform(repo.name)

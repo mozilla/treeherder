@@ -140,7 +140,7 @@ class AuthBackend(object):
             session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
             expires_in = int((session_expiry_in_ms - now_in_ms) / 1000)
 
-            logger.warn("Updating session to expire in %i seconds", expires_in)
+            logger.warning("Updating session to expire in %i seconds", expires_in)
             request.session.set_expiry(expires_in)
 
             return user
