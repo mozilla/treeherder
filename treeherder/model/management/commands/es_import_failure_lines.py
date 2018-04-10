@@ -64,11 +64,8 @@ class Command(BaseCommand):
         for rows in chunked_qs(failure_lines, options['chunk_size'], fields=fields):
             if not rows:
                 break
-            es_lines = []
-            for item in rows:
-                es_line = failure_line_from_value(item)
-                if es_line:
-                    es_lines.append(es_line)
+
+            es_lines = [TestFailureLine.from_model(line) for line in rows]
             self.stdout.write("Inserting %i rows" % len(es_lines))
             bulk_insert(es_lines)
 
@@ -76,17 +73,3 @@ class Command(BaseCommand):
 
         count = Search(doc_type=TestFailureLine).count()
         self.stdout.write("Index contains %i documents" % count)
-
-
-def failure_line_from_value(line):
-    if line["action"] == "test_result":
-        rv = TestFailureLine(job_guid=line["job_guid"],
-                             test=line["test"],
-                             subtest=line["subtest"],
-                             status=line["status"],
-                             expected=line["expected"],
-                             message=line["message"],
-                             best_classification=line["best_classification_id"],
-                             best_is_verified=line["best_is_verified"])
-        rv.meta.id = line["id"]
-        return rv
