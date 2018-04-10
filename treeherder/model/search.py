@@ -89,8 +89,7 @@ class TestFailureLine(RoutedDocType):
                      status=line.status,
                      expected=line.expected,
                      message=line.message,
-                     best_classification=(line.best_classification.id
-                                          if line.best_classification else None),
+                     best_classification=line.best_classification_id,
                      best_is_verified=line.best_is_verified)
             rv.meta.id = line.id
             return rv
