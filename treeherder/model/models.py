@@ -372,44 +372,34 @@ class JobManager(models.Manager):
         """
         from treeherder.model.search import bulk_delete as es_delete
         from treeherder.model.search import TestFailureLine
+        from treeherder.utils.queryset import chunked_qs
 
         # Retrieve list of jobs to delete
         jobs_max_timestamp = datetime.datetime.now() - cycle_interval
 
         jobs_cycled = 0
         while True:
-            jobs_chunk = list(self.filter(
-                repository=repository,
-                submit_time__lt=jobs_max_timestamp).values_list(
-                    'guid', flat=True)[:chunk_size])
+            jobs_chunk = list(self.filter(repository=repository, submit_time__lt=jobs_max_timestamp)
+                                  .values_list('guid', flat=True)[:chunk_size])
+
             if not jobs_chunk:
                 # no more jobs to cycle, we're done!
                 return jobs_cycled
 
-            # Remove ORM entries for these jobs that don't currently have a foreign key
-            # relation
-            failure_lines_to_delete = FailureLine.objects.filter(
-                job_guid__in=jobs_chunk)
+            # Remove ORM entries for these jobs that don't currently have a
+            # foreign key relation
+            lines = FailureLine.objects.filter(job_guid__in=jobs_chunk)
+
             if settings.ELASTIC_SEARCH["url"]:
-                # To delete the data from elasticsearch we need both the document id and the
-                # test, since this is used to determine the shard on which the document is indexed.
-                # However selecting all this data can be rather slow, so split the job into multiple
+                # To delete the data from elasticsearch we need both the
+                # document id and the test, since this is used to determine the
+                # shard on which the document is indexed. However selecting all
+                # this data can be rather slow, so split the job into multiple
                 # smaller chunks.
-                failure_line_max_id = failure_lines_to_delete.order_by("-id").values_list("id", flat=True).first()
-                while failure_line_max_id:
-                    es_delete_data = list(failure_lines_to_delete
-                                          .order_by("-id")
-                                          .filter(id__lte=failure_line_max_id)
-                                          .values_list("id", "test")[:chunk_size])
-                    if es_delete_data:
-                        es_delete(TestFailureLine, es_delete_data)
-                        # Compute the first possible id of a failure line not selected in the
-                        # previous query
-                        min_id_in_chunk, _ = es_delete_data[-1]
-                        failure_line_max_id = min_id_in_chunk - 1
-                    else:
-                        failure_line_max_id = None
-            failure_lines_to_delete.delete()
+                for rows in chunked_qs(lines, chunk_size=chunk_size, fields=['id', 'test']):
+                    es_delete(TestFailureLine, [(line.id, line.test) for line in rows])
+
+            lines.delete()
 
             # cycle jobs *after* related data has been deleted, to be sure
             # we don't have any orphan data
