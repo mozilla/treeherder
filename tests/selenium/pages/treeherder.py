@@ -15,6 +15,7 @@ class Treeherder(Base):
     URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
+    _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
     _filter_in_progress_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title*=progress]')
     _filter_retry_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=retry]')
@@ -50,9 +51,20 @@ class Treeherder(Base):
         return list(itertools.chain.from_iterable(
             r.job_groups for r in self.pushes))
 
-    def filter_by(self, term):
-        el = self.selenium.find_element(*self._quick_filter_locator)
-        el.send_keys(term + Keys.RETURN)
+    def clear_filter(self, method='pointer'):
+        if method == 'keyboard':
+            el = self.find_element(By.CSS_SELECTOR, 'body')
+            el.send_keys(Keys.CONTROL + Keys.SHIFT + 'f')
+        else:
+            self.selenium.find_element(*self._clear_filter_locator).click()
+
+    def filter_by(self, term, method='pointer'):
+        if method == 'keyboard':
+            el = self.find_element(By.CSS_SELECTOR, 'body')
+            el.send_keys('f' + term + Keys.RETURN)
+        else:
+            el = self.selenium.find_element(*self._quick_filter_locator)
+            el.send_keys(term + Keys.RETURN)
         return self.wait_for_page_to_load()
 
     @contextmanager
@@ -83,9 +95,15 @@ class Treeherder(Base):
         self.find_element(*self._filters_menu_locator).click()
         self.FiltersMenu(self).reset()
 
+    def select_next_job(self):
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
+
     def select_next_unclassified_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
         self.wait.until(lambda _: self.info_panel.is_open)
+
+    def select_previous_job(self):
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_LEFT)
 
     def select_previous_unclassified_job(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys('p')
@@ -296,7 +314,16 @@ class Treeherder(Base):
     class InfoPanel(Region):
 
         _root_locator = (By.ID, 'info-panel')
+        _close_locator = (By.CSS_SELECTOR, '.info-panel-navbar-controls a')
         _loading_locator = (By.CSS_SELECTOR, '.overlay')
+
+        def close(self, method='pointer'):
+            if method == 'keyboard':
+                el = self.page.find_element(By.CSS_SELECTOR, 'body')
+                el.send_keys(Keys.ESCAPE)
+            else:
+                self.find_element(*self._close_locator).click()
+            self.wait.until(lambda _: not self.is_open)
 
         @property
         def is_open(self):
