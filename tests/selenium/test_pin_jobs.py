@@ -20,6 +20,7 @@ def test_jobs(eleven_job_blobs, create_jobs):
 @pytest.mark.parametrize('method', [('keyboard'), ('pointer')])
 def test_pin_job(base_url, selenium, test_jobs, method):
     page = Treeherder(selenium, base_url).open()
+    page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     page.all_jobs[0].click()
     assert len(page.pinboard.jobs) == 0
     page.info_panel.job_details.pin_job(method)
@@ -29,6 +30,7 @@ def test_pin_job(base_url, selenium, test_jobs, method):
 
 def test_clear_pinboard(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
+    page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     page.all_jobs[0].click()
     page.info_panel.job_details.pin_job()
     assert len(page.pinboard.jobs) == 1
@@ -38,6 +40,7 @@ def test_clear_pinboard(base_url, selenium, test_jobs):
 
 def test_pin_all_jobs(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
+    page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     push = next(p for p in page.pushes if len(p.jobs) > 1)
     push.pin_all_jobs()
     assert len(page.pinboard.jobs) == len(test_jobs)
