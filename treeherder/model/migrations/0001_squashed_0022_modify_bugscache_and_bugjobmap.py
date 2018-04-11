@@ -578,9 +578,17 @@ class Migration(migrations.Migration):
 
         # Manually created migrations.
 
-        # Since Django doesn't natively support creating FULLTEXT indicies.
+        # Since Django doesn't natively support creating FULLTEXT indices.
         migrations.RunSQL(
-            ['CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);'],
+            [
+                # Suppress the MySQL warning "InnoDB rebuilding table to add column FTS_DOC_ID":
+                # https://dev.mysql.com/doc/refman/5.7/en/innodb-fulltext-index.html#innodb-fulltext-index-docid
+                # The table is empty when the index is added, so we don't care about it being rebuilt,
+                # and there isn't a better way to add the index without Django FULLTEXT support.
+                'SET @old_max_error_count=@@max_error_count, max_error_count=0;',
+                'CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);',
+                'SET max_error_count=@old_max_error_count;',
+            ],
             reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
         ),
         # Since Django doesn't natively support creating composite prefix indicies.
