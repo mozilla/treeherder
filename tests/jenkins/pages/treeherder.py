@@ -52,9 +52,6 @@ class TreeherderPage(Page):
         self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
 
-    def filter_unclassified_jobs(self):
-        self.find_element(*self._unclassified_failure_filter_locator).click()
-
     def _get_next(self, count):
         before = len(self.pushes)
         locator = getattr(self, '_get_next_{}_locator'.format(count))
@@ -201,23 +198,3 @@ class TreeherderPage(Page):
 
             def filter_by_job_keyword(self):
                 self.find_element(*self._job_keyword_locator).click()
-
-            def open_logviewer(self):
-                self.root.send_keys('l')
-                window_handles = self.selenium.window_handles
-                for handle in window_handles:
-                    self.selenium.switch_to.window(handle)
-                return LogviewerPage(self.selenium, self.page.base_url).wait_for_page_to_load()
-
-
-class LogviewerPage(Page):
-
-    _job_header_locator = (By.CSS_SELECTOR, 'div.job-header')
-
-    def wait_for_page_to_load(self):
-        self.wait.until(lambda s: self.is_job_status_visible)
-        return self
-
-    @property
-    def is_job_status_visible(self):
-        return self.is_element_displayed(*self._job_header_locator)
