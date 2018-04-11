@@ -1,21 +1,17 @@
 import itertools
-import random
 
 from pypom import Page, Region
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 
 class TreeherderPage(Page):
 
     _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
-    _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _info_panel_content_locator = (By.ID, 'info-panel-content')
     _get_next_10_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(1)')
     _get_next_20_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(2)')
     _get_next_50_locator = (By.CSS_SELECTOR, 'div.btn:nth-child(3)')
-    _quick_filter_locator = (By.ID, 'quick-filter')
     _pushes_locator = (By.CSS_SELECTOR, '.push:not(.row)')
     _unchecked_repos_links_locator = (By.CSS_SELECTOR, '#repoLabel + .dropdown-menu .dropdown-checkbox:not([checked]) + .dropdown-link')
     _unclassified_failure_count_locator = (By.ID, 'unclassified-failure-count')
@@ -42,11 +38,6 @@ class TreeherderPage(Page):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
     @property
-    def search_term(self):
-        el = self.find_element(*self._quick_filter_locator)
-        return el.get_attribute('value')
-
-    @property
     def unchecked_repos(self):
         return self.find_elements(*self._unchecked_repos_links_locator)
 
@@ -54,36 +45,12 @@ class TreeherderPage(Page):
     def unclassified_failure_count(self):
         return int(self.find_element(*self._unclassified_failure_count_locator).text)
 
-    def clear_filter(self, method='pointer'):
-        if method == 'pointer':
-            self.selenium.find_element(*self._clear_filter_locator).click()
-        elif method == 'keyboard':
-            self.find_element(By.CSS_SELECTOR, 'body').send_keys(
-                Keys.CONTROL + Keys.SHIFT + 'f')
-        else:
-            raise Exception('Unsupported method: {}'.format(method))
-
     def click_on_active_watched_repo(self):
         # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
         el = self.find_element(By.CSS_SELECTOR, 'body')
         self.find_element(*self._active_watched_repo_locator).click()
         self.wait.until(EC.staleness_of(el))
         self.wait_for_page_to_load()
-
-    def close_all_panels(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ESCAPE)
-
-    def filter_by(self, term, method='pointer'):
-        if method == 'pointer':
-            el = self.selenium.find_element(*self._quick_filter_locator)
-            el.send_keys(term)
-            el.send_keys(Keys.RETURN)
-            self.wait.until(lambda s: self.pushes)
-        elif method == 'keyboard':
-            self.find_element(By.CSS_SELECTOR, 'body').send_keys(
-                'f' + term + Keys.RETURN)
-        else:
-            raise Exception('Unsupported method: {}'.format(method))
 
     def filter_unclassified_jobs(self):
         self.find_element(*self._unclassified_failure_filter_locator).click()
@@ -106,16 +73,6 @@ class TreeherderPage(Page):
     def open_next_unclassified_failure(self):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
         self.wait.until(lambda _: self.info_panel.is_open)
-
-    def select_next_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
-
-    def select_previous_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_LEFT)
-
-    def select_random_job(self):
-        random_job = random.choice(self.all_jobs)
-        random_job.click()
 
     class ResultSet(Region):
 
