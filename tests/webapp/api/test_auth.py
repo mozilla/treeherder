@@ -109,38 +109,42 @@ def test_post_no_auth():
 
 # Auth Login and Logout Tests
 
-def test_auth_login_and_logout(test_ldap_user, webapp, monkeypatch):
+def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
     def userinfo_mock(selfless, request):
         return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    assert "sessionid" not in webapp.cookies
+    assert "sessionid" not in client.cookies
 
     client_id = "mozilla-ldap/user@foo.com"
 
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    webapp.get(reverse('auth-login'),
-               headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
-               status=200)
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_IDTOKEN="meh",
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 200
 
-    session_key = webapp.cookies["sessionid"]
-    session_data = SessionStore(session_key=session_key)
-    user = User.objects.get(id=session_data.get('_auth_user_id'))
+    session = client.session
+    assert not session.is_empty()
 
+    user = User.objects.get(id=session['_auth_user_id'])
     assert user.id == test_ldap_user.id
     assert user.username == client_id
 
-    webapp.get(reverse("auth-logout"), status=200)
-
-    assert "sessionid" not in webapp.cookies
+    resp = client.get(reverse("auth-logout"))
+    assert resp.status_code == 200
+    assert client.session.is_empty()
 
 
 @pytest.mark.django_db
-def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
+def test_login_email_user_doesnt_exist(test_user, client, monkeypatch):
     """email login, user doesn't exist, create it"""
     def userinfo_mock(selfless, request):
         return {'sub': 'email', 'email': test_user.email, 'exp': '500'}
@@ -150,14 +154,18 @@ def test_login_email_user_doesnt_exist(test_user, webapp, monkeypatch):
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"),
-                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)})
-
-    assert resp.json["username"] == "email/user@foo.com"
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_IDTOKEN="meh",
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 200
+    assert resp.json()["username"] == "email/user@foo.com"
 
 
 @pytest.mark.django_db
-def test_login_no_email(test_user, webapp, monkeypatch):
+def test_login_no_email(test_user, client, monkeypatch):
     """
     When we move to clientId for display in the UI, we may decide users can
     login without an email.  But for now, it's required.
@@ -180,15 +188,18 @@ def test_login_no_email(test_user, webapp, monkeypatch):
     one_hour = 1000 * 60 * 60
     expires_at = int(round(time.time() * 1000)) + one_hour
 
-    resp = webapp.get(reverse("auth-login"),
-                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
-                      status=403)
-
-    assert resp.json["detail"] == "Unrecognized identity"
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_IDTOKEN="meh",
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Unrecognized identity"
 
 
 @pytest.mark.django_db
-def test_login_not_active(test_ldap_user, webapp, monkeypatch):
+def test_login_not_active(test_ldap_user, client, monkeypatch):
     """LDAP login, user not active"""
     def userinfo_mock(selfless, request):
         return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
@@ -201,14 +212,17 @@ def test_login_not_active(test_ldap_user, webapp, monkeypatch):
     test_ldap_user.is_active = False
     test_ldap_user.save()
 
-    resp = webapp.get(reverse("auth-login"),
-                      headers={"authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)},
-                      status=403)
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_IDTOKEN="meh",
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "This user has been disabled."
 
-    assert resp.json["detail"] == "This user has been disabled."
 
-
-def test_login_invalid(webapp, monkeypatch):
-    resp = webapp.get(reverse("auth-login"), status=403)
-
-    assert resp.json["detail"] == "Authorization header is expected"
+def test_login_invalid(client):
+    resp = client.get(reverse("auth-login"))
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Authorization header is expected"

@@ -5,7 +5,7 @@ from treeherder.model.models import RunnableJob
 
 
 @patch('treeherder.etl.runnable_jobs._taskcluster_runnable_jobs', return_value=[])
-def test_runnable_jobs_api(taskcluster_runnable_jobs, webapp, test_job):
+def test_runnable_jobs_api(taskcluster_runnable_jobs, client, test_job):
     RunnableJob.objects.create(
         build_platform=test_job.build_platform,
         machine_platform=test_job.machine_platform,
@@ -17,8 +17,9 @@ def test_runnable_jobs_api(taskcluster_runnable_jobs, webapp, test_job):
         repository=test_job.repository)
     url = reverse("runnable_jobs-list",
                   kwargs={"project": test_job.repository.name})
-    resp = webapp.get(url).json
-    assert resp == {
+    resp = client.get(url)
+    assert resp.status_code == 200
+    assert resp.json() == {
         'meta': {
             'count': 1,
             'offset': 0,

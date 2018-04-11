@@ -6,10 +6,9 @@ import json
 
 import responses
 from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient
 
 
-def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
+def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
     """
@@ -18,8 +17,6 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
         headers = {}
         requestdata = json.loads(request.body)
         requestheaders = request.headers
-        print(requestdata)
-        print(requestheaders)
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"Filed by: {}\n\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
@@ -37,7 +34,6 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
         content_type="application/json",
     )
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     resp = client.post(
@@ -52,13 +48,11 @@ def test_create_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
             "keywords": ["intermittent-failure"],
         }
     )
-
-    content = json.loads(resp.content)
-
-    assert content['success'] == 323
+    assert resp.status_code == 200
+    assert resp.json()['success'] == 323
 
 
-def test_create_bug_with_unicode(webapp, eleven_jobs_stored, activate_responses, test_user):
+def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
     """
@@ -67,8 +61,6 @@ def test_create_bug_with_unicode(webapp, eleven_jobs_stored, activate_responses,
         headers = {}
         requestdata = json.loads(request.body)
         requestheaders = request.headers
-        print(requestdata)
-        print(requestheaders)
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"Filed by: {}\n\nIntermittent “description” string".format(test_user.email.replace('@', " [at] "))
@@ -86,7 +78,6 @@ def test_create_bug_with_unicode(webapp, eleven_jobs_stored, activate_responses,
         content_type="application/json",
     )
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     resp = client.post(
@@ -101,13 +92,11 @@ def test_create_bug_with_unicode(webapp, eleven_jobs_stored, activate_responses,
             "keywords": ["intermittent-failure"],
         }
     )
-
-    content = json.loads(resp.content)
-
-    assert content['success'] == 323
+    assert resp.status_code == 200
+    assert resp.json()['success'] == 323
 
 
-def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_user):
+def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug with a crash signature in bugzilla
     """
@@ -136,7 +125,6 @@ def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_u
         content_type="application/json",
     )
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     resp = client.post(
@@ -154,14 +142,11 @@ def test_create_crash_bug(webapp, eleven_jobs_stored, activate_responses, test_u
             "keywords": ["intermittent-failure", "crash"],
         }
     )
-
-    content = json.loads(resp.content)
-
-    print(content)
-    assert content['success'] == 323
+    assert resp.status_code == 200
+    assert resp.json()['success'] == 323
 
 
-def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_responses):
+def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_responses):
     """
     test successfully creating a bug in bugzilla
     """
@@ -170,8 +155,6 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
         headers = {}
         requestdata = json.loads(request.body)
         requestheaders = request.headers
-        print(requestdata)
-        print(requestheaders)
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"Filed by: MyName\n\nIntermittent Description"
@@ -192,8 +175,6 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
         content_type="application/json",
     )
 
-    client = APIClient()
-
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
@@ -209,14 +190,11 @@ def test_create_unauthenticated_bug(webapp, eleven_jobs_stored, activate_respons
             "see_also": "12345",
         }
     )
-
-    content = json.loads(resp.content)
-
-    print(content)
-    assert content['detail'] == "Authentication credentials were not provided."
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == "Authentication credentials were not provided."
 
 
-def test_create_bug_with_long_crash_signature(webapp, eleven_jobs_stored, activate_responses, test_user):
+def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activate_responses, test_user):
     """
     test successfully creating a bug in bugzilla
     """
@@ -225,8 +203,6 @@ def test_create_bug_with_long_crash_signature(webapp, eleven_jobs_stored, activa
         headers = {}
         requestdata = json.loads(request.body)
         requestheaders = request.headers
-        print(requestdata)
-        print(requestheaders)
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"Filed by: MyName\n\nIntermittent Description"
@@ -248,7 +224,6 @@ def test_create_bug_with_long_crash_signature(webapp, eleven_jobs_stored, activa
         content_type="application/json",
     )
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     crashsig = 'x' * 2050
@@ -268,8 +243,5 @@ def test_create_bug_with_long_crash_signature(webapp, eleven_jobs_stored, activa
             "see_also": "12345",
         }
     )
-
-    content = json.loads(resp.content)
-
-    print(content)
-    assert content['failure'] == "Crash signature can't be more than 2048 characters."
+    assert resp.status_code == 400
+    assert resp.json()['failure'] == "Crash signature can't be more than 2048 characters."

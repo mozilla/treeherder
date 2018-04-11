@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient
 
 from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,
@@ -17,16 +16,16 @@ from treeherder.model.models import (BugJobMap,
 from treeherder.model.search import TestFailureLine as _TestFailureLine
 
 
-def test_get_failure_line(webapp, failure_lines):
+def test_get_failure_line(client, failure_lines):
     """
     test getting a single failure line
     """
-    resp = webapp.get(
+    resp = client.get(
         reverse("failure-line-detail", kwargs={"pk": failure_lines[0].id}))
 
-    assert resp.status_int == 200
+    assert resp.status_code == 200
 
-    failure_line = resp.json
+    failure_line = resp.json()
 
     assert isinstance(failure_line, object)
     exp_failure_keys = ["id", "job_guid", "repository", "job_log",
@@ -41,10 +40,10 @@ def test_get_failure_line(webapp, failure_lines):
 def test_update_failure_line_verify(test_repository,
                                     text_log_errors_failure_lines,
                                     classified_failures,
+                                    client,
                                     test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     failure_line = failure_lines[0]
@@ -60,7 +59,7 @@ def test_update_failure_line_verify(test_repository,
 
     resp = client.put(
         reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-        body, format="json")
+        body)
 
     assert resp.status_code == 200
 
@@ -81,11 +80,11 @@ def test_update_failure_line_verify(test_repository,
 def test_update_failure_line_replace(test_repository,
                                      text_log_errors_failure_lines,
                                      classified_failures,
+                                     client,
                                      test_user):
 
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
@@ -102,7 +101,7 @@ def test_update_failure_line_replace(test_repository,
 
     resp = client.put(
         reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-        body, format="json")
+        body)
 
     assert resp.status_code == 200
 
@@ -125,13 +124,13 @@ def test_update_failure_line_replace(test_repository,
 def test_update_failure_line_mark_job(test_repository, test_job,
                                       text_log_errors_failure_lines,
                                       classified_failures,
+                                      client,
                                       test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
 
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     bug = Bugscache.objects.create(id=1234,
@@ -150,7 +149,7 @@ def test_update_failure_line_mark_job(test_repository, test_job,
         body = {"best_classification": classified_failures[1].id}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-                          body, format="json")
+                          body)
 
         assert resp.status_code == 200
 
@@ -176,12 +175,13 @@ def test_update_failure_line_mark_job(test_repository, test_job,
 
 def test_update_failure_line_mark_job_with_human_note(test_job,
                                                       text_log_errors_failure_lines,
-                                                      classified_failures, test_user):
+                                                      classified_failures,
+                                                      client,
+                                                      test_user):
 
     _, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     JobNote.objects.create(job=test_job,
@@ -194,7 +194,7 @@ def test_update_failure_line_mark_job_with_human_note(test_job,
         body = {"best_classification": classified_failures[1].id}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-                          body, format="json")
+                          body)
 
         assert resp.status_code == 200
 
@@ -211,12 +211,12 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
                                                      test_repository,
                                                      text_log_errors_failure_lines,
                                                      classified_failures,
+                                                     client,
                                                      test_user):
 
     _, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     JobNote.objects.create(job=test_job,
@@ -227,7 +227,7 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
         body = {"best_classification": classified_failures[1].id}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-                          body, format="json")
+                          body)
 
         assert resp.status_code == 200
 
@@ -250,13 +250,13 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
                               text_log_errors_failure_lines,
                               classified_failures,
                               eleven_jobs_stored,
+                              client,
                               test_user):
 
     jobs = (Job.objects.get(id=1), Job.objects.get(id=2))
 
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     lines = [(test_line, {}),
@@ -281,7 +281,7 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
     body = [{"id": failure_line.id,
              "best_classification": classified_failures[1].id}
             for failure_line in failure_lines]
-    resp = client.put(reverse("failure-line-list"), body, format="json")
+    resp = client.put(reverse("failure-line-list"), body)
 
     assert resp.status_code == 200
 
@@ -306,10 +306,11 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
 def test_update_failure_line_ignore(test_job,
                                     test_repository,
                                     text_log_errors_failure_lines,
-                                    classified_failures, test_user):
+                                    classified_failures,
+                                    client,
+                                    test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     MatcherManager.register_detector(ManualDetector)
@@ -326,7 +327,7 @@ def test_update_failure_line_ignore(test_job,
 
     resp = client.put(
         reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-        body, format="json")
+        body)
 
     assert resp.status_code == 200
 
@@ -344,12 +345,12 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
                                                  mock_autoclassify_jobs_true,
                                                  text_log_errors_failure_lines,
                                                  classified_failures,
+                                                 client,
                                                  test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     job_failure_lines = [line for line in failure_lines if
@@ -373,7 +374,7 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
         body = {"best_classification": None}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-                          body, format="json")
+                          body)
 
         assert resp.status_code == 200
 
@@ -395,12 +396,12 @@ def test_update_failure_line_partial_ignore_mark_job(test_job,
                                                      mock_autoclassify_jobs_true,
                                                      text_log_errors_failure_lines,
                                                      classified_failures,
+                                                     client,
                                                      test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
     MatcherManager.register_detector(ManualDetector)
 
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     for i, (error_line, failure_line) in enumerate(zip(text_log_errors, failure_lines)):
@@ -410,7 +411,7 @@ def test_update_failure_line_partial_ignore_mark_job(test_job,
         body = {"best_classification": None if i == 0 else classified_failures[0].id}
 
         resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
-                          body, format="json")
+                          body)
 
         assert resp.status_code == 200
 

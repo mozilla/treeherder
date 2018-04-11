@@ -11,8 +11,8 @@ from treeherder.model import models
 
 
 def post_collection(project, th_collection):
-
-    client = TreeherderClient(server_url='http://localhost')
+    # http://testserver is the Django test client's default host name.
+    client = TreeherderClient(server_url='http://testserver')
     return client.post_collection(project, th_collection)
 
 
