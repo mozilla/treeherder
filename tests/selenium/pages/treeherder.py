@@ -53,15 +53,13 @@ class Treeherder(Base):
 
     def clear_filter(self, method='pointer'):
         if method == 'keyboard':
-            el = self.find_element(By.CSS_SELECTOR, 'body')
-            el.send_keys(Keys.CONTROL + Keys.SHIFT + 'f')
+            self._keyboard_shortcut(Keys.CONTROL + Keys.SHIFT + 'f')
         else:
             self.selenium.find_element(*self._clear_filter_locator).click()
 
     def filter_by(self, term, method='pointer'):
         if method == 'keyboard':
-            el = self.find_element(By.CSS_SELECTOR, 'body')
-            el.send_keys('f' + term + Keys.RETURN)
+            self._keyboard_shortcut('f' + term + Keys.RETURN)
         else:
             el = self.selenium.find_element(*self._quick_filter_locator)
             el.send_keys(term + Keys.RETURN)
@@ -77,6 +75,9 @@ class Treeherder(Base):
     @property
     def info_panel(self):
         return self.InfoPanel(self)
+
+    def _keyboard_shortcut(self, shortcut):
+        self.find_element(By.CSS_SELECTOR, 'body').send_keys(shortcut)
 
     @property
     def pinboard(self):
@@ -96,17 +97,17 @@ class Treeherder(Base):
         self.FiltersMenu(self).reset()
 
     def select_next_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_RIGHT)
+        self._keyboard_shortcut(Keys.ARROW_RIGHT)
 
     def select_next_unclassified_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys('n')
+        self._keyboard_shortcut('n')
         self.wait.until(lambda _: self.info_panel.is_open)
 
     def select_previous_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.ARROW_LEFT)
+        self._keyboard_shortcut(Keys.ARROW_LEFT)
 
     def select_previous_unclassified_job(self):
-        self.find_element(By.CSS_SELECTOR, 'body').send_keys('p')
+        self._keyboard_shortcut('p')
         self.wait.until(lambda _: self.info_panel.is_open)
 
     def select_repository(self, name):
@@ -319,8 +320,7 @@ class Treeherder(Base):
 
         def close(self, method='pointer'):
             if method == 'keyboard':
-                el = self.page.find_element(By.CSS_SELECTOR, 'body')
-                el.send_keys(Keys.ESCAPE)
+                self.page._keyboard_shortcut(Keys.ESCAPE)
             else:
                 self.find_element(*self._close_locator).click()
             self.wait.until(lambda _: not self.is_open)
@@ -355,8 +355,7 @@ class Treeherder(Base):
 
             def pin_job(self, method='pointer'):
                 if method == 'keyboard':
-                    el = self.page.find_element(By.CSS_SELECTOR, 'body')
-                    el.send_keys(Keys.SPACE)
+                    self.page._keyboard_shortcut(Keys.SPACE)
                 else:
                     self.find_element(*self._pin_job_locator).click()
                 self.wait.until(lambda _: self.page.pinboard.is_displayed)
