@@ -429,7 +429,7 @@ treeherder.factory('ThResultSetStore', [
          */
         var updateUnclassifiedFailureCountForTiers = function () {
             repoData.unclassifiedFailureCountForTiers = 0;
-            _.forEach(repoData.unclassifiedFailureMap, function (job) {
+            Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
                 if (thJobFilters.isFilterSetToShow("tier", job.tier)) {
                     repoData.unclassifiedFailureCountForTiers += 1;
                 }
@@ -446,7 +446,7 @@ treeherder.factory('ThResultSetStore', [
          */
         var updateFilteredUnclassifiedFailureCount = function () {
             repoData.filteredUnclassifiedFailureCount = 0;
-            _.forEach(repoData.unclassifiedFailureMap, function (job) {
+            Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
                 if (thJobFilters.showJob(job)) {
                     repoData.filteredUnclassifiedFailureCount++;
                 }

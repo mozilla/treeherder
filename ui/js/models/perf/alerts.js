@@ -59,7 +59,7 @@ treeherder.factory('PhAlerts', [
             return $http.put(getApiUrl(`/performance/alert/${this.id}/`),
                              modification);
         };
-        _.forEach(phAlertStatusMap, function (status) {
+        Object.values(phAlertStatusMap).forEach((status) => {
             Alert.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
@@ -73,7 +73,7 @@ treeherder.factory('PhAlerts', [
             return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
                              modification);
         };
-        _.forEach(phAlertSummaryStatusMap, function (status) {
+        Object.values(phAlertSummaryStatusMap).forEach((status) => {
             AlertSummary.prototype['is' + _.capitalize(status.text)] = function () {
                 return this.status === status.id;
             };
