@@ -2,12 +2,14 @@ import pytest
 
 from pages.treeherder import Treeherder
 
+RESULTS = ['testfailed', 'busted', 'exception']
+
 
 @pytest.fixture
 def test_jobs(eleven_job_blobs, create_jobs):
-    job_blobs = eleven_job_blobs[0:2]
-    [b['job'].update({'result': 'testfailed'}) for b in job_blobs]
-    return create_jobs(job_blobs)
+    for i, status in enumerate(RESULTS):
+        eleven_job_blobs[i]['job']['result'] = status
+    return create_jobs(eleven_job_blobs[0:len(RESULTS)])
 
 
 def test_select_next_unclassified_job(base_url, selenium, test_jobs):

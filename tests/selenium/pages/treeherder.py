@@ -27,6 +27,7 @@ class Treeherder(Base):
     _repo_locator = (By.CSS_SELECTOR, '#repo-dropdown a[href*="repo={}"]')
     _repo_menu_locator = (By.ID, 'repoLabel')
     _pushes_locator = (By.CSS_SELECTOR, '.push:not(.row)')
+    _unclassified_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
     _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar th-watched-repo')
 
     def wait_for_page_to_load(self):
@@ -71,6 +72,9 @@ class Treeherder(Base):
         el.click()
         yield self.FiltersMenu(self)
         el.click()
+
+    def filter_unclassified_jobs(self):
+        self.find_element(*self._unclassified_filter_locator).click()
 
     @property
     def info_panel(self):
@@ -339,6 +343,7 @@ class Treeherder(Base):
 
             _root_locator = (By.ID, 'job-details-panel')
             _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
+            _log_viewer_locator = (By.ID, 'logviewer-btn')
             _pin_job_locator = (By.ID, 'pin-job-btn')
             _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
@@ -359,6 +364,19 @@ class Treeherder(Base):
                 else:
                     self.find_element(*self._pin_job_locator).click()
                 self.wait.until(lambda _: self.page.pinboard.is_displayed)
+
+            def open_log_viewer(self, method='pointer'):
+                if method == 'keyboard':
+                    self.page._keyboard_shortcut('l')
+                else:
+                    self.find_element(*self._log_viewer_locator).click()
+                self.wait.until(lambda s: len(s.window_handles) == 2)
+                handles = self.driver.window_handles
+                handles.remove(self.driver.current_window_handle)
+                self.driver.switch_to.window(handles[0])
+
+                from pages.log_viewer import LogViewer
+                return LogViewer(self.driver).wait_for_page_to_load()
 
     class Pinboard(Region):
 
