@@ -15,6 +15,7 @@ def test_jobs(eleven_job_blobs, create_jobs):
 @pytest.mark.parametrize('result', RESULTS)
 def test_filter_jobs_by_failure_result(base_url, selenium, test_jobs, result):
     page = Treeherder(selenium, base_url).open()
+    page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     assert len(page.all_jobs) == len(RESULTS)
     with page.filters_menu() as filters:
         for result in RESULTS:

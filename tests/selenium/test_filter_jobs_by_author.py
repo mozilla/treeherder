@@ -12,7 +12,7 @@ def commits(create_push, create_commit, test_repository):
 
 def test_filter_jobs_by_author(base_url, selenium, commits):
     page = Treeherder(selenium, base_url).open()
-    assert len(page.pushes) == 2
+    page.wait.until(lambda _: len(page.pushes) == 2)
     # check authors are distinct
     assert len(set(push.author for push in page.pushes)) == 2
     author = page.pushes[-1].author
@@ -26,6 +26,7 @@ def test_filter_jobs_by_author(base_url, selenium, commits):
 
 def test_clear_filter_jobs_by_author(base_url, selenium, commits):
     page = Treeherder(selenium, base_url).open()
+    page.wait.until(lambda _: len(page.pushes) == 2)
     page.pushes[0].filter_by_author()
     page.wait.until(lambda _: len(page.pushes) == 1)
     page.active_filters.filters[0].clear()
