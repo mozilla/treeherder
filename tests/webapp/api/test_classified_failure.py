@@ -1,23 +1,22 @@
 from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient
 
 from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from treeherder.model.models import ClassifiedFailure
 
 
-def test_get_classified_failure(webapp, classified_failures):
+def test_get_classified_failure(client, classified_failures):
     """
     test getting a single failure line
     """
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
-    resp = webapp.get(
+    resp = client.get(
         reverse("classified-failure-detail", kwargs={"pk": classified_failures[0].id}))
 
-    assert resp.status_int == 200
-    actual = resp.json
+    assert resp.status_code == 200
+    actual = resp.json()
     expected = {"id": classified_failures[0].id,
                 "bug_number": 1234,
                 "bug": None}
@@ -25,14 +24,14 @@ def test_get_classified_failure(webapp, classified_failures):
     assert actual == expected
 
 
-def test_get_classified_failures(webapp, classified_failures):
+def test_get_classified_failures(client, classified_failures):
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
-    resp = webapp.get(reverse("classified-failure-list"))
-    assert resp.status_int == 200
+    resp = client.get(reverse("classified-failure-list"))
+    assert resp.status_code == 200
 
-    actual = resp.json
+    actual = resp.json()
     expected = {"next": None,
                 "previous": None,
                 "results": [{"id": cf.id,
@@ -41,14 +40,14 @@ def test_get_classified_failures(webapp, classified_failures):
     assert actual == expected
 
 
-def test_get_classified_failures_bug(webapp, classified_failures):
+def test_get_classified_failures_bug(client, classified_failures):
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
-    resp = webapp.get(reverse("classified-failure-list") + "?bug_number=1234")
-    assert resp.status_int == 200
+    resp = client.get(reverse("classified-failure-list") + "?bug_number=1234")
+    assert resp.status_code == 200
 
-    actual = resp.json
+    actual = resp.json()
     expected = {"next": None,
                 "previous": None,
                 "results": [{"id": classified_failures[0].id,
@@ -57,15 +56,14 @@ def test_get_classified_failures_bug(webapp, classified_failures):
     assert actual == expected
 
 
-def test_post_new_classified_failure(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_post_new_classified_failure(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
     resp = client.post(reverse("classified-failure-list"),
-                       {"bug_number": 5678}, format="json")
+                       {"bug_number": 5678})
 
     assert resp.status_code == 200
 
@@ -79,15 +77,14 @@ def test_post_new_classified_failure(webapp, classified_failures, test_user):
     assert obj.bug_number == 5678
 
 
-def test_post_multiple(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_post_multiple(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
     resp = client.post(reverse("classified-failure-list"),
-                       [{"bug_number": 5678}, {"bug_number": 9012}], format="json")
+                       [{"bug_number": 5678}, {"bug_number": 9012}])
 
     assert resp.status_code == 200
 
@@ -105,15 +102,14 @@ def test_post_multiple(webapp, classified_failures, test_user):
         assert obj.bug_number == [5678, 9012][idx]
 
 
-def test_post_repeated_classified_failure(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_post_repeated_classified_failure(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
 
     resp = client.post(reverse("classified-failure-list"),
-                       {"bug_number": 1234}, format="json")
+                       {"bug_number": 1234})
 
     assert resp.status_code == 200
 
@@ -124,8 +120,7 @@ def test_post_repeated_classified_failure(webapp, classified_failures, test_user
     assert actual == expected
 
 
-def test_put_new_bug_number(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_new_bug_number(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -133,7 +128,7 @@ def test_put_new_bug_number(webapp, classified_failures, test_user):
 
     resp = client.put(reverse("classified-failure-detail",
                               kwargs={"pk": classified_failures[0].id}),
-                      {"bug_number": 5678}, format="json")
+                      {"bug_number": 5678})
 
     assert resp.status_code == 200
 
@@ -147,8 +142,7 @@ def test_put_new_bug_number(webapp, classified_failures, test_user):
     assert classified_failures[0].bug_number == 5678
 
 
-def test_put_existing_bug_number(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_existing_bug_number(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -156,7 +150,7 @@ def test_put_existing_bug_number(webapp, classified_failures, test_user):
 
     resp = client.put(reverse("classified-failure-detail",
                               kwargs={"pk": classified_failures[0].id}),
-                      {"bug_number": 1234}, format="json")
+                      {"bug_number": 1234})
 
     assert resp.status_code == 200
 
@@ -170,9 +164,8 @@ def test_put_existing_bug_number(webapp, classified_failures, test_user):
     assert classified_failures[0].bug_number == 1234
 
 
-def test_put_duplicate_bug_number(webapp, classified_failures, failure_lines,
+def test_put_duplicate_bug_number(client, classified_failures, failure_lines,
                                   test_user):
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -182,7 +175,7 @@ def test_put_duplicate_bug_number(webapp, classified_failures, failure_lines,
 
     resp = client.put(reverse("classified-failure-detail",
                               kwargs={"pk": classified_failures[1].id}),
-                      {"bug_number": 1234}, format="json")
+                      {"bug_number": 1234})
 
     assert resp.status_code == 200
 
@@ -196,7 +189,7 @@ def test_put_duplicate_bug_number(webapp, classified_failures, failure_lines,
     assert len(classified_failures) == old_len - 1
 
 
-def test_get_with_bug(webapp, classified_failures, bugs):
+def test_get_with_bug(client, classified_failures, bugs):
     """
     test getting a single failure line
     """
@@ -204,11 +197,11 @@ def test_get_with_bug(webapp, classified_failures, bugs):
     classified_failures[0].bug_number = bug.id
     classified_failures[0].save()
 
-    resp = webapp.get(
+    resp = client.get(
         reverse("classified-failure-detail", kwargs={"pk": classified_failures[0].id}))
 
-    assert resp.status_int == 200
-    actual = resp.json
+    assert resp.status_code == 200
+    actual = resp.json()
     expected = {"id": classified_failures[0].id,
                 "bug_number": bug.id,
                 "bug": {"status": bug.status,
@@ -225,8 +218,7 @@ def test_get_with_bug(webapp, classified_failures, bugs):
     assert actual == expected
 
 
-def test_put_multiple(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_multiple(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -235,7 +227,7 @@ def test_put_multiple(webapp, classified_failures, test_user):
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 5678},
                        {"id": classified_failures[1].id, "bug_number": 9012}],
-                      format="json")
+                      )
 
     assert resp.status_code == 200
 
@@ -254,8 +246,7 @@ def test_put_multiple(webapp, classified_failures, test_user):
     assert classified_failures[1].bug_number == 9012
 
 
-def test_put_multiple_repeat(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_multiple_repeat(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -264,7 +255,7 @@ def test_put_multiple_repeat(webapp, classified_failures, test_user):
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 1234},
                        {"id": classified_failures[1].id, "bug_number": 5678}],
-                      format="json")
+                      )
 
     assert resp.status_code == 200
 
@@ -284,8 +275,7 @@ def test_put_multiple_repeat(webapp, classified_failures, test_user):
     assert classified_failures[1].bug_number == 5678
 
 
-def test_put_multiple_duplicate(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_multiple_duplicate(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
@@ -295,7 +285,8 @@ def test_put_multiple_duplicate(webapp, classified_failures, test_user):
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 1234},
                        {"id": classified_failures[1].id, "bug_number": 5678}],
-                      format="json")
+                      )
+    assert resp.status_code == 200
 
     actual = resp.data
     assert len(actual) == 2
@@ -311,8 +302,7 @@ def test_put_multiple_duplicate(webapp, classified_failures, test_user):
     assert len(new_classified_failures) == len(classified_failures) - 1
 
 
-def test_put_multiple_duplicate_1(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_multiple_duplicate_1(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
@@ -322,7 +312,8 @@ def test_put_multiple_duplicate_1(webapp, classified_failures, test_user):
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 1234},
                        {"id": classified_failures[1].id, "bug_number": 1234}],
-                      format="json")
+                      )
+    assert resp.status_code == 200
 
     actual = resp.data
     assert len(actual) == 2
@@ -338,8 +329,7 @@ def test_put_multiple_duplicate_1(webapp, classified_failures, test_user):
     assert len(new_classified_failures) == len(classified_failures) - 2
 
 
-def test_put_multiple_duplicate_2(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_multiple_duplicate_2(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -350,12 +340,12 @@ def test_put_multiple_duplicate_2(webapp, classified_failures, test_user):
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 5678},
                        {"id": classified_failures[1].id, "bug_number": 1234}],
-                      format="json")
+                      )
 
     assert resp.status_code == 400
 
 
-def test_get_matching_lines(webapp, test_job, failure_lines, classified_failures):
+def test_get_matching_lines(client, test_job, failure_lines, classified_failures):
     """
     test getting a single failure line
     """
@@ -372,32 +362,35 @@ def test_get_matching_lines(webapp, test_job, failure_lines, classified_failures
     extra_lines[1].best_classification = classified_failures[1]
     extra_lines[1].save()
 
-    resp = webapp.get(
+    resp = client.get(
         reverse("classified-failure-matches", kwargs={"pk": classified_failures[0].id}))
 
-    assert resp.status_int == 200
-    actual = resp.json["results"]
+    assert resp.status_code == 200
+    actual = resp.json()["results"]
 
     assert [item["id"] for item in actual] == [item.id for item in reversed(failure_lines)]
 
 
-def test_put_duplicate_repeated(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_duplicate_repeated(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
     new.save()
     classified_failures.append(new)
 
-    client.put(reverse("classified-failure-list"),
-               [{"id": classified_failures[0].id, "bug_number": 1234}],
-               format="json")
+    resp = client.put(
+        reverse("classified-failure-list"),
+        [{"id": classified_failures[0].id, "bug_number": 1234}],
+    )
+    assert resp.status_code == 200
     new_classified_failures = ClassifiedFailure.objects.all()
     assert [item.id for item in new_classified_failures] == [2, 3]
     assert [item.bug_number for item in new_classified_failures] == [None, 1234]
+
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 1234}],
-                      format="json")
+                      )
+    assert resp.status_code == 200
 
     actual = resp.data
     assert len(actual) == 1
@@ -410,24 +403,25 @@ def test_put_duplicate_repeated(webapp, classified_failures, test_user):
     assert len(new_classified_failures) == len(classified_failures) - 1
 
 
-def test_put_duplicate_multiple_repeated(webapp, classified_failures, test_user):
-    client = APIClient()
+def test_put_duplicate_multiple_repeated(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     new = ClassifiedFailure(bug_number=1234)
     new.save()
     classified_failures.append(new)
 
-    client.put(reverse("classified-failure-list"),
-               [{"id": classified_failures[0].id, "bug_number": 1234}],
-               format="json")
+    resp = client.put(
+        reverse("classified-failure-list"),
+        [{"id": classified_failures[0].id, "bug_number": 1234}],
+    )
+    assert resp.status_code == 200
     new_classified_failures = ClassifiedFailure.objects.all()
     assert [item.id for item in new_classified_failures] == [2, 3]
     assert [item.bug_number for item in new_classified_failures] == [None, 1234]
     resp = client.put(reverse("classified-failure-list"),
                       [{"id": classified_failures[0].id, "bug_number": 1234},
                        {"id": classified_failures[1].id, "bug_number": 1234}],
-                      format="json")
+                      )
 
     actual = resp.data
     assert len(actual) == 2

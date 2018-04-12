@@ -4,7 +4,7 @@ from treeherder.perf.models import (PerformanceBugTemplate,
                                     PerformanceFramework)
 
 
-def test_perf_bug_template_api(webapp, test_perf_framework):
+def test_perf_bug_template_api(client, test_perf_framework):
     framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
 
     template_dicts = []
@@ -22,12 +22,12 @@ def test_perf_bug_template_api(webapp, test_perf_framework):
         template_dicts.append(dict)
 
     # test that we can get them all
-    resp = webapp.get(reverse('performance-bug-template-list'))
-    assert resp.status_int == 200
-    assert resp.json == template_dicts
+    resp = client.get(reverse('performance-bug-template-list'))
+    assert resp.status_code == 200
+    assert resp.json() == template_dicts
 
     # test that we can get just one (the usual case, probably)
-    resp = webapp.get(reverse('performance-bug-template-list') +
+    resp = client.get(reverse('performance-bug-template-list') +
                       '?framework={}'.format(test_perf_framework.id))
-    assert resp.status_int == 200
-    assert resp.json == [template_dicts[0]]
+    assert resp.status_code == 200
+    assert resp.json() == [template_dicts[0]]

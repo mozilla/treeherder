@@ -10,10 +10,9 @@ from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from requests import Request
 from requests_hawk import HawkAuth
-from webtest.app import TestApp
+from rest_framework.test import APIClient
 
 from treeherder.client.thclient import TreeherderClient
-from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Commit,
@@ -295,25 +294,24 @@ def test_job_with_notes(test_job, test_user):
 
 
 @pytest.fixture
-def mock_post_json(monkeypatch, client_credentials):
+def mock_post_json(monkeypatch, client_credentials, client):
     def _post_json(th_client, project, endpoint, data):
         auth = th_client.session.auth
         if not auth:
             auth = HawkAuth(id=client_credentials.client_id,
                             key=str(client_credentials.secret))
-        app = TestApp(application)
         url = th_client._get_endpoint_url(endpoint, project=project)
         req = Request('POST', url, json=data, auth=auth)
         prepped_request = req.prepare()
-
-        return getattr(app, 'post')(
+        response = client.post(
             prepped_request.url,
-            params=json.dumps(data),
+            data=json.dumps(data),
             content_type='application/json',
-            extra_environ={
-                'HTTP_AUTHORIZATION': str(prepped_request.headers['Authorization'])
-            }
+            HTTP_AUTHORIZATION=str(prepped_request.headers['Authorization'])
         )
+        # Replacement for the `raise_for_status()` in the original `_post_json()`
+        assert response.status_code == 200
+        return response
 
     monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)
 
@@ -582,11 +580,12 @@ def bugs(mock_bugzilla_api_request):
 
 
 @pytest.fixture
-def webapp():
+def client():
     """
-    we can use this object to test calls to a wsgi application
+    A django-rest-framework APIClient instance:
+    http://www.django-rest-framework.org/api-guide/testing/#apiclient
     """
-    return TestApp(application)
+    return APIClient()
 
 
 @pytest.fixture

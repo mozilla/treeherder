@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient
 
 from treeherder.model.models import (MachinePlatform,
                                      Push)
@@ -56,13 +55,13 @@ def test_perf_signature_same_hash_different_framework(test_perf_signature):
     return new_signature
 
 
-def test_no_summary_performance_data(webapp, test_perf_signature,
+def test_no_summary_performance_data(client, test_perf_signature,
                                      test_repository):
 
-    resp = webapp.get(reverse('performance-signatures-list',
+    resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}))
-    assert resp.status_int == 200
-    assert resp.json == {
+    assert resp.status_code == 200
+    assert resp.json() == {
         test_perf_signature.signature_hash: {
             'id': test_perf_signature.id,
             'test': test_perf_signature.test,
@@ -75,28 +74,28 @@ def test_no_summary_performance_data(webapp, test_perf_signature,
     }
 
 
-def test_performance_platforms(webapp, test_perf_signature):
-    resp = webapp.get(reverse('performance-signatures-platforms-list',
+def test_performance_platforms(client, test_perf_signature):
+    resp = client.get(reverse('performance-signatures-platforms-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }))
-    assert resp.status_int == 200
-    assert resp.json == ['win7']
+    assert resp.status_code == 200
+    assert resp.json() == ['win7']
 
 
-def test_performance_platforms_expired_test(webapp, test_perf_signature):
+def test_performance_platforms_expired_test(client, test_perf_signature):
     # check that we have no performance platform if the signatures are too old
     test_perf_signature.last_updated = datetime.datetime.utcfromtimestamp(0)
     test_perf_signature.save()
-    resp = webapp.get(reverse('performance-signatures-platforms-list',
+    resp = client.get(reverse('performance-signatures-platforms-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }) + '?interval={}'.format(86400))
-    assert resp.status_int == 200
-    assert resp.json == []
+    assert resp.status_code == 200
+    assert resp.json() == []
 
 
-def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
+def test_performance_platforms_framework_filtering(client, test_perf_signature):
     # check framework filtering
     framework2 = PerformanceFramework.objects.create(name='test_talos2', enabled=True)
     platform2 = MachinePlatform.objects.create(
@@ -115,31 +114,30 @@ def test_performance_platforms_framework_filtering(webapp, test_perf_signature):
         last_updated=test_perf_signature.last_updated)
 
     # by default should return both
-    resp = webapp.get(reverse('performance-signatures-platforms-list',
+    resp = client.get(reverse('performance-signatures-platforms-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }))
-    assert resp.status_int == 200
-    assert sorted(resp.json) == ['win7', 'win7-a']
+    assert resp.status_code == 200
+    assert sorted(resp.json()) == ['win7', 'win7-a']
 
     # if we specify just one framework, should only return one
-    resp = webapp.get(reverse('performance-signatures-platforms-list',
+    resp = client.get(reverse('performance-signatures-platforms-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }) + '?framework={}'.format(framework2.id))
-    assert resp.status_int == 200
-    assert resp.json == ['win7-a']
+    assert resp.status_code == 200
+    assert resp.json() == ['win7-a']
 
 
-def test_summary_performance_data(webapp, test_repository,
+def test_summary_performance_data(client, test_repository,
                                   summary_perf_signature,
                                   test_perf_signature):
     summary_signature_hash = summary_perf_signature.signature_hash
-    resp = webapp.get(reverse('performance-signatures-list',
+    resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}))
-    assert resp.status_int == 200
+    assert resp.status_code == 200
 
-    client = APIClient()
     resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}))
     assert resp.status_code == 200
@@ -168,17 +166,15 @@ def test_summary_performance_data(webapp, test_repository,
         assert resp.data[signature.signature_hash] == expected
 
 
-def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signature,
+def test_filter_signatures_by_framework(client, test_repository, test_perf_signature,
                                         test_perf_signature_same_hash_different_framework):
     signature2 = test_perf_signature_same_hash_different_framework
-
-    client = APIClient()
 
     # Filter by original framework
     resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}) +
                       '?framework=%s' % test_perf_signature.framework.id,
-                      format='json')
+                      )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
     assert resp.data[test_perf_signature.signature_hash]['framework_id'] == test_perf_signature.framework.id
@@ -187,13 +183,13 @@ def test_filter_signatures_by_framework(webapp, test_repository, test_perf_signa
     resp = client.get(reverse('performance-signatures-list',
                               kwargs={"project": test_repository.name}) +
                       '?framework=%s' % signature2.framework.id,
-                      format='json')
+                      )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
     assert resp.data[signature2.signature_hash]['framework_id'] == signature2.framework.id
 
 
-def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
+def test_filter_data_by_framework(client, test_repository, test_perf_signature,
                                   push_stored,
                                   test_perf_signature_same_hash_different_framework):
     signature2 = test_perf_signature_same_hash_different_framework
@@ -206,8 +202,6 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
             signature=signature,
             value=0.0,
             push_timestamp=push.time)
-
-    client = APIClient()
 
     # No filtering, return two datapoints (this behaviour actually sucks,
     # but it's "by design" for now, see bug 1265709)
@@ -242,41 +236,41 @@ def test_filter_data_by_framework(webapp, test_repository, test_perf_signature,
     assert datums[0]['signature_id'] == 2
 
 
-def test_filter_signatures_by_interval(webapp, test_repository, test_perf_signature):
+def test_filter_signatures_by_interval(client, test_repository, test_perf_signature):
     # interval for the last 24 hours, only one signature exists last updated within that timeframe
-    resp = webapp.get(reverse('performance-signatures-list',
+    resp = client.get(reverse('performance-signatures-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }) + '?interval={}'.format(86400))
-    assert resp.status_int == 200
-    assert len(resp.json.keys()) == 1
-    assert resp.json[test_perf_signature.signature_hash]['id'] == 1
+    assert resp.status_code == 200
+    assert len(resp.json().keys()) == 1
+    assert resp.json()[test_perf_signature.signature_hash]['id'] == 1
 
 
 @pytest.mark.parametrize('start_date, end_date, exp_count, exp_id', [
     (SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1),
     (THREE_DAYS_AGO, '', 1, 1),
     (ONE_DAY_AGO, '', 0, 0)])
-def test_filter_signatures_by_range(webapp, test_repository, test_perf_signature,
+def test_filter_signatures_by_range(client, test_repository, test_perf_signature,
                                     start_date, end_date, exp_count, exp_id):
     # set signature last updated to 3 days ago
     test_perf_signature.last_updated = THREE_DAYS_AGO
     test_perf_signature.save()
 
-    resp = webapp.get(reverse('performance-signatures-list',
+    resp = client.get(reverse('performance-signatures-list',
                               kwargs={
                                   "project": test_perf_signature.repository.name
                               }) + '?start_date={}&end_date={}'.format(start_date, end_date))
-    assert resp.status_int == 200
-    assert len(resp.json.keys()) == exp_count
+    assert resp.status_code == 200
+    assert len(resp.json().keys()) == exp_count
     if exp_count != 0:
-        assert resp.json[test_perf_signature.signature_hash]['id'] == exp_id
+        assert resp.json()[test_perf_signature.signature_hash]['id'] == exp_id
 
 
 @pytest.mark.parametrize('interval, exp_datums_len, exp_push_ids', [
     (86400, 1, [1]),
     (86400 * 3, 2, [2, 1])])
-def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
+def test_filter_data_by_interval(client, test_repository, test_perf_signature,
                                  interval, exp_datums_len, exp_push_ids):
     # create some test data
     for (i, timestamp) in enumerate([NOW, NOW - datetime.timedelta(days=2),
@@ -292,8 +286,6 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
             signature=test_perf_signature,
             value=i,
             push_timestamp=timestamp)
-
-    client = APIClient()
 
     # going back interval of 1 day, should find 1 item
     resp = client.get(reverse('performance-data-list',
@@ -312,7 +304,7 @@ def test_filter_data_by_interval(webapp, test_repository, test_perf_signature,
 @pytest.mark.parametrize('start_date, end_date, exp_datums_len, exp_push_ids', [
     (SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [3]),
     (THREE_DAYS_AGO, '', 2, [2, 1])])
-def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
+def test_filter_data_by_range(client, test_repository, test_perf_signature,
                               start_date, end_date, exp_datums_len,
                               exp_push_ids):
     # create some test data
@@ -330,8 +322,6 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
             value=i,
             push_timestamp=timestamp)
 
-    client = APIClient()
-
     resp = client.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
                       '?signature_id={}&start_date={}&end_date={}'.format(
@@ -345,20 +335,19 @@ def test_filter_data_by_range(webapp, test_repository, test_perf_signature,
         assert datums[x]['push_id'] == exp_push_ids[x]
 
 
-def test_job_ids_validity(webapp, test_repository):
-    resp = webapp.get(reverse('performance-data-list',
+def test_job_ids_validity(client, test_repository):
+    resp = client.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
                       '?job_id=1')
     assert resp.status_code == 200
 
-    resp = webapp.get(reverse('performance-data-list',
+    resp = client.get(reverse('performance-data-list',
                               kwargs={"project": test_repository.name}) +
-                      '?job_id=foo',
-                      expect_errors=True)
+                      '?job_id=foo')
     assert resp.status_code == 400
 
 
-def test_filter_data_by_signature(webapp, test_repository, test_perf_signature,
+def test_filter_data_by_signature(client, test_repository, test_perf_signature,
                                   summary_perf_signature):
     push = Push.objects.create(repository=test_repository,
                                revision='abcdefghi',
@@ -372,8 +361,6 @@ def test_filter_data_by_signature(webapp, test_repository, test_perf_signature,
             signature=signature,
             value=i,
             push_timestamp=NOW)
-
-    client = APIClient()
 
     # test that we get the expected value for all different permutations of
     # passing in signature_id and signature hash
