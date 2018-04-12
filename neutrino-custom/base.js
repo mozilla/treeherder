@@ -37,7 +37,6 @@ module.exports = neutrino => {
             'angular-resource',
             'angular-route',
             'angular-sanitize',
-            'angular-toarrayfilter',
             'angular-ui-router',
             'angular1-ui-bootstrap4',
             'auth0-js',

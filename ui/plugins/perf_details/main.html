@@ -1,17 +1,9 @@
-<div class="performance-panel">
-  <ul ng-show="perfJobDetail">
-    <li>Perfherder:
-      <ul ng-repeat="detail in perfJobDetail | toArray | orderBy: 'title'">
-        <li>{{detail.title}}: <a href="{{::detail.url}}">{{::detail.value|displayNumber}}</a>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <ul>
-    <li>
-      <a href="perf.html#/comparechooser?newProject={{repoName}}&newRevision={{jobRevision}}"
-         target="_blank" rel="noopener">Compare result against another revision</a>
-    </li>
-  </ul>
-
+<div>
+  <div>
+    <performance-tab
+      perf-job-detail="perfJobDetail"
+      repo-name="repoName"
+      revision="jobRevision"
+    />
+  </div>
 </div>
