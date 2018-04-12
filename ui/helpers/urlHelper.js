@@ -4,6 +4,11 @@ import thTaskcluster from "../js/services/taskcluster";
 import { getUrlParam, getAllUrlParams } from './locationHelper';
 import { isSHA } from "./revisionHelper";
 
+export const createQueryParams = function createQueryParams(params) {
+  const query = new URLSearchParams(params);
+  return `?${query.toString()}`;
+};
+
 export const getServiceUrl = function getServiceUrl(uri) {
   return `${SERVICE_DOMAIN}${uri}`;
 };
@@ -94,10 +99,11 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
 };
 
 export const getJobsUrl = function getJobsUrl(params) {
-  const qs = Object.entries(params).reduce((acc, [key, value]) => (
-    [...acc, `${encodeURIComponent(key)}=${encodeURIComponent(value)}`]
-  ), []).join('&');
-  return `/#/jobs?${qs}`;
+  return `/#/jobs${createQueryParams(params)}`;
+};
+
+export const getCompareChooserUrl = function getCompareChooserUrl(params) {
+  return `perf.html#/comparechooser${createQueryParams(params)}`;
 };
 
 export const bugsEndpoint = 'failures/';
@@ -113,11 +119,6 @@ export const parseQueryParams = function parseQueryParams(search) {
     obj[key] = value;
   }
   return obj;
-};
-
-export const createQueryParams = function createQueryParams(params) {
-  const query = new URLSearchParams(params);
-  return `?${query.toString()}`;
 };
 
 export const createApiUrl = function createApiUrl(api, params) {

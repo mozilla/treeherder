@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from "react2angular/index";
+import { react2angular } from 'react2angular/index.es2015';
 
 import { getBtnClass, getStatus } from '../helpers/jobHelper';
 import { toDateStr, toShortDateStr } from '../helpers/displayHelper';
