@@ -56,13 +56,13 @@ class Treeherder(Base):
         if method == 'keyboard':
             self._keyboard_shortcut(Keys.CONTROL + Keys.SHIFT + 'f')
         else:
-            self.selenium.find_element(*self._clear_filter_locator).click()
+            self.find_element(*self._clear_filter_locator).click()
 
     def filter_by(self, term, method='pointer'):
         if method == 'keyboard':
             self._keyboard_shortcut('f' + term + Keys.RETURN)
         else:
-            el = self.selenium.find_element(*self._quick_filter_locator)
+            el = self.find_element(*self._quick_filter_locator)
             el.send_keys(term + Keys.RETURN)
         return self.wait_for_page_to_load()
 
@@ -126,7 +126,7 @@ class Treeherder(Base):
     def switch_to_perfherder(self):
         self.header.switch_app()
         from pages.perfherder import Perfherder
-        return Perfherder(self.selenium, self.base_url).wait_for_page_to_load()
+        return Perfherder(self.driver, self.base_url).wait_for_page_to_load()
 
     def toggle_failures(self):
         self.find_element(*self._filter_failures_locator).click()
