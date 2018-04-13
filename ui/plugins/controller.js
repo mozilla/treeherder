@@ -548,7 +548,7 @@ treeherder.controller('PluginCtrl', [
         const selectJobAndRender = function (job) {
             $scope.jobLoadedPromise = selectJob(job);
             $('#info-panel').addClass('info-panel-slide');
-            $scope.jobLoadedPromise.then(function () {
+            $scope.jobLoadedPromise.then(() => {
                 thTabs.showTab(thTabs.selectedTab, job.id);
             });
         };
