@@ -18,7 +18,7 @@ treeherder.component("login", {
               ng-if="$ctrl.user.loggedin">
           <button id="logoutLabel" title="Logged in as: {{$ctrl.user.email}}" role="button"
                   data-toggle="dropdown"
-                  class="btn btn-view-nav btn-right-navbar">
+                  class="btn btn-view-nav">
             <div class="dropdown-toggle">
                 <div class="nav-user-icon">
                   <span class="fa fa-user pull-left"></span>
@@ -33,11 +33,11 @@ treeherder.component("login", {
           </ul>
         </span>
 
-        <span class="btn btn-right-navbar nav-login-btn"
+        <span class="btn nav-login-btn"
            ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin"
            ng-click="$ctrl.login()">Login/Register</span>
         <span ng-if="!$ctrl.userCanLogin"
-              class="midgray"
+              class="nav-login-btn nav-login-btn-unavail"
               title="SERVICE_DOMAIN does not match host domain">Login not available</span>
     `,
     bindings: {
