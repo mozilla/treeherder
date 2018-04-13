@@ -75,9 +75,7 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
             data={'job_id': [job.id for job in
                              jobs[job_range[0]:job_range[1]]]})
         assert resp.status_code == 200
-
-        # The order of the bug-job-map list is not guaranteed.
-        assert sorted(resp.json()) == sorted(expected[job_range[0]:job_range[1]])
+        assert resp.json() == expected[job_range[0]:job_range[1]]
 
 
 def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository,
