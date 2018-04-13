@@ -76,7 +76,9 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - pytest tests/ --runslow --ignore=tests/selenium/ --ignore=tests/jenkins/
+        # Using Python 2's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
+        # https://docs.python.org/2/using/cmdline.html#cmdoption-3
+        - python -3 -m pytest tests/ --runslow --ignore=tests/selenium/ --ignore=tests/jenkins/
 
     # Job 5: Python Tests - Selenium integration
     - env: python-tests-selenium
@@ -93,7 +95,9 @@ matrix:
         # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
         - yarn build
       script:
-        - pytest tests/selenium/ --driver Firefox
+        # Using Python 2's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
+        # https://docs.python.org/2/using/cmdline.html#cmdoption-3
+        - python -3 -m pytest tests/selenium/ --driver Firefox
 
 notifications:
   email:

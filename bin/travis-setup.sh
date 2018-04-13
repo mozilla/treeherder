@@ -8,6 +8,8 @@ export DATABASE_URL='mysql://root@localhost/test_treeherder'
 export ELASTICSEARCH_URL='http://127.0.0.1:9200'
 export REDIS_URL='redis://localhost:6379'
 export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
+# Suppress warnings shown during pytest startup when using `python2 -3` mode.
+export PYTHONWARNINGS='ignore:Overriding __eq__ blocks inheritance of __hash__ in 3.x:DeprecationWarning'
 
 setup_services() {
     ELASTICSEARCH_VERSION="5.5.0"
