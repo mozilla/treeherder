@@ -98,6 +98,7 @@
                      class="dropdown-item">
                 <input id="tier-checkbox"
                        type="checkbox"
+                       class="mousetrap"
                        ng-model="tiers[tier]"
                        ng-disabled="isSingleTierSelected() && tiers[tier] == true"
                        ng-change="tierToggled(tier)">tier {{::tier}}
@@ -125,6 +126,7 @@
               <span ng-repeat="filterName in group.resultStatuses" >
                 <label class="{{::checkClass}} dropdown-item">
                   <input type="checkbox"
+                         class="mousetrap"
                          id="{{::filterName}}"
                          ng-model="resultStatusFilters[filterName]"
                          ng-change="toggleResultStatusFilter(filterName)"> {{::filterName}}
