@@ -7,6 +7,9 @@
       <span ng-if="line.url && line.value.endsWith('raw.log')">
         - <a title="{{line.value}}" href="https://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[buildernameIndex].value | encodeURIComponent}}">open in test results viewer</a>
       </span>
+      <span ng-if="line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip')">
+        - <a title="{{line.value}}" href="https://perf-html.io/from-url/{{line.url | encodeURIComponent}}">open in perf-html.io</a>
+      </span>
       <!-- no URL (just informational) -->
       <span ng-if="!line.url" ng-bind-html="line.value"></span>
     </li>
