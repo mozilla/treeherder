@@ -1220,5 +1220,18 @@
         "repository_group": 5,
         "description": "A system for managing CI data for Mozilla projects"
     }
+},
+{
+    "pk": 95,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "mozilla-esr60",
+        "url": "https://hg.mozilla.org/releases/mozilla-esr60",
+        "active_status": "active",
+        "codebase": "gecko",
+        "repository_group": 2,
+        "description": ""
+    }
 }
 ]
