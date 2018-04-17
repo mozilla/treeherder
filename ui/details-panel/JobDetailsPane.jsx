@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
 import {
@@ -396,5 +397,7 @@ JobDetailsPane.defaultProps = {
   buildUrl: null,
 };
 
-treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>
-  reactDirective(JobDetailsPane, undefined, {}, { $injector })]);
+treeherder.component('jobDetailsPane', react2angular(
+  JobDetailsPane,
+  ['job', 'classificationTypes', 'repoName', 'jobLogUrls', 'jobDetailLoading', 'classification', 'bugs', 'buildUrl'],
+  ['$injector']));
