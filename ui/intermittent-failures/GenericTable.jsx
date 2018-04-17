@@ -7,22 +7,45 @@ import { connect } from 'react-redux';
 
 import { fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
 import { createApiUrl } from '../helpers/urlHelper';
+import { sortData } from './helpers';
 
-function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bugs, columns, trStyling, totalPages }) {
+class GenericTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      page: 0,
+      pageSize: 20,
+      columnId: null,
+      descending: null,
+    };
+    this.updateTable = this.updateTable.bind(this);
+  }
 
-  const updateData = (state) => {
-    // table's page count starts at 0
-    params.page = state.page + 1;
-    params.page_size = state.pageSize;
+  updateData(page, pageSize) {
+    const { fetchData, fetchFullBugData, name, params, tableApi } = this.props;
+    params.page = page;
+    params.page_size = pageSize;
 
     if (name === 'BUGS') {
       fetchFullBugData(createApiUrl(tableApi, params), name);
     } else {
       fetchData(createApiUrl(tableApi, params), name);
     }
-  };
+  }
 
-  const bugRowStyling = (state, bug) => {
+  updateTable(state) {
+    const { page, pageSize } = this.state;
+
+    // table's page count starts at 0
+    if (state.page + 1 !== page || state.pageSize !== pageSize) {
+      this.updateData(state.page + 1, state.pageSize);
+      this.setState({ page: state.page + 1, pageSize: state.pageSize });
+    } else if (state.sorted.length > 0) {
+      this.setState({ columnId: state.sorted[0].id, descending: state.sorted[0].desc });
+    }
+  }
+
+  bugRowStyling(state, bug) {
     if (bug) {
       const style = { color: '#aaa' };
 
@@ -37,19 +60,28 @@ function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bug
       }
     }
     return {};
-  };
-  return (
-    <ReactTable
-      manual
-      data={bugs}
-      onFetchData={updateData}
-      pages={totalPages}
-      showPageSizeOptions
-      columns={columns}
-      className="-striped"
-      getTrProps={trStyling ? bugRowStyling : () => ({})}
-    />
-  );
+  }
+  render() {
+    const { bugs, columns, trStyling, totalPages } = this.props;
+    const { columnId, descending } = this.state;
+    let sortedData = [];
+
+    if (columnId) {
+      sortedData = sortData([...bugs], columnId, descending);
+    }
+    return (
+      <ReactTable
+        manual
+        data={sortedData.length > 0 ? sortedData : bugs}
+        onFetchData={this.updateTable}
+        pages={totalPages}
+        showPageSizeOptions
+        columns={columns}
+        className="-striped"
+        getTrProps={trStyling ? this.bugRowStyling : () => ({})}
+      />
+    );
+  }
 }
 
 Table.propTypes = {

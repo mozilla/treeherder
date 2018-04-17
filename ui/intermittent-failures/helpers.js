@@ -70,3 +70,19 @@ export const updateQueryParams = function updateHistoryWithQueryParams(view, que
     location.search = queryParams;
   }
 };
+
+export const sortData = function sortData(data, sortBy, desc) {
+  data.sort((a, b) => {
+    const item1 = (desc ? b[sortBy] : a[sortBy]);
+    const item2 = (desc ? a[sortBy] : b[sortBy]);
+
+    if (item1 < item2) {
+      return -1;
+    }
+    if (item1 > item2) {
+      return 1;
+    }
+    return 0;
+  });
+  return data;
+};
