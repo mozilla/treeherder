@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { react2angular } from "react2angular/index";
+import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
 import {

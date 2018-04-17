@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
 import Push from './Push';
