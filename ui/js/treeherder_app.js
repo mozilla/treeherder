@@ -1,7 +1,6 @@
 import angular from 'angular';
 import angularToArrayfilter from 'angular-toarrayfilter';
 import hcMarked from 'angular-marked';
-import ngReactModule from 'ngreact';
 import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 import mcResizer from '../vendor/resizer';
@@ -32,7 +31,6 @@ const treeherderApp = angular.module('treeherder.app', [
   mcResizer,
   // Remove when `ui/plugins/perf_details/main.html` converted to React.
   angularToArrayfilter,
-  ngReactModule.name,
   // Remove when `ui/partials/main/tcjobactions.html` converted to React.
   hcMarked,
 ]);

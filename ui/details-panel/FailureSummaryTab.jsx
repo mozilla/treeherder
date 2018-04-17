@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { react2angular } from "react2angular/index";
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
@@ -273,5 +274,8 @@ FailureSummaryTab.defaultProps = {
   logParseStatus: 'pending',
 };
 
-treeherder.directive('failureSummaryTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
-  reactDirective(FailureSummaryTab, undefined, {}, { $injector })]);
+
+treeherder.component('failureSummaryTab', react2angular(
+  FailureSummaryTab,
+  ['fileBug', 'suggestions', 'selectedJob', 'errors', 'bugSuggestionsLoading', 'jobLogUrls', 'logParseStatus'],
+  ['$injector']));

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { react2angular } from "react2angular/index";
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
@@ -263,5 +264,7 @@ AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
 
-treeherder.directive('annotationsTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
-  reactDirective(AnnotationsTab, undefined, {}, { $injector })]);
+treeherder.component('annotationsTab', react2angular(
+  AnnotationsTab,
+  ['classificationTypes', 'classifications', 'bugs', 'selectedJob'],
+  ['$injector']));

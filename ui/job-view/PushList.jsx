@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { react2angular } from 'react2angular';
 
 import treeherder from '../js/treeherder';
 import Push from './Push';
@@ -253,8 +254,7 @@ export default class PushList extends React.Component {
   }
 
   render() {
-    const { $injector, user, repoName, revision } = this.props;
-    const currentRepo = this.props.currentRepo || {};
+    const { $injector, user, repoName, revision, currentRepo } = this.props;
     const { pushList, loadingPushes, jobsReady } = this.state;
     const { loggedin, is_staff } = user;
 
@@ -312,14 +312,10 @@ PushList.propTypes = {
 
 PushList.defaultProps = {
   revision: null,
-  currentRepo: null,
+  currentRepo: {},
 };
 
-treeherder.directive('pushList', ['reactDirective', '$injector',
-  (reactDirective, $injector) => reactDirective(
-    PushList,
-    ['repoName', 'user', 'revision', 'currentRepo'],
-    {},
-    { $injector }
-  )
-]);
+treeherder.component('pushList', react2angular(
+  PushList,
+  ['repoName', 'user', 'revision', 'currentRepo'],
+  ['$injector']));
