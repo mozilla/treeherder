@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient
 
 from treeherder.model.models import Push
 from treeherder.perf.models import PerformanceAlertSummary
@@ -27,7 +26,6 @@ def test_repository_onhold(transactional_db):
 
 @pytest.fixture
 def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
-    from treeherder.perf.models import PerformanceAlertSummary
     for i in range(2):
         Push.objects.create(
             repository=test_repository_onhold,
@@ -58,17 +56,17 @@ def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold):
         t_value=20.0)
 
 
-def test_alert_summaries_get(webapp, test_perf_alert_summary,
+def test_alert_summaries_get(client, test_perf_alert_summary,
                              test_perf_alert):
     # verify that we get the performance summary + alert on GET
-    resp = webapp.get(reverse('performance-alert-summaries-list'))
-    assert resp.status_int == 200
+    resp = client.get(reverse('performance-alert-summaries-list'))
+    assert resp.status_code == 200
 
     # should just have the one alert summary (with one alert)
-    assert resp.json['next'] is None
-    assert resp.json['previous'] is None
-    assert len(resp.json['results']) == 1
-    assert set(resp.json['results'][0].keys()) == set([
+    assert resp.json()['next'] is None
+    assert resp.json()['previous'] is None
+    assert len(resp.json()['results']) == 1
+    assert set(resp.json()['results'][0].keys()) == set([
         'alerts',
         'bug_number',
         'issue_tracker',
@@ -82,8 +80,8 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
         'push_id',
         'status',
     ])
-    assert len(resp.json['results'][0]['alerts']) == 1
-    assert set(resp.json['results'][0]['alerts'][0].keys()) == set([
+    assert len(resp.json()['results'][0]['alerts']) == 1
+    assert set(resp.json()['results'][0]['alerts'][0].keys()) == set([
         'id',
         'status',
         'series_signature',
@@ -98,21 +96,21 @@ def test_alert_summaries_get(webapp, test_perf_alert_summary,
         'related_summary_id',
         'classifier'
     ])
-    assert len(resp.json['results'][0]['related_alerts']) == 0
+    assert resp.json()['results'][0]['related_alerts'] == []
 
 
-def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
+def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
                                     test_perf_alert, test_perf_alert_summary_onhold,
                                     test_perf_alert_onhold, test_repository_onhold):
     # verify that we get the performance summary + alert on GET
-    resp = webapp.get(reverse('performance-alert-summaries-list'))
-    assert resp.status_int == 200
+    resp = client.get(reverse('performance-alert-summaries-list'))
+    assert resp.status_code == 200
 
     # should just have the one alert summary (with one alert)
-    assert resp.json['next'] is None
-    assert resp.json['previous'] is None
-    assert len(resp.json['results']) == 1
-    assert set(resp.json['results'][0].keys()) == set([
+    assert resp.json()['next'] is None
+    assert resp.json()['previous'] is None
+    assert len(resp.json()['results']) == 1
+    assert set(resp.json()['results'][0].keys()) == set([
         'alerts',
         'bug_number',
         'issue_tracker',
@@ -126,8 +124,8 @@ def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
         'push_id',
         'status',
     ])
-    assert len(resp.json['results'][0]['alerts']) == 1
-    assert set(resp.json['results'][0]['alerts'][0].keys()) == set([
+    assert len(resp.json()['results'][0]['alerts']) == 1
+    assert set(resp.json()['results'][0]['alerts'][0].keys()) == set([
         'id',
         'status',
         'series_signature',
@@ -142,19 +140,19 @@ def test_alert_summaries_get_onhold(webapp, test_perf_alert_summary,
         'related_summary_id',
         'classifier'
     ])
-    assert len(resp.json['results'][0]['related_alerts']) == 0
+    assert resp.json()['results'][0]['related_alerts'] == []
 
 
-def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
+def test_alert_summaries_put(client, test_repository, test_perf_signature,
                              test_perf_alert_summary, test_user, test_sheriff):
     # verify that we fail if not authenticated
-    webapp.put_json(reverse('performance-alert-summaries-list') + '1/', {
+    resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
-    }, status=403)
+    })
+    assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.get(id=1).status == 0
 
     # verify that we fail if authenticated, but not staff
-    client = APIClient()
     client.force_authenticate(user=test_user)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
@@ -163,7 +161,6 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     assert PerformanceAlertSummary.objects.get(id=1).status == 0
 
     # verify that we succeed if authenticated + staff
-    client = APIClient()
     client.force_authenticate(user=test_sheriff)
     resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
         'status': 1
@@ -172,7 +169,7 @@ def test_alert_summaries_put(webapp, test_repository, test_perf_signature,
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
 
 
-def test_alert_summary_post(webapp, test_repository, push_stored,
+def test_alert_summary_post(client, test_repository, push_stored,
                             test_perf_signature, test_user, test_sheriff):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)
@@ -184,19 +181,17 @@ def test_alert_summary_post(webapp, test_repository, push_stored,
     }
 
     # verify that we fail if not authenticated
-    webapp.post_json(reverse('performance-alert-summaries-list'), post_blob,
-                     status=403)
+    resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
+    assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.count() == 0
 
     # verify that we fail if authenticated, but not staff
-    client = APIClient()
     client.force_authenticate(user=test_user)
     resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.count() == 0
 
     # verify that we succeed if authenticated + staff
-    client = APIClient()
     client.force_authenticate(user=test_sheriff)
     resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 200

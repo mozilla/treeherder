@@ -6,13 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
-from serializers import PushSerializer
 from treeherder.model.models import (Job,
                                      Push,
                                      Repository)
 from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import permissions
+from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
 
@@ -42,7 +43,7 @@ class PushViewSet(viewsets.ViewSet):
         for param in ["fromchange", "tochange", "startdate", "enddate", "revision"]:
             v = filter_params.get(param, None)
             if v:
-                del(filter_params[param])
+                del filter_params[param]
                 meta[param] = v
 
         try:
@@ -54,7 +55,7 @@ class PushViewSet(viewsets.ViewSet):
 
         pushes = Push.objects.filter(repository=repository).order_by('-time')
 
-        for (param, value) in meta.iteritems():
+        for (param, value) in iteritems(meta):
             if param == 'fromchange':
                 frompush_time = Push.objects.values_list('time', flat=True).get(
                     repository=repository, revision__startswith=value)

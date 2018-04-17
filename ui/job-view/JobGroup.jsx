@@ -4,7 +4,7 @@ import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";
 import { getUrlParam } from "../helpers/locationHelper";
-import { failedResults } from "../js/constants";
+import { thFailureResults, thEvents } from "../js/constants";
 
 class GroupSymbol extends React.PureComponent {
   render() {
@@ -22,12 +22,18 @@ class GroupSymbol extends React.PureComponent {
   }
 }
 
+GroupSymbol.propTypes = {
+  symbol: PropTypes.string.isRequired,
+  tier: PropTypes.number.isRequired,
+  toggleExpanded: PropTypes.func.isRequired,
+};
+
+
 export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = getUrlParam('group_state');
@@ -40,14 +46,14 @@ export default class JobGroup extends React.Component {
 
   componentWillMount() {
     this.duplicateJobsVisibilityChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.duplicateJobsVisibilityChanged,
+      thEvents.duplicateJobsVisibilityChanged,
       () => {
         this.setState({ showDuplicateJobs: !this.state.showDuplicateJobs });
       }
     );
 
     this.groupStateChangedUnlisten = this.$rootScope.$on(
-      this.thEvents.groupStateChanged,
+      thEvents.groupStateChanged,
       (e, newState) => {
         this.setState({ expanded: newState === 'expanded' });
       }
@@ -80,7 +86,7 @@ export default class JobGroup extends React.Component {
           btnClass: getBtnClass(status, job.failure_classification_id),
           countText: status
         };
-        if (failedResults.includes(status) ||
+        if (thFailureResults.includes(status) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && showDuplicateJobs)) {
           // render the job itself, not a count
           buttons.push(job);
@@ -173,5 +179,7 @@ export default class JobGroup extends React.Component {
 JobGroup.propTypes = {
   group: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  filterPlatformCb: PropTypes.func.isRequired,
+  platform: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
 };

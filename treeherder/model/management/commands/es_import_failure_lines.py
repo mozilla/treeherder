@@ -44,8 +44,8 @@ existing data is considered for matching failure lines."""
             connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
             TestFailureLine.init()
         elif connection.indices.exists(TestFailureLine._doc_type.index):
-                self.stderr.write("Index already exists; can't perform import")
-                return
+            self.stderr.write("Index already exists; can't perform import")
+            return
 
         while True:
             rows = (FailureLine.objects

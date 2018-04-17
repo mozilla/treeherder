@@ -415,8 +415,7 @@ def test_alert_generation(test_repository,
                           max_back_window=extra_suite_metadata.get('maxBackWindow'),
                           fore_window=extra_suite_metadata.get('foreWindow'))
 
-    expected_num_alerts = len(filter(lambda x: x is True, [expected_suite_alert,
-                                                           expected_subtest_alert]))
+    expected_num_alerts = sum([expected_suite_alert, expected_subtest_alert])
 
     # validate that a performance alert was generated
     assert expected_num_alerts == PerformanceAlert.objects.all().count()

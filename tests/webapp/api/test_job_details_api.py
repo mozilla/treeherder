@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from django.core.urlresolvers import reverse
+from six import iteritems
 
 from tests.test_utils import create_generic_job
 from treeherder.model.models import (Job,
@@ -9,7 +10,7 @@ from treeherder.model.models import (Job,
 
 
 def test_job_details(test_repository, failure_classifications,
-                     generic_reference_data, push_stored, webapp):
+                     generic_reference_data, push_stored, client):
     details = {
         'abcd': {
             'title': 'title',
@@ -37,7 +38,7 @@ def test_job_details(test_repository, failure_classifications,
         codebase=test_repository.codebase)
 
     i = 1
-    for (job_guid, params) in details.iteritems():
+    for (job_guid, params) in iteritems(details):
         if i < 3:
             repository = test_repository
             push_id = 1
@@ -55,70 +56,70 @@ def test_job_details(test_repository, failure_classifications,
     print(JobDetail.objects.filter(job__guid='abcd'))
 
     # trying to get them all should return an error
-    resp = webapp.get(reverse('jobdetail-list'), expect_errors=True)
-    assert resp.status_int == 400
+    resp = client.get(reverse('jobdetail-list'))
+    assert resp.status_code == 400
 
     # filter to just get one guid at a time
     for guid_identifier in ['job_guid', 'job__guid']:
-        for (guid, detail) in details.iteritems():
-            resp = webapp.get(reverse('jobdetail-list') + '?{}={}'.format(
+        for (guid, detail) in iteritems(details):
+            resp = client.get(reverse('jobdetail-list') + '?{}={}'.format(
                 guid_identifier, guid))
-            assert resp.status_int == 200
-            assert len(resp.json['results']) == 1
-            result = resp.json['results'][0]
+            assert resp.status_code == 200
+            assert len(resp.json()['results']) == 1
+            result = resp.json()['results'][0]
             del result['job_guid']
             del result['job_id']
-            assert result == details[guid]
+            assert result == detail
 
     # filter to get first with (just) job_id
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?job_id=1')
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 1
-    assert set([v['job_guid'] for v in resp.json['results']]) == set(
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 1
+    assert set([v['job_guid'] for v in resp.json()['results']]) == set(
         ['abcd'])
 
     # filter to get the first and second with job_id__in and repository
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?repository={}&job_id__in=1,2'.format(
                           test_repository.name))
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 2
-    assert set([v['job_guid'] for v in resp.json['results']]) == set(
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 2
+    assert set([v['job_guid'] for v in resp.json()['results']]) == set(
         ['abcd', 'efgh'])
 
     # filter to get the last element with job_id__in and repository
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?repository={}&job_id__in=3'.format(
                           test_repository2.name))
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 1
-    assert set([v['job_guid'] for v in resp.json['results']]) == set(
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 1
+    assert set([v['job_guid'] for v in resp.json()['results']]) == set(
         ['ijkl'])
 
     # make sure that filtering by repository with a job id in
     # a different repository returns no results
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?repository={}&job_id__in=3'.format(
                           test_repository.name))
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 0
+    assert resp.status_code == 200
+    assert resp.json()['results'] == []
 
     # add an extra one, but filter to just get those with a specific title.
     # we should only have one
     JobDetail.objects.create(title='title2', job=Job.objects.get(guid='abcd'),
                              value='foo')
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?title=title&job_guid=abcd')
-    assert resp.status_int == 200
-    assert len(resp.json['results']) == 1
-    assert set([v['job_guid'] for v in resp.json['results']]) == set(['abcd'])
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 1
+    assert set([v['job_guid'] for v in resp.json()['results']]) == set(['abcd'])
 
     # should also be able to filter by value
-    resp = webapp.get(reverse('jobdetail-list') +
+    resp = client.get(reverse('jobdetail-list') +
                       '?value=value1&job_guid=abcd')
-    assert resp.status_int == 200
-    assert resp.json['results'] == [{
+    assert resp.status_code == 200
+    assert resp.json()['results'] == [{
         'job_guid': 'abcd',
         'job_id': 1,
         'title': 'title',
@@ -127,9 +128,9 @@ def test_job_details(test_repository, failure_classifications,
     }]
 
     # Should be able to filter by push_id
-    resp = webapp.get(reverse('jobdetail-list') + '?push_id=2')
-    assert resp.status_int == 200
-    assert resp.json['results'] == [{
+    resp = client.get(reverse('jobdetail-list') + '?push_id=2')
+    assert resp.status_code == 200
+    assert resp.json()['results'] == [{
         'job_guid': 'ijkl',
         'job_id': 3,
         'title': 'title3',

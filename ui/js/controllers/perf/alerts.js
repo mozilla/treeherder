@@ -4,6 +4,15 @@ import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl } from "../../../helpers/urlHelper";
+import {
+  thDateFormat,
+  phTimeRanges,
+  phDefaultTimeRangeValue,
+  phTimeRangeValues,
+  phAlertSummaryStatusMap,
+  phAlertSummaryIssueTrackersMap,
+  phAlertStatusMap,
+} from "../../constants";
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -42,8 +51,8 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'phAlertSummaryIssueTrackersMap',
-        function ($scope, $uibModalInstance, alertSummary, phAlertSummaryIssueTrackersMap) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
+        function ($scope, $uibModalInstance, alertSummary) {
             $scope.title = "Link to bug";
             $scope.placeholder = "Task #";
             $scope.issue_trackers = phAlertSummaryIssueTrackersMap;
@@ -105,9 +114,8 @@ perf.controller(
         }]);
 perf.controller(
     'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries,
-                 phAlertStatusMap) {
+        'allAlertSummaries',
+        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
             $scope.title = "Mark alerts downstream";
             $scope.placeholder = "Alert #";
 
@@ -138,8 +146,8 @@ perf.controller(
 
 perf.controller(
     'ReassignAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
-        'allAlertSummaries', 'phAlertStatusMap',
-        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries, phAlertStatusMap) {
+        'allAlertSummaries',
+        function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
 
             $scope.title = "Reassign alerts";
             $scope.placeholder = "Alert #";
@@ -176,16 +184,14 @@ perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
     'ThRepositoryModel', 'ThOptionCollectionModel',
     'ThResultSetModel',
-    'PhFramework', 'PhAlerts', 'PhBugs', 'phTimeRanges',
-    'phDefaultTimeRangeValue', 'phAlertSummaryStatusMap', 'phAlertStatusMap',
-    'dateFilter', 'thDateFormat', 'clipboard', 'phTimeRangeValues',
+    'PhFramework', 'PhAlerts', 'PhBugs',
+    'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
-                        PhFramework, PhAlerts, PhBugs, phTimeRanges,
-                        phDefaultTimeRangeValue, phAlertSummaryStatusMap, phAlertStatusMap,
-                        dateFilter, thDateFormat, clipboard, phTimeRangeValues) {
+                        PhFramework, PhAlerts, PhBugs,
+                        dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {

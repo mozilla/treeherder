@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 
 from django.db.utils import IntegrityError
+from six import iteritems
 
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureMatch,
@@ -24,11 +25,11 @@ def match_errors(job):
     # error lines even in jobs marked as passing.
 
     if job.autoclassify_status < Job.CROSSREFERENCED:
-        logger.error("Tried to autoclassify job %i without crossreferenced error lines" % job.id)
+        logger.error("Tried to autoclassify job %i without crossreferenced error lines", job.id)
         return
 
     if job.autoclassify_status == Job.AUTOCLASSIFIED:
-        logger.error("Tried to autoclassify job %i which was already autoclassified" % job.id)
+        logger.error("Tried to autoclassify job %i which was already autoclassified", job.id)
         return
 
     if job.result not in ["testfailed", "busted", "exception"]:
@@ -37,18 +38,18 @@ def match_errors(job):
     unmatched_errors = set(TextLogError.objects.unmatched_for_job(job))
 
     if not unmatched_errors:
-        logger.info("Skipping autoclassify of job %i because it has no unmatched errors" % job.id)
+        logger.info("Skipping autoclassify of job %i because it has no unmatched errors", job.id)
         return
 
     try:
         matches, all_matched = find_matches(unmatched_errors)
         update_db(job, matches, all_matched)
     except Exception:
-        logger.error("Autoclassification of job %s failed" % job.id)
+        logger.error("Autoclassification of job %s failed", job.id)
         job.autoclassify_status = Job.FAILED
         raise
     else:
-        logger.debug("Autoclassification of job %s suceeded" % job.id)
+        logger.debug("Autoclassification of job %s suceeded", job.id)
         job.autoclassify_status = Job.AUTOCLASSIFIED
     finally:
         job.save(update_fields=['autoclassify_status'])
@@ -60,8 +61,8 @@ def find_matches(unmatched_errors):
     for matcher in Matcher.objects.registered_matchers():
         matches = matcher(unmatched_errors)
         for match in matches:
-            logger.info("Matched error %i with intermittent %i" %
-                        (match.text_log_error.id, match.classified_failure_id))
+            logger.info("Matched error %i with intermittent %i",
+                        match.text_log_error.id, match.classified_failure_id)
             all_matches.add((matcher.db_object, match))
             if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
                 unmatched_errors.remove(match.text_log_error)
@@ -81,7 +82,7 @@ def update_db(job, matches, all_matched):
         classified_failure = classified_failures[match.classified_failure_id]
         matches_by_error[match.text_log_error].add((matcher, match, classified_failure))
 
-    for text_log_error, matches in matches_by_error.iteritems():
+    for text_log_error, matches in iteritems(matches_by_error):
         for (matcher, match, classified_failure) in matches:
             try:
                 TextLogErrorMatch.objects.create(
@@ -97,8 +98,8 @@ def update_db(job, matches, all_matched):
                         failure_line=match.text_log_error.metadata.failure_line)
             except IntegrityError:
                 logger.warning(
-                    "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i" %
-                    (text_log_error.id, matcher.id, classified_failure.id))
+                    "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
+                    text_log_error.id, matcher.id, classified_failure.id)
         best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
             text_log_error.mark_best_classification(classified_failure)

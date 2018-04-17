@@ -32,7 +32,7 @@ def load_preseed():
                 queryset = queryset.filter(**{field: job[field]})
 
         # Deal with the case where we have a new entry in preseed
-        if len(queryset) == 0:
+        if not queryset:
             create_new_entry(job)
         else:
             # We can have wildcards, so loop on all returned values in data
@@ -51,14 +51,14 @@ def create_new_entry(job):
     if job['expiration_date'] == '*':
         job['expiration_date'] = THE_FUTURE
 
-    logger.debug("Adding a new job to the database: %s" % job)
+    logger.debug("Adding a new job to the database: %s", job)
     JobPriority.objects.create(
-            testtype=job['testtype'],
-            buildtype=job['buildtype'],
-            platform=job['platform'],
-            priority=job['priority'],
-            expiration_date=job['expiration_date'],
-            buildsystem=job['buildsystem']
+        testtype=job['testtype'],
+        buildtype=job['buildtype'],
+        platform=job['platform'],
+        priority=job['priority'],
+        expiration_date=job['expiration_date'],
+        buildsystem=job['buildsystem']
     )
 
 
@@ -76,5 +76,5 @@ def process_job_priority(jp, job):
         update_fields.append('expiration_date')
 
     if update_fields:
-        logger.info("Updating ({}) for these fields {}".format(str(jp), ','.join(update_fields)))
+        logger.info("Updating (%s) for these fields %s", jp, ','.join(update_fields))
         jp.save(update_fields=update_fields)

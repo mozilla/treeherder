@@ -7,7 +7,7 @@ from treeherder.etl.runnable_jobs import (list_runnable_jobs,
 logger = logging.getLogger(__name__)
 
 
-class RunnableJobsClient():
+class RunnableJobsClient(object):
     def __init__(self):
         self.cache = {}
 
@@ -29,7 +29,7 @@ class RunnableJobsClient():
         else:
             if task_id in self.cache:
                 # XXX: In previous code, we were returning None; what should we do for this case?
-                logger.info("We have already processed the data from this task (%s)." % task_id)
+                logger.info("We have already processed the data from this task (%s).", task_id)
                 return self.cache[repo_name][task_id]
             else:
                 logger.info("We're going to fetch new runnable jobs data.")

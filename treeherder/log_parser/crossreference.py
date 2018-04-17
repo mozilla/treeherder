@@ -22,14 +22,14 @@ def crossreference_job(job):
     """
 
     if job.autoclassify_status >= Job.CROSSREFERENCED:
-        logger.info("Job %i already crossreferenced" % job.id)
+        logger.info("Job %i already crossreferenced", job.id)
         return False
     try:
         rv = _crossreference(job)
     except IntegrityError:
         job.autoclassify_status = Job.FAILED
         job.save(update_fields=['autoclassify_status'])
-        logger.warning("IntegrityError crossreferencing error lines for job %s" % job.id)
+        logger.warning("IntegrityError crossreferencing error lines for job %s", job.id)
         return False
 
     job.autoclassify_status = Job.CROSSREFERENCED
@@ -49,26 +49,26 @@ def _crossreference(job):
         return False
 
     match_iter = structured_iterator(list(failure_lines.all()))
-    failure_line, _, fn = match_iter.next()
+    failure_line, _, fn = next(match_iter)
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
     for error in list(text_log_errors.all()):
         if fn and fn(error.line.strip()):
-            logger.debug("Matched '%s'" % (error.line,))
+            logger.debug("Matched '%s'", error.line)
             TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
                                                        failure_line=failure_line)
-            failure_line, _, fn = match_iter.next()
+            failure_line, _, fn = next(match_iter)
         else:
-            logger.debug("Failed to match '%s'" % (error.line,))
+            logger.debug("Failed to match '%s'", error.line)
 
     # We should have exhausted all structured lines
     for failure_line, repr_str, _ in match_iter:
         # We can have a line without a pattern at the end if the log is truncated
         if failure_line is None:
             break
-        logger.warning("Crossreference %s: Failed to match structured line '%s' to an unstructured line" %
-                       (job.id, repr_str))
+        logger.warning("Crossreference %s: Failed to match structured line '%s' to an unstructured line",
+                       job.id, repr_str)
 
     return True
 

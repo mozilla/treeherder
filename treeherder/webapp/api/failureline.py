@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine,
@@ -72,7 +73,7 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
             failure_line.mark_best_classification_verified(classification)
 
-        for project, job_guids in by_project.iteritems():
+        for project, job_guids in iteritems(by_project):
             for job in Job.objects.filter(guid__in=job_guids):
                 job.update_after_verification(user)
 
@@ -88,7 +89,7 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     def update(self, request, pk=None):
         data = {"id": pk}
-        for k, v in request.data.iteritems():
+        for k, v in iteritems(request.data):
             if k not in data:
                 data[k] = v
 

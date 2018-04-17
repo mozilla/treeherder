@@ -21,7 +21,7 @@ export const getSlaveHealthUrl = function getSlaveHealthUrl(machine_name) {
 };
 
 export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
-  return `https://tools.taskcluster.net/task-inspector/#${taskId}`;
+  return `https://tools.taskcluster.net/tasks/${taskId}`;
 };
 
 export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {

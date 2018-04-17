@@ -110,22 +110,32 @@ class Key(object):
 
 
 class PulsePublisher(object):
+    """
+    Base class for pulse publishers.
+
+    All subclasses of this class must define the properties:
+      * title
+      * description
+      * exchange_prefix
+
+    Additional properties of type `Exchange` will be declared as exchanges.
+    """
 
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
         exchange_path = "exchange/%s/%s%s" % (
-                            self.namespace,
-                            self.exchange_prefix,
-                            exchange.exchange
-                        )
+            self.namespace,
+            self.exchange_prefix,
+            exchange.exchange
+        )
         producer = kombu.Producer(
             channel=self.connection,
             exchange=kombu.Exchange(
-                                name=exchange_path,
-                                type='topic',
-                                durable=True,
-                                delivery_mode='persistent'
-                            ),
+                name=exchange_path,
+                type='topic',
+                durable=True,
+                delivery_mode='persistent'
+            ),
             auto_declare=True
         )
 
@@ -144,17 +154,6 @@ class PulsePublisher(object):
             )
 
         return publish
-
-    """
-        Base class for pulse publishers.
-
-        All subclasses of this class must define the properties:
-          * title
-          * description
-          * exchange_prefix
-
-        Additional properties of type `Exchange` will be declared as exchanges.
-    """
 
     def __init__(self, namespace, uri, schemas):
         """

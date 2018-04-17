@@ -1,3 +1,5 @@
+from __future__ import division
+
 import logging
 
 from treeherder.etl.seta import job_priorities_to_jobtypes
@@ -25,7 +27,7 @@ def check_removal(failures, removals):
             if not found:
                 results[failure].append(failure_job)
 
-        if len(results[failure]) == 0:
+        if not results[failure]:
             del results[failure]
 
     return results
@@ -43,7 +45,6 @@ def build_removals(active_jobs, failures, target):
     # A failure is a revision + all of the jobs that were fixed by it
     number_of_failures = int((target / 100) * len(failures))
     low_value_jobs = []
-    failures_root_cause = []
 
     for jobtype in active_jobs:
         # Determine if removing an active job will reduce the number of failures we would catch
@@ -58,12 +59,11 @@ def build_removals(active_jobs, failures, target):
             for revision in failures:
                 if revision not in remaining_failures:
                     failed_revisions.append(revision)
-                    failures_root_cause.append(revision)
 
-            logger.info("jobtype: %s is the root failure(s) of these %s revisions" % (
-                jobtype, failed_revisions))
+            logger.info("jobtype: %s is the root failure(s) of these %s revisions",
+                        jobtype, failed_revisions)
 
-    return low_value_jobs, failures_root_cause
+    return low_value_jobs
 
 
 def get_high_value_jobs(fixed_by_commit_jobs, target=100):
@@ -74,10 +74,10 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
         Percentage of failures to analyze
     """
     total = len(fixed_by_commit_jobs)
-    logger.info("Processing %s revision(s)" % total)
+    logger.info("Processing %s revision(s)", total)
     active_jobs = job_priorities_to_jobtypes()
 
-    low_value_jobs, failures_root_cause = build_removals(
+    low_value_jobs = build_removals(
         active_jobs=active_jobs,
         failures=fixed_by_commit_jobs,
         target=target)
@@ -87,12 +87,12 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
         try:
             active_jobs.remove(low_value_job)
         except ValueError:
-            logger.warning("%s is missing from the job list" % low_value_job)
+            logger.warning("%s is missing from the job list", low_value_job)
 
     total = len(fixed_by_commit_jobs)
     total_detected = check_removal(fixed_by_commit_jobs, low_value_jobs)
     percent_detected = 100 * len(total_detected) / total
-    logger.info("We will detect %.2f%% (%s) of the %s failures" % (
-        percent_detected, len(total_detected), total))
+    logger.info("We will detect %.2f%% (%s) of the %s failures",
+                percent_detected, len(total_detected), total)
 
     return active_jobs

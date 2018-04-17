@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             name='Credentials',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('client_id', models.SlugField(max_length=32, unique=True, verbose_name=b'client ID')),
+                ('client_id', models.SlugField(max_length=32, unique=True, verbose_name='client ID')),
                 ('secret', models.UUIDField(default=uuid.uuid4, editable=False)),
                 ('description', models.TextField()),
                 ('authorized', models.BooleanField(default=False)),

@@ -1,7 +1,5 @@
 from time import time
 
-from datadiff import diff
-
 from treeherder.etl.classification_mirroring import ElasticsearchDocRequest
 
 
@@ -35,4 +33,4 @@ def test_elasticsearch_doc_request_body(test_repository, eleven_jobs_stored):
         "timestamp": str(classification_timestamp),
         "treeherder_job_id": job_id,
     }
-    assert req.body == expected, diff(expected, req.body)
+    assert req.body == expected

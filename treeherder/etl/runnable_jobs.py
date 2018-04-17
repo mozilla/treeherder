@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from six import iteritems
 
 from treeherder.config.settings import TASKCLUSTER_INDEX_URL
 from treeherder.etl.buildbot import get_symbols_and_platforms
@@ -23,14 +24,14 @@ from treeherder.model.models import (BuildPlatform,
 logger = logging.getLogger(__name__)
 
 
-class RunnableJobsTransformerMixin:
+class RunnableJobsTransformerMixin(object):
 
     def transform(self, extracted_content):
         logger.info('About to import allthethings.json builder data.')
 
         jobs_per_branch = collections.defaultdict(list)
 
-        for builder, content in extracted_content['builders'].iteritems():
+        for builder, content in iteritems(extracted_content['builders']):
             job = get_symbols_and_platforms(builder)
 
             branch = content['properties']['branch']
@@ -104,6 +105,7 @@ class RunnableJobsProcess(RunnableJobsTransformerMixin):
                     defaults={'build_platform': build_platform,
                               'machine_platform': machine_platform,
                               'job_type': job_type,
+                              'job_group': job_group,
                               'option_collection_hash': option_collection_hash,
                               'repository': repo})
 
@@ -135,14 +137,14 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1423215
         tc_graph = fetch_json(tc_graph_url, force_gzip_decompression=True)
     except ValidationError:
-        logger.warning('Failed to validate {}'.format(tc_graph_url))
+        logger.warning('Failed to validate %s', tc_graph_url)
         return []
     except requests.exceptions.HTTPError as e:
-        logger.info('HTTPError {} when getting taskgraph at {}'.format(
-            e.response.status_code, tc_graph_url))
+        logger.info('HTTPError %s when getting taskgraph at %s',
+                    e.response.status_code, tc_graph_url)
         return []
 
-    for label, node in tc_graph.iteritems():
+    for label, node in iteritems(tc_graph):
         ret.append({
             'build_platform': node.get('platform', ''),
             'build_system_type': 'taskcluster',
@@ -213,15 +215,15 @@ def list_runnable_jobs(project, decision_task_id=None):
 
 def query_latest_gecko_decision_task_id(project):
     url = TASKCLUSTER_INDEX_URL % project
-    logger.info('Fetching {}'.format(url))
+    logger.info('Fetching %s', url)
     try:
         latest_task = fetch_json(url)
         task_id = latest_task['taskId']
-        logger.info('For {} we found the task id: {}'.format(project, task_id))
+        logger.info('For %s we found the task id: %s', project, task_id)
     except requests.exceptions.HTTPError as e:
         # Specifically handle 404 errors, as it means there's no decision task on this push
         if e.response.status_code == 404:
-            logger.info('For {} we did not find a task id'.format(project))
+            logger.info('For %s we did not find a task id', project)
             task_id = None
         else:
             raise

@@ -1,10 +1,10 @@
 import logging
+import os
 import time
 from datetime import datetime
 from hashlib import sha1
 
 import newrelic.agent
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from past.builtins import long
@@ -123,7 +123,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         symbol=job_datum.get('group_symbol') or 'unknown')
 
     product_name = job_datum.get('product_name', 'unknown')
-    if len(product_name.strip()) == 0:
+    if not product_name.strip():
         product_name = 'unknown'
     product, _ = Product.objects.get_or_create(name=product_name)
 
@@ -148,7 +148,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
     sh = sha1()
     sh.update(''.join(
-        map(lambda x: str(x),
+        map(str,
             [build_system_type, repository.name, build_platform.os_name,
              build_platform.platform, build_platform.architecture,
              machine_platform.os_name, machine_platform.platform,
@@ -163,7 +163,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     if not reference_data_name:
         reference_data_name = signature_hash
 
-    signature, created = ReferenceDataSignatures.objects.get_or_create(
+    signature, _ = ReferenceDataSignatures.objects.get_or_create(
         name=reference_data_name,
         signature=signature_hash,
         build_system_type=build_system_type,
@@ -331,7 +331,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
         _schedule_log_parsing(job, job_logs, result)
 
-    return (job_guid, signature_hash)
+    return job_guid
 
 
 def _schedule_log_parsing(job, job_logs, result):
@@ -458,8 +458,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
                 revision__startswith=datum['revision'])
 
             # load job
-            (job_guid, reference_data_signature) = _load_job(
-                repository, job, push_id, lower_tier_signatures)
+            job_guid = _load_job(repository, job, push_id, lower_tier_signatures)
 
             for superseded_guid in superseded:
                 superseded_job_guid_placeholders.append(
@@ -467,12 +466,14 @@ def store_job_data(repository, data, lower_tier_signatures=None):
                     [job_guid, superseded_guid]
                 )
         except Exception as e:
-            # we should raise the exception if DEBUG is true, or if
-            # running the unit tests.
-            if settings.DEBUG or hasattr(settings, "TREEHERDER_TEST_PROJECT"):
-                logger.exception(e)
+            # Surface the error immediately unless running in production, where we'd
+            # rather report it on New Relic and not block storing the remaining jobs.
+            # TODO: Once buildbot support is removed, remove this as part of
+            # refactoring this method to process just one job at a time.
+            if 'DYNO' not in os.environ:
                 raise
 
+            logger.exception(e)
             # make more fields visible in new relic for the job
             # where we encountered the error
             datum.update(datum.get("job", {}))

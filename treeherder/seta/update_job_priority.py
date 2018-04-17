@@ -64,7 +64,7 @@ def _sanitize_data(runnable_jobs_data):
     sanitized_list = []
     for job in runnable_jobs_data['results']:
         if not valid_platform(job['platform']):
-            logger.info('Invalid platform {}'.format(job['platform']))
+            logger.info('Invalid platform %s', job['platform'])
             continue
 
         testtype = parse_testtype(
@@ -164,9 +164,9 @@ def _update_table(data):
                 db_job.buildsystem = '*'
                 db_job.save()
 
-                logger.info('Updated {}/{} from {} to {}'.format(
-                   db_job.testtype, db_job.buildtype, job['build_system_type'], db_job.buildsystem
-                ))
+                logger.info('Updated %s/%s from %s to %s',
+                            db_job.testtype, db_job.buildtype,
+                            job['build_system_type'], db_job.buildsystem)
                 updated_jobs += 1
 
         else:
@@ -181,20 +181,19 @@ def _update_table(data):
                     buildsystem=job["build_system_type"]
                 )
                 jobpriority.save()
-                logger.info('New job was found ({},{},{},{})'.format(
-                    job['testtype'], job['platform_option'], job['platform'],
-                    job["build_system_type"]))
+                logger.info('New job was found (%s,%s,%s,%s)',
+                            job['testtype'], job['platform_option'], job['platform'],
+                            job["build_system_type"])
                 new_jobs += 1
             except Exception as error:
                 logger.warning(str(error))
                 failed_changes += 1
 
-    logger.info('We have {} new jobs and {} updated jobs out of {} total jobs '
-                'processed.'.format(new_jobs, updated_jobs, total_jobs))
+    logger.info('We have %s new jobs and %s updated jobs out of %s total jobs processed.',
+                new_jobs, updated_jobs, total_jobs)
 
     if failed_changes != 0:
-        logger.warning('We have failed {} changes out of {} total jobs processed.'.format(
-            failed_changes, total_jobs
-        ))
+        logger.warning('We have failed %s changes out of %s total jobs processed.',
+                       failed_changes, total_jobs)
 
     return new_jobs, failed_changes, updated_jobs

@@ -1,10 +1,10 @@
 import logging
-from urlparse import urlparse
 
 from django.core.management.base import BaseCommand
 from kombu import (Connection,
                    Exchange)
 from kombu.messaging import Producer
+from six.moves.urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 

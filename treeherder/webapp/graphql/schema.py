@@ -3,9 +3,10 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.types import DjangoObjectType
 from graphql.utils.ast_to_dict import ast_to_dict
 
-import helpers
 from treeherder.model import error_summary
 from treeherder.model.models import *
+from treeherder.webapp.graphql.helpers import (OptimizedFilterConnectionField,
+                                               optimize)
 from treeherder.webapp.graphql.types import ObjectScalar
 
 
@@ -121,7 +122,7 @@ class PushGraph(DjangoObjectType):
         filter_fields = ('revision', )
         interfaces = (graphene.relay.Node, )
 
-    jobs = helpers.OptimizedFilterConnectionField(JobGraph)
+    jobs = OptimizedFilterConnectionField(JobGraph)
 
     def resolve_jobs(self, info, **kwargs):
         field_map = {
@@ -135,13 +136,13 @@ class PushGraph(DjangoObjectType):
             "textLogStep": ("text_log_step", "prefetch"),
             "errors": ("text_log_step__errors", "prefetch"),
         }
-        return helpers.optimize(Job.objects.filter(push=self, **kwargs),
-                                ast_to_dict(info.field_asts),
-                                field_map)
+        return optimize(Job.objects.filter(push=self, **kwargs),
+                        ast_to_dict(info.field_asts),
+                        field_map)
 
 
 class Query(graphene.ObjectType):
-    all_jobs = helpers.OptimizedFilterConnectionField(JobGraph)
+    all_jobs = OptimizedFilterConnectionField(JobGraph)
     all_job_details = DjangoFilterConnectionField(JobDetailGraph)
     all_build_platforms = graphene.List(BuildPlatformGraph)
     all_machine_platforms = graphene.List(MachinePlatformGraph)
@@ -172,9 +173,9 @@ class Query(graphene.ObjectType):
         field_map = {
             "option": ("option", "select"),
         }
-        return helpers.optimize(OptionCollection.objects.all(),
-                                ast_to_dict(info.field_asts),
-                                field_map)
+        return optimize(OptionCollection.objects.all(),
+                        ast_to_dict(info.field_asts),
+                        field_map)
 
     def resolve_all_job_types(self, info, **kwargs):
         return JobType.objects.all()

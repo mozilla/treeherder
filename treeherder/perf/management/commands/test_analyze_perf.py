@@ -1,12 +1,14 @@
-from __future__ import print_function
+from __future__ import (division,
+                        print_function)
 
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
                                          CommandError)
+from six import iteritems
 
 from treeherder.client.thclient import (PerfherderClient,
                                         PerformanceTimeInterval)
-from treeherder.perfalert.perfalert import (Datum,
+from treeherder.perfalert.perfalert import (RevisionDatum,
                                             detect_changes)
 
 
@@ -78,7 +80,7 @@ class Command(BaseCommand):
                 signatures = []
                 signatures_to_ignore = set()
                 # if doing everything, only handle summary series
-                for (signature, properties) in signature_data.iteritems():
+                for (signature, properties) in iteritems(signature_data):
                     signatures.append(signature)
                     if 'subtest_signatures' in properties:
                         # Don't alert on subtests which have a summary
@@ -98,15 +100,12 @@ class Command(BaseCommand):
                 for (push_id, timestamp, value) in zip(
                         series['result_set_id'], series['push_timestamp'],
                         series['value']):
-                    data.append(Datum(timestamp, value, testrun_id=push_id))
+                    data.append(RevisionDatum(timestamp, value, testrun_id=push_id))
 
                 for r in detect_changes(data):
                     if r.state == 'regression':
                         pushes = pc.get_pushes(project, id=r.testrun_id)
-                        if len(pushes):
-                            revision = pushes[0]['revision']
-                        else:
-                            revision = ''
+                        revision = pushes[0]['revision'] if pushes else ''
                         initial_value = r.historical_stats['avg']
                         new_value = r.forward_stats['avg']
                         if initial_value != 0:
@@ -115,7 +114,7 @@ class Command(BaseCommand):
                             pct_change = 0.0
                         delta = (new_value - initial_value)
                         print(','.join(map(
-                            lambda v: str(v),
+                            str,
                             [project, series_properties['machine_platform'],
                              signature, self._get_series_description(
                                  option_collection_hash,

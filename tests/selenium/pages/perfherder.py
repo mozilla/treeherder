@@ -21,4 +21,4 @@ class Perfherder(Base):
     def switch_to_treeherder(self):
         self.header.switch_app()
         from pages.treeherder import Treeherder
-        return Treeherder(self.selenium, self.base_url).wait_for_page_to_load()
+        return Treeherder(self.driver, self.base_url).wait_for_page_to_load()

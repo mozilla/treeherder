@@ -26,8 +26,7 @@ def test_crossreference_error_lines(test_job):
     failure_lines = FailureLine.objects.all()
     assert len(failure_lines) == len(lines)
 
-    for i, (failure_line, error_line) in enumerate(
-            zip(failure_lines, error_lines)):
+    for failure_line, error_line in zip(failure_lines, error_lines):
         assert error_line.metadata.failure_line == failure_line
         assert error_line.metadata.best_is_verified is False
         assert error_line.metadata.best_classification is None
@@ -50,8 +49,7 @@ def test_crossreference_error_lines_truncated(test_job):
     error_lines = TextLogError.objects.filter(step__job=test_job).all()
     failure_lines = FailureLine.objects.all()
 
-    for i, (failure_line, error_line) in enumerate(
-            zip(failure_lines[:len(failure_lines)-1], error_lines)):
+    for failure_line, error_line in zip(failure_lines[:len(failure_lines)-1], error_lines):
         assert error_line.metadata.failure_line == failure_line
         assert error_line.metadata.best_is_verified is False
         assert error_line.metadata.best_classification is None
@@ -73,8 +71,7 @@ def test_crossreference_error_lines_missing(test_job):
     failure_lines = FailureLine.objects.all()
     error_lines = TextLogError.objects.filter(step__job=test_job).all()
 
-    for i, (failure_line, error_line) in enumerate(
-            zip(failure_lines, error_lines[1:])):
+    for failure_line, error_line in zip(failure_lines, error_lines[1:]):
         assert error_line.metadata.failure_line == failure_line
         assert error_line.metadata.best_is_verified is False
         assert error_line.metadata.best_classification is None
@@ -98,8 +95,7 @@ def test_crossreference_error_lines_leading_groups(test_job):
     failure_lines = FailureLine.objects.all()
     assert len(failure_lines) == len(lines)
 
-    for i, (failure_line, error_line) in enumerate(
-            zip(failure_lines[1:], error_lines)):
+    for failure_line, error_line in zip(failure_lines[1:], error_lines):
         assert error_line.metadata.failure_line == failure_line
         assert error_line.metadata.best_is_verified is False
         assert error_line.metadata.best_classification is None

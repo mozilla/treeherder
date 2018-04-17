@@ -14,7 +14,7 @@ from treeherder.model.models import (Push,
 logger = logging.getLogger(__name__)
 
 
-class JobLoader:
+class JobLoader(object):
     """Validate, transform and load a list of Jobs"""
 
     TEST_RESULT_MAP = {
@@ -56,10 +56,9 @@ class JobLoader:
                         self.validate_revision(repository, pulse_job)
                         store_job_data(repository, [self.transform(pulse_job)])
                     except AttributeError:
-                        logger.warn("Skipping job due to bad attribute",
-                                    exc_info=1)
+                        logger.warning("Skipping job due to bad attribute", exc_info=1)
             except Repository.DoesNotExist:
-                logger.info("Job with unsupported project: {}".format(project))
+                logger.info("Job with unsupported project: %s", project)
 
     def validate_revision(self, repository, pulse_job):
         revision = pulse_job["origin"].get("revision")
@@ -301,8 +300,7 @@ class JobLoader:
         try:
             jsonschema.validate(pulse_job, job_json_schema)
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-            logger.error(
-                "JSON Schema validation error during job ingestion: {}".format(e))
+            logger.error("JSON Schema validation error during job ingestion: %s", e)
             return False
         return True
 

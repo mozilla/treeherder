@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import datetime
 import time
 
@@ -247,16 +249,15 @@ class PerformanceAlertSummary(models.Model):
                   PerformanceAlert.objects.filter(related_summary=self))
 
         # if no alerts yet, we'll say untriaged
-        if len(alerts) == 0:
+        if not alerts:
             return PerformanceAlertSummary.UNTRIAGED
 
         # if any untriaged, then set to untriaged
-        if len([a for a in alerts if a.status == PerformanceAlert.UNTRIAGED]):
+        if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
             return PerformanceAlertSummary.UNTRIAGED
 
         # if all invalid, then set to invalid
-        if all([alert.status == PerformanceAlert.INVALID for alert in
-                alerts]):
+        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
             return PerformanceAlertSummary.INVALID
 
         # otherwise filter out invalid alerts
@@ -265,9 +266,9 @@ class PerformanceAlertSummary(models.Model):
         # if there are any "acknowledged" alerts, then set to investigating
         # if not one of the resolved statuses and there are regressions,
         # otherwise we'll say it's an improvement
-        if len([a for a in alerts if a.status == PerformanceAlert.ACKNOWLEDGED]):
-            if all([not alert.is_regression for alert in
-                    alerts if alert.status == PerformanceAlert.ACKNOWLEDGED]):
+        if any(alert.status == PerformanceAlert.ACKNOWLEDGED for alert in alerts):
+            if all(not alert.is_regression for alert in
+                   alerts if alert.status == PerformanceAlert.ACKNOWLEDGED):
                 return PerformanceAlertSummary.IMPROVEMENT
             elif self.status not in (PerformanceAlertSummary.IMPROVEMENT,
                                      PerformanceAlertSummary.INVESTIGATING,
@@ -282,7 +283,7 @@ class PerformanceAlertSummary(models.Model):
         # alerts of its own: all alerts should be either reassigned,
         # downstream, or invalid (but not all invalid, that case is covered
         # above)
-        if len([a for a in alerts if a.status == PerformanceAlert.REASSIGNED]):
+        if any(alert.status == PerformanceAlert.REASSIGNED for alert in alerts):
             return PerformanceAlertSummary.REASSIGNED
 
         return PerformanceAlertSummary.DOWNSTREAM

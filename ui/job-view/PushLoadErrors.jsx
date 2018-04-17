@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 import { getAllUrlParams } from '../helpers/locationHelper';
 
 function PushLoadErrors(props) {
@@ -59,5 +61,12 @@ function PushLoadErrors(props) {
     </div>
   );
 }
+
+PushLoadErrors.propTypes = {
+  loadingPushes: PropTypes.bool.isRequired,
+  currentRepo: PropTypes.object.isRequired,
+  revision: PropTypes.string.isRequired,
+  repoName: PropTypes.string.isRequired,
+};
 
 export default PushLoadErrors;

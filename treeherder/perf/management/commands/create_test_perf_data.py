@@ -1,9 +1,11 @@
+from __future__ import division
+
 import datetime
 import time
 
+import six.moves
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from django.utils.six.moves import input
 
 from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceDatum,
@@ -15,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        confirm = input("""
+        confirm = six.moves.input("""
 You have a requested a load of test performance data, this is a destructive
 operation that should only be performed on a development instance.
 
@@ -40,8 +42,8 @@ Type 'yes' to continue, or 'no' to cancel: """)
             time=datetime.datetime.now())
 
         for (t, v) in zip([i for i in range(INTERVAL)],
-                          ([0.5 for i in range(INTERVAL/2)] +
-                           [1.0 for i in range(INTERVAL/2)])):
+                          ([0.5 for i in range(int(INTERVAL / 2))] +
+                           [1.0 for i in range(int(INTERVAL / 2))])):
             PerformanceDatum.objects.create(
                 repository=s.repository,
                 result_set_id=t,

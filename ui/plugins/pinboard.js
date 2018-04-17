@@ -1,11 +1,12 @@
 import Mousetrap from 'mousetrap';
 
 import treeherder from '../js/treeherder';
+import { thEvents } from "../js/constants";
 
 treeherder.controller('PinboardCtrl', [
-    '$scope', '$rootScope', '$document', '$timeout', 'thEvents', 'thPinboard', 'thNotify',
+    '$scope', '$rootScope', '$document', '$timeout', 'thPinboard', 'thNotify',
     function PinboardCtrl(
-        $scope, $rootScope, $document, $timeout, thEvents, thPinboard, thNotify) {
+        $scope, $rootScope, $document, $timeout, thPinboard, thNotify) {
 
         $rootScope.$on(thEvents.toggleJobPin, function (event, job) {
             $scope.toggleJobPin(job);

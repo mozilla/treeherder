@@ -12,28 +12,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     replaces = [
-        (b'model', '0001_squashed_0053_add_job_platform_option_push_index'),
-        (b'model', '0002_add_taskcluster_job_metadata'),
-        (b'model', '0003_taskcluster_taskid_not_unique'),
-        (b'model', '0004_duplicate_failure_classifications'),
-        (b'model', '0005_autoclassify_status'),
-        (b'model', '0006_jobs_submit_time_repository_index'),
-        (b'model', '0007_add_performance_data_expiry_option'),
-        (b'model', '0008_push_job_child_references'),
-        (b'model', '0009_add_is_try_repo'),
-        (b'model', '0010_remove_TextLogSummary'),
-        (b'model', '0011_create_group'),
-        (b'model', '0012_add_related_names'),
-        (b'model', '0013_add_job_group_to_jobs'),
-        (b'model', '0014_add_job_group_runnable_job'),
-        (b'model', '0015_remove_job_type_group_fk'),
-        (b'model', '0016_remove_job_group_default'),
-        (b'model', '0017_remove_exclusion_profiles'),
-        (b'model', '0018_superseded_to_textlogstep_enum'),
-        (b'model', '0019_remove_job_duration'),
-        (b'model', '0020_remove_project_specific_id'),
-        (b'model', '0021_remove_revision_hash'),
-        (b'model', '0022_modify_bugscache_and_bugjobmap'),
+        ('model', '0001_squashed_0053_add_job_platform_option_push_index'),
+        ('model', '0002_add_taskcluster_job_metadata'),
+        ('model', '0003_taskcluster_taskid_not_unique'),
+        ('model', '0004_duplicate_failure_classifications'),
+        ('model', '0005_autoclassify_status'),
+        ('model', '0006_jobs_submit_time_repository_index'),
+        ('model', '0007_add_performance_data_expiry_option'),
+        ('model', '0008_push_job_child_references'),
+        ('model', '0009_add_is_try_repo'),
+        ('model', '0010_remove_TextLogSummary'),
+        ('model', '0011_create_group'),
+        ('model', '0012_add_related_names'),
+        ('model', '0013_add_job_group_to_jobs'),
+        ('model', '0014_add_job_group_runnable_job'),
+        ('model', '0015_remove_job_type_group_fk'),
+        ('model', '0016_remove_job_group_default'),
+        ('model', '0017_remove_exclusion_profiles'),
+        ('model', '0018_superseded_to_textlogstep_enum'),
+        ('model', '0019_remove_job_duration'),
+        ('model', '0020_remove_project_specific_id'),
+        ('model', '0021_remove_revision_hash'),
+        ('model', '0022_modify_bugscache_and_bugjobmap'),
     ]
 
     initial = True
@@ -578,9 +578,17 @@ class Migration(migrations.Migration):
 
         # Manually created migrations.
 
-        # Since Django doesn't natively support creating FULLTEXT indicies.
+        # Since Django doesn't natively support creating FULLTEXT indices.
         migrations.RunSQL(
-            ['CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);'],
+            [
+                # Suppress the MySQL warning "InnoDB rebuilding table to add column FTS_DOC_ID":
+                # https://dev.mysql.com/doc/refman/5.7/en/innodb-fulltext-index.html#innodb-fulltext-index-docid
+                # The table is empty when the index is added, so we don't care about it being rebuilt,
+                # and there isn't a better way to add the index without Django FULLTEXT support.
+                'SET @old_max_error_count=@@max_error_count, max_error_count=0;',
+                'CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);',
+                'SET max_error_count=@old_max_error_count;',
+            ],
             reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
         ),
         # Since Django doesn't natively support creating composite prefix indicies.

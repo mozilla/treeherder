@@ -1,20 +1,21 @@
 import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';
+import { thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents } from "../constants";
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
     'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
-    'thClassificationTypes', 'thEvents', '$interval', '$window',
+    'thClassificationTypes', '$interval', '$window',
     'thJobFilters', 'ThResultSetStore',
-    'thDefaultRepo', 'thJobNavSelectors', 'thTitleSuffixLimit', '$http',
+    '$http',
     '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $location, $timeout, $q,
         ThRepositoryModel, thPinboard, thTabs, $document,
-        thClassificationTypes, thEvents, $interval, $window,
+        thClassificationTypes, $interval, $window,
         thJobFilters, ThResultSetStore,
-        thDefaultRepo, thJobNavSelectors, thTitleSuffixLimit, $http,
+        $http,
         $httpParamSerializer) {
 
         /*
@@ -268,51 +269,140 @@ treeherderApp.controller('MainCtrl', [
             return false;
         };
 
+        // Keep these in alphabetical order so we don't accidentally introduce
+        // conflicts.
         const keyShortcuts = [
-            // Shortcut: toggle display in-progress jobs (pending/running)
-            ['i', function () {
-                $scope.$evalAsync($scope.toggleInProgress());
-            }],
-
-            // Shortcut: select previous job
-            ['left', function () {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'previous',
-                                 thJobNavSelectors.ALL_JOBS);
-            }],
-
-            // Shortcut: select next job
-            ['right', function () {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'next',
-                                 thJobNavSelectors.ALL_JOBS);
-            }],
-
-            // Shortcut: select next unclassified failure
-            ['n', function () {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'next',
-                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
-            }],
-
-            // Shortcut: select previous unclassified failure
-            ['p', function () {
-                $rootScope.$emit(thEvents.changeSelection,
-                                 'previous',
-                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
-            }],
-
-            // Shortcut: select next job tab
-            [['t'], function () {
-                if ($scope.selectedJob) {
-                    $scope.$evalAsync(
-                        $rootScope.$emit(thEvents.selectNextTab)
-                    );
+            // Shortcut: select all remaining unverified lines on the current job
+            ['a', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'all_next',
+                                                       false));
                 }
             }],
 
+            // Shortcut: pin selected job to pinboard and add a related bug
+            ['b', (ev) => {
+                if ($scope.selectedJob) {
+                    $rootScope.$emit(thEvents.addRelatedBug,
+                                     $rootScope.selectedJob);
+
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $timeout(
+                        () => {
+                            $("#related-bug-input").focus();
+                        }, 0);
+                }
+            }, (ev, element) => {
+                if (element.id === "pinboard-classification-select") {
+                    return false;
+                }
+                return null;
+            }],
+
+            // Shortcut: pin selected job to pinboard and enter classification
+            ['c', (ev) => {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
+                    );
+
+                    // Prevent shortcut key overflow during focus
+                    ev.preventDefault();
+
+                    $timeout(
+                        () => {
+                            $("#classification-comment").focus();
+                        }, 0);
+                }
+            }, (ev, element) => {
+                if (element.id === "pinboard-classification-select") {
+                    return false;
+                }
+                return null;
+            }],
+
+            // Shortcut: toggle edit mode for selected lines
+            ['e', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleEdit));
+                }
+            }],
+
+            // Shortcut: enter a quick filter
+            ['f', (ev) => {
+                // Prevent shortcut key overflow during focus
+                ev.preventDefault();
+                $('#quick-filter').focus();
+            }],
+
+            // Shortcut: clear the quick filter field
+            ['ctrl+shift+f', (ev) => {
+                // Prevent shortcut key overflow during focus
+                ev.preventDefault();
+                $scope.$evalAsync($scope.clearFilterBox());
+            }],
+
+            // Shortcut: toggle display in-progress jobs (pending/running)
+            ['i', () => {
+                $scope.$evalAsync($scope.toggleInProgress());
+            }],
+
+            // Shortcut: ignore selected in the autoclasify panel
+            ['ctrl+i', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
+                }
+            }],
+
+            // Shortcut: select next unclassified failure
+            [['j', 'n'], () => {
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'next',
+                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
+            }],
+
+            // Shortcut: select next unverified log line
+            ['ctrl+j', (ev) => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'next',
+                                                       !ev.shiftKey));
+                }
+            }],
+
+            // Shortcut: select previous unclassified failure
+            [['k', 'p'], () => {
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'previous',
+                                 thJobNavSelectors.UNCLASSIFIED_FAILURES);
+            }],
+
+            // Shortcut: select previous unverified log line
+            ['ctrl+k', (ev) => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
+                                                       'previous',
+                                                       !ev.shiftKey));
+                }
+            }],
+
+            // Shortcut: open the logviewer for the selected job
+            ['l', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyOpenLogViewer));
+                } else if ($scope.selectedJob) {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
+                }
+            }],
+
+            // Shortcut: Next/prev unclassified failure
+            // For 'n' and 'p', see 'j' and 'k' above
+
             // Shortcut: retrigger selected job
-            ['r', function () {
+            ['r', () => {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobRetrigger,
@@ -321,8 +411,63 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
+            // Shortcut: save all in the autoclasify panel
+            ['ctrl+s', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySaveAll));
+                }
+            }],
+
+            // Shortcut: select next job tab
+            ['t', () => {
+                if ($scope.selectedJob) {
+                    $scope.$evalAsync(
+                        $rootScope.$emit(thEvents.selectNextTab)
+                    );
+                }
+            }],
+
+            // Shortcut: display only unclassified failures
+            ['u', () => {
+                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+            }],
+
+            // Shortcut: clear the pinboard
+            ['ctrl+shift+u', () => {
+                $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
+            }],
+
+            // Shortcut: toggle more/fewer options in the autoclassify panel
+            ['x', () => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleExpandOptions));
+                }
+            }],
+
+            // Shortcut: ignore selected in the autoclasify panel
+            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], (ev) => {
+                if (thTabs.selectedTab === "autoClassification") {
+                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
+                                                       ev.key === "o" ? "manual" : ev.key));
+                }
+            }],
+
+            // Shortcut: select previous job
+            ['left', () => {
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'previous',
+                                 thJobNavSelectors.ALL_JOBS);
+            }],
+
+            // Shortcut: select next job
+            ['right', () => {
+                $rootScope.$emit(thEvents.changeSelection,
+                                 'next',
+                                 thJobNavSelectors.ALL_JOBS);
+            }],
+
             // Shortcut: pin selected job to pinboard
-            ['space', function (ev) {
+            ['space', (ev) => {
                 // If a job is selected add it otherwise
                 // let the browser handle the spacebar
                 if ($scope.selectedJob) {
@@ -335,179 +480,29 @@ treeherderApp.controller('MainCtrl', [
                 }
             }],
 
-            // Shortcut: display only unclassified failures
-            ['u', function () {
-                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
-            }],
-
-            // Shortcut: pin selected job to pinboard and add a related bug
-            ['b', function (ev) {
-                if ($scope.selectedJob) {
-                    $rootScope.$emit(thEvents.addRelatedBug,
-                                     $rootScope.selectedJob);
-
-                    // Prevent shortcut key overflow during focus
-                    ev.preventDefault();
-
-                    $timeout(
-                        function () {
-                            $("#related-bug-input").focus();
-                        }, 0);
-                }
-            }, function (ev, element) {
-                if (element.id === "pinboard-classification-select") {
-                    return false;
-                }
-                return null;
-            }],
-
-            // Shortcut: pin selected job to pinboard and enter classification
-            ['c', function (ev) {
-                if ($scope.selectedJob) {
-                    $scope.$evalAsync(
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
-                    );
-
-                    // Prevent shortcut key overflow during focus
-                    ev.preventDefault();
-
-                    $timeout(
-                        function () {
-                            $("#classification-comment").focus();
-                        }, 0);
-                }
-            }, function (ev, element) {
-                if (element.id === "pinboard-classification-select") {
-                    return false;
-                }
-                return null;
-            }],
-
-            // Shortcut: enter a quick filter
-            ['f', function (ev) {
-                // Prevent shortcut key overflow during focus
-                ev.preventDefault();
-
-                $('#quick-filter').focus();
-            }],
-
-            // Shortcut: clear the quick filter field
-            ['ctrl+shift+f', function (ev) {
-                // Prevent shortcut key overflow during focus
-                ev.preventDefault();
-
-                $scope.$evalAsync($scope.clearFilterBox());
-            }],
-
             // Shortcut: escape closes any open panels and clears selected job
-            ['escape', function () {
-                $scope.$evalAsync($scope.setSettingsPanelShowing(false));
+            ['escape', () => {
                 $scope.$evalAsync($scope.closeJob());
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(false));
             }],
 
-            // Shortcut: clear the pinboard
-            ['ctrl+shift+u', function () {
-                $scope.$evalAsync($rootScope.$emit(thEvents.clearPinboard));
-            }],
-
             // Shortcut: save pinboard classification and related bugs
-            ['ctrl+enter', function () {
+            ['ctrl+enter', () => {
                 $scope.$evalAsync($rootScope.$emit(thEvents.saveClassification));
-            }, function () {
+            }, () => (
                 // Make this work regardless of form controls etc.
-                return false;
-            }],
-
-            // Shortcut: open the logviewer for the selected job
-            ['l', function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyOpenLogViewer));
-                } else if ($scope.selectedJob) {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.openLogviewer));
-                }
-            }],
+                false
+            )],
 
             // Shortcut: delete classification and related bugs
-            ['ctrl+backspace', function () {
+            ['ctrl+backspace', () => {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync($rootScope.$emit(thEvents.deleteClassification));
                 }
             }],
 
-            // Shortcut: save all in the autoclasify panel
-            ['s', function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySaveAll));
-                }
-            }],
-
-            // Shortcut: ignore selected in the autoclasify panel
-            ['i', function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyIgnore));
-                }
-            }],
-
-            // Shortcut: ignore selected in the autoclasify panel
-            [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], function (ev) {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
-                                                       ev.key === "o" ? "manual" : ev.key));
-                }
-            }],
-
-            // Shortcut: toggle edit mode for selected lines
-            ['e', function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleEdit));
-                }
-            }],
-
-            // Shortcut: toggle more/fewer options in the autoclassify panel
-            ['x', function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyToggleExpandOptions));
-                }
-            }],
-
-            // Shortcut: select next unverified log line
-            [['j', 'shift+j'], function (ev) {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
-                                                       'next',
-                                                       !ev.shiftKey));
-                } else {
-                    $rootScope.$emit(thEvents.changeSelection,
-                                     'next',
-                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
-                }
-            }],
-
-            // Shortcut: select previous unverified log line
-            [['k', 'shift+k'], function (ev) {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
-                                                       'previous',
-                                                       !ev.shiftKey));
-                } else {
-                    $rootScope.$emit(thEvents.changeSelection,
-                                     'previous',
-                                     thJobNavSelectors.UNCLASSIFIED_FAILURES);
-                }
-            }],
-
-            // Shortcut: select all remaining unverified lines on the current job
-            [['a'], function () {
-                if (thTabs.selectedTab === "autoClassification") {
-                    $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifyChangeSelection,
-                                                       'all_next',
-                                                       false));
-                }
-            }],
-
             // Shortcut: display onscreen keyboard shortcuts
-            ['?', function () {
+            ['?', () => {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
             }]
         ];
@@ -692,11 +687,6 @@ treeherderApp.controller('MainCtrl', [
         $scope.setOnscreenShortcutsShowing = function (tf) {
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
-        };
-
-        $scope.isSettingsPanelShowing = false;
-        $scope.setSettingsPanelShowing = function (tf) {
-            $scope.isSettingsPanelShowing = tf;
         };
 
         $scope.pinboardCount = thPinboard.count;

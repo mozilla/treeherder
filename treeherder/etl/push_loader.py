@@ -12,7 +12,7 @@ from treeherder.model.models import Repository
 logger = logging.getLogger(__name__)
 
 
-class PushLoader:
+class PushLoader(object):
     """Transform and load a list of pushes"""
 
     def process(self, message_body, exchange):
@@ -33,17 +33,17 @@ class PushLoader:
             })
             newrelic.agent.record_custom_event("skip_unknown_repository",
                                                repo_info)
-            logger.warn("Skipping unsupported repo: {} {}".format(
-                transformer.repo_url,
-                transformer.branch))
+            logger.warning("Skipping unsupported repo: %s %s",
+                           transformer.repo_url,
+                           transformer.branch)
             return
 
         transformed_data = transformer.transform(repo.name)
 
-        logger.info("Storing push for {} {} {}".format(
-            repo.name,
-            transformer.repo_url,
-            transformer.branch))
+        logger.info("Storing push for %s %s %s",
+                    repo.name,
+                    transformer.repo_url,
+                    transformer.branch)
         store_push_data(repo, [transformed_data])
 
     def get_transformer_class(self, exchange):
@@ -58,7 +58,7 @@ class PushLoader:
             "Unsupported push exchange: {}".format(exchange))
 
 
-class GithubTransformer:
+class GithubTransformer(object):
 
     CREDENTIALS = {
         "client_id": settings.GITHUB_CLIENT_ID,
@@ -67,8 +67,7 @@ class GithubTransformer:
 
     def __init__(self, message_body):
         self.message_body = message_body
-        self.repo_url = message_body["details"]["event.head.repo.url"].replace(
-                ".git", "")
+        self.repo_url = message_body["details"]["event.head.repo.url"].replace(".git", "")
         self.branch = self.get_branch()
 
     def get_branch(self):
@@ -87,7 +86,7 @@ class GithubTransformer:
         params = {"sha": sha} if sha else {}
         params.update(self.CREDENTIALS)
 
-        logger.info("Fetching push details: {}".format(url))
+        logger.info("Fetching push details: %s", url)
         newrelic.agent.add_custom_parameter("sha", sha)
 
         commits = self.get_cleaned_commits(fetch_json(url, params))
@@ -195,7 +194,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.fetch_push(pr_url, repository)
 
 
-class HgPushTransformer:
+class HgPushTransformer(object):
     # {
     #   "root": {
     #     "payload": {
@@ -231,16 +230,16 @@ class HgPushTransformer:
         return self.message_body["payload"]
 
     def transform(self, repository):
-        logger.info("transforming for {}".format(repository))
+        logger.info("transforming for %s", repository)
         url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
         newrelic.agent.add_custom_parameter("sha", sha)
 
-        logger.info("fetching for {} {}".format(repository, url))
+        logger.info("fetching for %s %s", repository, url)
         # there will only ever be one, with this url
-        push = fetch_json(url)["pushes"].values()[0]
+        push = list(fetch_json(url)["pushes"].values())[0]
 
         commits = []
         # we only want to ingest the last 200 commits for each push,

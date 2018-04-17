@@ -10,10 +10,9 @@ from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from requests import Request
 from requests_hawk import HawkAuth
-from webtest.app import TestApp
+from rest_framework.test import APIClient
 
 from treeherder.client.thclient import TreeherderClient
-from treeherder.config.wsgi import application
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Commit,
@@ -91,6 +90,32 @@ def sample_push(sample_data):
     return copy.deepcopy(sample_data.push_data)
 
 
+@pytest.fixture(name='create_push')
+def fixture_create_push():
+    """Return a function to create a push"""
+    def create(repository,
+               revision='4c45a777949168d16c03a4cba167678b7ab65f76',
+               author='foo@bar.com'):
+        return Push.objects.create(
+            repository=repository,
+            revision=revision,
+            author=author,
+            time=datetime.datetime.now())
+    return create
+
+
+@pytest.fixture(name='create_commit')
+def fixture_create_commit():
+    """Return a function to create a commit"""
+    def create(push, comments='Bug 12345 - This is a message'):
+        return Commit.objects.create(
+            push=push,
+            revision=push.revision,
+            author=push.author,
+            comments=comments)
+    return create
+
+
 @pytest.fixture
 def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
@@ -127,39 +152,34 @@ def test_repository_2(test_repository):
 
 
 @pytest.fixture
-def test_push(test_repository):
-    return Push.objects.create(
-        repository=test_repository,
-        revision="4c45a777949168d16c03a4cba167678b7ab65f76",
-        author="foo@bar.com",
-        time=datetime.datetime.now())
+def test_push(create_push, test_repository):
+    return create_push(test_repository)
 
 
 @pytest.fixture
-def test_commit(test_push):
-    return Commit.objects.create(
-        push=test_push,
-        revision=test_push.revision,
-        author=test_push.author,
-        comments="Bug 12345 - This is a message")
+def test_commit(create_commit, test_push):
+    return create_commit(test_push)
 
 
-@pytest.fixture
-def test_job(test_repository, failure_classifications, eleven_job_blobs):
+@pytest.fixture(name='create_jobs')
+def fixture_create_jobs(test_repository, failure_classifications):
+    """Return a function to create jobs"""
     from treeherder.model.models import Job
 
-    store_job_data(test_repository, eleven_job_blobs[0:1])
-
-    return Job.objects.get(id=1)
+    def create(jobs):
+        store_job_data(test_repository, jobs)
+        return [Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+    return create
 
 
 @pytest.fixture
-def test_job_2(eleven_job_blobs, test_job):
-    from treeherder.model.models import Job
+def test_job(eleven_job_blobs, create_jobs):
+    return create_jobs(eleven_job_blobs[0:1])[0]
 
-    store_job_data(test_job.repository, eleven_job_blobs[1:2])
 
-    return Job.objects.get(id=2)
+@pytest.fixture
+def test_job_2(eleven_job_blobs, create_jobs):
+    return create_jobs(eleven_job_blobs[0:2])[1]
 
 
 @pytest.fixture
@@ -183,7 +203,6 @@ def push_stored(test_repository, sample_push):
 
 @pytest.fixture
 def mock_message_broker(monkeypatch):
-    from django.conf import settings
     monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
 
 
@@ -200,7 +219,7 @@ def push_with_three_jobs(sample_data, sample_push, test_repository):
     store_push_data(test_repository, [push])
 
     blobs = []
-    for index, blob in enumerate(jobs):
+    for blob in jobs:
         # Modify job structure to sync with the push sample data
         if 'sources' in blob:
             del blob['sources']
@@ -230,7 +249,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
     push_index = 0
 
     blobs = []
-    for index, blob in enumerate(jobs):
+    for blob in jobs:
 
         if push_index > max_index:
             push_index = 0
@@ -275,25 +294,24 @@ def test_job_with_notes(test_job, test_user):
 
 
 @pytest.fixture
-def mock_post_json(monkeypatch, client_credentials):
+def mock_post_json(monkeypatch, client_credentials, client):
     def _post_json(th_client, project, endpoint, data):
         auth = th_client.session.auth
         if not auth:
             auth = HawkAuth(id=client_credentials.client_id,
                             key=str(client_credentials.secret))
-        app = TestApp(application)
         url = th_client._get_endpoint_url(endpoint, project=project)
         req = Request('POST', url, json=data, auth=auth)
         prepped_request = req.prepare()
-
-        return getattr(app, 'post')(
+        response = client.post(
             prepped_request.url,
-            params=json.dumps(data),
+            data=json.dumps(data),
             content_type='application/json',
-            extra_environ={
-                'HTTP_AUTHORIZATION': str(prepped_request.headers['Authorization'])
-            }
+            HTTP_AUTHORIZATION=str(prepped_request.headers['Authorization'])
         )
+        # Replacement for the `raise_for_status()` in the original `_post_json()`
+        assert response.status_code == 200
+        return response
 
     monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)
 
@@ -319,21 +337,21 @@ def pulse_consumer(exchange, request):
     connection = kombu.Connection(settings.PULSE_URI)
 
     exchange = kombu.Exchange(
-            name=exchange_name,
-            type='topic'
-            )
+        name=exchange_name,
+        type='topic'
+    )
 
     queue = kombu.Queue(
-            no_ack=True,
-            exchange=exchange,  # Exchange name
-            routing_key='#',  # Bind to all messages
-            auto_delete=True,  # Delete after each test
-            exclusive=False)  # Disallow multiple consumers
+        no_ack=True,
+        exchange=exchange,  # Exchange name
+        routing_key='#',  # Bind to all messages
+        auto_delete=True,  # Delete after each test
+        exclusive=False)  # Disallow multiple consumers
 
     simpleQueue = connection.SimpleQueue(
-            name=queue,
-            channel=connection,
-            no_ack=True)
+        name=queue,
+        channel=connection,
+        no_ack=True)
 
     def fin():
         connection.release()
@@ -527,7 +545,6 @@ def test_perf_signature(test_repository, test_perf_framework):
 
 @pytest.fixture
 def mock_autoclassify_jobs_true(monkeypatch):
-    from django.conf import settings
     monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
 
 
@@ -563,17 +580,18 @@ def bugs(mock_bugzilla_api_request):
 
 
 @pytest.fixture
-def webapp():
+def client():
     """
-    we can use this object to test calls to a wsgi application
+    A django-rest-framework APIClient instance:
+    http://www.django-rest-framework.org/api-guide/testing/#apiclient
     """
-    return TestApp(application)
+    return APIClient()
 
 
 @pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
+    from tests.autoclassify.utils import create_text_log_errors
     from treeherder.model.models import FailureLine
-    from autoclassify.utils import create_text_log_errors
 
     lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job.guid).values()]
 

@@ -1,17 +1,4 @@
 /*
- * Shared navbar panel settings
- */
-
-.th-top-nav-options-panel {
-    background-color: white;
-    padding: 10px 10px 0;
-    border-bottom: 1px solid black;
-    max-height: 400px;
-    overflow-y: auto;
-    font-size: 12px;
-}
-
-/*
  * Update notification panel
  */
 

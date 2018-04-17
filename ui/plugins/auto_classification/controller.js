@@ -11,6 +11,8 @@ import errorsTemplate from '../../plugins/auto_classification/errors.html';
 import toolbarTemplate from '../../plugins/auto_classification/toolbar.html';
 import panelTemplate from '../../plugins/auto_classification/panel.html';
 import { getBugUrl, getLogViewerUrl } from '../../helpers/urlHelper';
+import { isReftest } from '../../helpers/jobHelper';
+import { thJobNavSelectors, thEvents } from "../../js/constants";
 
 treeherder.factory('thStringOverlap', function () {
     return function (str1, str2) {
@@ -138,8 +140,8 @@ treeherder.component('thStaticClassificationOption', {
  */
 treeherder.controller('ThClassificationOptionController', [
     '$scope', '$uibModal', 'thPinboard',
-    'thReftestStatus', '$rootScope',
-    function ($scope, $uibModal, thPinboard, thReftestStatus, $rootScope) {
+    '$rootScope',
+    function ($scope, $uibModal, thPinboard, $rootScope) {
         var ctrl = this;
 
         $scope.getBugUrl = getBugUrl;
@@ -181,7 +183,7 @@ treeherder.controller('ThClassificationOptionController', [
                     search_terms: () => ctrl.errorLine.data.bug_suggestions.search_terms,
                     fullLog: () => logUrl,
                     parsedLog: () => location.origin + "/" + getLogViewerUrl(ctrl.thJob.id, $rootScope.repoName),
-                    reftest: () => (thReftestStatus(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
+                    reftest: () => (isReftest(ctrl.thJob) ? reftestUrlRoot + logUrl + "&only_show_unexpected=1" : ""),
                     selectedJob: () => ctrl.thJob,
                     allFailures: () => [ctrl.errorLine.data.bug_suggestions.search.split(" | ")],
                     crashSignatures: () => crashSignatures,
@@ -217,10 +219,8 @@ treeherder.component('thClassificationOption', {
  */
 treeherder.controller('ThErrorLineController', [
     '$scope', '$rootScope',
-    'thEvents',
     'ThClassificationOption', 'thStringOverlap',
     function ($scope, $rootScope,
-              thEvents,
               ThClassificationOption, thStringOverlap) {
         var ctrl = this;
         var line;
@@ -748,7 +748,8 @@ treeherder.controller('ThAutoclassifyErrorsController', ['$scope', '$element',
                 }
                 elem = elem.parent();
             }
-            ctrl.onToggleSelect({ lineIds: [id], clear: !event.ctrlKey });
+            // ctrl+click on mac is same as right-click, so use meta key instead
+            ctrl.onToggleSelect({ lineIds: [id], clear: !(event.ctrlKey || event.metaKey) });
         };
     }
 ]);
@@ -817,10 +818,10 @@ treeherder.component('thAutoclassifyToolbar', {
  */
 treeherder.controller('ThAutoclassifyPanelController', [
     '$scope', '$rootScope', '$q',
-    'thEvents', 'thNotify', 'thJobNavSelectors', 'thPinboard',
+    'thNotify', 'thPinboard',
     'ThMatcherModel', 'ThTextLogErrorsModel', 'ThErrorLineData',
     function ($scope, $rootScope, $q,
-             thEvents, thNotify, thJobNavSelectors, thPinboard,
+             thNotify, thPinboard,
              ThMatcherModel, ThTextLogErrorsModel, ThErrorLineData) {
 
         var ctrl = this;

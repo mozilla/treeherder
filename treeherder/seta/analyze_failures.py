@@ -19,7 +19,7 @@ from treeherder.seta.update_job_priority import update_job_priority_table
 logger = logging.getLogger(__name__)
 
 
-class AnalyzeFailures:
+class AnalyzeFailures(object):
     def __init__(self, **options):
         self.dry_run = options.get('dry_run', False)
 
@@ -31,7 +31,7 @@ class AnalyzeFailures:
             high_value_jobs = get_high_value_jobs(fixed_by_commit_jobs)
 
             if not self.dry_run:
-                logger.warn("Let's see if we need to increase the priority of any job")
+                logger.warning("Let's see if we need to increase the priority of any job")
                 JobPriority.objects.clear_expiration_field_for_expired_jobs()
                 JobPriority.objects.adjust_jobs_priority(high_value_jobs)
 
@@ -63,19 +63,19 @@ def get_failures_fixed_by_commit():
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
     fixed_by_commit_data_set = models.JobNote.objects.filter(
-                failure_classification=2,
-                created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
-                text__isnull=False,
-                job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
-            ).exclude(
-                job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
-            ).exclude(
-                text=""
-            ).select_related('job', 'job__signature', 'job__job_type')
+            failure_classification=2,
+            created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
+            text__isnull=False,
+            job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
+        ).exclude(
+            job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
+        ).exclude(
+            text=""
+        ).select_related('job', 'job__signature', 'job__job_type')
 
     # check if at least one fixed by commit job meets our requirements without populating queryset
     if not fixed_by_commit_data_set.exists():
-        logger.warn("We couldn't find any fixed-by-commit jobs")
+        logger.warning("We couldn't find any fixed-by-commit jobs")
         return failures
 
     # now process the fixed by commit jobs in batches using django's queryset iterator
@@ -122,8 +122,8 @@ def get_failures_fixed_by_commit():
                 if is_job_blacklisted(testtype):
                     continue
             else:
-                logger.warning('We were unable to parse {}/{}'.format(
-                               job_note.job.job_type.name, job_note.job.signature.name))
+                logger.warning('We were unable to parse %s/%s',
+                               job_note.job.job_type.name, job_note.job.signature.name)
                 continue
 
             # we now have a legit fixed-by-commit job failure
@@ -133,8 +133,8 @@ def get_failures_fixed_by_commit():
                 platform=job_note.job.signature.build_platform
             ))
         except models.Job.DoesNotExist:
-            logger.warning('job_note {} has no job associated to it'.format(job_note.id))
+            logger.warning('job_note %s has no job associated to it', job_note.id)
             continue
 
-    logger.warn("Number of fixed_by_commit revisions: {}".format(len(failures)))
+    logger.warning("Number of fixed_by_commit revisions: %s", len(failures))
     return failures

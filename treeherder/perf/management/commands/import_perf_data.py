@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import concurrent.futures
 import datetime
 
@@ -34,7 +36,7 @@ def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
     platform = MachinePlatform.objects.filter(
         platform=signature_props['machine_platform']).first()
     if not platform:
-        raise Exception("Platform for %s (%s) does not exist".format(
+        raise Exception("Platform for {} ({}) does not exist".format(
             signature_hash, signature_props))
 
     framework = PerformanceFramework.objects.get(name='talos')

@@ -21,7 +21,7 @@ PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
 
 
 def _get_signature_hash(signature_properties):
-    signature_prop_values = signature_properties.keys()
+    signature_prop_values = list(signature_properties.keys())
     str_values = []
     for value in signature_properties.values():
         if not isinstance(value, six.string_types):
@@ -31,7 +31,7 @@ def _get_signature_hash(signature_properties):
     signature_prop_values.extend(str_values)
 
     sha = sha1()
-    sha.update(''.join(map(lambda x: str(x), sorted(signature_prop_values))))
+    sha.update(''.join(map(str, sorted(signature_prop_values))))
 
     return sha.hexdigest()
 
@@ -70,13 +70,13 @@ def _load_perf_datum(job, perf_datum):
         framework = PerformanceFramework.objects.get(
             name=perf_datum['framework']['name'])
     except PerformanceFramework.DoesNotExist:
-        logger.warning("Performance framework {} does not exist, skipping "
-                       "load of performance artifacts".format(
-                           perf_datum['framework']['name']))
+        logger.warning("Performance framework %s does not exist, skipping "
+                       "load of performance artifacts",
+                       perf_datum['framework']['name'])
         return
     if not framework.enabled:
-        logger.info("Performance framework {} is not enabled, skipping"
-                    .format(perf_datum['framework']['name']))
+        logger.info("Performance framework %s is not enabled, skipping",
+                    perf_datum['framework']['name'])
         return
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
@@ -196,7 +196,7 @@ def store_performance_artifact(job, artifact):
     blob = json.loads(artifact['blob'])
     performance_data = blob['performance_data']
 
-    if type(performance_data) == list:
+    if isinstance(performance_data, list):
         for perfdatum in performance_data:
             _load_perf_datum(job, perfdatum)
     else:

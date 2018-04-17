@@ -11,8 +11,8 @@ from treeherder.model import models
 
 
 def post_collection(project, th_collection):
-
-    client = TreeherderClient(server_url='http://localhost')
+    # http://testserver is the Django test client's default host name.
+    client = TreeherderClient(server_url='http://testserver')
     return client.post_collection(project, th_collection)
 
 
@@ -43,7 +43,7 @@ def do_job_ingestion(test_repository, job_data, sample_push,
     artifacts_ref = {}
 
     blobs = []
-    for index, blob in enumerate(job_data):
+    for blob in job_data:
 
         if push_index > max_index:
             push_index = 0

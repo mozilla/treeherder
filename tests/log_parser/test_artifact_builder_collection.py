@@ -1,5 +1,4 @@
 import responses
-from datadiff import diff
 
 from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
@@ -60,4 +59,4 @@ def test_all_builders_complete():
         }
     }
 
-    assert exp == lpc.artifacts, diff(exp, lpc.artifacts)
+    assert exp == lpc.artifacts

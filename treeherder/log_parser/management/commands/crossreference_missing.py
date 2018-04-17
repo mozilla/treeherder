@@ -1,3 +1,5 @@
+from __future__ import division
+
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -23,8 +25,8 @@ class Command(BaseCommand):
             c.execute("""SELECT id FROM job ORDER by ID ASC LIMIT 1""")
             min_job_id = c.fetchone()[0]
 
-            logger.info("Maximum job id %i" % max_job_id)
-            logger.info("Minimum job id %i" % min_job_id)
+            logger.info("Maximum job id %i", max_job_id)
+            logger.info("Minimum job id %i", min_job_id)
 
             delta = 100000
             job_id = max_job_id
@@ -63,7 +65,7 @@ class Command(BaseCommand):
                 first_processed = rows[0][0]
                 total_jobs = float(first_processed - min_job_id)
 
-            logger.info("Found %i rows" % len(rows))
+            logger.info("Found %i rows", len(rows))
 
             with ProcessPoolExecutor(4) as executor:
                 executor.map(_crossreference_job, (row[0] for row in rows))
@@ -73,13 +75,13 @@ class Command(BaseCommand):
             time_elapsed = now - start_time
             total_time = time_elapsed / fraction_complete
             time_remaining = total_time - time_elapsed
-            logger.info("Estimated %i seconds remaining" % time_remaining)
+            logger.info("Estimated %i seconds remaining", time_remaining)
 
 
 def _crossreference_job(job_id):
     try:
         job = Job.objects.get(id=job_id)
-        logger.info("Running crossreference for job %s that had status %s" % (job.id, job.result))
+        logger.info("Running crossreference for job %s that had status %s", job.id, job.result)
         job.autoclassify_status = 0
         job.save()
         crossreference_job(job)

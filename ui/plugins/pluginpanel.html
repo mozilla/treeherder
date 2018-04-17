@@ -127,7 +127,7 @@
               <li><a target="_blank" rel="noopener" class="dropdown-item" href="{{ getInspectTaskUrl(job.taskcluster_metadata.task_id) }}/create">Edit and Retrigger</a>
               </li>
               <li>
-                <a target="_blank" rel="noopener" class="dropdown-item" href="https://tools.taskcluster.net/one-click-loaner/#{{job.taskcluster_metadata.task_id}}">One Click Loaner</a>
+                <a target="_blank" rel="noopener" class="dropdown-item" href="https://tools.taskcluster.net/tasks/{{job.taskcluster_metadata.task_id}}/interactive">Create Interactive Task</a>
               </li>
               <li ng-if-end>
                 <a ng-click="customJobAction()" class="dropdown-item">Custom Action...</a>

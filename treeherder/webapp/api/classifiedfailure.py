@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine)
@@ -100,18 +101,18 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
         classified_failures.update(as_dict(existing.values(), "id"))
 
-        for old_id, replacement in replacements.iteritems():
+        for old_id, replacement in iteritems(replacements):
             bug_numbers[replacement.id] = replacement
             del bug_numbers[old_id]
 
         merges = {}
         if existing:
             bug_to_classified_failure = defaultdict(list)
-            for id, bug_number in bug_numbers.iteritems():
+            for id, bug_number in iteritems(bug_numbers):
                 bug_to_classified_failure[bug_number].append(classified_failures[id])
             # Merge the ClassifiedFailure being updated into the existing ClassifiedFailure
             # with the same bug number
-            for bug_number, retain in existing.iteritems():
+            for bug_number, retain in iteritems(existing):
                 for remove in bug_to_classified_failure[bug_number]:
                     removed_id = remove.id
                     remove.replace_with(retain)
@@ -138,7 +139,7 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         data = {"id": pk}
-        for k, v in request.data.iteritems():
+        for k, v in iteritems(request.data):
             if k not in data:
                 data[k] = v
 

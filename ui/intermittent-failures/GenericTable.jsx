@@ -9,19 +9,17 @@ import { fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
 import { createApiUrl } from '../helpers/urlHelper';
 
 function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bugs, columns, trStyling, totalPages }) {
-  const updateData = (page) => {
-    params.page = page;
+
+  const updateData = (state) => {
+    // table's page count starts at 0
+    params.page = state.page + 1;
+    params.page_size = state.pageSize;
+
     if (name === 'BUGS') {
       fetchFullBugData(createApiUrl(tableApi, params), name);
     } else {
       fetchData(createApiUrl(tableApi, params), name);
     }
-  };
-
-  const updateTable = (state) => {
-    // table's page count starts at 0
-    const page = state.page + 1;
-    updateData(page);
   };
 
   const bugRowStyling = (state, bug) => {
@@ -44,9 +42,9 @@ function GenericTable({ fetchData, fetchFullBugData, name, params, tableApi, bug
     <ReactTable
       manual
       data={bugs}
-      onFetchData={updateTable}
+      onFetchData={updateData}
       pages={totalPages}
-      showPageSizeOptions={false}
+      showPageSizeOptions
       columns={columns}
       className="-striped"
       getTrProps={trStyling ? bugRowStyling : () => ({})}

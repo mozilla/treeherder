@@ -1,10 +1,11 @@
+from __future__ import print_function
+
 import datetime
 
 import pytest
 from dateutil import parser
 from django.core.urlresolvers import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from rest_framework.test import APIClient
 
 from treeherder.model.models import (Job,
                                      TaskclusterMetadata,
@@ -19,7 +20,7 @@ from treeherder.webapp.api.jobs import JobsViewSet
                           (5, None, 6),
                           (0, 5, 5),
                           (10, 10, 1)])
-def test_job_list(webapp, eleven_jobs_stored, test_repository,
+def test_job_list(client, eleven_jobs_stored, test_repository,
                   offset, count, expected_num):
     """
     test retrieving a list of json blobs from the jobs-list
@@ -31,9 +32,9 @@ def test_job_list(webapp, eleven_jobs_stored, test_repository,
                        [('offset', offset), ('count', count)] if v])
     if params:
         url += '?{}'.format(params)
-    resp = webapp.get(url)
-    assert resp.status_int == 200
-    response_dict = resp.json
+    resp = client.get(url)
+    assert resp.status_code == 200
+    response_dict = resp.json()
     jobs = response_dict["results"]
     assert isinstance(jobs, list)
     assert len(jobs) == expected_num
@@ -78,17 +79,18 @@ def test_job_list(webapp, eleven_jobs_stored, test_repository,
         assert set(job.keys()) == set(exp_keys)
 
 
-def test_job_list_bad_project(webapp, transactional_db):
+def test_job_list_bad_project(client, transactional_db):
     """
     test retrieving a job list with a bad project throws 404.
     """
     badurl = reverse("jobs-list",
                      kwargs={"project": "badproject"})
 
-    webapp.get(badurl, status=404)
+    resp = client.get(badurl)
+    assert resp.status_code == 404
 
 
-def test_job_list_equals_filter(webapp, eleven_jobs_stored, test_repository):
+def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
@@ -96,47 +98,47 @@ def test_job_list_equals_filter(webapp, eleven_jobs_stored, test_repository):
                   kwargs={"project": test_repository.name})
     final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
 
-    resp = webapp.get(final_url).json
-
-    assert len(resp['results']) == 1
+    resp = client.get(final_url)
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 1
 
 
 job_filter_values = [
- (u'build_architecture', u'x86_64'),
- (u'build_os', u'mac'),
- (u'build_platform', u'osx-10-7'),
- (u'build_platform_id', 3),
- (u'build_system_type', u'buildbot'),
- (u'end_timestamp', 1384364849),
- (u'failure_classification_id', 1),
- (u'id', 4),
- (u'job_group_id', 2),
- (u'job_group_name', u'Mochitest'),
- (u'job_group_symbol', u'M'),
- (u'job_guid', u'ab952a4bbbc74f1d9fb3cf536073b371029dbd02'),
- (u'job_type_id', 2),
- (u'job_type_name', u'Mochitest Browser Chrome'),
- (u'job_type_symbol', u'bc'),
- (u'machine_name', u'talos-r4-lion-011'),
- (u'machine_platform_architecture', u'x86_64'),
- (u'machine_platform_os', u'mac'),
- (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
- (u'platform', u'osx-10-7'),
- (u'reason', u'scheduler'),
- (u'ref_data_name', u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome'),
- (u'result', u'success'),
- (u'result_set_id', 4),
- (u'signature', u'aebe9066ff1c765815ec0513a3389238c80ef166'),
- (u'start_timestamp', 1384356880),
- (u'state', u'completed'),
- (u'submit_timestamp', 1384356854),
- (u'tier', 1),
- (u'who', u'tests-mozilla-release-lion-debug-unittest')
- ]
+    (u'build_architecture', u'x86_64'),
+    (u'build_os', u'mac'),
+    (u'build_platform', u'osx-10-7'),
+    (u'build_platform_id', 3),
+    (u'build_system_type', u'buildbot'),
+    (u'end_timestamp', 1384364849),
+    (u'failure_classification_id', 1),
+    (u'id', 4),
+    (u'job_group_id', 2),
+    (u'job_group_name', u'Mochitest'),
+    (u'job_group_symbol', u'M'),
+    (u'job_guid', u'ab952a4bbbc74f1d9fb3cf536073b371029dbd02'),
+    (u'job_type_id', 2),
+    (u'job_type_name', u'Mochitest Browser Chrome'),
+    (u'job_type_symbol', u'bc'),
+    (u'machine_name', u'talos-r4-lion-011'),
+    (u'machine_platform_architecture', u'x86_64'),
+    (u'machine_platform_os', u'mac'),
+    (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
+    (u'platform', u'osx-10-7'),
+    (u'reason', u'scheduler'),
+    (u'ref_data_name', u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome'),
+    (u'result', u'success'),
+    (u'result_set_id', 4),
+    (u'signature', u'aebe9066ff1c765815ec0513a3389238c80ef166'),
+    (u'start_timestamp', 1384356880),
+    (u'state', u'completed'),
+    (u'submit_timestamp', 1384356854),
+    (u'tier', 1),
+    (u'who', u'tests-mozilla-release-lion-debug-unittest')
+]
 
 
 @pytest.mark.parametrize(('fieldname', 'expected'), job_filter_values)
-def test_job_list_filter_fields(webapp, eleven_jobs_stored, test_repository, fieldname, expected):
+def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fieldname, expected):
     """
     test retrieving a job list with a querystring filter.
 
@@ -149,14 +151,13 @@ def test_job_list_filter_fields(webapp, eleven_jobs_stored, test_repository, fie
     url = reverse("jobs-list",
                   kwargs={"project": test_repository.name})
     final_url = url + "?{}={}".format(fieldname, expected)
-    print(final_url)
-    resp = webapp.get(final_url).json
-    first = resp['results'][0]
-
+    resp = client.get(final_url)
+    assert resp.status_code == 200
+    first = resp.json()['results'][0]
     assert first[fieldname] == expected
 
 
-def test_job_list_in_filter(webapp, eleven_jobs_stored, test_repository):
+def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
@@ -166,61 +167,64 @@ def test_job_list_in_filter(webapp, eleven_jobs_stored, test_repository):
                        "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
                        "9abb6f7d54a49d763c584926377f09835c5e1a32")
 
-    resp = webapp.get(final_url).json
-    assert len(resp['results']) == 2
+    resp = client.get(final_url)
+    assert resp.status_code == 200
+    assert len(resp.json()['results']) == 2
 
 
-def test_job_detail(webapp, test_job):
+def test_job_detail(client, test_job):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-detail",
                 kwargs={"project": test_job.repository.name,
                         "pk": test_job.id})
     )
-    assert resp.status_int == 200
-    assert isinstance(resp.json, dict)
-    assert resp.json["id"] == test_job.id
-    assert not resp.json.get("taskcluster_metadata")
+    assert resp.status_code == 200
+    assert isinstance(resp.json(), dict)
+    assert resp.json()["id"] == test_job.id
+    assert not resp.json().get("taskcluster_metadata")
 
     # add some taskcluster metadata to the test job so we can test that too
     tm = TaskclusterMetadata.objects.create(job=test_job,
                                             task_id='IYyscnNMTLuxzna7PNqUJQ',
                                             retry_id=0)
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-detail",
                 kwargs={"project": test_job.repository.name,
                         "pk": test_job.id})
     )
-    assert resp.json["taskcluster_metadata"] == {
+    assert resp.status_code == 200
+    assert resp.json()["taskcluster_metadata"] == {
         "task_id": tm.task_id,
         "retry_id": tm.retry_id
     }
 
 
-def test_job_retrigger_unauthorized(webapp, test_repository):
+def test_job_retrigger_unauthorized(client, test_repository):
     """
     Validate that only authenticated users can hit this endpoint.
     """
     url = reverse("jobs-retrigger",
                   kwargs={"project": test_repository.name})
-    webapp.post(url, {"job_id_list": [1]}, status=403)
+    resp = client.post(url, {"job_id_list": [1]})
+    assert resp.status_code == 403
 
 
-def test_job_retrigger_authorized(webapp, eleven_jobs_stored,
+def test_job_retrigger_authorized(client, eleven_jobs_stored,
                                   pulse_action_consumer, test_user):
     """
     Validate that only authenticated users can hit this endpoint.
     """
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     job = Job.objects.get(id=1)
     url = reverse("jobs-retrigger",
                   kwargs={"project": job.repository.name})
-    client.post(url, {"job_id_list": [job.id]})
+    resp = client.post(url, {"job_id_list": [job.id]})
+    assert resp.status_code == 200
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
@@ -231,12 +235,11 @@ def test_job_retrigger_authorized(webapp, eleven_jobs_stored,
     assert content['requester'] == test_user.email
 
 
-def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
+def test_job_cancel_authorized(client, test_repository, eleven_jobs_stored,
                                pulse_action_consumer, test_user):
     """
     Validate that job gets updated when a valid user hits this endpoint.
     """
-    client = APIClient()
     client.force_authenticate(user=test_user)
 
     # get the job, set its state to pending
@@ -246,7 +249,8 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
 
     url = reverse("jobs-cancel",
                   kwargs={"project": test_repository.name})
-    client.post(url, {"job_id_list": [job.id]})
+    resp = client.post(url, {"job_id_list": [job.id]})
+    assert resp.status_code == 200
 
     message = pulse_action_consumer.get(block=True, timeout=2)
     content = message.payload
@@ -263,43 +267,42 @@ def test_job_cancel_authorized(webapp, test_repository, eleven_jobs_stored,
     assert job.result == 'usercancel'
 
 
-def test_job_detail_bad_project(webapp, transactional_db):
+def test_job_detail_bad_project(client, transactional_db):
     """
     test retrieving a single job from the jobs-detail
     endpoint.
     """
     badurl = reverse("jobs-detail",
                      kwargs={"project": "badproject", "pk": 1})
+    resp = client.get(badurl)
+    assert resp.status_code == 404
 
-    webapp.get(badurl, status=404)
 
-
-def test_job_detail_not_found(webapp, test_repository):
+def test_job_detail_not_found(client, test_repository):
     """
     test retrieving a HTTP 404 from the jobs-detail
     endpoint.
     """
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-detail",
                 kwargs={"project": test_repository.name, "pk": -32767}),
-        expect_errors=True
     )
-    assert resp.status_int == 404
+    assert resp.status_code == 404
 
 
-def test_job_error_lines(webapp, eleven_jobs_stored, failure_lines, classified_failures):
+def test_job_error_lines(client, eleven_jobs_stored, failure_lines, classified_failures):
     """
     test retrieving failure lines
     """
     job = Job.objects.get(id=1)
 
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-failure-lines",
                 kwargs={"project": job.repository.name, "pk": job.id})
     )
-    assert resp.status_int == 200
+    assert resp.status_code == 200
 
-    failures = resp.json
+    failures = resp.json()
     assert isinstance(failures, list)
 
     exp_failure_keys = ["id", "job_guid", "repository", "job_log", "action", "line",
@@ -325,7 +328,7 @@ def test_job_error_lines(webapp, eleven_jobs_stored, failure_lines, classified_f
     assert set(classified.keys()) == set(exp_classified_keys)
 
 
-def test_text_log_steps_and_errors(webapp, test_job):
+def test_text_log_steps_and_errors(client, test_job):
 
     TextLogStep.objects.create(job=test_job,
                                name='step1',
@@ -345,13 +348,13 @@ def test_text_log_steps_and_errors(webapp, test_job):
                                 line_number=101)
     TextLogError.objects.create(step=step2, line='failure 2',
                                 line_number=102)
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-text-log-steps",
                 kwargs={"project": test_job.repository.name,
                         "pk": test_job.id})
     )
-    assert resp.status_int == 200
-    assert resp.json == [
+    assert resp.status_code == 200
+    assert resp.json() == [
         {
             'errors': [],
             'finished': '1970-01-01T00:01:40',
@@ -402,7 +405,7 @@ def test_text_log_steps_and_errors(webapp, test_job):
     ]
 
 
-def test_text_log_errors(webapp, test_job):
+def test_text_log_errors(client, test_job):
 
     TextLogStep.objects.create(job=test_job,
                                name='step1',
@@ -422,13 +425,13 @@ def test_text_log_errors(webapp, test_job):
                                 line_number=101)
     TextLogError.objects.create(step=step2, line='failure 2',
                                 line_number=102)
-    resp = webapp.get(
+    resp = client.get(
         reverse("jobs-text-log-errors",
                 kwargs={"project": test_job.repository.name,
                         "pk": test_job.id})
     )
-    assert resp.status_int == 200
-    assert resp.json == [
+    assert resp.status_code == 200
+    assert resp.json() == [
         {
             'id': 1,
             'line': 'failure 1',
@@ -464,7 +467,7 @@ def test_text_log_errors(webapp, test_job):
                           (1, None, 2),
                           (0, 1, 1),
                           (2, 10, 1)])
-def test_list_similar_jobs(webapp, eleven_jobs_stored,
+def test_list_similar_jobs(client, eleven_jobs_stored,
                            offset, count, expected_num):
     """
     test retrieving similar jobs
@@ -477,11 +480,11 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored,
                        [('offset', offset), ('count', count)] if v])
     if params:
         url += '?{}'.format(params)
-    resp = webapp.get(url)
+    resp = client.get(url)
 
-    assert resp.status_int == 200
+    assert resp.status_code == 200
 
-    similar_jobs = resp.json
+    similar_jobs = resp.json()
 
     assert 'results' in similar_jobs
 
@@ -490,29 +493,28 @@ def test_list_similar_jobs(webapp, eleven_jobs_stored,
     assert len(similar_jobs['results']) == expected_num
 
 
-def test_job_create(webapp, test_repository, test_user, eleven_job_blobs,
+def test_job_create(client, test_repository, test_user, eleven_job_blobs,
                     failure_classifications, monkeypatch):
     monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
 
     url = reverse("jobs-list",
                   kwargs={"project": test_repository.name})
-    client = APIClient()
-    resp = client.post(url, data=eleven_job_blobs, format="json")
+    resp = client.post(url, data=eleven_job_blobs)
 
     assert resp.status_code == 200
 
     # test that the jobs were actually created
     assert Job.objects.count() == 11
-    test_job_list(webapp, None, test_repository, 0, 11, 11)
+    test_job_list(client, None, test_repository, 0, 11, 11)
 
 
 @pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [
-    ("last_modified__gt",  "2016-07-18T22:16:58.000", 200, 8),
-    ("last_modified__lt",  "2016-07-18T22:16:58.000", 200, 3),
-    ("last_modified__gt",  "-Infinity", HTTP_400_BAD_REQUEST, 0),
-    ("last_modified__gt",  "whatever", HTTP_400_BAD_REQUEST, 0),
+    ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
+    ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),
+    ("last_modified__gt", "-Infinity", HTTP_400_BAD_REQUEST, 0),
+    ("last_modified__gt", "whatever", HTTP_400_BAD_REQUEST, 0),
     ])
-def test_last_modified(webapp, eleven_jobs_stored, test_repository,
+def test_last_modified(client, eleven_jobs_stored, test_repository,
                        lm_key, lm_value, exp_status, exp_job_count):
     try:
         param_date = parser.parse(lm_value)
@@ -529,7 +531,7 @@ def test_last_modified(webapp, eleven_jobs_stored, test_repository,
     url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + ("?{}={}".format(lm_key, lm_value))
 
-    resp = webapp.get(final_url, expect_errors=(exp_status != 200))
-    assert resp.status_int == exp_status
+    resp = client.get(final_url)
+    assert resp.status_code == exp_status
     if exp_status == 200:
-        assert len(resp.json["results"]) == exp_job_count
+        assert len(resp.json()["results"]) == exp_job_count

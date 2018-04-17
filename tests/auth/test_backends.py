@@ -44,7 +44,7 @@ def test_get_username_from_userinfo(user_info, exp_username, exp_exception):
       'foo@bar.net',
       False),
      ])
-def test_existing_email_create_user(test_user, webapp, monkeypatch, exp_username, email, exp_create_user):
+def test_existing_email_create_user(test_user, client, monkeypatch, exp_username, email, exp_create_user):
     """
     Test whether a user was created or not, despite an existing user with
     a matching email.
@@ -63,12 +63,18 @@ def test_existing_email_create_user(test_user, webapp, monkeypatch, exp_username
 
     existing_user = User.objects.create(username="email/foo@bar.net", email=email)
 
-    webapp.get(reverse("auth-login"), headers={"Authorization": "Bearer meh", "idToken": "meh", "expiresAt": str(expires_at)})
+    resp = client.get(
+        reverse("auth-login"),
+        HTTP_AUTHORIZATION="Bearer meh",
+        HTTP_IDTOKEN="meh",
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 200
 
-    session_key = webapp.cookies["sessionid"]
-    session_data = SessionStore(session_key=session_key)
+    session = client.session
+    assert not session.is_empty()
 
-    new_user = User.objects.get(id=session_data.get('_auth_user_id'))
+    new_user = User.objects.get(id=session['_auth_user_id'])
 
     assert new_user.username == exp_username
     if exp_create_user:

@@ -34,12 +34,21 @@ matrix:
           - ${HOME}/venv
       install:
         - source ./bin/travis-setup.sh python_env
+        # Create the test database for `manage.py check --deploy`.
+        - mysql -u root -e 'create database test_treeherder;'
       script:
         - pip check
         - flake8 --show-source
+        # Temporarily running these in the linters job to avoid impacting job count and thus Travis end-to-end times.
+        # Prevent connections during check/migrate/makemigrations to a non-existent Elasticsearch server.
+        - unset ELASTICSEARCH_URL
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
+        # Remove these once we get the roughly equivalent pytest sanity tests working under Python 3.
+        - ./manage.py migrate
+        - ./manage.py makemigrations --check
 
     # Job 3: Nodejs UI tests
-    - env: ui-tests
+    - env: js-tests
       language: node_js
       node_js: "8"
       cache:
@@ -51,7 +60,7 @@ matrix:
         - yarn test
         - yarn build
 
-    # Job 4: Python Tests Chunk A
+    # Job 4: Python Tests - Main
     - env: python-tests-main
       language: python
       python: "2.7.14"
@@ -67,33 +76,11 @@ matrix:
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        - pytest tests/ --runslow --ignore=tests/etl/ --ignore=tests/log_parser/ --ignore=tests/webapp/api/ --ignore=tests/selenium/ --ignore=tests/jenkins/
+        # Using Python 2's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
+        # https://docs.python.org/2/using/cmdline.html#cmdoption-3
+        - python -3 -m pytest tests/ --runslow --ignore=tests/selenium/ --ignore=tests/jenkins/
 
-    # Job 5: Python Tests Chunk B
-    - env: python-tests-etl-logparser
-      language: python
-      python: "2.7.14"
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-      script:
-        - pytest tests/etl/ tests/log_parser/ --runslow
-
-    # Job 6: Python Tests Chunk C
-    - env: python-tests-rest-api
-      language: python
-      python: "2.7.14"
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-      script:
-        - pytest tests/webapp/api/ --runslow
-
-    # Job 7: Python Tests - Selenium integration
+    # Job 5: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
       python: "2.7.14"
@@ -108,7 +95,9 @@ matrix:
         # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
         - yarn build
       script:
-        - pytest tests/selenium/ --driver Firefox
+        # Using Python 2's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
+        # https://docs.python.org/2/using/cmdline.html#cmdoption-3
+        - python -3 -m pytest tests/selenium/ --driver Firefox
 
 notifications:
   email:

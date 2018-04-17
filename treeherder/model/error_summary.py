@@ -15,8 +15,8 @@ CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(
     r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
 )
-REFTEST_RE = re.compile("\s+[=!]=\s+.*")
-OUTPUT_RE = re.compile("^\s*(?:GECKO\(\d+\)|PID \d+)\s*$")
+REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
+OUTPUT_RE = re.compile(r'^\s*(?:GECKO\(\d+\)|PID \d+)\s*$')
 
 
 def get_error_summary(job):
@@ -183,7 +183,7 @@ def is_helpful_search_term(search_term):
 
     ]
 
-    return len(search_term) > 4 and not (search_term in blacklist)
+    return len(search_term) > 4 and search_term not in blacklist
 
 
 def get_filtered_error_lines(job):

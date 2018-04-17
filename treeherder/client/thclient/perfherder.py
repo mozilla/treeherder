@@ -1,3 +1,5 @@
+from six import iteritems
+
 from .client import TreeherderClient
 
 
@@ -46,7 +48,7 @@ class PerformanceSignatureCollection(dict):
             signatures = signatures.filter(('suite', 'tp5o'), ('machine_platform', 'windowsxp'))
         '''
         filtered_signatures = {}
-        for (signature, signature_value) in self.iteritems():
+        for (signature, signature_value) in iteritems(self):
             skip = False
             for (key, val) in args:
                 if signature_value.get(key) != val:
@@ -61,7 +63,7 @@ class PerformanceSignatureCollection(dict):
         '''
         Return all signature hashes in this collection
         '''
-        return self.keys()
+        return list(self.keys())
 
     def get_property_names(self):
         '''
@@ -100,7 +102,8 @@ class PerformanceSeries(list):
     '''
 
     def __getitem__(self, key):
-        return map(lambda el: el[key], self)
+        # Casting to list since Python 3's `map` produces an iterator rather than a list.
+        return list(map(lambda el: el[key], self))
 
 
 class PerfherderClient(TreeherderClient):

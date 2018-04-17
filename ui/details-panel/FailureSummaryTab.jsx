@@ -86,6 +86,14 @@ class SuggestionsListItem extends React.Component {
   }
 }
 
+SuggestionsListItem.propTypes = {
+  suggestion: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
+  $timeout: PropTypes.func.isRequired,
+  pinboardService: PropTypes.object.isRequired,
+  fileBug: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
+};
 
 function ListItem(props) {
   return (
@@ -95,6 +103,9 @@ function ListItem(props) {
   );
 }
 
+ListItem.propTypes = {
+  text: PropTypes.string.isRequired,
+};
 
 function BugListItem(props) {
   const {
@@ -127,6 +138,20 @@ function BugListItem(props) {
   );
 }
 
+BugListItem.propTypes = {
+  bug: PropTypes.object.isRequired,
+  suggestion: PropTypes.object.isRequired,
+  $timeout: PropTypes.func.isRequired,
+  pinboardService: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
+  bugClassName: PropTypes.string,
+  title: PropTypes.string,
+};
+
+BugListItem.defaultProps = {
+  bugClassName: '',
+  title: null,
+};
 
 function ErrorsList(props) {
   const errorListItem = props.errors.map((error, key) => (
@@ -151,6 +176,9 @@ function ErrorsList(props) {
   );
 }
 
+ErrorsList.propTypes = {
+  errors: PropTypes.array.isRequired,
+};
 
 class FailureSummaryTab extends React.Component {
   constructor(props) {
@@ -167,11 +195,11 @@ class FailureSummaryTab extends React.Component {
       bugSuggestionsLoading, selectedJob
     } = this.props;
     const logs = jobLogUrls;
-    const jobLogsAllParsed = logs ? logs.every(jlu => (jlu.parse_status !== 'pending')) : false;
+    const jobLogsAllParsed = logs.every(jlu => (jlu.parse_status !== 'pending'));
 
     return (
       <ul className="list-unstyled failure-summary-list" ref={this.fsMount}>
-        {suggestions && suggestions.map((suggestion, index) =>
+        {suggestions.map((suggestion, index) =>
           (<SuggestionsListItem
             key={index}  // eslint-disable-line react/no-array-index-key
             index={index}
@@ -182,21 +210,21 @@ class FailureSummaryTab extends React.Component {
             $timeout={this.$timeout}
           />))}
 
-        {errors && errors.length > 0 &&
+        {!!errors.length &&
           <ErrorsList errors={errors} />}
 
-        {!bugSuggestionsLoading && jobLogsAllParsed && logs &&
-          logs.length === 0 && suggestions.length === 0 && errors.length === 0 &&
+        {!bugSuggestionsLoading && jobLogsAllParsed &&
+          !logs.length && !suggestions.length && !errors.length &&
           <ListItem text="Failure summary is empty" />}
 
-        {!bugSuggestionsLoading && jobLogsAllParsed && logs && logs.length > 0 &&
+        {!bugSuggestionsLoading && jobLogsAllParsed && !!logs.length &&
           logParseStatus === 'success' &&
           <li>
             <p className="failure-summary-line-empty mb-0">Log parsing complete. Generating bug suggestions.<br />
               <span>The content of this panel will refresh in 5 seconds.</span></p>
           </li>}
 
-        {logs && !bugSuggestionsLoading && !jobLogsAllParsed &&
+        {!bugSuggestionsLoading && !jobLogsAllParsed &&
          logs.map(jobLog =>
            (<li key={jobLog.id}>
              <p className="failure-summary-line-empty mb-0">Log parsing in progress.<br />
@@ -211,7 +239,7 @@ class FailureSummaryTab extends React.Component {
         {!bugSuggestionsLoading && logParseStatus === 'failed' &&
           <ListItem text="Log parsing failed.  Unable to generate failure summary." />}
 
-        {!bugSuggestionsLoading && logs && logs.length === 0 &&
+        {!bugSuggestionsLoading && !logs.length &&
           <ListItem text="No logs available for this job." />}
 
         {bugSuggestionsLoading &&
@@ -226,14 +254,23 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
+  $injector: PropTypes.object.isRequired,
+  fileBug: PropTypes.func.isRequired,
   suggestions: PropTypes.array,
-  fileBug: PropTypes.func,
   selectedJob: PropTypes.object,
-  $injector: PropTypes.object,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
   jobLogUrls: PropTypes.array,
-  logParseStatus: PropTypes.string
+  logParseStatus: PropTypes.string,
+};
+
+FailureSummaryTab.defaultProps = {
+  suggestions: [],
+  selectedJob: null,
+  errors: [],
+  bugSuggestionsLoading: false,
+  jobLogUrls: [],
+  logParseStatus: 'pending',
 };
 
 treeherder.directive('failureSummaryTab', ['reactDirective', '$injector', (reactDirective, $injector) =>

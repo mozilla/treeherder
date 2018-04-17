@@ -2,17 +2,16 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from rest_framework import generics
 
-from pagination import CustomPagePagination
 from treeherder.model.models import (BugJobMap,
                                      Job,
                                      OptionCollection,
                                      Push)
+from treeherder.webapp.api.pagination import CustomPagePagination
+from treeherder.webapp.api.serializers import (FailureCountSerializer,
+                                               FailuresByBugSerializer,
+                                               FailuresSerializer)
 from treeherder.webapp.api.utils import (get_end_of_day,
                                          get_repository)
-
-from .serializers import (FailureCountSerializer,
-                          FailuresByBugSerializer,
-                          FailuresSerializer)
 
 
 class Failures(generics.ListAPIView):
@@ -60,15 +59,17 @@ class FailuresByBug(generics.ListAPIView):
 
         for item in queryset:
             match = filter(lambda x: item['job__option_collection_hash'] == x, hash_list)
-            if len(match) == 0:
+            if not match:
                 hash_list.append(item['job__option_collection_hash'])
 
         hash_query = OptionCollection.objects.filter(option_collection_hash__in=hash_list).select_related(
                                                      'option').values('option__name', 'option_collection_hash')
 
         for item in queryset:
-            match = filter(lambda x: item['job__option_collection_hash'] == x['option_collection_hash'], hash_query)
-            if len(match) > 0:
+            # Casting to list since Python 3's `filter` produces an iterator
+            # rather than a list, which is not subscriptable.
+            match = list(filter(lambda x: item['job__option_collection_hash'] == x['option_collection_hash'], hash_query))
+            if match:
                 item['build_type'] = match[0]['option__name']
             else:
                 item['build_type'] = 'unknown'
@@ -112,8 +113,10 @@ class FailureCount(generics.ListAPIView):
         # add a new object with push_query data and a default for failure_count
         queryset = []
         for push in push_query:
-            match = filter(lambda x: push['date'] == x['date'], job_query)
-            if len(match) > 0:
+            # Casting to list since Python 3's `filter` produces an iterator
+            # rather than a list, which is not subscriptable.
+            match = list(filter(lambda x: push['date'] == x['date'], job_query))
+            if match:
                 match[0]['test_runs'] = push['test_runs']
                 queryset.append(match[0])
             else:

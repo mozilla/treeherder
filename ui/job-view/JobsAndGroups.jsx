@@ -48,4 +48,6 @@ JobsAndGroups.propTypes = {
   groups: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterPlatformCb: PropTypes.func.isRequired,
+  platform: PropTypes.object.isRequired,
 };

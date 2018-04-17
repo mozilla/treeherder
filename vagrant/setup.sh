@@ -136,9 +136,7 @@ echo '-----> Waiting for Elasticsearch to be ready'
 while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
 
 echo '-----> Running Django migrations and loading reference data'
-# Redirect stderr to stdout, to prevent the harmless "InnoDB rebuilding table" warning
-# from causing confusion due to being shown in red. Remove when bug 1389548 fixed.
-./manage.py migrate --noinput 2>&1
+./manage.py migrate --noinput
 ./manage.py load_initial_data
 
 echo '-----> Setup complete!'

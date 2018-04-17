@@ -64,7 +64,11 @@
         <p id="tt-series2" class="small"><span ng-bind="tooltipContent.series.platform"/></p>
       </div>
       <div>
-        <p id="tt-v">{{tooltipContent.value|displayNumber}}</p>
+        <p id="tt-v">
+          {{tooltipContent.value|displayNumber}}
+          <span class="text-muted" ng-show="tooltipContent.series.lowerIsBetter">(lower is better)</span>
+          <span class="text-muted" ng-show="!tooltipContent.series.lowerIsBetter">(higher is better)</span>
+        </p>
         <p id="tt-dv" class="small">&Delta; {{tooltipContent.deltaValue|displayNumber}}
           (<span ng-bind="tooltipContent.deltaPercentValue"/>%)</p>
       </div>

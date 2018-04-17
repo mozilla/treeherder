@@ -9,7 +9,6 @@ export default class PushActionMenu extends React.PureComponent {
     const { $injector } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thEvents = $injector.get('thEvents');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
@@ -167,4 +166,9 @@ PushActionMenu.propTypes = {
   isStaff: PropTypes.bool.isRequired,
   loggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
+  repoName: PropTypes.string.isRequired,
+  pushId: PropTypes.number.isRequired,
+  hideRunnableJobsCb: PropTypes.func.isRequired,
+  showRunnableJobsCb: PropTypes.func.isRequired,
+  $injector: PropTypes.object.isRequired,
 };

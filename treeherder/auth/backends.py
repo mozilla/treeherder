@@ -1,3 +1,5 @@
+from __future__ import division
+
 import json
 import logging
 import time
@@ -136,17 +138,16 @@ class AuthBackend(object):
 
             # The Django user session expiration should be set to the token for which the expiry is closer.
             session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
-            expires_in = (session_expiry_in_ms - now_in_ms) / 1000
+            expires_in = int((session_expiry_in_ms - now_in_ms) / 1000)
 
-            logger.warn("Updating session to expire in %d hours" % (expires_in / 3600))
-
+            logger.warning("Updating session to expire in %i seconds", expires_in)
             request.session.set_expiry(expires_in)
 
             return user
 
         except ObjectDoesNotExist:
             # the user doesn't already exist, create it.
-            logger.warning("Creating new user: {}".format(username))
+            logger.warning("Creating new user: %s", username)
             return User.objects.create_user(username, email=user_info['email'])
 
     def get_user(self, user_id):

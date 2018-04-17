@@ -1,3 +1,6 @@
+from __future__ import (division,
+                        print_function)
+
 import time
 
 import simplejson as json
@@ -31,7 +34,7 @@ class Command(BaseCommand):
             num_runs = 1
 
         times = []
-        for i in range(num_runs):
+        for _ in range(num_runs):
             start = time.time()
             artifact_bc = ArtifactBuilderCollection(options['log_url'])
             artifact_bc.parse()

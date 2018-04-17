@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 
 
-def test_graphql_options(webapp, eleven_jobs_stored, test_repository):
+def test_graphql_options(client, eleven_jobs_stored, test_repository):
     """
     Retrieve a GraphQL set of the Options and OptionCollectionHashes.
     """
@@ -9,9 +9,9 @@ def test_graphql_options(webapp, eleven_jobs_stored, test_repository):
         reverse("graphql"),
         'query=query{allOptionCollections{optionCollectionHash option{name}}}'
         )
-    resp = webapp.post(url)
-    assert resp.status_int == 200
-    response_dict = resp.json
+    resp = client.post(url)
+    assert resp.status_code == 200
+    response_dict = resp.json()
     expected = {'data': {
                     'allOptionCollections': [
                         {'option': {'name': 'opt'},
@@ -25,7 +25,7 @@ def test_graphql_options(webapp, eleven_jobs_stored, test_repository):
     assert expected == response_dict
 
 
-def test_graphql_push_with_jobs(webapp, sample_push, eleven_jobs_stored, test_repository):
+def test_graphql_push_with_jobs(client, sample_push, eleven_jobs_stored, test_repository):
     """
     Retrieve a GraphQL set of a push and its jobs.
     """
@@ -74,9 +74,9 @@ def test_graphql_push_with_jobs(webapp, sample_push, eleven_jobs_stored, test_re
       }}
     """.format(revision=sample_push[0]["revision"])
     url = "{}?{}".format(reverse("graphql"), 'query={}'.format(query))
-    resp = webapp.post(url)
-    assert resp.status_int == 200
-    response_dict = resp.json
+    resp = client.post(url)
+    assert resp.status_code == 200
+    response_dict = resp.json()
     expected = {'data': {'allPushes': {'edges': [{'node': {'jobs': {
         'edges': [{'node': {'buildPlatform': {'platform': 'b2g-emu-jb'},
                             'failureClassification': {

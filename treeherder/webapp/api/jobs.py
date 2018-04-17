@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
+from six import iteritems
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
@@ -38,42 +39,42 @@ class JobFilter(django_filters.FilterSet):
     We use this gigantic class to provide the same filtering interface
     as the previous jobs API
     """
-    id = django_filters.NumberFilter(name='id')
-    id__in = NumberInFilter(name='id', lookup_expr='in')
-    tier__in = NumberInFilter(name='tier', lookup_expr='in')
-    push_id__in = NumberInFilter(name='push_id', lookup_expr='in')
-    job_guid = django_filters.CharFilter(name='guid')
-    job_guid__in = CharInFilter(name='guid', lookup_expr='in')
+    id = django_filters.NumberFilter(field_name='id')
+    id__in = NumberInFilter(field_name='id', lookup_expr='in')
+    tier__in = NumberInFilter(field_name='tier', lookup_expr='in')
+    push_id__in = NumberInFilter(field_name='push_id', lookup_expr='in')
+    job_guid = django_filters.CharFilter(field_name='guid')
+    job_guid__in = CharInFilter(field_name='guid', lookup_expr='in')
     build_architecture = django_filters.CharFilter(
-        name='build_platform__architecture')
+        field_name='build_platform__architecture')
     build_os = django_filters.CharFilter(
-        name='build_platform__os_name')
+        field_name='build_platform__os_name')
     build_platform = django_filters.CharFilter(
-        name='build_platform__platform')
+        field_name='build_platform__platform')
     build_system_type = django_filters.CharFilter(
-        name='signature__build_system_type')
+        field_name='signature__build_system_type')
     job_group_id = django_filters.NumberFilter(
-        name='job_group_id')
+        field_name='job_group_id')
     job_group_name = django_filters.CharFilter(
-        name='job_group__name')
+        field_name='job_group__name')
     job_group_symbol = django_filters.CharFilter(
-        name='job_group__symbol')
+        field_name='job_group__symbol')
     job_type_name = django_filters.CharFilter(
-        name='job_type__name')
+        field_name='job_type__name')
     job_type_symbol = django_filters.CharFilter(
-        name='job_type__symbol')
+        field_name='job_type__symbol')
     machine_name = django_filters.CharFilter(
-        name='machine__name')
+        field_name='machine__name')
     machine_platform_architecture = django_filters.CharFilter(
-        name='machine_platform__architecture')
+        field_name='machine_platform__architecture')
     machine_platform_os = django_filters.CharFilter(
-        name='machine_platform__os_name')
+        field_name='machine_platform__os_name')
     platform = django_filters.CharFilter(
-        name='machine_platform__platform')
+        field_name='machine_platform__platform')
     ref_data_name = django_filters.CharFilter(
-        name='signature__name')
+        field_name='signature__name')
     signature = django_filters.CharFilter(
-        name='signature__signature')
+        field_name='signature__signature')
 
     class Meta:
         model = Job
@@ -180,7 +181,7 @@ class JobsViewSet(viewsets.ViewSet):
                 "")
             # some values need to be transformed
             values = list(values)
-            for (i, value) in enumerate(values):
+            for (i, _) in enumerate(values):
                 func = self._property_query_mapping[i][2]
                 if func:
                     values[i] = func(values[i])
@@ -299,9 +300,9 @@ class JobsViewSet(viewsets.ViewSet):
             offset = int(filter_params.get("offset", 0))
             count = int(filter_params.get("count", 10))
         except ValueError:
-                    return Response(
-                        "Invalid value for offset or count",
-                        status=HTTP_400_BAD_REQUEST)
+            return Response(
+                "Invalid value for offset or count",
+                status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
 
         if count > MAX_JOBS_COUNT:
@@ -314,7 +315,7 @@ class JobsViewSet(viewsets.ViewSet):
             return Response({
                 "detail": "No project with name {}".format(project)
             }, status=HTTP_404_NOT_FOUND)
-        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+        jobs = JobFilter({k: v for (k, v) in iteritems(filter_params)},
                          queryset=Job.objects.filter(
                              repository=repository).select_related(
                                  *self._default_select_related)).qs
@@ -477,7 +478,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return_type = filter_params.get("return_type", "dict").lower()
 
-        jobs = JobFilter({k: v for (k, v) in filter_params.iteritems()},
+        jobs = JobFilter({k: v for (k, v) in iteritems(filter_params)},
                          queryset=Job.objects.filter(
                              job_type_id=job.job_type_id,
                              repository=repository).exclude(
@@ -530,14 +531,14 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
                 return django_filters.Filter.filter(self, qs, value)
 
-        job_id = django_filters.NumberFilter(name='job')
-        job_id__in = NumberInFilter(name='job', lookup_expr='in')
-        job_guid = django_filters.CharFilter(name='job__guid')
-        job__guid = django_filters.CharFilter(name='job__guid')  # for backwards compat
-        title = django_filters.CharFilter(name='title')
-        value = django_filters.CharFilter(name='value')
-        push_id = django_filters.NumberFilter(name='job__push')
-        repository = django_filters.CharFilter(name='job__repository__name')
+        job_id = django_filters.NumberFilter(field_name='job')
+        job_id__in = NumberInFilter(field_name='job', lookup_expr='in')
+        job_guid = django_filters.CharFilter(field_name='job__guid')
+        job__guid = django_filters.CharFilter(field_name='job__guid')  # for backwards compat
+        title = django_filters.CharFilter(field_name='title')
+        value = django_filters.CharFilter(field_name='value')
+        push_id = django_filters.NumberFilter(field_name='job__push')
+        repository = django_filters.CharFilter(field_name='job__repository__name')
 
         class Meta:
             model = JobDetail

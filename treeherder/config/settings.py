@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import re
 from datetime import timedelta
 
@@ -594,12 +596,6 @@ CACHES = {
             'SOCKET_CONNECT_TIMEOUT': 5,
         },
     },
-}
-
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {},
-    'SUPPORTED_SUBMIT_METHODS': ['get'],
-    'USE_SESSION_AUTH': False,
 }
 
 HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'

@@ -31,7 +31,7 @@ function ClassificationsPane(props) {
           <i className={`fa ${iconClass}`} />
           <span className="ml-1">{classificationName.name}</span>
         </span>
-        {bugs.length > 0 &&
+        {!!bugs.length &&
           <a
             target="_blank"
             rel="noopener"
@@ -51,6 +51,20 @@ function ClassificationsPane(props) {
     </ul>
   );
 }
+
+ClassificationsPane.propTypes = {
+  dateFilter: PropTypes.func.isRequired,
+  repoName: PropTypes.string.isRequired,
+  ThRepositoryModel: PropTypes.object.isRequired,
+  classification: PropTypes.object.isRequired,
+  job: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  bugs: PropTypes.array,
+};
+
+ClassificationsPane.defaultProps = {
+  bugs: [],
+};
 
 function JobStatusPane(props) {
   const { job } = props;
@@ -75,6 +89,9 @@ function JobStatusPane(props) {
   );
 }
 
+JobStatusPane.propTypes = {
+  job: PropTypes.object.isRequired,
+};
 
 function JobDetailsListItem(props) {
   const {
@@ -109,6 +126,34 @@ function JobDetailsListItem(props) {
   );
 }
 
+JobDetailsListItem.propTypes = {
+  label: PropTypes.string.isRequired,
+  labelHref: PropTypes.string,
+  labelTitle: PropTypes.string,
+  labelText: PropTypes.string,
+  href: PropTypes.string,
+  text: PropTypes.string,
+  title: PropTypes.string,
+  target: PropTypes.string,
+  iconClass: PropTypes.string,
+  labelOnclick: PropTypes.func,
+  labelTarget: PropTypes.string,
+  onclick: PropTypes.func,
+};
+
+JobDetailsListItem.defaultProps = {
+  labelHref: null,
+  labelTitle: null,
+  labelText: null,
+  href: null,
+  text: null,
+  title: null,
+  target: null,
+  iconClass: null,
+  labelOnclick: null,
+  labelTarget: null,
+  onclick: null,
+};
 
 class JobDetailsList extends React.Component {
   constructor(props) {
@@ -186,7 +231,7 @@ class JobDetailsList extends React.Component {
     let buildUrl = null;
     let iconCircleClass = null;
 
-    if (job.build_system_type === 'buildbot' && jobLogUrls.length > 0) {
+    if (job.build_system_type === 'buildbot' && !!jobLogUrls.length) {
       buildUrl = jobLogUrls[0].buildUrl;
     }
     if (job.job_type_description) {
@@ -260,7 +305,7 @@ class JobDetailsList extends React.Component {
             text={timeFields.duration}
           />
         </span>}
-        {!jobLogUrls ?
+        {!jobLogUrls.length ?
           <JobDetailsListItem label="Log parsing status: " text="No logs" /> :
           jobLogUrls.map(data => (
             <JobDetailsListItem
@@ -274,6 +319,15 @@ class JobDetailsList extends React.Component {
     );
   }
 }
+
+JobDetailsList.propTypes = {
+  job: PropTypes.object.isRequired,
+  jobLogUrls: PropTypes.array,
+};
+
+JobDetailsList.defaultProps = {
+  jobLogUrls: [],
+};
 
 class JobDetailsPane extends React.Component {
   constructor(props) {
@@ -323,15 +377,23 @@ class JobDetailsPane extends React.Component {
 }
 
 JobDetailsPane.propTypes = {
+  job: PropTypes.object.isRequired,
+  $injector: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
+  jobLogUrls: PropTypes.array,
+  jobDetailLoading: PropTypes.bool,
   classification: PropTypes.object,
   bugs: PropTypes.array,
-  job: PropTypes.object,
-  $injector: PropTypes.object,
-  jobLogUrls: PropTypes.array,
   buildUrl: PropTypes.string,
-  classificationTypes: PropTypes.object,
-  jobDetailLoading: PropTypes.bool,
-  repoName: PropTypes.string
+};
+
+JobDetailsPane.defaultProps = {
+  jobLogUrls: [],
+  jobDetailLoading: false,
+  classification: null,
+  bugs: [],
+  buildUrl: null,
 };
 
 treeherder.directive('jobDetailsPane', ['reactDirective', '$injector', (reactDirective, $injector) =>

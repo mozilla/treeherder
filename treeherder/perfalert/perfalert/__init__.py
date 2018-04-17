@@ -1,3 +1,5 @@
+from __future__ import division
+
 import copy
 import functools
 
@@ -58,7 +60,7 @@ def calc_t(w1, w2, weight_fn=None):
 
     See the analyze() function for a description of the `weight_fn` argument.
     """
-    if len(w1) == 0 or len(w2) == 0:
+    if not w1 or not w2:
         return 0
 
     s1 = analyze(w1, weight_fn)
@@ -104,7 +106,7 @@ class RevisionDatum(object):
 
     def __repr__(self):
         values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in
-                                          self.values])
+                                           self.values])
         return "<%s: %s, %s, %.3f, %s>" % (self.push_timestamp,
                                            self.push_id, values_str,
                                            self.t, self.change_detected)

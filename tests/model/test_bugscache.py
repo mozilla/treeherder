@@ -88,7 +88,7 @@ def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bu
     suggestions = Bugscache.search(search_term)
     open_recent_bugs = [b['id'] for b in suggestions['open_recent']]
     assert open_recent_bugs == exp_bugs
-    assert len(suggestions['all_others']) == 0
+    assert suggestions['all_others'] == []
 
 
 @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
@@ -103,7 +103,7 @@ def test_get_all_other_bugs(transactional_db, sample_bugs, search_term, exp_bugs
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
-    assert len(suggestions['open_recent']) == 0
+    assert suggestions['open_recent'] == []
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
 
@@ -122,8 +122,7 @@ def test_get_recent_resolved_bugs(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
-    print(suggestions)
-    assert len(suggestions['open_recent']) == 0
+    assert suggestions['open_recent'] == []
     all_others_bugs = [b['id'] for b in suggestions['all_others']]
     assert all_others_bugs == exp_bugs
 
