@@ -214,8 +214,7 @@ perf.controller('AlertsCtrl', [
         };
 
         // can filter by alert statuses or just show everything
-        $scope.statuses = Object.keys(phAlertSummaryStatusMap).map(
-          status => phAlertSummaryStatusMap[status]);
+        $scope.statuses = Object.values(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({ id: -1, text: "all" });
 
         $scope.changeAlertSummaryStatus = function (alertSummary, open) {
@@ -454,7 +453,7 @@ perf.controller('AlertsCtrl', [
                             });
 
                         })
-            )).then(function () {
+            )).then(() => {
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 alertSummaries.forEach((summary) => {
