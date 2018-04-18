@@ -129,21 +129,21 @@ angular-marked@1.2.2:
   dependencies:
     marked "^0.3.3"
 
-angular-mocks@1.6.9:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.6.9.tgz#4fed8c8293a5080e0919a7ff0dcf0f704864b7ba"
+angular-mocks@1.6.10:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.6.10.tgz#6a139e43c461d0c9a5a1acebc91e63db16031176"
 
-angular-resource@1.6.9:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.6.9.tgz#d02334b7cb96353e245966ad044c0c673df7b685"
+angular-resource@1.6.10:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.6.10.tgz#28c1834e9fa623467d2f9894716a4e6c7e077459"
 
-angular-route@1.6.9:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.6.9.tgz#73c63cec6a8a6b924698aec635eac32aa41f5e2b"
+angular-route@1.6.10:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.6.10.tgz#4247a32eab19495624623e96c1626dfba17ebf21"
 
-angular-sanitize@1.6.9:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.6.9.tgz#1adba33f6f513e5f93e3aca8071bef53666739ea"
+angular-sanitize@1.6.10:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.6.10.tgz#635a362afb2dd040179f17d3a5455962b2c1918f"
 
 angular-toarrayfilter@1.0.3:
   version "1.0.3"
@@ -159,13 +159,13 @@ angular1-ui-bootstrap4@2.4.22:
   version "2.4.22"
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
 
-angular@1.6.9, angular@^1.0.8:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.9.tgz#bc812932e18909038412d594a5990f4bb66c0619"
-
-angular@>=1.5, angular@>=1.5.0:
+angular@1.6.10, angular@>=1.5, angular@>=1.5.0:
   version "1.6.10"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.10.tgz#eed3080a34d29d0f681ff119b18ce294e3f74826"
+
+angular@^1.0.8:
+  version "1.6.9"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.9.tgz#bc812932e18909038412d594a5990f4bb66c0619"
 
 ansi-escapes@^1.1.0:
   version "1.4.0"
