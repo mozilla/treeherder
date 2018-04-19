@@ -21,6 +21,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from .search import (TestFailureLine,
                      es_connected)
+from ..services.elasticsearch import bulk
+from ..utils.queryset import chunked_qs
 
 logger = logging.getLogger(__name__)
 
@@ -370,9 +372,6 @@ class JobManager(models.Manager):
         Delete data older than cycle_interval, splitting the target data into
         chunks of chunk_size size. Returns the number of result sets deleted
         """
-        from treeherder.model.search import bulk_delete as es_delete
-        from treeherder.model.search import TestFailureLine
-        from treeherder.utils.queryset import chunked_qs
 
         # Retrieve list of jobs to delete
         jobs_max_timestamp = datetime.datetime.now() - cycle_interval
@@ -390,14 +389,19 @@ class JobManager(models.Manager):
             # foreign key relation
             lines = FailureLine.objects.filter(job_guid__in=jobs_chunk)
 
-            if settings.ELASTIC_SEARCH["url"]:
-                # To delete the data from elasticsearch we need both the
-                # document id and the test, since this is used to determine the
-                # shard on which the document is indexed. However selecting all
-                # this data can be rather slow, so split the job into multiple
-                # smaller chunks.
-                for rows in chunked_qs(lines, chunk_size=chunk_size, fields=['id', 'test']):
-                    es_delete(TestFailureLine, [(line.id, line.test) for line in rows])
+            if settings.ELASTICSEARCH_URL:
+                # To delete the data from elasticsearch we need the document
+                # id.  However selecting all this data can be rather slow, so
+                # split the job into multiple smaller chunks.
+
+                failures = itertools.chain.from_iterable(
+                    chunked_qs(
+                        lines,
+                        chunk_size=chunk_size,
+                        fields=['id', 'test'],
+                    ),
+                )
+                bulk(failures, action='delete')
 
             lines.delete()
 
