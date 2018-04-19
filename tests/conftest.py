@@ -65,12 +65,13 @@ def block_unmocked_requests():
 
 @pytest.fixture
 def elasticsearch(request):
-    from treeherder.model.search import connection, doctypes, refresh_all
+    from treeherder.services.elasticsearch import reinit_index, refresh_index
 
-    for item in doctypes():
-        connection.indices.delete(item._doc_type.index, ignore=404)
-        refresh_all()
-        item.init()
+    if not settings.ELASTICSEARCH_URL:
+        return
+
+    reinit_index()
+    refresh_index()
 
 
 @pytest.fixture
@@ -424,7 +425,7 @@ def test_matcher(request):
 def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
                         failure_classifications):
     from treeherder.model.models import ClassifiedFailure
-    from treeherder.model.search import refresh_all
+    from treeherder.services.elasticsearch import refresh_index
 
     _, failure_lines = text_log_errors_failure_lines
 
@@ -439,7 +440,9 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
                                             mark_best=True)
             classified_failures.append(classified_failure)
 
-    refresh_all()
+    if settings.ELASTICSEARCH_URL:
+        refresh_index()
+
     return classified_failures
 
 
