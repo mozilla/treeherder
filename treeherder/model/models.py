@@ -1019,6 +1019,30 @@ class FailureLine(models.Model):
             es_line.save()
             return es_line
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'job_guid': self.job_guid,
+            'repository': self.repository_id,
+            'job_log': self.job_log_id,
+            'action': self.action,
+            'line': self.line,
+            'test': self.test,
+            'subtest': self.subtest,
+            'status': self.status,
+            'expected': self.expected,
+            'message': self.message,
+            'signature': self.signature,
+            'level': self.level,
+            'stack': self.stack,
+            'stackwalk_stdout': self.stackwalk_stdout,
+            'stackwalk_stderr': self.stackwalk_stderr,
+            'best_classification': self.best_classification_id,
+            'best_is_verified': self.best_is_verified,
+            'created': self.created,
+            'modified': self.modified,
+        }
+
 
 class Group(models.Model):
     """
