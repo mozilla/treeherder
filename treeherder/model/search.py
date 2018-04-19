@@ -93,29 +93,6 @@ class TestFailureLine(RoutedDocType):
             return rv
 
 
-def es_connected(default=None):
-    """Decorator that runs the decorated function only if we have an
-    elasticsearch connection, and otherwise returns a default value.
-
-    :param default: The default value to return in the absence of a
-    decorator"""
-    logged_warning = [False]
-
-    def decorator(func):
-        @wraps(func)
-        def inner(*args, **kwargs):
-            if connection is None:
-                if not logged_warning[0]:
-                    logger.warning(
-                        "Tried to use elasticsearch with %s, but no connection found.",
-                        func.__name__)
-                    logged_warning[0] = True
-                return default
-            return func(*args, **kwargs)
-        return inner
-    return decorator
-
-
 def doctypes():
     """List of all DocType subclasses"""
     return [item for item in globals().values()
