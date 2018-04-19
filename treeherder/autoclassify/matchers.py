@@ -9,15 +9,13 @@ from difflib import SequenceMatcher
 
 from django.conf import settings
 from django.db.models import Q
-from elasticsearch_dsl.query import Match as ESMatch
 from six import add_metaclass
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
 from treeherder.model.models import (MatcherManager,
                                      TextLogError,
                                      TextLogErrorMatch)
-from treeherder.model.search import (TestFailureLine,
-                                     es_connected)
+from treeherder.services.elasticsearch import search
 
 logger = logging.getLogger(__name__)
 
@@ -175,39 +173,59 @@ class ElasticSearchTestMatcher(Matcher):
         self.lines = 0
         self.calls = 0
 
-    @es_connected(default=[])
     @with_failure_lines
     def __call__(self, text_log_errors):
+        if not settings.ELASTICSEARCH_URL:
+            return []
+
         return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
 
     def query_best(self, text_log_error):
         failure_line = text_log_error.metadata.failure_line
+
         if failure_line.action != "test_result" or not failure_line.message:
             logger.debug("Skipped elasticsearch matching")
             return
-        match = ESMatch(message={"query": failure_line.message[:1024],
-                                 "type": "phrase"})
-        search = (TestFailureLine.search()
-                  .filter("term", test=failure_line.test)
-                  .filter("term", status=failure_line.status)
-                  .filter("term", expected=failure_line.expected)
-                  .filter("exists", field="best_classification")
-                  .query(match))
+
+        filters = [
+            {'term': {'test': failure_line.test}},
+            {'term': {'status': failure_line.status}},
+            {'term': {'expected': failure_line.expected}},
+            {'exists': {'field': 'best_classification'}}
+        ]
         if failure_line.subtest:
-            search = search.filter("term", subtest=failure_line.subtest)
+            query = filters.append({'term': {'subtest': failure_line.subtest}})
+
+        query = {
+            'query': {
+                'bool': {
+                    'filter': filters,
+                    'must': [{
+                        'match': {
+                            'message': {
+                                'query': failure_line.message[:1024],
+                                'type': 'phrase'
+                            },
+                        },
+                    }],
+                },
+            },
+        }
+
         try:
             self.calls += 1
-            resp = search.execute()
+            results = search(query)
         except Exception:
             logger.error("Elastic search lookup failed: %s %s %s %s %s",
                          failure_line.test, failure_line.subtest, failure_line.status,
                          failure_line.expected, failure_line.message)
             raise
+
         scorer = MatchScorer(failure_line.message)
-        matches = [(item, item.message) for item in resp]
+        matches = [(item, item['message']) for item in results]
         best_match = scorer.best_match(matches)
         if best_match:
-            return (best_match[1].best_classification, best_match[0])
+            return (best_match[1]['best_classification'], best_match[0])
 
 
 class CrashSignatureMatcher(Matcher):
