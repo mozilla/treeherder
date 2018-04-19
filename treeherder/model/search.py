@@ -119,27 +119,6 @@ def es_connected(default=None):
 
 
 @es_connected()
-def bulk_insert(items):
-    """
-    Insert multiple items into ElasticSearch setting their routing value
-
-    :param items: An iterable containing items that are
-    instances of subclasses of elasticsearch_dsl.DocType
-    """
-    bulk_data = []
-    for item in items:
-        data = item.to_dict(include_meta=True)
-        data["_routing"] = item.routing
-        bulk_data.append(data)
-
-    try:
-        return bulk(connection, bulk_data)
-    except Exception as e:
-        logger.error(e)
-        raise
-
-
-@es_connected()
 def bulk_delete(cls, ids_routing):
     """Delete multiple items from elasticsearch by document id
 
