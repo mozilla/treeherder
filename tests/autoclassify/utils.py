@@ -2,15 +2,15 @@ import datetime
 
 from django.conf import settings
 from mozlog.formatters.tbplformatter import TbplFormatter
+
 from treeherder.model.models import (FailureLine,
                                      Job,
                                      MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata,
                                      TextLogStep)
-
-from ..services.elasticsearch import es_conn
-from ..services.elasticsearch.mapping import INDEX_NAME
+from treeherder.services.elasticsearch import es_conn
+from treeherder.services.elasticsearch.mapping import INDEX_NAME
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
