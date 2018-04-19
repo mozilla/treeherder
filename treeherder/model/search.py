@@ -3,8 +3,6 @@ from functools import wraps
 
 import certifi
 from django.conf import settings
-from elasticsearch.helpers import (BulkIndexError,
-                                   bulk)
 from elasticsearch_dsl import (Boolean,
                                DocType,
                                Index,
@@ -116,28 +114,6 @@ def es_connected(default=None):
             return func(*args, **kwargs)
         return inner
     return decorator
-
-
-@es_connected()
-def bulk_delete(cls, ids_routing):
-    """Delete multiple items from elasticsearch by document id
-
-    :param cls: The DocType subclass of the items being deleted.
-    :param ids_routing: Iterable of (document ids, routing key) to delete."""
-    actions = []
-    for (id, routing) in ids_routing:
-        actions.append({
-            '_op_type': 'delete',
-            '_index': cls._doc_type.index,
-            '_type': cls._doc_type.name,
-            '_id': id,
-            '_routing': routing})
-    try:
-        bulk(connection, actions)
-    except BulkIndexError:
-        # Probably this happened because we tried to delete some things that didn't
-        # actually exist in the first place
-        pass
 
 
 def refresh_all():
