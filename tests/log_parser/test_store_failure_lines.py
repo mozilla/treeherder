@@ -10,7 +10,7 @@ from treeherder.log_parser.failureline import (store_failure_lines,
 from treeherder.model.models import (FailureLine,
                                      Group,
                                      JobLog)
-from treeherder.model.search import TestFailureLine as _TestFailureLine
+from treeherder.services.elasticsearch import get_document
 
 from ..sampledata import SampleData
 
@@ -190,8 +190,8 @@ def test_store_error_summary_elastic_search(activate_responses, test_repository,
 
     failure = FailureLine.objects.get(pk=1)
 
-    es_line = _TestFailureLine.get(1, routing=failure.test)
+    es_line = get_document(1)
     for prop in ["test", "subtest", "status", "expected"]:
-        assert getattr(es_line, prop) == getattr(failure, prop)
-    assert es_line.best_classification is None
-    assert es_line.best_is_verified is False
+        assert es_line[prop] == getattr(failure, prop)
+    assert es_line['best_classification'] is None
+    assert es_line['best_is_verified'] is False

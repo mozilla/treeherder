@@ -17,12 +17,6 @@ PULSE_EXCHANGE_NAMESPACE = 'test'
 BUGFILER_API_KEY = "12345helloworld"
 BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 
-# ELASTIC SEARCH
-# Prefix indices used in tests to avoid clobbering data
-ELASTIC_SEARCH.update({
-    "index_prefix": "test",
-})
-
 AUTOCLASSIFY_JOBS = True
 
 # some of the auth/login tests can be faster if we don't require "django_db"
