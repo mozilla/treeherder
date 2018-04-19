@@ -19,9 +19,8 @@ from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from .search import (TestFailureLine,
-                     es_connected)
-from ..services.elasticsearch import bulk
+from ..services.elasticsearch import (bulk,
+                                      index)
 from ..utils.queryset import chunked_qs
 
 logger = logging.getLogger(__name__)
@@ -1016,12 +1015,11 @@ class FailureLine(models.Model):
         classification, _ = self.set_classification(manual_detector)
         self.mark_best_classification_verified(classification)
 
-    @es_connected()
     def elastic_search_insert(self):
-        es_line = TestFailureLine.from_model(self)
-        if es_line:
-            es_line.save()
-            return es_line
+        if not settings.ELASTICSEARCH_URL:
+            return
+
+        index(self)
 
     def to_dict(self):
         return {
