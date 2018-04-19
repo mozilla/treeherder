@@ -175,6 +175,11 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': True,
         },
+        'elasticsearch.trace': {
+            'filters': ['require_debug_true'],
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
         'hawkrest': {
             'handlers': ['console'],
             'level': 'WARNING',
@@ -582,5 +587,6 @@ ELASTIC_SEARCH = {
     "url": env.str('ELASTICSEARCH_URL', default=""),
     "index_prefix": ""
 }
+ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
 
 TRUNK_REPO_NAMES = ['mozilla-central', 'mozilla-inbound', 'autoland', 'fx-team']
