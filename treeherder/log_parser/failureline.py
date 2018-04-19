@@ -14,8 +14,7 @@ from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
                                      Group,
                                      JobLog)
-from treeherder.model.search import (TestFailureLine,
-                                     bulk_insert)
+from treeherder.services.elasticsearch import bulk
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +81,10 @@ def write_failure_lines(job_log, log_iter):
             log_list = list(transformer(log_list))
             failure_lines = create(job_log, log_list)
 
-    create_es(failure_lines)
+    if settings.ELASTICSEARCH_URL:
+        # store the FailureLines in Elasticsearch
+        bulk(failure_lines)
+
     return failure_lines
 
 
@@ -131,16 +133,6 @@ def create(job_log, log_list):
                      for failure_line in log_list]
     job_log.update_status(JobLog.PARSED)
     return failure_lines
-
-
-def create_es(failure_lines):
-    # Store the failure lines in elastic_search
-    es_lines = []
-    for failure_line in failure_lines:
-        es_line = TestFailureLine.from_model(failure_line)
-        if es_line:
-            es_lines.append(es_line)
-    bulk_insert(es_lines)
 
 
 def replace_astral(log_list):
