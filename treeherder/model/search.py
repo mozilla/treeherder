@@ -116,17 +116,6 @@ def es_connected(default=None):
     return decorator
 
 
-def refresh_all():
-    """Refresh all elasticsearch indicies. This is only intended for
-    test use, so that inserted documents are updated immediately and
-    tests are not random"""
-    if connection is None:
-        logger.error("Must have an elastic search connection")
-        raise ValueError("Tried to elasticsearch with no connection specified")
-    logger.info("Refreshing all es indices")
-    return connection.indices.refresh()
-
-
 def doctypes():
     """List of all DocType subclasses"""
     return [item for item in globals().values()
