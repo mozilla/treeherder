@@ -66,6 +66,17 @@ treeherder.factory('PhAlerts', [
                 return this.status === status.id;
             };
         });
+        Alert.prototype.toggleSignificance = function () {
+            const alert = this;
+            const toggledSignificance = !this.significant;
+            this.modify({
+                significant: toggledSignificance
+            }).then(
+                function () {
+                    alert.significant = toggledSignificance;
+                }
+            );
+        };
 
         const AlertSummary = function (alertSummaryData, optionCollectionMap) {
             Object.assign(this, alertSummaryData);

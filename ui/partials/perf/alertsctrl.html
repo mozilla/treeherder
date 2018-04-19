@@ -140,6 +140,13 @@
             <a ng-if="alert.series_signature.has_subtests" href="{{alert.getSubtestsURL(alertSummary)}}" target="_blank" rel="noopener">subtests</a>
           </span>
         </td>
+        <td class="alert-labels">
+          <button class="btn"
+                  ng-class="{'btn-primary visible': alert.significant, 'btn-outline-secondary': !alert.significant}"
+                  ng-click="alert.toggleSignificance()">
+            significant
+          </button>
+        </td>
         <td class="alert-value">{{alert.prev_value|number}}</td>
         <td class="alert-comparison">
           <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">

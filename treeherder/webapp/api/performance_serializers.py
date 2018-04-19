@@ -98,7 +98,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
                   'amount_pct', 'summary_id', 'related_summary_id',
-                  'manually_created', 'classifier']
+                  'manually_created', 'classifier', 'significant']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):

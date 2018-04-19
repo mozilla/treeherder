@@ -335,6 +335,14 @@ ph-compare-table hr {
     color: #23527c;
 }
 
+.compare-table td.alert-labels button {
+    visibility: hidden;
+}
+
+.compare-table tr:hover td.alert-labels button {
+    visibility: visible;
+}
+
 .compare-table .num-runs {
     text-align: right;
 }
