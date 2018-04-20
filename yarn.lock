@@ -7046,9 +7046,9 @@ tar@^4:
     safe-buffer "^5.1.1"
     yallist "^3.0.2"
 
-taskcluster-client-web@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-6.0.0.tgz#1464255089476b32b0ddf8986b4e04dbb3f992d7"
+taskcluster-client-web@7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-7.0.0.tgz#a05a4c7f629fee2f5472e499c16dedb78781ff54"
   dependencies:
     hawk "^6.0.2"
     query-string "^5.0.0"
