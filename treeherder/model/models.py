@@ -19,8 +19,9 @@ from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from .search import (TestFailureLine,
-                     es_connected)
+from ..services.elasticsearch import (bulk,
+                                      index)
+from ..utils.queryset import chunked_qs
 
 logger = logging.getLogger(__name__)
 
@@ -370,9 +371,6 @@ class JobManager(models.Manager):
         Delete data older than cycle_interval, splitting the target data into
         chunks of chunk_size size. Returns the number of result sets deleted
         """
-        from treeherder.model.search import bulk_delete as es_delete
-        from treeherder.model.search import TestFailureLine
-        from treeherder.utils.queryset import chunked_qs
 
         # Retrieve list of jobs to delete
         jobs_max_timestamp = datetime.datetime.now() - cycle_interval
@@ -390,14 +388,19 @@ class JobManager(models.Manager):
             # foreign key relation
             lines = FailureLine.objects.filter(job_guid__in=jobs_chunk)
 
-            if settings.ELASTIC_SEARCH["url"]:
-                # To delete the data from elasticsearch we need both the
-                # document id and the test, since this is used to determine the
-                # shard on which the document is indexed. However selecting all
-                # this data can be rather slow, so split the job into multiple
-                # smaller chunks.
-                for rows in chunked_qs(lines, chunk_size=chunk_size, fields=['id', 'test']):
-                    es_delete(TestFailureLine, [(line.id, line.test) for line in rows])
+            if settings.ELASTICSEARCH_URL:
+                # To delete the data from elasticsearch we need the document
+                # id.  However selecting all this data can be rather slow, so
+                # split the job into multiple smaller chunks.
+
+                failures = itertools.chained(
+                    chunked_qs(
+                        lines,
+                        chunk_size=chunk_size,
+                        fields=['id', 'test'],
+                    ),
+                )
+                bulk(failures, action='delete')
 
             lines.delete()
 
@@ -1012,12 +1015,35 @@ class FailureLine(models.Model):
         classification, _ = self.set_classification(manual_detector)
         self.mark_best_classification_verified(classification)
 
-    @es_connected()
     def elastic_search_insert(self):
-        es_line = TestFailureLine.from_model(self)
-        if es_line:
-            es_line.save()
-            return es_line
+        if not settings.ELASTICSEARCH_URL:
+            return
+
+        index(self)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'job_guid': self.job_guid,
+            'repository': self.repository_id,
+            'job_log': self.job_log_id,
+            'action': self.action,
+            'line': self.line,
+            'test': self.test,
+            'subtest': self.subtest,
+            'status': self.status,
+            'expected': self.expected,
+            'message': self.message,
+            'signature': self.signature,
+            'level': self.level,
+            'stack': self.stack,
+            'stackwalk_stdout': self.stackwalk_stdout,
+            'stackwalk_stderr': self.stackwalk_stderr,
+            'best_classification': self.best_classification_id,
+            'best_is_verified': self.best_is_verified,
+            'created': self.created,
+            'modified': self.modified,
+        }
 
 
 class Group(models.Model):

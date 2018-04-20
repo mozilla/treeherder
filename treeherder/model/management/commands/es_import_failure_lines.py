@@ -1,12 +1,13 @@
 import time
 
 from django.core.management.base import BaseCommand
-from elasticsearch_dsl import Search
 
 from treeherder.model.models import FailureLine
-from treeherder.model.search import (TestFailureLine,
-                                     bulk_insert,
-                                     connection)
+from treeherder.services.elasticsearch import (bulk,
+                                               count_index,
+                                               es_conn,
+                                               reinit_index)
+from treeherder.services.elasticsearch.mapping import INDEX_NAME
 from treeherder.utils.queryset import chunked_qs
 
 
@@ -40,10 +41,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if options["recreate"]:
-            connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
-            TestFailureLine.init()
-        elif connection.indices.exists(TestFailureLine._doc_type.index):
+        if options['recreate']:
+            reinit_index()
+        elif INDEX_NAME in es_conn.send_request('GET', '*').keys():
+            # get the index name from the all indicies listing
             self.stderr.write("Index already exists; can't perform import")
             return
 
@@ -62,14 +63,11 @@ class Command(BaseCommand):
 
         failure_lines = FailureLine.objects.filter(action='test_result')
         for rows in chunked_qs(failure_lines, options['chunk_size'], fields=fields):
-            if not rows:
-                break
-
-            es_lines = [TestFailureLine.from_model(line) for line in rows]
-            self.stdout.write("Inserting %i rows" % len(es_lines))
-            bulk_insert(es_lines)
+            inserted = bulk(rows)
+            msg = 'Inserted {} documents from {} FailureLines'
+            self.stdout.write(msg.format(inserted, len(rows)))
 
             time.sleep(options['sleep'])
 
-        count = Search(doc_type=TestFailureLine).count()
-        self.stdout.write("Index contains %i documents" % count)
+        count = count_index()
+        self.stdout.write('Index contains {} documents'.format(count))

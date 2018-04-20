@@ -14,10 +14,11 @@ from treeherder.model.models import (FailureLine,
                                      JobType,
                                      Machine,
                                      Push)
-from treeherder.model.search import TestFailureLine as _TestFailureLine
-from treeherder.model.search import refresh_all
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
+from treeherder.services.elasticsearch import (all_documents,
+                                               count_index,
+                                               refresh_index)
 
 
 def test_cycle_all_data(test_repository, failure_classifications, sample_data,
@@ -36,7 +37,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
 
     call_command('cycle_data', sleep_time=0, days=1)
 
-    refresh_all()
+    refresh_index()
 
     # There should be no jobs or failure lines after cycling
     assert Job.objects.count() == 0
@@ -45,7 +46,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert JobLog.objects.count() == 0
 
     # There should be nothing in elastic search after cycling
-    assert _TestFailureLine.search().count() == 0
+    assert count_index() == 0
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
@@ -86,7 +87,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     num_job_logs_before = JobLog.objects.count()
 
     call_command('cycle_data', sleep_time=0, days=1, debug=True)
-    refresh_all()
+    refresh_index()
 
     assert Job.objects.count() == 1
     assert JobLog.objects.count() == (num_job_logs_before -
@@ -96,7 +97,10 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         assert (set(item.id for item in object_type.objects.all()) ==
                 set(item.id for item in objects))
 
-    assert set(int(item.meta.id) for item in _TestFailureLine.search().execute()) == set(item.id for item in extra_objects["failure_lines"][1])
+    # get all documents
+    indexed_ids = set(int(item['id']) for item in all_documents())
+    expected = set(item.id for item in extra_objects["failure_lines"][1])
+    assert indexed_ids == expected
 
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
@@ -116,16 +120,16 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
 
-    assert _TestFailureLine.search().count() > 0
+    assert count_index() > 0
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
-    refresh_all()
+    refresh_index()
 
     # There should be no jobs after cycling
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
-    assert _TestFailureLine.search().count() == 0
+    assert count_index() == 0
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,

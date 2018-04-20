@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
@@ -8,7 +9,8 @@ from treeherder.model.models import (FailureLine,
                                      TextLogError,
                                      TextLogErrorMetadata,
                                      TextLogStep)
-from treeherder.model.search import refresh_all
+from treeherder.services.elasticsearch import es_conn
+from treeherder.services.elasticsearch.mapping import INDEX_NAME
 
 test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
              "status": "FAIL", "expected": "PASS", "message": "message1"}
@@ -45,7 +47,8 @@ def create_failure_lines(job, failure_line_list,
         failure_line.elastic_search_insert()
         failure_lines.append(failure_line)
 
-    refresh_all()
+    if settings.ELASTICSEARCH_URL:
+        es_conn.refresh(INDEX_NAME)
 
     return failure_lines
 

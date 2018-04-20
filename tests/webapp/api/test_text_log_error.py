@@ -14,7 +14,7 @@ from treeherder.model.models import (BugJobMap,
                                      MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata)
-from treeherder.model.search import TestFailureLine as _TestFailureLine
+from treeherder.services.elasticsearch import get
 
 
 def test_get_error(client, text_log_errors_failure_lines):
@@ -74,9 +74,9 @@ def test_update_error_verify(client,
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = _TestFailureLine.get(failure_line.id, routing=failure_line.test)
-    assert es_line.best_classification == classified_failures[0].id
-    assert es_line.best_is_verified
+    es_line = get(failure_line.id)
+    assert es_line['best_classification'] == classified_failures[0].id
+    assert es_line['best_is_verified']
 
 
 def test_update_error_replace(client,
@@ -463,9 +463,9 @@ def test_update_error_verify_bug(client,
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = _TestFailureLine.get(failure_line.id, routing=failure_line.test)
-    assert es_line.best_classification == classified_failures[0].id
-    assert es_line.best_is_verified
+    es_line = get(failure_line.id)
+    assert es_line['best_classification'] == classified_failures[0].id
+    assert es_line['best_is_verified']
 
 
 def test_update_error_verify_new_bug(client,

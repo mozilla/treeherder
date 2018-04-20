@@ -1,32 +1,41 @@
-from treeherder.model import search
+from treeherder.services.elasticsearch import (all_documents,
+                                               count_index,
+                                               es_conn,
+                                               refresh_index)
+from treeherder.services.elasticsearch.mapping import (DOC_TYPE,
+                                                       INDEX_NAME)
 
 
 def test_store_none_subtest(elasticsearch):
-    doc = search.TestFailureLine(job_guid="1234",
-                                 test="test",
-                                 subtest=None,
-                                 status="FAIL",
-                                 expected="PASS",
-                                 message="Example")
-    doc.save()
-    assert doc.subtest is None
-    search.refresh_all()
+    doc = {
+        'job_guid': '1234',
+        'test': 'test',
+        'subtest': None,
+        'status': 'FAIL',
+        'expected': 'PASS',
+        'message': 'Example',
+    }
+    es_conn.index(INDEX_NAME, DOC_TYPE, doc)
 
-    docs = search.TestFailureLine.search().execute()
-    assert len(docs) == 1
-    assert docs[0].subtest is None
+    refresh_index()
+
+    docs = all_documents()
+    assert 'subtest' not in docs[0]
+    assert count_index() == 1
 
 
 def test_store_no_subtest(elasticsearch):
-    doc = search.TestFailureLine(job_guid="1234",
-                                 test="test",
-                                 status="FAIL",
-                                 expected="PASS",
-                                 message="Example")
-    doc.save()
-    assert doc.subtest is None
-    search.refresh_all()
+    doc = {
+        'job_guid': '1234',
+        'test': 'test',
+        'status': 'FAIL',
+        'expected': 'PASS',
+        'message': 'Example',
+    }
+    es_conn.index(INDEX_NAME, DOC_TYPE, doc)
 
-    docs = search.TestFailureLine.search().execute()
-    assert len(docs) == 1
-    assert docs[0].subtest is None
+    refresh_index()
+
+    docs = all_documents()
+    assert 'subtest' not in docs[0]
+    assert count_index() == 1
