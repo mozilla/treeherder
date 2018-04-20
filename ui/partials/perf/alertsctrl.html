@@ -143,6 +143,8 @@
         <td class="alert-labels">
           <button class="btn"
                   ng-class="{'btn-primary visible': alert.significant, 'btn-outline-secondary': !alert.significant}"
+                  ng-disabled="!user.is_staff"
+                  ng-hide="!user.is_staff && !alert.significant"
                   ng-click="alert.toggleSignificance()">
             significant
           </button>
