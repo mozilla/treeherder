@@ -273,9 +273,8 @@ module.exports = neutrino => {
     neutrino.config
         .plugin('provide')
         .use(webpack.ProvidePlugin, {
-            $: require.resolve('jquery'),
+            // Required since AngularJS and jquery.flot don't import jQuery themselves.
             jQuery: require.resolve('jquery'),
-            'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
         });
 

@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { react2angular } from 'react2angular/index.es2015';

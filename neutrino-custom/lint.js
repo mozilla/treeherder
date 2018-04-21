@@ -60,8 +60,6 @@ module.exports = neutrino => {
                     'spaced-comment': 'off',
                 },
                 globals: [
-                    '$',
-                    'jQuery',
                     'SERVICE_DOMAIN',
                 ]
             }

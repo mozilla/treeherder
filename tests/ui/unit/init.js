@@ -10,7 +10,6 @@ import Adapter from 'enzyme-adapter-react-16';
 
 // Global variables are set here instead of with webpack.ProvidePlugin
 // because neutrino removes plugin definitions for karma runs
-window.$ = jQuery;
 window.jQuery = jQuery;
 
 configure({ adapter: new Adapter() });

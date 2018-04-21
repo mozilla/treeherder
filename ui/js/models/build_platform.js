@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import angular from 'angular';
 
 import treeherder from '../treeherder';

@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import _ from 'lodash';
 import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';

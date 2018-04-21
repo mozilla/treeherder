@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 import treeherder from '../../treeherder';
 import thWatchedRepoTemplate from '../../../partials/main/thWatchedRepo.html';
 import thWatchedRepoInfoDropDownTemplate from '../../../partials/main/thWatchedRepoInfoDropDown.html';
