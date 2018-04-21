@@ -2,6 +2,7 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything.
 
+import $ from 'jquery';
 import _ from 'lodash';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
@@ -615,7 +616,7 @@ perf.controller('GraphsCtrl', [
                         resultSetData: _.map(
                             seriesData[series.signature],
                             'push_id'),
-                        thSeries: jQuery.extend({}, series),
+                        thSeries: $.extend({}, series),
                         jobIdData: _.map(seriesData[series.signature], 'job_id'),
                         idData: _.map(seriesData[series.signature], 'id')
                     };

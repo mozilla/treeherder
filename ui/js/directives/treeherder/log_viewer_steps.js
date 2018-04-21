@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 import treeherder from '../../treeherder';
 import lvLogStepsTemplate from '../../../partials/logviewer/lvLogSteps.html';
 
