@@ -1,4 +1,6 @@
+import React from 'react';
 import { mount } from 'enzyme';
+
 import { Revision, Initials } from '../../../../ui/job-view/Revision';
 import {
   RevisionList,
