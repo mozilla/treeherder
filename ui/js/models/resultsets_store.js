@@ -2,6 +2,8 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything (such as bug 1443667).
 
+import _ from 'lodash';
+
 import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateIdHelper';
 import treeherder from '../treeherder';

@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+
 import { parseAuthor } from '../helpers/revisionHelper';
 
 export function Initials(props) {

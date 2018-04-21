@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl, getReftestUrl } from "../../helpers/urlHelper";
 import { isReftest } from "../../helpers/jobHelper";

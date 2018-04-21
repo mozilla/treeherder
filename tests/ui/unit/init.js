@@ -1,7 +1,6 @@
 // Karma/webpack entry for tests
 
 import jQuery from 'jquery';
-import _ from 'lodash';
 import React from 'react';
 // Manually import angular since angular-mocks doesn't do so itself
 import 'angular';
@@ -14,7 +13,6 @@ import Adapter from 'enzyme-adapter-react-16';
 // because neutrino removes plugin definitions for karma runs
 window.$ = jQuery;
 window.jQuery = jQuery;
-window._ = _;
 window.React = React;
 
 configure({ adapter: new Adapter() });

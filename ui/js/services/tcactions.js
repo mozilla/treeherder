@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import jsone from 'json-e';
 import { Queue } from 'taskcluster-client-web';
 

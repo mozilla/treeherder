@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { thPlatformMap } from '../js/constants';
 
 const btnClasses = {

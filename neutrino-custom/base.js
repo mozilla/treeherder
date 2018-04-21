@@ -278,7 +278,6 @@ module.exports = neutrino => {
             'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
             React: require.resolve('react'),
-            _: require.resolve('lodash'),
         });
 
     neutrino.config.devtool('source-map');

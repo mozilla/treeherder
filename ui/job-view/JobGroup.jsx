@@ -1,5 +1,6 @@
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash';
+
 import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
 import { getBtnClass, getStatus } from "../helpers/jobHelper";

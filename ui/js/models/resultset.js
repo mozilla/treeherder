@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import angular from 'angular';
 import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';

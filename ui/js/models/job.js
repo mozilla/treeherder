@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import angular from 'angular';
 
 import treeherder from '../treeherder';

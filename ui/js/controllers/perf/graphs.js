@@ -2,6 +2,7 @@
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything.
 
+import _ from 'lodash';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
 

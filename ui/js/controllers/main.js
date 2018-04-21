@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';

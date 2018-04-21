@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
 
 const thTaskcluster = (() => {
