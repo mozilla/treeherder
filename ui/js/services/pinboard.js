@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import treeherder from '../treeherder';
 import { thPinboardCountError, thEvents } from "../constants";
 

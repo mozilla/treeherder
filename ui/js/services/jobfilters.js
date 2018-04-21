@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 
+import _ from 'lodash';
+
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/jobHelper';
 import { thFailureResults, thDefaultFilterResultStates, thEvents } from "../constants";

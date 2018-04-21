@@ -1,6 +1,7 @@
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash';
+
 import { thPlatformMap, thEvents } from '../js/constants';
 import { getPushTableId, getPlatformRowId } from '../helpers/aggregateIdHelper';
 import Platform from './Platform';

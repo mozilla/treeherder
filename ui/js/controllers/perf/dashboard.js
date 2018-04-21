@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import perf from '../../perf';
 import { thDefaultRepo, phBlockers, phTimeRanges } from "../../constants";
 

@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import treeherder from '../treeherder';
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';

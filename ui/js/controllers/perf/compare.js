@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';

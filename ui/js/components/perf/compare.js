@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import treeherder from '../../treeherder';
 import trendTableTemplate from '../../../partials/perf/trendtable.html';
 import compareTableTemplate from '../../../partials/perf/comparetable.html';

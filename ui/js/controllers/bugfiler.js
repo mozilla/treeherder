@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import treeherder from '../treeherder';
 import { getApiUrl } from "../../helpers/urlHelper";
 

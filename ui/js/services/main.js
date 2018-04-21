@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import treeherder from '../treeherder';
 import tcJobActionsTemplate from '../../partials/main/tcjobactions.html';
 import { thPlatformMap } from '../constants';
