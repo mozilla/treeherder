@@ -62,7 +62,6 @@ module.exports = neutrino => {
                 globals: [
                     '$',
                     'jQuery',
-                    'React',
                     'SERVICE_DOMAIN',
                 ]
             }

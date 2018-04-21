@@ -277,7 +277,6 @@ module.exports = neutrino => {
             jQuery: require.resolve('jquery'),
             'window.$': require.resolve('jquery'),
             'window.jQuery': require.resolve('jquery'),
-            React: require.resolve('react'),
         });
 
     neutrino.config.devtool('source-map');
