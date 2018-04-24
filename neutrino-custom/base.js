@@ -52,6 +52,8 @@ module.exports = neutrino => {
             'prop-types',
             'react',
             'react-dom',
+            'react-highlight-words',
+            'react-select',
             'taskcluster-client-web'
         ];
         jsDeps.map(dep =>

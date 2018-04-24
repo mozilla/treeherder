@@ -272,6 +272,7 @@ export const thEvents = {
   autoclassifyChangeSelection: "ac-change-selection-EVT",
   autoclassifyToggleExpandOptions: "ac-toggle-expand-options-EVT",
   autoclassifyToggleEdit: "ac-toggle-edit-EVT",
+  autoclassifyOpenLogViewer: "ac-open-log-viewer-EVT",
   selectRunnableJob: "select-runnable-job-EVT",
 };
 

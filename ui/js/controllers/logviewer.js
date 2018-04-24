@@ -1,5 +1,5 @@
 import logViewerApp from '../logviewer';
-import { getInspectTaskUrl } from "../../helpers/urlHelper";
+import { getInspectTaskUrl, getReftestUrl } from "../../helpers/urlHelper";
 import { isReftest } from "../../helpers/jobHelper";
 import { thDateFormat } from "../constants";
 
@@ -162,7 +162,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 $scope.logViewerTitle = job.get_title();
 
                 if (job.logs && job.logs.length) {
-                    $scope.rawLogURL = job.logs[0].url;
+                    $scope.reftestUrl = `${getReftestUrl(job.logs[0].url)}&only_show_unexpected=1`;
                 }
 
                 // set the result value and shading color class
