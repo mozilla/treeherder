@@ -69,7 +69,7 @@ treeherder.controller('PluginCtrl', [
                 failTab = "autoClassification";
             }
 
-            $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
+            // $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
             // the success tabs should be "performance" if job was not a build
             const jobType = job.job_type_name;
             if (hasPerformanceData && jobType !== "Build" && jobType !== "Nightly" &&
