@@ -1,6 +1,6 @@
-boolean_notanalyzed = {'type': 'boolean', 'index': 'not_analyzed'}
-integer_notanalyzed = {'type': 'integer', 'index': 'not_analyzed'}
-keyword_notanalyzed = {'type': 'keyword', 'index': 'not_analyzed'}
+boolean = {'type': 'boolean'}
+integer = {'type': 'integer'}
+keyword = {'type': 'keyword'}
 
 DOC_TYPE = 'failure-line'
 INDEX_NAME = 'failure-lines'
@@ -10,13 +10,13 @@ INDEX_SETTINGS = {
         'mappings': {
             'failure-line': {
                 'properties': {
-                    'job_guid': keyword_notanalyzed,
-                    'test': keyword_notanalyzed,
-                    'subtest': keyword_notanalyzed,
-                    'status': keyword_notanalyzed,
-                    'expected': keyword_notanalyzed,
-                    'best_classification': integer_notanalyzed,
-                    'best_is_verified': boolean_notanalyzed,
+                    'job_guid': keyword,
+                    'test': keyword,
+                    'subtest': keyword,
+                    'status': keyword,
+                    'expected': keyword,
+                    'best_classification': integer,
+                    'best_is_verified': boolean,
                     'message': {
                         'type': 'text',
                         'analyzer': 'message_analyzer',
