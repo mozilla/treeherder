@@ -201,11 +201,8 @@ class ElasticSearchTestMatcher(Matcher):
                 'bool': {
                     'filter': filters,
                     'must': [{
-                        'match': {
-                            'message': {
-                                'query': failure_line.message[:1024],
-                                'type': 'phrase'
-                            },
+                        'match_phrase': {
+                            'message': failure_line.message[:1024],
                         },
                     }],
                 },
