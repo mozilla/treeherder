@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { react2angular } from 'react2angular/index.es2015';
 
 import ErrorLineData from './autoclassify/ErrorLineModel';
 import AutoclassifyToolbar from './autoclassify/AutoclassifyToolbar';
@@ -11,6 +12,7 @@ import treeherder from "../js/treeherder";
 class AutoclassifyTab extends React.Component {
   static getDerivedStateFromProps(nextProps) {
     const { user } = nextProps;
+
     return { canClassify: user.loggedin && user.is_staff };
   }
 
@@ -37,7 +39,7 @@ class AutoclassifyTab extends React.Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.$rootScope.$on(thEvents.jobClick, () => {
       this.setState({
         loadStatus: "loading",
@@ -58,7 +60,7 @@ class AutoclassifyTab extends React.Component {
       thEvents.autoclassifySaveAll,
       () => {
         const pendingLines = Array.from(this.state.inputByLine.values());
-        if (this.canSave(pendingLines)) {
+        if (pendingLines.every(line => this.canSave(line.id))) {
           this.onSaveAll(pendingLines);
         } else {
           const msg = (this.state.canClassify ? "lines not classified" : "Not logged in");
@@ -69,10 +71,12 @@ class AutoclassifyTab extends React.Component {
     this.$rootScope.$on(
       thEvents.autoclassifySave,
       () => {
-        if (this.canSave()) {
+        const { selectedLineIds, canClassify } = this.state;
+
+        if (Array.from(selectedLineIds).every(id => this.canSave(id))) {
           this.onSave();
         } else {
-          const msg = (this.state.canClassify ? "selected lines not classified" : "Not logged in");
+          const msg = (canClassify ? "selected lines not classified" : "Not logged in");
           this.thNotify.send(`Can't save: ${msg}`, "danger");
         }
       }
@@ -101,6 +105,10 @@ class AutoclassifyTab extends React.Component {
     this.onPin = this.onPin.bind(this);
     this.save = this.save.bind(this);
 
+    // Cache the errorMatchers if we don't already have them loaded.
+    if (!this.state.errorMatchers) {
+      this.fetchErrorMatchers();
+    }
     // Load the data here
     if (this.props.job.id) {
       this.fetchErrorData();
@@ -175,14 +183,12 @@ class AutoclassifyTab extends React.Component {
   /**
    * Pre-determined selection changes, typically for use in response to
    * key events.
-   * @param {string} direction - 'next': select the row after the last selected row or
-   *                                     the next job if this is the last row (and clear
-   *                                     is false)
-   *                             'previous': select the row before the first selected row
-   *                                         or move to the previous job if the first row
-   *                                         is selected and clear is false.
+   * @param {string} direction - 'next': move selection down one row if clear is true.
+   *                                 If clear is false, extend the selection down one row.
+   *                             'previous': move selection up one row if clear is true.
+   *                                 If clear is false, extend the selection up one row.
    *                             'all_next': Select all rows in the current job after the
-   *                                         current selected row.
+   *                                 current selected row.
    * @param {boolean} clear - Clear the current selection before selecting new elements
    */
   onChangeSelection(direction, clear) {
@@ -281,6 +287,14 @@ class AutoclassifyTab extends React.Component {
     this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [job.id]: job } });
   }
 
+  async fetchErrorMatchers() {
+    const matcherResp = await fetch(getApiUrl("/matcher/"));
+    const matcherData = await matcherResp.json();
+    const errorMatchers = matcherData.reduce(
+      (matchersById, matcher) => matchersById.set(matcher.id, matcher), new Map());
+    this.setState({ errorMatchers });
+  }
+
   /**
    * Get TextLogerror data from the API
    */
@@ -288,31 +302,23 @@ class AutoclassifyTab extends React.Component {
     const { job } = this.props;
 
     if (job.id) {
-      const matcherResp = await fetch(getApiUrl("/matcher/"));
-      const matcherData = await matcherResp.json();
-      const errorMatchers = matcherData.reduce(
-        (matchersById, matcher) => matchersById.set(matcher.id, matcher), new Map());
       const errorLineResp = await fetch(getProjectJobUrl('/text_log_errors/', job.id));
       const errorLineData = await errorLineResp.json();
       const errorLines = errorLineData.map(line => new ErrorLineData(line))
         .sort((a, b) => a.data.id - b.data.id);
-      // Lines that are selected
-      let selectedLineIds;
-      let editableLines;
 
       if (errorLines.length) {
         const selected = errorLines.find(line => !line.verified);
-        selectedLineIds = new Set([selected.id]);
-        editableLines = errorLines.reduce((pending, line) => (
-          !line.verified ? { ...pending, [line.id]: line } : pending
-        ), {});
+        this.setState({
+          selectedLineIds: new Set([selected ? selected.id : null]),
+          editableLines: errorLines.reduce((pending, line) => (
+            !line.verified ? { ...pending, [line.id]: line } : pending
+          ), {}),
+        });
       }
 
       this.setState({
         errorLines,
-        errorMatchers,
-        selectedLineIds,
-        editableLines,
         loadStatus: 'ready'
       });
     }
@@ -324,6 +330,7 @@ class AutoclassifyTab extends React.Component {
    * @param {number} lineId - Line id to test.
    */
   canSave(lineId) {
+    console.log("canSave", lineId);
     const { inputByLine, canClassify } = this.state;
     const settings = inputByLine.get(lineId);
 
@@ -377,8 +384,8 @@ class AutoclassifyTab extends React.Component {
           const idx = newLines.findIndex(line => line.id === updatedLine.id);
           newLines[idx] = new ErrorLineData(updatedLine);
           return newLines;
-        }, errorLines);
-        this.setState({ errorLines: [...newErrorLines], loadStatus: "ready" });
+        }, [...errorLines]);
+        this.setState({ errorLines: newErrorLines, loadStatus: "ready" });
       })
       .catch((err) => {
         const prefix = "Error saving classifications: ";
@@ -531,5 +538,7 @@ AutoclassifyTab.defaultProps = {
   logParseStatus: 'pending',
 };
 
-treeherder.directive('autoclassifyTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
-  reactDirective(AutoclassifyTab, undefined, {}, { $injector })]);
+treeherder.component('autoclassifyTab', react2angular(
+  AutoclassifyTab,
+  ['job', 'hasLogs', 'autoclassifyStatus', 'user', 'logsParsed', 'logParseStatus'],
+  ['$injector']));

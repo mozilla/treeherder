@@ -253,7 +253,6 @@ export default class ErrorLine extends React.Component {
    * Get the initial default option
    * @param {Object[]} options - List of line-specific options
    * @param {Object[]} extraOptions - List of line-independent options
-   * @param {Object[]} prevLine - Line before the current one in the log
    */
   getDefaultOption(options, extraOptions) {
     const { errorLine, prevErrorLine } = this.props;
