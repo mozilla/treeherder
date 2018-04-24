@@ -188,9 +188,9 @@ django-redis==4.9.0 \
 # Required by django-redis
 redis==2.10.6 --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb
 
-elasticsearch==5.5.2 \
-    --hash=sha256:2e6dcdf9cb62377e0d6b82d2931ebc67b5a549081bbb531aa3be60ece33257b2 \
-    --hash=sha256:8539e30c33fa0ad09617893a458056a35a654c92226390c30a07a3776bb8a94f  # pyup: <6 # Bug 1427598
+elasticsearch==6.2.0 \
+    --hash=sha256:503c498234dd572896e563386181d7cb966ab3db68b0b132a26c5dabfd5dde24 \
+    --hash=sha256:b106fa3e01750376a42f8a9882bd84d630fda58c7aba38b4fec797d11c0bd0a2
 
 # required by requests and elasticsearch
 urllib3==1.22 \
