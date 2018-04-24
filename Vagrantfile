@@ -13,6 +13,8 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
   # for DB access from host
   config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+  # for Elasticsearch access from host
+  config.vm.network "forwarded_port", guest: 9200, host: 9201, host_ip: "127.0.0.1"
 
   if !Vagrant::Util::Platform.windows?
     # On platforms where NFS is used (ie all but Windows), we still have to use
