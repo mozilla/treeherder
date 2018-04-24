@@ -330,7 +330,6 @@ class AutoclassifyTab extends React.Component {
    * @param {number} lineId - Line id to test.
    */
   canSave(lineId) {
-    console.log("canSave", lineId);
     const { inputByLine, canClassify } = this.state;
     const settings = inputByLine.get(lineId);
 
