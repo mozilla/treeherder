@@ -12,11 +12,11 @@ export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check
 export PYTHONWARNINGS='ignore:Overriding __eq__ blocks inheritance of __hash__ in 3.x:DeprecationWarning'
 
 setup_services() {
-    ELASTICSEARCH_VERSION="5.5.0"
+    ELASTICSEARCH_VERSION="6.2.4"
     if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
         echo '-----> Installing Elasticsearch'
         curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb"
-        sudo dpkg -i --force-confold /tmp/elasticsearch.deb
+        sudo dpkg -i --force-confnew /tmp/elasticsearch.deb
         sudo service elasticsearch restart
     else
         sudo service elasticsearch start
