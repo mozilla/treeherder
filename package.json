@@ -62,7 +62,7 @@
     "react-table": "6.8.2",
     "react2angular": "3.2.1",
     "reactstrap": "5.0.0",
-    "redux": "3.7.2",
+    "redux": "4.0.0",
     "redux-debounce": "1.0.1",
     "redux-thunk": "2.2.0",
     "taskcluster-client-web": "7.0.0"
