@@ -4,7 +4,7 @@ import angular from 'angular';
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
-import { getApiUrl } from "../../../helpers/urlHelper";
+import { getApiUrl, getJobsUrl } from "../../../helpers/urlHelper";
 import {
   thDateFormat,
   phTimeRanges,
@@ -394,14 +394,6 @@ perf.controller('AlertsCtrl', [
                 });
         };
 
-        function getJobsUrl(repo, fromChange, toChange) {
-          const urlParams = new URLSearchParams();
-          Object
-            .entries({ repo: repo, fromchange: fromChange, tochange: toChange })
-                .forEach(([k, v]) => { if (v) urlParams.append(k, v); });
-          return `index.html#/jobs?${urlParams.toString()}`;
-        }
-
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
             $scope.getMoreAlertSummariesHref = getMoreAlertSummariesHref;
 
@@ -463,10 +455,10 @@ perf.controller('AlertsCtrl', [
 
                     if (summary.prevResultSetMetadata &&
                         summary.resultSetMetadata) {
-                        summary.jobsURL = getJobsUrl(
-                            summary.repository,
-                            summary.prevResultSetMetadata.revision,
-                            summary.resultSetMetadata.revision);
+                        summary.jobsURL = getJobsUrl({
+                            repo: summary.repository,
+                            fromchange: summary.prevResultSetMetadata.revision,
+                            tochange: summary.resultSetMetadata.revision });
                         summary.pushlogURL = repo.getPushLogHref({
                             from: summary.prevResultSetMetadata.revision,
                             to: summary.resultSetMetadata.revision

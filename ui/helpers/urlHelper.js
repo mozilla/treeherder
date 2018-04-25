@@ -93,8 +93,11 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   return `/#/jobs?${params.toString()}`;
 };
 
-export const jobsUrl = function getJobsUrl(tree, revision, jobId) {
-  return `/#/jobs?repo=${tree}&revision=${revision}&selectedJob=${jobId}`;
+export const getJobsUrl = function getJobsUrl(params) {
+  const qs = Object.entries(params).reduce((acc, [key, value]) => (
+    [...acc, `${encodeURIComponent(key)}=${encodeURIComponent(value)}`]
+  ), []).join('&');
+  return `/#/jobs?${qs}`;
 };
 
 export const bugsEndpoint = 'failures/';
