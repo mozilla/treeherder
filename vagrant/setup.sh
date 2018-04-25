@@ -74,7 +74,7 @@ sudo -E apt-get -yqq install --no-install-recommends \
 if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
     echo '-----> Installing Elasticsearch'
     curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb"
-    sudo dpkg -i --confnew /tmp/elasticsearch.deb
+    sudo dpkg -i --force-confnew /tmp/elasticsearch.deb
     # Override the new ES 5.x default minimum heap size of 2GB.
     sudo sed -i 's/.*ES_JAVA_OPTS=.*/ES_JAVA_OPTS="-Xms256m -Xmx1g"/' /etc/default/elasticsearch
     sudo systemctl enable elasticsearch.service 2>&1
