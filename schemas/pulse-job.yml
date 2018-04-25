@@ -1,9 +1,8 @@
-$schema: "http://json-schema.org/draft-04/schema#"
+$schema: "http://json-schema.org/draft-06/schema#"
 title: "Job Definition"
 description: |
   Definition of a single job that can be added to Treeherder
   Project is determined by the routing key, so we don't need to specify it here.
-id: "jobDefinition"
 type: "object"
 properties:
   taskId:
@@ -47,6 +46,8 @@ properties:
         description: |
           PREFERRED: An HG job that only has a revision.  This is for all
           jobs going forward.
+        additionalProperties: false
+        title: "HG Push"
         properties:
           kind:
             type: "string"
@@ -66,6 +67,8 @@ properties:
         required: [kind, project, revision]
 
       - type: "object"
+        title: "Github Pull Request"
+        additionalProperties: false
         properties:
           kind:
             type: "string"
@@ -93,6 +96,7 @@ properties:
 
   display:
     type: "object"
+    additionalProperties: false
     properties:
       jobSymbol:
         title: "Job Symbol"
@@ -112,6 +116,7 @@ properties:
         type: "string"
         minLength: 1
         maxLength: 25
+      # could do without these if we require job type and group to exist prior
       jobName:
         title: "Job Name"
         type: "string"
@@ -149,6 +154,7 @@ properties:
       success: Build/Test executed without error or failure
       canceled: The job was cancelled by a user
       unknown: When the job is not yet completed
+      superseded: When a job has been superseded by another job
     type: "string"
     enum:
       - success
@@ -359,12 +365,13 @@ properties:
                   - canceled
                   - unknown
             required:
-            - name
-            - timeStarted
-            - lineStarted
-            - lineFinished
-            - timeFinished
-            - result
+              - name
+              - timeStarted
+              - lineStarted
+              - lineFinished
+              - timeFinished
+              - result
+            additionalProperties: false
         errorsTruncated:
           type: boolean
           description: |
@@ -378,6 +385,9 @@ properties:
     description: Extra information that Treeherder reads on a best-effort basis
   version:
     type: "integer"
+    description: Message version
+    enum:
+      - 1
 
 
 additionalProperties: false
@@ -418,3 +428,4 @@ definitions:
       - platform
       - os
       - architecture
+    additionalProperties: false
