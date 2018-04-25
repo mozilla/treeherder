@@ -7,7 +7,7 @@ id: "jobDefinition"
 type: "object"
 properties:
   taskId:
-    title: "taskId"
+    title: "Task ID"
     description: |
       This could just be what was formerly submitted as a job_guid in the
       REST API.
@@ -16,7 +16,7 @@ properties:
     minLength: 1
     maxLength: 50
   retryId:
-    title: "retryId"
+    title: "Retry ID"
     description: |
       The infrastructure retry iteration on this job.  The number of times this
       job has been retried by the infrastructure.
@@ -95,30 +95,30 @@ properties:
     type: "object"
     properties:
       jobSymbol:
-        title: "jobSymbol"
+        title: "Job Symbol"
         type: "string"
         minLength: 0
         maxLength: 25
       chunkId:
-        title: "chunkId"
+        title: "Chunk ID"
         type: "integer"
         minimum: 1
       chunkCount:
-        title: "chunkCount"
+        title: "Chunk Count"
         type: "integer"
         minimum: 1
       groupSymbol:
-        title: "group symbol"
+        title: "Group Symbol"
         type: "string"
         minLength: 1
         maxLength: 25
       jobName:
-        title: "job name"
+        title: "Job Name"
         type: "string"
         minLength: 1
         maxLength: 100
       groupName:
-        title: "group name"
+        title: "Group Name"
         type: "string"
         minLength: 1
         maxLength: 100
@@ -129,7 +129,7 @@ properties:
 
 
   state:
-    title: "state"
+    title: "State"
     description: |
       unscheduled: not yet scheduled
       pending: not yet started
@@ -142,7 +142,7 @@ properties:
       - running
       - completed
   result:
-    title: "result"
+    title: "Result"
     description: |
       fail: A failure
       exception: An infrastructure error/exception
@@ -171,10 +171,10 @@ properties:
 
   coalesced:
     description: The job guids that were coalesced to this job.
-    title: "coalesced"
+    title: "Coalesced job GUID"
     type: "array"
     items:
-      title: "job guid"
+      title: "Job GUID"
       type: "string"
       pattern: "^[\\w/+-]+$"
       minLength: 1
@@ -193,7 +193,7 @@ properties:
     format: "date-time"
 
   labels:
-    title: "labels"
+    title: "Labels"
     description: |
       Labels are a dimension of a platform.  The values here can vary wildly,
       so most strings are valid for this.  The list of labels that are used
@@ -211,6 +211,7 @@ properties:
         tsan   Thread Sanitizer Build
     type: "array"
     items:
+      title: "Label"
       type: "string"
       minLength: 1
       maxLength: 50
@@ -219,7 +220,7 @@ properties:
   owner:
     description: |
       Description of who submitted the job: gaia | scheduler name | username | email
-    title: "owner"
+    title: "Owner"
     type: "string"
     minLength: 1
     maxLength: 50
@@ -267,7 +268,8 @@ properties:
       links:
         type: array
         items:
-        - type: object
+          title: "Link"
+          type: object
           description: |
             List of URLs shown as key/value pairs.  Shown as:
             "<label>: <linkText>" where linkText will be a link to the url.
@@ -294,6 +296,7 @@ properties:
   logs:
     type: "array"
     items:
+      title: "Log"
       type: "object"
       properties:
         url:
@@ -314,11 +317,13 @@ properties:
             submitted log.  If this value is submitted, Treeherder will
             consider the log already parsed and skip parsing.
           items:
+            title: "Step"
             type: object
             properties:
               errors:
                 type: array
                 items:
+                  title: "Error"
                   type: object
                   properties:
                     line:
