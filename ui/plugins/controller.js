@@ -69,7 +69,7 @@ treeherder.controller('PluginCtrl', [
                 failTab = "autoClassification";
             }
 
-            $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
+            // $scope.tabService.tabs.perfDetails.enabled = hasPerformanceData;
             // the success tabs should be "performance" if job was not a build
             const jobType = job.job_type_name;
             if (hasPerformanceData && jobType !== "Build" && jobType !== "Nightly" &&
@@ -193,6 +193,7 @@ treeherder.controller('PluginCtrl', [
 
                 $scope.job = {};
                 $scope.job_details = [];
+                $scope.perfJobDetail = [];
                 const jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
                     { timeout: selectJobPromise });
@@ -205,14 +206,14 @@ treeherder.controller('PluginCtrl', [
                     job.id,
                     { timeout: selectJobPromise });
 
-                const phSeriesPromise = PhSeries.getSeriesData(
-                    $scope.repoName, { job_id: job.id });
+                // const phSeriesPromise = PhSeries.getSeriesData(
+                //     $scope.repoName, { job_id: job.id });
 
                 return $q.all([
                     jobPromise,
                     jobDetailPromise,
                     jobLogUrlPromise,
-                    phSeriesPromise
+                    // phSeriesPromise
                 ]).then(function (results) {
 
                     //the first result comes from the job promise
@@ -261,26 +262,27 @@ treeherder.controller('PluginCtrl', [
                         $scope.reftestUrl = `${getReftestUrl($scope.job_log_urls[0].url)}&only_show_unexpected=1`;
                     }
 
-                    const performanceData = _.flatten(Object.values(results[3]));
-                    if (performanceData) {
-                        const signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
-                        $q.all(_.chunk(signatureIds, 20).map(
-                            signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
-                        )).then((seriesListList) => {
-                            const seriesList = _.flatten(seriesListList);
-                            $scope.perfJobDetail = performanceData.map(d => ({
-                                series: seriesList.find(s => d.signature_id === s.id),
-                                ...d
-                            })).filter(d => !d.series.parentSignature).map(d => ({
-                                url: `/perf.html#/graphs?series=${[$scope.repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id]}`,
-                                value: d.value,
-                                title: d.series.name
-                            }));
-                        });
-                    }
+                    // const performanceData = _.flatten(Object.values(results[3]));
+                    // if (performanceData) {
+                    //     const signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
+                    //     $q.all(_.chunk(signatureIds, 20).map(
+                    //         signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
+                    //     )).then((seriesListList) => {
+                    //         const seriesList = _.flatten(seriesListList);
+                    //         $timeout($scope.perfJobDetail = performanceData.map(d => ({
+                    //             series: seriesList.find(s => d.signature_id === s.id),
+                    //             ...d
+                    //         })).filter(d => !d.series.parentSignature).map(d => ({
+                    //             url: `/perf.html#/graphs?series=${[$scope.repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id]}`,
+                    //             value: d.value,
+                    //             title: d.series.name
+                    //         })));
+                    //         console.log("perfJobDetail set now", $scope.perfJobDetail);
+                    //     });
+                    // }
 
                     // set the tab options and selections based on the selected job
-                    initializeTabs($scope.job, (Object.keys(performanceData).length > 0));
+                    initializeTabs($scope.job);
 
                     $scope.updateClassifications();
                     $scope.updateBugs();

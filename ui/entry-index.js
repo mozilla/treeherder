@@ -73,4 +73,5 @@ import './details-panel/FailureSummaryTab';
 import './details-panel/AutoclassifyTab';
 import './details-panel/AnnotationsTab';
 import './details-panel/SimilarJobsTab';
+import './details-panel/PerformanceTab';
 import './js/filters';

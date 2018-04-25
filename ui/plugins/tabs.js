@@ -40,7 +40,7 @@ treeherder.factory('thTabs', [
                     title: "Performance",
                     description: "performance details",
                     content: "plugins/perf_details/main.html",
-                    enabled: false
+                    enabled: true
                 }
             },
             tabOrder: [
