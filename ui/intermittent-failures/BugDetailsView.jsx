@@ -10,7 +10,7 @@ import { fetchBugData, updateDateRange, updateTreeName, updateSelectedBugDetails
 import GenericTable from './GenericTable';
 import GraphsContainer from './GraphsContainer';
 import { updateQueryParams, calculateMetrics, prettyDate } from './helpers';
-import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl, jobsUrl,
+import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl, getJobsUrl,
   getLogViewerUrl, bugzillaBugsApi } from '../helpers/urlHelper';
 
 class BugDetailsView extends React.Component {
@@ -84,7 +84,7 @@ class BugDetailsView extends React.Component {
       {
         Header: 'Revision',
         accessor: 'revision',
-        Cell: props => <a href={jobsUrl(props.original.tree, props.value, props.original.job_id)} target="_blank">{props.value}</a>,
+        Cell: props => <a href={getJobsUrl({ repo: props.original.tree, revision: props.value, selectedJob: props.original.job_id })} target="_blank">{props.value}</a>,
       },
       {
         Header: 'Platform',

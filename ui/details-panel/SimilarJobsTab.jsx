@@ -1,9 +1,10 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from "react2angular/index";
 
 import { getBtnClass, getStatus } from '../helpers/jobHelper';
 import { toDateStr, toShortDateStr } from '../helpers/displayHelper';
-import { getSlaveHealthUrl } from '../helpers/urlHelper';
+import { getSlaveHealthUrl, getJobsUrl } from '../helpers/urlHelper';
 import treeherder from "../js/treeherder";
 import { thEvents } from "../js/constants";
 
@@ -88,8 +89,8 @@ class SimilarJobsTab extends React.Component {
       ), {});
       newSimilarJobs.forEach((simJob) => {
         simJob.result_set = pushes[simJob.result_set_id];
-        simJob.revisionResultsetFilterUrl = `/#/jobs?repo=${repoName}&revision=${simJob.result_set.revisions[0].revision}`;
-        simJob.authorResultsetFilterUrl = `/#/jobs?repo=${repoName}&author=${encodeURIComponent(simJob.result_set.author)}`;
+        simJob.revisionResultsetFilterUrl = getJobsUrl({ repo: repoName, revision: simJob.result_set.revisions[0].revision });
+        simJob.authorResultsetFilterUrl = getJobsUrl({ repo: repoName, author: simJob.result_set.author });
       });
       this.setState({ similarJobs: [...similarJobs, ...newSimilarJobs] });
       // on the first page show the first element info by default
