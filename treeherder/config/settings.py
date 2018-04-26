@@ -583,6 +583,6 @@ CACHES = {
 HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 
 # Configuration for elasticsearch backend
-ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
+ELASTICSEARCH_URL = env.str('FOUNDELASTICSEARCH_URL', default='')
 
 TRUNK_REPO_NAMES = ['mozilla-central', 'mozilla-inbound', 'autoland', 'fx-team']
