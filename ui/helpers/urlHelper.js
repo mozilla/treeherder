@@ -51,7 +51,7 @@ export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_n
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
 
-export const getRawLogUrl = function getRawLogUrl(url, value) {
+export const getWptUrl = function getWptUrl(url, value) {
   return `https://mozilla.github.io/wptview/#/?urls=${encodeURIComponent(url)},${encodeURIComponent(value)}`;
 };
 

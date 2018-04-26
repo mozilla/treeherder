@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
-import { getPerfAnalysisUrl, getRawLogUrl } from "../helpers/urlHelper";
+import { getPerfAnalysisUrl, getWptUrl } from "../helpers/urlHelper";
 
 export default class JobDetailsTab extends React.PureComponent {
   render() {
@@ -31,7 +31,7 @@ export default class JobDetailsTab extends React.PureComponent {
               {line.url && line.value.endsWith('raw.log') &&
                 <span> - <a
                   title={line.value}
-                  href={getRawLogUrl(line.url, jobDetails[buildernameIndex] ? jobDetails[buildernameIndex].value : undefined)}
+                  href={getWptUrl(line.url, jobDetails[buildernameIndex] ? jobDetails[buildernameIndex].value : undefined)}
                 >open in test results viewer</a>
                 </span>}
               {line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip') &&
