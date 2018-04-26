@@ -4,13 +4,13 @@ import re
 from datetime import timedelta
 
 import environ
+from furl import furl
 from kombu import (Exchange,
                    Queue)
 
 from treeherder import path
 from treeherder.config.utils import (connection_should_use_tls,
-                                     get_tls_redis_url,
-                                     hostname)
+                                     get_tls_redis_url)
 
 env = environ.Env()
 
@@ -371,7 +371,7 @@ DISALLOWED_USER_AGENTS = (
 )
 
 SITE_URL = env("SITE_URL", default="http://localhost:8000/")
-SITE_HOSTNAME = hostname(SITE_URL)
+SITE_HOSTNAME = furl(SITE_URL).host
 APPEND_SLASH = False
 
 BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
