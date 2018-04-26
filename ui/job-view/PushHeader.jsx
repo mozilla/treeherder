@@ -4,7 +4,7 @@ import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/display';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
-import { thPinboardCountError, thEvents } from "../js/constants";
+import { thEvents } from '../js/constants';
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -12,7 +12,7 @@ function Author(props) {
 
   return (
     <span title="View pushes by this user" className="push-author">
-      <a href={props.url} data-ignore-job-clear-on-click>{authorEmail}</a>
+      <a href={props.url}>{authorEmail}</a>
     </span>
   );
 }
@@ -58,7 +58,6 @@ export default class PushHeader extends React.PureComponent {
     this.$rootScope = $injector.get('$rootScope');
     this.thJobFilters = $injector.get('thJobFilters');
     this.thNotify = $injector.get('thNotify');
-    this.thPinboard = $injector.get('thPinboard');
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
@@ -112,13 +111,13 @@ export default class PushHeader extends React.PureComponent {
   }
 
   triggerNewJobs() {
-    const { loggedIn, pushId } = this.props;
+    const { isLoggedIn, pushId } = this.props;
 
     if (!window.confirm(
         'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
       return;
     }
-    if (loggedIn) {
+    if (isLoggedIn) {
       const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(pushId);
       this.ThResultSetStore.getGeckoDecisionTaskId(pushId).then((decisionTaskID) => {
         this.ThResultSetModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
@@ -136,10 +135,10 @@ export default class PushHeader extends React.PureComponent {
   }
 
   cancelAllJobs() {
-    const { repoName, revision, loggedIn, pushId } = this.props;
+    const { repoName, revision, isLoggedIn, pushId } = this.props;
 
     this.setState({ showConfirmCancelAll: false });
-    if (!loggedIn) return;
+    if (!isLoggedIn) return;
 
     this.ThResultSetModel.cancelAll(pushId).then(() => (
         this.thBuildApi.cancelAll(repoName, revision)
@@ -153,16 +152,8 @@ export default class PushHeader extends React.PureComponent {
   }
 
   pinAllShownJobs() {
-    if (!this.thPinboard.spaceRemaining()) {
-      this.thNotify.send(thPinboardCountError, 'danger');
-      return;
-    }
-    const shownJobs = this.ThResultSetStore.getAllShownJobs(
-      this.thPinboard.spaceRemaining(),
-      thPinboardCountError,
-      this.props.pushId
-    );
-    this.thPinboard.pinJobs(shownJobs);
+    const shownJobs = this.ThResultSetStore.getAllShownJobs(this.props.pushId);
+    this.$rootScope.$emit(thEvents.pinJobs, shownJobs);
 
     if (!this.$rootScope.selectedJob) {
       this.$rootScope.$emit(thEvents.jobClick, shownJobs[0]);
@@ -170,11 +161,11 @@ export default class PushHeader extends React.PureComponent {
   }
 
   render() {
-    const { repoName, loggedIn, pushId, isStaff, jobCounts, author,
+    const { repoName, isLoggedIn, pushId, isStaff, jobCounts, author,
             revision, runnableVisible, $injector, watchState,
             showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState } = this.props;
     const { filterParams } = this.state;
-    const cancelJobsTitle = loggedIn ?
+    const cancelJobsTitle = isLoggedIn ?
       "Cancel all jobs" :
       "Must be logged in to cancel jobs";
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
@@ -194,7 +185,6 @@ export default class PushHeader extends React.PureComponent {
                 <a
                   href={`${this.revisionPushFilterUrl}${filterParams}`}
                   title="View only this push"
-                  data-ignore-job-clear-on-click
                 >{this.pushDateStr} <span className="fa fa-external-link icon-superscript" />
                 </a> - </span>
               <Author author={author} url={this.authorPushFilterUrl} />
@@ -221,40 +211,35 @@ export default class PushHeader extends React.PureComponent {
               rel="noopener"
               title="View details on failed test results for this push"
             >View Tests</a>
-            {loggedIn &&
+            {isLoggedIn &&
               <button
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
-                data-ignore-job-clear-on-click
                 onClick={() => this.setState({ showConfirmCancelAll: true })}
               >
                 <span
                   className="fa fa-times-circle cancel-job-icon dim-quarter"
-                  data-ignore-job-clear-on-click
                 />
               </button>
             }
             <button
               className="btn btn-sm btn-push pin-all-jobs-btn"
               title="Pin all available jobs in this push"
-              data-ignore-job-clear-on-click
               onClick={this.pinAllShownJobs}
             >
               <span
                 className="fa fa-thumb-tack"
-                data-ignore-job-clear-on-click
               />
             </button>
             {this.state.runnableJobsSelected && runnableVisible &&
               <button
                 className="btn btn-sm btn-push trigger-new-jobs-btn"
                 title="Trigger new jobs"
-                data-ignore-job-clear-on-click
                 onClick={this.triggerNewJobs}
               >Trigger New Jobs</button>
             }
             <PushActionMenu
-              loggedIn={loggedIn}
+              isLoggedIn={isLoggedIn}
               isStaff={isStaff || false}
               runnableVisible={runnableVisible}
               revision={revision}
@@ -301,7 +286,7 @@ PushHeader.propTypes = {
   cycleWatchState: PropTypes.func.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
-  loggedIn: PropTypes.bool,
+  isLoggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   urlBasePath: PropTypes.string,
 };
@@ -309,7 +294,7 @@ PushHeader.propTypes = {
 PushHeader.defaultProps = {
   jobCounts: null,
   watchState: 'none',
-  loggedIn: false,
+  isLoggedIn: false,
   isStaff: false,
   urlBasePath: '',
 };

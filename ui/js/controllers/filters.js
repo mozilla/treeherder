@@ -1,14 +1,9 @@
 import treeherderApp from '../treeherder_app';
-import { thFailureResults, thPinboardCountError, thAllResultStates, thEvents } from "../constants";
+import { thFailureResults, thAllResultStates, thEvents } from "../constants";
 
 treeherderApp.controller('JobFilterCtrl', [
-    '$scope', '$rootScope',
-    'thJobFilters',
-    'ThResultSetStore', 'thPinboard', 'thNotify',
-    function JobFilterCtrl(
-        $scope, $rootScope,
-        thJobFilters,
-        ThResultSetStore, thPinboard, thNotify) {
+    '$scope', '$rootScope', 'thJobFilters',
+    function JobFilterCtrl($scope, $rootScope, thJobFilters) {
 
         $scope.filterOptions = thAllResultStates;
 
@@ -85,22 +80,6 @@ treeherderApp.controller('JobFilterCtrl', [
         $scope.toggleUnClassifiedFilter = function () {
             const func = $scope.unClassifiedFilter ? thJobFilters.removeFilter : thJobFilters.addFilter;
             func(thJobFilters.classifiedState, 'unclassified');
-        };
-
-        $scope.pinAllShownJobs = function () {
-            if (!thPinboard.spaceRemaining()) {
-                thNotify.send(thPinboardCountError, 'danger', { sticky: true });
-                return;
-            }
-            const shownJobs = ThResultSetStore.getAllShownJobs(
-                thPinboard.spaceRemaining(),
-                thPinboardCountError
-            );
-            thPinboard.pinJobs(shownJobs);
-
-            if (!$rootScope.selectedJob) {
-                $rootScope.selectedJob = shownJobs[0];
-            }
         };
 
         $scope.thJobFilters = thJobFilters;

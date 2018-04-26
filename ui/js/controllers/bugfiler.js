@@ -153,12 +153,6 @@ treeherder.controller('BugFilerCtrl', [
         }
         $scope.modalSummary = "Intermittent " + summaryString;
 
-        $scope.toggleFilerSummaryVisibility = function () {
-            $scope.isFilerSummaryVisible = !$scope.isFilerSummaryVisible;
-        };
-
-        $scope.isFilerSummaryVisible = false;
-
         // Add a product/component pair to suggestedProducts
         const addProduct = function (product) {
             // Don't allow duplicates to be added to the list

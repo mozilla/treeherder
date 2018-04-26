@@ -5,6 +5,7 @@ const uri = getApiUrl('/user/');
 export default class UserModel {
   constructor(data) {
     Object.assign(this, data);
+    this.isStaff = data.is_staff;
   }
 
   static get() {

@@ -1,21 +1,20 @@
 import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { react2angular } from 'react2angular/index.es2015';
 
-import ErrorLineData from './ErrorLineModel';
-import AutoclassifyToolbar from './AutoclassifyToolbar';
-import ErrorLine from './ErrorLine';
-import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../../helpers/url';
 import { thEvents } from '../../../../js/constants';
-import treeherder from '../../../../js/treeherder';
+import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 
-class AutoclassifyTab extends React.Component {
+import AutoclassifyToolbar from './AutoclassifyToolbar';
+import ErrorLine from './ErrorLine';
+import ErrorLineData from './ErrorLineModel';
+
+export default class AutoclassifyTab extends React.Component {
   static getDerivedStateFromProps(nextProps) {
     const { user } = nextProps;
 
-    return { canClassify: user.loggedin && user.is_staff };
+    return { canClassify: user.isLoggedIn && user.isStaff };
   }
 
   constructor(props) {
@@ -23,9 +22,8 @@ class AutoclassifyTab extends React.Component {
 
     const { $injector } = this.props;
 
-    this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.thPinboard = $injector.get('thPinboard');
+    this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
       loadStatus: 'loading',
@@ -41,7 +39,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    this.$rootScope.$on(thEvents.jobClick, () => {
+    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, () => {
       this.setState({
         loadStatus: 'loading',
         errorLines: [],
@@ -49,16 +47,13 @@ class AutoclassifyTab extends React.Component {
         editableLineIds: new Set(),
         inputByLine: new Map(),
         autoclassifyStatusOnLoad: null,
-        canClassify: false,
       });
     });
 
-    this.$rootScope.$on(
-      thEvents.autoclassifyChangeSelection,
+    this.autoclassifyChangeSelectionUnlisten = this.$rootScope.$on(thEvents.autoclassifyChangeSelection,
       (ev, direction, clear) => this.onChangeSelection(direction, clear));
 
-    this.$rootScope.$on(
-      thEvents.autoclassifySaveAll,
+    this.autoclassifySaveAllUnlisten = this.$rootScope.$on(thEvents.autoclassifySaveAll,
       () => {
         const pendingLines = Array.from(this.state.inputByLine.values());
         if (pendingLines.every(line => this.canSave(line.id))) {
@@ -69,8 +64,7 @@ class AutoclassifyTab extends React.Component {
         }
       });
 
-    this.$rootScope.$on(
-      thEvents.autoclassifySave,
+    this.autoclassifySaveUnlisten = this.$rootScope.$on(thEvents.autoclassifySave,
       () => {
         const { selectedLineIds, canClassify } = this.state;
 
@@ -83,12 +77,10 @@ class AutoclassifyTab extends React.Component {
       }
     );
 
-    this.$rootScope.$on(
-      thEvents.autoclassifyToggleEdit,
+    this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
       () => this.onToggleEditable());
 
-    this.$rootScope.$on(
-      thEvents.autoclassifyOpenLogViewer,
+    this.autoclassifyOpenLogViewerUnlisten = this.$rootScope.$on(thEvents.autoclassifyOpenLogViewer,
       () => this.onOpenLogViewer());
 
     // TODO: Once we're not using ng-react any longer and
@@ -123,6 +115,15 @@ class AutoclassifyTab extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.jobClickUnlisten();
+    this.autoclassifyChangeSelectionUnlisten();
+    this.autoclassifySaveAllUnlisten();
+    this.autoclassifySaveUnlisten();
+    this.autoclassifyToggleEditUnlisten();
+    this.autoclassifyOpenLogViewerUnlisten();
+  }
+
   /**
    * Save all pending lines
    */
@@ -155,11 +156,11 @@ class AutoclassifyTab extends React.Component {
   }
 
   /**
-   * Pin selected job to the pinboard
+   * Pin selected job to the pinBoard
    */
   onPin() {
     //TODO: consider whether this should add bugs or mark all lines as ignored
-    this.thPinboard.pinJob(this.props.job);
+    this.props.pinJob(this.props.job);
   }
 
   onToggleEditable() {
@@ -458,7 +459,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { job, autoclassifyStatus, user, $injector } = this.props;
+    const { job, autoclassifyStatus, user, $injector, addBug, pinnedJobs } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -506,6 +507,8 @@ class AutoclassifyTab extends React.Component {
                 errorLine={errorLine}
                 prevErrorLine={errorLines[idx - 1]}
                 canClassify={canClassify}
+                addBug={addBug}
+                pinnedJobs={pinnedJobs}
                 $injector={$injector}
                 isSelected={selectedLineIds.has(errorLine.id)}
                 isEditable={editableLineIds.has(errorLine.id)}
@@ -523,22 +526,19 @@ class AutoclassifyTab extends React.Component {
 
 AutoclassifyTab.propTypes = {
   $injector: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   job: PropTypes.object.isRequired,
   hasLogs: PropTypes.bool.isRequired,
+  pinJob: PropTypes.func.isRequired,
+  addBug: PropTypes.func.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
   autoclassifyStatus: PropTypes.string,
-  user: PropTypes.object,
   logsParsed: PropTypes.bool,
   logParseStatus: PropTypes.string,
 };
 
 AutoclassifyTab.defaultProps = {
   autoclassifyStatus: 'pending',
-  user: { is_staff: false, loggedin: false },
   logsParsed: false,
   logParseStatus: 'pending',
 };
-
-treeherder.component('autoclassifyTab', react2angular(
-  AutoclassifyTab,
-  ['job', 'hasLogs', 'autoclassifyStatus', 'user', 'logsParsed', 'logParseStatus'],
-  ['$injector']));

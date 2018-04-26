@@ -1,19 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../../../js/treeherder';
 import { getPerfAnalysisUrl, getWptUrl } from '../../../helpers/url';
 
 export default class JobDetailsTab extends React.PureComponent {
   render() {
-    const { jobDetails, buildernameIndex } = this.props;
+    const { jobDetails } = this.props;
     const sortedDetails = jobDetails ? jobDetails.slice() : [];
-
+    const builderNameItem = jobDetails.findIndex(detail => detail.title === "Buildername");
     sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
     return (
-      <div className="job-tabs-content">
+      <div id="job-details-list">
         <ul className="list-unstyled">
           {sortedDetails.map((line, idx) => (
             <li
@@ -31,7 +29,7 @@ export default class JobDetailsTab extends React.PureComponent {
               {line.url && line.value.endsWith('raw.log') &&
                 <span> - <a
                   title={line.value}
-                  href={getWptUrl(line.url, jobDetails[buildernameIndex] ? jobDetails[buildernameIndex].value : undefined)}
+                  href={getWptUrl(line.url, builderNameItem ? builderNameItem.value : undefined)}
                 >open in test results viewer</a>
                 </span>}
               {line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip') &&
@@ -57,12 +55,8 @@ export default class JobDetailsTab extends React.PureComponent {
 
 JobDetailsTab.propTypes = {
   jobDetails: PropTypes.array,
-  buildernameIndex: PropTypes.number,
 };
 
 JobDetailsTab.defaultProps = {
   jobDetails: [],
-  buildernameIndex: null,
 };
-
-treeherder.component('jobDetailsTab', react2angular(JobDetailsTab));

@@ -13,7 +13,7 @@ import './css/treeherder-global.css';
 import './css/treeherder-navbar.css';
 import './css/treeherder-navbar-panels.css';
 import './css/treeherder-notifications.css';
-import './css/treeherder-info-panel.css';
+import './css/treeherder-details-panel.css';
 import './css/treeherder-job-buttons.css';
 import './css/treeherder-resultsets.css';
 import './css/treeherder-pinboard.css';
@@ -25,12 +25,12 @@ import './js/treeherder_app';
 
 // Treeherder React UI
 import './job-view/PushList';
+import './job-view/details/DetailsPanel';
 
 // Treeherder JS
 import './js/components/auth';
 import './js/directives/treeherder/main';
 import './js/directives/treeherder/top_nav_bar';
-import './js/directives/treeherder/bottom_nav_panel';
 import './js/services/main';
 import './js/services/buildapi';
 import './js/services/taskcluster';
@@ -48,14 +48,4 @@ import './js/controllers/notification';
 import './js/controllers/filters';
 import './js/controllers/bugfiler';
 import './js/controllers/tcjobactions';
-import './plugins/tabs';
-import './plugins/controller';
-import './plugins/pinboard';
-import './job-view/details/summary/SummaryPanel';
-import './job-view/details/tabs/JobDetailsTab';
-import './job-view/details/tabs/failureSummary/FailureSummaryTab';
-import './job-view/details/tabs/autoclassify/AutoclassifyTab';
-import './job-view/details/tabs/AnnotationsTab';
-import './job-view/details/tabs/SimilarJobsTab';
-import './job-view/details/tabs/PerformanceTab';
 import './js/filters';

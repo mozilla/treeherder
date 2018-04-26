@@ -1,5 +1,5 @@
 <div class="container-fluid alerts-container">
-  <div class="alert alert-warning" ng-show="!user.is_staff" role="alert">
+  <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
@@ -40,7 +40,7 @@
   <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
     <div class="card-header alert-summary-heading">
       <div class="alert-summary-header-element">
-        <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
+        <input type="checkbox" ng-disabled="!user.isStaff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
       </div>
       <div class="alert-summary-title">
         <a class="anchor" href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
@@ -82,30 +82,30 @@
             <li role="menuitem" ng-show="!alertSummary.bug_number">
               <a ng-click="fileBug(alertSummary)" class="dropdown-item">File bug</a>
             </li>
-            <li role="menuitem" ng-show="!alertSummary.bug_number && user.is_staff">
+            <li role="menuitem" ng-show="!alertSummary.bug_number && user.isStaff">
               <a ng-click="linkToBug(alertSummary)" class="dropdown-item">Link to bug</a>
             </li>
-            <li role="menuitem" ng-show="alertSummary.bug_number && user.is_staff">
+            <li role="menuitem" ng-show="alertSummary.bug_number && user.isStaff">
               <a ng-click="unlinkBug(alertSummary)" class="dropdown-item">Unlink from bug</a>
             </li>
-            <li role="menuitem" ng-show="user.is_staff">
+            <li role="menuitem" ng-show="user.isStaff">
               <a ng-click="editAlertSummaryNotes(alertSummary)" class="dropdown-item">
                 <span ng-if="!alertSummary.notes">Add notes</span>
                 <span ng-if="alertSummary.notes">Edit notes</span>
               </a>
             </li>
-            <li role="menuitem" ng-show="user.is_staff" ng-if="alertSummary.isResolved()">
+            <li role="menuitem" ng-show="user.isStaff" ng-if="alertSummary.isResolved()">
               <a ng-click="alertSummary.markInvestigating()" class="dropdown-item">Re-open</a>
             </li>
-            <li role="menuitem" ng-show="user.is_staff"
+            <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
               <a ng-click="alertSummary.markWontfix()" class="dropdown-item">Mark as "won't fix"</a>
             </li>
-            <li role="menuitem" ng-show="user.is_staff"
+            <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
               <a ng-click="alertSummary.markBackedout()" class="dropdown-item">Mark as backed out</a>
             </li>
-            <li role="menuitem" ng-show="user.is_staff"
+            <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
               <a ng-click="alertSummary.markFixed()" class="dropdown-item">Mark as fixed</a>
             </li>
@@ -117,12 +117,12 @@
     <table class="table table-compact compare-table">
       <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
         <td class="alert-checkbox">
-          <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+          <input type="checkbox" ng-disabled="!user.isStaff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
         <td class="alert-labels">
           <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
              ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
-             ng-disabled="!user.is_staff"
+             ng-disabled="!user.isStaff"
              ng-click="alert.toggleStar()">
           </a>
         </td>

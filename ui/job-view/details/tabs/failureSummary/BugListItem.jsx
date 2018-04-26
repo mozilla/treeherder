@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 
-import { getBugUrl } from '../../../../helpers/url';
 import { getSearchWords } from '../../../../helpers/display';
+import { getBugUrl } from '../../../../helpers/url';
+
 
 export default function BugListItem(props) {
   const {
-    bug, suggestion,
-    bugClassName, title, $timeout, pinboardService, selectedJob,
+    bug, suggestion, bugClassName, title, selectedJob, addBug,
   } = props;
   const bugUrl = getBugUrl(bug.id);
 
@@ -16,7 +16,7 @@ export default function BugListItem(props) {
     <li>
       <button
         className="btn btn-xs btn-light-bordered"
-        onClick={() => $timeout(() => pinboardService.addBug(bug, selectedJob))}
+        onClick={() => addBug(bug, selectedJob)}
         title="add to list of bugs to associate with all pinned jobs"
       >
         <i className="fa fa-thumb-tack" />
@@ -43,8 +43,7 @@ export default function BugListItem(props) {
 BugListItem.propTypes = {
   bug: PropTypes.object.isRequired,
   suggestion: PropTypes.object.isRequired,
-  $timeout: PropTypes.func.isRequired,
-  pinboardService: PropTypes.object.isRequired,
+  addBug: PropTypes.func.isRequired,
   selectedJob: PropTypes.object.isRequired,
   bugClassName: PropTypes.string,
   title: PropTypes.string,

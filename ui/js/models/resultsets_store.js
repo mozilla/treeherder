@@ -273,7 +273,7 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getAllShownJobs = function (spaceRemaining, errorMessage, pushId) {
+        var getAllShownJobs = (pushId) => {
             var shownJobs = [];
 
             var addIfShown = function (jMap) {
@@ -282,10 +282,6 @@ treeherder.factory('ThResultSetStore', [
                 }
                 if (jMap.job_obj.visible) {
                     shownJobs.push(jMap.job_obj);
-                }
-                if (shownJobs.length === spaceRemaining) {
-                    thNotify.send(errorMessage, 'danger');
-                    return true;
                 }
                 return false;
             };

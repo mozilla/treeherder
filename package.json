@@ -65,6 +65,7 @@
     "react-router-dom": "4.2.2",
     "react-select": "1.2.1",
     "react-table": "6.8.6",
+    "react-tabs": "2.2.2",
     "react2angular": "4.0.2",
     "reactstrap": "6.0.1",
     "redux": "4.0.0",

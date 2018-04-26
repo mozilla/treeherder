@@ -35,11 +35,12 @@
                     />
                 </span>
             </div>
-            <div ng-controller="PluginCtrl"
-                 id="info-panel"
-                 ng-show="selectedJob"
-                 ng-include src="'plugins/pluginpanel.html'">
-            </div>
+            <details-panel
+              repo-name="repoName"
+              selected-job="selectedJob"
+              user="user"
+              ng-show="selectedJob"
+            />
         </div>
 
         <th-notification-box></th-notification-box>

@@ -18,7 +18,7 @@ import UserModel from '../../models/user';
 treeherder.component("login", {
     template: `
         <span class="dropdown"
-              ng-if="$ctrl.user.loggedin">
+              ng-if="$ctrl.user.isLoggedIn">
           <button id="logoutLabel" title="Logged in as: {{$ctrl.user.email}}" role="button"
                   data-toggle="dropdown"
                   class="btn btn-view-nav">
@@ -37,7 +37,7 @@ treeherder.component("login", {
         </span>
 
         <span class="btn nav-login-btn"
-           ng-if="!$ctrl.user.loggedin"
+           ng-if="!$ctrl.user.isLoggedIn"
            ng-click="$ctrl.login()">Login/Register</span>
     `,
     bindings: {
@@ -110,7 +110,7 @@ treeherder.component("login", {
             ctrl.setLoggedIn = function (newUser) {
                 const userSession = JSON.parse(localStorage.getItem('userSession'));
 
-                newUser.loggedin = true;
+                newUser.isLoggedIn = true;
                 newUser.fullName = userSession.fullName;
 
                 ctrl.user = newUser;

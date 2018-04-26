@@ -2,39 +2,39 @@ strong {
   font-weight: bold;
 }
 
-div#info-panel {
-  background-color: #AAAAAA;
+details-panel {
   font-size: 12px;
   height: 35%;
   max-height: 75%;
-  flex: none;
-  display: flex;
-  flex-flow: column;
 }
 
-.info-panel-slide {
-  animation: info-panel-slide 0.4s;
+.details-panel-slide {
+  animation: details-panel-slide 0.4s;
+  height: 100%;
 }
 
-@keyframes info-panel-slide {
+@keyframes details-panel-slide {
   0% { transform: translateY(100%); }
   100% { transform: translateY(0%); }
 }
 
-div#info-panel .navbar {
+div#details-panel .navbar,
+div#tabs-panel .tab-headers {
   border-radius: 0;
-  border-style: solid;
-  border-color: #42484F;
-  border-width: 1px 0;
   height: 33px;
+  width: 100%;
   margin: 0;
   font-size: 12px;
   min-height: 33px;
   min-width: initial;
   z-index: 100;
+  background-color: #252C33;
+  border: 1px solid transparent;
+  color: #CED3D9;
+  justify-content: space-between;
 }
 
-div#info-panel-resizer {
+div#details-panel-resizer {
   display: flex;
   flex: none;
   background-color: #919dad;
@@ -42,49 +42,53 @@ div#info-panel-resizer {
   height: 2px;
 }
 
-div#info-panel .navbar-nav > ul {
+#tab-header-buttons > span > span {
+  padding-left: 5px;
+}
+
+div#details-panel .navbar-nav > ul {
   height: 32px;
 }
 
-div#info-panel .navbar-nav.actionbar-nav > li > a,
-div#info-panel .navbar-nav.actionbar-nav > li > button {
+div#details-panel .navbar-nav.actionbar-nav > li > a,
+div#details-panel .navbar-nav.actionbar-nav > li > button {
   padding: 8px 15px;
   line-height: 16px;
 }
 
-div#info-panel .navbar-nav.tab-headers > li > a,
-div#info-panel .navbar-nav.tab-headers > li > button {
+div#details-panel .navbar-nav.tab-headers > li > a,
+div#details-panel .navbar-nav.tab-headers > li > button {
   padding: 8px 15px;
   line-height: 30px;
 }
 
-div#info-panel .navbar-nav > li > button {
+div#details-panel .navbar-nav > li > button {
   border: none;
   background: transparent;
 }
 /* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
-div#info-panel .navbar-nav > li > a#logviewer-btn {
+div#details-panel .navbar-nav > li > a#logviewer-btn {
   line-height: 18px;
 }
 
-div#info-panel .navbar-nav > li > a.disabled,
-div#info-panel .navbar-nav > li > button.disabled,
+div#details-panel .navbar-nav > li > a.disabled,
+div#details-panel .navbar-nav > li > button.disabled,
 ul.actionbar-menu > li.disabled {
   cursor: not-allowed;
   text-decoration: none;
 }
 
-div#info-panel .navbar-nav > li.active a,
-div#info-panel .navbar-nav > li.active a:hover,
-div#info-panel .navbar-nav > li.active a:focus {
+div#details-panel .navbar-nav > li.active a,
+div#details-panel .navbar-nav > li.active a:hover,
+div#details-panel .navbar-nav > li.active a:focus {
   outline: 0;
 }
 
-div#info-panel .info-panel-navbar > ul.tab-headers > li {
+div#details-panel .details-panel-navbar > ul.tab-headers > li {
   border-right: 1px solid #42484F;
 }
 
-.info-panel-navbar {
+.details-panel-navbar {
   background-color: #252C33;
   border: 1px solid transparent;
   color: #CED3D9;
@@ -94,18 +98,34 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   height: 33px;
 }
 
-.info-panel-navbar li {
+.details-panel-navbar li {
   align-self: center;
 }
 
-.info-panel-navbar-tabs {
-  justify-content: space-between;
+.tab-header-tabs {
   flex-direction: row;
+  display: flex;
 }
 
-.tab-headers {
+.tab-header-tabs > li {
+  padding: 1px 15px;
+  line-height: 30px;
+  cursor: pointer;
+  color: #9FA3A5;
+}
+
+#details-panel ul.tab-headers {
+  list-style: none;
   flex-direction: row;
   min-width: 550px;
+  display: flex;
+  padding-left: 0;
+  font-size: 12px;
+}
+
+.details-panel-close-btn {
+  padding-top: 3px;
+  font-size: 12px;
 }
 
 .perf-job-selected {
@@ -113,80 +133,107 @@ div#info-panel .info-panel-navbar > ul.tab-headers > li {
   min-width: 646px !important;
 }
 
-.info-panel-navbar-controls {
+.details-panel-navbar-controls {
   flex-wrap: nowrap;
 }
 
-.info-panel-navbar .navbar-nav {
+.details-panel-navbar .navbar-nav {
   display: flex;
   flex-direction: row;
 }
 
-.info-panel-navbar .navbar-nav > li {
+.details-panel-navbar .navbar-nav > li {
   white-space: nowrap;
 }
 
-.info-panel-navbar .navbar-nav > li > a,
-.info-panel-navbar .navbar-nav > li > button {
+.details-panel-navbar .navbar-nav > li > a,
+.details-panel-navbar .navbar-nav > li > .btn {
   color: #9FA3A5;
-  padding: 7px 15px;
+  padding: 4px 15px;
 }
 
-div#info-panel .navbar-nav > li > a:hover,
-div#info-panel .navbar-nav > li > a:focus,
-div#info-panel .navbar-nav > li > button:hover,
-div#info-panel .navbar-nav > li > button:focus
+div#details-panel .navbar-nav > li > a:hover,
+div#details-panel .navbar-nav > li > a:focus,
+div#details-panel .navbar-nav > li > button:hover,
+div#details-panel .navbar-nav > li > button:focus
 {
   background-color: #1E252B;
   color: #D3D8DA;
 }
 
-div#info-panel .navbar-nav > li > a:active,
-div#info-panel .navbar-nav > li > button:active
+div#details-panel .navbar-nav > li > a:active,
+div#details-panel .navbar-nav > li > button:active
 {
   background-color: #000;
 }
 
-div#info-panel .navbar-nav > li > a.disabled:active,
-div#info-panel .navbar-nav > li > button.disabled:active
+div#details-panel .navbar-nav > li > a.disabled:active,
+div#details-panel .navbar-nav > li > button.disabled:active
 {
   background-color: #1E252B;
 }
 
-.info-panel-navbar .actionbar-nav {
+.details-panel-navbar .actionbar-nav {
   flex: auto;
 }
 
-div#info-panel .info-panel-navbar .navbar-nav > li.active a,
-div#info-panel .info-panel-navbar .navbar-nav > li.active a:hover,
-div#info-panel .info-panel-navbar .navbar-nav > li.active a:focus,
-div#info-panel .info-panel-navbar > li.active a,
-div#info-panel .info-panel-navbar > li.active a:hover,
-div#info-panel .info-panel-navbar > li.active a:focus {
+div#details-panel .details-panel-navbar .navbar-nav > li.active a,
+div#details-panel .details-panel-navbar .navbar-nav > li.active a:hover,
+div#details-panel .details-panel-navbar .navbar-nav > li.active a:focus,
+div#details-panel .details-panel-navbar > li.active a,
+div#details-panel .details-panel-navbar > li.active a:hover,
+div#details-panel .details-panel-navbar > li.active a:focus {
   background-color: #1A4666;
   color: #EEF0F2;
 }
 
-#info-panel-content {
+.tab-header-tabs > li.selected-tab {
+  background-color: #1A4666;
+  color: #EEF0F2;
+}
+
+.react-tabs {
+  height: 100%;
+  width: 100%;
+}
+
+.react-tabs__tab-panel--selected {
+  height: 100%;
+}
+
+#tabs-panel {
+  height: 100%;
+  max-height: calc(100% - 35px);
+  width: 100%;
+}
+
+#details-panel #job-details-list,
+#details-panel .failure-summary-list,
+#details-panel .similar-jobs > .similar-job-list tbody {
+  overflow-y: auto;
+  height: 100%;
+}
+
+#details-panel {
   position: relative; /* So we can absolutely position the loading overlay */
-  height: 60%;
+  height: 100%;
   flex: auto;
   display: flex;
   flex-flow: row;
 }
 
-#job-details-panel, #job-tabs-panel {
+#summary-panel {
   background-color: #fff;
   display: flex;
   flex-flow: column;
 }
 
-#job-details-actionbar, #job-tabs-navbar {
+#job-details-actionbar {
   min-height: 33px;
 }
 
 /*
- * Job details action bar
+ * action bar
  */
 
 .action-bar-spin {
@@ -200,6 +247,10 @@ div#info-panel .info-panel-navbar > li.active a:focus {
 
 .actionbar-nav {
   flex-direction: row;
+}
+
+.actionbar-nav .btn {
+  cursor: pointer;
 }
 
 .actionbar-nav > li {
@@ -245,24 +296,29 @@ div#info-panel .info-panel-navbar > li.active a:focus {
  * Job details panel (left side)
  */
 
-#job-details-panel {
-  width: 260px;
-  min-width: 260px;
+#summary-panel-content {
+  overflow-y: auto;
 }
 
-#job-details-panel .content-spacer {
+#summary-panel {
+  width: 260px;
+  min-width: 260px;
+  height: 100%;
+}
+
+#summary-panel .content-spacer {
   padding-top: 2px;
   padding-bottom: 4px;
 }
 
-#job-details-panel ul li {
+#summary-panel ul li {
   padding: 0 0 0 5px;
   line-height: 15px;
   word-wrap: break-word;
 }
 
-#job-details-panel ul li label {
-  padding: 0;
+#summary-panel ul li label {
+  padding: 0 3px 0 0;
   margin: 2px 0;
   font-weight: bold;
 }
@@ -312,7 +368,7 @@ div#info-panel .info-panel-navbar > li.active a:focus {
   color: grey;
 }
 
-#job-details-panel em.testfail {
+#summary-panel em.testfail {
   color: red;
 }
 
@@ -324,6 +380,11 @@ div#info-panel .info-panel-navbar > li.active a:focus {
 
 #job-details-pane {
   overflow: auto;
+}
+
+#result-status-pane {
+  width: 100%;
+  padding: 4px;
 }
 
 #result-status-pane div {
@@ -342,50 +403,24 @@ div#info-panel .info-panel-navbar > li.active a:focus {
   border-left: 1px solid lightgrey;
 }
 
-.job-tabs-content {
-  padding: 2px 4px 0;
-}
-
-#job-tabs-panel {
-  flex: 1 6;
-  padding: 0;
-  min-width: 565px;
-}
-
-#job-tabs-pane {
-  max-height: calc(100% - 33px);
-  flex: 1;
-  display: flex;
-  overflow: auto;
-}
-
-#job-tabs-pane > * {
-  flex: 1;
-  display: flex;
-}
-
-#job-tabs-pane > * > * {
-  flex: 1;
-  display: flex;
-}
-
-#job-tabs-pane > * > * > * {
-  flex: 1;
-  display: flex;
+#job-details-list label {
+  margin-left: 2px;
 }
 
 /*
  * Failure summary
  */
 
-#job-tabs-panel ul.failure-summary-list {
+ul.failure-summary-list {
   width: 100%;
   margin-bottom: 0;
+  height: 100%;
 }
 
 ul.failure-summary-list li {
   font-size: 11px;
   background: #ccfaff;
+  padding: 1px 0 0 2px;
 }
 
 ul.failure-summary-list li .btn-xs {
@@ -486,48 +521,49 @@ annotations-tab {
   font-size: 12px;
 }
 
-.similar_jobs {
+.similar-jobs {
   display: flex;
   flex-flow: row;
+  height: 100%;
 }
 
-div.similar_jobs .right_panel {
+div.similar-jobs .similar-job-detail-panel {
   border-left: 1px solid #101010;
   margin-right: 1px;
   overflow-y: auto;
   flex: 1 1;
 }
 
-div.similar_jobs .right_panel form {
+div.similar-jobs .similar-job-detail-panel form {
   overflow: hidden;
   background-color: #D3D3D3;
 }
 
-div.similar_jobs .right_panel form .checkbox input[type="checkbox"] {
+div.similar-jobs .similar-job-detail-panel form .checkbox input[type="checkbox"] {
   margin-left: 0;
   position: relative;
 }
 
-div.similar_jobs .right_panel .similar_job_detail {
+div.similar-jobs .similar-job-detail-panel .similar_job_detail {
   border-top: 1px solid #101010;
 }
 
-div.similar_jobs .right_panel .similar_job_detail table {
+div.similar-jobs .similar-job-detail-panel .similar_job_detail table {
   width: 100%;
   overflow: hidden;
 }
 
-div.similar_jobs .left_panel {
+div.similar-jobs .similar-job-list {
   overflow: auto;
   flex: 1 1;
 }
 
-div.similar_jobs .left_panel table {
+div.similar-jobs .similar-job-list table {
   margin-bottom: 7px;
 }
 
 /* We override bootstrap table style for cleaner layout */
-div.similar_jobs .left_panel table tr > td {
+div.similar-jobs .similar-job-list table tr > td {
   vertical-align: middle;
   border-top: 1px solid lightgrey;
   border-bottom: 0;
@@ -536,14 +572,14 @@ div.similar_jobs .left_panel table tr > td {
 }
 
 /* Selected Similar Job row in blue */
-div.similar_jobs .left_panel table tr.active > td {
+div.similar-jobs .similar-job-list table tr.active > td {
   background: #e2ebfa;
   border-top: 1px solid darkgrey;
   border-bottom: 1px solid darkgrey;
 }
 
 /* Avoid using the hand pointer unless we are on a link */
-div.similar_jobs .left_panel table tr {
+div.similar-jobs .similar-job-list table tr {
   cursor: default;
 }
 

@@ -13,7 +13,7 @@ html, body {
   height: 100%;
   font-size: 14px;
   line-height: 1.42;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 body {

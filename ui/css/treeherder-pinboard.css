@@ -1,13 +1,15 @@
-#job-tabs-navbar .info-panel-navbar #pinboard-btn {
-  margin-top: -2px;
+#pinboard-btn {
+  margin-top: 0;
+  margin-bottom: 1px;
   background-color: #e6eef5;
   color: #252c33;
-  line-height: 30px;
+  line-height: 22px;
   cursor: pointer;
+  border-radius: 0;
+  padding: 3px 10px 4px 14px;
 }
 
 .pinboard-btn-text {
-  margin: 0 15px;
   font-size: 12px;
 }
 
@@ -50,12 +52,13 @@
   line-height: 18px;
 }
 
-#pinboard-panel {
+#pinboard-contents {
   background-color: #e6eef5;
   color: #252c33;
   flex: auto;
   display: flex;
   flex-flow: row;
+  min-height: 100px;
 }
 
 #pinboard-panel .header {
@@ -132,6 +135,15 @@
 
 .add-related-bugs-input {
   width: 12em;
+  margin: -3px 0 0 -3px;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .pinboard-related-bug-preload-txt {
@@ -165,8 +177,17 @@
   color: black;
 }
 
-#pinboard-classification select {
+#pinboard-classification-content .form-group {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+select#pinboard-classification-select.classification-select,
+select#pinboard-revision-select.classification-select {
   width: 177px;
+  height: 20px;
+  font-size: 12px;
+  padding: 0;
 }
 
 .add-classification-input {

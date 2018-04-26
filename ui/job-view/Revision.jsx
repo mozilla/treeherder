@@ -55,7 +55,6 @@ export class Revision extends React.PureComponent {
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
-            data-ignore-job-clear-on-click
           >{commitRevision.substring(0, 12)}
           </a>
         </span>

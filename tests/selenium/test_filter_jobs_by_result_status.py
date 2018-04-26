@@ -37,7 +37,7 @@ def test_filter_failures(base_url, selenium, test_jobs):
     page.toggle_in_progress()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'testfailed'
+    assert page.details_panel.job_details.result == 'testfailed'
 
 
 def test_filter_success(base_url, selenium, test_jobs):
@@ -49,7 +49,7 @@ def test_filter_success(base_url, selenium, test_jobs):
     page.toggle_in_progress()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'success'
+    assert page.details_panel.job_details.result == 'success'
 
 
 def test_filter_retry(base_url, selenium, test_jobs):
@@ -61,7 +61,7 @@ def test_filter_retry(base_url, selenium, test_jobs):
     page.toggle_in_progress()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'retry'
+    assert page.details_panel.job_details.result == 'retry'
 
 
 def test_filter_usercancel(base_url, selenium, test_jobs):
@@ -73,7 +73,7 @@ def test_filter_usercancel(base_url, selenium, test_jobs):
     page.toggle_in_progress()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'usercancel'
+    assert page.details_panel.job_details.result == 'usercancel'
 
 
 def test_filter_superseded(base_url, selenium, test_jobs):
@@ -87,7 +87,7 @@ def test_filter_superseded(base_url, selenium, test_jobs):
     page.toggle_in_progress()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'superseded'
+    assert page.details_panel.job_details.result == 'superseded'
 
 
 def test_filter_in_progress(base_url, selenium, test_jobs):
@@ -99,4 +99,4 @@ def test_filter_in_progress(base_url, selenium, test_jobs):
     page.toggle_usercancel()
     page.wait.until(lambda _: len(page.all_jobs) == 1)
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == 'unknown'
+    assert page.details_panel.job_details.result == 'unknown'

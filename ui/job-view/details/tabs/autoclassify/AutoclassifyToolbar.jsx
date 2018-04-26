@@ -6,10 +6,10 @@ export default class AutoclassifyToolbar extends React.Component {
   getButtonTitle(condition, activeTitle, inactiveTitle) {
     const { user } = this.props;
 
-    if (!user || !user.loggedin) {
+    if (!user || !user.isLoggedIn) {
       return 'Must be logged in';
     }
-    if (!user.is_staff) {
+    if (!user.isStaff) {
       return 'Insufficeint permissions';
     }
     if (condition) {

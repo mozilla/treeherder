@@ -25,7 +25,6 @@ export default class PushList extends React.Component {
     this.$location = $injector.get('$location');
     this.$timeout = $injector.get('$timeout');
     this.thNotify = $injector.get('thNotify');
-    this.thPinboard = $injector.get('thPinboard');
     this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
@@ -34,7 +33,7 @@ export default class PushList extends React.Component {
 
     this.getNextPushes = this.getNextPushes.bind(this);
     this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
-    this.clearJobOnClick = this.clearJobOnClick.bind(this);
+    this.closeJob = this.closeJob.bind(this);
 
     this.state = {
       pushList: [],
@@ -80,8 +79,8 @@ export default class PushList extends React.Component {
       }
     });
 
-    this.clearSelectedJobUnlisten = this.$rootScope.$on(thEvents.clearSelectedJob, () => {
-      this.$location.search('selectedJob', null);
+    this.clearSelectedJobUnlisten = this.$rootScope.$on(thEvents.clearSelectedJob, (ev, target) => {
+      this.closeJob(target);
     });
 
     this.changeSelectionUnlisten = this.$rootScope.$on(
@@ -188,7 +187,7 @@ export default class PushList extends React.Component {
     // on the component directly.
     //
     // Filter the list of possible jobs down to ONLY ones in the .th-view-content
-    // div (excluding pinboard) and then to the specific selector passed
+    // div (excluding pinBoard) and then to the specific selector passed
     // in.  And then to only VISIBLE (not filtered away) jobs.  The exception
     // is for the .selected-job.  If that's not visible, we still want to
     // include it, because it is the anchor from which we find
@@ -232,14 +231,14 @@ export default class PushList extends React.Component {
     // if there was no new job selected, then ensure that we clear any job that
     // was previously selected.
     if ($('.selected-job').css('display') === 'none') {
-      this.$rootScope.closeJob();
+      this.$rootScope.$emit(thEvents.clearSelectedJob);
     }
   }
 
   noMoreUnclassifiedFailures() {
     this.$timeout(() => {
       this.thNotify.send("No unclassified failures to select.");
-      this.$rootScope.closeJob();
+      this.$rootScope.$emit(thEvents.clearSelectedJob);
     });
   }
 
@@ -254,33 +253,39 @@ export default class PushList extends React.Component {
     }, 200);
   }
 
-  // Clear the job if it occurs in a particular area
-  clearJobOnClick(event) {
-      // Suppress for various UI elements so selection is preserved
-    const ignoreClear = event.target.hasAttribute("data-ignore-job-clear-on-click");
-
-    if (!ignoreClear && !this.thPinboard.hasPinnedJobs()) {
+  // Clear the selectedJob
+  closeJob() {
+    // TODO: Should block clearing the selected job if there are pinned jobs
+    // But can't get the pinned jobs at this time.  When we're completely on React,
+    // or at least have a shared parent between PushList and DetailsPanel, we can share
+    // a PinBoardModel or Context so they both have access.
+    if (!this.$rootScope.countPinnedJobs()) {
       const selected = findSelectedInstance();
       if (selected) {
         selected.setSelected(false);
       }
-      this.$timeout(this.$rootScope.closeJob);
+    }
+  }
+
+  clearIfEligibleTarget(target) {
+    if (target.hasAttribute("data-job-clear-on-click")) {
+      this.$rootScope.$emit(thEvents.clearSelectedJob, target);
     }
   }
 
   render() {
     const { $injector, user, repoName, revision, currentRepo } = this.props;
     const { pushList, loadingPushes, jobsReady } = this.state;
-    const { loggedin, is_staff } = user;
+    const { isLoggedIn, isStaff } = user;
 
     return (
-      <div onClick={this.clearJobOnClick}>
+      <div onClick={evt => this.clearIfEligibleTarget(evt.target)}>
         {jobsReady && <span className="hidden ready" />}
         {repoName && pushList.map(push => (
           <Push
             push={push}
-            loggedIn={loggedin || false}
-            isStaff={is_staff}
+            isLoggedIn={isLoggedIn || false}
+            isStaff={isStaff}
             repoName={repoName}
             $injector={$injector}
             key={push.id}
@@ -300,7 +305,7 @@ export default class PushList extends React.Component {
             revision={revision}
           />
         }
-        <div className="card card-body get-next">
+        <div className="card card-body get-next" data-job-clear-on-click>
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (

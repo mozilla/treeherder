@@ -2,6 +2,8 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import { thPlatformMap } from '../js/constants';
+import { toDateStr } from './display';
+import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
 
 const btnClasses = {
   busted: "btn-red",
@@ -15,6 +17,14 @@ const btnClasses = {
   superseded: "btn-ltblue",
   failures: "btn-red",
   'in progress': "btn-dkgray",
+};
+
+// The result will be unknown unless the state is complete, so much check both.
+// TODO: We should consider storing either pending or running in the result,
+// even when the job isn't complete.  It would simplify a lot of UI code and
+// I can't think of a reason that would hurt anything.
+export const getStatus = function getStatus(job) {
+  return job.state === 'completed' ? job.result : job.state;
 };
 
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
@@ -35,12 +45,8 @@ export const getBtnClass = function getBtnClass(resultState, failureClassificati
   return btnClass;
 };
 
-// The result will be unknown unless the state is complete, so much check both.
-// TODO: We should consider storing either pending or running in the result,
-// even when the job isn't complete.  It would simplify a lot of UI code and
-// I can't think of a reason that would hurt anything.
-export const getStatus = function getStatus(job) {
-  return job.state === 'completed' ? job.result : job.state;
+export const getJobBtnClass = function getJobBtnClass(job) {
+  return getBtnClass(getStatus(job), job.failure_classification_id);
 };
 
 export const isReftest = function isReftest(job) {
@@ -75,7 +81,7 @@ const isOnScreen = function isOnScreen(el) {
   viewport.top = filterbarheight > 0 ? viewport.top + filterbarheight : viewport.top;
   const updatebarheight = $('.update-alert-panel').height();
   viewport.top = updatebarheight > 0 ? viewport.top + updatebarheight : viewport.top;
-  viewport.bottom = $(window).height() - $('#info-panel').height() - 20;
+  viewport.bottom = $(window).height() - $('#details-panel').height() - 20;
   const bounds = {};
   bounds.top = el.offset().top;
   bounds.bottom = bounds.top + el.outerHeight();
@@ -129,5 +135,46 @@ export const getSearchStr = function getSearchStr(job) {
     job.job_type_name,
     `${symbolInfo}(${job.job_type_symbol})`
   ].filter(item => typeof item !== 'undefined').join(' ');
+};
 
+export const getHoverText = function getHoverText(job) {
+  const duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
+
+  return `${job.job_type_name} - ${getStatus(job)} - ${duration} mins`;
+};
+
+export const getJobMachineUrl = function getJobMachineUrl(job) {
+  const { build_system_type, machine_name } = job;
+  const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
+    getSlaveHealthUrl(machine_name) :
+    getWorkerExplorerUrl(job.taskcluster_metadata.task_id);
+
+  return machineUrl;
+};
+
+export const getTimeFields = function getTimeFields(job) {
+  // time fields to show in detail panel, but that should be grouped together
+  const timeFields = {
+    requestTime: toDateStr(job.submit_timestamp)
+  };
+
+  // If start time is 0, then duration should be from requesttime to now
+  // If we have starttime and no endtime, then duration should be starttime to now
+  // If we have both starttime and endtime, then duration will be between those two
+  const endtime = job.end_timestamp || Date.now() / 1000;
+  const starttime = job.start_timestamp || job.submit_timestamp;
+  const duration = `${Math.round((endtime - starttime)/60, 0)} minute(s)`;
+
+  if (job.start_timestamp) {
+    timeFields.startTime = toDateStr(job.start_timestamp);
+    timeFields.duration = duration;
+  } else {
+    timeFields.duration = `Not started (queued for ${duration})`;
+  }
+
+  if (job.end_timestamp) {
+    timeFields.endTime = toDateStr(job.end_timestamp);
+  }
+
+  return timeFields;
 };
