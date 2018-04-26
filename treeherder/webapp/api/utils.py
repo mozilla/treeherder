@@ -47,7 +47,8 @@ def get_repository(param):
     """Returns repository id's by name"""
     if param == 'trunk':
         param = settings.TRUNK_REPO_NAMES
-
+    elif param == 'all':
+        param = settings.ALL_REPO_NAMES
     else:
         param = [param]
 

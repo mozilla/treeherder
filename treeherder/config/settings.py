@@ -585,4 +585,20 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 # Configuration for elasticsearch backend
 ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
 
-TRUNK_REPO_NAMES = ['mozilla-central', 'mozilla-inbound', 'autoland', 'fx-team']
+TRUNK_REPO_NAMES = ['mozilla-central', 'mozilla-inbound', 'autoland']
+
+ALL_REPO_NAMES = [
+  'autoland',
+  'comm-aurora',
+  'comm-beta',
+  'comm-central',
+  'comm-esr45',
+  'comm-esr52',
+  'comm-esr60',
+  'mozilla-beta',
+  'mozilla-central',
+  'mozilla-esr45',
+  'mozilla-esr52',
+  'mozilla-esr60',
+  'mozilla-inbound'
+]

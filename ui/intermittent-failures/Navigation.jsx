@@ -6,6 +6,7 @@ import { Collapse, Navbar, Nav, UncontrolledDropdown, DropdownToggle } from 'rea
 import { updateTreeName, fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
 import { createApiUrl } from '../helpers/urlHelper';
 import DropdownMenuItems from './DropdownMenuItems';
+import { treeOptions } from './constants';
 
 class Navigation extends React.Component {
   constructor(props) {
@@ -34,7 +35,6 @@ class Navigation extends React.Component {
   }
 
   render() {
-    const treeOptions = ['trunk', 'autoland'];
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <span className="lightorange">Intermittent Failures View </span>
