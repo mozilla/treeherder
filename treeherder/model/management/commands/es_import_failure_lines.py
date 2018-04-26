@@ -43,7 +43,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['recreate']:
             reinit_index()
-        elif INDEX_NAME in es_conn.send_request('GET', '*').keys():
+        elif es_conn.indices.exists(INDEX_NAME):
             # get the index name from the all indicies listing
             self.stderr.write("Index already exists; can't perform import")
             return
