@@ -545,14 +545,14 @@ GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default=None)
 # ...which django-environ converts into the Django DB settings dict format.
 DATABASES = {
     'default': env.db_url('DATABASE_URL'),
-    'pg': {
-        'NAME': 'treeherder',
-        'ENGINE': 'django.db.backends.postgresql',
-        'USER': 'treeherder',
-        'PASSWORD': 'treeherder',
-        'HOST': 'localhost',
-        'OPTIONS': {},
-    }
+    # 'pg': {
+    #     'NAME': 'treeherder',
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'USER': 'treeherder',
+    #     'PASSWORD': 'treeherder',
+    #     'HOST': 'localhost',
+    #     'OPTIONS': {},
+    # }
 }
 
 # We're intentionally not using django-environ's query string options feature,

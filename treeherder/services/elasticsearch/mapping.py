@@ -32,7 +32,16 @@ INDEX_SETTINGS = {
                     'message_analyzer': {
                         'type': 'custom',
                         'tokenizer': 'message_tokenizer',
-                        'filters': [],
+                        'filters': [
+                            'lowercase',
+                            'language_extensions_as_stop_words',
+                        ],
+                    },
+                },
+                'filter': {
+                    'language_extensions_as_stop_words': {
+                        'type': 'stop',
+                        'stopwords': ['js', 'py'],
                     },
                 },
                 'tokenizer': {
