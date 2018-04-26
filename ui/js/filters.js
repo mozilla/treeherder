@@ -50,11 +50,6 @@ treeherder.filter('getRevisionUrl', function () {
     };
 });
 
-//http://stackoverflow.com/questions/16630471/how-can-i-invoke-encodeuricomponent-from-angularjs-template
-treeherder.filter('encodeURIComponent', function () {
-    return window.encodeURIComponent;
-});
-
 treeherder.filter('displayNumber', ['$filter', function ($filter) {
     return function (input) {
         if (isNaN(input)) {

@@ -1,17 +1,4 @@
-<div class="job-tabs-content">
-  <ul class="list-unstyled">
-    <li ng-repeat="line in job_details | orderBy:'title'" class="small">
-      <label>{{line.title ? line.title : 'Untitled data'}}:</label>
-      <!-- URL provided -->
-      <a ng-if="line.url" title="{{line.title ? line.title : line.value}}" href="{{line.url}}" target="_blank" rel="noopener">{{line.value}}</a>
-      <span ng-if="line.url && line.value.endsWith('raw.log')">
-        - <a title="{{line.value}}" href="https://mozilla.github.io/wptview/#/?urls={{line.url | encodeURIComponent}},{{job_details[buildernameIndex].value | encodeURIComponent}}">open in test results viewer</a>
-      </span>
-      <span ng-if="line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip')">
-        - <a title="{{line.value}}" href="https://perf-html.io/from-url/{{line.url | encodeURIComponent}}">open in perf-html.io</a>
-      </span>
-      <!-- no URL (just informational) -->
-      <span ng-if="!line.url" ng-bind-html="line.value"></span>
-    </li>
-  </ul>
-</div>
+<job-details-tab
+  job-details="job_details"
+  buildername-index="buildernameIndex"
+/>
