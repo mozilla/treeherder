@@ -1,15 +1,11 @@
-from six.moves.urllib.parse import urlparse
-
-
-def hostname(url):
-    return urlparse(url).hostname
+from furl import furl
 
 
 def connection_should_use_tls(url):
     # Services such as RabbitMQ/Elasticsearch running on Travis do not yet have TLS
     # certificates set up. We could try using TLS locally using self-signed certs,
     # but until Travis has support it's not overly useful.
-    return hostname(url) != 'localhost'
+    return furl(url).host != 'localhost'
 
 
 def get_tls_redis_url(redis_url):
@@ -28,13 +24,7 @@ def get_tls_redis_url(redis_url):
     See:
     https://devcenter.heroku.com/articles/securing-heroku-redis#connecting-directly-to-stunnel
     """
-    parsed_url = urlparse(redis_url)
-    # The parsed URL's `port` property is read-only, so the entire `netloc` has to be updated.
-    # The `rsplit()` approach is used instead of `replace()` in case the port happens to match
-    # against part of the username/password/domain. See:
-    # https://stackoverflow.com/a/21629125
-    # https://stackoverflow.com/a/30846649
-    netloc_minus_port = parsed_url.netloc.rsplit(':', 1)[0]
-    stunnel_port = parsed_url.port + 1
-    new_netloc = '{}:{}'.format(netloc_minus_port, stunnel_port)
-    return parsed_url._replace(scheme='rediss', netloc=new_netloc).geturl()
+    url = furl(redis_url)
+    url.port += 1
+    url.scheme += 's'
+    return str(url)
