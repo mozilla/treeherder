@@ -69,6 +69,7 @@ import './plugins/tabs';
 import './plugins/controller';
 import './plugins/pinboard';
 import './details-panel/JobDetailsPane';
+import './details-panel/JobDetailsTab';
 import './details-panel/FailureSummaryTab';
 import './details-panel/AutoclassifyTab';
 import './details-panel/AnnotationsTab';

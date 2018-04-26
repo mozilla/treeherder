@@ -51,6 +51,14 @@ export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_n
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
 
+export const getWptUrl = function getWptUrl(url, value) {
+  return `https://mozilla.github.io/wptview/#/?urls=${encodeURIComponent(url)},${encodeURIComponent(value)}`;
+};
+
+export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
+  return `https://perf-html.io/from-url/${encodeURIComponent(url)}`;
+};
+
 // Take the repoName, if passed in.  If not, then try to find it on the
 // URL.  If not there, then try m-i and hope for the best.  The caller may
 // not actually need a repo if they're trying to get a job by ``id``.

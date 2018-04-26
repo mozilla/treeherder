@@ -45,19 +45,6 @@ describe('stripHtml filter', function() {
     });
 });
 
-describe('encodeURIComponent filter', function() {
-    var $filter;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-
-    it('encodes uri components', function() {
-        var encodeURIComponent = $filter('encodeURIComponent');
-        expect(encodeURIComponent('this/is.a?URI#Component')).toEqual('this%2Fis.a%3FURI%23Component');
-    });
-});
-
 describe('displayNumber filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));
