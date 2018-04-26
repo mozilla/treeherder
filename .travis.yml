@@ -41,7 +41,7 @@ matrix:
         - flake8 --show-source
         # Temporarily running these in the linters job to avoid impacting job count and thus Travis end-to-end times.
         # Prevent connections during check/migrate/makemigrations to a non-existent Elasticsearch server.
-        - unset ELASTICSEARCH_URL
+        - unset FOUNDELASTICSEARCH_URL
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
         # Remove these once we get the roughly equivalent pytest sanity tests working under Python 3.
         - ./manage.py migrate
