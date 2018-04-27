@@ -7,6 +7,7 @@ from abc import (ABCMeta,
 from collections import namedtuple
 from difflib import SequenceMatcher
 
+import newrelic.agent
 from django.conf import settings
 from django.db.models import Q
 from six import add_metaclass
@@ -213,6 +214,12 @@ class ElasticSearchTestMatcher(Matcher):
                          failure_line.test, failure_line.subtest, failure_line.status,
                          failure_line.expected, failure_line.message)
             raise
+
+        newrelic.agent.record_custom_event('es_matches', {
+            'num_results': len(results),
+            'text_log_error_id': text_log_error.id,
+            'failure_line_id': failure_line.id,
+        })
 
         scorer = MatchScorer(failure_line.message)
         matches = [(item, item['message']) for item in results]
