@@ -210,11 +210,17 @@ class ElasticSearchTestMatcher(Matcher):
             self.calls += 1
             results = search(query)
         except Exception:
-            logger.error("Elastic search lookup failed: %s %s %s %s %s",
+            logger.error("Elasticsearch lookup failed: %s %s %s %s %s",
                          failure_line.test, failure_line.subtest, failure_line.status,
                          failure_line.expected, failure_line.message)
             raise
 
+        args = (
+            text_log_error.id,
+            failure_line.id,
+            len(results),
+        )
+        logger.info('text_log_error=%i failure_line=%i Elasticsearch produced %i results' % args)
         newrelic.agent.record_custom_event('es_matches', {
             'num_results': len(results),
             'text_log_error_id': text_log_error.id,
