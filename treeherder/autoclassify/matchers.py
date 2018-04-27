@@ -16,6 +16,7 @@ from treeherder.model.models import (MatcherManager,
                                      TextLogError,
                                      TextLogErrorMatch)
 from treeherder.services.elasticsearch import search
+from treeherder.utils.itertools import compact
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +36,7 @@ class Matcher(object):
         self.db_object = db_object
 
     def __call__(self, text_log_errors):
-        rv = []
-        for text_log_error in text_log_errors:
-            match = self.match(text_log_error)
-            if match:
-                rv.append(match)
-        return rv
+        return compact(self.match(tle) for tle in text_log_errors)
 
     def match(self, text_log_error):
         best_match = self.query_best(text_log_error)

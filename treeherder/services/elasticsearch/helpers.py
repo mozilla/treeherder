@@ -3,6 +3,8 @@ import logging
 from elasticsearch import TransportError
 from elasticsearch.helpers import bulk as es_bulk
 
+from treeherder.utils.itertools import compact
+
 from .connection import es_conn
 from .mapping import (DOC_TYPE,
                       INDEX_NAME,
@@ -38,13 +40,12 @@ def bulk(iterable, index=INDEX_NAME, doc_type=DOC_TYPE, action='index'):
     https://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
     https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
     """
-    actions = (dict_to_op(
+    actions = compact(dict_to_op(
         to_dict(model),
         index_name=INDEX_NAME,
         doc_type=DOC_TYPE,
         op_type=action,
     ) for model in iterable)
-    actions = [x for x in actions if x]  # dict_to_op can return Nones currently
 
     # fail fast if there are no actions
     if not actions:
