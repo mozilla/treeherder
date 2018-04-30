@@ -89,7 +89,6 @@ class Command(BaseCommand):
 
         duration = 1000 * (time.time() - t0)
         self.stderr.write("Total lines %d" % total_lines)
-        self.stderr.write("Total lines in matcher %d" % matcher.lines)
         self.stderr.write("Called ElasticSearch %i times" % matcher.calls)
         self.stderr.write("Took %dms" % duration)
 
