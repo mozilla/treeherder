@@ -167,7 +167,6 @@ class ElasticSearchTestMatcher(Matcher):
 
     def __init__(self, *args, **kwargs):
         Matcher.__init__(self, *args, **kwargs)
-        self.lines = 0
         self.calls = 0
 
     @with_failure_lines
