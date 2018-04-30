@@ -1,8 +1,8 @@
 # Packages that are shared between deployment and dev environments.
 
-gunicorn==19.7.1 \
-    --hash=sha256:75af03c99389535f218cc596c7de74df4763803f7b63eb09d77e92b3956b36c6 \
-    --hash=sha256:eee1169f0ca667be05db3351a0960765620dad53f53434262ff8901b68a1b622
+gunicorn==19.8.0 \
+    --hash=sha256:f5ca088d029fe3cea166c59bb43b7ccc9c850fe25af3da61350fe712c5cc5aa2 \
+    --hash=sha256:eb8d8924b117a609fae9f8cd85df0cad3535dd613fdbcdbba3ee88d5459f1d4f
 
 whitenoise==3.3.1 \
     --hash=sha256:15f43b2e701821b95c9016cf469d29e2a546cb1c7dead584ba82c36f843995cf \
