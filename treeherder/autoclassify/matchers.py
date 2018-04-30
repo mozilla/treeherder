@@ -37,6 +37,8 @@ class Matcher(object):
         self.db_object = db_object
 
     def __call__(self, text_log_errors):
+        # Only look at TextLogErrors with related FailureLines
+        text_log_errors = (t for t in text_log_errors if t.metadata and t.metadata.failure_line)
         return compact(self.match(tle) for tle in text_log_errors)
 
     def match(self, text_log_error):
@@ -122,23 +124,9 @@ class id_window(object):
         return None
 
 
-def with_failure_lines(f):
-    def inner(self, text_log_errors):
-        with_failure_lines = [item for item in text_log_errors
-                              if item.metadata and item.metadata.failure_line]
-        return f(self, with_failure_lines)
-    inner.__name__ = f.__name__
-    inner.__doc__ = f.__doc__
-    return inner
-
-
 class PreciseTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests and
     identical error message."""
-
-    @with_failure_lines
-    def __call__(self, text_log_errors):
-        return super(PreciseTestMatcher, self).__call__(text_log_errors)
 
     @id_window(size=20000,
                time_budget=500)
@@ -170,7 +158,6 @@ class ElasticSearchTestMatcher(Matcher):
         self.lines = 0
         self.calls = 0
 
-    @with_failure_lines
     def __call__(self, text_log_errors):
         if not settings.ELASTICSEARCH_URL:
             return []
@@ -236,10 +223,6 @@ class ElasticSearchTestMatcher(Matcher):
 
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature"""
-
-    @with_failure_lines
-    def __call__(self, text_log_errors):
-        return super(CrashSignatureMatcher, self).__call__(text_log_errors)
 
     @id_window(size=20000,
                time_budget=250)
