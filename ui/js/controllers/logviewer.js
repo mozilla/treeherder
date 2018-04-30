@@ -164,7 +164,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 $scope.logViewerTitle = job.get_title();
 
                 if (job.logs && job.logs.length) {
-                    $scope.reftestUrl = `${getReftestUrl(job.logs[0].url)}&only_show_unexpected=1`;
+                    $scope.rawLogURL = job.logs[0].url;
                 }
 
                 // set the result value and shading color class
@@ -186,11 +186,9 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 // Test to expose the reftest button in the logviewer actionbar
-                $scope.isReftest = () => {
-                    if (job.job_group_name) {
-                        return isReftest(job);
-                    }
-                };
+                if ($scope.rawLogURL && job.job_group_name && isReftest(job)) {
+                    $scope.reftestUrl = `${getReftestUrl($scope.rawLogURL)}&only_show_unexpected=1`;
+                }
 
                 // get the revision and linkify it
                 ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
