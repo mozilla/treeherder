@@ -55,19 +55,18 @@ treeherder.controller('TCJobActionsCtrl', [
                 }
             }
 
-            const actionTaskId = slugid();
             tcactions.submit({
                 action: $scope.input.selectedAction,
-                actionTaskId,
+                actionTaskId: slugid(),
                 decisionTaskId,
                 taskId: originalTaskId,
                 task: originalTask,
                 input,
                 staticActionVariables: $scope.staticActionVariables,
-            }).then(function () {
+            }).then(function (taskId) {
                 $scope.triggering = false;
                 let message = 'Custom action request sent successfully:';
-                let url = `https://tools.taskcluster.net/tasks/${actionTaskId}`;
+                let url = `https://tools.taskcluster.net/tasks/${taskId}`;
 
                 // For the time being, we are redirecting specific actions to
                 // specific urls that are different than usual. At this time, we are
