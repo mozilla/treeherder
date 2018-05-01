@@ -1,8 +1,28 @@
 import time
 
-from treeherder.autoclassify.matchers import (score_matches,
+from treeherder.autoclassify.matchers import (score_by_classified_fail_id,
+                                              score_matches,
                                               time_boxed)
-from treeherder.model.models import FailureLine, TextLogErrorMatch
+from treeherder.model.models import (FailureLine,
+                                     TextLogErrorMatch)
+
+
+def test_score_by_classified_fail_id(classified_failures):
+    matches = [(m, m.score) for m in TextLogErrorMatch.objects.all()]
+
+    first_match = TextLogErrorMatch.objects.first()
+
+    classified_failure_id, scored_match = score_by_classified_fail_id(matches)
+    match, score = scored_match
+
+    assert match == first_match
+    assert score == first_match.score
+    assert classified_failure_id == first_match.classified_failure_id
+
+
+def test_score_by_classified_fail_id_empty_input():
+    output = score_by_classified_fail_id(None)
+    assert output is None
 
 
 def test_score_matches_empty_return():

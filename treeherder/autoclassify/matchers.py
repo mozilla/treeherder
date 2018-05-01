@@ -11,6 +11,7 @@ from difflib import SequenceMatcher
 import newrelic.agent
 from django.conf import settings
 from django.db.models import Q
+from first import first
 from six import add_metaclass
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
@@ -54,6 +55,23 @@ class Matcher(object):
     @abstractmethod
     def query_best(self, text_log_error):
         pass
+
+
+def score_by_classified_fail_id(matches):
+    """
+    Get a tuple of the best (match, score) and its ClassifiedFailure ID
+    """
+    if not matches:
+        return
+
+    # list of (match, score) pairs
+    # get the best score
+    match_and_score = first(matches, key=lambda m: (-m[1], -m[0].classified_failure_id))
+    if not match_and_score:
+        return
+
+    match, score = match_and_score
+    return match.classified_failure_id, score
 
 
 def score_matches(matches, score_multiplier=(1, 1)):
