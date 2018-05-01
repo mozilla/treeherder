@@ -55,6 +55,24 @@ class Matcher(object):
         pass
 
 
+def time_boxed(func, iterable, time_budget, *args):
+    """
+    Apply a function to the items of an iterable within a given time budget
+
+    Loop the given iterable, calling the given function on each item. The expended
+    time is compared to the given time budget after each iteration.
+    """
+    time_budget = time_budget / 1000  # budget in milliseconds
+    start = time.time()
+
+    for thing in iterable:
+        yield func(thing, *args)
+
+        end = time.time() - start
+        if end > time_budget:
+            # Putting the condition at the end of the loop ensures that we
+            # always run it once, which is useful for testing
+            return
 
 
 class id_window(object):
