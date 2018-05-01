@@ -5,7 +5,7 @@ def chunked_qs(qs, chunk_size=10000, fields=None):
     Usage:
 
         >>> qs = FailureLine.objects.filter(action='test_result')
-        >>> for qs in batch_qs(qs, chunk_size=10000, fields=['id', 'message']):
+        >>> for qs in chunked_qs(qs, chunk_size=10000, fields=['id', 'message']):
         ...     for line in qs:
         ...         print(line.message)
 
@@ -37,3 +37,38 @@ def chunked_qs(qs, chunk_size=10000, fields=None):
 
         # update the minimum ID for next iteration
         min_id = rows[-1].id
+
+
+def chunked_qs_reverse(qs, chunk_size=10000):
+    """
+    Generator to iterate over the given QuerySet in reverse chunk_size rows at a time
+
+    Usage:
+
+        >>> qs = FailureLine.objects.filter(action='test_result')
+        >>> for qs in chunked_qs_reverse(qs, chunk_size=100):
+        ...     for line in qs:
+        ...         print(line.message)
+
+    Note: This method is just different enough that it seemed easier to keep
+    this function separate to chunked_qs.
+    """
+    if not qs:
+        return
+
+    qs = qs.order_by('-id')
+
+    # Can't use .only() here in case the query used select_related
+    max_id = qs.first().id
+    while True:
+        chunk = qs.filter(id__lte=max_id)  # upper bound of this chunk
+
+        rows = chunk[:chunk_size]
+
+        if len(rows) < 1:
+            break
+
+        yield rows
+
+        # update the maximum ID for next iteration
+        max_id = max_id - chunk_size
