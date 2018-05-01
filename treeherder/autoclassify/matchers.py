@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division
 
 import logging
@@ -53,6 +54,34 @@ class Matcher(object):
     @abstractmethod
     def query_best(self, text_log_error):
         pass
+
+
+def score_matches(matches, score_multiplier=(1, 1)):
+    """
+    Get scores for the given matches
+
+    Given a QuerySet of TextLogErrorMatchs produce a score for each one until
+    Good Enough™.  An optional score multiplier can be passed in.
+    """
+    # TODO: this should probably loop the input returning all scores unless one
+    # is bigger than the Good Enough ratio.  Otherwise we only take the first
+    # score from each _chunk_ of the queryset which is meaningless to the
+    # score.
+    if matches is None:
+        return
+
+    match = matches.first()
+    if match is None:
+        return
+
+    # generate a new score from the current match
+    dividend, divisor = score_multiplier
+    score = match.score * dividend / divisor
+
+    yield (match, score)
+
+    if score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
+        return
 
 
 def time_boxed(func, iterable, time_budget, *args):
