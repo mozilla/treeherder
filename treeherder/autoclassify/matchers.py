@@ -55,8 +55,6 @@ class Matcher(object):
         pass
 
 
-ignored_line = (Q(text_log_error___metadata__best_classification=None) &
-                Q(text_log_error___metadata__best_is_verified=True))
 
 
 class id_window(object):
@@ -137,16 +135,24 @@ class PreciseTestMatcher(Matcher):
         if failure_line.action != "test_result" or failure_line.message is None:
             return
 
-        return [(TextLogErrorMatch.objects
-                 .filter(text_log_error___metadata__failure_line__action="test_result",
-                         text_log_error___metadata__failure_line__test=failure_line.test,
-                         text_log_error___metadata__failure_line__subtest=failure_line.subtest,
-                         text_log_error___metadata__failure_line__status=failure_line.status,
-                         text_log_error___metadata__failure_line__expected=failure_line.expected,
-                         text_log_error___metadata__failure_line__message=failure_line.message)
-                 .exclude(ignored_line |
-                          Q(text_log_error__step__job=text_log_error.step.job))
-                 .order_by("-score", "-classified_failure"))]
+        f = {
+            'text_log_error___metadata__failure_line__action': 'test_result',
+            'text_log_error___metadata__failure_line__test': failure_line.test,
+            'text_log_error___metadata__failure_line__subtest': failure_line.subtest,
+            'text_log_error___metadata__failure_line__status': failure_line.status,
+            'text_log_error___metadata__failure_line__expected': failure_line.expected,
+            'text_log_error___metadata__failure_line__message': failure_line.message
+        }
+        qwargs = (
+            Q(text_log_error___metadata__best_classification=None)
+            & (Q(text_log_error___metadata__best_is_verified=True)
+               | Q(text_log_error__step__job=text_log_error.step.job))
+        )
+        qs = (TextLogErrorMatch.objects.filter(**f)
+                                       .exclude(qwargs)
+                                       .order_by('-score', '-classified_failure'))
+
+        return [qs]
 
 
 class ElasticSearchTestMatcher(Matcher):
@@ -234,17 +240,24 @@ class CrashSignatureMatcher(Matcher):
             failure_line.signature == "None"):
             return
 
-        matching_failures = (TextLogErrorMatch.objects
-                             .filter(text_log_error___metadata__failure_line__action="crash",
-                                     text_log_error___metadata__failure_line__signature=failure_line.signature)
-                             .exclude(ignored_line |
-                                      Q(text_log_error__step__job=text_log_error.step.job))
-                             .select_related('text_log_error',
-                                             'text_log_error___metadata')
-                             .order_by("-score", "-classified_failure"))
+        f = {
+            'text_log_error___metadata__failure_line__action': 'crash',
+            'text_log_error___metadata__failure_line__signature': failure_line.signature,
+        }
+        qwargs = (
+            Q(text_log_error___metadata__best_classification=None)
+            & (Q(text_log_error___metadata__best_is_verified=True)
+               | Q(text_log_error__step__job=text_log_error.step.job))
+        )
+        qs = (TextLogErrorMatch.objects.filter(**f)
+                                       .exclude(qwargs)
+                                       .select_related('text_log_error', 'text_log_error___metadata')
+                                       .order_by('-score', '-classified_failure'))
 
-        return [matching_failures.filter(text_log_error___metadata__failure_line__test=failure_line.test),
-                (matching_failures, (8, 10))]
+        return [
+            qs.filter(text_log_error___metadata__failure_line__test=failure_line.test),
+            (qs, (8, 10)),
+        ]
 
 
 class MatchScorer(object):
