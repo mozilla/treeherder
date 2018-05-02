@@ -335,11 +335,11 @@ ph-compare-table hr {
     color: #23527c;
 }
 
-.compare-table td.alert-labels button {
+.compare-table td.alert-labels a {
     visibility: hidden;
 }
 
-.compare-table tr:hover td.alert-labels button {
+.compare-table tr:hover td.alert-labels a {
     visibility: visible;
 }
 
@@ -482,6 +482,10 @@ span.compare-notsure {
 
 /* Table widths for alerts */
 td.alert-checkbox {
+    width: 30px;
+    padding: 8px;
+}
+td.alert-labels {
     width: 30px;
     padding: 8px;
 }
