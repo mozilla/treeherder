@@ -140,6 +140,10 @@ export const thPlatformMap = {
     "horizon-win64": "Horizon Windows x64",
 
     "gecko-decision": "Gecko Decision Task",
+    "firefox-release": "Firefox Release Tasks",
+    "devedition-release": "Devedition Release Tasks",
+    "fennec-release": "Fennec Release Tasks",
+    "thunderbird-release": "Thunderbird Release Tasks",
     lint: "Linting",
     "release-mozilla-release-": "Balrog Publishing",
     other: "Other"
