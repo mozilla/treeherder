@@ -59,7 +59,7 @@ def runnable_jobs_data():
 @pytest.fixture
 def tc_latest_gecko_decision_index(test_repository):
     return {
-        "namespace": "gecko.v2.{}.latest.firefox.decision".format(test_repository),
+        "namespace": "gecko.v2.{}.latest.taskgraph.decision".format(test_repository),
         "taskId": "XVDNiP07RNaaEghhvkZJWg",
         "rank": 0,
         "data": {},
