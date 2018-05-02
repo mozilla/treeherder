@@ -10,7 +10,7 @@ matrix:
     - env: python2-linters
       sudo: false
       language: python
-      python: "2.7.14"
+      python: "2.7.15"
       cache:
         directories:
           - ${HOME}/venv
@@ -63,7 +63,7 @@ matrix:
     # Job 4: Python Tests - Main
     - env: python-tests-main
       language: python
-      python: "2.7.14"
+      python: "2.7.15"
       cache:
         directories:
           - ${HOME}/venv
@@ -83,7 +83,7 @@ matrix:
     # Job 5: Python Tests - Selenium integration
     - env: python-tests-selenium
       language: python
-      python: "2.7.14"
+      python: "2.7.15"
       cache:
         directories:
           - ${HOME}/venv
