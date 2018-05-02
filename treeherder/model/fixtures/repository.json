@@ -200,7 +200,7 @@
         "dvcs_type": "hg",
         "name": "graphics",
         "url": "https://hg.mozilla.org/projects/graphics",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -278,7 +278,7 @@
         "dvcs_type": "hg",
         "name": "cedar",
         "url": "https://hg.mozilla.org/projects/cedar",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -291,7 +291,7 @@
         "dvcs_type": "hg",
         "name": "cypress",
         "url": "https://hg.mozilla.org/projects/cypress",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
@@ -461,7 +461,7 @@
         "dvcs_type": "hg",
         "name": "comm-aurora",
         "url": "https://hg.mozilla.org/releases/comm-aurora",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "comm",
         "repository_group": 8,
         "description": ""
@@ -763,7 +763,7 @@
         "name": "bugzilla-master",
         "url": "https://github.com/bugzilla/bugzilla",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla codebase."
@@ -777,7 +777,7 @@
         "name": "bmo-master",
         "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
@@ -817,7 +817,7 @@
         "name": "bugzilla-5_0",
         "url": "https://github.com/bugzilla/bugzilla",
         "branch": "5.0",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla 5.0 codebase."
@@ -831,7 +831,7 @@
         "name": "bugzilla-4_4",
         "url": "https://github.com/bugzilla/bugzilla",
         "branch": "4.4",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the Bugzilla 4.4 codebase."
@@ -859,7 +859,7 @@
         "name": "bmo-development",
         "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "development",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
@@ -899,7 +899,7 @@
         "name": "bmo-upstream-merge",
         "url": "https://github.com/mozilla-bteam/bmo",
         "branch": "upstream-merge",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "bugzilla",
         "repository_group": 4,
         "description": "A suite of tests to check the quality of the BMO codebase."
@@ -995,7 +995,7 @@
         "name": "autopush",
         "url": "https://github.com/mozilla-services/autopush",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "autopush",
         "repository_group": 7,
         "description": "Mozilla Push server and Push Endpoint."
@@ -1036,7 +1036,7 @@
         "name": "example-addon",
         "url": "https://github.com/mozilla/example-addon-repo",
         "branch": "master",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "example-addon-repo",
         "repository_group": 7,
         "description": "Example add-on repository for templates and best practices."
