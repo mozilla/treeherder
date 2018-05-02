@@ -107,10 +107,10 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
 
      It stores the minimal sanitized data from runnable apis under ~/.mozilla/seta/<task_id>.json
 
-     [1] https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.firefox.decision/
+     [1] https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision/
      [2] Index's data structure:
       {
-        "namespace": "gecko.v2.mozilla-inbound.latest.firefox.decision",
+        "namespace": "gecko.v2.mozilla-inbound.latest.taskgraph.decision",
         "taskId": "Dh9ZvFk5QCSprJ877cgUmw",
         "rank": 0,
         "data": {},
