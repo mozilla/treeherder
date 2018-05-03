@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import { getUrlParam } from "../helpers/locationHelper";
+import { thEvents } from '../js/constants';
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -33,6 +34,25 @@ export default class PushActionMenu extends React.PureComponent {
 
     // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
     this.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+
+    this.state = {
+      topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
+      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+    };
+  }
+
+  componentDidMount() {
+    this.unlistenGlobalFilterChanged = this.$rootScope.$on(
+      thEvents.globalFilterChanged, () => {
+        this.setState({
+          topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
+          bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+        });
+      });
+  }
+
+  componentWillUnmount() {
+    this.unlistenGlobalFilterChanged();
   }
 
   getRangeChangeUrl(param, revision) {
@@ -89,6 +109,7 @@ export default class PushActionMenu extends React.PureComponent {
   render() {
     const { loggedIn, isStaff, repoName, revision, pushId, runnableVisible,
             hideRunnableJobsCb, showRunnableJobsCb } = this.props;
+    const { topOfRangeUrl, bottomOfRangeUrl } = this.state;
 
     return (
       <span className="btn-group dropdown" dropdown="true">
@@ -149,11 +170,11 @@ export default class PushActionMenu extends React.PureComponent {
           >Custom Push Action...</li>
           <li><a
             className="dropdown-item"
-            href={this.getRangeChangeUrl('tochange', revision)}
+            href={topOfRangeUrl}
           >Set as top of range</a></li>
           <li><a
             className="dropdown-item"
-            href={this.getRangeChangeUrl('fromchange', revision)}
+            href={bottomOfRangeUrl}
           >Set as bottom of range</a></li>
         </ul>
       </span>
