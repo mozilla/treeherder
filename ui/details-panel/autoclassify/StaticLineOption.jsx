@@ -36,7 +36,7 @@ export default function StaticLineOption(props) {
         {!canClassify || pinBoard.isPinned(job) &&
           <button
             className="btn btn-xs btn-light-bordered"
-            onClick={pinBoard.addBug({ id: option.bugNumber }, job)}
+            onClick={() => pinBoard.addBug({ id: option.bugNumber }, job)}
             title="add to list of bugs to associate with all pinned jobs"
           ><i className="fa fa-thumb-tack" /></button>}
         {!!option.bugResolution &&
