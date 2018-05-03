@@ -7,6 +7,7 @@ from abc import (ABCMeta,
                  abstractmethod)
 from collections import namedtuple
 from difflib import SequenceMatcher
+from itertools import chain
 
 import newrelic.agent
 from django.conf import settings
@@ -16,10 +17,10 @@ from six import add_metaclass
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
 from treeherder.model.models import (MatcherManager,
-                                     TextLogError,
                                      TextLogErrorMatch)
 from treeherder.services.elasticsearch import search
 from treeherder.utils.itertools import compact
+from treeherder.utils.queryset import chunked_qs_reverse
 
 logger = logging.getLogger(__name__)
 
@@ -132,88 +133,8 @@ def time_boxed(func, iterable, time_budget, *args):
             return
 
 
-class id_window(object):
-    """Decorator to process given queries in given chunk sizes with a timebox for each chunk."""
-    def __init__(self, size, time_budget):
-        """Store chunk size and time budget values."""
-        self.size = size
-        self.time_budget_ms = time_budget
-
-    def __call__(self, f):
-        """Apply run method to each query returned from the decorated method."""
-        outer = self
-
-        def inner(self, text_log_error):
-            queries = f(self, text_log_error)
-            if not queries:
-                return
-
-            for item in queries:
-                if isinstance(item, tuple):
-                    query, score_multiplier = item
-                else:
-                    query = item
-                    score_multiplier = (1, 1)
-
-                result = outer.run(query, score_multiplier)
-                if result:
-                    return result
-        inner.__name__ = f.__name__
-        inner.__doc__ = f.__doc__
-        return inner
-
-    def run(self, query, score_multiplier):
-        """
-        Get scores for matches in the given query.
-
-        Chunks the given query by related TextLogError.id using self.size,
-        checking each chunk is processed in the given time_budget.  Matches are
-        sorted by score, using their related ClassifiedFailure.id as a tie
-        breaker.  Returns a nested tuple of:
-
-            (classified_failure.id, (match, score))
-        """
-        matches = []
-        time_budget = self.time_budget_ms / 1000. if self.time_budget_ms is not None else None
-        t0 = time.time()
-
-        upper_cutoff = (TextLogError.objects
-                        .order_by('-id')
-                        .values_list('id', flat=True)[0])
-
-        count = 0
-        while upper_cutoff > 0:
-            count += 1
-            lower_cutoff = max(upper_cutoff - self.size, 0)
-            window_queryset = query.filter(
-                text_log_error__id__range=(lower_cutoff, upper_cutoff))
-            logger.debug("[time_window] Queryset: %s", window_queryset.query)
-            match = window_queryset.first()
-            if match is not None:
-                score = match.score * score_multiplier[0] / score_multiplier[1]
-                matches.append((match, score))
-                if score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
-                    break
-            upper_cutoff -= self.size
-
-            if time_budget is not None and time.time() - t0 > time_budget:
-                # Putting the condition at the end of the loop ensures that we always
-                # run it once, which is useful for testing
-                break
-
-        logger.debug("[time_window] Used %i queries", count)
-        if matches:
-            matches.sort(key=lambda x: (-x[1], -x[0].classified_failure_id))
-            best = matches[0]
-            return best[0].classified_failure_id, best[1]
-
-        return None
-
-
 class PreciseTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests and identical error message."""
-    @id_window(size=20000,
-               time_budget=500)
     def query_best(self, text_log_error):
         """Query for TextLogErrorMatches identical to matches of the given TextLogError."""
         failure_line = text_log_error.metadata.failure_line
@@ -239,7 +160,12 @@ class PreciseTestMatcher(Matcher):
                                        .exclude(qwargs)
                                        .order_by('-score', '-classified_failure'))
 
-        return [qs]
+        if not qs:
+            return
+
+        chunks = chunked_qs_reverse(qs, chunk_size=20000)
+        matches = chain.from_iterable(time_boxed(score_matches, chunks, time_budget=500))
+        return score_by_classified_fail_id(matches)
 
 
 class ElasticSearchTestMatcher(Matcher):
@@ -322,8 +248,6 @@ class ElasticSearchTestMatcher(Matcher):
 
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature."""
-    @id_window(size=20000,
-               time_budget=250)
     def query_best(self, text_log_error):
         """
         Query for TextLogErrorMatches with the same crash signature.
@@ -353,10 +277,25 @@ class CrashSignatureMatcher(Matcher):
                                        .select_related('text_log_error', 'text_log_error___metadata')
                                        .order_by('-score', '-classified_failure'))
 
-        return [
-            qs.filter(text_log_error___metadata__failure_line__test=failure_line.test),
-            (qs, (8, 10)),
-        ]
+        size = 20000
+        time_budget = 500
+
+        # See if we can get any matches when filtering by the same test
+        first_attempt = qs.filter(text_log_error___metadata__failure_line__test=failure_line.test)
+        chunks = chunked_qs_reverse(first_attempt, chunk_size=size)
+        matches = chain.from_iterable(time_boxed(score_matches, chunks, time_budget))
+        if matches:
+            return score_by_classified_fail_id(matches)
+
+        # try again without filtering to the test but applying a .8 score multiplyer
+        chunks = chunked_qs_reverse(qs, chunk_size=size)
+        matches = chain.from_iterable(time_boxed(
+            score_matches,
+            chunks,
+            time_budget,
+            score_multiplier=(8, 10),
+        ))
+        return score_by_classified_fail_id(matches)
 
 
 class MatchScorer(object):
