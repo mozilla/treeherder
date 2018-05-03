@@ -207,26 +207,40 @@ export default class PushList extends React.Component {
       const idx = getIndex(selIdx, jobs);
       const jobEl = $(jobs[idx]);
 
+      let selected;
       if (selectedEl.length) {
-        const selected = findInstance(selectedEl[0]);
+        selected = findInstance(selectedEl[0]);
         selected.setSelected(false);
       }
 
       const nextSelected = findInstance(jobEl[0]);
-      nextSelected.setSelected(true);
 
-      const jobId = jobEl.attr('data-job-id');
+      if (nextSelected && nextSelected !== selected) {
+        nextSelected.setSelected(true);
+        const jobId = jobEl.attr('data-job-id');
 
-      if (jobMap && jobMap[jobId] && selIdx !== idx) {
-        this.selectJob(jobMap[jobId].job_obj, jobEl);
-        return;
+        if (jobMap && jobMap[jobId] && selIdx !== idx) {
+          this.selectJob(jobMap[jobId].job_obj, jobEl);
+          return;
+        }
+      } else {
+        this.noMoreUnclassifiedFailures();
       }
+    } else {
+      this.noMoreUnclassifiedFailures();
     }
     // if there was no new job selected, then ensure that we clear any job that
     // was previously selected.
     if ($('.selected-job').css('display') === 'none') {
       this.$rootScope.closeJob();
     }
+  }
+
+  noMoreUnclassifiedFailures() {
+    this.$timeout(() => {
+      this.thNotify.send("No unclassified failures to select.");
+      this.$rootScope.closeJob();
+    });
   }
 
   selectJob(job, jobEl) {
