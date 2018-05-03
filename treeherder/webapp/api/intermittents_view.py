@@ -25,8 +25,11 @@ class Failures(generics.ListAPIView):
         endday = get_end_of_day(self.request.query_params.get('endday').encode('utf-8'))
         repo = list(get_repository(self.request.query_params.get('tree')))
 
-        queryset = BugJobMap.failures.default(repo, startday, endday).values('bug_id').annotate(bug_count=Count(
-                                              'job_id')).values('bug_id', 'bug_count').order_by('-bug_count')
+        queryset = (BugJobMap.failures.default(repo, startday, endday)
+                                      .values('bug_id')
+                                      .annotate(bug_count=Count('job_id'))
+                                      .values('bug_id', 'bug_count')
+                                      .order_by('-bug_count'))
 
         return queryset
 
@@ -43,11 +46,12 @@ class FailuresByBug(generics.ListAPIView):
         repo = list(get_repository(self.request.query_params.get('tree')))
         bug_id = int(self.request.query_params.get('bug'))
 
-        queryset = BugJobMap.failures.default(repo, startday, endday).by_bug(bug_id).values(
-                                            'job__repository__name', 'job__push__revision',
-                                            'bug_id', 'job_id', 'job__push__time', 'job__machine_platform__platform',
-                                            'job__signature__job_type_name', 'job__option_collection_hash',
-                                            ).order_by('-job__push__time')
+        queryset = (BugJobMap.failures.default(repo, startday, endday)
+                                      .by_bug(bug_id)
+                                      .values('job__repository__name', 'job__machine_platform__platform',
+                                              'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
+                                              'job__signature__job_type_name', 'job__option_collection_hash')
+                                      .order_by('-job__push__time'))
 
         hash_list = []
 
@@ -56,8 +60,9 @@ class FailuresByBug(generics.ListAPIView):
             if not match:
                 hash_list.append(item['job__option_collection_hash'])
 
-        hash_query = OptionCollection.objects.filter(option_collection_hash__in=hash_list).select_related(
-                                                     'option').values('option__name', 'option_collection_hash')
+        hash_query = (OptionCollection.objects.filter(option_collection_hash__in=hash_list)
+                                              .select_related('option')
+                                              .values('option__name', 'option_collection_hash'))
 
         for item in queryset:
             # Casting to list since Python 3's `filter` produces an iterator
@@ -82,22 +87,30 @@ class FailureCount(generics.ListAPIView):
         repo = list(get_repository(self.request.query_params.get('tree')))
         bug_id = self.request.query_params.get('bug')
 
-        push_query = Push.objects.filter(repository_id__in=repo,
-                                         time__range=(startday, endday)).annotate(date=TruncDate('time')).values(
-                                         'date').annotate(test_runs=Count('author')).order_by('date').values(
-                                         'date', 'test_runs')
+        push_query = (Push.objects.filter(repository_id__in=repo, time__range=(startday, endday))
+                                  .annotate(date=TruncDate('time'))
+                                  .values('date')
+                                  .annotate(test_runs=Count('author'))
+                                  .order_by('date')
+                                  .values('date', 'test_runs'))
 
         if bug_id:
-            job_query = BugJobMap.failures.default(repo, startday, endday).by_bug(bug_id).annotate(
-                                                  date=TruncDate('job__push__time')).values(
-                                                  'date').annotate(failure_count=Count('id')).order_by(
-                                                  'date').values('date', 'failure_count')
+            job_query = (BugJobMap.failures.default(repo, startday, endday)
+                                           .by_bug(bug_id)
+                                           .annotate(date=TruncDate('job__push__time'))
+                                           .values('date')
+                                           .annotate(failure_count=Count('id'))
+                                           .order_by('date')
+                                           .values('date', 'failure_count'))
         else:
-            job_query = Job.objects.filter(push__time__range=(startday, endday),
-                                           repository_id__in=repo,
-                                           failure_classification_id=4).select_related('push').annotate(
-                                           date=TruncDate('push__time')).values('date').annotate(
-                                           failure_count=Count('id')).order_by('date').values('date', 'failure_count')
+            job_query = (Job.objects.filter(push__time__range=(startday, endday),
+                                            repository_id__in=repo, failure_classification_id=4)
+                                    .select_related('push')
+                                    .annotate(date=TruncDate('push__time'))
+                                    .values('date')
+                                    .annotate(failure_count=Count('id'))
+                                    .order_by('date')
+                                    .values('date', 'failure_count'))
 
         # merges the push_query and job_query results into a list; if a date is found in both queries,
         # update the job_query with the test_run count, if a date is in push_query but not job_query,
