@@ -115,16 +115,16 @@
     </div>
 
     <table class="table table-compact compare-table">
-      <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-significant', 'title']" ng-show="alert.visible">
+      <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
         <td class="alert-checkbox">
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
         <td class="alert-labels">
-          <a title="Mark alert as significant"
-             ng-class="{'fa fa-star visible': alert.significant, 'fa fa-star-o': !alert.significant}"
+          <a title="Star the alert"
+             ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
              ng-disabled="!user.is_staff"
-             ng-hide="!user.is_staff && !alert.significant"
-             ng-click="alert.toggleSignificance()">
+             ng-hide="!user.is_staff && !alert.starred"
+             ng-click="alert.toggleStar()">
           </a>
         </td>
         <td class="alert-title">

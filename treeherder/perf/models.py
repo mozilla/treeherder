@@ -321,7 +321,7 @@ class PerformanceAlert(models.Model):
                                         null=True)
     series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
-    significant = models.BooleanField(default=False)
+    starred = models.BooleanField(default=False)
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     UNTRIAGED = 0
