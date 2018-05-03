@@ -24,7 +24,7 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'amount_abs',
         'id',
         'is_regression',
-        'significant',
+        'starred',
         'manually_created',
         'new_value',
         'prev_value',

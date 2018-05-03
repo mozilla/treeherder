@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='performancealert',
-            name='significant',
+            name='starred',
             field=models.BooleanField(default=False),
         ),
     ]

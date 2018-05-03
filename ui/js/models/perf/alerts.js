@@ -66,14 +66,14 @@ treeherder.factory('PhAlerts', [
                 return this.status === status.id;
             };
         });
-        Alert.prototype.toggleSignificance = function () {
+        Alert.prototype.toggleStar = function () {
             const alert = this;
-            const toggledSignificance = !this.significant;
+            const toggledStar = !this.starred;
             this.modify({
-                significant: toggledSignificance
+                starred: toggledStar
             }).then(
                 function () {
-                    alert.significant = toggledSignificance;
+                    alert.starred = toggledStar;
                 }
             );
         };
