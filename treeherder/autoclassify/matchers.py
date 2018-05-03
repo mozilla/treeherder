@@ -28,22 +28,33 @@ Match = namedtuple('Match', ['text_log_error', 'classified_failure_id', 'score']
 
 @add_metaclass(ABCMeta)
 class Matcher(object):
-    """Class that is called with a list of unmatched failure lines
-    from a specific job, and returns a list of Match tuples
-    containing the failure_line that matched, the failure it
-    matched with, and the score, which is a number in the range
-    0-1 with 1 being a perfect match and 0 being the worst possible
-    match."""
+    """
+    Parent class for Matchers, provides __call__ entry point.
 
+    Class that is called with a list of unmatched failure lines from a specific
+    job, and returns a list of Match tuples containing the failure_line that
+    matched, the failure it matched with, and the score, which is a number in
+    the range 0-1 with 1 being a perfect match and 0 being the worst possible
+    match.
+    """
     def __init__(self, db_object):
+        """Attach the db_object to the matcher so it can be inspected elsewhere."""
         self.db_object = db_object
 
     def __call__(self, text_log_errors):
+        """
+        Main entry point for all matchers.
+
+        Filters the given TextLogErrors to those with related FailureLines
+        before calling self.match.
+        """
         # Only look at TextLogErrors with related FailureLines
         text_log_errors = (t for t in text_log_errors if t.metadata and t.metadata.failure_line)
+        # TODO: move checks on failure_line.action and failure_line.action here
         return compact(self.match(tle) for tle in text_log_errors)
 
     def match(self, text_log_error):
+        """Find the best match for a given TextLogError."""
         best_match = self.query_best(text_log_error)
         if best_match:
             classified_failure_id, score = best_match
@@ -54,13 +65,12 @@ class Matcher(object):
 
     @abstractmethod
     def query_best(self, text_log_error):
+        """All child classes must implement this method."""
         pass
 
 
 def score_by_classified_fail_id(matches):
-    """
-    Get a tuple of the best (match, score) and its ClassifiedFailure ID
-    """
+    """Get a tuple of the best (match, score) and its ClassifiedFailure ID."""
     if not matches:
         return
 
@@ -76,9 +86,9 @@ def score_by_classified_fail_id(matches):
 
 def score_matches(matches, score_multiplier=(1, 1)):
     """
-    Get scores for the given matches
+    Get scores for the given matches.
 
-    Given a QuerySet of TextLogErrorMatchs produce a score for each one until
+    Given a QuerySet of TextLogErrorMatches produce a score for each one until
     Good Enough™.  An optional score multiplier can be passed in.
     """
     # TODO: this should probably loop the input returning all scores unless one
@@ -104,7 +114,7 @@ def score_matches(matches, score_multiplier=(1, 1)):
 
 def time_boxed(func, iterable, time_budget, *args):
     """
-    Apply a function to the items of an iterable within a given time budget
+    Apply a function to the items of an iterable within a given time budget.
 
     Loop the given iterable, calling the given function on each item. The expended
     time is compared to the given time budget after each iteration.
@@ -123,11 +133,14 @@ def time_boxed(func, iterable, time_budget, *args):
 
 
 class id_window(object):
+    """Decorator to process given queries in given chunk sizes with a timebox for each chunk."""
     def __init__(self, size, time_budget):
+        """Store chunk size and time budget values."""
         self.size = size
         self.time_budget_ms = time_budget
 
     def __call__(self, f):
+        """Apply run method to each query returned from the decorated method."""
         outer = self
 
         def inner(self, text_log_error):
@@ -150,6 +163,16 @@ class id_window(object):
         return inner
 
     def run(self, query, score_multiplier):
+        """
+        Get scores for matches in the given query.
+
+        Chunks the given query by related TextLogError.id using self.size,
+        checking each chunk is processed in the given time_budget.  Matches are
+        sorted by score, using their related ClassifiedFailure.id as a tie
+        breaker.  Returns a nested tuple of:
+
+            (classified_failure.id, (match, score))
+        """
         matches = []
         time_budget = self.time_budget_ms / 1000. if self.time_budget_ms is not None else None
         t0 = time.time()
@@ -188,12 +211,11 @@ class id_window(object):
 
 
 class PreciseTestMatcher(Matcher):
-    """Matcher that looks for existing failures with identical tests and
-    identical error message."""
-
+    """Matcher that looks for existing failures with identical tests and identical error message."""
     @id_window(size=20000,
                time_budget=500)
     def query_best(self, text_log_error):
+        """Query for TextLogErrorMatches identical to matches of the given TextLogError."""
         failure_line = text_log_error.metadata.failure_line
         logger.debug("Looking for test match in failure %d", failure_line.id)
 
@@ -221,20 +243,26 @@ class PreciseTestMatcher(Matcher):
 
 
 class ElasticSearchTestMatcher(Matcher):
-    """Matcher that looks for existing failures with identical tests, and error
-    message that is a good match when non-alphabetic tokens have been removed."""
-
+    """Looks for existing failures using Elasticsearch."""
     def __init__(self, *args, **kwargs):
+        """Track the number of calls to Elasticsearch."""
         Matcher.__init__(self, *args, **kwargs)
         self.calls = 0
 
     def __call__(self, text_log_errors):
+        """Check Elasticsearch has been configured."""
         if not settings.ELASTICSEARCH_URL:
             return []
 
         return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
 
     def query_best(self, text_log_error):
+        """
+        Query Elasticsearch and score the results.
+
+        Uses a filtered search checking test, status, expected, and the message
+        as a phrase query with non-alphabet tokens removed.
+        """
         failure_line = text_log_error.metadata.failure_line
 
         if failure_line.action != "test_result" or not failure_line.message:
@@ -293,11 +321,17 @@ class ElasticSearchTestMatcher(Matcher):
 
 
 class CrashSignatureMatcher(Matcher):
-    """Matcher that looks for crashes with identical signature"""
-
+    """Matcher that looks for crashes with identical signature."""
     @id_window(size=20000,
                time_budget=250)
     def query_best(self, text_log_error):
+        """
+        Query for TextLogErrorMatches with the same crash signature.
+
+        Produces two queries, first checking if the same test produces matches
+        and secondly checking without the same test but lowering the produced
+        scores.
+        """
         failure_line = text_log_error.metadata.failure_line
 
         if (failure_line.action != "crash" or
@@ -326,21 +360,23 @@ class CrashSignatureMatcher(Matcher):
 
 
 class MatchScorer(object):
-    """Simple scorer for similarity of strings based on python's difflib
-    SequenceMatcher"""
-
+    """Simple scorer for similarity of strings based on python's difflib SequenceMatcher."""
     def __init__(self, target):
-        """:param target: The string to which candidate strings will be
-        compared"""
+        """:param target: The string to which candidate strings will be compared."""
         self.matcher = SequenceMatcher(lambda x: x == " ")
         self.matcher.set_seq2(target)
 
     def best_match(self, matches):
-        """Return the most similar string to the target string from a list
-        of candidates, along with a score indicating the goodness of the match.
+        """
+        Find the most similar string to self.target.
+
+        Given a list of candidate strings find the closest match to
+        self.target, returning the best match with a score indicating closeness
+        of match.
 
         :param matches: A list of candidate matches
-        :returns: A tuple of (score, best_match)"""
+        :returns: A tuple of (score, best_match)
+        """
         best_match = None
         for match, message in matches:
             self.matcher.set_seq1(message)
@@ -353,6 +389,7 @@ class MatchScorer(object):
 
 
 def register():
+    """Register matchers enabled in settings.AUTOCLASSIFY_MATCHERS."""
     for obj_name in settings.AUTOCLASSIFY_MATCHERS:
         obj = globals()[obj_name]
         MatcherManager.register_matcher(obj)
