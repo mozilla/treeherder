@@ -1,10 +1,58 @@
 import time
 
-from treeherder.autoclassify.matchers import (score_by_classified_fail_id,
+from first import first
+
+from treeherder.autoclassify.matchers import (PreciseTestMatcher,
+                                              score_by_classified_fail_id,
                                               score_matches,
                                               time_boxed)
 from treeherder.model.models import (FailureLine,
-                                     TextLogErrorMatch)
+                                     TextLogErrorMatch,
+                                     TextLogErrorMetadata)
+
+from .utils import (create_failure_lines,
+                    create_text_log_errors)
+
+
+def test_precise_test_matcher_with_matches(classified_failures):
+    tle = TextLogErrorMatch.objects.first().text_log_error
+
+    classified_failure_id, score = PreciseTestMatcher(None).query_best(tle)
+
+    match = tle.matches.first()
+    assert classified_failure_id == match.classified_failure_id
+    assert score == match.score
+
+
+def test_precise_test_matcher_without_matches(test_job, test_matcher):
+    # create an error log group to match against
+    data1 = {
+        'action': 'test_result',
+        'test': 'test1',
+        'subtest': 'test1',
+        'status': 'FAIL',
+        'expected': 'PASS',
+        'message': 'lost connection to external service',
+    }
+    data2 = {
+        'action': 'test_result',
+        'test': 'test2',
+        'subtest': 'test1',
+        'status': 'FAIL',
+        'expected': 'PASS',
+        'message': 'lost connection to external service',
+    }
+
+    failure_line1 = first(create_failure_lines(test_job, [(data1, {})]))
+    failure_line2 = first(create_failure_lines(test_job, [(data2, {})]))
+
+    tle1, tle2 = create_text_log_errors(test_job, [(data1, {}), (data2, {})])
+
+    TextLogErrorMetadata.objects.create(text_log_error=tle1, failure_line=failure_line1)
+    TextLogErrorMetadata.objects.create(text_log_error=tle2, failure_line=failure_line2)
+
+    output = PreciseTestMatcher(None).query_best(tle2)
+    assert output is None  # we should have no matches
 
 
 def test_score_by_classified_fail_id(classified_failures):
@@ -12,10 +60,8 @@ def test_score_by_classified_fail_id(classified_failures):
 
     first_match = TextLogErrorMatch.objects.first()
 
-    classified_failure_id, scored_match = score_by_classified_fail_id(matches)
-    match, score = scored_match
+    classified_failure_id, score = score_by_classified_fail_id(matches)
 
-    assert match == first_match
     assert score == first_match.score
     assert classified_failure_id == first_match.classified_failure_id
 
