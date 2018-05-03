@@ -909,7 +909,7 @@ treeherder.factory('ThResultSetStore', [
           } = job;
           // this has to do with group sorting so that the tier-1 ungrouped
           // jobs show first, and the tier>1 ungrouped jobs show last.
-          const symbol = tier > 1 ? '' : job_group_symbol;
+          const symbol = tier > 1 && job_group_symbol === '?' ? '' : job_group_symbol;
           const mapKey = getGroupMapKey(
             result_set_id, symbol, tier, platform, platform_option);
 
