@@ -674,6 +674,15 @@ class JobLog(models.Model):
         self.save(update_fields=['status'])
 
 
+class FailuresQuerySet(models.QuerySet):
+    def default(self, repo, startday, endday):
+        return self.select_related('push', 'job').filter(
+               job__repository_id__in=repo, job__push__time__range=(startday, endday))
+
+    def by_bug(self, bug_id):
+        return self.filter(bug_id=int(bug_id))
+
+
 class BugJobMap(models.Model):
     '''
     Maps job_ids to related bug_ids
@@ -687,6 +696,9 @@ class BugJobMap(models.Model):
     bug_id = models.PositiveIntegerField(db_index=True)
     created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
+
+    failures = FailuresQuerySet.as_manager()
+    objects = models.Manager()
 
     class Meta:
         db_table = "bug_job_map"
