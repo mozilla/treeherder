@@ -18,7 +18,7 @@ cd "$SRC_DIR"
 ELASTICSEARCH_VERSION="6.2.4"
 GECKODRIVER_VERSION="0.20.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
-PIP_VERSION="9.0.1"
+PIP_VERSION="10.0.1"
 # Keep in sync with the version pre-installed on Travis.
 SHELLCHECK_VERSION="0.4.7"
 
@@ -101,11 +101,8 @@ if [[ "$("${PYTHON_DIR}/bin/pip" --version 2>&1)" != *"$PIP_VERSION"* ]]; then
 fi
 
 echo '-----> Running pip install'
-# The harmless 'Ignoring PACKAGE' lines are filtered out to prevent them from causing
-# confusion due to being shown in red. Remove once using a pip that includes a fix for:
-# https://github.com/pypa/pip/issues/4876
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt \
-    |& sed -r '/^(Requirement already satisfied:|Ignoring )/d'
+    | sed -e '/^Requirement already satisfied:/d'
 
 if [[ "$(geckodriver --version 2>&1)" != *"${GECKODRIVER_VERSION}"* ]]; then
     echo '-----> Installing geckodriver'
