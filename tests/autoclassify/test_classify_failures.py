@@ -233,14 +233,9 @@ def test_classify_es(test_job_2, failure_lines, classified_failures):
 
     do_autoclassify(test_job_2, test_failure_lines, [ElasticSearchTestMatcher])
 
-    expected_classified = test_failure_lines[:4]
-    expected_unclassified = test_failure_lines[4:]
-
-    for actual in expected_classified:
-        assert [item.id for item in actual.classified_failures.all()] == [classified_failures[0].id]
-
-    for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+    for failure_line in test_failure_lines:
+        classified_fail_ids = [item.id for item in failure_line.classified_failures.all()]
+        assert classified_fail_ids == [classified_failures[0].id]
 
 
 def test_classify_multiple(test_job_2, failure_lines, classified_failures):

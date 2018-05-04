@@ -195,19 +195,12 @@ class ElasticSearchTestMatcher(Matcher):
             logger.debug("Skipped elasticsearch matching")
             return
 
-        filters = [
-            {'term': {'test': failure_line.test}},
-            {'term': {'status': failure_line.status}},
-            {'term': {'expected': failure_line.expected}},
-            {'exists': {'field': 'best_classification'}}
-        ]
-        if failure_line.subtest:
-            query = filters.append({'term': {'subtest': failure_line.subtest}})
-
         query = {
             'query': {
                 'bool': {
-                    'filter': filters,
+                    'filter': [{
+                        'exists': {'field': 'best_classification'},
+                    }],
                     'must': [{
                         'match_phrase': {
                             'message': failure_line.message[:1024],
