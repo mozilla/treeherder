@@ -36,6 +36,7 @@ export const thPlatformMap = {
     "osx-cross-noopt": "OS X Cross Compiled NoOpt",
     "osx-cross-add-on-devel": "OS X Cross Compiled addon",
     "osx-cross-devedition": "OS X Cross Compiled DevEdition",
+    "macosx64-qr": "OS X 10.10 QuantumRender",
     "macosx64-stylo": "OS X 10.10 Stylo",
     "macosx64-stylo-disabled": "OS X 10.10 Stylo Disabled",
     "macosx64-devedition": "OS X 10.10 DevEdition",
