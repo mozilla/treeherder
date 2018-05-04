@@ -45,8 +45,8 @@ def get_end_of_day(date):
 
 def get_repository(param):
     """Returns repository id's by name"""
-    if param == 'trunk':
-        param = settings.TRUNK_REPO_NAMES
+    if param in settings.REPO_GROUPS:
+        param = settings.REPO_GROUPS[param]
     elif param == 'all':
         param = settings.ALL_REPO_NAMES
     else:
