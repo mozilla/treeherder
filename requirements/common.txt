@@ -246,8 +246,9 @@ aniso8601==3.0.0 \
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
 
-python-jose==2.0.2 \
-    --hash=sha256:3b35cdb0e55a88581ff6d3f12de753aa459e940b50fe7ca5aa25149bc94cb37b
+python-jose==3.0.0 \
+    --hash=sha256:e06dd2e5e9125da79b519ff2652b8c666d64a5ea228fcd9862e0b29a534ccc53 \
+    --hash=sha256:e8255fb3cc524c04f4c790547a6215468f2a32d3a866424175523359e69f3aeb
 
 # Used by python-jose
 pycryptodome==3.6.1 \
