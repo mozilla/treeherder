@@ -273,6 +273,9 @@ perf.controller('AlertsCtrl', [
         $scope.anySelectedAndTriaged = function (alerts) {
             return alerts.map(alert => !alert.isUntriaged() && alert.selected).some(x => x);
         };
+        $scope.anyStarred = function (alerts) {
+            return alerts.map(alert => alert.starred).some(x => x);
+        };
         $scope.selectNoneOrSelectAll = function (alertSummary) {
             // if some are not selected, then select all if checked
             // otherwise select none

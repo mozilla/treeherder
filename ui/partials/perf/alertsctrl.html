@@ -79,6 +79,9 @@
             <li role="menuitem">
               <a ng-click="copyTextToClipboard(alertSummary)" class="dropdown-item">Copy Summary</a>
             </li>
+            <li role="menuitem">
+              <a ng-if="anyStarred(alertSummary.alerts) && alertSummary.isUntriaged()" ng-click="alertSummary.markConfirming()" class="dropdown-item">Mark as "confirming"</a>
+            </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number">
               <a ng-click="fileBug(alertSummary)" class="dropdown-item">File bug</a>
             </li>
