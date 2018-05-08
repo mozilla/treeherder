@@ -545,16 +545,18 @@ class Job(models.Model):
         if not settings.AUTOCLASSIFY_JOBS:
             return
 
-        if self.is_fully_verified():
-            already_classified = (JobNote.objects.filter(job=self)
-                                                 .exclude(failure_classification__name='autoclassified intermittent')
-                                                 .exists())
-            if already_classified:
-                # Don't add an autoclassification note if a Human already
-                # classified this job.
-                return
+        if not self.is_fully_verified():
+            return
 
-            JobNote.objects.create_autoclassify_job_note(self, user=user)
+        already_classified = (JobNote.objects.filter(job=self)
+                                             .exclude(failure_classification__name='autoclassified intermittent')
+                                             .exists())
+        if already_classified:
+            # Don't add an autoclassification note if a Human already
+            # classified this job.
+            return
+
+        JobNote.objects.create_autoclassify_job_note(self, user=user)
 
     def get_manual_classification_line(self):
         """
