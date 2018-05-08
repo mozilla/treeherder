@@ -546,15 +546,14 @@ class Job(models.Model):
             return
 
         if self.is_fully_verified():
-            existing_notes = JobNote.objects.filter(job=self)
-            autoclassification = FailureClassification.objects.get(
-                name="autoclassified intermittent")
-            # We don't want to add a job note after an autoclassification if
-            # there is already one and after a verification if there is
-            # already one not supplied by the autoclassifier
-            for note in existing_notes:
-                if note.failure_classification != autoclassification:
-                    return
+            already_classified = (JobNote.objects.filter(job=self)
+                                                 .exclude(failure_classification__name='autoclassified intermittent')
+                                                 .exists())
+            if already_classified:
+                # Don't add an autoclassification note if a Human already
+                # classified this job.
+                return
+
             JobNote.objects.create_autoclassify_job_note(self, user=user)
 
     def get_manual_classification_line(self):
