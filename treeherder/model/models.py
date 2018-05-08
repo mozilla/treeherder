@@ -920,12 +920,12 @@ class FailureLine(models.Model):
             return None
 
     def best_automatic_match(self, min_score=0):
-        return FailureMatch.objects.filter(
-            failure_line_id=self.id,
-            score__gt=min_score).order_by(
-            "-score",
-            "-classified_failure__id").select_related(
-                'classified_failure').first()
+        best_match = (FailureMatch.objects.filter(failure_line_id=self.id, score__gt=min_score)
+                                          .order_by("-score", "-classified_failure__id")
+                                          .select_related('classified_failure')
+                                          .first())
+
+        return best_match
 
     def set_classification(self, matcher, classification=None, bug_number=None,
                            mark_best=False):
