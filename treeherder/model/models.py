@@ -839,13 +839,10 @@ class JobNote(models.Model):
                                                 'user': user
                                             })
 
-        # if user is not specified, then this is an autoclassified job note
-        # and we should mark it as such
-        if user is None:
-            classification = FailureClassification.objects.get(
-                name="autoclassified intermittent")
-        else:
-            classification = FailureClassification.objects.get(name="intermittent")
+        # if user is not specified, then this is an autoclassified job note and
+        # we should mark it as such
+        classification_name = 'intermittent' if user else 'autoclassified intermittent'
+        classification = FailureClassification.objects.get(name=classification_name)
 
         return JobNote.objects.create(job=job,
                                       failure_classification=classification,
