@@ -7,6 +7,7 @@ import time
 from collections import OrderedDict
 from hashlib import sha1
 
+import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
@@ -547,13 +548,26 @@ class Job(models.Model):
         if not self.is_fully_verified():
             return
 
+        classification = 'autoclassified intermittent'
+
         already_classified = (JobNote.objects.filter(job=self)
-                                             .exclude(failure_classification__name='autoclassified intermittent')
+                                             .exclude(failure_classification__name=classification)
                                              .exists())
         if already_classified:
             # Don't add an autoclassification note if a Human already
             # classified this job.
             return
+
+        already_autoclassified = JobNote.objects.filter(failure_classification__name=classification, job=self).exists()
+        if already_autoclassified and user:
+            # Send event to NewRelic when a User verifies an autoclassified failure.
+            matches = (TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
+                                                .select_related('matcher'))
+            for match in matches:
+                newrelic.agent.record_custom_event('user_verified_classification', {
+                    'matcher': match.matcher.name,
+                    'job_id': self.id,
+                })
 
         JobNote.create_autoclassify_job_note(job=self, user=user)
 
