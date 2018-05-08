@@ -1429,16 +1429,18 @@ class TextLogError(models.Model):
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(
                 text_log_error=self,
-                best_classification=classification)
-        else:
-            self.metadata.best_classification = classification
-            self.metadata.save(update_fields=['best_classification'])
+                best_classification=classification
+            )
+            return
 
-            if self.metadata.failure_line:
-                self.metadata.failure_line.best_classification = classification
-                self.metadata.failure_line.save(update_fields=['best_classification'])
+        self.metadata.best_classification = classification
+        self.metadata.save(update_fields=['best_classification'])
 
-                self.metadata.failure_line.elastic_search_insert()
+        if self.metadata.failure_line:
+            self.metadata.failure_line.best_classification = classification
+            self.metadata.failure_line.save(update_fields=['best_classification'])
+
+            self.metadata.failure_line.elastic_search_insert()
 
     def mark_best_classification_verified(self, classification):
         if classification not in self.classified_failures.all():
