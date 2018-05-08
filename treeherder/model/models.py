@@ -556,7 +556,7 @@ class Job(models.Model):
             # classified this job.
             return
 
-        JobNote.objects.create_autoclassify_job_note(self, user=user)
+        JobNote.create_autoclassify_job_note(job=self, user=user)
 
     def get_manual_classification_line(self):
         """
@@ -743,42 +743,6 @@ class BugJobMap(models.Model):
                                         self.user)
 
 
-class JobNoteManager(models.Manager):
-    '''
-    Convenience functions for creating / modifying groups of job notes
-    '''
-    def create_autoclassify_job_note(self, job, user=None):
-
-        # Only insert bugs for verified failures since these are automatically
-        # mirrored to ES and the mirroring can't be undone
-        bug_numbers = set(ClassifiedFailure.objects
-                          .filter(best_for_errors__text_log_error__step__job=job,
-                                  best_for_errors__best_is_verified=True)
-                          .exclude(bug_number=None)
-                          .exclude(bug_number=0)
-                          .values_list('bug_number', flat=True))
-
-        for bug_number in bug_numbers:
-            BugJobMap.objects.get_or_create(job=job,
-                                            bug_id=bug_number,
-                                            defaults={
-                                                'user': user
-                                            })
-
-        # if user is not specified, then this is an autoclassified job note
-        # and we should mark it as such
-        if user is None:
-            classification = FailureClassification.objects.get(
-                name="autoclassified intermittent")
-        else:
-            classification = FailureClassification.objects.get(name="intermittent")
-
-        return JobNote.objects.create(job=job,
-                                      failure_classification=classification,
-                                      user=user,
-                                      text="")
-
-
 class JobNote(models.Model):
     '''
     Note associated with a job.
@@ -792,8 +756,6 @@ class JobNote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
     text = models.TextField()
     created = models.DateTimeField(default=timezone.now)
-
-    objects = JobNoteManager()
 
     class Meta:
         db_table = "job_note"
@@ -857,6 +819,38 @@ class JobNote(models.Model):
                                         self.job.guid,
                                         self.failure_classification,
                                         self.who)
+
+    @classmethod
+    def create_autoclassify_job_note(self, job, user=None):
+
+        # Only insert bugs for verified failures since these are automatically
+        # mirrored to ES and the mirroring can't be undone
+        bug_numbers = set(ClassifiedFailure.objects
+                          .filter(best_for_errors__text_log_error__step__job=job,
+                                  best_for_errors__best_is_verified=True)
+                          .exclude(bug_number=None)
+                          .exclude(bug_number=0)
+                          .values_list('bug_number', flat=True))
+
+        for bug_number in bug_numbers:
+            BugJobMap.objects.get_or_create(job=job,
+                                            bug_id=bug_number,
+                                            defaults={
+                                                'user': user
+                                            })
+
+        # if user is not specified, then this is an autoclassified job note
+        # and we should mark it as such
+        if user is None:
+            classification = FailureClassification.objects.get(
+                name="autoclassified intermittent")
+        else:
+            classification = FailureClassification.objects.get(name="intermittent")
+
+        return JobNote.objects.create(job=job,
+                                      failure_classification=classification,
+                                      user=user,
+                                      text="")
 
 
 class FailureLine(models.Model):

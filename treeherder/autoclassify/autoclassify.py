@@ -110,4 +110,4 @@ def update_db(job, matches, all_matched):
             # one and after a verification if there is already one not supplied by the
             # autoclassifier
             if not JobNote.objects.filter(job=job).exists():
-                JobNote.objects.create_autoclassify_job_note(job)
+                JobNote.create_autoclassify_job_note(job)
