@@ -59,9 +59,6 @@ module.exports = neutrino => {
                     'space-infix-ops': 'off',
                     'spaced-comment': 'off',
                 },
-                globals: [
-                    'SERVICE_DOMAIN',
-                ]
             }
         }));
 };

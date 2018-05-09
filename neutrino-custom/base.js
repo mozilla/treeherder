@@ -5,6 +5,7 @@ const lintPreset = require('./lint');
 const reactPreset = require('neutrino-preset-react');
 const HtmlPlugin = require('html-webpack-plugin');
 const htmlTemplate = require('html-webpack-template');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const CWD = process.cwd();
 const SRC = path.join(CWD, 'src'); // neutrino's default source directory
@@ -279,6 +280,15 @@ module.exports = neutrino => {
         });
 
     neutrino.config.devtool('source-map');
+
+    // Overwriting the existing copy rule rather than modifying, since it's only
+    // enabled in production, whereas it really should be used in development too.
+    neutrino.config.plugin('copy')
+        .use(CopyPlugin, [
+            { context: UI, from: 'contribute.json' },
+            { context: UI, from: 'revision.txt' },
+            { context: UI, from: 'robots.txt' },
+        ]);
 };
 
 module.exports.CWD = CWD;

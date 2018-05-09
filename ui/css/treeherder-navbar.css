@@ -122,12 +122,6 @@ label.dropdown-item {
     padding-right: 14px;
 }
 
-.nav-login-btn-unavail {
-    font-size: 12px;
-    color: grey;
-    cursor: not-allowed;
-}
-
 .th-context-navbar {
     background-color: #354048;
     overflow: visible;

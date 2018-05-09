@@ -1,10 +1,7 @@
 Installation
 ============
 
-It's possible to work on the UI without setting up the Vagrant VM. There are a
-few limitations, such as login not being available, but it works well enough for
-quick testing. For instructions on how to serve the UI with working URL rewriting,
-see the Vagrant instructions.
+It's possible to work on the UI without setting up the Vagrant VM.
 
 To get started:
 
@@ -16,7 +13,7 @@ Running the standalone development server
 -----------------------------------------
 
 The default development server runs the unminified UI and fetches data from the
-production site. You do not need to set up the Vagrant VM, but login will be unavailable.
+production site. You do not need to set up the Vagrant VM unless making backend changes.
 
 * Start the development server by running:
 
@@ -36,7 +33,7 @@ production site. You do not need to set up the Vagrant VM, but login will be una
 
   .. code-block:: bash
 
-    $ SERVICE_DOMAIN=<url> yarn start
+    $ BACKEND_DOMAIN=<url> yarn start
 
   This will run the unminified UI using ``<url>`` as the service domain.
 
@@ -62,9 +59,7 @@ installation instructions, then follow these steps:
 
     vagrant ~/treeherder$ yarn start:local
 
-This will watch UI files for changes and build an unminified version in the ``dist/`` directory.
-Note that this process is a little slower than using the regular development server, so you may
-wish to use it only for development that requires a frontend login.
+* The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: `<http://localhost:5000>`_ to see the UI.
 
 Building the minified UI with Vagrant
 -------------------------------------
@@ -82,7 +77,7 @@ If you would like to view the minified production version of the UI with Vagrant
 
     $ yarn build
 
-Once the build is complete, the minified version of the UI will now be accessible at http://localhost:8000.
+Once the build is complete, the minified version of the UI will now be accessible at http://localhost:8000 (NB: port 8000, unlike above).
 
 Validating JavaScript
 =====================
