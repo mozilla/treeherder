@@ -7091,6 +7091,12 @@ taskcluster-client-web@7.0.0:
     hawk "^6.0.2"
     query-string "^5.0.0"
 
+taskcluster-lib-scopes@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-lib-scopes/-/taskcluster-lib-scopes-1.9.0.tgz#c8d6113d386d432b96eb73cfb182a335c5f49a90"
+  dependencies:
+    babel-runtime "^6.26.0"
+
 text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"

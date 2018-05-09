@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import jsone from 'json-e';
-import { Queue } from 'taskcluster-client-web';
+import { Queue, Auth, Hooks } from 'taskcluster-client-web';
+import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import treeherder from '../treeherder';
 import thTaskcluster from './taskcluster';
@@ -8,25 +9,64 @@ import thTaskcluster from './taskcluster';
 treeherder.factory('tcactions', [
     '$q', '$http', 'thNotify',
     function ($q, $http, thNotify) {
+        function taskInContext(tagSetList, taskTags) {
+            return tagSetList.some(tagSet =>
+                Object.keys(tagSet).every(
+                    tag => taskTags[tag] && taskTags[tag] === tagSet[tag]
+                )
+            );
+        }
+
         return {
             render: (template, context) => jsone(template, context),
-            submit: ({ action, actionTaskId, decisionTaskId, taskId,
-                      task, input, staticActionVariables }) => {
-
-                const actionTask = jsone(action.task, _.defaults({}, {
+            submit: async ({
+                               action, actionTaskId, decisionTaskId, taskId,
+                               task, input, staticActionVariables
+                           }) => {
+                const context = _.defaults({}, {
                     taskGroupId: decisionTaskId,
                     taskId,
-                    task,
                     input,
-                    ownTaskId: actionTaskId,
-                }, staticActionVariables));
+                }, staticActionVariables);
                 const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
 
-                return queue.task(decisionTaskId).then((decisionTask) => {
+                if (action.kind === 'task') {
+                    context.task = task;
+                    context.ownTaskId = actionTaskId;
+                    const actionTask = jsone(action.task, context);
+                    const decisionTask = await queue.task(decisionTaskId);
                     const submitQueue = queue.use({ authorizedScopes: decisionTask.scopes });
 
-                    return submitQueue.createTask(actionTaskId, actionTask);
-                });
+                    await submitQueue.createTask(actionTaskId, actionTask);
+
+                    return actionTaskId;
+                }
+
+                if (action.kind === 'hook') {
+                    const hookPayload = jsone(action.hookPayload, context);
+                    const { hookId, hookGroupId } = action;
+                    const auth = new Auth();
+                    const hooks = new Hooks({ credentialAgent: thTaskcluster.getAgent() });
+                    const decisionTask = await queue.task(decisionTaskId);
+                    const expansion = await auth.expandScopes({
+                        scopes: decisionTask.scopes
+                    });
+                    const expression = `in-tree:hook-action:${hookGroupId}/${hookId}`;
+
+                    if (!satisfiesExpression(expansion.scopes, expression)) {
+                        throw new Error(
+                            `Action is misconfigured: decision task's scopes do not satisfy ${expression}`
+                        );
+                    }
+
+                    const result = await hooks.triggerHook(
+                        hookGroupId,
+                        hookId,
+                        hookPayload
+                    );
+
+                    return result.status.taskId;
+                }
             },
             load: (decisionTaskID, job) => {
                 if (!decisionTaskID) {
@@ -40,6 +80,8 @@ treeherder.factory('tcactions', [
                     decisionTaskID,
                     'public/actions.json'
                 );
+                const knownKinds = ['task', 'hook'];
+
 
                 let originalTaskId;
                 let originalTaskPromise = $q.resolve(null);
@@ -78,12 +120,14 @@ treeherder.factory('tcactions', [
                         originalTask,
                         originalTaskId,
                         staticActionVariables: response.data.variables,
-                        actions: response.data.actions.filter(action => action.kind === 'task' &&
-                            (!action.context.length && !originalTask) ||
-                            originalTask && action.context.some(ctx => Object.keys(ctx).every(tag => (
-                                originalTask.tags[tag] && originalTask.tags[tag] === ctx[tag]
-                            )))
-                        ),
+                        actions: response.data.actions.filter(
+                            action =>
+                                knownKinds.includes(action.kind) &&
+                                ((!action.context.length && !originalTask) ||
+                                    (originalTask &&
+                                        originalTask.tags &&
+                                        taskInContext(action.context, originalTask.tags)))
+                        )
                     };
                 });
             },

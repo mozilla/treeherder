@@ -53,7 +53,8 @@ module.exports = neutrino => {
             'react-dom',
             'react-highlight-words',
             'react-select',
-            'taskcluster-client-web'
+            'taskcluster-client-web',
+            'taskcluster-lib-scopes'
         ];
         jsDeps.map(dep =>
             neutrino.config.entry('vendor').add(dep)
