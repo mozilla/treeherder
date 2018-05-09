@@ -920,6 +920,7 @@ class FailureLine(models.Model):
             return None
 
     def best_automatic_match(self, min_score=0):
+        """Find the best related match above a given minimum score."""
         return (self.matches.filter(score__gt=min_score)
                             .order_by("-score", "-classified_failure__id")
                             .select_related('classified_failure')
@@ -1424,6 +1425,14 @@ class TextLogError(models.Model):
         return classification, new_link
 
     def mark_best_classification(self, classification):
+        """
+        Set the given FailureClassification as the best one
+
+        Given an instance of FailureClassification links this TextLogError and
+        a possible FailureLine to it, denoting it's the best possible match.
+
+        If no TextLogErrorMetadata instance exists one will be created.
+        """
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(
                 text_log_error=self,
