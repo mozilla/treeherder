@@ -115,9 +115,16 @@
     </div>
 
     <table class="table table-compact compare-table">
-      <tr ng-repeat="alert in alertSummary.alerts | orderBy: 'title'" ng-show="alert.visible">
+      <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
         <td class="alert-checkbox">
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+        </td>
+        <td class="alert-labels">
+          <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
+             ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
+             ng-disabled="!user.is_staff"
+             ng-click="alert.toggleStar()">
+          </a>
         </td>
         <td class="alert-title">
           <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
