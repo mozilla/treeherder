@@ -43,16 +43,16 @@ def get_end_of_day(date):
     return new_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
-def get_repository(param):
+def get_repository(name):
     """Returns repository id's by name"""
     queryset = Repository.objects.values_list('id', flat=True)
 
-    if param == 'all':
+    if name == 'all':
         return queryset.filter(active_status='active')
 
-    if param in settings.REPO_GROUPS:
-        param = settings.REPO_GROUPS[param]
+    if name in settings.REPO_GROUPS:
+        param = settings.REPO_GROUPS[name]
     else:
-        param = [param]
+        param = [name]
 
     return queryset.filter(name__in=param)

@@ -586,9 +586,9 @@ HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
 ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
 
 REPO_GROUPS = {
-    'trunk': ('mozilla-central', 'mozilla-inbound', 'autoland'),
-    'firefox-releases': ('mozilla-beta', 'mozilla-release'),
-    'firefox-esrs': ('mozilla-esr45', 'mozilla-esr52', 'mozilla-esr60'),
-    'comm-releases': ('comm-beta', 'comm-release'),
-    'comm-esrs': ('comm-esr45', 'comm-esr52', 'comm-esr60'),
+    'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
+    'firefox-releases': ['mozilla-beta', 'mozilla-release'],
+    'firefox-esrs': ['mozilla-esr45', 'mozilla-esr52', 'mozilla-esr60'],
+    'comm-releases': ['comm-beta', 'comm-release'],
+    'comm-esrs': ['comm-esr45', 'comm-esr52', 'comm-esr60'],
 }
