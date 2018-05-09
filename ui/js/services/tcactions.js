@@ -26,12 +26,12 @@ treeherder.factory('tcactions', [
                 const context = _.defaults({}, {
                     taskGroupId: decisionTaskId,
                     taskId,
-                    task,
                     input,
                 }, staticActionVariables);
                 const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
 
                 if (action.kind === 'task') {
+                    context.task = task;
                     context.ownTaskId = actionTaskId;
                     const actionTask = jsone(action.task, context);
                     const decisionTask = await queue.task(decisionTaskId);
