@@ -35,7 +35,8 @@ def match_errors(job):
     if job.result not in ["testfailed", "busted", "exception"]:
         return
 
-    unmatched_errors = set(TextLogError.objects.unmatched_for_job(job))
+    unmatched_errors = set(TextLogError.objects.filter(step__job=job, classified_failures=None)
+                                               .prefetch_related('step', '_metadata', '_metadata__failure_line'))
 
     if not unmatched_errors:
         logger.info("Skipping autoclassify of job %i because it has no unmatched errors", job.id)
