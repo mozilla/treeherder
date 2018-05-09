@@ -30,3 +30,16 @@ export const graphTwoSpecs = {
   legend: ['Orange Count', 'Push Count'],
   legend_target: '.legend',
 };
+
+export const treeOptions = [
+  'all',
+  'trunk',
+  'mozilla-central',
+  'mozilla-inbound',
+  'autoland',
+  'firefox-releases',
+  'firefox-esrs',
+  'comm-central',
+  'comm-releases',
+  'comm-esrs',
+];
