@@ -4,8 +4,7 @@ import datetime
 import itertools
 import logging
 import time
-from collections import (OrderedDict,
-                         defaultdict)
+from collections import OrderedDict
 from hashlib import sha1
 
 from django.conf import settings
@@ -1330,32 +1329,6 @@ class TextLogStep(models.Model):
                            'finished_line_number')
 
 
-class TextLogErrorManager(models.Manager):
-    def unmatched_for_job(self, job):
-        """Return a the text log errors for a specific job that have
-        no associated ClassifiedFailure.
-
-        :param job: Job associated with the text log errors"""
-        return TextLogError.objects.filter(
-            step__job=job,
-            classified_failures=None,
-        ).prefetch_related('step', '_metadata', '_metadata__failure_line')
-
-    def for_jobs(self, *jobs, **filters):
-        """Return a dict of {job: [text log errors]} for a set of jobs, filtered by
-        caller-provided django filters.
-
-        :param jobs: Jobs associated with the text log errors
-        :param filters: filters to apply to text log errors"""
-        error_lines = TextLogError.objects.filter(
-            step__job__in=jobs,
-            **filters)
-        lines_by_job = defaultdict(list)
-        for item in error_lines:
-            lines_by_job[item.step.job].append(item)
-        return lines_by_job
-
-
 class TextLogError(models.Model):
     """
     A detected error line in the textual (unstructured) log
@@ -1365,8 +1338,6 @@ class TextLogError(models.Model):
     step = models.ForeignKey(TextLogStep, on_delete=models.CASCADE, related_name='errors')
     line = models.TextField()
     line_number = models.PositiveIntegerField()
-
-    objects = TextLogErrorManager()
 
     class Meta:
         db_table = "text_log_error"
