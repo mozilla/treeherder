@@ -340,7 +340,8 @@ export const phAlertSummaryStatusMap = {
   INVESTIGATING: { id: 5, text: "investigating" },
   WONTFIX: { id: 6, text: "wontfix" },
   FIXED: { id: 7, text: "fixed" },
-  BACKEDOUT: { id: 8, text: "backedout" }
+  BACKEDOUT: { id: 8, text: "backedout" },
+  CONFIRMING: { id: 9, text: "confirming" }
 };
 
 export const phAlertSummaryIssueTrackersMap = {

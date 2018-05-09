@@ -79,6 +79,9 @@
             <li role="menuitem">
               <a ng-click="copyTextToClipboard(alertSummary)" class="dropdown-item">Copy Summary</a>
             </li>
+            <li role="menuitem">
+              <a ng-if="anyStarred(alertSummary.alerts) && alertSummary.isUntriaged()" ng-click="alertSummary.markConfirming()" class="dropdown-item">Mark as "confirming"</a>
+            </li>
             <li role="menuitem" ng-show="!alertSummary.bug_number">
               <a ng-click="fileBug(alertSummary)" class="dropdown-item">File bug</a>
             </li>
@@ -115,9 +118,17 @@
     </div>
 
     <table class="table table-compact compare-table">
-      <tr ng-repeat="alert in alertSummary.alerts | orderBy: 'title'" ng-show="alert.visible">
+      <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
         <td class="alert-checkbox">
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
+        </td>
+        <td class="alert-labels">
+          <a title="Star the alert"
+             ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
+             ng-disabled="!user.is_staff"
+             ng-hide="!user.is_staff && !alert.starred"
+             ng-click="alert.toggleStar()">
+          </a>
         </td>
         <td class="alert-title">
           <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"

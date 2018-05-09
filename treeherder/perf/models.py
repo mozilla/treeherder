@@ -220,6 +220,7 @@ class PerformanceAlertSummary(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
+    CONFIRMING = 9
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
@@ -228,7 +229,8 @@ class PerformanceAlertSummary(models.Model):
                 (INVESTIGATING, 'Investigating'),
                 (WONTFIX, 'Won\'t fix'),
                 (FIXED, 'Fixed'),
-                (BACKED_OUT, 'Backed out'))
+                (BACKED_OUT, 'Backed out'),
+                (CONFIRMING, 'Confirming'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -252,9 +254,13 @@ class PerformanceAlertSummary(models.Model):
         if not alerts:
             return PerformanceAlertSummary.UNTRIAGED
 
-        # if any untriaged, then set to untriaged
+        # if in confirming state, don't jump to other states
+        # while marking alerts
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
-            return PerformanceAlertSummary.UNTRIAGED
+            if self.status == PerformanceAlertSummary.CONFIRMING:
+                return PerformanceAlertSummary.CONFIRMING
+            else:
+                return PerformanceAlertSummary.UNTRIAGED
 
         # if all invalid, then set to invalid
         if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
@@ -321,6 +327,7 @@ class PerformanceAlert(models.Model):
                                         null=True)
     series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
+    starred = models.BooleanField(default=False)
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     UNTRIAGED = 0
