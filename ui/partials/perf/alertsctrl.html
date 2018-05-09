@@ -120,10 +120,9 @@
           <input type="checkbox" ng-disabled="!user.is_staff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
         </td>
         <td class="alert-labels">
-          <a title="Star the alert"
+          <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
              ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
              ng-disabled="!user.is_staff"
-             ng-hide="!user.is_staff && !alert.starred"
              ng-click="alert.toggleStar()">
           </a>
         </td>
