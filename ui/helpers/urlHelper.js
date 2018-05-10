@@ -9,8 +9,10 @@ export const createQueryParams = function createQueryParams(params) {
   return `?${query.toString()}`;
 };
 
+// Leaving this here since even though SERVICE_DOMAIN no longer exists (proxying
+// is used instead), it provides a single place to modify if needed in the future.
 export const getServiceUrl = function getServiceUrl(uri) {
-  return `${SERVICE_DOMAIN}${uri}`;
+  return uri;
 };
 
 export const getApiUrl = function getApiUrl(uri) {
@@ -129,9 +131,10 @@ export const parseQueryParams = function parseQueryParams(search) {
   return obj;
 };
 
+// TODO: Combine this with getApiUrl().
 export const createApiUrl = function createApiUrl(api, params) {
   const query = createQueryParams(params);
-  return `${SERVICE_DOMAIN}/api/${api}${query}`;
+  return `/api/${api}${query}`;
 };
 
 //bugs can be one bug or a comma separated (no spaces) string of bugs

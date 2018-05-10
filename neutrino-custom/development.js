@@ -1,30 +1,38 @@
 'use strict';
-const webpack = require('webpack');
 const basePreset = require('./base');
 const UI = require('./base').UI;
 
-// Set the service domain to production if no environment value was provided, since
-// webpack-dev-server doesn't serve data from the vagrant machine.
-const SERVICE_DOMAIN = (typeof process.env.SERVICE_DOMAIN !== 'undefined')
-  ? process.env.SERVICE_DOMAIN : 'https://treeherder.mozilla.org';
+// Default to the production backend (is overridden to localhost when using start:local)
+const BACKEND_DOMAIN = process.env.BACKEND_DOMAIN || 'https://treeherder.mozilla.org';
 
 module.exports = neutrino => {
     basePreset(neutrino);
 
-    // Set service domain so that ui/js/config can use it:
-    neutrino.config
-        .plugin('define')
-        .use(webpack.DefinePlugin, {
-            SERVICE_DOMAIN: JSON.stringify(SERVICE_DOMAIN)
-        });
-
-    // Set up the dev server with an api proxy to the service domain:
+    // Make the dev server proxy any paths not recognised by webpack to the specified backend.
     neutrino.config.devServer
         .contentBase(UI)
         .set('proxy', {
-            '/api/*': {
-                target: SERVICE_DOMAIN,
-                changeOrigin: true
+            '*': {
+                target: BACKEND_DOMAIN,
+                changeOrigin: true,
+                onProxyReq: (proxyReq) => {
+                  // Adjust the referrer to keep Django's CSRF protection happy, whilst
+                  // still making it clear that the requests were from local development.
+                  proxyReq.setHeader('referer', `${BACKEND_DOMAIN}/webpack-dev-server`);
+                },
+                onProxyRes: (proxyRes) => {
+                  // Strip the cookie `secure` attribute, otherwise prod cookies
+                  // will be rejected by the browser when using non-HTTPS localhost:
+                  // https://github.com/nodejitsu/node-http-proxy/pull/1166
+                  const removeSecure = str => str.replace(/; secure/i, '');
+                  const setCookie = proxyRes.headers['set-cookie'];
+                  if (setCookie) {
+                    const result = Array.isArray(setCookie)
+                      ? setCookie.map(removeSecure)
+                      : removeSecure(setCookie);
+                    proxyRes.headers['set-cookie'] = result;
+                  }
+                }
             }
         });
 };

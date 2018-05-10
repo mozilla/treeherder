@@ -57,10 +57,10 @@ After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and 
 Try out the various APIs
 ------------------------
 
-* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
-* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
-* http://localhost:8000/api/project/mozilla-inbound/seta/v1/job-types/
-* http://localhost:8000/api/seta/v1/failures-fixed-by-commit/ 
+* http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
+* http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
+* http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-types/
+* http://localhost:5000/api/seta/v1/failures-fixed-by-commit/ 
 
   * This one won't work until https://bugzilla.mozilla.org/show_bug.cgi?id=1389123 is fixed
 

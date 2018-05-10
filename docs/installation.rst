@@ -66,7 +66,7 @@ Starting a local Treeherder instance
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
 
-* You must also build the UI. Open a new terminal window and ``vagrant ssh`` to
+* You must also start the UI dev server. Open a new terminal window and ``vagrant ssh`` to
   the VM again, then run the following:
 
   .. code-block:: bash
@@ -76,7 +76,7 @@ Starting a local Treeherder instance
   This will build the UI code in the ``dist/`` folder and keep watching for
   new changes (See the :doc:`UI installation section <ui/installation>` for more ways to work with the UI code).
 
-* Visit http://localhost:8000 in your browser. Note: There will be no data to display until the ingestion tasks are run.
+* Visit http://localhost:5000 in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
 
 Running the ingestion tasks
 ---------------------------

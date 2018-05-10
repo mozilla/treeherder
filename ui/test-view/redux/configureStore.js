@@ -259,6 +259,7 @@ function toggleHideClassified(store, fetchParams) {
   });
 }
 
+// TODO: Remove this now that SERVICE_DOMAIN no longer exists.
 // Remove the host from the URL.  This is because sometimes the URL
 // will include the SERVICE_DOMAIN and sometimes SERVICE_DOMAIN will
 // be blank and therefore the browser will fill in the domain.  So

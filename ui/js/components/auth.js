@@ -36,11 +36,8 @@ treeherder.component("login", {
         </span>
 
         <span class="btn nav-login-btn"
-           ng-if="!$ctrl.user.loggedin && $ctrl.userCanLogin"
+           ng-if="!$ctrl.user.loggedin"
            ng-click="$ctrl.login()">Login/Register</span>
-        <span ng-if="!$ctrl.userCanLogin"
-              class="nav-login-btn nav-login-btn-unavail"
-              title="SERVICE_DOMAIN does not match host domain">Login not available</span>
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
@@ -54,18 +51,6 @@ treeherder.component("login", {
             const ctrl = this;
 
             ctrl.user = {};
-
-            // check if the user can login.  SERVICE_DOMAIN must match
-            // host domain.  Remove this if we fix
-            // Bug 1317752 - Enable logging in with Taskcluster Auth cross-domain
-            if (!SERVICE_DOMAIN) {
-                // SERVICE_DOMAIN isn't being used, so no mismatch possible.
-                this.userCanLogin = true;
-            } else {
-                const a = document.createElement('a');
-                a.href = SERVICE_DOMAIN;
-                this.userCanLogin = (a.hostname === $location.host() && a.port === $location.port);
-            }
 
             /**
              * Using a window listener here because I wasn't getting reliable
@@ -91,15 +76,13 @@ treeherder.component("login", {
             });
 
             // Ask the back-end if a user is logged in on page load
-            if (ctrl.userCanLogin) {
-                ThUserModel.get().then(async function (currentUser) {
-                    if (currentUser.email && localStorage.getItem('userSession')) {
-                        ctrl.setLoggedIn(currentUser);
-                    } else {
-                        ctrl.setLoggedOut();
-                    }
-                });
-            }
+            ThUserModel.get().then(async function (currentUser) {
+                if (currentUser.email && localStorage.getItem('userSession')) {
+                    ctrl.setLoggedIn(currentUser);
+                } else {
+                    ctrl.setLoggedOut();
+                }
+            });
 
             /**
              * Opens a new tab to handle authentication, which will get closed

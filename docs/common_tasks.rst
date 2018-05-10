@@ -106,32 +106,6 @@ Building the docs locally
 * Source changes will result in automatic rebuilds and browser page reload.
 
 
-Sharing UI-only changes with others using GitHub Pages
-------------------------------------------------------
-
-It's possible to share UI-only changes with others (for prototyping/testing) using
-GitHub Pages. This is recommended over pushing a custom branch to stage, unless the
-feature requires that you be logged into Treeherder (which won't work
-cross-domain).
-
-To do this:
-
-* Fork the Treeherder repository to your own GitHub account.
-
-* Create a gh-pages branch locally based on the feature branch you wish to test, that is configured to point at production's API. eg:
-
-  .. code-block:: bash
-
-     git checkout (your feature branch)
-     git checkout -b gh-pages
-     SERVICE_DOMAIN=https://treeherder.mozilla.org yarn build
-     git add -f dist/
-     git commit -m "Add dist directory containing built UI"
-
-* Push the ``gh-pages`` branch to your Treeherder fork.
-
-* Tell people to visit: ``https://<your-username>.github.io/treeherder/dist/``
-
 Updating package.json
 ---------------------
 
