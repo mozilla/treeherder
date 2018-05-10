@@ -130,7 +130,7 @@ treeherder.factory('thPinboard', [
                     }
                 }
 
-                _.each(pinnedJobs, _.bind(saveClassification, classification));
+                _.each(pinnedJobs, saveClassification.bind(classification));
                 $rootScope.$emit(thEvents.jobsClassified, { jobs: pinnedJobsClone });
 
                 _.each(pinnedJobs, saveBugs);
@@ -141,7 +141,7 @@ treeherder.factory('thPinboard', [
 
             // save the classification only on all pinned jobs
             saveClassificationOnly: function (classification) {
-                _.each(pinnedJobs, _.bind(saveClassification, classification));
+                _.each(pinnedJobs, saveClassification.bind(classification));
                 $rootScope.$emit(thEvents.jobsClassified, { jobs: pinnedJobs });
             },
 

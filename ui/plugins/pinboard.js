@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import _ from 'lodash';
 import Mousetrap from 'mousetrap';
 
 import treeherder from '../js/treeherder';
@@ -255,7 +254,7 @@ treeherder.controller('PinboardCtrl', [
                 // Rebind escape to canceling the bug entry, pressing escape
                 // again will close the pinboard as usual.
                 Mousetrap.bind('escape', function () {
-                    const cancel = _.bind($scope.toggleEnterBugNumber, $scope, false);
+                    const cancel = $scope.toggleEnterBugNumber.bind($scope, false);
                     $scope.$evalAsync(cancel);
                 });
 
