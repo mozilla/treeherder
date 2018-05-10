@@ -270,8 +270,7 @@ perf.controller('GraphsCtrl', [
 
             // also highlighted the selected item (if there is one)
             if ($scope.selectedDataPoint) {
-                var selectedSeriesIndex = _.findIndex(
-                    $scope.seriesList,
+                var selectedSeriesIndex = $scope.seriesList.findIndex(
                     s => s.id === $scope.selectedDataPoint.signatureId);
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(

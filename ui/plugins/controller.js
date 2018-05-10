@@ -232,7 +232,7 @@ treeherder.controller('PluginCtrl', [
                             title: "Buildername",
                             value: $scope.job.ref_data_name
                         });
-                        $scope.buildernameIndex = _.findIndex($scope.job_details, { title: "Buildername" });
+                        $scope.buildernameIndex = $scope.job_details.findIndex({ title: "Buildername" });
                     }
 
                     // the third result comes from the jobLogUrl promise
