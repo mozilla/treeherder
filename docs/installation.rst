@@ -23,16 +23,16 @@ Setting up Vagrant
 
   .. code-block:: bash
 
-     > vagrant up
+     > vagrant up --provision
 
-  It will typically take 5 to 30 minutes for the vagrant up to
+  It will typically take 5 to 30 minutes for the vagrant provision to
   complete, depending on your network performance. If you experience
   any errors, see the :ref:`troubleshooting page
   <troubleshooting-vagrant>`. It is *very important* that the
   provisioning process complete successfully before trying to interact
   with your test instance of treeherder: some things might
   superficially seem to work a partially configured machine, but
-  it is almost guranteed that some things *will break* in
+  it is almost guaranteed that some things *will break* in
   hard-to-diagnose ways if vagrant provision is not run to completion.
 
 * Once the virtual machine is set up, connect to it using:

@@ -6,7 +6,7 @@ set -euo pipefail
 
 if [[ "$(lsb_release -r -s)" != "16.04" ]]; then
     echo "This machine needs to be switched to the new Ubuntu 16.04 image."
-    echo "Please run 'vagrant destroy -f && vagrant up' from the host."
+    echo "Please run 'vagrant destroy -f && vagrant up --provision' from the host."
     exit 1
 fi
 
