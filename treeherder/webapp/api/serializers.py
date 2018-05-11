@@ -268,10 +268,11 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
     tree = serializers.CharField(source="job__repository__name")
     push_time = serializers.CharField(source="job__push__time")
     build_type = serializers.CharField()
+    machine_name = serializers.CharField(source="job__machine__name")
 
     class Meta:
         model = models.BugJobMap
-        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id', 'bug_id')
+        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id', 'bug_id', 'machine_name')
 
 
 class FailureCountSerializer(serializers.ModelSerializer):
