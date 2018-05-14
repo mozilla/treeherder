@@ -273,6 +273,9 @@ perf.controller('AlertsCtrl', [
         $scope.anySelectedAndTriaged = function (alerts) {
             return alerts.map(alert => !alert.isUntriaged() && alert.selected).some(x => x);
         };
+        $scope.allSelectedAreConfirming = function (alerts) {
+            return alerts.filter(alert => alert.selected).map(alert => alert.isConfirming()).every(x => x);
+        };
         $scope.selectNoneOrSelectAll = function (alertSummary) {
             // if some are not selected, then select all if checked
             // otherwise select none
@@ -356,6 +359,14 @@ perf.controller('AlertsCtrl', [
                 updateAlertVisibility();
             });
         }
+        $scope.markAlertsConfirming = function (alertSummary) {
+            alertSummary.modifySelectedAlerts({
+                status: phAlertStatusMap.CONFIRMING.id
+            }).then(
+                function () {
+                    updateAlertSummary(alertSummary);
+                });
+        };
         $scope.markAlertsAcknowledged = function (alertSummary) {
             alertSummary.modifySelectedAlerts({
                 status: phAlertStatusMap.ACKNOWLEDGED.id
