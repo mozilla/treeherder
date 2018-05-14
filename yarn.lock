@@ -129,21 +129,21 @@ angular-marked@1.2.2:
   dependencies:
     marked "^0.3.3"
 
-angular-mocks@1.6.10:
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.6.10.tgz#6a139e43c461d0c9a5a1acebc91e63db16031176"
+angular-mocks@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.0.tgz#4957aaf966b6fc36edd6ac381a60814f7c05de3f"
 
-angular-resource@1.6.10:
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.6.10.tgz#28c1834e9fa623467d2f9894716a4e6c7e077459"
+angular-resource@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.7.0.tgz#356f92cafd68ded59862d7af34ddf8c08ac414b4"
 
-angular-route@1.6.10:
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.6.10.tgz#4247a32eab19495624623e96c1626dfba17ebf21"
+angular-route@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.7.0.tgz#37cbe8ddb58a331624d0a33e59c17e7254854e08"
 
-angular-sanitize@1.6.10:
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.6.10.tgz#635a362afb2dd040179f17d3a5455962b2c1918f"
+angular-sanitize@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.7.0.tgz#8ff2870fa3f6d4d0e0647900dbc01258ebeee1c1"
 
 angular-ui-router@0.4.3:
   version "0.4.3"
@@ -155,11 +155,7 @@ angular1-ui-bootstrap4@2.4.22:
   version "2.4.22"
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
 
-angular@1.6.10:
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.10.tgz#eed3080a34d29d0f681ff119b18ce294e3f74826"
-
-angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
+angular@1.7.0, angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.0.tgz#e45d679fc8d81040a4894c7ccc16a4e1ad0a9ca6"
 
