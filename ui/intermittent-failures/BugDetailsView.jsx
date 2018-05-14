@@ -91,7 +91,7 @@ class BugDetailsView extends React.Component {
         accessor: 'platform',
       },
       {
-        Header: 'Build type',
+        Header: 'Build Type',
         accessor: 'build_type',
       },
       {
@@ -100,9 +100,15 @@ class BugDetailsView extends React.Component {
         minWidth: 200,
       },
       {
+        Header: 'Machine Name',
+        accessor: 'machine_name',
+        minWidth: 125,
+      },
+      {
         Header: 'Log',
         accessor: 'job_id',
         Cell: props => <a href={getLogViewerUrl(props.value, props.original.tree)} target="_blank">view details</a>,
+        maxWidth: 100,
       },
     ];
     const params = { startday: from, endday: to, tree, bug: bugId };

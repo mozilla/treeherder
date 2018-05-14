@@ -31,6 +31,7 @@ def test_failures_by_bug(bug_data, client):
             'revision': bug_data['job'].push.revision,
             'test_suite': bug_data['job'].signature.job_type_name,
             'tree': bug_data['job'].repository.name,
+            'machine_name': bug_data['job'].machine.name
         }]
     }
 

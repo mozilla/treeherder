@@ -50,8 +50,8 @@ class FailuresByBug(generics.ListAPIView):
                                       .by_bug(bug_id)
                                       .values('job__repository__name', 'job__machine_platform__platform',
                                               'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
-                                              'job__signature__job_type_name', 'job__option_collection_hash')
-                                      .order_by('-job__push__time'))
+                                              'job__signature__job_type_name', 'job__option_collection_hash',
+                                              'job__machine__name').order_by('-job__push__time'))
 
         hash_list = []
 
