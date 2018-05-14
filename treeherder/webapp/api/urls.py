@@ -134,7 +134,7 @@ urlpatterns = [
         include(project_bound_router.urls)),
     url(r'^',
         include(default_router.urls)),
-    url(r'^failures/$', intermittents_view.Failures.as_view()),
-    url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view()),
-    url(r'^failurecount/$', intermittents_view.FailureCount.as_view()),
+    url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
+    url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
+    url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
 ]

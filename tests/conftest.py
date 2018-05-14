@@ -684,3 +684,39 @@ def generic_reference_data(test_repository):
         first_submission_timestamp=0)
 
     return r
+
+
+@pytest.fixture
+def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
+    from treeherder.model.models import (Job,
+                                         BugJobMap,
+                                         Option)
+    jobs = Job.objects.all()
+    bug_id = bugs[0].id
+    BugJobMap.objects.create(job=jobs[0], bug_id=bug_id)
+    query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(
+        test_repository.name)
+
+    return {
+        'tree': test_repository.name,
+        'option': Option.objects.all()[0],
+        'bug_id': bug_id,
+        'job': jobs[0],
+        'jobs': jobs,
+        'query_string': query_string
+    }
+
+
+@pytest.fixture
+def test_run_data(bug_data):
+    pushes = Push.objects.all()
+    time = pushes[0].time.strftime('%Y-%m-%d')
+    test_runs = 0
+    for push in list(pushes):
+        if push.time.strftime('%Y-%m-%d') == time:
+            test_runs += 1
+
+    return {
+        'test_runs': test_runs,
+        'push_time': time
+    }
