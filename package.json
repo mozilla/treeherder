@@ -59,7 +59,7 @@
     "react-router-dom": "4.2.2",
     "react-select": "1.2.1",
     "react-table": "6.8.2",
-    "react2angular": "4.0.1",
+    "react2angular": "4.0.2",
     "reactstrap": "6.0.1",
     "redux": "4.0.0",
     "redux-debounce": "1.0.1",
