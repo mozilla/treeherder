@@ -1233,5 +1233,18 @@
         "repository_group": 2,
         "description": ""
     }
+},
+{
+    "pk": 96,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "comm-esr60",
+        "url": "https://hg.mozilla.org/releases/comm-esr60",
+        "active_status": "active",
+        "codebase": "comm",
+        "repository_group": 8,
+        "description": ""
+    }
 }
 ]
