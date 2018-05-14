@@ -340,7 +340,8 @@ export const phAlertSummaryStatusMap = {
   INVESTIGATING: { id: 5, text: "investigating" },
   WONTFIX: { id: 6, text: "wontfix" },
   FIXED: { id: 7, text: "fixed" },
-  BACKEDOUT: { id: 8, text: "backedout" }
+  BACKEDOUT: { id: 8, text: "backedout" },
+  CONFIRMING: { id: 9, text: "confirming" }
 };
 
 export const phAlertSummaryIssueTrackersMap = {
@@ -353,7 +354,8 @@ export const phAlertStatusMap = {
   DOWNSTREAM: { id: 1, text: "downstream" },
   REASSIGNED: { id: 2, text: "reassigned" },
   INVALID: { id: 3, text: "invalid" },
-  ACKNOWLEDGED: { id: 4, text: "acknowledged" }
+  ACKNOWLEDGED: { id: 4, text: "acknowledged" },
+  CONFIRMING: { id: 5, text: "confirming" }
 };
 
 export const phCompareBaseLineDefaultTimeRange = 86400 * 2;
