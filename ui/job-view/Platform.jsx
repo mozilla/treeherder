@@ -3,7 +3,7 @@ import React from 'react';
 import JobsAndGroups from './JobsAndGroups';
 
 function PlatformName(props) {
-  const titleText = `${props.name} ${props.option}`;
+  const titleText = props.title;
   return (
     <td className="platform">
       <span title={titleText}>{titleText}</span>
@@ -12,17 +12,16 @@ function PlatformName(props) {
 }
 
 PlatformName.propTypes = {
-  name: PropTypes.string.isRequired,
-  option: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
 export default function Platform(props) {
   const { platform, $injector, repoName, filterPlatformCb } = props;
-  const { name, option, groups, id } = platform;
+  const { title, groups, id } = platform;
 
   return (
     <tr id={id} key={id}>
-      <PlatformName name={name} option={option} />
+      <PlatformName title={title} />
       <JobsAndGroups
         groups={groups}
         repoName={repoName}

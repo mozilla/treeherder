@@ -149,6 +149,20 @@ export const thPlatformMap = {
     other: "Other"
 };
 
+// Platforms where the `opt` should be dropped from
+export const thSimplePlatforms = [
+    "gecko-decision",
+    "firefox-release",
+    "devedition-release",
+    "fennec-release",
+    "thunderbird-release",
+    "lint",
+    "release-mozilla-release-",
+    "taskcluster-images",
+    "packages",
+    "toolchains",
+];
+
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
 
 export const thAllResultStates = [

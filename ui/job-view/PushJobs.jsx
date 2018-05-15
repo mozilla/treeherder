@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thPlatformMap, thEvents } from '../js/constants';
+import { thPlatformMap, thSimplePlatforms, thEvents } from '../js/constants';
 import { getPushTableId, getPlatformRowId } from '../helpers/aggregateIdHelper';
 import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
@@ -153,6 +153,10 @@ export default class PushJobs extends React.Component {
       const thisPlatform = { ...platform };
       thisPlatform.id = this.getIdForPlatform(platform);
       thisPlatform.name = thPlatformMap[platform.name] || platform.name;
+      thisPlatform.title = [
+          thisPlatform.name,
+          (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? undefined : platform.option,
+      ].filter(item => typeof item !== 'undefined').join(' ');
       thisPlatform.visible = true;
       return { ...acc, [thisPlatform.id]: this.filterPlatform(thisPlatform, selectedJobId) };
     }, {});
