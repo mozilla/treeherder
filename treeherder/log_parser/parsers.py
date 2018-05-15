@@ -351,6 +351,7 @@ class ErrorParser(ParserBase):
         "E/GeckoLinker",
         "SUMMARY: AddressSanitizer",
         "SUMMARY: LeakSanitizer",
+        "SUMMARY: ThreadSanitizer",
         "Automation Error:",
         "command timed out:",
         "wget: unable ",
