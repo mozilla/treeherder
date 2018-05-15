@@ -35,4 +35,14 @@ module.exports = neutrino => {
                 }
             }
         });
+
+    if (process.env.USE_WATCH_POLLING) {
+      // Inside Vagrant filesystem watching has to be performed using polling mode,
+      // since inotify doesn't work with Virtualbox shared folders.
+      neutrino.config.devServer.set('watchOptions', {
+        // Poll only once a second and ignore the node_modules folder to keep CPU usage down.
+        poll: 1000,
+        ignored: /node_modules/,
+      });
+    }
 };
