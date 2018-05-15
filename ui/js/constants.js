@@ -146,6 +146,9 @@ export const thPlatformMap = {
     "thunderbird-release": "Thunderbird Release Tasks",
     lint: "Linting",
     "release-mozilla-release-": "Balrog Publishing",
+    "taskcluster-images": "Docker Images",
+    packages: "Packages",
+    toolchains: "Toolchains",
     other: "Other"
 };
 
