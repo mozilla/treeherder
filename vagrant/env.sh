@@ -15,3 +15,7 @@ export NEW_RELIC_DEVELOPER_MODE='True'
 
 # Enable Firefox headless mode, avoiding the need for xvfb.
 export MOZ_HEADLESS=1
+
+# Allow dev-servers to know they should enable polling mode for filesystem watching,
+# since inotify is not supported by Virtualbox shared folders.
+export USE_WATCH_POLLING=1
