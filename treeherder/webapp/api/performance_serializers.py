@@ -7,7 +7,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceFramework,
-                                    PerformanceSignature)
+                                    PerformanceSignature,
+                                    IssueTracker)
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
@@ -133,3 +134,14 @@ class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
         model = PerformanceBugTemplate
         fields = ['framework', 'keywords', 'status_whiteboard',
                   'default_component', 'default_product', 'cc_list', 'text']
+
+
+class IssueTrackerSerializer(serializers.ModelSerializer):
+    text = serializers.CharField(read_only=True,
+                                 source='name')
+    issueTrackerUrl = serializers.URLField(read_only=True,
+                                           source='task_base_url')
+
+    class Meta:
+        model = IssueTracker
+        fields = ['id', 'text', 'issueTrackerUrl']

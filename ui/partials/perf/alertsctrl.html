@@ -59,7 +59,7 @@
           </ul>
         </span>
         <span ng-show="alertSummary.bug_number"> ·
-          <a href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank" rel="noopener">
+          <a ng-href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank" rel="noopener">
             Bug {{alertSummary.bug_number}}
           </a>
         </span>

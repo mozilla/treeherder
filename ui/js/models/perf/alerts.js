@@ -4,16 +4,17 @@ import treeherder from '../../treeherder';
 import { getApiUrl } from "../../../helpers/urlHelper";
 import {
   phAlertSummaryStatusMap,
-  phAlertSummaryIssueTrackersMap,
   phAlertStatusMap,
   thPerformanceBranches,
 } from '../../constants';
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'ThOptionCollectionModel', 'PhSeries',
-    'displayNumberFilter',
+    'PhIssueTracker', 'displayNumberFilter',
     function ($http, $httpParamSerializer, $q, ThOptionCollectionModel, PhSeries,
-             displayNumberFilter) {
+             PhIssueTracker, displayNumberFilter) {
+
+        let issueTrackers = null;
 
         const Alert = function (alertData, optionCollectionMap) {
             Object.assign(this, alertData);
@@ -96,7 +97,7 @@ treeherder.factory('PhAlerts', [
         });
         AlertSummary.prototype.getIssueTrackerUrl = function () {
             if (this.issue_tracker) {
-                const issueTrackerUrl = _.find(phAlertSummaryIssueTrackersMap, { id: this.issue_tracker }).issueTrackerUrl;
+                const issueTrackerUrl = _.find(issueTrackers, { id: this.issue_tracker }).issueTrackerUrl;
                 return issueTrackerUrl + this.bug_number;
             }
         };
@@ -272,6 +273,10 @@ treeherder.factory('PhAlerts', [
             };
             return promise;
         }
+
+        PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
+            issueTrackers = issueTrackerList;
+        });
 
         return {
             getAlertSummary: _getAlertSummary,

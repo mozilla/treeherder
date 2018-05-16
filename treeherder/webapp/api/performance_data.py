@@ -20,13 +20,15 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceBugTemplate,
                                     PerformanceDatum,
                                     PerformanceFramework,
-                                    PerformanceSignature)
+                                    PerformanceSignature,
+                                    IssueTracker)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from .performance_serializers import (PerformanceAlertSerializer,
                                       PerformanceAlertSummarySerializer,
                                       PerformanceBugTemplateSerializer,
-                                      PerformanceFrameworkSerializer)
+                                      PerformanceFrameworkSerializer,
+                                      IssueTrackerSerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -353,3 +355,10 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PerformanceBugTemplateSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = ['framework']
+
+
+class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = IssueTracker.objects.all()
+    serializer_class = IssueTrackerSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering = 'id'

@@ -11,7 +11,6 @@ import {
   phDefaultTimeRangeValue,
   phTimeRangeValues,
   phAlertSummaryStatusMap,
-  phAlertSummaryIssueTrackersMap,
   phAlertStatusMap,
 } from "../../constants";
 
@@ -52,11 +51,15 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
-        function ($scope, $uibModalInstance, alertSummary) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'PhIssueTracker',
+        function ($scope, $uibModalInstance, alertSummary, PhIssueTracker) {
             $scope.title = "Link to bug";
             $scope.placeholder = "Task #";
-            $scope.issue_trackers = phAlertSummaryIssueTrackersMap;
+            $scope.issueTrackers = [];
+            PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
+                $scope.issueTrackers = issueTrackerList;
+                $scope.$digest();
+            });
 
             $scope.update = function () {
                 const newId = parseInt(
@@ -183,15 +186,14 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'ThRepositoryModel', 'ThOptionCollectionModel',
-    'ThResultSetModel',
-    'PhFramework', 'PhAlerts', 'PhBugs',
+    'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
+    'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
     'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
                         ThOptionCollectionModel, ThResultSetModel,
-                        PhFramework, PhAlerts, PhBugs,
+                        PhFramework, PhAlerts, PhBugs, PhIssueTracker,
                         dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
