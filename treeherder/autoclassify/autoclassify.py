@@ -41,7 +41,10 @@ def match_errors(job):
 
     try:
         matches, all_matched = find_matches(unmatched_errors)
-        update_db(matches)
+
+        for matcher, match_tuple in matches:
+            update_db(matcher, match_tuple)
+
         create_note(job, all_matched)
     except Exception:
         logger.error("Autoclassification of job %s failed", job.id)
@@ -73,33 +76,32 @@ def find_matches(unmatched_errors):
     return all_matches, len(unmatched_errors) == 0
 
 
-def update_db(matches):
-    for matcher, match_tuple in matches:
-        text_log_error, classified_failure_id, score = match_tuple
+def update_db(matcher, match_tuple):
+    text_log_error, classified_failure_id, score = match_tuple
 
-        try:
-            TextLogErrorMatch.objects.create(
+    try:
+        TextLogErrorMatch.objects.create(
+            score=score,
+            matcher=matcher,
+            classified_failure_id=classified_failure_id,
+            text_log_error=text_log_error,
+        )
+
+        if text_log_error.metadata and text_log_error.metadata.failure_line:
+            FailureMatch.objects.create(
                 score=score,
                 matcher=matcher,
                 classified_failure_id=classified_failure_id,
-                text_log_error=text_log_error,
+                failure_line=text_log_error.metadata.failure_line
             )
+    except IntegrityError:
+        logger.warning(
+            "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
+            text_log_error.id, matcher.id, classified_failure_id)
 
-            if text_log_error.metadata and text_log_error.metadata.failure_line:
-                FailureMatch.objects.create(
-                    score=score,
-                    matcher=matcher,
-                    classified_failure_id=classified_failure_id,
-                    failure_line=text_log_error.metadata.failure_line
-                )
-        except IntegrityError:
-            logger.warning(
-                "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
-                text_log_error.id, matcher.id, classified_failure_id)
-
-        best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
-        if best_match:
-            text_log_error.mark_best_classification(classified_failure_id)
+    best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
+    if best_match:
+        text_log_error.mark_best_classification(classified_failure_id)
 
 
 def create_note(job, all_matched):
