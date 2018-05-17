@@ -41,7 +41,8 @@ def match_errors(job):
 
     try:
         matches, all_matched = find_matches(unmatched_errors)
-        update_db(job, matches, all_matched)
+        update_db(matches)
+        create_note(job, all_matched)
     except Exception:
         logger.error("Autoclassification of job %s failed", job.id)
         job.autoclassify_status = Job.FAILED
@@ -100,10 +101,13 @@ def update_db(matches):
         if best_match:
             text_log_error.mark_best_classification(classified_failure_id)
 
-    if all_matched:
-        if job.is_fully_autoclassified():
-            # We don't want to add a job note after an autoclassification if there is already
-            # one and after a verification if there is already one not supplied by the
-            # autoclassifier
-            if not JobNote.objects.filter(job=job).exists():
-                JobNote.create_autoclassify_job_note(job)
+
+def create_note(job, all_matched):
+    if not (all_matched and job.is_fully_autoclassified()):
+        return
+
+    # We don't want to add a job note after an autoclassification if there is
+    # already one and after a verification if there is already one not supplied
+    # by the autoclassifier
+    if not JobNote.objects.filter(job=job).exists():
+        JobNote.create_autoclassify_job_note(job)
