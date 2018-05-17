@@ -1409,7 +1409,7 @@ class TextLogError(models.Model):
 
         return classification, new_link
 
-    def mark_best_classification(self, classification):
+    def mark_best_classification(self, classification_id):
         """
         Set the given FailureClassification as the best one
 
@@ -1418,6 +1418,8 @@ class TextLogError(models.Model):
 
         If no TextLogErrorMetadata instance exists one will be created.
         """
+        classification = ClassifiedFailure.objects.get(id=classification_id)
+
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(
                 text_log_error=self,

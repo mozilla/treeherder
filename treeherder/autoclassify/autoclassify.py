@@ -1,11 +1,8 @@
 import logging
-from collections import defaultdict
 
 from django.db.utils import IntegrityError
-from six import iteritems
 
-from treeherder.model.models import (ClassifiedFailure,
-                                     FailureMatch,
+from treeherder.model.models import (FailureMatch,
                                      Job,
                                      JobNote,
                                      Matcher,
@@ -75,44 +72,33 @@ def find_matches(unmatched_errors):
     return all_matches, len(unmatched_errors) == 0
 
 
-def update_db(job, matches, all_matched):
-    matches_by_error = defaultdict(set)
-    classified_failures = {item.id: item for item in
-                           ClassifiedFailure.objects.filter(
-                               id__in=[match.classified_failure_id for _, match in matches])}
-    for matcher, match in matches:
-        # matcher: Matcher Model instance
-        # match: tuple of (TextLogError, ClassifiedFailure.id, score)
-        classified_failure = classified_failures[match.classified_failure_id]
-        matches_by_error[match.text_log_error].add((matcher, match, classified_failure))
+def update_db(matches):
+    for matcher, match_tuple in matches:
+        text_log_error, classified_failure_id, score = match_tuple
 
-    for text_log_error, matches in iteritems(matches_by_error):
-        # text_log_error: TextLogError instance
-        # matches: (Matcher instance, (TextLogError, ClassifiedFailure.id, score)
-        for (matcher, match, classified_failure) in matches:
-            # matcher: Matcher model instance
-            # match: Match tuple (TextLogError, ClassifiedFailure.id, score)
-            # classified_failure: ClassifiedFailure model instance
+        try:
+            TextLogErrorMatch.objects.create(
+                score=score,
+                matcher=matcher,
+                classified_failure_id=classified_failure_id,
+                text_log_error=text_log_error,
+            )
 
-            try:
-                TextLogErrorMatch.objects.create(
-                    score=match.score,
+            if text_log_error.metadata and text_log_error.metadata.failure_line:
+                FailureMatch.objects.create(
+                    score=score,
                     matcher=matcher,
-                    classified_failure=classified_failure,
-                    text_log_error=match.text_log_error)
-                if match.text_log_error.metadata and match.text_log_error.metadata.failure_line:
-                    FailureMatch.objects.create(
-                        score=match.score,
-                        matcher=matcher,
-                        classified_failure=classified_failure,
-                        failure_line=match.text_log_error.metadata.failure_line)
-            except IntegrityError:
-                logger.warning(
-                    "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
-                    text_log_error.id, matcher.id, classified_failure.id)
+                    classified_failure_id=classified_failure_id,
+                    failure_line=text_log_error.metadata.failure_line
+                )
+        except IntegrityError:
+            logger.warning(
+                "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
+                text_log_error.id, matcher.id, classified_failure_id)
+
         best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
-            text_log_error.mark_best_classification(classified_failure)
+            text_log_error.mark_best_classification(classified_failure_id)
 
     if all_matched:
         if job.is_fully_autoclassified():

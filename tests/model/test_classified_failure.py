@@ -55,7 +55,7 @@ def test_update_autoclassification_bug(test_job, test_job_2,
     create_failure_lines(test_job_2, lines)
     error_lines = create_text_log_errors(test_job_2, lines)
 
-    error_lines[0].mark_best_classification(classified_failures[0])
+    error_lines[0].mark_best_classification(classified_failures[0].id)
     assert classified_failures[0].bug_number is None
 
     assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
