@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import (exceptions,
                             serializers)
 
-from treeherder.perf.models import (PerformanceAlert,
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceFramework,
@@ -133,3 +134,14 @@ class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
         model = PerformanceBugTemplate
         fields = ['framework', 'keywords', 'status_whiteboard',
                   'default_component', 'default_product', 'cc_list', 'text']
+
+
+class IssueTrackerSerializer(serializers.ModelSerializer):
+    text = serializers.CharField(read_only=True,
+                                 source='name')
+    issueTrackerUrl = serializers.URLField(read_only=True,
+                                           source='task_base_url')
+
+    class Meta:
+        model = IssueTracker
+        fields = ['id', 'text', 'issueTrackerUrl']

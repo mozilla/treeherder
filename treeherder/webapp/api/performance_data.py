@@ -15,7 +15,8 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
-from treeherder.perf.models import (PerformanceAlert,
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceDatum,
@@ -23,7 +24,8 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceSignature)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
-from .performance_serializers import (PerformanceAlertSerializer,
+from .performance_serializers import (IssueTrackerSerializer,
+                                      PerformanceAlertSerializer,
                                       PerformanceAlertSummarySerializer,
                                       PerformanceBugTemplateSerializer,
                                       PerformanceFrameworkSerializer)
@@ -353,3 +355,10 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PerformanceBugTemplateSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filter_fields = ['framework']
+
+
+class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = IssueTracker.objects.all()
+    serializer_class = IssueTrackerSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering = 'id'

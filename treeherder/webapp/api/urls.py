@@ -122,6 +122,9 @@ default_router.register(r'performance/framework',
 default_router.register(r'performance/bug-template',
                         performance_data.PerformanceBugTemplateViewSet,
                         base_name='performance-bug-template')
+default_router.register(r'performance/issue-tracker',
+                        performance_data.PerformanceIssueTrackerViewSet,
+                        base_name='performance-issue-tracker')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
                         base_name='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,

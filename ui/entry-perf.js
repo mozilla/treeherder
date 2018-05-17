@@ -36,6 +36,7 @@ import './js/services/tcactions';
 import './js/models/user';
 import './js/models/error';
 import './js/models/perf/series';
+import './js/models/perf/issue_tracker';
 import './js/models/perf/performance_framework';
 import './js/models/perf/alerts';
 import './js/services/perf/math';
