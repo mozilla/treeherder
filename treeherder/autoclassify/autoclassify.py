@@ -61,6 +61,7 @@ def find_matches(unmatched_errors):
 
     for matcher in Matcher.objects.registered_matchers():
         matches = matcher(unmatched_errors)
+        # matches: generator of Match tuples: (TextLogError, ClassifiedFailure.id, score)
         for match in matches:
             logger.info("Matched error %i with intermittent %i",
                         match.text_log_error.id, match.classified_failure_id)
@@ -80,11 +81,19 @@ def update_db(job, matches, all_matched):
                            ClassifiedFailure.objects.filter(
                                id__in=[match.classified_failure_id for _, match in matches])}
     for matcher, match in matches:
+        # matcher: Matcher Model instance
+        # match: tuple of (TextLogError, ClassifiedFailure.id, score)
         classified_failure = classified_failures[match.classified_failure_id]
         matches_by_error[match.text_log_error].add((matcher, match, classified_failure))
 
     for text_log_error, matches in iteritems(matches_by_error):
+        # text_log_error: TextLogError instance
+        # matches: (Matcher instance, (TextLogError, ClassifiedFailure.id, score)
         for (matcher, match, classified_failure) in matches:
+            # matcher: Matcher model instance
+            # match: Match tuple (TextLogError, ClassifiedFailure.id, score)
+            # classified_failure: ClassifiedFailure model instance
+
             try:
                 TextLogErrorMatch.objects.create(
                     score=match.score,
