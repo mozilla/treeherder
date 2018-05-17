@@ -3,13 +3,12 @@ import _ from 'lodash';
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/urlHelper';
 import { thRepoGroupOrder } from "../constants";
+import TreeStatusModel from '../../models/treeStatus';
 
 treeherder.factory('ThRepositoryModel', [
-    '$http', '$rootScope', '$interval',
-    '$q', 'treeStatus',
+    '$http', '$rootScope', '$interval', '$q',
     function (
-        $http, $rootScope, $interval, $q,
-        treeStatus) {
+        $http, $rootScope, $interval, $q) {
 
         const repos = {};
         const watchedRepos = [];
@@ -91,20 +90,20 @@ treeherder.factory('ThRepositoryModel', [
                     // we've received all the statuses we expect to
                     _.defer(function () {
                         _.each(newStatuses, function (status) {
-                            repos[treeStatus.getRepoName(status.tree)].treeStatus = status;
+                            repos[TreeStatusModel.getRepoName(status.tree)].treeStatus = status;
                         });
                     });
                 }
             };
 
             const getStatus = function (repo) {
-                treeStatus.get(repo).then(
+                TreeStatusModel.get(repo).then(
                     function (data) {
-                        newStatuses[repo] = data.data.result;
+                        newStatuses[repo] = data.result;
                         updateStatusesIfDone();
                     },
                     function (data) {
-                        if (data.data !== null) {
+                        if (data !== null) {
                             newStatuses[repo] = getUnsupportedTreeStatus(repo);
                         } else {
                             newStatuses[repo] = getErrorTreeStatus(repo);

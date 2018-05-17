@@ -13,6 +13,7 @@ import {
 } from '../helpers/jobHelper';
 import PushLoadErrors from './PushLoadErrors';
 import { thEvents } from "../js/constants";
+import JobModel from '../models/job';
 
 export default class PushList extends React.Component {
 
@@ -28,7 +29,6 @@ export default class PushList extends React.Component {
     this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
-    this.ThJobModel = $injector.get('ThJobModel');
 
     this.ThResultSetStore.initRepository(repoName);
 
@@ -142,7 +142,7 @@ export default class PushList extends React.Component {
     } else {
       // If the ``selectedJob`` was not mapped, then we need to notify
       // the user it's not in the range of the current result set list.
-      this.ThJobModel.get(repoName, selectedJobId).then((job) => {
+      JobModel.get(repoName, selectedJobId).then((job) => {
         this.ThResultSetModel.getResultSet(repoName, job.result_set_id).then((push) => {
           const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
 

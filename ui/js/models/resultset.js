@@ -6,12 +6,12 @@ import { Queue, slugid } from 'taskcluster-client-web';
 import treeherder from '../treeherder';
 import thTaskcluster from '../services/taskcluster';
 import { getProjectUrl, getServiceUrl } from '../../helpers/urlHelper';
+import JobModel from '../../models/job';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
     '$q', '$interpolate', 'tcactions',
-    'ThJobModel',
     function ($http, $location, $q, $interpolate,
-        tcactions, ThJobModel) {
+        tcactions) {
 
         const MAX_RESULTSET_FETCH_SIZE = 100;
 
@@ -143,7 +143,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     return_type: "list"
                 };
                 _.extend(params, locationParams);
-                return ThJobModel.get_list(repoName, params, { fetch_all: true });
+                return JobModel.getList(repoName, params, { fetch_all: true });
             },
 
             getResultSetJobs: function (resultSetIdList, repoName, locationParams) {
@@ -154,7 +154,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                         count: 2000
                     };
                     _.extend(params, locationParams);
-                    return ThJobModel.get_list(repoName, params, { fetch_all: true });
+                    return JobModel.getList(repoName, params, { fetch_all: true });
                 });
             },
 

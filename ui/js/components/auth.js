@@ -5,6 +5,7 @@ import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 import thTaskcluster from '../services/taskcluster';
 import { getApiUrl } from '../../helpers/urlHelper';
+import UserModel from '../../models/user';
 
 /**
  * This component handles logging in to Taskcluster Authentication
@@ -44,9 +45,9 @@ treeherder.component("login", {
         onUserChange: "&"
     },
     controller: ['$location', '$window', 'thNotify',
-        'ThUserModel', '$http', '$timeout',
+        '$http', '$timeout',
         function ($location, $window, thNotify,
-                  ThUserModel, $http, $timeout) {
+                  $http, $timeout) {
             const authService = new AuthService();
             const ctrl = this;
 
@@ -76,7 +77,7 @@ treeherder.component("login", {
             });
 
             // Ask the back-end if a user is logged in on page load
-            ThUserModel.get().then(async function (currentUser) {
+            UserModel.get().then(async function (currentUser) {
                 if (currentUser.email && localStorage.getItem('userSession')) {
                     ctrl.setLoggedIn(currentUser);
                 } else {

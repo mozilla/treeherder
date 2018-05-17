@@ -2,8 +2,9 @@ import _ from 'lodash';
 
 import treeherder from '../../treeherder';
 import { getProjectUrl, getApiUrl } from "../../../helpers/urlHelper";
+import OptionCollectionModel from '../../../models/optionCollection';
 
-treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', function ($http, ThOptionCollectionModel, $q) {
+treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
 
     const _getTestName = function (signatureProps) {
         // only return suite name if testname is identical, and handle
@@ -58,7 +59,7 @@ treeherder.factory('PhSeries', ['$http', 'ThOptionCollectionModel', '$q', functi
         getTestName: _getTestName,
         getSeriesName: _getSeriesName,
         getSeriesList: function (projectName, params) {
-            return ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
+            return OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 return $http.get(
                     getProjectUrl('/performance/signatures/', projectName),
                     { params: params }).then(function (response) {

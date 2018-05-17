@@ -8,6 +8,7 @@ import Platform from './Platform';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/jobHelper';
 import { getUrlParam } from '../helpers/locationHelper';
 import { getLogViewerUrl } from '../helpers/urlHelper';
+import JobModel from '../models/job';
 
 export default class PushJobs extends React.Component {
   constructor(props) {
@@ -17,7 +18,6 @@ export default class PushJobs extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.ThJobModel = $injector.get('ThJobModel');
     this.thJobFilters = $injector.get('thJobFilters');
 
     this.pushId = push.id;
@@ -164,7 +164,7 @@ export default class PushJobs extends React.Component {
   handleLogViewerClick(jobId) {
     // Open logviewer in a new window
     const { repoName } = this.props;
-    this.ThJobModel.get(
+    JobModel.get(
       repoName,
       jobId
     ).then((data) => {

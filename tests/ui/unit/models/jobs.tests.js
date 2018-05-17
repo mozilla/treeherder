@@ -1,74 +1,54 @@
-import '../../../../ui/js/models/job.js';
+import * as fetchMock from 'fetch-mock';
+
+import JobModel from '../../../../ui/models/job';
 import { getProjectUrl } from "../../../../ui/helpers/urlHelper";
 
-describe('ThJobModel', function(){
+describe('JobModel', () => {
+  const repoName = 'mozilla-inbound';
 
-    var $httpBackend,
-        $timeout,
-        foregroundRepo = "mozilla-central",
-        ThJobModel;
+  beforeEach(() => {
+    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
+  });
 
-    beforeEach(angular.mock.module('treeherder'));
+  afterEach(() => {
+    fetchMock.restore();
+  });
 
-    beforeEach(inject(function ($injector) {
-        $httpBackend = $injector.get('$httpBackend');
-        $timeout = $injector.get('$timeout');
-        jasmine.getJSONFixtures().fixturesPath='base/tests/ui/mock';
-        ThJobModel = $injector.get('ThJobModel');
-        ThJobModel.get_uri = function(){
-            return getProjectUrl("/jobs/", foregroundRepo);
-        }
-    }));
-
-    describe("get_list", function(){
-        beforeEach(inject(function () {
-            $httpBackend.whenGET(getProjectUrl('/jobs/', foregroundRepo)).respond(
-                getJSONFixture('job_list/job_1.json')
-            );
-        }));
-
-        it("should return a promise", function(){
-            var result = ThJobModel.get_list(foregroundRepo);
-            $httpBackend.flush();
-            expect(result.then).toBeDefined();
-            $httpBackend.verifyNoOutstandingRequest();
-        });
-
-        describe("pagination", function(){
-            beforeEach(inject(function () {
-                $httpBackend.whenGET(getProjectUrl('/jobs/?count=2', foregroundRepo)).respond(
-                    getJSONFixture('job_list/pagination/page_1.json')
-                );
-                $httpBackend.whenGET(getProjectUrl('/jobs/?count=2&offset=2', foregroundRepo)).respond(
-                    getJSONFixture('job_list/pagination/page_2.json')
-                );
-            }));
-
-            it("should return a page of results by default", function(){
-                var result = ThJobModel.get_list(
-                    foregroundRepo,
-                    {count: 2}
-                ).
-                then(function(jobList){
-                    expect(jobList.length).toBe(2);
-                });
-                $httpBackend.flush();
-                $httpBackend.verifyNoOutstandingRequest();
-            });
-
-            it("should return all the pages when fetch_all==true", function(){
-                var result = ThJobModel.get_list(
-                    foregroundRepo,
-                    {count: 2},
-                    {fetch_all: true}
-                ).
-                then(function(jobList){
-                    expect(jobList.length).toBe(3);
-                    expect(jobList[2].id).toBe(3);
-                });
-                $httpBackend.flush();
-                $httpBackend.verifyNoOutstandingRequest();
-            });
-        });
+  describe("getList", () => {
+    beforeEach(() => {
+      fetchMock.get(getProjectUrl('/jobs/'), getJSONFixture('job_list/job_1.json'));
     });
+
+    it("should return a promise", () => {
+      const result = JobModel.getList('mozilla-inbound');
+      expect(result.then).toBeDefined();
+    });
+  });
+
+  describe("pagination", () => {
+    beforeEach(() => {
+      fetchMock.get(getProjectUrl('/jobs/?count=2'), getJSONFixture('job_list/pagination/page_1.json'));
+      fetchMock.get(getProjectUrl('/jobs/?count=2&offset=2'), getJSONFixture('job_list/pagination/page_2.json'));
+    });
+
+    it("should return a page of results by default", () => {
+      JobModel.getList(
+        repoName,
+        { count: 2 }
+      ).then((jobList) => {
+        expect(jobList.length).toBe(2);
+      });
+    });
+
+    it("should return all the pages when fetch_all==true", () => {
+      JobModel.getList(
+        repoName,
+        { count: 2 },
+        { fetch_all: true }
+      ).then((jobList) => {
+        expect(jobList.length).toBe(3);
+        expect(jobList[2].id).toBe(3);
+      });
+    });
+  });
 });

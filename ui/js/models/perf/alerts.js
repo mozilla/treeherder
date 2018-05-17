@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import treeherder from '../../treeherder';
 import { getApiUrl } from "../../../helpers/urlHelper";
+import OptionCollectionModel from '../../../models/optionCollection';
 import {
   phAlertSummaryStatusMap,
   phAlertStatusMap,
@@ -9,9 +10,9 @@ import {
 } from '../../constants';
 
 treeherder.factory('PhAlerts', [
-    '$http', '$httpParamSerializer', '$q', 'ThOptionCollectionModel', 'PhSeries',
+    '$http', '$httpParamSerializer', '$q', 'PhSeries',
     'PhIssueTracker', 'displayNumberFilter',
-    function ($http, $httpParamSerializer, $q, ThOptionCollectionModel, PhSeries,
+    function ($http, $httpParamSerializer, $q, PhSeries,
              PhIssueTracker, displayNumberFilter) {
 
         let issueTrackers = null;
@@ -176,7 +177,7 @@ treeherder.factory('PhAlerts', [
             const alertSummary = this;
             return $http.get(getApiUrl(`/performance/alertsummary/${this.id}/`)).then(
                                  function (response) {
-                                     return ThOptionCollectionModel.getMap().then(
+                                     return OptionCollectionModel.getMap().then(
                                          function (optionCollectionMap) {
                                              Object.assign(alertSummary, response.data);
                                              alertSummary._initializeAlerts(
@@ -265,7 +266,7 @@ treeherder.factory('PhAlerts', [
             // in order to cancel the http request, a canceller must be used
             // http://odetocode.com/blogs/scott/archive/2014/04/24/canceling-http-requests-in-angularjs.aspx
             const canceller = $q.defer();
-            const promise = ThOptionCollectionModel.getMap().then(
+            const promise = OptionCollectionModel.getMap().then(
                 function (optionCollectionMap) {
                     return $http.get(getApiUrl(`/performance/alertsummary/${id}/`),
                                     { timeout: canceller.promise }).then(
@@ -330,7 +331,7 @@ treeherder.factory('PhAlerts', [
                     // status filter already in url if using pregenerated url
                 }
 
-                return ThOptionCollectionModel.getMap().then(
+                return OptionCollectionModel.getMap().then(
                     function (optionCollectionMap) {
                         return $http.get(href).then(function (response) {
                             return {

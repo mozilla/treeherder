@@ -7,15 +7,15 @@ import { toDateStr, toShortDateStr } from '../helpers/displayHelper';
 import { getSlaveHealthUrl, getJobsUrl } from '../helpers/urlHelper';
 import treeherder from "../js/treeherder";
 import { thEvents } from "../js/constants";
+import JobModel from '../models/job';
+import TextLogStepModel from '../models/textLogStep';
 
 class SimilarJobsTab extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
-    this.ThJobModel = $injector.get('ThJobModel');
     this.$rootScope = $injector.get('$rootScope');
-    this.ThTextLogStepModel = $injector.get('ThTextLogStepModel');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.thNotify = $injector.get('thNotify');
     this.thTabs = $injector.get('thTabs');
@@ -73,7 +73,7 @@ class SimilarJobsTab extends React.Component {
         }
     });
 
-    const newSimilarJobs = await this.ThJobModel.get_similar_jobs(repoName, selectedJob.id, options);
+    const newSimilarJobs = await JobModel.getSimilarJobs(repoName, selectedJob.id, options);
 
     if (newSimilarJobs.length > 0) {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
@@ -110,7 +110,7 @@ class SimilarJobsTab extends React.Component {
   showJobInfo(job) {
     const { repoName } = this.props;
 
-    this.ThJobModel.get(repoName, job.id)
+    JobModel.get(repoName, job.id)
       .then((nextJob) => {
         nextJob.result_status = getStatus(nextJob);
         nextJob.duration = nextJob.end_timestamp - nextJob.start_timestamp / 60;
@@ -118,10 +118,7 @@ class SimilarJobsTab extends React.Component {
           nextJob.failure_classification_id];
 
         //retrieve the list of error lines
-        this.ThTextLogStepModel.query({
-          project: repoName,
-          jobId: nextJob.id
-        }, (textLogSteps) => {
+        TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
           nextJob.error_lines = textLogSteps.reduce((acc, step) => (
             [...acc, ...step.errors]), []);
           this.setState({ selectedSimilarJob: nextJob });

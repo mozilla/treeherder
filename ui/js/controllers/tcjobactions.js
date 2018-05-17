@@ -4,13 +4,13 @@ import jsyaml from 'js-yaml';
 import { slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
+import { formatTaskclusterError } from '../../helpers/errorMessageHelper';
 
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$uibModalInstance', 'ThResultSetStore',
-    'ThTaskclusterErrors',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
     function ($scope, $uibModalInstance, ThResultSetStore,
-             ThTaskclusterErrors, thNotify,
+             thNotify,
              job, repoName, resultsetId, tcactions) {
         const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
         let decisionTaskId;
@@ -83,7 +83,7 @@ treeherder.controller('TCJobActionsCtrl', [
                 }));
                 $uibModalInstance.close('request sent');
             }, function (e) {
-                $scope.$apply(thNotify.send(ThTaskclusterErrors.format(e), 'danger', { sticky: true }));
+                $scope.$apply(thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true }));
                 $scope.triggering = false;
                 $uibModalInstance.close('error');
             });

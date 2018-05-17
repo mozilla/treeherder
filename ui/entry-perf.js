@@ -23,18 +23,12 @@ import './css/treeherder-loading-overlay.css';
 import './js/perf';
 
 // Perf JS
-import './js/services/treestatus';
 import './js/filters';
-import './js/models/option_collection';
 import './js/services/main';
 import './js/services/taskcluster';
 import './js/models/repository';
-import './js/models/job';
-import './js/models/runnable_job';
 import './js/models/resultset';
 import './js/services/tcactions';
-import './js/models/user';
-import './js/models/error';
 import './js/models/perf/series';
 import './js/models/perf/issue_tracker';
 import './js/models/perf/performance_framework';

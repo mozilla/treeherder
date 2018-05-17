@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/displayHelper';
+import { formatModelError, formatTaskclusterError } from '../helpers/errorMessageHelper';
 import { thPinboardCountError, thEvents } from "../js/constants";
 
 function Author(props) {
@@ -61,8 +62,6 @@ export default class PushHeader extends React.PureComponent {
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
-    this.ThModelErrors = $injector.get('ThModelErrors');
-    this.ThTaskclusterErrors = $injector.get('ThTaskclusterErrors');
 
     this.pushDateStr = toDateStr(pushTimestamp);
     this.revisionPushFilterUrl = `${urlBasePath}?repo=${repoName}&revision=${revision}`;
@@ -128,7 +127,7 @@ export default class PushHeader extends React.PureComponent {
           this.props.hideRunnableJobsCb();
           this.setState({ runnableJobsSelected: false });
         }, (e) => {
-          this.thNotify.send(this.ThTaskclusterErrors.format(e), 'danger', { sticky: true });
+          this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
         });
       });
     } else {
@@ -146,7 +145,7 @@ export default class PushHeader extends React.PureComponent {
         this.thBuildApi.cancelAll(repoName, revision)
     )).catch((e) => {
       this.thNotify.send(
-          this.ThModelErrors.format(e, "Failed to cancel all jobs"),
+          formatModelError(e, "Failed to cancel all jobs"),
           'danger',
           { sticky: true }
         );

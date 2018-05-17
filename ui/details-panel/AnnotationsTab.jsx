@@ -148,8 +148,6 @@ export default class AnnotationsTab extends React.Component {
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
-    this.deleteBug = this.deleteBug.bind(this);
-    this.deleteClassification = this.deleteClassification.bind(this);
   }
 
   componentDidMount() {
@@ -164,6 +162,9 @@ export default class AnnotationsTab extends React.Component {
         this.thNotify.send("No classification on this job to delete", 'warning');
       }
     });
+
+    this.deleteBug = this.deleteBug.bind(this);
+    this.deleteClassification = this.deleteClassification.bind(this);
   }
 
   deleteClassification(classification) {
@@ -173,7 +174,7 @@ export default class AnnotationsTab extends React.Component {
     job.failure_classification_id = 1;
     this.ThResultSetStore.updateUnclassifiedFailureMap(job);
 
-    classification.delete().then(
+    classification.destroy().then(
       () => {
         this.thNotify.send("Classification successfully deleted", "success");
         // also be sure the job object in question gets updated to the latest
@@ -196,7 +197,7 @@ export default class AnnotationsTab extends React.Component {
   deleteBug(bug) {
     const { selectedJob } = this.props;
 
-    bug.delete()
+    bug.destroy()
       .then(() => {
         this.thNotify.send(
             `Association to bug ${bug.bug_id} successfully deleted`,
