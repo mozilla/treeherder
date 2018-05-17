@@ -153,10 +153,8 @@ export default class PushJobs extends React.Component {
       const thisPlatform = { ...platform };
       thisPlatform.id = this.getIdForPlatform(platform);
       thisPlatform.name = thPlatformMap[platform.name] || platform.name;
-      thisPlatform.title = [
-          thisPlatform.name,
-          (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? undefined : platform.option,
-      ].filter(item => typeof item !== 'undefined').join(' ');
+      const suffix = (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? '' : ` ${platform.option}`;
+      thisPlatform.title = `${thisPlatform.name}${suffix}`;
       thisPlatform.visible = true;
       return { ...acc, [thisPlatform.id]: this.filterPlatform(thisPlatform, selectedJobId) };
     }, {});
