@@ -2,8 +2,7 @@ import logging
 
 from django.db.utils import IntegrityError
 
-from treeherder.model.models import (FailureMatch,
-                                     Job,
+from treeherder.model.models import (Job,
                                      JobNote,
                                      Matcher,
                                      TextLogError,
@@ -80,24 +79,18 @@ def update_db(matcher, match_tuple):
     text_log_error, classified_failure_id, score = match_tuple
 
     try:
-        TextLogErrorMatch.objects.create(
-            score=score,
-            matcher=matcher,
-            classified_failure_id=classified_failure_id,
-            text_log_error=text_log_error,
+        TextLogErrorMatch.create(
+            classified_failure_id,
+            matcher,
+            score,
+            text_log_error,
         )
-
-        if text_log_error.metadata and text_log_error.metadata.failure_line:
-            FailureMatch.objects.create(
-                score=score,
-                matcher=matcher,
-                classified_failure_id=classified_failure_id,
-                failure_line=text_log_error.metadata.failure_line
-            )
     except IntegrityError:
+        args = (text_log_error.id, matcher.id, classified_failure_id)
         logger.warning(
             "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
-            text_log_error.id, matcher.id, classified_failure_id)
+            args,
+        )
 
     best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
     if best_match:

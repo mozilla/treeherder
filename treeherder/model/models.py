@@ -1467,6 +1467,13 @@ class TextLogError(models.Model):
         classification, _ = self.set_classification(manual_detector)
         self.mark_best_classification_verified(classification)
 
+    def get_failure_line(self):
+        """Get a related FailureLine instance if one exists."""
+        try:
+            return self.metadata.failure_line
+        except AttributeError:
+            return None
+
 
 class TextLogErrorMetadata(models.Model):
     """Optional, mutable, data that can be associated with a TextLogError."""
@@ -1520,3 +1527,24 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
+
+    @classmethod
+    def create(cls, classified_failure_id, matcher, score, text_log_error):
+        """Create a TextLogErrorMatch and matching FailureMatch."""
+        TextLogErrorMatch.objects.create(
+            score=score,
+            matcher=matcher,
+            classified_failure_id=classified_failure_id,
+            text_log_error=text_log_error,
+        )
+
+        failure_line = text_log_error.get_failure_line()
+        if not failure_line:
+            return
+
+        FailureMatch.objects.create(
+            score=score,
+            matcher=matcher,
+            classified_failure_id=classified_failure_id,
+            failure_line=failure_line,
+        )
