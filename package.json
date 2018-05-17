@@ -75,8 +75,7 @@
     "jasmine-jquery": "2.1.1",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "1.1.2",
-    "neutrino-preset-karma": "4.2.1",
-    "react-test-renderer": "16.3.2"
+    "neutrino-preset-karma": "4.2.1"
   },
   "scripts": {
     "build": "node ./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
