@@ -147,8 +147,25 @@ export const thPlatformMap = {
     "thunderbird-release": "Thunderbird Release Tasks",
     lint: "Linting",
     "release-mozilla-release-": "Balrog Publishing",
+    "taskcluster-images": "Docker Images",
+    packages: "Packages",
+    toolchains: "Toolchains",
     other: "Other"
 };
+
+// Platforms where the `opt` should be dropped from
+export const thSimplePlatforms = [
+    "gecko-decision",
+    "firefox-release",
+    "devedition-release",
+    "fennec-release",
+    "thunderbird-release",
+    "lint",
+    "release-mozilla-release-",
+    "taskcluster-images",
+    "packages",
+    "toolchains",
+];
 
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
 
