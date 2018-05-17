@@ -15,20 +15,20 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
-from treeherder.perf.models import (PerformanceAlert,
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceDatum,
                                     PerformanceFramework,
-                                    PerformanceSignature,
-                                    IssueTracker)
+                                    PerformanceSignature)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
-from .performance_serializers import (PerformanceAlertSerializer,
+from .performance_serializers import (IssueTrackerSerializer,
+                                      PerformanceAlertSerializer,
                                       PerformanceAlertSummarySerializer,
                                       PerformanceBugTemplateSerializer,
-                                      PerformanceFrameworkSerializer,
-                                      IssueTrackerSerializer)
+                                      PerformanceFrameworkSerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):

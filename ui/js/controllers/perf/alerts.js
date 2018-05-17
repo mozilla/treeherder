@@ -58,7 +58,6 @@ perf.controller(
             $scope.issueTrackers = [];
             PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
                 $scope.issueTrackers = issueTrackerList;
-                $scope.$digest();
             });
 
             $scope.update = function () {

@@ -3,12 +3,12 @@ from django.contrib.auth.models import User
 from rest_framework import (exceptions,
                             serializers)
 
-from treeherder.perf.models import (PerformanceAlert,
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceFramework,
-                                    PerformanceSignature,
-                                    IssueTracker)
+                                    PerformanceSignature)
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
