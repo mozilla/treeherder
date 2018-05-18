@@ -1265,7 +1265,7 @@ class FailureMatch(models.Model):
         db_table = 'failure_match'
         verbose_name_plural = 'failure matches'
         unique_together = (
-            ('failure_line', 'classified_failure', 'matcher')
+            ('failure_line', 'classified_failure', 'matcher_name')
         )
 
     def __str__(self):
@@ -1521,7 +1521,7 @@ class TextLogErrorMatch(models.Model):
         db_table = 'text_log_error_match'
         verbose_name_plural = 'text log error matches'
         unique_together = (
-            ('text_log_error', 'classified_failure', 'matcher')
+            ('text_log_error', 'classified_failure', 'matcher_name')
         )
 
     def __str__(self):
