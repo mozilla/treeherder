@@ -316,7 +316,7 @@ def test_job_error_lines(client, eleven_jobs_stored, failure_lines, classified_f
     matches = failures[0]["matches"]
     assert isinstance(matches, list)
 
-    exp_matches_keys = ["id", "matcher", "score", "classified_failure"]
+    exp_matches_keys = ["id", "matcher_name", "score", "classified_failure"]
 
     assert set(matches[0].keys()) == set(exp_matches_keys)
 

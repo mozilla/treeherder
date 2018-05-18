@@ -10,7 +10,6 @@ from treeherder.model.models import (BugJobMap,
                                      FailureLine,
                                      Job,
                                      JobNote,
-                                     Matcher,
                                      MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata)
@@ -116,9 +115,9 @@ def test_update_error_replace(client,
     assert error_line.metadata.best_classification == classified_failures[1]
     assert error_line.metadata.best_is_verified
 
-    expected_matcher = Matcher.objects.get(name="ManualDetector")
-    assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher == expected_matcher
-    assert error_line.matches.get(classified_failure_id=classified_failures[1].id).matcher == expected_matcher
+    expected_matcher = "ManualDetector"
+    assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
+    assert error_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
 
 
 def test_update_error_mark_job(client,

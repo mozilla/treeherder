@@ -81,7 +81,7 @@ def update_db(matcher, match_tuple):
     try:
         TextLogErrorMatch.create(
             classified_failure_id,
-            matcher,
+            matcher.name,
             score,
             text_log_error,
         )
