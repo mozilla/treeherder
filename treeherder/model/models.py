@@ -1256,6 +1256,7 @@ class FailureMatch(models.Model):
                                            on_delete=models.CASCADE)
 
     matcher = models.ForeignKey(Matcher, on_delete=models.CASCADE)
+    matcher_name = models.CharField(max_length=255)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     # TODO: add indexes once we know which queries will be typically executed
@@ -1513,6 +1514,7 @@ class TextLogErrorMatch(models.Model):
                                            on_delete=models.CASCADE)
 
     matcher = models.ForeignKey(Matcher, on_delete=models.CASCADE)
+    matcher_name = models.CharField(max_length=255)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     class Meta:
