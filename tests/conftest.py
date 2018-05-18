@@ -412,23 +412,15 @@ def text_log_errors_failure_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_matcher(request):
-    from treeherder.autoclassify import detectors
     from treeherder.model.models import MatcherManager
 
-    class TreeherderUnitTestDetector(detectors.Detector):
-        def __call__(self, failure_lines):
-            return True
-
-    MatcherManager._detector_funcs = {}
     MatcherManager._matcher_funcs = {}
-    test_matcher = MatcherManager.register_detector(TreeherderUnitTestDetector)
 
     def finalize():
-        MatcherManager._detector_funcs = {}
         MatcherManager._matcher_funcs = {}
     request.addfinalizer(finalize)
 
-    return test_matcher
+    return "TreeherderUnitTestDetector"
 
 
 @pytest.fixture
@@ -445,7 +437,7 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
         if failure_line.job_guid == test_job.guid:
             classified_failure = ClassifiedFailure()
             classified_failure.save()
-            failure_line.set_classification(test_matcher.db_object,
+            failure_line.set_classification(test_matcher,
                                             classified_failure,
                                             mark_best=True)
             classified_failures.append(classified_failure)

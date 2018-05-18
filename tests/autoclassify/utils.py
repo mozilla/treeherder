@@ -100,9 +100,3 @@ def register_matchers(*args):
     MatcherManager._matcher_funcs = {}
     for item in args:
         MatcherManager.register_matcher(item)
-
-
-def register_detectors(*args):
-    MatcherManager._detector_funcs = {}
-    for item in args:
-        MatcherManager.register_detector(item)

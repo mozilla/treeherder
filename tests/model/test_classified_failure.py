@@ -4,7 +4,9 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,
                                       test_line)
 from treeherder.model.models import (ClassifiedFailure,
-                                     FailureMatch)
+                                     FailureLine,
+                                     FailureMatch,
+                                     TextLogErrorMetadata)
 
 
 def test_set_bug(classified_failures):
@@ -25,7 +27,7 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     FailureMatch.objects.create(
         failure_line=failure_lines[0],
         classified_failure=classified_failures[1],
-        matcher_name=test_matcher.__class__.__name__,
+        matcher_name=test_matcher,
         score=0.8,
     )
 
@@ -48,8 +50,9 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     assert not ClassifiedFailure.objects.filter(id=classified_failures[1].id).exists()
 
 
-def test_update_autoclassification_bug(test_job, test_job_2,
-                                       classified_failures):
+def test_update_autoclassification_bug(test_job, test_job_2, classified_failures):
+    classified_failure = classified_failures[0]
+
     # Job 1 has two failure lines so nothing should be updated
     assert test_job.update_autoclassification_bug(1234) is None
 
@@ -58,7 +61,11 @@ def test_update_autoclassification_bug(test_job, test_job_2,
     error_lines = create_text_log_errors(test_job_2, lines)
 
     error_lines[0].mark_best_classification(classified_failures[0].id)
-    assert classified_failures[0].bug_number is None
+    assert classified_failure.bug_number is None
+
+    metadata = TextLogErrorMetadata.objects.get(text_log_error__step__job=test_job_2)
+    metadata.failure_line = FailureLine.objects.get(pk=3)
+    metadata.save()
 
     assert test_job_2.update_autoclassification_bug(1234) == classified_failures[0]
     classified_failures[0].refresh_from_db()

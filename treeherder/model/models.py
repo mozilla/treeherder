@@ -585,10 +585,16 @@ class Job(models.Model):
         if len(get_filtered_error_lines(self)) != 1:
             return None
 
-        # Check that some detector would match this. This is being used as an indication
-        # that the autoclassifier will be able to work on this classification
-        if not any(detector([text_log_error])
-                   for detector in Matcher.objects.registered_detectors()):
+        # Check that we have a related FailureLine and it's in a state we
+        # expect for auto-classification.
+        failure_line = text_log_error.get_failure_line()
+        if failure_line is None:
+            return None
+
+        if not (failure_line.action == "test_result" and
+                failure_line.test and
+                failure_line.status and
+                failure_line.expected):
             return None
 
         return text_log_error
@@ -1172,13 +1178,7 @@ def _init_matchers():
     matchers.register()
 
 
-def _init_detectors():
-    from treeherder.autoclassify import detectors
-    detectors.register()
-
-
 class MatcherManager(models.Manager):
-    _detector_funcs = LazyClassData(OrderedDict, _init_detectors)
     _matcher_funcs = LazyClassData(OrderedDict, _init_matchers)
 
     @classmethod
@@ -1187,13 +1187,6 @@ class MatcherManager(models.Manager):
             raise AssertionError
 
         return cls._register(matcher_cls, cls._matcher_funcs)
-
-    @classmethod
-    def register_detector(cls, detector_cls):
-        if cls._detector_funcs is None:
-            raise AssertionError
-
-        return cls._register(detector_cls, cls._detector_funcs)
 
     @staticmethod
     def _register(cls_to_register, dest):
@@ -1213,16 +1206,11 @@ class MatcherManager(models.Manager):
         for matcher in self._matcher_funcs.values():
             yield matcher
 
-    def registered_detectors(self):
-        for matcher in self._detector_funcs.values():
-            yield matcher
-
     def get(self, name):
         try:
             return models.Manager.get(self, name=name)
         except Matcher.DoesNotExist:
             self._matcher_funcs
-            self._detector_funcs
             return models.Manager.get(self, name=name)
 
 
