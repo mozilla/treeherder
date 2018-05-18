@@ -15,7 +15,8 @@
                placeholder="{{placeholder}}"
                autocomplete="off"
                autofocus/>
-        <select ng-model="selectedIssueTracker"
+        <select ng-if="issueTrackers"
+                ng-model="selectedIssueTracker"
                 name="selectedIssueTracker"
                 ng-options="issueTracker.text for issueTracker in issueTrackers track by issueTracker.id"/>
       </div>
