@@ -19,14 +19,16 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     match = failure_lines[0].matches.all()[0]
     match.score = 0.7
     match.save()
+
     # Add a FailureMatch that will have the same (failure_line_id, classified_failure_id)
     # as another FailureMatch when classified_failure[1] is replaced by classified_failure[0]
-    duplicate_match = FailureMatch(
+    FailureMatch.objects.create(
         failure_line=failure_lines[0],
         classified_failure=classified_failures[1],
-        matcher=test_matcher.db_object,
-        score=0.8)
-    duplicate_match.save()
+        matcher_name=test_matcher.__class__.__name__,
+        score=0.8,
+    )
+
     assert len(failure_lines[0].matches.all()) == 2
     rv = classified_failures[1].set_bug(1234)
     assert rv == classified_failures[0]

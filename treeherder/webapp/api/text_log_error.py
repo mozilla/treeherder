@@ -21,7 +21,6 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TextLogErrorSerializer
     queryset = TextLogError.objects.prefetch_related("classified_failures",
                                                      "matches",
-                                                     "matches__matcher",
                                                      "_metadata",
                                                      "_metadata__failure_line").all()
     pagination_class = pagination.IdPagination

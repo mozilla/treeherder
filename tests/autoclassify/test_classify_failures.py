@@ -256,11 +256,11 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
 
     for actual, expected in zip(expected_classified_precise, classified_failures):
         assert list(actual.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert [item.matcher.id == 1 for item in actual.matches.all()]
+        assert actual.matches.first().matcher_name == "PreciseTestMatcher"
 
     for actual, expected in zip(expected_classified_fuzzy, classified_failures):
         assert list(actual.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert [item.matcher.id == 2 for item in actual.matches.all()]
+        assert actual.matches.first().matcher_name == "ElasticSearchTestMatcher"
 
 
 def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
@@ -276,11 +276,11 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
     classified_failure = ClassifiedFailure.objects.create()
     FailureMatch.objects.create(failure_line=failure_lines_ref[0],
                                 classified_failure=classified_failure,
-                                matcher=test_matcher.db_object,
+                                matcher_name=test_matcher.__class__.__name__,
                                 score=1.0)
     TextLogErrorMatch.objects.create(text_log_error=error_lines_ref[0],
                                      classified_failure=classified_failure,
-                                     matcher=test_matcher.db_object,
+                                     matcher_name=test_matcher.__class__.__name__,
                                      score=1.0)
     do_autoclassify(test_job_2, failure_lines, [CrashSignatureMatcher])
 

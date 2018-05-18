@@ -385,10 +385,8 @@ class JobsViewSet(viewsets.ViewSet):
         try:
             job = Job.objects.get(repository__name=project,
                                   id=pk)
-            queryset = FailureLine.objects.filter(
-                job_guid=job.guid).prefetch_related(
-                    "matches", "matches__matcher"
-                )
+            queryset = (FailureLine.objects.filter(job_guid=job.guid)
+                                           .prefetch_related("matches"))
             failure_lines = [serializers.FailureLineNoStackSerializer(obj).data
                              for obj in queryset]
             return Response(failure_lines)
@@ -427,9 +425,7 @@ class JobsViewSet(viewsets.ViewSet):
                           .filter(step__job=job)
                           .select_related("_metadata",
                                           "_metadata__failure_line")
-                          .prefetch_related("classified_failures",
-                                            "matches",
-                                            "matches__matcher")
+                          .prefetch_related("classified_failures", "matches")
                           .order_by('id'))
         return Response(serializers.TextLogErrorSerializer(textlog_errors,
                                                            many=True,

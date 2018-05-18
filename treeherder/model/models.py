@@ -559,11 +559,10 @@ class Job(models.Model):
             return
 
         # Send event to NewRelic when a verifing an autoclassified failure.
-        matches = (TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
-                                            .select_related('matcher'))
+        matches = TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
         for match in matches:
             newrelic.agent.record_custom_event('user_verified_classification', {
-                'matcher': match.matcher.name,
+                'matcher': match.matcher_name,
                 'job_id': self.id,
             })
 
@@ -810,9 +809,8 @@ class JobNote(models.Model):
         if not add_bugs:
             return
 
-        manual_detector = Matcher.objects.get(name="ManualDetector")
         for bug_number in add_bugs:
-            classification, _ = text_log_error.set_classification(manual_detector,
+            classification, _ = text_log_error.set_classification("ManualDetector",
                                                                   bug_number=bug_number)
         if len(add_bugs) == 1 and not existing_bugs:
             text_log_error.mark_best_classification_verified(classification)
@@ -937,7 +935,7 @@ class FailureLine(models.Model):
                             .select_related('classified_failure')
                             .first())
 
-    def set_classification(self, matcher, classification=None, bug_number=None,
+    def set_classification(self, matcher_name, classification=None, bug_number=None,
                            mark_best=False):
         with transaction.atomic():
             if classification is None:
@@ -950,7 +948,7 @@ class FailureLine(models.Model):
             new_link = FailureMatch(
                 failure_line=self,
                 classified_failure=classification,
-                matcher=matcher,
+                matcher_name=matcher_name,
                 score=1)
             new_link.save()
 
@@ -962,7 +960,7 @@ class FailureLine(models.Model):
                 TextLogErrorMatch.objects.create(
                     text_log_error=self.error,
                     classified_failure=classification,
-                    matcher=matcher,
+                    matcher_name=matcher_name,
                     score=1)
                 if mark_best:
                     self.error.metadata.best_classification = classification
@@ -975,8 +973,7 @@ class FailureLine(models.Model):
         if (classification and
             classification.id not in self.classified_failures.values_list('id', flat=True)):
             logger.debug("Adding new classification to TextLogError")
-            manual_detector = Matcher.objects.get(name="ManualDetector")
-            self.set_classification(manual_detector, classification=classification)
+            self.set_classification("ManualDetector", classification=classification)
 
         self.best_classification = classification
         self.best_is_verified = True
@@ -1023,10 +1020,7 @@ class FailureLine(models.Model):
         FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
         new match due to the manual classification.
         """
-
-        manual_detector = Matcher.objects.get(name="ManualDetector")
-
-        classification, _ = self.set_classification(manual_detector)
+        classification, _ = self.set_classification("ManualDetector")
         self.mark_best_classification_verified(classification)
 
     def elastic_search_insert(self):
@@ -1377,7 +1371,7 @@ class TextLogError(models.Model):
                 .select_related('classified_failure')
                 .first())
 
-    def set_classification(self, matcher, classification=None, bug_number=None,
+    def set_classification(self, matcher_name, classification=None, bug_number=None,
                            mark_best=False):
         with transaction.atomic():
             if classification is None:
@@ -1390,7 +1384,7 @@ class TextLogError(models.Model):
             new_link = TextLogErrorMatch(
                 text_log_error=self,
                 classified_failure=classification,
-                matcher=matcher,
+                matcher_name=matcher_name,
                 score=1)
             new_link.save()
 
@@ -1398,7 +1392,7 @@ class TextLogError(models.Model):
                 new_link_failure = FailureMatch(
                     failure_line=self.metadata.failure_line,
                     classified_failure=classification,
-                    matcher=matcher,
+                    matcher_name=matcher_name,
                     score=1)
                 new_link_failure.save()
 
@@ -1436,8 +1430,7 @@ class TextLogError(models.Model):
 
     def mark_best_classification_verified(self, classification):
         if classification not in self.classified_failures.all():
-            manual_detector = Matcher.objects.get(name="ManualDetector")
-            self.set_classification(manual_detector, classification=classification)
+            self.set_classification("ManualDetector", classification=classification)
 
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
@@ -1459,10 +1452,7 @@ class TextLogError(models.Model):
         TextLogError, but the TextLogError has not matched any ClassifiedFailure, add a
         new match due to the manual classification.
         """
-
-        manual_detector = Matcher.objects.get(name="ManualDetector")
-
-        classification, _ = self.set_classification(manual_detector)
+        classification, _ = self.set_classification("ManualDetector")
         self.mark_best_classification_verified(classification)
 
     def get_failure_line(self):
@@ -1527,11 +1517,11 @@ class TextLogErrorMatch(models.Model):
             self.text_log_error.id, self.classified_failure.id)
 
     @classmethod
-    def create(cls, classified_failure_id, matcher, score, text_log_error):
+    def create(cls, classified_failure_id, matcher_name, score, text_log_error):
         """Create a TextLogErrorMatch and matching FailureMatch."""
         TextLogErrorMatch.objects.create(
             score=score,
-            matcher=matcher,
+            matcher_name=matcher_name,
             classified_failure_id=classified_failure_id,
             text_log_error=text_log_error,
         )
@@ -1542,7 +1532,7 @@ class TextLogErrorMatch(models.Model):
 
         FailureMatch.objects.create(
             score=score,
-            matcher=matcher,
+            matcher_name=matcher_name,
             classified_failure_id=classified_failure_id,
             failure_line=failure_line,
         )
