@@ -3,14 +3,12 @@ from django.core.urlresolvers import reverse
 from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,
                                       test_line)
-from treeherder.autoclassify.detectors import ManualDetector
 from treeherder.model.models import (BugJobMap,
                                      Bugscache,
                                      ClassifiedFailure,
                                      FailureLine,
                                      Job,
                                      JobNote,
-                                     MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata)
 from treeherder.services.elasticsearch import get_document
@@ -83,9 +81,6 @@ def test_update_error_replace(client,
                               text_log_errors_failure_lines,
                               classified_failures,
                               test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     client.force_authenticate(user=test_user)
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
@@ -125,10 +120,7 @@ def test_update_error_mark_job(client,
                                text_log_errors_failure_lines,
                                classified_failures,
                                test_user):
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
-
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -174,9 +166,7 @@ def test_update_error_mark_job_with_human_note(client,
                                                test_job,
                                                text_log_errors_failure_lines,
                                                classified_failures, test_user):
-
     text_log_errors, _ = text_log_errors_failure_lines
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -210,7 +200,6 @@ def test_update_error_line_mark_job_with_auto_note(client,
                                                    test_user):
 
     text_log_errors, _ = text_log_errors_failure_lines
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -249,8 +238,6 @@ def test_update_errors(client,
                        test_user):
 
     jobs = (Job.objects.get(id=1), Job.objects.get(id=2))
-
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -303,8 +290,6 @@ def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_error = text_log_errors[0]
     failure_line = failure_lines[0]
     assert text_log_error.metadata.best_classification == classified_failures[0]
@@ -338,7 +323,6 @@ def test_update_error_all_ignore_mark_job(client,
                                           test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -388,7 +372,6 @@ def test_update_error_partial_ignore_mark_job(client,
                                               test_user):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
-    MatcherManager.register_detector(ManualDetector)
 
     client.force_authenticate(user=test_user)
 
@@ -429,9 +412,6 @@ def test_update_error_verify_bug(client,
                                  text_log_errors_failure_lines,
                                  classified_failures,
                                  test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -472,9 +452,6 @@ def test_update_error_verify_new_bug(client,
                                      text_log_errors_failure_lines,
                                      classified_failures,
                                      test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -511,9 +488,6 @@ def test_update_error_verify_ignore_now(client,
                                         text_log_errors_failure_lines,
                                         classified_failures,
                                         test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -548,9 +522,6 @@ def test_update_error_change_bug(client,
                                  text_log_errors_failure_lines,
                                  classified_failures,
                                  test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -589,9 +560,6 @@ def test_update_error_bug_change_cf(client,
                                     text_log_errors_failure_lines,
                                     classified_failures,
                                     test_user):
-
-    MatcherManager.register_detector(ManualDetector)
-
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
