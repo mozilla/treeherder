@@ -26,16 +26,18 @@ treeherder.component('phCompareTable', {
         releaseBlockerCriteria: '@'
     },
     controller: ['$attrs', function ($attrs) {
-        // TODO: Use $onInit() so the legacy preAssignBindingsEnabled pref
-        // doesn't have to be enabled in perfapp.js
         const ctrl = this;
 
-        if (!ctrl.baseTitle) {
-            ctrl.baseTitle = "Base";
-        }
-        if (!ctrl.newTitle) {
-            ctrl.newTitle = "New";
-        }
+        ctrl.$onInit = function () {
+            if (!ctrl.baseTitle) {
+                ctrl.baseTitle = "Base";
+            }
+            if (!ctrl.newTitle) {
+                ctrl.newTitle = "New";
+            }
+            ctrl.updateFilteredTestList();
+        };
+
         ctrl.getCompareClasses = function (cr, type) {
             if (cr.isEmpty) return 'subtest-empty';
             if (type === 'row' && cr.highlightedTest) return 'active subtest-highlighted';
@@ -83,8 +85,6 @@ treeherder.component('phCompareTable', {
               testName => ({ testName, results: ctrl.filteredResultList[testName] })
             );
         };
-
-        ctrl.updateFilteredTestList();
     }]
 });
 
@@ -136,21 +136,24 @@ treeherder.component('distributionGraph', {
     },
     controller: [function () {
         const ctrl = this;
-        const cvs = document.getElementById("distribution-graph-new");
-        const ctx = cvs.getContext("2d");
-        cvs.setAttribute("id", "distribution-graph-current");
-        ctrl.maxValue = Math.max.apply(null, ctrl.replicates);
-        ctrl.minValue = Math.min.apply(null, ctrl.replicates);
-        if (ctrl.maxValue - ctrl.minValue > 1) {
-            ctrl.maxValue = Math.ceil(ctrl.maxValue*1.001);
-            ctrl.minValue = Math.floor(ctrl.minValue/1.001);
-        }
-        ctx.globalAlpha = 0.3;
-        ctrl.replicates.forEach((value) => {
-            ctx.beginPath();
-            ctx.arc(180/(ctrl.maxValue - ctrl.minValue)*(value - ctrl.minValue) + 5, 18, 5, 0, 360);
-            ctx.fillStyle = 'white';
-            ctx.fill();
-        });
+
+        ctrl.$onInit = function () {
+            const cvs = document.getElementById("distribution-graph-new");
+            const ctx = cvs.getContext("2d");
+            cvs.setAttribute("id", "distribution-graph-current");
+            ctrl.maxValue = Math.max.apply(null, ctrl.replicates);
+            ctrl.minValue = Math.min.apply(null, ctrl.replicates);
+            if (ctrl.maxValue - ctrl.minValue > 1) {
+                ctrl.maxValue = Math.ceil(ctrl.maxValue*1.001);
+                ctrl.minValue = Math.floor(ctrl.minValue/1.001);
+            }
+            ctx.globalAlpha = 0.3;
+            ctrl.replicates.forEach((value) => {
+                ctx.beginPath();
+                ctx.arc(180/(ctrl.maxValue - ctrl.minValue)*(value - ctrl.minValue) + 5, 18, 5, 0, 360);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            });
+        };
     }]
 });

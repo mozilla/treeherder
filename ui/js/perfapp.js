@@ -19,12 +19,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
         $compileProvider.commentDirectivesEnabled(false);
         $compileProvider.cssClassDirectivesEnabled(false);
 
-        // Revert to the legacy Angular <=1.5 pre-assign bindings behaviour:
-        // https://docs.angularjs.org/guide/migration#commit-bcd0d4
-        // TODO: Move component/directive controller initialization logic that relies on bindings
-        // being present (eg that in phCompareTable) into the controller's $onInit() instead.
-        $compileProvider.preAssignBindingsEnabled(true);
-
         // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
         // https://docs.angularjs.org/guide/migration#commit-aa077e8
         $locationProvider.hashPrefix('');
