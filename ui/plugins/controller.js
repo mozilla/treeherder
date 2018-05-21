@@ -176,7 +176,7 @@ treeherder.controller('PluginCtrl', [
 
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
-        let selectJobPromise = null;
+        let selectJobCanceller = null;
 
         const selectJob = function (job) {
             $scope.bugSuggestionsLoading = true;
@@ -186,24 +186,25 @@ treeherder.controller('PluginCtrl', [
             // set the scope variables needed for the job detail panel
             if (job.id) {
                 $scope.job_detail_loading = true;
-                if (selectJobPromise !== null) {
-                    selectJobPromise.resolve();
+                if (selectJobCanceller !== null) {
+                    // Cancel the in-progress $http requests.
+                    selectJobCanceller.resolve();
                 }
-                selectJobPromise = $q.defer();
+                selectJobCanceller = $q.defer();
 
                 $scope.job = {};
                 $scope.job_details = [];
                 const jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
-                    { timeout: selectJobPromise });
+                    { timeout: selectJobCanceller.promise });
 
                 const jobDetailPromise = ThJobDetailModel.getJobDetails(
                     { job_guid: job.job_guid },
-                    { timeout: selectJobPromise });
+                    { timeout: selectJobCanceller.promise });
 
                 const jobLogUrlPromise = ThJobLogUrlModel.get_list(
                     job.id,
-                    { timeout: selectJobPromise });
+                    { timeout: selectJobCanceller.promise });
 
                 const phSeriesPromise = PhSeries.getSeriesData(
                     $scope.repoName, { job_id: job.id });
@@ -559,8 +560,9 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.clearSelectedJob, function () {
-            if (selectJobPromise !== null) {
-                $timeout.cancel(selectJobPromise);
+            if (selectJobCanceller !== null) {
+                // Cancel the in-progress $http requests.
+                selectJobCanceller.resolve();
             }
         });
 
