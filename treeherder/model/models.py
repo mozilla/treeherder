@@ -1369,13 +1369,13 @@ class TextLogError(models.Model):
         else:
             self.metadata.best_classification = classification
             self.metadata.best_is_verified = True
-            self.metadata.save()
+            self.metadata.save(update_fields=['best_classification', 'best_is_verified'])
 
         failure_line = self.get_failure_line()
         if failure_line:
             failure_line.best_classification = classification
             failure_line.best_is_verified = True
-            failure_line.save()
+            failure_line.save(update_fields=['best_classification', 'best_is_verified'])
             failure_line.elastic_search_insert()
 
     def get_failure_line(self):
