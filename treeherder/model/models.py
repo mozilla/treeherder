@@ -941,45 +941,11 @@ class FailureLine(models.Model):
                             .select_related('classified_failure')
                             .first())
 
-    def set_classification(self, matcher_name, classification=None, bug_number=None,
-                           mark_best=False):
-        with transaction.atomic():
-            if classification is None:
-                if bug_number:
-                    classification, _ = ClassifiedFailure.objects.get_or_create(
-                        bug_number=bug_number)
-                else:
-                    classification = ClassifiedFailure.objects.create()
-
-            new_link = FailureMatch(
-                failure_line=self,
-                classified_failure=classification,
-                matcher_name=matcher_name,
-                score=1)
-            new_link.save()
-
-            if mark_best:
-                self.best_classification = classification
-                self.save(update_fields=['best_classification'])
-
-            if self.error:
-                TextLogErrorMatch.objects.create(
-                    text_log_error=self.error,
-                    classified_failure=classification,
-                    matcher_name=matcher_name,
-                    score=1)
-                if mark_best:
-                    self.error.metadata.best_classification = classification
-                    self.error.metadata.save(update_fields=['best_classification'])
-
-            self.elastic_search_insert()
-        return classification, new_link
-
     def mark_best_classification_verified(self, classification):
         if (classification and
             classification.id not in self.classified_failures.values_list('id', flat=True)):
             logger.debug("Adding new classification to TextLogError")
-            self.set_classification("ManualDetector", classification=classification)
+            self.error.set_classification("ManualDetector", classification=classification)
 
         self.best_classification = classification
         self.best_is_verified = True
@@ -1376,7 +1342,7 @@ class TextLogError(models.Model):
                 new_link_failure.save()
 
             if mark_best:
-                self.mark_best_classification(classification)
+                self.mark_best_classification(classification.id)
 
         return classification, new_link
 
