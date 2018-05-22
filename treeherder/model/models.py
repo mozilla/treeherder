@@ -1370,11 +1370,13 @@ class TextLogError(models.Model):
             self.metadata.best_classification = classification
             self.metadata.best_is_verified = True
             self.metadata.save()
-        if self.metadata.failure_line:
-            self.metadata.failure_line.best_classification = classification
-            self.metadata.failure_line.best_is_verified = True
-            self.metadata.failure_line.save()
-            self.metadata.failure_line.elastic_search_insert()
+
+        failure_line = self.get_failure_line()
+        if failure_line:
+            failure_line.best_classification = classification
+            failure_line.best_is_verified = True
+            failure_line.save()
+            failure_line.elastic_search_insert()
 
     def get_failure_line(self):
         """Get a related FailureLine instance if one exists."""
