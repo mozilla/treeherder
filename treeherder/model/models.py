@@ -941,21 +941,6 @@ class FailureLine(models.Model):
                             .select_related('classified_failure')
                             .first())
 
-    def mark_best_classification_verified(self, classification):
-        if (classification and
-            classification.id not in self.classified_failures.values_list('id', flat=True)):
-            logger.debug("Adding new classification to TextLogError")
-            self.error.set_classification("ManualDetector", classification=classification)
-
-        self.best_classification = classification
-        self.best_is_verified = True
-        self.save()
-        if self.error:
-            self.error.metadata.best_classification = classification
-            self.error.metadata.best_is_verified = True
-            self.error.metadata.save(update_fields=["best_classification", "best_is_verified"])
-        self.elastic_search_insert()
-
     def _serialized_components(self):
         if self.action == "test_result":
             return ["TEST-UNEXPECTED-%s" % self.status.upper(),
