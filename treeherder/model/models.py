@@ -1301,33 +1301,33 @@ class TextLogError(models.Model):
                 .select_related('classified_failure')
                 .first())
 
-    def set_classification(self, matcher_name, classification=None, bug_number=None,
-                           mark_best=False):
-        with transaction.atomic():
-            if classification is None:
-                if bug_number:
-                    classification, _ = ClassifiedFailure.objects.get_or_create(
-                        bug_number=bug_number)
-                else:
-                    classification = ClassifiedFailure.objects.create()
+    @transaction.atomic
+    def set_classification(self, matcher_name, classification=None, bug_number=None, mark_best=False):
+        if classification is None:
+            if bug_number:
+                classification, _ = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number)
+            else:
+                classification = ClassifiedFailure.objects.create()
 
-            new_link = TextLogErrorMatch(
-                text_log_error=self,
+        new_link = TextLogErrorMatch(
+            text_log_error=self,
+            classified_failure=classification,
+            matcher_name=matcher_name,
+            score=1)
+        new_link.save()
+
+        if self.metadata and self.metadata.failure_line:
+            new_link_failure = FailureMatch(
+                failure_line=self.metadata.failure_line,
                 classified_failure=classification,
                 matcher_name=matcher_name,
                 score=1)
-            new_link.save()
 
-            if self.metadata and self.metadata.failure_line:
-                new_link_failure = FailureMatch(
-                    failure_line=self.metadata.failure_line,
-                    classified_failure=classification,
-                    matcher_name=matcher_name,
-                    score=1)
-                new_link_failure.save()
+            new_link_failure.save()
 
-            if mark_best:
-                self.mark_best_classification(classification.id)
+        if mark_best:
+            self.mark_best_classification(classification.id)
 
         return classification, new_link
 
