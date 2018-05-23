@@ -103,16 +103,18 @@ def test_update_error_replace(client,
     failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification == classified_failures[1]
+    classified_failure = classified_failures[1]
+
+    assert failure_line.best_classification == classified_failure
     assert failure_line.best_is_verified
     assert failure_line.classified_failures.count() == 2
     assert error_line.metadata.failure_line == failure_line
-    assert error_line.metadata.best_classification == classified_failures[1]
+    assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
-    assert error_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
+    assert failure_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
+    assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
 
 
 def test_update_error_mark_job(client,
@@ -525,12 +527,14 @@ def test_update_error_change_bug(client,
     text_log_errors, failure_lines = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
+    classified_failure = classified_failures[0]
     failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
+
+    assert failure_line.best_classification == classified_failure
     assert failure_line.best_is_verified is False
     assert error_line.metadata.failure_line == failure_line
-    assert error_line.metadata.best_classification == classified_failures[0]
+    assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified is False
 
     assert 78910 not in [item.bug_number for item in classified_failures]
