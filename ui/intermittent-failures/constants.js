@@ -36,10 +36,10 @@ export const treeOptions = [
   'trunk',
   'mozilla-central',
   'mozilla-inbound',
+  'mozilla-esr60',
   'autoland',
   'firefox-releases',
-  'firefox-esrs',
   'comm-central',
-  'comm-releases',
-  'comm-esrs',
+  'comm-esr60',
+  'comm-releases'
 ];
