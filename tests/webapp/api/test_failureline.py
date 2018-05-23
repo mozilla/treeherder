@@ -106,7 +106,7 @@ def test_update_failure_line_replace(test_repository,
 
     assert failure_line.best_classification == classified_failures[1]
     assert failure_line.best_is_verified
-    assert len(failure_line.classified_failures.all()) == 2
+    assert failure_line.classified_failures.count() == 2
     assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[1]
     assert error_line.metadata.best_is_verified

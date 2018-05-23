@@ -137,8 +137,8 @@ def test_autoclassified_after_manual_classification(test_user,
         error_line.metadata.refresh_from_db()
         failure_line.refresh_from_db()
 
-    assert len(test_error_lines[0].matches.all()) == 1
-    assert len(test_failure_lines[0].matches.all()) == 1
+    assert test_error_lines[0].matches.count() == 1
+    assert test_failure_lines[0].error.matches.count() == 1
     assert test_error_lines[0].metadata.best_classification == test_error_lines[0].classified_failures.all()[0]
     assert test_failure_lines[0].best_classification == test_failure_lines[0].classified_failures.all()[0]
     assert test_error_lines[0].metadata.best_is_verified

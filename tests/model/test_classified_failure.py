@@ -31,7 +31,7 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
         score=0.8,
     )
 
-    assert len(failure_lines[0].matches.all()) == 2
+    assert failure_lines[0].matches.count() == 2
     rv = classified_failures[1].set_bug(1234)
     assert rv == classified_failures[0]
     assert rv.bug_number == 1234
