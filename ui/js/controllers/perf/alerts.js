@@ -316,7 +316,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.unlinkBug = function (alertSummary) {
-            alertSummary.assignBug(null, null).then(function () {
+            alertSummary.unassignBug().then(function () {
                 updateAlertVisibility();
             });
         };

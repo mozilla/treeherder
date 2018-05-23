@@ -238,7 +238,7 @@ class PerformanceAlertSummary(models.Model):
 
     issue_tracker = models.ForeignKey(IssueTracker,
                                       on_delete=models.PROTECT,
-                                      null=True)
+                                      default=1)  # Bugzilla
 
     def update_status(self):
         autodetermined_status = self.autodetermine_status()

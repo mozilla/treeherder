@@ -96,6 +96,7 @@ treeherder.factory('PhAlerts', [
             };
         });
         AlertSummary.prototype.getIssueTrackerUrl = function () {
+            if (!this.bug_number) { return; }
             if (this.issue_tracker) {
                 const issueTrackerUrl = _.find(issueTrackers, { id: this.issue_tracker }).issueTrackerUrl;
                 return issueTrackerUrl + this.bug_number;
@@ -225,6 +226,13 @@ treeherder.factory('PhAlerts', [
             const alertSummary = this;
             return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
                              { bug_number: taskNumber, issue_tracker: issueTrackerId }).then(function () {
+                                 return alertSummary.update();
+                             });
+        };
+        AlertSummary.prototype.unassignBug = function () {
+            const alertSummary = this;
+            return $http.put(getApiUrl(`/performance/alertsummary/${this.id}/`),
+                             { bug_number: null }).then(function () {
                                  return alertSummary.update();
                              });
         };
