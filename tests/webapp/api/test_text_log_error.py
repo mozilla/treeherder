@@ -547,14 +547,15 @@ def test_update_error_change_bug(client,
 
     assert resp.status_code == 200
 
-    classified_failures[0].refresh_from_db()
-    failure_line.refresh_from_db()
-    error_line.metadata.refresh_from_db()
+    classified_failure = ClassifiedFailure.objects.get(id=classified_failure.id)
+    failure_line = FailureLine.objects.get(id=failure_line.id)
+    error_line = TextLogError.objects.get(id=error_line.id)
 
-    assert failure_line.best_classification == classified_failures[0]
+    assert failure_line.best_classification == classified_failure
     assert failure_line.best_classification.bug_number == 78910
     assert failure_line.best_is_verified
-    assert error_line.metadata.best_classification == classified_failures[0]
+
+    assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
     assert error_line.metadata.best_classification.bug_number == 78910
 
