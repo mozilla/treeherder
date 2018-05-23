@@ -371,7 +371,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                                {'shouldAlert': True, 'alertChangeType': 'absolute'},
                                False, True),
                         ])
-def test_alert_generation(test_repository,
+def test_alert_generation(test_repository, test_issue_tracker,
                           failure_classifications, generic_reference_data,
                           alerts_enabled_repository,
                           add_suite_value, extra_suite_metadata,
@@ -475,8 +475,8 @@ def test_framework_not_enabled(test_repository,
     assert 0 == PerformanceDatum.objects.all().count()
 
 
-def test_last_updated(test_repository, failure_classifications,
-                      generic_reference_data):
+def test_last_updated(test_repository, test_issue_tracker,
+                      failure_classifications, generic_reference_data):
     _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               reverse_push_range=True)

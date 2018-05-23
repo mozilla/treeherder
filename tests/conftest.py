@@ -141,6 +141,18 @@ def test_repository(transactional_db):
 
 
 @pytest.fixture
+def test_issue_tracker(transactional_db):
+    from treeherder.perf.models import IssueTracker
+
+    i = IssueTracker.objects.create(
+        name="Bugzilla",
+        task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
+    )
+
+    return i
+
+
+@pytest.fixture
 def test_repository_2(test_repository):
     from treeherder.model.models import Repository
 
@@ -604,7 +616,7 @@ def text_log_error_lines(test_job, failure_lines):
 
 
 @pytest.fixture
-def test_perf_alert_summary(test_repository, push_stored, test_perf_framework):
+def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
     from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,

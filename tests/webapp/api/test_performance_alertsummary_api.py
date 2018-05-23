@@ -171,8 +171,8 @@ def test_alert_summaries_put(client, test_repository, test_perf_signature,
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
 
 
-def test_alert_summary_post(client, test_repository, push_stored,
-                            test_perf_signature, test_user, test_sheriff):
+def test_alert_summary_post(client, test_repository, test_issue_tracker,
+                            push_stored, test_perf_signature, test_user, test_sheriff):
     # this blob should be sufficient to create a new alert summary (assuming
     # the user of this API is authorized to do so!)
     post_blob = {
