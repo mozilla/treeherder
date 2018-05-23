@@ -144,12 +144,10 @@ def test_repository(transactional_db):
 def test_issue_tracker(transactional_db):
     from treeherder.perf.models import IssueTracker
 
-    i = IssueTracker.objects.create(
+    return IssueTracker.objects.create(
         name="Bugzilla",
         task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
     )
-
-    return i
 
 
 @pytest.fixture
