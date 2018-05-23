@@ -117,15 +117,15 @@ class ClassifiedFailureSerializer(serializers.ModelSerializer):
         exclude = ['failure_lines', 'created', 'modified', 'text_log_errors']
 
 
-class FailureMatchSerializer(serializers.ModelSerializer):
+class TextLogErrorMatchSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.FailureMatch
-        exclude = ['failure_line']
+        model = models.TextLogErrorMatch
+        exclude = ['text_log_error']
 
 
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
-    matches = FailureMatchSerializer(many=True)
+    matches = TextLogErrorMatchSerializer(many=True)
     classified_failures = ClassifiedFailureSerializer(many=True)
     unstructured_bugs = NoOpSerializer(read_only=True)
 
@@ -145,7 +145,7 @@ class TextLogErrorMetadataSerializer(serializers.ModelSerializer):
 
 
 class TextLogErrorSerializer(serializers.ModelSerializer):
-    matches = FailureMatchSerializer(many=True)
+    matches = TextLogErrorMatchSerializer(many=True)
     classified_failures = ClassifiedFailureSerializer(many=True)
     bug_suggestions = NoOpSerializer(read_only=True)
     metadata = TextLogErrorMetadataSerializer(read_only=True)

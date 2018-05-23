@@ -5,7 +5,7 @@ from tests.autoclassify.utils import (create_failure_lines,
                                       test_line)
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine,
-                                     FailureMatch,
+                                     TextLogErrorMatch,
                                      TextLogErrorMetadata)
 
 
@@ -18,20 +18,20 @@ def test_set_bug(classified_failures):
 def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     classified_failures[0].bug_number = 1234
     classified_failures[0].save()
-    match = failure_lines[0].matches.all()[0]
+    match = failure_lines[0].error.matches.first()
     match.score = 0.7
     match.save()
 
     # Add a FailureMatch that will have the same (failure_line_id, classified_failure_id)
     # as another FailureMatch when classified_failure[1] is replaced by classified_failure[0]
-    FailureMatch.objects.create(
-        failure_line=failure_lines[0],
+    TextLogErrorMatch.objects.create(
+        text_log_error=failure_lines[0].error,
         classified_failure=classified_failures[1],
         matcher_name=test_matcher,
         score=0.8,
     )
 
-    assert failure_lines[0].matches.count() == 2
+    assert failure_lines[0].error.matches.count() == 2
     rv = classified_failures[1].set_bug(1234)
     assert rv == classified_failures[0]
     assert rv.bug_number == 1234
@@ -41,11 +41,15 @@ def test_set_bug_duplicate(failure_lines, classified_failures, test_matcher):
     # Check that we updated the best classification that previously pointed
     # to the now-defunct classified_failures[0]
     assert failure_lines[1].best_classification == classified_failures[0]
+
+    matches = failure_lines[0].error.matches.all()
+
     # Check that we only have one match for the first failure line
-    matches = failure_lines[0].matches.all()
     assert len(matches) == 1
+
     # Check we picked the better of the two scores for the new match.
     assert matches[0].score == Decimal("0.8")
+
     # Ensure we deleted the ClassifiedFailure on which we tried to set the bug
     assert not ClassifiedFailure.objects.filter(id=classified_failures[1].id).exists()
 

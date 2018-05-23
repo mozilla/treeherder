@@ -1310,26 +1310,17 @@ class TextLogError(models.Model):
             else:
                 classification = ClassifiedFailure.objects.create()
 
-        new_link = TextLogErrorMatch(
+        match = TextLogErrorMatch.objects.create(
             text_log_error=self,
             classified_failure=classification,
             matcher_name=matcher_name,
-            score=1)
-        new_link.save()
-
-        if self.metadata and self.metadata.failure_line:
-            new_link_failure = FailureMatch(
-                failure_line=self.metadata.failure_line,
-                classified_failure=classification,
-                matcher_name=matcher_name,
-                score=1)
-
-            new_link_failure.save()
+            score=1,
+        )
 
         if mark_best:
             self.mark_best_classification(classification.id)
 
-        return classification, new_link
+        return classification, match
 
     def mark_best_classification(self, classification_id):
         """

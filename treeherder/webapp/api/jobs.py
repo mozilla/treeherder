@@ -383,8 +383,7 @@ class JobsViewSet(viewsets.ViewSet):
         Get a list of test failure lines for the job
         """
         try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
+            job = Job.objects.get(repository__name=project, id=pk)
             queryset = (FailureLine.objects.filter(job_guid=job.guid)
                                            .prefetch_related("matches"))
             failure_lines = [serializers.FailureLineNoStackSerializer(obj).data
