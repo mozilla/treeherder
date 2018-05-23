@@ -558,16 +558,14 @@ class Job(models.Model):
             # classified this job.
             return
 
-        already_autoclassified = JobNote.objects.filter(failure_classification__name=classification, job=self).exists()
-        if already_autoclassified and user:
-            # Send event to NewRelic when a User verifies an autoclassified failure.
-            matches = (TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
-                                                .select_related('matcher'))
-            for match in matches:
-                newrelic.agent.record_custom_event('user_verified_classification', {
-                    'matcher': match.matcher.name,
-                    'job_id': self.id,
-                })
+        # Send event to NewRelic when a verifing an autoclassified failure.
+        matches = (TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
+                                            .select_related('matcher'))
+        for match in matches:
+            newrelic.agent.record_custom_event('user_verified_classification', {
+                'matcher': match.matcher.name,
+                'job_id': self.id,
+            })
 
         JobNote.create_autoclassify_job_note(job=self, user=user)
 
