@@ -17,7 +17,7 @@
                 <a href="" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
                 <div class="signature"><small>{{series.signature}}</small></div>
               </div>
-              <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-click="showHideSeries(series.signature)">
+              <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-change="showHideSeries(series.signature)">
           </td>
         </tr>
       </table>
