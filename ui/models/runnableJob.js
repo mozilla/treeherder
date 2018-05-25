@@ -1,4 +1,4 @@
-import { getProjectUrl } from "../helpers/urlHelper";
+import { getProjectUrl } from "../helpers/url";
 import JobModel from './job';
 
 const uri = getProjectUrl("/runnable_jobs/");

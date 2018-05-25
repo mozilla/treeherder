@@ -1,5 +1,5 @@
 import { formatBugs } from '../helpers';
-import { bugzillaBugsApi } from '../../helpers/urlHelper';
+import { bugzillaBugsApi } from '../../helpers/url';
 
 export const fetchBugDataSuccess = (data, name) => ({
   type: `FETCH_${name}_SUCCESS`,

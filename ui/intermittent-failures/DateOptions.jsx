@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import DateRangePicker from './DateRangePicker';
 import { fetchBugData, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 import { setDateRange } from './helpers';
-import { createApiUrl } from '../helpers/urlHelper';
+import { createApiUrl } from '../helpers/url';
 import DropdownMenuItems from './DropdownMenuItems';
 
 class DateOptions extends React.Component {

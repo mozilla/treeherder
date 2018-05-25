@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getBtnClass, findJobInstance } from "../helpers/jobHelper";
-import { getUrlParam } from "../helpers/locationHelper";
+import { getBtnClass, findJobInstance } from "../helpers/job";
+import { getUrlParam } from "../helpers/location";
 
 export default class JobButtonComponent extends React.Component {
   constructor(props) {

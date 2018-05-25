@@ -5,7 +5,7 @@
 import _ from 'lodash';
 
 import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
-import { escapeId, getGroupMapKey } from '../../helpers/aggregateIdHelper';
+import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import treeherder from '../treeherder';
 import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';

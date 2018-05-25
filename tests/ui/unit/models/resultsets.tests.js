@@ -1,4 +1,4 @@
-import { getProjectUrl } from "../../../../ui/helpers/urlHelper";
+import { getProjectUrl } from "../../../../ui/helpers/url";
 
 describe('ThResultSetStore', function(){
 

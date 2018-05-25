@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const getHeaders = function getHeaders() {
+const generateHeaders = function generateHeaders() {
   return new Headers({
     'X-CSRFToken': Cookies.get('csrftoken'),
     Accept: 'application/json',
@@ -11,7 +11,7 @@ const getHeaders = function getHeaders() {
 export const create = function postJson(uri, data) {
   return fetch(uri, {
     method: 'POST',
-    headers: getHeaders(),
+    headers: generateHeaders(),
     body: JSON.stringify(data),
   });
 };
@@ -19,7 +19,7 @@ export const create = function postJson(uri, data) {
 export const update = function putJson(uri, data) {
   return fetch(uri, {
     method: 'PUT',
-    headers: getHeaders(),
+    headers: generateHeaders(),
     body: JSON.stringify(data),
   });
 };
@@ -27,6 +27,6 @@ export const update = function putJson(uri, data) {
 export const destroy = function deleteRecord(uri) {
   return fetch(uri, {
     method: 'DELETE',
-    headers: getHeaders(),
+    headers: generateHeaders(),
   });
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import { getUrlParam } from "../helpers/locationHelper";
-import { formatModelError, formatTaskclusterError } from '../helpers/errorMessageHelper';
+import { getUrlParam } from "../helpers/location";
+import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
 
 export default class PushActionMenu extends React.PureComponent {

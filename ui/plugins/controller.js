@@ -7,18 +7,15 @@ import treeherder from '../js/treeherder';
 import thTaskcluster from '../js/services/taskcluster';
 import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 import intermittentTemplate from '../partials/main/intermittent.html';
-import { getStatus, isReftest } from '../helpers/jobHelper';
-import {
-  formatModelError,
-  formatTaskclusterError
-} from '../helpers/errorMessageHelper';
+import { getStatus, isReftest } from '../helpers/job';
+import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import {
   getBugUrl,
   getSlaveHealthUrl,
   getInspectTaskUrl,
   getLogViewerUrl,
   getReftestUrl,
-} from '../helpers/urlHelper';
+} from '../helpers/url';
 import { thEvents } from "../js/constants";
 import JobModel from '../models/job';
 import JobDetailModel from '../models/jobDetail';
@@ -179,7 +176,7 @@ treeherder.controller('PluginCtrl', [
 
         // this promise will void all the ajax requests
         // triggered by selectJob once resolved
-        let selectJobCanceller = null;
+        let selectJobController = null;
 
         const selectJob = function (job) {
             $scope.bugSuggestionsLoading = true;
@@ -188,27 +185,31 @@ treeherder.controller('PluginCtrl', [
 
             // set the scope variables needed for the job detail panel
             if (job.id) {
-                $scope.job_detail_loading = true;
-                if (selectJobCanceller !== null) {
+                if (selectJobController) {
                     // Cancel the in-progress fetch requests.
-                    selectJobCanceller.abort();
+                    selectJobController.abort();
                 }
-                selectJobCanceller = new window.AbortController();
+                // TODO: Remove this eslint-disable once we're on a newer version of eslint
+                // with globals that include AbortController.
+                // eslint-disable-next-line no-undef
+                selectJobController = new AbortController();
+
+                $scope.job_detail_loading = true;
 
                 $scope.job = {};
                 $scope.job_details = [];
                 const jobPromise = JobModel.get(
                     $scope.repoName,
                     job.id,
-                    selectJobCanceller.signal);
+                    selectJobController.signal);
 
                 const jobDetailPromise = JobDetailModel.getJobDetails(
                     { job_guid: job.job_guid },
-                    selectJobCanceller.signal);
+                    selectJobController.signal);
 
                 const jobLogUrlPromise = JobLogUrlModel.getList(
                     { job_id: job.id },
-                    selectJobCanceller.signal);
+                    selectJobController.signal);
 
                 const phSeriesPromise = PhSeries.getSeriesData(
                     $scope.repoName, { job_id: job.id });
@@ -292,6 +293,8 @@ treeherder.controller('PluginCtrl', [
                     $scope.loadBugSuggestions();
 
                     $scope.job_detail_loading = false;
+                }).finally(() => {
+                    selectJobController = null;
                 });
             }
         };
@@ -564,10 +567,8 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.clearSelectedJob, function () {
-            if (selectJobCanceller !== null) {
-                // Cancel the in-progress fetch requests.
-                selectJobCanceller.abort();
-            }
+            // Cancel the in-progress fetch requests.
+            selectJobController.abort();
         });
 
         $rootScope.$on(thEvents.selectNextTab, function () {

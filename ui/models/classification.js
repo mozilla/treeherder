@@ -1,5 +1,5 @@
-import { createQueryParams, getProjectUrl } from '../helpers/urlHelper';
-import { destroy, create } from '../helpers/httpHelper';
+import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { destroy, create } from '../helpers/http';
 
 const uri = getProjectUrl("/note/");
 

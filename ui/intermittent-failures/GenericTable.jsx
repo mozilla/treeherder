@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
-import { createApiUrl } from '../helpers/urlHelper';
+import { createApiUrl } from '../helpers/url';
 import { sortData } from './helpers';
 
 class GenericTable extends React.Component {

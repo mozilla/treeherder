@@ -3,7 +3,7 @@
 import _ from 'lodash';
 
 import treeherder from '../treeherder';
-import { getStatus } from '../../helpers/jobHelper';
+import { getStatus } from '../../helpers/job';
 import { thFailureResults, thDefaultFilterResultStates, thEvents } from "../constants";
 
 /**

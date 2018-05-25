@@ -1,4 +1,4 @@
-import { getProjectJobUrl } from '../helpers/urlHelper';
+import { getProjectJobUrl } from '../helpers/url';
 
 export default class TextLogStepModel {
   static get(jobId) {

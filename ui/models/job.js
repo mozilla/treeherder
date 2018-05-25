@@ -1,8 +1,7 @@
 import _ from 'lodash';
-import angular from 'angular';
 
 import { thPlatformMap } from '../js/constants';
-import { createQueryParams, getProjectUrl } from "../helpers/urlHelper";
+import { createQueryParams, getProjectUrl } from "../helpers/url";
 
 const uri = getProjectUrl("/jobs/");
 
@@ -54,9 +53,11 @@ export default class JobModel {
         if (fetch_all && (data.results.length === data.meta.count)) {
           const current_offset = parseInt(data.meta.offset);
           const page_size = parseInt(data.meta.count);
-          const new_options = angular.copy(options);
-          new_options.offset = page_size + current_offset;
-          new_options.count = page_size;
+          const new_options = {
+            ...options,
+            offset: page_size + current_offset,
+            count: page_size,
+          };
           next_pages_jobs = await JobModel.getList(repoName, new_options, config);
         }
         if ('job_property_names' in data) {

@@ -1,4 +1,4 @@
-import { createQueryParams, getApiUrl } from '../helpers/urlHelper';
+import { createQueryParams, getApiUrl } from '../helpers/url';
 
 export default class JobDetailModel {
   static getJobDetails(params, signal) {

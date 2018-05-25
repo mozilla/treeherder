@@ -1,4 +1,3 @@
-
 const uri = "https://treestatus.mozilla-releng.net/trees/";
 
 export default class TreeStatusModel {

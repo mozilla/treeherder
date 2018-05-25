@@ -4,7 +4,7 @@ import jsyaml from 'js-yaml';
 import { slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
-import { formatTaskclusterError } from '../../helpers/errorMessageHelper';
+import { formatTaskclusterError } from '../../helpers/errorMessage';
 
 treeherder.controller('TCJobActionsCtrl', [
     '$scope', '$uibModalInstance', 'ThResultSetStore',

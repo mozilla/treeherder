@@ -11,7 +11,7 @@ import GenericTable from './GenericTable';
 import GraphsContainer from './GraphsContainer';
 import { updateQueryParams, calculateMetrics, prettyDate } from './helpers';
 import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl, getJobsUrl,
-  getLogViewerUrl, bugzillaBugsApi } from '../helpers/urlHelper';
+  getLogViewerUrl, bugzillaBugsApi } from '../helpers/url';
 
 class BugDetailsView extends React.Component {
   constructor(props) {

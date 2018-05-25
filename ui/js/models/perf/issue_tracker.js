@@ -1,5 +1,5 @@
 import treeherder from '../../treeherder';
-import { getApiUrl } from "../../../helpers/urlHelper";
+import { getApiUrl } from "../../../helpers/url";
 
 treeherder.factory('PhIssueTracker', [
     '$http', '$q', function ($http, $q) {

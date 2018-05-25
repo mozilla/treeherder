@@ -1,7 +1,5 @@
-import {
-  getApiUrl,
-} from '../helpers/urlHelper';
-import { update } from "../helpers/httpHelper";
+import { getApiUrl } from '../helpers/url';
+import { update } from "../helpers/http";
 
 const uri = getApiUrl('/text-log-error/');
 

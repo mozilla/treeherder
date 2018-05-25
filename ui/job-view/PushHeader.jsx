@@ -2,8 +2,8 @@ import React from "react";
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
-import { toDateStr } from '../helpers/displayHelper';
-import { formatModelError, formatTaskclusterError } from '../helpers/errorMessageHelper';
+import { toDateStr } from '../helpers/display';
+import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thPinboardCountError, thEvents } from "../js/constants";
 
 function Author(props) {

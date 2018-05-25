@@ -1,4 +1,4 @@
-import { getApiUrl } from '../helpers/urlHelper';
+import { getApiUrl } from '../helpers/url';
 
 const uri = getApiUrl("/optioncollectionhash/");
 

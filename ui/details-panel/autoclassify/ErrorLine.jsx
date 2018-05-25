@@ -6,8 +6,8 @@ import { FormGroup } from 'reactstrap';
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
 import StaticLineOption from './StaticLineOption';
-import { getBugUrl, getLogViewerUrl } from "../../helpers/urlHelper";
-import { stringOverlap, highlightLogLine } from "../../helpers/autoclassifyHelper";
+import { getBugUrl, getLogViewerUrl } from "../../helpers/url";
+import { stringOverlap, highlightLogLine } from "../../helpers/autoclassify";
 import { thEvents } from "../../js/constants";
 
 

@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 import logViewerApp from '../logviewer';
-import { getInspectTaskUrl, getReftestUrl } from "../../helpers/urlHelper";
-import { isReftest } from "../../helpers/jobHelper";
+import { getInspectTaskUrl, getReftestUrl } from "../../helpers/url";
+import { isReftest } from "../../helpers/job";
 import { thDateFormat } from "../constants";
 import JobDetailModel from '../../models/jobDetail';
 import JobModel from '../../models/job';

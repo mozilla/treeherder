@@ -1,8 +1,8 @@
 import { Queue } from 'taskcluster-client-web';
 
 import thTaskcluster from "../js/services/taskcluster";
-import { getUrlParam, getAllUrlParams } from './locationHelper';
-import { isSHA } from "./revisionHelper";
+import { getUrlParam, getAllUrlParams } from './location';
+import { isSHA } from "./revision";
 
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);

@@ -4,7 +4,7 @@ import treeherder from '../treeherder';
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 import thTaskcluster from '../services/taskcluster';
-import { getApiUrl } from '../../helpers/urlHelper';
+import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
 /**

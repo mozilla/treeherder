@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
-import { getBugUrl } from '../helpers/urlHelper';
+import { getBugUrl } from '../helpers/url';
 import { thEvents } from "../js/constants";
 
 function RelatedBugSaved(props) {

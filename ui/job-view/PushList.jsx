@@ -10,7 +10,7 @@ import {
   findSelectedInstance,
   findJobInstance,
   scrollToElement
-} from '../helpers/jobHelper';
+} from '../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
 import { thEvents } from "../js/constants";
 import JobModel from '../models/job';

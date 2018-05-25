@@ -1,7 +1,7 @@
 import * as fetchMock from 'fetch-mock';
 
 import JobModel from '../../../../ui/models/job';
-import { getProjectUrl } from "../../../../ui/helpers/urlHelper";
+import { getProjectUrl } from "../../../../ui/helpers/url";
 
 describe('JobModel', () => {
   const repoName = 'mozilla-inbound';

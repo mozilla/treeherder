@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import treeherder from '../../treeherder';
-import { getProjectUrl, getApiUrl } from "../../../helpers/urlHelper";
+import { getProjectUrl, getApiUrl } from "../../../helpers/url";
 import OptionCollectionModel from '../../../models/optionCollection';
 
 treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {

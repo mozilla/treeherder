@@ -5,7 +5,7 @@ import { Queue, slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
 import thTaskcluster from '../services/taskcluster';
-import { getProjectUrl, getServiceUrl } from '../../helpers/urlHelper';
+import { getProjectUrl, getServiceUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',

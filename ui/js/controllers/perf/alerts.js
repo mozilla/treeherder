@@ -4,7 +4,7 @@ import angular from 'angular';
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
-import { getApiUrl, getJobsUrl } from "../../../helpers/urlHelper";
+import { getApiUrl, getJobsUrl } from "../../../helpers/url";
 import {
   thDateFormat,
   phTimeRanges,

@@ -5,7 +5,7 @@ import thWatchedRepoTemplate from '../../../partials/main/thWatchedRepo.html';
 import thWatchedRepoInfoDropDownTemplate from '../../../partials/main/thWatchedRepoInfoDropDown.html';
 import thRepoMenuItemTemplate from '../../../partials/main/thRepoMenuItem.html';
 import thResultStatusChickletTemplate from '../../../partials/main/thResultStatusChicklet.html';
-import { getBtnClass } from '../../../helpers/jobHelper';
+import { getBtnClass } from '../../../helpers/job';
 import TreeStatusModel from '../../../models/treeStatus';
 
 treeherder.directive('thWatchedRepo', [

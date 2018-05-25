@@ -4,7 +4,7 @@ import treeherder from '../treeherder';
 import { thPinboardCountError, thEvents } from "../constants";
 import JobClassificationModel from '../../models/classification';
 import BugJobMapModel from '../../models/bugJobMap';
-import { formatModelError } from '../../helpers/errorMessageHelper';
+import { formatModelError } from '../../helpers/errorMessage';
 
 treeherder.factory('thPinboard', [
     '$rootScope', 'thNotify', 'ThResultSetStore', '$timeout',
