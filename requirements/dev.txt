@@ -18,9 +18,9 @@ django-extensions==2.0.7 \
     --hash=sha256:3be3debf53c77ca795bdf713726c923aa3c3f895e1a42e2e31a68c1a562346a4 \
     --hash=sha256:94bfac99eb262c5ac27e53eda96925e2e53fe0b331af7dde37012d07639a649c
 
-pytest-selenium==1.12.0 \
-    --hash=sha256:050a357a8bc9d38241052a277a5da3d67ff4801a807e8918113a88defee11c97 \
-    --hash=sha256:b3c36a212d0b5a3ba61fccbf9f754aa2286840dc2ae910a04b67c72685a1bca7
+pytest-selenium==1.13.0 \
+    --hash=sha256:afdaa6faf4db615af87e126d734bfa4a3c12ff6afb6f86138900603b55ff5230 \
+    --hash=sha256:3b9191877ee61ff87bf705b8e2072b57be4872cfd5543a76b3a104a843b6c520
 
 PyPOM==2.0.0 \
     --hash=sha256:ea1d3b0297fdeccc47d034a005e6cd16e206ad32258aeffbca47f0c516a63082 \
