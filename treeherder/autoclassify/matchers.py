@@ -170,11 +170,6 @@ class PreciseTestMatcher(Matcher):
 
 class ElasticSearchTestMatcher(Matcher):
     """Looks for existing failures using Elasticsearch."""
-    def __init__(self, *args, **kwargs):
-        """Track the number of calls to Elasticsearch."""
-        Matcher.__init__(self, *args, **kwargs)
-        self.calls = 0
-
     def __call__(self, text_log_errors):
         """Check Elasticsearch has been configured."""
         if not settings.ELASTICSEARCH_URL:
@@ -218,7 +213,6 @@ class ElasticSearchTestMatcher(Matcher):
         }
 
         try:
-            self.calls += 1
             results = search(query)
         except Exception:
             logger.error("Elasticsearch lookup failed: %s %s %s %s %s",
