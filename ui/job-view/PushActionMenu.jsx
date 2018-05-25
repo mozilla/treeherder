@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import { getUrlParam } from "../helpers/locationHelper";
+import { getUrlParam } from "../helpers/location";
+import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
 
 export default class PushActionMenu extends React.PureComponent {
@@ -13,8 +14,6 @@ export default class PushActionMenu extends React.PureComponent {
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
-    this.ThModelErrors = $injector.get('ThModelErrors');
-    this.ThTaskclusterErrors = $injector.get('ThTaskclusterErrors');
 
     // customPushActions uses $uibModal which doesn't work well in the
     // unit tests.  So if we fail to inject here, that's OK.
@@ -73,7 +72,7 @@ export default class PushActionMenu extends React.PureComponent {
             this.thNotify.send(msg, "success");
           }, (e) => {
             this.thNotify.send(
-              this.ThModelErrors.format(e, "The action 'trigger missing jobs' failed"),
+              formatModelError(e, "The action 'trigger missing jobs' failed"),
               'danger',
               { sticky: true }
             );
@@ -98,7 +97,7 @@ export default class PushActionMenu extends React.PureComponent {
             this.thNotify.send(msg, "success");
           }, (e) => {
             this.thNotify.send(
-              this.ThTaskclusterErrors.format(e),
+              formatTaskclusterError(e),
               'danger',
               { sticky: true }
             );

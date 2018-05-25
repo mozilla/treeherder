@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Collapse, Navbar, Nav, UncontrolledDropdown, DropdownToggle } from 'reactstrap';
 
 import { updateTreeName, fetchBugData, fetchBugsThenBugzilla } from './redux/actions';
-import { createApiUrl } from '../helpers/urlHelper';
+import { createApiUrl } from '../helpers/url';
 import DropdownMenuItems from './DropdownMenuItems';
 import { treeOptions } from './constants';
 

@@ -9,7 +9,7 @@ import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import { ISODate } from './helpers';
-import { createApiUrl } from '../helpers/urlHelper';
+import { createApiUrl } from '../helpers/url';
 import { fetchBugData, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 
 class DateRangePicker extends React.Component {

@@ -3,7 +3,7 @@
 import _ from 'lodash';
 
 import treeherder from '../treeherder';
-import { getStatus } from '../../helpers/jobHelper';
+import { getStatus } from '../../helpers/job';
 import { thFailureResults, thDefaultFilterResultStates, thEvents } from "../constants";
 
 /**
@@ -507,7 +507,7 @@ treeherder.factory('thJobFilters', [
                 return thPlatformName(job[field]) + " " + job.platform_option;
             } else if (field === 'searchStr') {
                 // lazily get this to avoid storing redundant information
-                return job.get_search_str();
+                return job.getSearchStr();
             }
 
             return job[field];

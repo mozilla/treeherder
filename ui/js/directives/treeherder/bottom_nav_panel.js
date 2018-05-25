@@ -1,7 +1,7 @@
 import treeherder from '../../treeherder';
 import thPinnedJobTemplate from '../../../partials/main/thPinnedJob.html';
 import thRelatedBugQueuedTemplate from '../../../partials/main/thRelatedBugQueued.html';
-import { getBtnClass, getStatus } from "../../../helpers/jobHelper";
+import { getBtnClass, getStatus } from "../../../helpers/job";
 
 treeherder.directive('thPinnedJob', function () {
 

@@ -1,4 +1,4 @@
-import { linkifyURLs, linkifyRevisions } from "../../../ui/helpers/urlHelper";
+import { linkifyURLs, linkifyRevisions } from "../../../ui/helpers/url";
 
 describe('linkifyURLs helper', () => {
 

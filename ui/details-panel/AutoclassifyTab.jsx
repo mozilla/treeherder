@@ -6,9 +6,10 @@ import { react2angular } from 'react2angular/index.es2015';
 import ErrorLineData from './autoclassify/ErrorLineModel';
 import AutoclassifyToolbar from './autoclassify/AutoclassifyToolbar';
 import ErrorLine from './autoclassify/ErrorLine';
-import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from "../helpers/urlHelper";
+import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from "../helpers/url";
 import { thEvents } from "../js/constants";
 import treeherder from "../js/treeherder";
+import TextLogErrorsModel from '../models/textLogErrors';
 
 class AutoclassifyTab extends React.Component {
   static getDerivedStateFromProps(nextProps) {
@@ -25,7 +26,6 @@ class AutoclassifyTab extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
     this.thPinboard = $injector.get('thPinboard');
-    this.ThTextLogErrorsModel = $injector.get('ThTextLogErrorsModel');
 
     this.state = {
       loadStatus: "loading",
@@ -377,10 +377,10 @@ class AutoclassifyTab extends React.Component {
     }));
 
     this.setState({ loadStatus: "loading" });
-    return this.ThTextLogErrorsModel
+    return TextLogErrorsModel
       .verifyMany(data)
-      .then((resp) => {
-        const newErrorLines = resp.data.reduce((newLines, updatedLine) => {
+      .then((data) => {
+        const newErrorLines = data.reduce((newLines, updatedLine) => {
           const idx = newLines.findIndex(line => line.id === updatedLine.id);
           newLines[idx] = new ErrorLineData(updatedLine);
           return newLines;

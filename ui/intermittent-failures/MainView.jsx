@@ -9,7 +9,7 @@ import { fetchBugData, updateTreeName, updateDateRange, fetchBugsThenBugzilla } 
 import BugColumn from './BugColumn';
 import { updateQueryParams, mergeData, calculateMetrics, prettyDate } from './helpers';
 import GraphsContainer from './GraphsContainer';
-import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/urlHelper';
+import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/url';
 
 class MainView extends React.Component {
   constructor(props) {

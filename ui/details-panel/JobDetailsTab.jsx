@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
-import { getPerfAnalysisUrl, getWptUrl } from "../helpers/urlHelper";
+import { getPerfAnalysisUrl, getWptUrl } from "../helpers/url";
 
 export default class JobDetailsTab extends React.PureComponent {
   render() {

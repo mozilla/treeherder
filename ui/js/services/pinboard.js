@@ -2,19 +2,20 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { thPinboardCountError, thEvents } from "../constants";
+import JobClassificationModel from '../../models/classification';
+import BugJobMapModel from '../../models/bugJobMap';
+import { formatModelError } from '../../helpers/errorMessage';
 
 treeherder.factory('thPinboard', [
-    'ThJobClassificationModel', '$rootScope',
-    'ThBugJobMapModel', 'thNotify', 'ThModelErrors', 'ThResultSetStore',
+    '$rootScope', 'thNotify', 'ThResultSetStore', '$timeout',
     function (
-        ThJobClassificationModel, $rootScope,
-        ThBugJobMapModel, thNotify, ThModelErrors, ThResultSetStore) {
+        $rootScope, thNotify, ThResultSetStore, $timeout) {
 
         const pinnedJobs = {};
         const relatedBugs = {};
 
         const saveClassification = function (job) {
-            const classification = new ThJobClassificationModel(this);
+            const classification = new JobClassificationModel(this);
 
             // classification can be left unset making this a no-op
             if (classification.failure_classification_id > 0) {
@@ -26,34 +27,28 @@ treeherder.factory('thPinboard', [
                 classification.job_id = job.id;
                 classification.create()
                     .then(() => {
-                        thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success");
+                        $timeout(() => thNotify.send("Classification saved for " + job.platform + " " + job.job_type_name, "success"));
                     }).catch((response) => {
                         const message = "Error saving classification for " + job.platform + " " + job.job_type_name;
-                        thNotify.send(
-                            ThModelErrors.format(response, message),
-                            "danger"
-                        );
+                        $timeout(() => thNotify.send(formatModelError(response, message), "danger"));
                     });
             }
         };
 
         const saveBugs = function (job) {
             Object.values(relatedBugs).forEach(function (bug) {
-                const bjm = new ThBugJobMapModel({
+                const bjm = new BugJobMapModel({
                     bug_id: bug.id,
                     job_id: job.id,
                     type: 'annotation'
                 });
                 bjm.create()
-                    .then(() => {
+                    .then($timeout(() => {
                         thNotify.send("Bug association saved for " + job.platform + " " + job.job_type_name, "success");
                     }).catch((response) => {
                         const message = "Error saving bug association for " + job.platform + " " + job.job_type_name;
-                        thNotify.send(
-                            ThModelErrors.format(response, message),
-                            "danger"
-                        );
-                    });
+                      $timeout(() => thNotify.send(formatModelError(response, message), "danger"));
+                    }));
             });
         };
 
@@ -112,7 +107,7 @@ treeherder.factory('thPinboard', [
 
             // open form to create a new note. default to intermittent
             createNewClassification: function () {
-                return new ThJobClassificationModel({
+                return new JobClassificationModel({
                     text: "",
                     who: null,
                     failure_classification_id: 4

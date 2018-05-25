@@ -4,7 +4,7 @@ import angular from 'angular';
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
-import { getApiUrl, getJobsUrl } from "../../../helpers/urlHelper";
+import { getApiUrl, getJobsUrl } from "../../../helpers/url";
 import {
   thDateFormat,
   phTimeRanges,
@@ -13,6 +13,7 @@ import {
   phAlertSummaryStatusMap,
   phAlertStatusMap,
 } from "../../constants";
+import OptionCollectionModel from '../../../models/optionCollection';
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -185,13 +186,13 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'ThRepositoryModel', 'ThOptionCollectionModel', 'ThResultSetModel',
+    'ThRepositoryModel', 'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
     'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
                         ThRepositoryModel,
-                        ThOptionCollectionModel, ThResultSetModel,
+                        ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs, PhIssueTracker,
                         dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
@@ -581,7 +582,7 @@ perf.controller('AlertsCtrl', [
         ThRepositoryModel.load().then(function () {
             $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
                 $scope.frameworks = frameworks;
-            }), ThOptionCollectionModel.getMap().then(function (optionCollectionMap) {
+            }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
             })]).then(function () {
                 $scope.filterOptions = {

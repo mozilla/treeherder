@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getAllUrlParams } from '../helpers/locationHelper';
+import { getAllUrlParams } from '../helpers/location';
 
 function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;

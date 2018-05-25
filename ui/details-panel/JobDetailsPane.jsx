@@ -11,9 +11,9 @@ import {
   getWorkerExplorerUrl,
   linkifyRevisions,
   getJobSearchStrHref,
-} from '../helpers/urlHelper';
-import { getStatus, getSearchStr } from "../helpers/jobHelper";
-import { toDateStr } from "../helpers/displayHelper";
+} from '../helpers/url';
+import { getStatus, getSearchStr } from "../helpers/job";
+import { toDateStr } from "../helpers/display";
 
 function ClassificationsPane(props) {
   const {

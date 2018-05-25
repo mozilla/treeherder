@@ -1,18 +1,19 @@
 import _ from 'lodash';
 
 import logViewerApp from '../logviewer';
-import { getInspectTaskUrl, getReftestUrl } from "../../helpers/urlHelper";
-import { isReftest } from "../../helpers/jobHelper";
+import { getInspectTaskUrl, getReftestUrl } from "../../helpers/url";
+import { isReftest } from "../../helpers/job";
 import { thDateFormat } from "../constants";
+import JobDetailModel from '../../models/jobDetail';
+import JobModel from '../../models/job';
+import TextLogStepModel from '../../models/textLogStep';
 
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
-    '$timeout', 'ThTextLogStepModel', 'ThJobDetailModel',
-    'ThJobModel', 'thNotify', 'dateFilter', 'ThResultSetModel',
+    '$timeout', 'thNotify', 'dateFilter', 'ThResultSetModel',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
-        $timeout, ThTextLogStepModel, ThJobDetailModel,
-        ThJobModel, thNotify, dateFilter, ThResultSetModel) {
+        $timeout, thNotify, dateFilter, ThResultSetModel) {
 
         const query_string = $location.search();
         $scope.css = '';
@@ -159,9 +160,9 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.init = () => {
             $scope.logProperties = [];
 
-            ThJobModel.get($scope.repoName, $scope.job_id).then((job) => {
+            JobModel.get($scope.repoName, $scope.job_id).then((job) => {
                 // set the title of the browser window/tab
-                $scope.logViewerTitle = job.get_title();
+                $scope.logViewerTitle = job.getTitle();
 
                 if (job.logs && job.logs.length) {
                     $scope.rawLogURL = job.logs[0].url;
@@ -197,7 +198,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     $scope.logProperties.push({ label: 'Revision', value: revision });
                 });
 
-                ThJobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
+                JobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
                     $scope.job_details = jobDetails;
                 });
             }, () => {
@@ -211,10 +212,7 @@ logViewerApp.controller('LogviewerCtrl', [
             // Listen for messages from child frame
             setLogListener();
 
-            ThTextLogStepModel.query({
-                project: $rootScope.repoName,
-                jobId: $scope.job_id
-            }, (textLogSteps) => {
+            TextLogStepModel.get($scope.job_id).then((textLogSteps) => {
                 let shouldPost = true;
                 const allErrors = _.flatten(textLogSteps.map(s => s.errors));
                 const q = $location.search();

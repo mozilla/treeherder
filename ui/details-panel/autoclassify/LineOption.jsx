@@ -5,9 +5,9 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Highlighter from 'react-highlight-words';
 
-import { getBugUrl, getLogViewerUrl, getReftestUrl } from "../../helpers/urlHelper";
-import { isReftest } from "../../helpers/jobHelper";
-import { getSearchWords } from "../../helpers/displayHelper";
+import { getBugUrl, getLogViewerUrl, getReftestUrl } from "../../helpers/url";
+import { isReftest } from "../../helpers/job";
+import { getSearchWords } from "../../helpers/display";
 import intermittentTemplate from '../../partials/main/intermittent.html';
 
 /**

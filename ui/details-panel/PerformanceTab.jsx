@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
 import treeherder from '../js/treeherder';
-import { getCompareChooserUrl } from '../helpers/urlHelper';
+import { getCompareChooserUrl } from '../helpers/url';
 
 class PerformanceTab extends React.PureComponent {
 

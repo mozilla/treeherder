@@ -4,8 +4,8 @@ import { react2angular } from 'react2angular/index.es2015';
 import Highlighter from 'react-highlight-words';
 
 import treeherder from '../js/treeherder';
-import { getBugUrl } from '../helpers/urlHelper';
-import { getSearchWords } from '../helpers/displayHelper';
+import { getBugUrl } from '../helpers/url';
+import { getSearchWords } from '../helpers/display';
 
 const BUG_LIMIT = 20;
 

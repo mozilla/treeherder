@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { updateSelectedBugDetails, updateDateRange, updateTreeName } from './redux/actions';
-import { getBugUrl } from '../helpers/urlHelper';
+import { getBugUrl } from '../helpers/url';
 
 class BugColumn extends React.Component {
   constructor(props) {

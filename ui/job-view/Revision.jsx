@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { parseAuthor } from '../helpers/revisionHelper';
+import { parseAuthor } from '../helpers/revision';
 
 export function Initials(props) {
   const str = props.author || '';

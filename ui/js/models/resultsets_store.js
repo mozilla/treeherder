@@ -5,20 +5,20 @@
 import _ from 'lodash';
 
 import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
-import { escapeId, getGroupMapKey } from '../../helpers/aggregateIdHelper';
+import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import treeherder from '../treeherder';
+import JobModel from '../../models/job';
+import RunnableJobModel from '../../models/runnableJob';
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval',
-    'ThResultSetModel', 'ThJobModel',
+    'ThResultSetModel',
     'thNotify',
     'thJobFilters', 'ThRepositoryModel', '$timeout',
-    'ThRunnableJobModel',
     function (
         $rootScope, $q, $location, $interval, ThResultSetModel,
-        ThJobModel,
         thNotify, thJobFilters, ThRepositoryModel,
-        $timeout, ThRunnableJobModel) {
+        $timeout) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array
         var platformArray = _.map(thPlatformMap, function (val, idx) { return idx; });
@@ -301,6 +301,7 @@ treeherder.factory('ThResultSetStore', [
 
         var setSelectedJob = function (lastJobObjSelected) {
             repoData.lastJobObjSelected = lastJobObjSelected;
+            $timeout(() => { $rootScope.selectedJob = lastJobObjSelected; });
         };
 
         var getPlatformKey = function (name, option) {
@@ -313,7 +314,7 @@ treeherder.factory('ThResultSetStore', [
 
         var addRunnableJobs = function (push) {
             getGeckoDecisionTaskId(push.id).then(function (decisionTaskId) {
-                return ThRunnableJobModel.get_list(repoData.name, { decision_task_id: decisionTaskId }).then(function (jobList) {
+                return RunnableJobModel.getList(repoData.name, { decision_task_id: decisionTaskId }).then(function (jobList) {
                     var id = push.id;
                     _.each(jobList, function (job) {
                         job.result_set_id = id;
@@ -562,7 +563,7 @@ treeherder.factory('ThResultSetStore', [
             var unavailableJobs = [];
             while (jobFetchList.length > 0) {
                 var jobFetchSlice = jobFetchList.splice(0, count);
-                ThJobModel.get_list(repoData.name, {
+                JobModel.getList(repoData.name, {
                     id__in: jobFetchSlice.join(),
                     count: count
                 })
@@ -780,7 +781,7 @@ treeherder.factory('ThResultSetStore', [
 
             const decisionTask = getGeckoDecisionJob(pushId);
             if (decisionTask) {
-                return ThJobModel.get(repoData.name, decisionTask.id).then(
+                return JobModel.get(repoData.name, decisionTask.id).then(
                     function (job) {
                         // this failure case is unlikely, but I guess you
                         // never know

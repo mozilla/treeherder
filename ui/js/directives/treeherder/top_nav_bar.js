@@ -5,7 +5,8 @@ import thWatchedRepoTemplate from '../../../partials/main/thWatchedRepo.html';
 import thWatchedRepoInfoDropDownTemplate from '../../../partials/main/thWatchedRepoInfoDropDown.html';
 import thRepoMenuItemTemplate from '../../../partials/main/thRepoMenuItem.html';
 import thResultStatusChickletTemplate from '../../../partials/main/thResultStatusChicklet.html';
-import { getBtnClass } from '../../../helpers/jobHelper';
+import { getBtnClass } from '../../../helpers/job';
+import TreeStatusModel from '../../../models/treeStatus';
 
 treeherder.directive('thWatchedRepo', [
     'ThRepositoryModel',
@@ -83,15 +84,15 @@ treeherder.directive('thWatchedRepo', [
     }]);
 
 treeherder.directive('thWatchedRepoInfoDropDown', [
-    'ThRepositoryModel', 'treeStatus',
-    function (ThRepositoryModel, treeStatus) {
+    'ThRepositoryModel',
+    function (ThRepositoryModel) {
 
         return {
             restrict: "E",
             replace: true,
             link: function (scope, element, attrs) {
                 scope.name = attrs.name;
-                scope.treeStatus = treeStatus.getTreeStatusName(attrs.name);
+                scope.treeStatus = TreeStatusModel.getTreeStatusName(attrs.name);
                 const repo_obj = ThRepositoryModel.getRepo(attrs.name);
                 scope.pushlog = repo_obj.pushlogURL;
                 scope.$watch('repoData.treeStatus', function (newVal) {

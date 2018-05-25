@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import treeherder from '../treeherder';
-import { getApiUrl } from "../../helpers/urlHelper";
+import { getApiUrl } from "../../helpers/url";
 
 treeherder.controller('BugFilerCtrl', [
     '$scope', '$uibModalInstance', '$http', 'summary',
