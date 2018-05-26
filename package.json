@@ -40,7 +40,7 @@
     "json-e": "2.5.0",
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.10",
-    "metrics-graphics": "2.14.0",
+    "metrics-graphics": "2.15.1",
     "moment": "2.22.1",
     "mousetrap": "1.6.1",
     "neutrino": "4.3.1",

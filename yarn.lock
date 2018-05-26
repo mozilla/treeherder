@@ -4759,9 +4759,9 @@ methods@^1.1.1, methods@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
 
-metrics-graphics@2.14.0:
-  version "2.14.0"
-  resolved "https://registry.yarnpkg.com/metrics-graphics/-/metrics-graphics-2.14.0.tgz#f3d8748bdc78af697ea072118839492e62f50662"
+metrics-graphics@2.15.1:
+  version "2.15.1"
+  resolved "https://registry.yarnpkg.com/metrics-graphics/-/metrics-graphics-2.15.1.tgz#f89199599716747478c6b1d6744cf286ea1c1dd2"
   dependencies:
     d3 "^4"
 
