@@ -125,7 +125,6 @@ class TextLogErrorMatchSerializer(serializers.ModelSerializer):
 
 
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
-    matches = TextLogErrorMatchSerializer(many=True)
     classified_failures = ClassifiedFailureSerializer(many=True)
     unstructured_bugs = NoOpSerializer(read_only=True)
 
@@ -134,6 +133,24 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
         exclude = ['stack',
                    'stackwalk_stdout',
                    'stackwalk_stderr']
+
+    def to_representation(self, failure_line):
+        """
+        Manually add matches our wrapper of the TLEMetadata -> TLE relation.
+
+        I could not work out how to do this multiple relation jump with DRF (or
+        even if it was possible) so using this manual method instead.
+        """
+        try:
+            matches = failure_line.error.matches.all()
+        except AttributeError:  # failure_line.error can return None
+            matches = []
+
+        tle_serializer = TextLogErrorMatchSerializer(matches, many=True)
+
+        response = super(FailureLineNoStackSerializer, self).to_representation(failure_line)
+        response['matches'] = tle_serializer.data
+        return response
 
 
 class TextLogErrorMetadataSerializer(serializers.ModelSerializer):
