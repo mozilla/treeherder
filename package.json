@@ -64,7 +64,7 @@
     "reactstrap": "6.0.1",
     "redux": "4.0.0",
     "redux-debounce": "1.0.1",
-    "redux-thunk": "2.2.0",
+    "redux-thunk": "2.3.0",
     "taskcluster-client-web": "7.0.0",
     "taskcluster-lib-scopes": "10.0.0"
   },
