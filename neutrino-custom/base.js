@@ -271,6 +271,16 @@ module.exports = neutrino => {
             return options;
         });
 
+    // Remove additional node_modules directories added by Neutrino that cause
+    // incorrect module resolution, and restore the webpack defaults:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1465041
+    // https://github.com/mozilla-neutrino/neutrino-dev/issues/822
+    // https://webpack.js.org/configuration/resolve/#resolve-modules
+    neutrino.config.resolve.modules.clear();
+    neutrino.config.resolve.modules.add('node_modules');
+    neutrino.config.resolveLoader.modules.clear();
+    neutrino.config.resolveLoader.modules.add('node_modules');
+
     neutrino.config
         .plugin('provide')
         .use(webpack.ProvidePlugin, {
