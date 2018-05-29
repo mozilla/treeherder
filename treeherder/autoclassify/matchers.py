@@ -135,6 +135,7 @@ def time_boxed(func, iterable, time_budget, *args):
 
 class PreciseTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests and identical error message."""
+    @newrelic.agent.function_trace()
     def query_best(self, text_log_error):
         """Query for TextLogErrorMatches identical to matches of the given TextLogError."""
         failure_line = text_log_error.metadata.failure_line
@@ -177,6 +178,7 @@ class ElasticSearchTestMatcher(Matcher):
 
         return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
 
+    @newrelic.agent.function_trace()
     def query_best(self, text_log_error):
         """
         Query Elasticsearch and score the results.
@@ -242,6 +244,7 @@ class ElasticSearchTestMatcher(Matcher):
 
 class CrashSignatureMatcher(Matcher):
     """Matcher that looks for crashes with identical signature."""
+    @newrelic.agent.function_trace()
     def query_best(self, text_log_error):
         """
         Query for TextLogErrorMatches with the same crash signature.
