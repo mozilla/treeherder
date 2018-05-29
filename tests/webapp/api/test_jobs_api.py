@@ -305,22 +305,24 @@ def test_job_error_lines(client, eleven_jobs_stored, failure_lines, classified_f
     failures = resp.json()
     assert isinstance(failures, list)
 
+    failure = failures[0]
+
     exp_failure_keys = ["id", "job_guid", "repository", "job_log", "action", "line",
                         "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
                         "best_classification", "best_is_verified", "classified_failures",
                         "unstructured_bugs"]
 
-    assert set(failures[0].keys()) == set(exp_failure_keys)
+    assert set(failure.keys()) == set(exp_failure_keys)
 
-    matches = failures[0]["matches"]
+    matches = failure["matches"]
     assert isinstance(matches, list)
 
     exp_matches_keys = ["id", "matcher_name", "score", "classified_failure"]
 
     assert set(matches[0].keys()) == set(exp_matches_keys)
 
-    classified = failures[0]["classified_failures"][0]
+    classified = failure["classified_failures"][0]
     assert isinstance(classified, dict)
 
     exp_classified_keys = ["id", "bug_number", "bug"]
