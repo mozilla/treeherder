@@ -567,8 +567,10 @@ treeherder.controller('PluginCtrl', [
         });
 
         $rootScope.$on(thEvents.clearSelectedJob, function () {
-            // Cancel the in-progress fetch requests.
-            selectJobController.abort();
+            if (selectJobController) {
+                // Cancel the in-progress fetch requests.
+                selectJobController.abort();
+            }
         });
 
         $rootScope.$on(thEvents.selectNextTab, function () {
