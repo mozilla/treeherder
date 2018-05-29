@@ -70,5 +70,21 @@
             "name": "hasal",
             "enabled": true
         }
+    },
+    {
+        "pk": 10,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "raptor",
+            "enabled": true
+        }
+    },
+    {
+        "pk": 11,
+        "model": "perf.PerformanceFramework",
+        "fields": {
+            "name": "js-bench",
+            "enabled": true
+        }
     }
 ]
