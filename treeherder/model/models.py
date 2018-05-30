@@ -1195,9 +1195,7 @@ class MatcherManager(models.Manager):
         if cls_to_register.__name__ in dest:
             return dest[cls_to_register.__name__]
 
-        obj, _ = Matcher.objects.get_or_create(name=cls_to_register.__name__)
-
-        instance = cls_to_register(obj)
+        instance = cls_to_register()
         dest[cls_to_register.__name__] = instance
 
         return instance

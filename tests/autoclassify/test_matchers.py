@@ -17,7 +17,7 @@ from .utils import (create_failure_lines,
 def test_precise_test_matcher_with_matches(classified_failures):
     tle = TextLogErrorMatch.objects.first().text_log_error
 
-    classified_failure_id, score = PreciseTestMatcher(None).query_best(tle)
+    classified_failure_id, score = PreciseTestMatcher().query_best(tle)
 
     match = tle.matches.first()
     assert classified_failure_id == match.classified_failure_id
@@ -51,7 +51,7 @@ def test_precise_test_matcher_without_matches(test_job, test_matcher):
     TextLogErrorMetadata.objects.create(text_log_error=tle1, failure_line=failure_line1)
     TextLogErrorMetadata.objects.create(text_log_error=tle2, failure_line=failure_line2)
 
-    output = PreciseTestMatcher(None).query_best(tle2)
+    output = PreciseTestMatcher().query_best(tle2)
     assert output is None  # we should have no matches
 
 

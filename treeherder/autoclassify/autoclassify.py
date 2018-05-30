@@ -41,8 +41,8 @@ def match_errors(job):
     try:
         matches, all_matched = find_matches(unmatched_errors)
 
-        for matcher, match_tuple in matches:
-            update_db(matcher, match_tuple)
+        for matcher_name, match_tuple in matches:
+            update_db(matcher_name, match_tuple)
 
         create_note(job, all_matched)
     except Exception:
@@ -65,7 +65,7 @@ def find_matches(unmatched_errors):
         for match in matches:
             logger.info("Matched error %i with intermittent %i",
                         match.text_log_error.id, match.classified_failure_id)
-            all_matches.add((matcher.db_object, match))
+            all_matches.add((matcher.__class__.__name__, match))
             if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
                 unmatched_errors.remove(match.text_log_error)
 
@@ -75,20 +75,20 @@ def find_matches(unmatched_errors):
     return all_matches, len(unmatched_errors) == 0
 
 
-def update_db(matcher, match_tuple):
+def update_db(matcher_name, match_tuple):
     text_log_error, classified_failure_id, score = match_tuple
 
     try:
         TextLogErrorMatch.create(
             classified_failure_id,
-            matcher.name,
+            matcher_name,
             score,
             text_log_error,
         )
     except IntegrityError:
-        args = (text_log_error.id, matcher.id, classified_failure_id)
+        args = (text_log_error.id, matcher_name, classified_failure_id)
         logger.warning(
-            "Tried to create duplicate match for TextLogError %i with matcher %i and classified_failure %i",
+            "Tried to create duplicate match for TextLogError %i with matcher %s and classified_failure %i",
             args,
         )
 

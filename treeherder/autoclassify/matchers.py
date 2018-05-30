@@ -38,10 +38,6 @@ class Matcher(object):
     the range 0-1 with 1 being a perfect match and 0 being the worst possible
     match.
     """
-    def __init__(self, db_object):
-        """Attach the db_object to the matcher so it can be inspected elsewhere."""
-        self.db_object = db_object
-
     def __call__(self, text_log_errors):
         """
         Main entry point for all matchers.
