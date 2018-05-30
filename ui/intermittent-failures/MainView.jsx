@@ -7,7 +7,7 @@ import Navigation from './Navigation';
 import GenericTable from './GenericTable';
 import { fetchBugData, updateTreeName, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 import BugColumn from './BugColumn';
-import { updateQueryParams, mergeData, calculateMetrics, prettyDate } from './helpers';
+import { updateQueryParams, mergeData, calculateMetrics, prettyDate, checkQueryParams } from './helpers';
 import GraphsContainer from './GraphsContainer';
 import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/url';
 
@@ -31,9 +31,9 @@ class MainView extends React.Component {
     }
     // update query params if dates or tree are updated via the UI
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
-      const queryParams = createQueryParams({ startday: from, endday: to, tree });
+      const queryString = createQueryParams({ startday: from, endday: to, tree });
 
-      updateQueryParams('/main', queryParams, history, this.props.location);
+      updateQueryParams('/main', queryString, history, this.props.location);
     }
   }
 
@@ -44,16 +44,21 @@ class MainView extends React.Component {
     // otherwise update data based on the params
     if (location.search === '') {
       const params = { startday: from, endday: to, tree };
-      const queryParams = createQueryParams(params);
+      const queryString = createQueryParams(params);
 
-      updateQueryParams('/main', queryParams, history, location);
+      updateQueryParams('/main', queryString, history, location);
 
       if (Object.keys(graphs).length === 0) {
         // only fetch graph data on initial page load
         fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
       }
     } else {
-      this.updateData(parseQueryParams(location.search));
+      // if some query strings are missing when url is pasted into address bar,
+      // set default values, update url and update all data
+      const params = checkQueryParams(parseQueryParams(location.search));
+      const queryString = createQueryParams(params);
+      updateQueryParams('/main', queryString, history, location);
+      this.updateData(params);
     }
   }
 

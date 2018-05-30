@@ -65,7 +65,7 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
 
 export const updateQueryParams = function updateHistoryWithQueryParams(view, queryParams, history, location) {
   if (queryParams !== history.location.search) {
-    history.replace(`${view}${queryParams}`);
+    history.replace({ pathname: view, search: queryParams });
     // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
     location.search = queryParams;
   }
@@ -85,4 +85,16 @@ export const sortData = function sortData(data, sortBy, desc) {
     return 0;
   });
   return data;
+};
+
+export const checkQueryParams = function checkQueryParams(obj) {
+  if (!obj.tree) {
+    obj.tree = 'trunk';
+  }
+  if (!obj.startday || !obj.endday) {
+    const { from, to } = setDateRange(moment().utc(), 7);
+    obj.startday = from;
+    obj.endday = to;
+  }
+  return obj;
 };
