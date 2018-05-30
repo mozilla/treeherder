@@ -14,7 +14,7 @@ export const create = function postJson(uri, data) {
     method: 'POST',
     headers: generateHeaders(),
     body: JSON.stringify(data),
-    credentials: "same-origin",
+    credentials: 'same-origin',
   });
 };
 
@@ -23,7 +23,7 @@ export const update = function putJson(uri, data) {
     method: 'PUT',
     headers: generateHeaders(),
     body: JSON.stringify(data),
-    credentials: "same-origin",
+    credentials: 'same-origin',
   });
 };
 
@@ -31,6 +31,6 @@ export const destroy = function deleteRecord(uri) {
   return fetch(uri, {
     method: 'DELETE',
     headers: generateHeaders(),
-    credentials: "same-origin",
+    credentials: 'same-origin',
   });
 };
