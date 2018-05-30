@@ -5,7 +5,6 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
                                      Job,
-                                     MatcherManager,
                                      TextLogError,
                                      TextLogErrorMetadata,
                                      TextLogStep)
@@ -94,9 +93,3 @@ def create_text_log_errors(job, failure_line_list):
         errors.append(error)
 
     return errors
-
-
-def register_matchers(*args):
-    MatcherManager._matcher_funcs = {}
-    for item in args:
-        MatcherManager.register_matcher(item)

@@ -16,7 +16,7 @@ AUTOCLASSIFY_CUTOFF_RATIO = 0.7
 AUTOCLASSIFY_GOOD_ENOUGH_RATIO = 0.9
 
 
-def match_errors(job):
+def match_errors(job, matchers=None):
     # Only try to autoclassify where we have a failure status; sometimes there can be
     # error lines even in jobs marked as passing.
 
@@ -38,8 +38,11 @@ def match_errors(job):
         logger.info("Skipping autoclassify of job %i because it has no unmatched errors", job.id)
         return
 
+    if matchers is None:
+        matchers = Matcher.__subclasses__()
+
     try:
-        matches, all_matched = find_matches(unmatched_errors)
+        matches, all_matched = find_matches(unmatched_errors, matchers)
 
         for matcher_name, match_tuple in matches:
             update_db(matcher_name, match_tuple)
@@ -56,10 +59,11 @@ def match_errors(job):
         job.save(update_fields=['autoclassify_status'])
 
 
-def find_matches(unmatched_errors):
+def find_matches(unmatched_errors, matchers):
     all_matches = set()
 
-    for matcher in Matcher.objects.registered_matchers():
+    for matcher_class in matchers:
+        matcher = matcher_class()
         matches = matcher(unmatched_errors)
         # matches: generator of Match tuples: (TextLogError, ClassifiedFailure.id, score)
         for match in matches:

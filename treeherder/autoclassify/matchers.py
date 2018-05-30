@@ -16,8 +16,7 @@ from first import first
 from six import add_metaclass
 
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
-from treeherder.model.models import (MatcherManager,
-                                     TextLogErrorMatch)
+from treeherder.model.models import TextLogErrorMatch
 from treeherder.services.elasticsearch import search
 from treeherder.utils.itertools import compact
 from treeherder.utils.queryset import chunked_qs_reverse
@@ -318,10 +317,3 @@ class MatchScorer(object):
                 if best_match is None or new_ratio > best_match[0]:
                     best_match = (new_ratio, match)
         return best_match
-
-
-def register():
-    """Register matchers enabled in settings.AUTOCLASSIFY_MATCHERS."""
-    for obj_name in settings.AUTOCLASSIFY_MATCHERS:
-        obj = globals()[obj_name]
-        MatcherManager.register_matcher(obj)

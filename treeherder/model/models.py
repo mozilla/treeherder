@@ -4,7 +4,6 @@ import datetime
 import itertools
 import logging
 import time
-from collections import OrderedDict
 from hashlib import sha1
 
 import newrelic.agent
@@ -1146,84 +1145,11 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
-class LazyClassData(object):
-    def __init__(self, type_func, setter):
-        """Descriptor object for class-level data that is lazily initialized.
-        See https://docs.python.org/2/howto/descriptor.html for details of the descriptor
-        protocol.
-
-        :param type_func: Callable of zero arguments used to initialize the data storage on
-                          first access.
-        :param setter: Callable of zero arguments used to populate the data storage
-                       after it has been initialized. Unlike type_func this can safely
-                       be used reentrantly i.e. the setter function may itself access the
-                       attribute being set.
-        """
-        self.type_func = type_func
-        self.setter = setter
-        self.value = None
-
-    def __get__(self, obj, objtype):
-        if self.value is None:
-            self.value = self.type_func()
-            self.setter()
-        return self.value
-
-    def __set__(self, obj, val):
-        self.value = val
-
-
-def _init_matchers():
-    from treeherder.autoclassify import matchers
-    matchers.register()
-
-
-class MatcherManager(models.Manager):
-    _matcher_funcs = LazyClassData(OrderedDict, _init_matchers)
-
-    @classmethod
-    def register_matcher(cls, matcher_cls):
-        if cls._matcher_funcs is None:
-            raise AssertionError
-
-        return cls._register(matcher_cls, cls._matcher_funcs)
-
-    @staticmethod
-    def _register(cls_to_register, dest):
-        # if this has already been registered, then just return the previously
-        # created instance.
-        if cls_to_register.__name__ in dest:
-            return dest[cls_to_register.__name__]
-
-        instance = cls_to_register()
-        dest[cls_to_register.__name__] = instance
-
-        return instance
-
-    def registered_matchers(self):
-        for matcher in self._matcher_funcs.values():
-            yield matcher
-
-    def get(self, name):
-        try:
-            return models.Manager.get(self, name=name)
-        except Matcher.DoesNotExist:
-            self._matcher_funcs
-            return models.Manager.get(self, name=name)
-
-
 class Matcher(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
-    objects = MatcherManager()
-
     class Meta:
         db_table = 'matcher'
-
-    def match(self, *args, **kwargs):
-        if self.name in self._matcher_funcs:
-            return self._matcher_funcs(*args, **kwargs)
-        raise ValueError
 
 
 class FailureMatch(models.Model):
