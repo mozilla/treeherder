@@ -1,7 +1,7 @@
+from treeherder.autoclassify.autoclassify import match_errors
 from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
                                               ElasticSearchTestMatcher,
                                               PreciseTestMatcher)
-from treeherder.autoclassify.tasks import autoclassify
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      FailureMatch,
@@ -12,7 +12,6 @@ from treeherder.model.models import (BugJobMap,
 from .utils import (crash_line,
                     create_lines,
                     log_line,
-                    register_matchers,
                     test_line)
 
 
@@ -21,9 +20,7 @@ def do_autoclassify(job, test_failure_lines, matchers, status="testfailed"):
     job.result = status
     job.save()
 
-    register_matchers(*matchers)
-
-    autoclassify(job.id)
+    match_errors(job, matchers)
 
     for item in test_failure_lines:
         item.refresh_from_db()

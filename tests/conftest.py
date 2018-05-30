@@ -412,14 +412,6 @@ def text_log_errors_failure_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_matcher(request):
-    from treeherder.model.models import MatcherManager
-
-    MatcherManager._matcher_funcs = {}
-
-    def finalize():
-        MatcherManager._matcher_funcs = {}
-    request.addfinalizer(finalize)
-
     return "TreeherderUnitTestDetector"
 
 
