@@ -1,12 +1,10 @@
-import time
 from decimal import Decimal
 
 from first import first
 
 from treeherder.autoclassify.matchers import (PreciseTestMatcher,
                                               score_by_classified_fail_id,
-                                              score_matches,
-                                              time_boxed)
+                                              score_matches)
 from treeherder.model.models import (FailureLine,
                                      TextLogErrorMatch,
                                      TextLogErrorMetadata)
@@ -95,27 +93,3 @@ def test_scored_matches_with_manipulated_score(classified_failures):
 
     score, _ = first(results)
     assert score == Decimal('0.8')
-
-
-def test_time_boxed_enough_budget():
-    an_iterable = range(3)
-
-    def quick_sleep(x):
-        time.sleep(.1)
-        return x
-
-    items = list(time_boxed(quick_sleep, an_iterable, time_budget=5000))
-
-    assert len(items) == 3
-
-
-def test_time_boxed_cutoff():
-    an_iterable = range(3)
-
-    def quick_sleep(x):
-        time.sleep(1)
-        return x
-
-    items = list(time_boxed(quick_sleep, an_iterable, time_budget=2000))
-
-    assert len(items) < 3
