@@ -120,13 +120,6 @@ class PreciseTestMatcher(Matcher):
 
 class ElasticSearchTestMatcher(Matcher):
     """Looks for existing failures using Elasticsearch."""
-    def __call__(self, text_log_errors):
-        """Check Elasticsearch has been configured."""
-        if not settings.ELASTICSEARCH_URL:
-            return []
-
-        return super(ElasticSearchTestMatcher, self).__call__(text_log_errors)
-
     @newrelic.agent.function_trace()
     def query_best(self, text_log_error):
         """
@@ -135,6 +128,9 @@ class ElasticSearchTestMatcher(Matcher):
         Uses a filtered search checking test, status, expected, and the message
         as a phrase query with non-alphabet tokens removed.
         """
+        if not settings.ELASTICSEARCH_URL:
+            return []
+
         failure_line = text_log_error.metadata.failure_line
 
         if failure_line.action != "test_result" or not failure_line.message:
