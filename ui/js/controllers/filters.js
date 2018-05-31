@@ -78,11 +78,12 @@ treeherderApp.controller('JobFilterCtrl', [
          * neither or both.
          */
         $scope.toggleClassifiedFilter = function () {
-            const func = $scope.classifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            const func = $scope.classifiedFilter ? thJobFilters.removeFilter : thJobFilters.addFilter;
             func(thJobFilters.classifiedState, 'classified');
         };
+
         $scope.toggleUnClassifiedFilter = function () {
-            const func = $scope.unClassifiedFilter? thJobFilters.addFilter: thJobFilters.removeFilter;
+            const func = $scope.unClassifiedFilter ? thJobFilters.removeFilter : thJobFilters.addFilter;
             func(thJobFilters.classifiedState, 'unclassified');
         };
 
