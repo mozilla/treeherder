@@ -47,7 +47,7 @@ treeherder.factory('thNotify', [
                     severity,
                     created: Date.now(),
                 };
-                thNotify.notifications.unshift(notification);
+                $timeout(thNotify.notifications.unshift(notification));
                 thNotify.storedNotifications.unshift(notification);
                 thNotify.storedNotifications.splice(40);
                 localStorage.setItem('notifications', JSON.stringify(thNotify.storedNotifications));

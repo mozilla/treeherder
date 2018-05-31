@@ -1,106 +1,10 @@
 /*
  * Intermittent Bug Filer
  */
-#modalForm {
-    padding: 20px;
-}
-
-#modalSummarylabel {
-    margin-top: -5px;
-}
-
-#modalSummary {
-    width:80%;
-}
-
-#modalSummaryLength {
-    float:right;
-    margin-right:25px;
+#summaryLength {
     font-size: large;
-    font-weight: bold;
-    color: green;
 }
 
-#modalSummary:invalid + span {
+#summary:invalid + span {
     color: red;
-}
-
-#modalComment {
-    width:80%;
-    height:150px;
-}
-
-#modalForm > div:not(#modalLogLinkCheckboxes) > label, #productFinderButton {
-    float:left;
-    padding: 5px;
-}
-
-#modalLogLinkCheckboxes {
-    padding-left:15px;
-    padding-bottom:5px;
-    color: #337AB7;
-}
-
-#modalLogLinkCheckboxes a {
-    color:inherit;
-}
-
-#modalForm > div:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-#modalBottomDiv {
-    padding:5px;
-    width:650px;
-}
-
-#modalBottomDiv button {
-    /* float:right; */
-}
-
-#modalFailureList {
-    width: 80%;
-    padding: 5px;
-    max-height: 250px;
-    overflow: auto;
-    clear:both;
-}
-
-#modalCrashSignatureDiv {
-    float: left;
-    padding: 5px;
-    width: 100%;
-}
-
-#modalCrashSignatureLabel {
-    float: left;
-    padding: 5px;
-}
-
-#modalCrashSignature {
-    width: 80%;
-}
-
-#modalRelatedBugs {
-    padding-top: 10px;
-    padding-right:10.5%;
-    float: right;
-}
-
-#unhelpfulSummaryReason > div:first-child {
-    color: red;
-}
-
-#unhelpfulSummaryReason > div:not(:first-child) {
-    font-family: monospace;
-    padding: 3px;
-    padding-left: 20px;
-}
-
-#productSearchSpinner {
-    padding: 6px;
 }

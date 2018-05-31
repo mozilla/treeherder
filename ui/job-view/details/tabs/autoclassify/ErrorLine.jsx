@@ -144,7 +144,7 @@ export default class ErrorLine extends React.Component {
    */
   onOptionChange(option) {
     this.initOption(option);
-    this.setState({ selectedOption: option });
+    this.setState({ selectedOption: { ...option } });
   }
 
   onManualBugNumberChange(option, bugNumber) {
