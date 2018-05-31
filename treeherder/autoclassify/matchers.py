@@ -30,21 +30,6 @@ class Matcher(object):
         pass
 
 
-def score_by_classified_fail_id(matches):
-    """Get a tuple of the best (match, score) and its ClassifiedFailure ID."""
-    if not matches:
-        return
-
-    # list of (match, score) pairs
-    # get the best score
-    match_and_score = first(matches, key=lambda m: (-m[1], -m[0].classified_failure_id))
-    if not match_and_score:
-        return
-
-    match, score = match_and_score
-    return match.classified_failure_id, score
-
-
 class PreciseTestMatcher(Matcher):
     """Matcher that looks for existing failures with identical tests and identical error message."""
     @newrelic.agent.function_trace()
