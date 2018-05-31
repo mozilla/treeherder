@@ -3,7 +3,6 @@ from decimal import Decimal
 from first import first
 
 from treeherder.autoclassify.matchers import (PreciseTestMatcher,
-                                              score_by_classified_fail_id,
                                               score_matches)
 from treeherder.model.models import (FailureLine,
                                      TextLogErrorMatch,
@@ -53,22 +52,6 @@ def test_precise_test_matcher_without_matches(test_job, test_matcher):
 
     output = PreciseTestMatcher().query_best(tle2)
     assert output is None  # we should have no matches
-
-
-def test_score_by_classified_fail_id(classified_failures):
-    matches = [(m, m.score) for m in TextLogErrorMatch.objects.all()]
-
-    first_match = TextLogErrorMatch.objects.first()
-
-    score, classified_failure_id = score_by_classified_fail_id(matches)
-
-    assert score == first_match.score
-    assert classified_failure_id == first_match.classified_failure_id
-
-
-def test_score_by_classified_fail_id_empty_input():
-    output = score_by_classified_fail_id(None)
-    assert output is None
 
 
 def test_score_matches_empty_return():
