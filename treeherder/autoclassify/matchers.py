@@ -5,7 +5,6 @@ import logging
 import time
 from abc import (ABCMeta,
                  abstractmethod)
-from collections import namedtuple
 from difflib import SequenceMatcher
 from itertools import chain
 
@@ -18,47 +17,14 @@ from six import add_metaclass
 from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
 from treeherder.model.models import TextLogErrorMatch
 from treeherder.services.elasticsearch import search
-from treeherder.utils.itertools import compact
 from treeherder.utils.queryset import chunked_qs_reverse
 
 logger = logging.getLogger(__name__)
 
-Match = namedtuple('Match', ['text_log_error', 'classified_failure_id', 'score'])
-
 
 @add_metaclass(ABCMeta)
 class Matcher(object):
-    """
-    Parent class for Matchers, provides __call__ entry point.
-
-    Class that is called with a list of unmatched failure lines from a specific
-    job, and returns a list of Match tuples containing the failure_line that
-    matched, the failure it matched with, and the score, which is a number in
-    the range 0-1 with 1 being a perfect match and 0 being the worst possible
-    match.
-    """
-    def __call__(self, text_log_errors):
-        """
-        Main entry point for all matchers.
-
-        Filters the given TextLogErrors to those with related FailureLines
-        before calling self.match.
-        """
-        # Only look at TextLogErrors with related FailureLines
-        text_log_errors = (t for t in text_log_errors if t.metadata and t.metadata.failure_line)
-        # TODO: move checks on failure_line.action and failure_line.action here
-        return compact(self.match(tle) for tle in text_log_errors)
-
-    def match(self, text_log_error):
-        """Find the best match for a given TextLogError."""
-        best_match = self.query_best(text_log_error)
-        if best_match:
-            classified_failure_id, score = best_match
-            logger.debug("Matched using %s", self.__class__.__name__)
-            return Match(text_log_error,
-                         classified_failure_id,
-                         score)
-
+    """Parent class for Matchers, providing the interface for query_best"""
     @abstractmethod
     def query_best(self, text_log_error):
         """All child classes must implement this method."""
