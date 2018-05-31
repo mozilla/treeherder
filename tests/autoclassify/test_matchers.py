@@ -1,4 +1,5 @@
 import time
+from decimal import Decimal
 
 from first import first
 
@@ -17,7 +18,8 @@ from .utils import (create_failure_lines,
 def test_precise_test_matcher_with_matches(classified_failures):
     tle = TextLogErrorMatch.objects.first().text_log_error
 
-    classified_failure_id, score = PreciseTestMatcher().query_best(tle)
+    results = PreciseTestMatcher().query_best(tle)
+    score, classified_failure_id = first(results)
 
     match = tle.matches.first()
     assert classified_failure_id == match.classified_failure_id
@@ -60,7 +62,7 @@ def test_score_by_classified_fail_id(classified_failures):
 
     first_match = TextLogErrorMatch.objects.first()
 
-    classified_failure_id, score = score_by_classified_fail_id(matches)
+    score, classified_failure_id = score_by_classified_fail_id(matches)
 
     assert score == first_match.score
     assert classified_failure_id == first_match.classified_failure_id
@@ -72,32 +74,27 @@ def test_score_by_classified_fail_id_empty_input():
 
 
 def test_score_matches_empty_return():
-    output = list(score_matches(matches=None))
+    output = list(score_matches(matches=[]))
     assert output == []
 
     output = list(score_matches(matches=FailureLine.objects.none()))
     assert output == []
 
 
-def test_score_matches(classified_failures):
+def test_scored_matches(classified_failures):
     matches = TextLogErrorMatch.objects.all()
     output = list(score_matches(matches))
-    assert len(output) == 1  # both matches have score of 1.0
-
-    TextLogErrorMatch.objects.update(score=0.8)
-
-    matches = TextLogErrorMatch.objects.all()
-    output = list(score_matches(matches))
-    assert len(output) == 1  # neither match above threshold, but first returned
+    assert len(output) == len(matches)
 
 
-def test_score_matches_with_manipulated_score(classified_failures):
+def test_scored_matches_with_manipulated_score(classified_failures):
     matches = TextLogErrorMatch.objects.all()
 
-    output = list(score_matches(matches, score_multiplier=(8, 10)))
-    assert len(output) == 1
-    score = float(output[0][1])
-    assert score == 0.8
+    results = list(score_matches(matches, score_multiplier=(8, 10)))
+    assert len(results) == len(matches)
+
+    score, _ = first(results)
+    assert score == Decimal('0.8')
 
 
 def test_time_boxed_enough_budget():

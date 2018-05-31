@@ -14,7 +14,6 @@ from django.db.models import Q
 from first import first
 from six import add_metaclass
 
-from treeherder.autoclassify.autoclassify import AUTOCLASSIFY_GOOD_ENOUGH_RATIO
 from treeherder.model.models import TextLogErrorMatch
 from treeherder.services.elasticsearch import search
 from treeherder.utils.queryset import chunked_qs_reverse
@@ -53,25 +52,12 @@ def score_matches(matches, score_multiplier=(1, 1)):
     Given a QuerySet of TextLogErrorMatches produce a score for each one until
     Good Enough™.  An optional score multiplier can be passed in.
     """
-    # TODO: this should probably loop the input returning all scores unless one
-    # is bigger than the Good Enough ratio.  Otherwise we only take the first
-    # score from each _chunk_ of the queryset which is meaningless to the
-    # score.
-    if matches is None:
-        return
+    for match in matches:
+        # generate a new score from the current match
+        dividend, divisor = score_multiplier
+        score = match.score * dividend / divisor
 
-    match = matches.first()
-    if match is None:
-        return
-
-    # generate a new score from the current match
-    dividend, divisor = score_multiplier
-    score = match.score * dividend / divisor
-
-    yield (match, score)
-
-    if score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
-        return
+        yield (score, match.classified_failure_id)
 
 
 def time_boxed(func, iterable, time_budget, *args):
@@ -125,9 +111,11 @@ class PreciseTestMatcher(Matcher):
         if not qs:
             return
 
+        # chunk through the QuerySet because it could potentially be very large
+        # time bound each call to the scoring function to avoid job timeouts
+        # returns an iterable of (score, classified_failure_id) tuples
         chunks = chunked_qs_reverse(qs, chunk_size=20000)
-        matches = chain.from_iterable(time_boxed(score_matches, chunks, time_budget=500))
-        return score_by_classified_fail_id(matches)
+        return chain.from_iterable(time_boxed(score_matches, chunks, time_budget=500))
 
 
 class ElasticSearchTestMatcher(Matcher):
@@ -199,8 +187,13 @@ class ElasticSearchTestMatcher(Matcher):
         scorer = MatchScorer(failure_line.message)
         matches = [(item, item['message']) for item in results]
         best_match = scorer.best_match(matches)
-        if best_match:
-            return (best_match[1]['best_classification'], best_match[0])
+        if not best_match:
+            return
+
+        score, es_result = best_match
+        # TODO: score all results and return
+        # TODO: just return results with score above cut off?
+        return [(score, es_result['best_classification'])]
 
 
 class CrashSignatureMatcher(Matcher):
@@ -241,19 +234,19 @@ class CrashSignatureMatcher(Matcher):
         # See if we can get any matches when filtering by the same test
         first_attempt = qs.filter(text_log_error___metadata__failure_line__test=failure_line.test)
         chunks = chunked_qs_reverse(first_attempt, chunk_size=size)
-        matches = chain.from_iterable(time_boxed(score_matches, chunks, time_budget))
-        if matches:
-            return score_by_classified_fail_id(matches)
+        scored_matches = chain.from_iterable(time_boxed(score_matches, chunks, time_budget))
+        if scored_matches:
+            return scored_matches
 
         # try again without filtering to the test but applying a .8 score multiplyer
         chunks = chunked_qs_reverse(qs, chunk_size=size)
-        matches = chain.from_iterable(time_boxed(
+        scored_matches = chain.from_iterable(time_boxed(
             score_matches,
             chunks,
             time_budget,
             score_multiplier=(8, 10),
         ))
-        return score_by_classified_fail_id(matches)
+        return scored_matches
 
 
 class MatchScorer(object):
