@@ -1,11 +1,17 @@
-from django.db.models import Count
+from collections import defaultdict
+
+from django.db.models import (Case,
+                              CharField,
+                              Count,
+                              When)
 from django.db.models.functions import TruncDate
 from rest_framework import generics
 
 from treeherder.model.models import (BugJobMap,
                                      Job,
                                      OptionCollection,
-                                     Push)
+                                     Push,
+                                     TextLogStep)
 from treeherder.webapp.api.pagination import CustomPagePagination
 from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
@@ -51,11 +57,29 @@ class FailuresByBug(generics.ListAPIView):
                                       .values('job__repository__name', 'job__machine_platform__platform',
                                               'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
                                               'job__signature__job_type_name', 'job__option_collection_hash',
-                                              'job__machine__name').order_by('-job__push__time'))
+                                              'job__machine__name')
+                                      .order_by('-job__push__time'))
+
+        lines = (TextLogStep.objects.select_related('errors')
+                                    .filter(job_id__in=queryset.values_list('job_id', flat=True))
+                                    .annotate(lines=Case(When
+                                              (errors__line__regex=r'TEST-UNEXPECTED-FAIL',
+                                               then='errors__line'), output_field=CharField()))
+                                    .values_list('job_id', 'lines'))
+
+        failure_lines = defaultdict(list)
+        for job_id, line in lines:
+            if line is not None:
+                failure_lines[job_id].append(line)
 
         hash_list = []
 
         for item in queryset:
+            if item['job_id'] in failure_lines:
+                item['lines'] = failure_lines[item['job_id']]
+            else:
+                item['lines'] = []
+
             match = filter(lambda x: item['job__option_collection_hash'] == x, hash_list)
             if not match:
                 hash_list.append(item['job__option_collection_hash'])
