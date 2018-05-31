@@ -49,8 +49,7 @@ def match_errors(job, matchers=None):
         if not matches:
             return
 
-        for matcher_name, match_tuple in matches:
-            update_db(matcher_name, match_tuple)
+        update_db(matches)
 
         create_note(job, all_matched)
     except Exception:
@@ -102,26 +101,28 @@ def find_all_matches(text_log_error, matchers):
                 text_log_error=text_log_error,
             )
 
-def update_db(matcher_name, match_tuple):
-    text_log_error, classified_failure_id, score = match_tuple
 
-    try:
-        TextLogErrorMatch.create(
-            classified_failure_id,
-            matcher_name,
-            score,
-            text_log_error,
-        )
-    except IntegrityError:
-        args = (text_log_error.id, matcher_name, classified_failure_id)
-        logger.warning(
-            "Tried to create duplicate match for TextLogError %i with matcher %s and classified_failure %i",
-            args,
-        )
+def update_db(matches):
+    """
+    Save TextLogErrorMatch instances to the DB
 
-    best_match = text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
-    if best_match:
-        text_log_error.mark_best_classification(classified_failure_id)
+    We loop each Match instance instead of calling bulk_create() so we can
+    catch any potential IntegrityErrors and continue.
+    """
+    for match in matches:
+        try:
+            match.save()
+        except IntegrityError:
+            args = (match.text_log_error_id, match.matcher_name, match.classified_failure_id)
+            logger.warning(
+                "Tried to create duplicate match for TextLogError %i with matcher %s and classified_failure %i",
+                args,
+            )
+
+        # TODO: document what this does
+        best_match = match.text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
+        if best_match:
+            match.text_log_error.mark_best_classification(match.classified_failure_id)
 
 
 def create_note(job, all_matched):

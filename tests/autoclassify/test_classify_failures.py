@@ -4,7 +4,6 @@ from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
                                               PreciseTestMatcher)
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
-                                     FailureMatch,
                                      JobNote,
                                      TextLogError,
                                      TextLogErrorMatch)
@@ -48,11 +47,11 @@ def test_classify_test_failure(text_log_errors_failure_lines,
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
                                                     classified_failures):
         assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
         assert error_line.classified_failures.count() == 0
-        assert failure_line.classified_failures.count() == 0
+        assert failure_line.error.classified_failures.count() == 0
 
 
 def test_no_autoclassify_job_success(text_log_errors_failure_lines,
@@ -207,10 +206,10 @@ def test_classify_skip_ignore(test_job_2,
     expected_unclassified = test_failure_lines[1:]
 
     for actual, expected in zip(expected_classified, classified_failures):
-        assert [item.id for item in actual.classified_failures.all()] == [expected.id]
+        assert [item.id for item in actual.error.classified_failures.all()] == [expected.id]
 
     for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+        assert item.error.classified_failures.count() == 0
 
 
 def test_classify_es(test_job_2, failure_lines, classified_failures):
@@ -229,10 +228,10 @@ def test_classify_es(test_job_2, failure_lines, classified_failures):
     expected_unclassified = test_failure_lines[4:]
 
     for actual in expected_classified:
-        assert [item.id for item in actual.classified_failures.all()] == [classified_failures[0].id]
+        assert [item.id for item in actual.error.classified_failures.all()] == [classified_failures[0].id]
 
     for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+        assert item.error.classified_failures.count() == 0
 
 
 def test_classify_multiple(test_job_2, failure_lines, classified_failures):
@@ -247,12 +246,12 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
                                                      ElasticSearchTestMatcher])
 
     for actual, expected in zip(expected_classified_precise, classified_failures):
-        assert list(actual.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert actual.matches.first().matcher_name == "PreciseTestMatcher"
+        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert actual.error.matches.first().matcher_name == "PreciseTestMatcher"
 
     for actual, expected in zip(expected_classified_fuzzy, classified_failures):
-        assert list(actual.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert actual.matches.first().matcher_name == "ElasticSearchTestMatcher"
+        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert actual.error.matches.first().matcher_name == "ElasticSearchTestMatcher"
 
 
 def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
@@ -266,10 +265,6 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
                                      (crash_line, {"signature": None})])
 
     classified_failure = ClassifiedFailure.objects.create()
-    FailureMatch.objects.create(failure_line=failure_lines_ref[0],
-                                classified_failure=classified_failure,
-                                matcher_name=test_matcher.__class__.__name__,
-                                score=1.0)
     TextLogErrorMatch.objects.create(text_log_error=error_lines_ref[0],
                                      classified_failure=classified_failure,
                                      matcher_name=test_matcher.__class__.__name__,
@@ -280,7 +275,7 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
     expected_unclassified = failure_lines[2:]
 
     for actual in expected_classified:
-        assert list(actual.classified_failures.values_list('id', flat=True)) == [classified_failure.id]
+        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [classified_failure.id]
 
     for item in expected_unclassified:
-        assert item.classified_failures.count() == 0
+        assert item.error.classified_failures.count() == 0
