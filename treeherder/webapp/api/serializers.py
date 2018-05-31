@@ -125,7 +125,6 @@ class TextLogErrorMatchSerializer(serializers.ModelSerializer):
 
 
 class FailureLineNoStackSerializer(serializers.ModelSerializer):
-    classified_failures = ClassifiedFailureSerializer(many=True)
     unstructured_bugs = NoOpSerializer(read_only=True)
 
     class Meta:
@@ -145,11 +144,14 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
             matches = failure_line.error.matches.all()
         except AttributeError:  # failure_line.error can return None
             matches = []
-
         tle_serializer = TextLogErrorMatchSerializer(matches, many=True)
+
+        classified_failures = models.ClassifiedFailure.objects.filter(error_matches__in=matches)
+        cf_serializer = ClassifiedFailureSerializer(classified_failures, many=True)
 
         response = super(FailureLineNoStackSerializer, self).to_representation(failure_line)
         response['matches'] = tle_serializer.data
+        response['classified_failures'] = cf_serializer.data
         return response
 
 
