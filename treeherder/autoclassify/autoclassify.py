@@ -51,6 +51,10 @@ def match_errors(job, matchers=None):
 
         update_db(matches)
 
+        # did we find matches for every error?
+        matches_over_threshold = {m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO}
+        all_matched = {tle.id for tle in all_errors} <= matches_over_threshold
+
         create_note(job, all_matched)
     except Exception:
         logger.error("Autoclassification of job %s failed", job.id)
