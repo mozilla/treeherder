@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import logging
 
 from django.db.utils import IntegrityError
+from first import first
 
 from treeherder.model.models import (Job,
                                      JobNote,
@@ -43,7 +45,9 @@ def match_errors(job, matchers=None):
         matchers = Matcher.__subclasses__()
 
     try:
-        matches, all_matched = find_matches(unmatched_errors, matchers)
+        matches = list(find_best_matches(errors, matchers))
+        if not matches:
+            return
 
         for matcher_name, match_tuple in matches:
             update_db(matcher_name, match_tuple)
@@ -60,25 +64,43 @@ def match_errors(job, matchers=None):
         job.save(update_fields=['autoclassify_status'])
 
 
-def find_matches(unmatched_errors, matchers):
-    all_matches = set()
+def find_best_matches(errors, matchers):
+    """
+    Find the best match for each error
 
+    We use the Good Enough™ ratio as a watershed level for match scores.
+    """
+    for text_log_error in errors:
+        matches = find_all_matches(text_log_error, matchers)  # TextLogErrorMatch instances, unsaved!
+
+        best_match = first(matches, key=lambda m: (-m.score, -m.classified_failure_id))
+        if not best_match:
+            continue
+
+        yield best_match
+
+
+def find_all_matches(text_log_error, matchers):
+    """
+    Find matches for the given error using the given matcher classes
+
+    Returns *unsaved* TextLogErrorMatch instances.
+    """
     for matcher_class in matchers:
         matcher = matcher_class()
-        matches = matcher(unmatched_errors)
-        # matches: generator of Match tuples: (TextLogError, ClassifiedFailure.id, score)
-        for match in matches:
-            logger.info("Matched error %i with intermittent %i",
-                        match.text_log_error.id, match.classified_failure_id)
-            all_matches.add((matcher.__class__.__name__, match))
-            if match.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO:
-                unmatched_errors.remove(match.text_log_error)
 
-        if not unmatched_errors:
-            break
+        # matches: iterator of (score, ClassifiedFailure.id)
+        matches = matcher.query_best(text_log_error)
+        if not matches:
+            continue
 
-    return all_matches, len(unmatched_errors) == 0
-
+        for score, classified_failure_id in matches:
+            yield TextLogErrorMatch(
+                score=score,
+                matcher_name=matcher.__class__.__name__,
+                classified_failure_id=classified_failure_id,
+                text_log_error=text_log_error,
+            )
 
 def update_db(matcher_name, match_tuple):
     text_log_error, classified_failure_id, score = match_tuple
