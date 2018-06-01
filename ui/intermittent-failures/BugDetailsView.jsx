@@ -9,7 +9,7 @@ import Navigation from './Navigation';
 import { fetchBugData, updateDateRange, updateTreeName, updateSelectedBugDetails } from './redux/actions';
 import GenericTable from './GenericTable';
 import GraphsContainer from './GraphsContainer';
-import { updateQueryParams, calculateMetrics, prettyDate } from './helpers';
+import { updateQueryParams, calculateMetrics, prettyDate, checkQueryParams } from './helpers';
 import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl, getJobsUrl,
   getLogViewerUrl, bugzillaBugsApi } from '../helpers/url';
 
@@ -27,16 +27,15 @@ class BugDetailsView extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { history, from, to, tree, location, bugId, bugzillaData, summary, updateBugDetails } = nextProps;
-
     if (location.search !== this.props.location.search) {
       this.updateData(parseQueryParams(location.search));
     }
 
     // update query params in the address bar if dates or tree are updated via the UI
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
-      const queryParams = createQueryParams({ startday: from, endday: to, tree, bug: bugId });
+      const queryString = createQueryParams({ startday: from, endday: to, tree, bug: bugId });
 
-      updateQueryParams('/bugdetails', queryParams, history, this.props.location);
+      updateQueryParams('/bugdetails', queryString, history, this.props.location);
     }
     if (Object.keys(bugzillaData).length !== 0 && bugzillaData.bugs[0].summary !== summary) {
       updateBugDetails(bugzillaData.bugs[0].id, bugzillaData.bugs[0].summary, 'BUG_DETAILS');
@@ -44,12 +43,16 @@ class BugDetailsView extends React.Component {
   }
 
   setQueryParams() {
-    const { from, to, tree, location, bugId, fetchData } = this.props;
+    const { from, to, tree, location, bugId, fetchData, history } = this.props;
 
-    // data for bug details is provided by MainView, so if the props are undefined
-    // (i.e. user pastes in url with query params into browswer), update all data
+    // data for bug details is provided by MainView, so if the default props are undefined
+    // or query strings are missing (user pastes url into address bar), set default values,
+    // update url with new query params and update all data
     if (!from || !to || !tree || !bugId) {
-      this.updateData(parseQueryParams(location.search));
+      const params = checkQueryParams(parseQueryParams(location.search));
+      const queryString = createQueryParams(params);
+      updateQueryParams('/bugdetails', queryString, history, location);
+      this.updateData(params);
     } else {
       fetchData(createApiUrl(graphsEndpoint, { startday: from, endday: to, tree, bug: bugId }), 'BUG_DETAILS_GRAPHS');
     }
