@@ -48,7 +48,8 @@ def parse_logs(job_id, job_log_ids, priority):
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
         "buildbot_text": parse_unstructured_log,
-        "builds-4h": parse_unstructured_log
+        "builds-4h": parse_unstructured_log,
+        "chain-of-trust": parse_unstructured_log,
     }
 
     completed_names = set()
