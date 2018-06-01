@@ -113,7 +113,7 @@ class SimilarJobsTab extends React.Component {
     JobModel.get(repoName, job.id)
       .then((nextJob) => {
         nextJob.result_status = getStatus(nextJob);
-        nextJob.duration = nextJob.end_timestamp - nextJob.start_timestamp / 60;
+        nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
         nextJob.failure_classification = this.thClassificationTypes.classifications[
           nextJob.failure_classification_id];
 
