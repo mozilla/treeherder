@@ -371,11 +371,11 @@ treeherder.controller('PluginCtrl', [
                         });
                     });
                 }).then(function () {
-                    thNotify.send("Retrigger request sent", "success");
+                    $scope.$apply(thNotify.send("Retrigger request sent", "success"));
                 }, function (e) {
                     // Generic error eg. the user doesn't have LDAP access
-                    thNotify.send(
-                        formatModelError(e, "Unable to send retrigger"), 'danger');
+                    $scope.$apply(thNotify.send(
+                        formatModelError(e, "Unable to send retrigger"), 'danger'));
                 });
             } else {
                 thNotify.send("Must be logged in to retrigger a job", 'danger');
