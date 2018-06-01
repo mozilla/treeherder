@@ -2,7 +2,7 @@
     "bugs":  [
         {
             "status": "FIXED",
-            "id": 100001,
+            "id": 1,
             "summary": "Recently modified resolved bugs should be returned in all_others",
             "cf_crash_signature": "",
             "keywords": [

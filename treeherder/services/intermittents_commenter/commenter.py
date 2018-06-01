@@ -55,24 +55,25 @@ class Commenter(object):
 
         self.weekly_mode = weekly_mode
         self.test_mode = test_mode
+        self.session = self.new_request()
+        self.components = self.open_file('owner_triage_components.json', True)
 
     def run(self):
-        self.create_comments()
+        startday, endday = self.calculate_date_strings(self.weekly_mode, 6)
+        alt_startday, alt_endday = self.calculate_date_strings(True, DISABLE_DAYS)
+        all_params = self.create_comments(startday, endday, alt_startday, alt_endday)
+        self.print_or_submit_comments(all_params)
 
-    def create_comments(self):
+    def create_comments(self, startday, endday, alt_startday, alt_endday):
         """Posts a bug comment containing stats to each bug whose total number of
            occurrences (daily or weekly) meet the appropriate threshold."""
 
-        startday, endday = self.calculate_date_strings(self.weekly_mode, 6)
         bug_stats = self.get_bug_stats(startday, endday)
-        alt_startday, alt_endday = self.calculate_date_strings(True, DISABLE_DAYS)
         alt_bug_stats = self.get_bug_stats(alt_startday, alt_endday)
         test_run_count = self.get_test_runs(startday, endday)
 
+        all_params = []
         template = Template(self.open_file('comment.template', False))
-        components = self.open_file('owner_triage_components.json', True)
-
-        session = self.new_request()
 
         if self.weekly_mode:
             top_bugs = [bug[0] for bug in sorted(bug_stats.items(), key=lambda x: x[1]['total'],
@@ -85,49 +86,29 @@ class Commenter(object):
             priority = 0
             rank = None
 
-            if self.weekly_mode and bug_id in top_bugs:
-                rank = top_bugs.index(bug_id)+1
-
             # recommend disabling when more than 150 failures tracked over 21 days
             if alt_bug_stats[bug_id]['total'] >= DISABLE_THRESHOLD:
-                bug_info = self.fetch_bug_details(session, TRIAGE_PARAMS, bug_id)
-                if bug_info is not None:
-                    whiteboard = bug_info['whiteboard']
-                    if not self.check_whiteboard_status(whiteboard):
-                        priority = 3
-                        whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_DISABLE_RECOMMENDED)
+                bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
 
-            if priority == 0 and self.weekly_mode:
-                if counts['total'] >= PRIORITY1_THRESHOLD:
-                    priority = 1
-                elif counts['total'] >= PRIORITY2_THRESHOLD:
-                    priority = 2
+                if not self.check_whiteboard_status(whiteboard):
+                    priority = 3
+                    whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_DISABLE_RECOMMENDED)
 
-            if priority == 2 or not self.weekly_mode:
-                if not bug_info:
-                    bug_info = self.fetch_bug_details(session, TRIAGE_PARAMS, bug_id)
-                    if bug_info is not None:
-                        whiteboard = bug_info['whiteboard']
+            if self.weekly_mode:
+                priority = self.assign_priority(priority, counts)
+                if priority == 2:
+                    bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
-                        if (([bug_info['product'], bug_info['component']] in components) and
-                            not self.check_whiteboard_status(whiteboard)):
+                if (counts['total'] < UNKNOWN_THRESHOLD):
+                    bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    whiteboard = self.check_needswork(whiteboard)
 
-                            if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
-                                change_priority = '--'
-
-                            stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
-                            if stockwell_text is not None and stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
-                                whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_NEEDSWORK_OWNER)
-
-            if self.weekly_mode and (counts['total'] < UNKNOWN_THRESHOLD):
-                if not bug_info:
-                    bug_info = self.fetch_bug_details(session, TRIAGE_PARAMS, bug_id)
-                    if bug_info is not None:
-                        whiteboard = bug_info['whiteboard']
-
-                        stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
-                        if stockwell_text is not None and stockwell_text.group() == WHITEBOARD_NEEDSWORK:
-                            whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_UNKNOWN)
+                if bug_id in top_bugs:
+                    rank = top_bugs.index(bug_id)+1
+            else:
+                bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
             text = template.render(bug_id=bug_id,
                                    total=counts['total'],
@@ -141,16 +122,61 @@ class Commenter(object):
                                    endday=endday.split()[0],
                                    weekly_mode=self.weekly_mode)
 
-            params = {'comment': {'body': text}}
+            params = {'bug_id': bug_id, 'comment': {'body': text}}
             if whiteboard:
                 params['whiteboard'] = whiteboard
             if change_priority:
                 params['priority'] = change_priority
 
+            all_params.append(params)
+
+        return all_params
+
+    def check_needswork_owner(self, change_priority, bug_info, whiteboard):
+        if (([bug_info['product'], bug_info['component']] in self.components) and
+            not self.check_whiteboard_status(whiteboard)):
+
+            if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
+                change_priority = '--'
+
+            stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+            if stockwell_text is not None and stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
+                whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_NEEDSWORK_OWNER)
+
+        return change_priority, whiteboard
+
+    def check_needswork(self, whiteboard):
+        if whiteboard is not None:
+            stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+            # covers all 'needswork' possibilities, ie 'needswork:owner'
+            if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
+                whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_UNKNOWN)
+
+        return whiteboard
+
+    def assign_priority(self, priority, counts):
+        if priority == 0 and counts['total'] >= PRIORITY1_THRESHOLD:
+            priority = 1
+        elif priority == 0 and counts['total'] >= PRIORITY2_THRESHOLD:
+            priority = 2
+
+        return priority
+
+    def check_bug_info(self, bug_info, bug_id):
+        """check for previously fetched bug metadata"""
+        if not bug_info:
+            bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id)
+            if bug_info is None:
+                return None, None
+
+        return bug_info, bug_info['whiteboard']
+
+    def print_or_submit_comments(self, all_params):
+        for params in all_params:
             if self.test_mode:
-                print(text + '\n')
+                print(params['comment']['body'] + '\n')
             else:
-                self.submit_bug_comment(session, params, bug_id)
+                self.submit_bug_comment(params['comment'], params['bug_id'])
                 # sleep between comment submissions to avoid overwhelming servers
                 time.sleep(1)
 
@@ -201,14 +227,16 @@ class Commenter(object):
         }
         return session
 
-    def fetch_bug_details(self, session, params, bug_id):
+    def create_url(self, bug_id):
+        return settings.BZ_API_URL + '/rest/bug/' + str(bug_id)
+
+    def fetch_bug_details(self, params, bug_id):
         """fetches bug metadata from bugzilla and returns an encoded
            dict if successful, otherwise returns None"""
 
-        url = settings.BZ_API_URL + '/rest/bug/' + str(bug_id)
         try:
-            response = session.get(url, headers=session.headers, params=params,
-                                   timeout=settings.REQUESTS_TIMEOUT)
+            response = self.session.get(self.create_url(bug_id), headers=self.session.headers, params=params,
+                                        timeout=settings.REQUESTS_TIMEOUT)
             response.raise_for_status()
         except RequestException as e:
             logger.warning('error fetching bugzilla metadata for bug {} because {}'.format(bug_id, e))
@@ -222,11 +250,10 @@ class Commenter(object):
 
         return {key.encode('UTF8'): value.encode('UTF8') for key, value in data['bugs'][0].iteritems()}
 
-    def submit_bug_comment(self, session, params, bug_id):
-        url = settings.BUGFILER_API_URL + '/rest/bug/' + str(bug_id)
+    def submit_bug_comment(self, params, bug_id):
         try:
-            response = session.put(url, headers=session.headers, json=params,
-                                   timeout=settings.REQUESTS_TIMEOUT)
+            response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=params,
+                                        timeout=settings.REQUESTS_TIMEOUT)
             response.raise_for_status()
         except RequestException as e:
             logger.error('error posting comment to bugzilla for bug {} because {}'.format(bug_id, e))
