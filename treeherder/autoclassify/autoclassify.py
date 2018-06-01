@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 import logging
 
 from django.db.utils import IntegrityError
@@ -6,7 +7,6 @@ from first import first
 
 from treeherder.model.models import (Job,
                                      JobNote,
-                                     Matcher,
                                      TextLogError,
                                      TextLogErrorMatch)
 
@@ -16,6 +16,26 @@ logger = logging.getLogger(__name__)
 AUTOCLASSIFY_CUTOFF_RATIO = 0.7
 # A goodness of match after which we will not run further detectors
 AUTOCLASSIFY_GOOD_ENOUGH_RATIO = 0.9
+
+
+def get_matchers():
+    """
+    Get matcher functions from treeherder.autoclassify.matchers
+
+    We classify matchers as any function treeherder.autoclassify.matchers with
+    a name ending in _matcher.  This is currently overkill but protects against
+    the unwarey engineer adding new functions to the matchers module that
+    shouldn't be treated as matchers.
+    """
+    from . import matchers
+
+    def is_matcher_func(member):
+        return inspect.isfunction(member) and member.__name__.endswith("_matcher")
+
+    members = inspect.getmembers(matchers, is_matcher_func)
+
+    for name, func in members:
+        yield func
 
 
 def match_errors(job, matchers=None):
@@ -42,7 +62,7 @@ def match_errors(job, matchers=None):
         return
 
     if matchers is None:
-        matchers = Matcher.__subclasses__()
+        matchers = get_matchers()
 
     try:
         matches = list(find_best_matches(errors, matchers))
@@ -89,18 +109,16 @@ def find_all_matches(text_log_error, matchers):
 
     Returns *unsaved* TextLogErrorMatch instances.
     """
-    for matcher_class in matchers:
-        matcher = matcher_class()
-
+    for matcher_func in matchers:
+        matches = matcher_func(text_log_error)
         # matches: iterator of (score, ClassifiedFailure.id)
-        matches = matcher.query_best(text_log_error)
         if not matches:
             continue
 
         for score, classified_failure_id in matches:
             yield TextLogErrorMatch(
                 score=score,
-                matcher_name=matcher.__class__.__name__,
+                matcher_name=matcher_func.__name__,
                 classified_failure_id=classified_failure_id,
                 text_log_error=text_log_error,
             )
