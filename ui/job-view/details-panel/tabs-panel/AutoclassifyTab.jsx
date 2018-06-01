@@ -6,10 +6,10 @@ import { react2angular } from 'react2angular/index.es2015';
 import ErrorLineData from './autoclassify/ErrorLineModel';
 import AutoclassifyToolbar from './autoclassify/AutoclassifyToolbar';
 import ErrorLine from './autoclassify/ErrorLine';
-import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from "../helpers/url";
-import { thEvents } from "../js/constants";
-import treeherder from "../js/treeherder";
-import TextLogErrorsModel from '../models/textLogErrors';
+import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../helpers/url';
+import { thEvents } from '../../../js/constants';
+import treeherder from '../../../js/treeherder';
+import TextLogErrorsModel from '../../../models/textLogErrors';
 
 class AutoclassifyTab extends React.Component {
   static getDerivedStateFromProps(nextProps) {
@@ -28,7 +28,7 @@ class AutoclassifyTab extends React.Component {
     this.thPinboard = $injector.get('thPinboard');
 
     this.state = {
-      loadStatus: "loading",
+      loadStatus: 'loading',
       errorLines: [],
       selectedLineIds: new Set(),
       editableLineIds: new Set(),
@@ -43,7 +43,7 @@ class AutoclassifyTab extends React.Component {
   async componentDidMount() {
     this.$rootScope.$on(thEvents.jobClick, () => {
       this.setState({
-        loadStatus: "loading",
+        loadStatus: 'loading',
         errorLines: [],
         selectedLineIds: new Set(),
         editableLineIds: new Set(),
@@ -64,8 +64,8 @@ class AutoclassifyTab extends React.Component {
         if (pendingLines.every(line => this.canSave(line.id))) {
           this.onSaveAll(pendingLines);
         } else {
-          const msg = (this.state.canClassify ? "lines not classified" : "Not logged in");
-          this.thNotify.send(`Can't save: ${msg}`, "danger");
+          const msg = (this.state.canClassify ? 'lines not classified' : 'Not logged in');
+          this.thNotify.send(`Can't save: ${msg}`, 'danger');
         }
       });
 
@@ -77,8 +77,8 @@ class AutoclassifyTab extends React.Component {
         if (Array.from(selectedLineIds).every(id => this.canSave(id))) {
           this.onSave();
         } else {
-          const msg = (canClassify ? "selected lines not classified" : "Not logged in");
-          this.thNotify.send(`Can't save: ${msg}`, "danger");
+          const msg = (canClassify ? 'selected lines not classified' : 'Not logged in');
+          this.thNotify.send(`Can't save: ${msg}`, 'danger');
         }
       }
     );
@@ -230,8 +230,8 @@ class AutoclassifyTab extends React.Component {
 
     // Scroll the first selected index into view
     const newFirstSelectedIdx = errorLines.findIndex(line => selectedLineIds.has(line.id));
-    $(".autoclassify-error-lines .error-line")[newFirstSelectedIdx]
-        .scrollIntoView({ behavior: "smooth", block: "start" });
+    $('.autoclassify-error-lines .error-line')[newFirstSelectedIdx]
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getPendingLines() {
@@ -289,7 +289,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   async fetchErrorMatchers() {
-    const matcherResp = await fetch(getApiUrl("/matcher/"));
+    const matcherResp = await fetch(getApiUrl('/matcher/'));
     const matcherData = await matcherResp.json();
     const errorMatchers = matcherData.reduce(
       (matchersById, matcher) => matchersById.set(matcher.id, matcher), new Map());
@@ -344,7 +344,7 @@ class AutoclassifyTab extends React.Component {
     if (settings.type === null) {
       return false;
     }
-    if (settings.type === "ignore") {
+    if (settings.type === 'ignore') {
       return true;
     }
     return !!(settings.classifiedFailureId || settings.bugNumber);
@@ -376,7 +376,7 @@ class AutoclassifyTab extends React.Component {
       bug_number: input.bugNumber
     }));
 
-    this.setState({ loadStatus: "loading" });
+    this.setState({ loadStatus: 'loading' });
     return TextLogErrorsModel
       .verifyMany(data)
       .then((data) => {
@@ -385,12 +385,12 @@ class AutoclassifyTab extends React.Component {
           newLines[idx] = new ErrorLineData(updatedLine);
           return newLines;
         }, [...errorLines]);
-        this.setState({ errorLines: newErrorLines, loadStatus: "ready" });
+        this.setState({ errorLines: newErrorLines, loadStatus: 'ready' });
       })
       .catch((err) => {
-        const prefix = "Error saving classifications: ";
+        const prefix = 'Error saving classifications: ';
         const msg = err.stack ? `${prefix}${err}${err.stack}` : `${prefix}${err.statusText} - ${err.data.detail}`;
-        this.thNotify.send(msg, "danger", { sticky: true });
+        this.thNotify.send(msg, 'danger', { sticky: true });
       });
   }
 
@@ -402,22 +402,22 @@ class AutoclassifyTab extends React.Component {
     const { loadStatus, autoclassifyStatusOnLoad } = this.state;
 
     let newLoadStatus = 'loading';
-    if (job.state === "pending" || job.state === "running") {
-      newLoadStatus = "job_pending";
-    } else if (!logsParsed || autoclassifyStatus === "pending") {
-      newLoadStatus = "pending";
+    if (job.state === 'pending' || job.state === 'running') {
+      newLoadStatus = 'job_pending';
+    } else if (!logsParsed || autoclassifyStatus === 'pending') {
+      newLoadStatus = 'pending';
     } else if (logParseStatus === 'failed') {
-      newLoadStatus = "failed";
+      newLoadStatus = 'failed';
     } else if (!hasLogs) {
-      newLoadStatus = "no_logs";
-    } else if (autoclassifyStatusOnLoad === null || autoclassifyStatusOnLoad === "cross_referenced") {
-      if (loadStatus !== "ready") {
-        newLoadStatus = "loading";
+      newLoadStatus = 'no_logs';
+    } else if (autoclassifyStatusOnLoad === null || autoclassifyStatusOnLoad === 'cross_referenced') {
+      if (loadStatus !== 'ready') {
+        newLoadStatus = 'loading';
       }
       this.fetchErrorData()
         .then(data => this.buildLines(data))
         .catch(() => {
-          this.setState({ loadStatus: "error" });
+          this.setState({ loadStatus: 'error' });
         });
     }
 
@@ -437,9 +437,9 @@ class AutoclassifyTab extends React.Component {
   toggleSelect(event, errorLine) {
     const elem = $(event.target);
     const { selectedLineIds } = this.state;
-    const interactive = new Set(["INPUT", "BUTTON", "TEXTAREA", "A"]);
+    const interactive = new Set(['INPUT', 'BUTTON', 'TEXTAREA', 'A']);
 
-    if (interactive.has(elem.prop("tagName"))) {
+    if (interactive.has(elem.prop('tagName'))) {
       return;
     }
 

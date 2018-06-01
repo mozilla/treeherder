@@ -6,9 +6,9 @@ import { FormGroup } from 'reactstrap';
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
 import StaticLineOption from './StaticLineOption';
-import { getBugUrl, getLogViewerUrl } from "../../helpers/url";
-import { stringOverlap, highlightLogLine } from "../../helpers/autoclassify";
-import { thEvents } from "../../js/constants";
+import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
+import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
+import { thEvents } from '../../../../js/constants';
 
 
 const GOOD_MATCH_SCORE = 0.75;
@@ -102,7 +102,7 @@ export default class ErrorLine extends React.Component {
     if (!isSelected || !isEditable) {
       return;
     }
-    if (option === "manual") {
+    if (option === 'manual') {
       id = `${errorLine.id}-manual`;
     } else {
       const idx = parseInt(option);
@@ -119,7 +119,7 @@ export default class ErrorLine extends React.Component {
 
       this.optionChanged();
     }
-    if (option === "=") {
+    if (option === '=') {
       $(`#${this.props.errorLine.id}-manual-bug`).focus();
     }
   }
@@ -170,7 +170,7 @@ export default class ErrorLine extends React.Component {
       return 'verified';
     } else if (selectedOption.type === 'ignore') {
       return 'unverified-ignore';
-    } else if (selectedOption.type === "manual" &&
+    } else if (selectedOption.type === 'manual' &&
       !selectedOption.manualBugNumber) {
       return 'unverified-no-bug';
     }
@@ -188,12 +188,12 @@ export default class ErrorLine extends React.Component {
     const autoclassifyOptions = this.props.errorLine.data.classified_failures
       .filter(cf => cf.bug_number !== 0)
       .map(cf => new LineOptionModel(
-        "classifiedFailure",
+        'classifiedFailure',
         `${this.props.errorLine.id}-${cf.id}`,
         cf.id,
         cf.bug_number,
-        cf.bug ? cf.bug.summary : "",
-        cf.bug ? cf.bug.resolution : "",
+        cf.bug ? cf.bug.summary : '',
+        cf.bug ? cf.bug.resolution : '',
         classificationMatches(cf.id)
       ));
     const autoclassifiedBugs = autoclassifyOptions
@@ -202,7 +202,7 @@ export default class ErrorLine extends React.Component {
     const bugSuggestionOptions = bugSuggestions
       .filter(bug => !autoclassifiedBugs.has(bug.id))
       .map(bugSuggestion => new LineOptionModel(
-        "unstructuredBug",
+        'unstructuredBug',
         `${this.props.errorLine.id}-ub-${bugSuggestion.id}`,
         null,
         bugSuggestion.id,
@@ -241,8 +241,8 @@ export default class ErrorLine extends React.Component {
    * Build a list of the default options that apply to all lines.
    */
   getExtraOptions() {
-    const extraOptions = [new LineOptionModel("manual", `${this.props.errorLine.id}-manual`)];
-    const ignoreOption = new LineOptionModel("ignore", `${this.props.errorLine.id}-ignore`, 0);
+    const extraOptions = [new LineOptionModel('manual', `${this.props.errorLine.id}-manual`)];
+    const ignoreOption = new LineOptionModel('ignore', `${this.props.errorLine.id}-ignore`, 0);
 
     extraOptions.push(ignoreOption);
     if (this.bestIsIgnore()) {
@@ -268,7 +268,7 @@ export default class ErrorLine extends React.Component {
     const failureLine = errorLine.data.failure_line;
 
     function parseTest(line) {
-      const parts = line.split(" | ", 3);
+      const parts = line.split(' | ', 3);
       return parts.length === 3 ? parts[1] : null;
     }
     // Search for the best selectable bug suggestion, using the fact that
@@ -315,8 +315,8 @@ export default class ErrorLine extends React.Component {
       // and this is ignorable
       ignore = true;
     } else if (failureLine &&
-      (failureLine.action === "crash" ||
-        failureLine.action === "test_result")) {
+      (failureLine.action === 'crash' ||
+        failureLine.action === 'test_result')) {
       // Don't ignore crashes or test results
       ignore = false;
     } else {
@@ -376,9 +376,9 @@ export default class ErrorLine extends React.Component {
       this.bestOption.bugNumber === null) ?
       this.bestOption.classifiedFailureId :
       option.classifiedFailureId);
-    const bug = (option.type === "manual" ?
+    const bug = (option.type === 'manual' ?
       option.manualBugNumber :
-      (option.type === "ignore" ?
+      (option.type === 'ignore' ?
         (option.ignoreAlways ? 0 : null) :
         option.bugNumber));
     const data = {
@@ -440,13 +440,13 @@ export default class ErrorLine extends React.Component {
       .forEach((option) => {
         let score;
         const data = this.props.errorLine.data;
-        if (option.type === "classifiedFailure") {
+        if (option.type === 'classifiedFailure') {
           score = parseFloat(
             data.matches.find(
               x => x.classified_failure === option.classifiedFailureId).score);
         } else {
           score = stringOverlap(data.bug_suggestions.search,
-                                option.bugSummary.replace(/^\s*Intermittent\s+/, ""));
+                                option.bugSummary.replace(/^\s*Intermittent\s+/, ''));
           // Artificially reduce the score of resolved bugs
           score *= option.bugResolution ? 0.8 : 1;
         }
@@ -479,7 +479,7 @@ export default class ErrorLine extends React.Component {
    * Determine whether the line should be open for editing by default
    */
   defaultEditable(option) {
-    return option ? !(option.score >= GOOD_MATCH_SCORE || option.type === "ignore") : false;
+    return option ? !(option.score >= GOOD_MATCH_SCORE || option.type === 'ignore') : false;
   }
 
   render() {

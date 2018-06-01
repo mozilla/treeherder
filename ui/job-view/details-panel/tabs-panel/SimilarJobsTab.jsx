@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
-import { getBtnClass, getStatus } from '../helpers/job';
-import { toDateStr, toShortDateStr } from '../helpers/display';
-import { getSlaveHealthUrl, getJobsUrl } from '../helpers/url';
-import treeherder from "../js/treeherder";
-import { thEvents } from "../js/constants";
-import JobModel from '../models/job';
-import TextLogStepModel from '../models/textLogStep';
+import { getBtnClass, getStatus } from '../../../helpers/job';
+import { toDateStr, toShortDateStr } from '../../../helpers/display';
+import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
+import treeherder from '../../../js/treeherder';
+import { thEvents } from '../../../js/constants';
+import JobModel from '../../../models/job';
+import TextLogStepModel from '../../../models/textLogStep';
 
 class SimilarJobsTab extends React.Component {
   constructor(props) {

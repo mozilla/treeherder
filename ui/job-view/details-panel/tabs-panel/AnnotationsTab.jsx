@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../js/treeherder';
-import { getBugUrl } from '../helpers/url';
-import { thEvents } from "../js/constants";
+import treeherder from '../../../js/treeherder';
+import { getBugUrl } from '../../../helpers/url';
+import { thEvents } from '../../../js/constants';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -66,7 +66,7 @@ function TableRow(props) {
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
   const failureId = classification.failure_classification_id;
-  const iconClass = failureId === 7 ? "fa-star-o" : "fa fa-star";
+  const iconClass = failureId === 7 ? 'fa-star-o' : 'fa fa-star';
   const classificationName = classificationTypes.classifications[failureId];
 
   return (
@@ -159,7 +159,7 @@ export default class AnnotationsTab extends React.Component {
         // Delete any number of bugs if they exist
         bugs.forEach((bug) => { this.deleteBug(bug); });
       } else {
-        this.thNotify.send("No classification on this job to delete", 'warning');
+        this.thNotify.send('No classification on this job to delete', 'warning');
       }
     });
 
@@ -176,7 +176,7 @@ export default class AnnotationsTab extends React.Component {
 
     classification.destroy().then(
       () => {
-        this.thNotify.send("Classification successfully deleted", "success");
+        this.thNotify.send('Classification successfully deleted', 'success');
         // also be sure the job object in question gets updated to the latest
         // classification state (in case one was added or removed).
         this.ThResultSetStore.fetchJobs([job.id]);
@@ -187,8 +187,8 @@ export default class AnnotationsTab extends React.Component {
       },
       () => {
         this.thNotify.send(
-          "Classification deletion failed",
-          "danger",
+          'Classification deletion failed',
+          'danger',
           { sticky: true }
         );
       });
@@ -201,7 +201,7 @@ export default class AnnotationsTab extends React.Component {
       .then(() => {
         this.thNotify.send(
             `Association to bug ${bug.bug_id} successfully deleted`,
-            "success"
+            'success'
           );
         this.$rootScope.$emit(
             thEvents.bugsAssociated,
@@ -210,7 +210,7 @@ export default class AnnotationsTab extends React.Component {
       }, () => {
         this.thNotify.send(
             `Association to bug ${bug.bug_id} deletion failed`,
-            "danger",
+            'danger',
             { sticky: true }
           );
       }
