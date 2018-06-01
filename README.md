@@ -1,5 +1,6 @@
 treeherder
 ==================
+[![What's Deployed](https://img.shields.io/badge/whatsdeployed-prototype,stage,prod-green.svg)](https://whatsdeployed.io/s-dqv)
 [![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://travis-ci.org/mozilla/treeherder)
 [![Python Package Status](https://pyup.io/repos/github/mozilla/treeherder/shield.svg)](https://pyup.io/repos/github/mozilla/treeherder/)
 [![Node dependencies Status](https://david-dm.org/mozilla/treeherder/status.svg)](https://david-dm.org/mozilla/treeherder)
