@@ -1,7 +1,7 @@
 from treeherder.autoclassify.autoclassify import match_errors
-from treeherder.autoclassify.matchers import (CrashSignatureMatcher,
-                                              ElasticSearchTestMatcher,
-                                              PreciseTestMatcher)
+from treeherder.autoclassify.matchers import (crash_signature_matcher,
+                                              elasticsearch_matcher,
+                                              precise_matcher)
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
                                      JobNote,
@@ -39,7 +39,7 @@ def test_classify_test_failure(text_log_errors_failure_lines,
              (test_line, {"message": "message2"})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
 
     expected_classified = test_error_lines[:2], test_failure_lines[:2]
     expected_unclassified = test_error_lines[2:], test_failure_lines[2:]
@@ -65,7 +65,7 @@ def test_no_autoclassify_job_success(text_log_errors_failure_lines,
              (test_line, {"message": "message2"})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher], status="success")
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher], status="success")
 
     expected_classified = [], []
     expected_unclassified = test_error_lines, test_failure_lines
@@ -89,7 +89,7 @@ def test_autoclassify_update_job_classification(failure_lines, classified_failur
     lines = [(test_line, {})]
     _, test_failure_lines = create_lines(test_job_2, lines)
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
 
     assert JobNote.objects.filter(job=test_job_2).count() == 1
 
@@ -107,7 +107,7 @@ def test_autoclassify_no_update_job_classification(test_job, test_job_2,
                                 line="Some error that isn't in the structured logs",
                                 line_number=2)
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
 
     assert JobNote.objects.filter(job=test_job_2).count() == 0
 
@@ -200,7 +200,7 @@ def test_classify_skip_ignore(test_job_2,
                                          [(test_line, {}),
                                           (test_line, {"subtest": "subtest2"})])
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
 
     expected_classified = test_failure_lines[:1]
     expected_unclassified = test_failure_lines[1:]
@@ -222,7 +222,7 @@ def test_classify_es(test_job_2, failure_lines, classified_failures):
                                           (test_line, {"status": "TIMEOUT"}),
                                           (test_line, {"expected": "ERROR"})])
 
-    do_autoclassify(test_job_2, test_failure_lines, [ElasticSearchTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [elasticsearch_matcher])
 
     expected_classified = test_failure_lines[:4]
     expected_unclassified = test_failure_lines[4:]
@@ -242,16 +242,16 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
     expected_classified_precise = [test_failure_lines[0]]
     expected_classified_fuzzy = [test_failure_lines[1]]
 
-    do_autoclassify(test_job_2, test_failure_lines, [PreciseTestMatcher,
-                                                     ElasticSearchTestMatcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher,
+                                                     elasticsearch_matcher])
 
     for actual, expected in zip(expected_classified_precise, classified_failures):
         assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert actual.error.matches.first().matcher_name == "PreciseTestMatcher"
+        assert actual.error.matches.first().matcher_name == "precise_matcher"
 
     for actual, expected in zip(expected_classified_fuzzy, classified_failures):
         assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert actual.error.matches.first().matcher_name == "ElasticSearchTestMatcher"
+        assert actual.error.matches.first().matcher_name == "elasticsearch_matcher"
 
 
 def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
@@ -269,7 +269,7 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
                                      classified_failure=classified_failure,
                                      matcher_name=test_matcher.__class__.__name__,
                                      score=1.0)
-    do_autoclassify(test_job_2, failure_lines, [CrashSignatureMatcher])
+    do_autoclassify(test_job_2, failure_lines, [crash_signature_matcher])
 
     expected_classified = failure_lines[0:2]
     expected_unclassified = failure_lines[2:]

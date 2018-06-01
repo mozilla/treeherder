@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from first import first
 
-from treeherder.autoclassify.matchers import (PreciseTestMatcher,
-                                              score_matches)
+from treeherder.autoclassify.matchers import precise_matcher
+from treeherder.autoclassify.utils import score_matches
 from treeherder.model.models import (FailureLine,
                                      TextLogErrorMatch,
                                      TextLogErrorMetadata)
@@ -12,10 +12,10 @@ from .utils import (create_failure_lines,
                     create_text_log_errors)
 
 
-def test_precise_test_matcher_with_matches(classified_failures):
+def test_precise_matcher_with_matches(classified_failures):
     tle = TextLogErrorMatch.objects.first().text_log_error
 
-    results = PreciseTestMatcher().query_best(tle)
+    results = precise_matcher(tle)
     score, classified_failure_id = first(results)
 
     match = tle.matches.first()
@@ -23,7 +23,7 @@ def test_precise_test_matcher_with_matches(classified_failures):
     assert score == match.score
 
 
-def test_precise_test_matcher_without_matches(test_job, test_matcher):
+def test_precise_matcher_without_matches(test_job, test_matcher):
     # create an error log group to match against
     data1 = {
         'action': 'test_result',
@@ -50,7 +50,7 @@ def test_precise_test_matcher_without_matches(test_job, test_matcher):
     TextLogErrorMetadata.objects.create(text_log_error=tle1, failure_line=failure_line1)
     TextLogErrorMetadata.objects.create(text_log_error=tle2, failure_line=failure_line2)
 
-    output = PreciseTestMatcher().query_best(tle2)
+    output = precise_matcher(tle2)
     assert output is None  # we should have no matches
 
 
