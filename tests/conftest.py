@@ -429,9 +429,13 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
         if failure_line.job_guid == test_job.guid:
             classified_failure = ClassifiedFailure()
             classified_failure.save()
-            failure_line.set_classification(test_matcher,
-                                            classified_failure,
-                                            mark_best=True)
+
+            failure_line.error.set_classification(
+                test_matcher,
+                classified_failure,
+                mark_best=True,
+            )
+
             classified_failures.append(classified_failure)
 
     if settings.ELASTICSEARCH_URL:

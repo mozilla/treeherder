@@ -940,55 +940,6 @@ class FailureLine(models.Model):
                             .select_related('classified_failure')
                             .first())
 
-    def set_classification(self, matcher_name, classification=None, bug_number=None,
-                           mark_best=False):
-        with transaction.atomic():
-            if classification is None:
-                if bug_number:
-                    classification, _ = ClassifiedFailure.objects.get_or_create(
-                        bug_number=bug_number)
-                else:
-                    classification = ClassifiedFailure.objects.create()
-
-            new_link = FailureMatch(
-                failure_line=self,
-                classified_failure=classification,
-                matcher_name=matcher_name,
-                score=1)
-            new_link.save()
-
-            if mark_best:
-                self.best_classification = classification
-                self.save(update_fields=['best_classification'])
-
-            if self.error:
-                TextLogErrorMatch.objects.create(
-                    text_log_error=self.error,
-                    classified_failure=classification,
-                    matcher_name=matcher_name,
-                    score=1)
-                if mark_best:
-                    self.error.metadata.best_classification = classification
-                    self.error.metadata.save(update_fields=['best_classification'])
-
-            self.elastic_search_insert()
-        return classification, new_link
-
-    def mark_best_classification_verified(self, classification):
-        if (classification and
-            classification.id not in self.classified_failures.values_list('id', flat=True)):
-            logger.debug("Adding new classification to TextLogError")
-            self.set_classification("ManualDetector", classification=classification)
-
-        self.best_classification = classification
-        self.best_is_verified = True
-        self.save()
-        if self.error:
-            self.error.metadata.best_classification = classification
-            self.error.metadata.best_is_verified = True
-            self.error.metadata.save(update_fields=["best_classification", "best_is_verified"])
-        self.elastic_search_insert()
-
     def _serialized_components(self):
         if self.action == "test_result":
             return ["TEST-UNEXPECTED-%s" % self.status.upper(),
@@ -1018,15 +969,6 @@ class FailureLine(models.Model):
                         rv.append(suggestion)
 
         return rv
-
-    def update_autoclassification(self):
-        """
-        If a job is manually classified and has a single line in the logs matching a single
-        FailureLine, but the FailureLine has not matched any ClassifiedFailure, add a
-        new match due to the manual classification.
-        """
-        classification, _ = self.set_classification("ManualDetector")
-        self.mark_best_classification_verified(classification)
 
     def elastic_search_insert(self):
         if not settings.ELASTICSEARCH_URL:
@@ -1283,35 +1225,26 @@ class TextLogError(models.Model):
                 .select_related('classified_failure')
                 .first())
 
-    def set_classification(self, matcher_name, classification=None, bug_number=None,
-                           mark_best=False):
-        with transaction.atomic():
-            if classification is None:
-                if bug_number:
-                    classification, _ = ClassifiedFailure.objects.get_or_create(
-                        bug_number=bug_number)
-                else:
-                    classification = ClassifiedFailure.objects.create()
+    @transaction.atomic
+    def set_classification(self, matcher_name, classification=None, bug_number=None, mark_best=False):
+        if classification is None:
+            if bug_number:
+                classification, _ = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number)
+            else:
+                classification = ClassifiedFailure.objects.create()
 
-            new_link = TextLogErrorMatch(
-                text_log_error=self,
-                classified_failure=classification,
-                matcher_name=matcher_name,
-                score=1)
-            new_link.save()
+        match = TextLogErrorMatch.objects.create(
+            text_log_error=self,
+            classified_failure=classification,
+            matcher_name=matcher_name,
+            score=1,
+        )
 
-            if self.metadata and self.metadata.failure_line:
-                new_link_failure = FailureMatch(
-                    failure_line=self.metadata.failure_line,
-                    classified_failure=classification,
-                    matcher_name=matcher_name,
-                    score=1)
-                new_link_failure.save()
+        if mark_best:
+            self.mark_best_classification(classification.id)
 
-            if mark_best:
-                self.mark_best_classification(classification)
-
-        return classification, new_link
+        return classification, match
 
     def mark_best_classification(self, classification_id):
         """
@@ -1351,21 +1284,14 @@ class TextLogError(models.Model):
         else:
             self.metadata.best_classification = classification
             self.metadata.best_is_verified = True
-            self.metadata.save()
-        if self.metadata.failure_line:
-            self.metadata.failure_line.best_classification = classification
-            self.metadata.failure_line.best_is_verified = True
-            self.metadata.failure_line.save()
-            self.metadata.failure_line.elastic_search_insert()
+            self.metadata.save(update_fields=['best_classification', 'best_is_verified'])
 
-    def update_autoclassification(self):
-        """
-        If a job is manually classified and has a single line in the logs matching a single
-        TextLogError, but the TextLogError has not matched any ClassifiedFailure, add a
-        new match due to the manual classification.
-        """
-        classification, _ = self.set_classification("ManualDetector")
-        self.mark_best_classification_verified(classification)
+        failure_line = self.get_failure_line()
+        if failure_line:
+            failure_line.best_classification = classification
+            failure_line.best_is_verified = True
+            failure_line.save(update_fields=['best_classification', 'best_is_verified'])
+            failure_line.elastic_search_insert()
 
     def get_failure_line(self):
         """Get a related FailureLine instance if one exists."""

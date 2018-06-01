@@ -134,12 +134,16 @@ def test_autoclassified_after_manual_classification(test_user,
         error_line.metadata.refresh_from_db()
         failure_line.refresh_from_db()
 
-    assert len(test_error_lines[0].matches.all()) == 1
-    assert len(test_failure_lines[0].matches.all()) == 1
-    assert test_error_lines[0].metadata.best_classification == test_error_lines[0].classified_failures.all()[0]
-    assert test_failure_lines[0].best_classification == test_failure_lines[0].classified_failures.all()[0]
-    assert test_error_lines[0].metadata.best_is_verified
-    assert test_failure_lines[0].best_is_verified
+    tle1 = test_error_lines[0]
+    fl1 = test_failure_lines[0]
+
+    assert tle1.matches.count() == 1
+    assert tle1.metadata.best_classification == tle1.classified_failures.first()
+    assert tle1.metadata.best_is_verified
+
+    assert fl1.error.matches.count() == 1
+    assert fl1.error.metadata.best_classification == fl1.error.classified_failures.first()
+    assert fl1.best_is_verified
 
 
 def test_autoclassified_no_update_after_manual_classification_1(test_job_2,

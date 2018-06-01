@@ -71,7 +71,8 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
             by_project[failure_line.repository.name].append(failure_line.job_guid)
 
-            failure_line.mark_best_classification_verified(classification)
+            if failure_line.error:
+                failure_line.error.mark_best_classification_verified(classification)
 
         for project, job_guids in iteritems(by_project):
             for job in Job.objects.filter(guid__in=job_guids):

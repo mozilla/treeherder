@@ -103,17 +103,18 @@ def test_update_failure_line_replace(test_repository,
     failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
     error_line.refresh_from_db()
+    classified_failure = classified_failures[1]
 
-    assert failure_line.best_classification == classified_failures[1]
+    assert failure_line.best_classification == classified_failure
     assert failure_line.best_is_verified
-    assert len(failure_line.classified_failures.all()) == 2
+    assert failure_line.error.classified_failures.count() == 2
     assert error_line.metadata.failure_line == failure_line
-    assert error_line.metadata.best_classification == classified_failures[1]
+    assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert failure_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
-    assert error_line.matches.get(classified_failure_id=classified_failures[1].id).matcher_name == expected_matcher
+    assert failure_line.error.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
+    assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
 
 
 def test_update_failure_line_mark_job(test_repository, test_job,
