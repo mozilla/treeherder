@@ -2,6 +2,7 @@
 import inspect
 import logging
 
+import newrelic.agent
 from django.db.utils import IntegrityError
 from first import first
 
@@ -99,6 +100,12 @@ def find_best_matches(errors, matchers):
         best_match = first(matches, key=lambda m: (-m.score, -m.classified_failure_id))
         if not best_match:
             continue
+
+        newrelic.agent.record_custom_event('highest_scored_matcher', {
+            'matcher': best_match.matcher_name,
+            'score': best_match.score,
+            'text_log_error': best_match.text_log_error_id,
+        })
 
         yield best_match
 
