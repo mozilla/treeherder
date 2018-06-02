@@ -41,7 +41,7 @@
     "lodash": "4.17.10",
     "metrics-graphics": "2.15.1",
     "moment": "2.22.2",
-    "mousetrap": "1.6.1",
+    "mousetrap": "1.6.2",
     "neutrino": "4.3.1",
     "neutrino-lint-base": "4.3.1",
     "neutrino-preset-react": "4.2.3",
