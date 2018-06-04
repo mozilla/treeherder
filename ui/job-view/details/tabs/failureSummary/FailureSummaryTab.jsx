@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../../../js/treeherder';
-import ErrorsList from './failureSummary/ErrorsList';
-import SuggestionsListItem from './failureSummary/SuggestionsListItem';
-import ListItem from './failureSummary/ListItem';
+import treeherder from '../../../../js/treeherder';
+import ErrorsList from './ErrorsList';
+import SuggestionsListItem from './SuggestionsListItem';
+import ListItem from './ListItem';
 
 class FailureSummaryTab extends React.Component {
   constructor(props) {

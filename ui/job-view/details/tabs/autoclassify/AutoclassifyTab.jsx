@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { react2angular } from 'react2angular/index.es2015';
 
-import ErrorLineData from './autoclassify/ErrorLineModel';
-import AutoclassifyToolbar from './autoclassify/AutoclassifyToolbar';
-import ErrorLine from './autoclassify/ErrorLine';
-import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../helpers/url';
-import { thEvents } from '../../../js/constants';
-import treeherder from '../../../js/treeherder';
-import TextLogErrorsModel from '../../../models/textLogErrors';
+import ErrorLineData from './ErrorLineModel';
+import AutoclassifyToolbar from './AutoclassifyToolbar';
+import ErrorLine from './ErrorLine';
+import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../../helpers/url';
+import { thEvents } from '../../../../js/constants';
+import treeherder from '../../../../js/treeherder';
+import TextLogErrorsModel from '../../../../models/textLogErrors';
 
 class AutoclassifyTab extends React.Component {
   static getDerivedStateFromProps(nextProps) {
