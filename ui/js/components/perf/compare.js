@@ -75,7 +75,7 @@ treeherder.component('phCompareTable', {
 
         ctrl.updateFilteredTestList = function () {
             ctrl.filteredResultList = {};
-            _.forEach(ctrl.compareResults, function (result, key) {
+            Object.entries(ctrl.compareResults).forEach(([key, result]) => {
                 const compareResults = filterResult(result, key);
                 if (compareResults.length > 0) {
                     ctrl.filteredResultList[key] = compareResults;
