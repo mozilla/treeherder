@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from "../helpers/url";
+import { create } from '../helpers/http';
 
 const uri = getProjectUrl("/jobs/");
 
@@ -87,13 +88,11 @@ export default class JobModel {
     return JobModel.getList(repoName, options, config);
   }
 
-  static retrigger(repoName, job_id_list) {
-    return fetch(`${uri}retrigger/${createQueryParams({ job_id_list: job_id_list })}`)
-      .then(response => response.json().then(data => new JobModel(data)));
+  static retrigger(repoName, jobIds) {
+    return create(`${uri}retrigger/`, { job_id_list: jobIds });
   }
 
-  cancel(repoName, jobIds) {
-    return fetch(`${uri}cancel/${createQueryParams({ job_id_list: jobIds })}`)
-      .then(response => response.json().then(data => new JobModel(data)));
+  static cancel(repoName, jobIds) {
+    return create(`${uri}cancel/`, { job_id_list: jobIds });
   }
 }
