@@ -430,7 +430,7 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
         if failure_line.job_guid == test_job.guid:
             classified_failure = ClassifiedFailure.objects.create()
 
-            failure_line.error.set_classification(test_matcher, classified_failure)
+            failure_line.error.create_match(test_matcher, classified_failure)
             mark_best_classification(failure_line.error, classified_failure)
 
             classified_failures.append(classified_failure)

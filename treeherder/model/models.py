@@ -816,7 +816,7 @@ class JobNote(models.Model):
 
         for bug_number in add_bugs:
             classification, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug_number)
-            text_log_error.set_classification("ManualDetector", classification)
+            text_log_error.create_match("ManualDetector", classification)
 
         if len(add_bugs) == 1 and not existing_bugs:
             text_log_error.verify_classification(classification)
@@ -1177,7 +1177,12 @@ class TextLogError(models.Model):
         from treeherder.model import error_summary
         return error_summary.bug_suggestions_line(self)
 
-    def set_classification(self, matcher_name, classification):
+    def create_match(self, matcher_name, classification):
+        """
+        Create a TextLogErrorMatch instance
+
+        Typically used for manual "matches" or tests.
+        """
         if classification is None:
             classification = ClassifiedFailure.objects.create()
 
@@ -1196,7 +1201,7 @@ class TextLogError(models.Model):
         FailureLine.
         """
         if classification not in self.classified_failures.all():
-            self.set_classification("ManualDetector", classification)
+            self.create_match("ManualDetector", classification)
 
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
