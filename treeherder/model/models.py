@@ -1193,7 +1193,6 @@ class TextLogError(models.Model):
                 .select_related('classified_failure')
                 .first())
 
-    @transaction.atomic
     def set_classification(self, matcher_name, classification):
         if classification is None:
             classification = ClassifiedFailure.objects.create()
