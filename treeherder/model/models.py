@@ -1087,32 +1087,6 @@ class Matcher(models.Model):
         db_table = 'matcher'
 
 
-class FailureMatch(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    failure_line = models.ForeignKey(FailureLine,
-                                     related_name="matches",
-                                     on_delete=models.CASCADE)
-    classified_failure = models.ForeignKey(ClassifiedFailure,
-                                           related_name="matches",
-                                           on_delete=models.CASCADE)
-
-    matcher_name = models.CharField(max_length=255)
-    score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-
-    # TODO: add indexes once we know which queries will be typically executed
-
-    class Meta:
-        db_table = 'failure_match'
-        verbose_name_plural = 'failure matches'
-        unique_together = (
-            ('failure_line', 'classified_failure', 'matcher_name')
-        )
-
-    def __str__(self):
-        return "{0} {1}".format(
-            self.failure_line.id, self.classified_failure.id)
-
-
 @python_2_unicode_compatible
 class RunnableJob(models.Model):
     id = models.AutoField(primary_key=True)

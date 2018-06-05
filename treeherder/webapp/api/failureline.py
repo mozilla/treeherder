@@ -17,7 +17,7 @@ from treeherder.webapp.api.utils import as_dict
 
 
 class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = FailureLine.objects.prefetch_related("matches").all()
+    queryset = FailureLine.objects.prefetch_related("text_log_error_metadata__text_log_error__matches").all()
     serializer_class = serializers.FailureLineNoStackSerializer
 
     @transaction.atomic
