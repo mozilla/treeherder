@@ -161,7 +161,7 @@ class ClassifiedFailureViewSet(viewsets.ModelViewSet):
         serializer_class = serializers.FailureLineNoStackSerializer
 
         queryset = FailureLine.objects.filter(
-            best_classification__id=pk).prefetch_related('matches').all()
+            best_classification__id=pk).prefetch_related('text_log_error_metadata__text_log_error__matches').all()
         page = self.paginate_queryset(queryset)
 
         if page:
