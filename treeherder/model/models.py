@@ -1063,23 +1063,18 @@ class ClassifiedFailure(models.Model):
         # ON matches.classified_failure_id = <other.id> AND
         #    matches.failure_line_id = failure_match.failue_line_id
         delete_ids = []
-        for Match, key, matches in [(TextLogErrorMatch, "text_log_error",
-                                     self.error_matches.all()),
-                                    (FailureMatch, "failure_line",
-                                     self.matches.all())]:
-            for match in matches:
-                kwargs = {key: getattr(match, key)}
-                existing = Match.objects.filter(classified_failure=other, **kwargs)
-                if existing:
-                    for existing_match in existing:
-                        if match.score > existing_match.score:
-                            existing_match.score = match.score
-                            existing_match.save()
-                    delete_ids.append(match.id)
-                else:
-                    match.classified_failure = other
-                    match.save()
-            Match.objects.filter(id__in=delete_ids).delete()
+        for match in self.error_matches.all():
+            existing = TextLogErrorMatch.objects.filter(classified_failure=other, text_log_error=match.text_log_error)
+            if existing:
+                for existing_match in existing:
+                    if match.score > existing_match.score:
+                        existing_match.score = match.score
+                        existing_match.save()
+                delete_ids.append(match.id)
+            else:
+                match.classified_failure = other
+                match.save()
+        TextLogErrorMatch.objects.filter(id__in=delete_ids).delete()
         FailureLine.objects.filter(best_classification=self).update(best_classification=other)
         self.delete()
 
