@@ -1025,8 +1025,6 @@ class Group(models.Model):
 
 class ClassifiedFailure(models.Model):
     id = models.BigAutoField(primary_key=True)
-    failure_lines = models.ManyToManyField(FailureLine, through='FailureMatch',
-                                           related_name='classified_failures')
     text_log_errors = models.ManyToManyField("TextLogError", through='TextLogErrorMatch',
                                              related_name='classified_failures')
     # Note that we use a bug number of 0 as a sentinel value to indicate lines that

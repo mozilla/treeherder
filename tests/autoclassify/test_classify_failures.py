@@ -73,11 +73,11 @@ def test_no_autoclassify_job_success(text_log_errors_failure_lines,
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
                                                     classified_failures):
         assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
         assert error_line.classified_failures.count() == 0
-        assert failure_line.classified_failures.count() == 0
+        assert failure_line.error.classified_failures.count() == 0
 
 
 def test_autoclassify_update_job_classification(failure_lines, classified_failures,
