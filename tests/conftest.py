@@ -431,7 +431,7 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
             classified_failure.save()
 
             failure_line.error.set_classification(test_matcher, classified_failure)
-            failure_line.error.mark_best_classification(classified_failure.id)
+            failure_line.error.mark_best_classification(classified_failure)
 
             classified_failures.append(classified_failure)
 
