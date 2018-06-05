@@ -151,7 +151,7 @@ def update_db(matches):
         # TODO: document what this does
         best_match = match.text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
         if best_match:
-            match.text_log_error.mark_best_classification(match.classified_failure_id)
+            match.text_log_error.mark_best_classification(match.classified_failure)
 
 
 def create_note(job, all_matched):

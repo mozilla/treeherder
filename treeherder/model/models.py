@@ -1210,7 +1210,7 @@ class TextLogError(models.Model):
 
         return classification, match
 
-    def mark_best_classification(self, classification_id):
+    def mark_best_classification(self, classification):
         """
         Set the given FailureClassification as the best one
 
@@ -1219,8 +1219,6 @@ class TextLogError(models.Model):
 
         If no TextLogErrorMetadata instance exists one will be created.
         """
-        classification = ClassifiedFailure.objects.get(id=classification_id)
-
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(
                 text_log_error=self,
