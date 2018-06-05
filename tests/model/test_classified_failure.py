@@ -1,8 +1,8 @@
 from decimal import Decimal
 
-from tests.autoclassify.utils import (create_failure_lines,
-                                      create_text_log_errors,
+from tests.autoclassify.utils import (create_lines,
                                       test_line)
+from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.model.models import (ClassifiedFailure,
                                      FailureLine,
                                      TextLogErrorMatch,
@@ -61,10 +61,9 @@ def test_update_autoclassification_bug(test_job, test_job_2, classified_failures
     assert test_job.update_autoclassification_bug(1234) is None
 
     lines = [(test_line, {})]
-    create_failure_lines(test_job_2, lines)
-    error_lines = create_text_log_errors(test_job_2, lines)
+    error_lines, _ = create_lines(test_job_2, lines)
 
-    error_lines[0].mark_best_classification(classified_failures[0].id)
+    mark_best_classification(error_lines[0], classified_failures[0])
     assert classified_failure.bug_number is None
 
     metadata = TextLogErrorMetadata.objects.get(text_log_error__step__job=test_job_2)
