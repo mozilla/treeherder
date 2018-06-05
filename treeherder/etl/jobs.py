@@ -346,7 +346,8 @@ def _schedule_log_parsing(job, job_logs, result):
     task_types = {
         "errorsummary_json",
         "buildbot_text",
-        "builds-4h"
+        "builds-4h",
+        "chain-of-trust",
     }
 
     job_log_ids = []
