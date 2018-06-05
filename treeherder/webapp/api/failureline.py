@@ -45,9 +45,9 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
             ids.append((line_id, classification_id))
 
-        failure_lines = as_dict(
-            FailureLine.objects.prefetch_related('classified_failures').filter(
-                id__in=failure_line_ids), "id")
+        failure_lines = (FailureLine.objects.prefetch_related('text_log_error_metadata__text_log_error__classified_failures')
+                                            .filter(id__in=failure_line_ids))
+        failure_lines = as_dict(failure_lines, "id")
 
         if len(failure_lines) != len(failure_line_ids):
             missing = failure_line_ids - set(failure_lines.keys())
@@ -78,9 +78,10 @@ class FailureLineViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             for job in Job.objects.filter(guid__in=job_guids):
                 job.update_after_verification(user)
 
-        # Force failure line to be reloaded, including .classified_failures
-        rv = FailureLine.objects.prefetch_related('classified_failures').filter(
-            id__in=failure_line_ids)
+        # Force failure line to be reloaded, including .classified_failures via
+        # their related TextLogErrors
+        rv = (FailureLine.objects.prefetch_related('text_log_error_metadata__text_log_error__classified_failures')
+                                 .filter(id__in=failure_line_ids))
 
         if not many:
             rv = rv[0]
