@@ -95,7 +95,7 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
                 classification = None
 
             jobs.add(error_line.step.job)
-            error_line.mark_best_classification_verified(classification)
+            error_line.verify_classification(classification)
 
         for job in jobs:
             job.update_after_verification(user)

@@ -819,7 +819,7 @@ class JobNote(models.Model):
             text_log_error.set_classification("ManualDetector", classification)
 
         if len(add_bugs) == 1 and not existing_bugs:
-            text_log_error.mark_best_classification_verified(classification)
+            text_log_error.verify_classification(classification)
 
     def save(self, *args, **kwargs):
         super(JobNote, self).save(*args, **kwargs)
@@ -1188,9 +1188,15 @@ class TextLogError(models.Model):
             score=1,
         )
 
-    def mark_best_classification_verified(self, classification):
+    def verify_classification(self, classification):
+        """
+        Mark the given ClassifiedFailure as verified by a human.
+
+        Handles no related FailureLine and duplicating the data onto
+        FailureLine.
+        """
         if classification not in self.classified_failures.all():
-            self.set_classification("ManualDetector", classification=classification)
+            self.set_classification("ManualDetector", classification)
 
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
