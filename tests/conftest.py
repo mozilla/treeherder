@@ -12,6 +12,7 @@ from requests import Request
 from requests_hawk import HawkAuth
 from rest_framework.test import APIClient
 
+from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
@@ -427,11 +428,10 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
 
     for failure_line in failure_lines:
         if failure_line.job_guid == test_job.guid:
-            classified_failure = ClassifiedFailure()
-            classified_failure.save()
+            classified_failure = ClassifiedFailure.objects.create()
 
             failure_line.error.set_classification(test_matcher, classified_failure)
-            failure_line.error.mark_best_classification(classified_failure)
+            mark_best_classification(failure_line.error, classified_failure)
 
             classified_failures.append(classified_failure)
 

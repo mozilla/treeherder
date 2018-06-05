@@ -13,8 +13,6 @@ from treeherder.model.models import (Job,
 
 logger = logging.getLogger(__name__)
 
-# The minimum goodness of match we need to mark a particular match as the best match
-AUTOCLASSIFY_CUTOFF_RATIO = 0.7
 # A goodness of match after which we will not run further detectors
 AUTOCLASSIFY_GOOD_ENOUGH_RATIO = 0.9
 
@@ -71,6 +69,8 @@ def match_errors(job, matchers=None):
             return
 
         update_db(matches)
+
+        mark_best_classifications(errors)
 
         # did we find matches for every error?
         matches_over_threshold = {m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO}
@@ -131,6 +131,58 @@ def find_all_matches(text_log_error, matchers):
             )
 
 
+def get_best_match(text_log_error):
+    """
+    Get the best TextLogErrorMatch for a given TextLogErrorMatch.
+
+    Matches are further filtered by the score cut off.
+    """
+    score_cut_off = 0.7
+    return (text_log_error.matches.filter(score__gt=score_cut_off)
+                                  .order_by("-score", "-classified_failure_id")
+                                  .select_related('classified_failure')
+                                  .first())
+
+
+def mark_best_classification(text_log_error, classified_failure):
+    """
+    Wrapper for setting best_classification on both TextLogError and FailureLine.
+
+    Set the given ClassifiedFailure as best_classification for the given
+    TextLogError. Handles the duplication of best_classification on FailureLine
+    so you don't have to!
+    """
+    text_log_error.metadata.best_classification = classified_failure
+    text_log_error.metadata.save(update_fields=['best_classification'])
+
+    failure_line = text_log_error.get_failure_line()
+    if not failure_line:
+        logger.error('expected TLE={} to have a FailureLine when it does not'.format(text_log_error.id))
+        return
+
+    # TODO: remove best_classification from FailureLine
+    failure_line.best_classification = classified_failure
+    failure_line.save(update_fields=['best_classification'])
+
+    text_log_error.metadata.failure_line.elastic_search_insert()
+
+
+def mark_best_classifications(errors):
+    """
+    Convenience wrapper around mark_best_classification.
+
+    Finds the best match for each TextLogError in errors, handling no match
+    meeting the cut off score and then mark_best_classification to save that
+    information.
+    """
+    for text_log_error in errors:
+        best_match = get_best_match(text_log_error)
+        if not best_match:
+            continue
+
+        mark_best_classification(text_log_error, best_match.classified_failure)
+
+
 def update_db(matches):
     """
     Save TextLogErrorMatch instances to the DB
@@ -147,11 +199,6 @@ def update_db(matches):
                 "Tried to create duplicate match for TextLogError %i with matcher %s and classified_failure %i",
                 args,
             )
-
-        # TODO: document what this does
-        best_match = match.text_log_error.best_automatic_match(AUTOCLASSIFY_CUTOFF_RATIO)
-        if best_match:
-            match.text_log_error.mark_best_classification(match.classified_failure)
 
 
 def create_note(job, all_matched):

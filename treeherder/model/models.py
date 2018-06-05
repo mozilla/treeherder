@@ -934,13 +934,6 @@ class FailureLine(models.Model):
         except TextLogErrorMetadata.DoesNotExist:
             return None
 
-    def best_automatic_match(self, min_score=0):
-        """Find the best related match above a given minimum score."""
-        return (self.matches.filter(score__gt=min_score)
-                            .order_by("-score", "-classified_failure__id")
-                            .select_related('classified_failure')
-                            .first())
-
     def _serialized_components(self):
         if self.action == "test_result":
             return ["TEST-UNEXPECTED-%s" % self.status.upper(),
@@ -1184,15 +1177,6 @@ class TextLogError(models.Model):
         from treeherder.model import error_summary
         return error_summary.bug_suggestions_line(self)
 
-    def best_automatic_match(self, min_score=0):
-        return (TextLogErrorMatch.objects
-                .filter(text_log_error__id=self.id,
-                        score__gt=min_score)
-                .order_by("-score",
-                          "-classified_failure_id")
-                .select_related('classified_failure')
-                .first())
-
     def set_classification(self, matcher_name, classification):
         if classification is None:
             classification = ClassifiedFailure.objects.create()
@@ -1203,31 +1187,6 @@ class TextLogError(models.Model):
             matcher_name=matcher_name,
             score=1,
         )
-
-    def mark_best_classification(self, classification):
-        """
-        Set the given FailureClassification as the best one
-
-        Given an instance of FailureClassification links this TextLogError and
-        a possible FailureLine to it, denoting it's the best possible match.
-
-        If no TextLogErrorMetadata instance exists one will be created.
-        """
-        if self.metadata is None:
-            TextLogErrorMetadata.objects.create(
-                text_log_error=self,
-                best_classification=classification
-            )
-            return
-
-        self.metadata.best_classification = classification
-        self.metadata.save(update_fields=['best_classification'])
-
-        if self.metadata.failure_line:
-            self.metadata.failure_line.best_classification = classification
-            self.metadata.failure_line.save(update_fields=['best_classification'])
-
-            self.metadata.failure_line.elastic_search_insert()
 
     def mark_best_classification_verified(self, classification):
         if classification not in self.classified_failures.all():
