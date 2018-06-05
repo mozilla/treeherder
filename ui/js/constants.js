@@ -150,6 +150,7 @@ export const thPlatformMap = {
     "taskcluster-images": "Docker Images",
     packages: "Packages",
     toolchains: "Toolchains",
+    diff: "Diffoscope",
     other: "Other"
 };
 
@@ -165,6 +166,7 @@ export const thSimplePlatforms = [
     "taskcluster-images",
     "packages",
     "toolchains",
+    "diff",
 ];
 
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
