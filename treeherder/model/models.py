@@ -1193,7 +1193,7 @@ class TextLogError(models.Model):
                 .first())
 
     @transaction.atomic
-    def set_classification(self, matcher_name, classification=None, bug_number=None, mark_best=False):
+    def set_classification(self, matcher_name, classification=None, bug_number=None):
         if classification is None:
             if bug_number:
                 classification, _ = ClassifiedFailure.objects.get_or_create(
@@ -1207,9 +1207,6 @@ class TextLogError(models.Model):
             matcher_name=matcher_name,
             score=1,
         )
-
-        if mark_best:
-            self.mark_best_classification(classification.id)
 
         return classification, match
 
