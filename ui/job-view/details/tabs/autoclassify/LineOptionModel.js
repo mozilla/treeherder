@@ -1,4 +1,4 @@
-import { extendProperties } from "../../helpers/object";
+import { extendProperties } from '../../../../helpers/object';
 
 export default class LineOptionModel {
   constructor(type, id, classifiedFailureId, bugNumber,
@@ -15,7 +15,7 @@ export default class LineOptionModel {
       hidden: false,
       score: null,
       ignoreAlways: false,
-      selectable: !(type === "classifiedFailure" && !bugNumber),
+      selectable: !(type === 'classifiedFailure' && !bugNumber),
     });
   }
 }

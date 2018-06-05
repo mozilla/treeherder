@@ -5,10 +5,10 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import Highlighter from 'react-highlight-words';
 
-import { getBugUrl, getLogViewerUrl, getReftestUrl } from "../../helpers/url";
-import { isReftest } from "../../helpers/job";
-import { getSearchWords } from "../../helpers/display";
-import intermittentTemplate from '../../partials/main/intermittent.html';
+import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/url';
+import { isReftest } from '../../../../helpers/job';
+import { getSearchWords } from '../../../../helpers/display';
+import intermittentTemplate from '../../../../partials/main/intermittent.html';
 
 /**
  * Editable option
@@ -29,7 +29,7 @@ export default class LineOption extends React.Component {
   fileBug() {
     const { job, errorLine, selectedOption, optionModel, onManualBugNumberChange } = this.props;
     const repoName = this.$rootScope.repoName;
-    let logUrl = job.logs.filter(x => x.name.endsWith("_json"));
+    let logUrl = job.logs.filter(x => x.name.endsWith('_json'));
     logUrl = logUrl[0] ? logUrl[0].url : job.logs[0];
     const reftestUrl = getReftestUrl(logUrl);
     const crashSignatures = [];
@@ -37,7 +37,7 @@ export default class LineOption extends React.Component {
     const crash = errorLine.data.bug_suggestions.search.match(crashRegex);
 
     if (crash) {
-      const signature = crash[0].split("application crashed ")[1];
+      const signature = crash[0].split('application crashed ')[1];
       if (!crashSignatures.includes(signature)) {
         crashSignatures.push(signature);
       }
@@ -55,7 +55,7 @@ export default class LineOption extends React.Component {
          parsedLog: () => `${location.origin}/${getLogViewerUrl(job.id, repoName)}`,
          reftest: () => (isReftest(job) ? `${reftestUrl}&only_show_unexpected=1` : ''),
          selectedJob: () => job,
-         allFailures: () => [errorLine.data.bug_suggestions.search.split(" | ")],
+         allFailures: () => [errorLine.data.bug_suggestions.search.split(' | ')],
          crashSignatures: () => crashSignatures,
          successCallback: () => (data) => {
            const bugId = data.success;

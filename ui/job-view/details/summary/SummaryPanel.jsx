@@ -3,98 +3,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../js/treeherder';
+import treeherder from '../../../js/treeherder';
 import {
-  getBugUrl,
   getSlaveHealthUrl,
   getInspectTaskUrl,
   getWorkerExplorerUrl,
-  linkifyRevisions,
   getJobSearchStrHref,
-} from '../helpers/url';
-import { getStatus, getSearchStr } from "../helpers/job";
-import { toDateStr } from "../helpers/display";
-
-function ClassificationsPane(props) {
-  const {
-    dateFilter, repoName, ThRepositoryModel,
-    classification, job, classificationTypes, bugs,
-  } = props;
-  const repo = ThRepositoryModel.getRepo(repoName);
-  const repoURLHTML = { __html: linkifyRevisions(classification.text, repo) };
-  const failureId = classification.failure_classification_id;
-  const iconClass = (failureId === 7 ?
-    "fa-star-o" : "fa fa-star") + " star-" + job.result;
-  const classificationName = classificationTypes.classifications[failureId];
-
-  return (
-    <ul className="list-unstyled content-spacer">
-      <li>
-        <span title={classificationName.name}>
-          <i className={`fa ${iconClass}`} />
-          <span className="ml-1">{classificationName.name}</span>
-        </span>
-        {!!bugs.length &&
-          <a
-            target="_blank"
-            rel="noopener"
-            href={getBugUrl(bugs[0].bug_id)}
-            title={`View bug ${bugs[0].bug_id}`}
-          ><em> {bugs[0].bug_id}</em></a>}
-      </li>
-      {classification.text.length > 0 &&
-        <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>
-      }
-      <li className="revision-comment">
-        {dateFilter(classification.created, 'EEE MMM d, H:mm:ss')}
-      </li>
-      <li className="revision-comment">
-        {classification.who}
-      </li>
-    </ul>
-  );
-}
-
-ClassificationsPane.propTypes = {
-  dateFilter: PropTypes.func.isRequired,
-  repoName: PropTypes.string.isRequired,
-  ThRepositoryModel: PropTypes.object.isRequired,
-  classification: PropTypes.object.isRequired,
-  job: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
-  bugs: PropTypes.array,
-};
-
-ClassificationsPane.defaultProps = {
-  bugs: [],
-};
-
-function JobStatusPane(props) {
-  const { job } = props;
-  const shadingClass = `result-status-shading-${getStatus(job)}`;
-
-  return (
-    <ul className="list-unstyled">
-      <li
-        id="result-status-pane"
-        className={`small ${shadingClass}`}
-      >
-        <div>
-          <label>Result:</label>
-          <span> {job.result}</span>
-        </div>
-        <div>
-          <label>State:</label>
-          <span> {job.state}</span>
-        </div>
-      </li>
-    </ul>
-  );
-}
-
-JobStatusPane.propTypes = {
-  job: PropTypes.object.isRequired,
-};
+} from '../../../helpers/url';
+import { getSearchStr } from '../../../helpers/job';
+import { toDateStr } from '../../../helpers/display';
+import ClassificationsPanel from './ClassificationsPanel';
+import StatusPanel from './StatusPanel';
 
 function JobDetailsListItem(props) {
   const {
@@ -216,7 +135,7 @@ class JobDetailsList extends React.Component {
         timeFields.startTime = toDateStr(job.start_timestamp);
         timeFields.duration = duration;
     } else {
-        timeFields.duration = "Not started (queued for " + duration + ")";
+        timeFields.duration = `Not started (queued for ${duration})`;
     }
 
     if (job.end_timestamp) {
@@ -238,7 +157,7 @@ class JobDetailsList extends React.Component {
       buildUrl = jobLogUrls[0].buildUrl;
     }
     if (job.job_type_description) {
-      iconCircleClass = "fa fa-info-circle";
+      iconCircleClass = 'fa fa-info-circle';
     }
     return (
       <ul className="list-unstyled content-spacer">
@@ -332,7 +251,7 @@ JobDetailsList.defaultProps = {
   jobLogUrls: [],
 };
 
-class JobDetailsPane extends React.Component {
+class SummaryPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -356,7 +275,7 @@ class JobDetailsPane extends React.Component {
           </div>
         }
         {classification &&
-          <ClassificationsPane
+          <ClassificationsPanel
             job={job}
             classification={classification}
             bugs={bugs}
@@ -366,7 +285,7 @@ class JobDetailsPane extends React.Component {
             ThRepositoryModel={this.ThRepositoryModel}
           />
         }
-        <JobStatusPane
+        <StatusPanel
           job={job}
         />
         <JobDetailsList
@@ -379,7 +298,7 @@ class JobDetailsPane extends React.Component {
   }
 }
 
-JobDetailsPane.propTypes = {
+SummaryPanel.propTypes = {
   job: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
   classificationTypes: PropTypes.object.isRequired,
@@ -391,7 +310,7 @@ JobDetailsPane.propTypes = {
   buildUrl: PropTypes.string,
 };
 
-JobDetailsPane.defaultProps = {
+SummaryPanel.defaultProps = {
   jobLogUrls: [],
   jobDetailLoading: false,
   classification: null,
@@ -399,7 +318,7 @@ JobDetailsPane.defaultProps = {
   buildUrl: null,
 };
 
-treeherder.component('jobDetailsPane', react2angular(
-  JobDetailsPane,
+treeherder.component('summaryPanel', react2angular(
+  SummaryPanel,
   ['job', 'classificationTypes', 'repoName', 'jobLogUrls', 'jobDetailLoading', 'classification', 'bugs', 'buildUrl'],
   ['$injector']));

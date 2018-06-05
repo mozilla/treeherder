@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 
-import { getBugUrl } from "../../helpers/url";
-import { getSearchWords } from "../../helpers/display";
+import { getBugUrl } from '../../../../helpers/url';
+import { getSearchWords } from '../../../../helpers/display';
 
 /**
  * Non-editable best option
