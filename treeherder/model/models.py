@@ -1353,24 +1353,3 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
-
-    @classmethod
-    def create(cls, classified_failure_id, matcher_name, score, text_log_error):
-        """Create a TextLogErrorMatch and matching FailureMatch."""
-        TextLogErrorMatch.objects.create(
-            score=score,
-            matcher_name=matcher_name,
-            classified_failure_id=classified_failure_id,
-            text_log_error=text_log_error,
-        )
-
-        failure_line = text_log_error.get_failure_line()
-        if not failure_line:
-            return
-
-        FailureMatch.objects.create(
-            score=score,
-            matcher_name=matcher_name,
-            classified_failure_id=classified_failure_id,
-            failure_line=failure_line,
-        )
