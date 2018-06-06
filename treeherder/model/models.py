@@ -9,6 +9,7 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
@@ -963,6 +964,11 @@ class FailureLine(models.Model):
         index(self)
 
     def to_dict(self):
+        try:
+            metadata = self.text_log_error_metadata
+        except ObjectDoesNotExist:
+            metadata = None
+
         return {
             'id': self.id,
             'job_guid': self.job_guid,
@@ -980,8 +986,8 @@ class FailureLine(models.Model):
             'stack': self.stack,
             'stackwalk_stdout': self.stackwalk_stdout,
             'stackwalk_stderr': self.stackwalk_stderr,
-            'best_classification': self.best_classification_id,
-            'best_is_verified': self.best_is_verified,
+            'best_classification': metadata.best_classification_id if metadata else None,
+            'best_is_verified': metadata.best_is_verified if metadata else False,
             'created': self.created,
             'modified': self.modified,
         }
