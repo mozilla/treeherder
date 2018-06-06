@@ -28,8 +28,7 @@ def test_get_failure_line(client, failure_lines):
     exp_failure_keys = ["id", "job_guid", "repository", "job_log",
                         "action", "line", "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
-                        "best_classification", "best_is_verified", "classified_failures",
-                        "unstructured_bugs"]
+                        "classified_failures", "unstructured_bugs"]
 
     assert set(failure_line.keys()) == set(exp_failure_keys)
 
@@ -40,14 +39,10 @@ def test_update_failure_line_verify(test_repository,
                                     client,
                                     test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -55,21 +50,18 @@ def test_update_failure_line_verify(test_repository,
             "best_classification": classified_failures[0].id}
 
     resp = client.put(
-        reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        reverse("failure-line-detail", kwargs={"pk": error_line.metadata.failure_line.id}),
         body)
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
     error_line.refresh_from_db()
 
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = get_document(failure_line.id)
+    es_line = get_document(error_line.metadata.failure_line.id)
     assert es_line['best_classification'] == classified_failures[0].id
     assert es_line['best_is_verified']
 
@@ -82,12 +74,8 @@ def test_update_failure_line_replace(test_repository,
 
     client.force_authenticate(user=test_user)
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
-    failure_line = failure_lines[0]
+    text_log_errors, _ = text_log_errors_failure_lines
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -95,25 +83,20 @@ def test_update_failure_line_replace(test_repository,
             "best_classification": classified_failures[1].id}
 
     resp = client.put(
-        reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        reverse("failure-line-detail", kwargs={"pk": error_line.metadata.failure_line.id}),
         body)
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
     error_line.refresh_from_db()
     classified_failure = classified_failures[1]
 
-    assert failure_line.best_classification == classified_failure
-    assert failure_line.best_is_verified
-    assert failure_line.error.classified_failures.count() == 2
-    assert error_line.metadata.failure_line == failure_line
+    assert error_line.classified_failures.count() == 2
     assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert failure_line.error.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
     assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
 
 
@@ -123,7 +106,7 @@ def test_update_failure_line_mark_job(test_repository, test_job,
                                       client,
                                       test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
@@ -135,24 +118,19 @@ def test_update_failure_line_mark_job(test_repository, test_job,
     classified_failures[1].bug_number = bug.id
     classified_failures[1].save()
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
-
-        assert failure_line.best_is_verified is False
+    for text_log_error in text_log_errors:
         assert text_log_error.metadata.best_is_verified is False
 
         body = {"best_classification": classified_failures[1].id}
 
-        resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        resp = client.put(reverse("failure-line-detail", kwargs={"pk": text_log_error.metadata.failure_line.id}),
                           body)
 
         assert resp.status_code == 200
 
-        failure_line.refresh_from_db()
         text_log_error.refresh_from_db()
         text_log_error.metadata.refresh_from_db()
 
-        assert failure_line.best_classification == classified_failures[1]
-        assert failure_line.best_is_verified
         assert text_log_error.metadata.best_classification == classified_failures[1]
         assert text_log_error.metadata.best_is_verified
 
@@ -239,7 +217,6 @@ def test_update_failure_line_mark_job_with_auto_note(test_job,
 
 def test_update_failure_lines(mock_autoclassify_jobs_true,
                               test_repository,
-                              text_log_errors_failure_lines,
                               classified_failures,
                               eleven_jobs_stored,
                               client,
@@ -264,9 +241,8 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
     text_log_errors = TextLogError.objects.filter(
         step__job__in=jobs).all()
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+    for text_log_error in text_log_errors:
         assert text_log_error.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
     body = [{"id": failure_line.id,
              "best_classification": classified_failures[1].id}
@@ -275,12 +251,9 @@ def test_update_failure_lines(mock_autoclassify_jobs_true,
 
     assert resp.status_code == 200
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+    for text_log_error in text_log_errors:
         text_log_error.refresh_from_db()
         text_log_error.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
-        assert failure_line.best_classification == classified_failures[1]
-        assert failure_line.best_is_verified
         assert text_log_error.metadata.best_classification == classified_failures[1]
         assert text_log_error.metadata.best_is_verified
 
@@ -300,31 +273,25 @@ def test_update_failure_line_ignore(test_job,
                                     client,
                                     test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
     text_log_error = text_log_errors[0]
-    failure_line = failure_lines[0]
     assert text_log_error.metadata.best_classification == classified_failures[0]
     assert text_log_error.metadata.best_is_verified is False
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
 
     body = {"project": test_job.repository.name,
             "best_classification": None}
 
     resp = client.put(
-        reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        reverse("failure-line-detail", kwargs={"pk": text_log_error.metadata.failure_line.id}),
         body)
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     text_log_error.refresh_from_db()
     text_log_error.metadata.refresh_from_db()
 
-    assert failure_line.best_classification is None
-    assert failure_line.best_is_verified
     assert text_log_error.metadata.best_classification is None
     assert text_log_error.metadata.best_is_verified
 
@@ -336,41 +303,32 @@ def test_update_failure_line_all_ignore_mark_job(test_job,
                                                  client,
                                                  test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == test_job.guid]
     job_text_log_errors = [error for error in text_log_errors if
                            error.step.job == test_job]
 
-    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
+    for error_line in job_text_log_errors:
         error_line.metadata.best_is_verified = False
         error_line.metadata.best_classification = None
-        failure_line.best_is_verified = False
-        failure_line.best_classification = None
 
     assert JobNote.objects.count() == 0
 
-    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
-
+    for error_line in job_text_log_errors:
         assert error_line.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
         body = {"best_classification": None}
 
-        resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        resp = client.put(reverse("failure-line-detail", kwargs={"pk": error_line.metadata.failure_line.id}),
                           body)
 
         assert resp.status_code == 200
 
         error_line.refresh_from_db()
         error_line.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
 
-        assert failure_line.best_classification is None
-        assert failure_line.best_is_verified
         assert error_line.metadata.best_classification is None
         assert error_line.metadata.best_is_verified
 
@@ -386,32 +344,28 @@ def test_update_failure_line_partial_ignore_mark_job(test_job,
                                                      client,
                                                      test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    for i, (error_line, failure_line) in enumerate(zip(text_log_errors, failure_lines)):
+    for i, error_line in enumerate(text_log_errors):
         assert error_line.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
         body = {"best_classification": None if i == 0 else classified_failures[0].id}
 
-        resp = client.put(reverse("failure-line-detail", kwargs={"pk": failure_line.id}),
+        resp = client.put(reverse("failure-line-detail", kwargs={"pk": error_line.metadata.failure_line.id}),
                           body)
 
         assert resp.status_code == 200
 
         error_line.refresh_from_db()
         error_line.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
 
         if i == 0:
-            assert failure_line.best_classification is None
             assert error_line.metadata.best_classification is None
         else:
-            assert failure_line.best_classification == classified_failures[0]
             assert error_line.metadata.best_classification == classified_failures[0]
-        assert failure_line.best_is_verified
+        assert error_line.metadata.best_is_verified
 
     assert test_job.is_fully_verified()
 

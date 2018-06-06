@@ -142,7 +142,7 @@ def test_autoclassified_after_manual_classification(test_user,
 
     assert fl1.error.matches.count() == 1
     assert fl1.error.metadata.best_classification == fl1.error.classified_failures.first()
-    assert fl1.best_is_verified
+    assert fl1.text_log_error_metadata.best_is_verified
 
 
 def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
@@ -191,10 +191,6 @@ def test_classify_skip_ignore(test_job_2,
     text_log_errors[1].metadata.best_is_verified = True
     text_log_errors[1].metadata.best_classification = None
     text_log_errors[1].metadata.save()
-
-    failure_lines[1].best_is_verified = True
-    failure_lines[1].best_classification = None
-    failure_lines[1].save()
 
     _, test_failure_lines = create_lines(test_job_2,
                                          [(test_line, {}),

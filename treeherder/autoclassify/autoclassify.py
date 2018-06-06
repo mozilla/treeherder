@@ -154,16 +154,6 @@ def mark_best_classification(text_log_error, classified_failure):
     """
     text_log_error.metadata.best_classification = classified_failure
     text_log_error.metadata.save(update_fields=['best_classification'])
-
-    failure_line = text_log_error.get_failure_line()
-    if not failure_line:
-        logger.error('expected TLE={} to have a FailureLine when it does not'.format(text_log_error.id))
-        return
-
-    # TODO: remove best_classification from FailureLine
-    failure_line.best_classification = classified_failure
-    failure_line.save(update_fields=['best_classification'])
-
     text_log_error.metadata.failure_line.elastic_search_insert()
 
 
