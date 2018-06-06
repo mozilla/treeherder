@@ -557,14 +557,6 @@ class Job(models.Model):
             # classified this job.
             return
 
-        # Send event to NewRelic when a verifing an autoclassified failure.
-        matches = TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
-        for match in matches:
-            newrelic.agent.record_custom_event('user_verified_classification', {
-                'matcher': match.matcher_name,
-                'job_id': self.id,
-            })
-
         JobNote.create_autoclassify_job_note(job=self, user=user)
 
     def get_manual_classification_line(self):
@@ -1223,6 +1215,16 @@ class TextLogError(models.Model):
             failure_line.best_is_verified = True
             failure_line.save(update_fields=['best_classification', 'best_is_verified'])
             failure_line.elastic_search_insert()
+
+        # Send event to NewRelic when a verifing an autoclassified failure.
+        match = self.matches.filter(classified_failure=classification).first()
+        if not match:
+            return
+
+        newrelic.agent.record_custom_event('user_verified_classification', {
+            'matcher': match.matcher_name,
+            'job_id': self.id,
+        })
 
     def get_failure_line(self):
         """Get a related FailureLine instance if one exists."""
