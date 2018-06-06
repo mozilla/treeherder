@@ -310,8 +310,7 @@ def test_job_error_lines(client, eleven_jobs_stored, failure_lines, classified_f
     exp_failure_keys = ["id", "job_guid", "repository", "job_log", "action", "line",
                         "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
-                        "best_classification", "best_is_verified", "classified_failures",
-                        "unstructured_bugs"]
+                        "classified_failures", "unstructured_bugs"]
 
     assert set(failure.keys()) == set(exp_failure_keys)
 

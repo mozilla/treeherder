@@ -44,14 +44,10 @@ def test_update_error_verify(client,
                              classified_failures,
                              test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -63,15 +59,12 @@ def test_update_error_verify(client,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = get_document(failure_line.id)
+    es_line = get_document(error_line.metadata.failure_line.id)
     assert es_line['best_classification'] == classified_failures[0].id
     assert es_line['best_is_verified']
 
@@ -83,12 +76,8 @@ def test_update_error_replace(client,
                               test_user):
     client.force_authenticate(user=test_user)
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
-    failure_line = failure_lines[0]
+    text_log_errors, _ = text_log_errors_failure_lines
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -100,20 +89,15 @@ def test_update_error_replace(client,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
     classified_failure = classified_failures[1]
 
-    assert failure_line.best_classification == classified_failure
-    assert failure_line.best_is_verified
-    assert failure_line.error.classified_failures.count() == 2
-    assert error_line.metadata.failure_line == failure_line
+    assert error_line.classified_failures.count() == 2
     assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert failure_line.error.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
     assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
 
 
@@ -122,7 +106,7 @@ def test_update_error_mark_job(client,
                                text_log_errors_failure_lines,
                                classified_failures,
                                test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
@@ -133,9 +117,7 @@ def test_update_error_mark_job(client,
     classified_failures[1].bug_number = bug.id
     classified_failures[1].save()
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
-
-        assert failure_line.best_is_verified is False
+    for text_log_error in text_log_errors:
         assert text_log_error.metadata.best_is_verified is False
 
         body = {"best_classification": classified_failures[1].id}
@@ -145,11 +127,8 @@ def test_update_error_mark_job(client,
 
         assert resp.status_code == 200
 
-        failure_line.refresh_from_db()
         text_log_error.metadata.refresh_from_db()
 
-        assert failure_line.best_classification == classified_failures[1]
-        assert failure_line.best_is_verified
         assert text_log_error.metadata.best_classification == classified_failures[1]
         assert text_log_error.metadata.best_is_verified
 
@@ -258,9 +237,8 @@ def test_update_errors(client,
     text_log_errors = TextLogError.objects.filter(
         step__job__in=jobs).all()
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+    for text_log_error in text_log_errors:
         assert text_log_error.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
     body = [{"id": failure_line.id,
              "best_classification": classified_failures[1].id}
@@ -269,11 +247,8 @@ def test_update_errors(client,
 
     assert resp.status_code == 200
 
-    for text_log_error, failure_line in zip(text_log_errors, failure_lines):
+    for text_log_error in text_log_errors:
         text_log_error.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
-        assert failure_line.best_classification == classified_failures[1]
-        assert failure_line.best_is_verified
         assert text_log_error.metadata.best_classification == classified_failures[1]
         assert text_log_error.metadata.best_is_verified
 
@@ -289,15 +264,12 @@ def test_update_errors(client,
 def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
                              classified_failures, test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
     text_log_error = text_log_errors[0]
-    failure_line = failure_lines[0]
     assert text_log_error.metadata.best_classification == classified_failures[0]
     assert text_log_error.metadata.best_is_verified is False
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
 
     body = {"project": test_job.repository.name,
             "best_classification": None}
@@ -308,11 +280,8 @@ def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     text_log_error.metadata.refresh_from_db()
 
-    assert failure_line.best_classification is None
-    assert failure_line.best_is_verified
     assert text_log_error.metadata.best_classification is None
     assert text_log_error.metadata.best_is_verified
 
@@ -324,27 +293,20 @@ def test_update_error_all_ignore_mark_job(client,
                                           classified_failures,
                                           test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    job_failure_lines = [line for line in failure_lines if
-                         line.job_guid == test_job.guid]
-    job_text_log_errors = [error for error in text_log_errors if
-                           error.step.job == test_job]
+    job_text_log_errors = [error for error in text_log_errors if error.step.job == test_job]
 
-    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
+    for error_line in job_text_log_errors:
         error_line.best_is_verified = False
         error_line.best_classification = None
-        failure_line.best_is_verified = False
-        failure_line.best_classification = None
 
     assert JobNote.objects.count() == 0
 
-    for error_line, failure_line in zip(job_text_log_errors, job_failure_lines):
-
+    for error_line in job_text_log_errors:
         assert error_line.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
         body = {"best_classification": None}
 
@@ -354,12 +316,9 @@ def test_update_error_all_ignore_mark_job(client,
         assert resp.status_code == 200
 
         error_line.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
 
         assert error_line.metadata.best_classification is None
         assert error_line.metadata.best_is_verified
-        assert failure_line.best_classification is None
-        assert failure_line.best_is_verified
 
     assert test_job.is_fully_verified()
 
@@ -373,14 +332,12 @@ def test_update_error_partial_ignore_mark_job(client,
                                               classified_failures,
                                               test_user):
 
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    for i, (error_line, failure_line) in enumerate(zip(text_log_errors, failure_lines)):
-
+    for i, error_line in enumerate(text_log_errors):
         assert error_line.metadata.best_is_verified is False
-        assert failure_line.best_is_verified is False
 
         body = {"best_classification": None if i == 0 else classified_failures[0].id}
 
@@ -390,15 +347,12 @@ def test_update_error_partial_ignore_mark_job(client,
         assert resp.status_code == 200
 
         error_line.metadata.refresh_from_db()
-        failure_line.refresh_from_db()
 
         if i == 0:
             assert error_line.metadata.best_classification is None
-            assert failure_line.best_classification is None
         else:
             assert error_line.metadata.best_classification == classified_failures[0]
-            assert failure_line.best_classification == classified_failures[0]
-        assert failure_line.best_is_verified
+        assert error_line.metadata.best_is_verified
 
     assert test_job.is_fully_verified()
 
@@ -414,14 +368,10 @@ def test_update_error_verify_bug(client,
                                  text_log_errors_failure_lines,
                                  classified_failures,
                                  test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -436,15 +386,12 @@ def test_update_error_verify_bug(client,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
 
-    es_line = get_document(failure_line.id)
+    es_line = get_document(error_line.metadata.failure_line.id)
     assert es_line['best_classification'] == classified_failures[0].id
     assert es_line['best_is_verified']
 
@@ -454,14 +401,10 @@ def test_update_error_verify_new_bug(client,
                                      text_log_errors_failure_lines,
                                      classified_failures,
                                      test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -474,12 +417,8 @@ def test_update_error_verify_new_bug(client,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification not in classified_failures
-    assert failure_line.best_classification.bug_number == 78910
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification not in classified_failures
     assert error_line.metadata.best_is_verified
     assert error_line.metadata.best_classification.bug_number == 78910
@@ -490,14 +429,10 @@ def test_update_error_verify_ignore_now(client,
                                         text_log_errors_failure_lines,
                                         classified_failures,
                                         test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -510,11 +445,8 @@ def test_update_error_verify_ignore_now(client,
 
     assert resp.status_code == 200
 
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification is None
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification is None
     assert error_line.metadata.best_is_verified
 
@@ -524,16 +456,12 @@ def test_update_error_change_bug(client,
                                  text_log_errors_failure_lines,
                                  classified_failures,
                                  test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
     classified_failure = classified_failures[0]
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
 
-    assert failure_line.best_classification == classified_failure
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified is False
 
@@ -547,12 +475,7 @@ def test_update_error_change_bug(client,
     assert resp.status_code == 200
 
     classified_failure = ClassifiedFailure.objects.get(id=classified_failure.id)
-    failure_line = FailureLine.objects.get(id=failure_line.id)
     error_line = TextLogError.objects.get(id=error_line.id)
-
-    assert failure_line.best_classification == classified_failure
-    assert failure_line.best_classification.bug_number == 78910
-    assert failure_line.best_is_verified
 
     assert error_line.metadata.best_classification == classified_failure
     assert error_line.metadata.best_is_verified
@@ -564,14 +487,10 @@ def test_update_error_bug_change_cf(client,
                                     text_log_errors_failure_lines,
                                     classified_failures,
                                     test_user):
-    text_log_errors, failure_lines = text_log_errors_failure_lines
+    text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
-    failure_line = failure_lines[0]
     error_line = text_log_errors[0]
-    assert failure_line.best_classification == classified_failures[0]
-    assert failure_line.best_is_verified is False
-    assert error_line.metadata.failure_line == failure_line
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified is False
 
@@ -589,12 +508,8 @@ def test_update_error_bug_change_cf(client,
     assert resp.status_code == 200
 
     classified_failures[1].refresh_from_db()
-    failure_line.refresh_from_db()
     error_line.metadata.refresh_from_db()
 
-    assert failure_line.best_classification == classified_failures[1]
-    assert failure_line.best_classification.bug_number == 78910
-    assert failure_line.best_is_verified
     assert error_line.metadata.best_classification == classified_failures[1]
     assert error_line.metadata.best_is_verified
     assert error_line.metadata.best_classification.bug_number == 78910

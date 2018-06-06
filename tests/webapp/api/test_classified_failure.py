@@ -164,8 +164,7 @@ def test_put_existing_bug_number(client, classified_failures, test_user):
     assert classified_failures[0].bug_number == 1234
 
 
-def test_put_duplicate_bug_number(client, classified_failures, failure_lines,
-                                  test_user):
+def test_put_duplicate_bug_number(client, classified_failures, test_user):
     client.force_authenticate(user=test_user)
 
     classified_failures[0].bug_number = 1234
@@ -351,8 +350,8 @@ def test_get_matching_lines(client, test_job, failure_lines, classified_failures
     """
 
     for failure_line in failure_lines:
-        failure_line.best_classification = classified_failures[0]
-        failure_line.save()
+        failure_line.text_log_error_metadata.best_classification = classified_failures[0]
+        failure_line.text_log_error_metadata.save()
 
     extra_lines = create_failure_lines(test_job,
                                        [(test_line, {"test": "test2", "line": 2}),
