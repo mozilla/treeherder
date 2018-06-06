@@ -1033,39 +1033,67 @@ class ClassifiedFailure(models.Model):
         return Bugscache.objects.filter(id=self.bug_number).first()
 
     def set_bug(self, bug_number):
-        try:
-            existing = ClassifiedFailure.objects.get(bug_number=bug_number)
-            if existing == self:
-                return self
-            self.replace_with(existing)
-            return existing
-        except ClassifiedFailure.DoesNotExist:
-            self.bug_number = bug_number
-            self.save()
+        """
+        Set the bug number of this Classified Failure
+
+        If an existing ClassifiedFailure exists with the same bug number
+        replace this instance with the existing one.
+        """
+        if bug_number == self.bug_number:
             return self
+
+        other = ClassifiedFailure.objects.filter(bug_number=bug_number).first()
+        if not other:
+            self.bug_number = bug_number
+            self.save(update_fields=['bug_number'])
+            return self
+
+        self.replace_with(other)
+
+        return other
 
     @transaction.atomic
     def replace_with(self, other):
-        # SELECT failure_match.* FROM failure_match JOIN
-        # (SELECT * FROM failure_match
-        #  WHERE classified_failure_id = <self.id>) AS matches
-        # ON matches.classified_failure_id = <other.id> AND
-        #    matches.failure_line_id = failure_match.failue_line_id
-        delete_ids = []
-        for match in self.error_matches.all():
-            existing = TextLogErrorMatch.objects.filter(classified_failure=other, text_log_error=match.text_log_error)
-            if existing:
-                for existing_match in existing:
-                    if match.score > existing_match.score:
-                        existing_match.score = match.score
-                        existing_match.save()
-                delete_ids.append(match.id)
-            else:
-                match.classified_failure = other
-                match.save()
-        TextLogErrorMatch.objects.filter(id__in=delete_ids).delete()
-        FailureLine.objects.filter(best_classification=self).update(best_classification=other)
+        """
+        Replace this instance with the given other.
+
+        Deletes stale Match objects and updates related TextLogErrorMetadatas'
+        best_classifications to point to the given other.
+        """
+        match_ids_to_delete = list(self.update_matches(other))
+        TextLogErrorMatch.objects.filter(id__in=match_ids_to_delete).delete()
+
+        # Update best classifications
+        self.best_for_errors.update(best_classification=other)
+
         self.delete()
+
+    def update_matches(self, other):
+        """
+        Update this instance's Matches to point to the given other's Matches.
+
+        Find Matches with the same TextLogError as our Matches, updating their
+        score if less than ours and mark our matches for deletion.
+
+        If there are no other matches, update ours to point to the other
+        ClassifiedFailure.
+        """
+        for match in self.error_matches.all():
+            other_matches = TextLogErrorMatch.objects.filter(
+                classified_failure=other,
+                text_log_error=match.text_log_error,
+            )
+
+            if not other_matches:
+                match.classified_failure = other
+                match.save(update_fields=['classified_failure'])
+                continue
+
+            # if any of our matches have higher scores than other's matches,
+            # overwrite with our score.
+            other_matches.filter(score__lt=match.score).update(score=match.score)
+
+            yield match.id  # for deletion
 
     class Meta:
         db_table = 'classified_failure'
