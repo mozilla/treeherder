@@ -889,17 +889,6 @@ class FailureLine(models.Model):
     stackwalk_stdout = models.TextField(blank=True, null=True)
     stackwalk_stderr = models.TextField(blank=True, null=True)
 
-    # Note that the case of best_classification = None and best_is_verified = True
-    # has the special semantic that the line is ignored and should not be considered
-    # for future autoclassifications.
-    best_classification = models.ForeignKey("ClassifiedFailure",
-                                            related_name="best_for_lines",
-                                            null=True,
-                                            db_index=True,
-                                            on_delete=models.SET_NULL)
-
-    best_is_verified = models.BooleanField(default=False)
-
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
