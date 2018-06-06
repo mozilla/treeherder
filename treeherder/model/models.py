@@ -1018,6 +1018,11 @@ class Group(models.Model):
 
 
 class ClassifiedFailure(models.Model):
+    """
+    Classifies zero or more TextLogErrors as a failure.
+
+    Optionally linked to a bug.
+    """
     id = models.BigAutoField(primary_key=True)
     text_log_errors = models.ManyToManyField("TextLogError", through='TextLogErrorMatch',
                                              related_name='classified_failures')
