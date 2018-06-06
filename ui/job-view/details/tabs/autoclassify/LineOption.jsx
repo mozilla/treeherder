@@ -171,8 +171,8 @@ class LineOption extends React.Component {
 
         {option.type === 'classifiedFailure' && <div className="classification-matchers">
           Matched by:
-          {option.matches && option.matches.map(match => (<span key={match.matcher.id}>
-            {match.matcher.name} ({match.score})
+          {option.matches && option.matches.map(match => (<span key={match.matcher_name}>
+            {match.matcher_name} ({match.score})
           </span>))}
         </div>}
         {isBugFilerOpen && <BugFiler
