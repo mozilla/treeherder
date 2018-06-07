@@ -151,9 +151,12 @@ treeherder.factory('ThResultSetStore', [
                     jobList = _.flatten(jobList);
                     if (jobList.length > 0) {
                         lastJobUpdate = getLastModifiedJobTime(jobList);
-                        var jobListByPush = Object.values(
-                            _.groupBy(jobList, 'result_set_id')
-                        );
+                        // group joblist by 'result_set_id'
+                        var jobListByPush = jobList.reduce(function (r, v, i, a, k = v.result_set_id) {
+                            (r[k] || (r[k] = [])).push(v);
+                            return r;
+                        }, {});
+                        jobListByPush = Object.values(jobListByPush);
                         jobListByPush
                             .forEach(singlePushJobList =>
                                      mapPushJobs(singlePushJobList));

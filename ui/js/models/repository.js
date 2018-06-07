@@ -32,7 +32,11 @@ treeherder.factory('ThRepositoryModel', [
 
         const getOrderedRepoGroups = function () {
             if (!Object.keys(orderedRepoGroups).length) {
-                const groups = _.groupBy($rootScope.repos, function (r) { return r.repository_group.name; });
+                // group repos by 'repository_group.name'
+                const groups = $rootScope.repos.reduce(function (r, v, i, a, k = function (v) { return v.repository_group.name; }) {
+                    (r[k] || (r[k] = [])).push(v);
+                    return r;
+                }, {});
                 _.each(groups, function (reposAr, gName) {
                     orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
                 });
