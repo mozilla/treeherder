@@ -148,7 +148,7 @@ treeherder.factory('ThResultSetStore', [
             lastPolltime = Date.now();
             jobUpdatesPromise
                 .then(function (jobList) {
-                    jobList = jobList.reduce((a, b) => a.concat(b), []);
+                    jobList = jobList.reduce((a, b) => [...a, ...b], []);
                     if (jobList.length > 0) {
                         lastJobUpdate = getLastModifiedJobTime(jobList);
                         var jobListByPush = Object.values(

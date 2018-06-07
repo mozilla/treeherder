@@ -212,7 +212,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
             TextLogStepModel.get($scope.job_id).then((textLogSteps) => {
                 let shouldPost = true;
-                const allErrors = (textLogSteps.map(s => s.errors)).reduce((a, b) => a.concat(b), []);
+                const allErrors = (textLogSteps.map(s => s.errors)).reduce((a, b) => [...a, ...b], []);
                 const q = $location.search();
                 $scope.steps = textLogSteps;
 

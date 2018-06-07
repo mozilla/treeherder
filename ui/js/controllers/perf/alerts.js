@@ -393,7 +393,7 @@ perf.controller('AlertsCtrl', [
                 alertSummary.alerts.filter(alert => alert.selected).map(
                 alert => (_.find($scope.alertSummaries, alertSummary =>
                         alertSummary.id === alert.related_summary_id) || [])
-                )).reduce((a, b) => a.concat(b), []));
+                )).reduce((a, b) => [...a, ...b], []));
 
             alertSummary.modifySelectedAlerts({
                 status: phAlertStatusMap.UNTRIAGED.id,
@@ -485,7 +485,7 @@ perf.controller('AlertsCtrl', [
                                 return alert.summary_id;
                             }
                             return [];
-                        })).reduce((a, b) => a.concat(b), []));
+                        })).reduce((a, b) => [...a, ...b], []));
 
                 });
 

@@ -267,13 +267,13 @@ treeherder.controller('PluginCtrl', [
                         $scope.reftestUrl = `${getReftestUrl($scope.job_log_urls[0].url)}&only_show_unexpected=1`;
                     }
 
-                    const performanceData = (Object.values(results[3])).reduce((a, b) => a.concat(b), []);
+                    const performanceData = (Object.values(results[3])).reduce((a, b) => [...a, ...b], []);
                     if (performanceData) {
                         const signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
                         $q.all(_.chunk(signatureIds, 20).map(
                             signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
                         )).then((seriesListList) => {
-                            const seriesList = seriesListList.reduce((a, b) => a.concat(b), []);
+                            const seriesList = seriesListList.reduce((a, b) => [...a, ...b], []);
                             $scope.perfJobDetail = performanceData.map(d => ({
                                 series: seriesList.find(s => d.signature_id === s.id),
                                 ...d
