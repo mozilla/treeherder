@@ -244,15 +244,14 @@ perf.controller('AlertsCtrl', [
                           alert.related_summary_id !== alertSummary.id) &&
                         !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
                         !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.INVALID.id) &&
-                        $scope.filterOptions.filter.split(' ').every(
-                            function (matchText) {
-                                return !matchText ||
-                                    alert.title.toLowerCase().indexOf(
-                                        matchText.toLowerCase()) > (-1) ||
-                                    (alertSummary.bug_number && alertSummary.bug_number.toString().includes(
-                                        matchText)) ||
-                                    (alertSummary.resultSetMetadata.revision.includes(matchText));
-                            });
+                        $scope.filterOptions.filter.split(' ').every((matchText) => {
+                            return !matchText ||
+                                alert.title.toLowerCase().indexOf(
+                                    matchText.toLowerCase()) > (-1) ||
+                                (alertSummary.bug_number && alertSummary.bug_number.toString().includes(
+                                    matchText)) ||
+                                (alertSummary.resultSetMetadata.revision.includes(matchText));
+                        });
                     // reset alert's selected status if it is no longer visible
                     alert.selected = alert.selected && alert.visible;
                 });
@@ -286,7 +285,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.alertSelected = function (alertSummary) {
-            if (alertSummary.alerts.every(function (alert) {
+            if (alertSummary.alerts.every((alert) => {
                 return !alert.visible || alert.selected;
             })) {
                 alertSummary.allSelected = true;

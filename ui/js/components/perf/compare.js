@@ -64,7 +64,7 @@ treeherder.component('phCompareTable', {
             }
             return results.filter((result) => {
                 const testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
-                return ctrl.filterOptions.filter.split(' ').every(function (matchText) {
+                return ctrl.filterOptions.filter.split(' ').every((matchText) => {
                     if ($attrs.type === 'trend') {
                         return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
                     }
