@@ -86,10 +86,10 @@ perf.controller('dashCtrl', [
             }
 
             getSeriesList.then(function (seriesToMeasure) {
-                $scope.platformList = _.uniq(_.map(seriesToMeasure, 'platform'));
+                $scope.platformList = [...new Set(_.map(seriesToMeasure, 'platform'))];
                 // we just use the unadorned suite name to distinguish tests in this view
                 // (so we can mash together pgo and opt)
-                $scope.testList = _.uniq(_.map(seriesToMeasure, 'testName'));
+                $scope.testList = [...new Set(_.map(seriesToMeasure, 'testName'))];
 
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     const params = {

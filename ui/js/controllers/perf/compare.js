@@ -200,8 +200,8 @@ perf.controller('CompareResultsCtrl', [
 
                         cmap.links.push({
                             title: 'graph',
-                            href: PhCompare.getGraphsLink(_.map(_.uniq(
-                                [$scope.originalProject, $scope.newProject]), function (project) {
+                            href: PhCompare.getGraphsLink(_.map([...new Set(
+                                [$scope.originalProject, $scope.newProject])], function (project) {
                                 return {
                                     projectName: project.name,
                                     signature: oldSig,
@@ -230,8 +230,8 @@ perf.controller('CompareResultsCtrl', [
 
                         cmap.links.push({
                             title: 'graph',
-                            href: PhCompare.getGraphsLink(_.map(_.uniq(
-                                [$scope.originalProject, $scope.newProject]), function (project) {
+                            href: PhCompare.getGraphsLink(_.map([...new Set(
+                                [$scope.originalProject, $scope.newProject])], function (project) {
                                 return {
                                     projectName: project.name,
                                     signature: oldSig,
@@ -283,10 +283,10 @@ perf.controller('CompareResultsCtrl', [
                     subtests: 0,
                     framework: $scope.filterOptions.framework.id,
                 }).then((originalSeriesList) => {
-                    $scope.platformList = _.uniq(
-                        _.map(originalSeriesList, 'platform'));
-                    $scope.testList = _.uniq(
-                        _.map(originalSeriesList, 'name'));
+                    $scope.platformList = [...new Set(
+                        _.map(originalSeriesList, 'platform'))];
+                    $scope.testList = [...new Set(
+                        _.map(originalSeriesList, 'name'))];
                     return PhCompare.getResultsMap($scope.originalProject.name,
                                                    originalSeriesList,
                                                    { push_id: resultSetIds });
@@ -308,10 +308,10 @@ perf.controller('CompareResultsCtrl', [
                     }).then((newSeriesList) => {
                         $scope.platformList = _.union(
                             $scope.platformList,
-                            _.uniq(_.map(newSeriesList, 'platform')));
+                            [...new Set(_.map(newSeriesList, 'platform'))]);
                         $scope.testList = _.union(
                             $scope.testList,
-                            _.uniq(_.map(newSeriesList, 'name')));
+                            [...new Set(_.map(newSeriesList, 'name'))]);
                         return PhCompare.getResultsMap($scope.newProject.name,
                                                        newSeriesList,
                                                        { push_id: [$scope.newResultSet.id] });
@@ -327,8 +327,8 @@ perf.controller('CompareResultsCtrl', [
                     subtests: 0,
                     framework: $scope.filterOptions.framework.id
                 }).then((originalSeriesList) => {
-                    $scope.platformList = _.uniq(_.map(originalSeriesList, 'platform'));
-                    $scope.testList = _.uniq(_.map(originalSeriesList, 'name'));
+                    $scope.platformList = [...new Set(_.map(originalSeriesList, 'platform'))];
+                    $scope.testList = [...new Set(_.map(originalSeriesList, 'name'))];
                     const startDateMs = ($scope.newResultSet.push_timestamp -
                                          $scope.selectedTimeRange.value) * 1000;
                     const endDateMs = $scope.newResultSet.push_timestamp * 1000;
@@ -345,11 +345,11 @@ perf.controller('CompareResultsCtrl', [
                     }).then((newSeriesList) => {
                         $scope.platformList = _.union(
                             $scope.platformList,
-                            _.uniq(_.map(newSeriesList, 'platform'))
+                            [...new Set(_.map(newSeriesList, 'platform'))]
                         );
                         $scope.testList = _.union(
                             $scope.testList,
-                            _.uniq(_.map(newSeriesList, 'name'))
+                            [...new Set(_.map(newSeriesList, 'name'))]
                         );
                         return PhCompare.getResultsMap($scope.newProject.name,
                                                        newSeriesList,
@@ -571,10 +571,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                 if ($scope.originalRevision) {
                     cmap.links = [{
                         title: 'graph',
-                        href: PhCompare.getGraphsLink(_.map(_.uniq([
+                        href: PhCompare.getGraphsLink(_.map([...new Set([
                             $scope.originalProject,
                             $scope.newProject
-                        ]), function (project) {
+                        ])], function (project) {
                             return {
                                 projectName: project.name,
                                 signature: oldSig,
@@ -599,10 +599,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                 } else {
                     cmap.links = [{
                         title: 'graph',
-                        href: PhCompare.getGraphsLink(_.map(_.uniq([
+                        href: PhCompare.getGraphsLink(_.map([...new Set([
                             $scope.originalProject,
                             $scope.newProject
-                        ]), function (project) {
+                        ])], function (project) {
                             return {
                                 projectName: project.name,
                                 signature: oldSig,
@@ -747,7 +747,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 framework: $scope.filterOptions.framework
                             }).then(function (originalSubtestList) {
                                 $scope.pageList = _.map(originalSubtestList, 'name');
-                                $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
+                                $scope.platformList = [...new Set(_.map(originalSubtestList, 'platform'))];
                                 return PhCompare.getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
                                     { push_id: resultSetIds });
@@ -779,12 +779,12 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 parent_signature: $scope.newSignature,
                                 framework: $scope.filterOptions.framework
                             }).then(function (newSeriesList) {
-                                $scope.platformList = _.uniq(_.union(
+                                $scope.platformList = [...new Set(_.union(
                                     $scope.platformList,
-                                    _.map(newSeriesList, 'platform')));
-                                $scope.testList = _.uniq(_.union(
+                                    _.map(newSeriesList, 'platform')))];
+                                $scope.testList = [...new Set(_.union(
                                     $scope.testList,
-                                    _.map(newSeriesList, 'name')));
+                                    _.map(newSeriesList, 'name')))];
 
                                 return PhCompare.getResultsMap($scope.newProject.name,
                                     newSeriesList,
@@ -826,7 +826,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 framework: $scope.filterOptions.framework
                             }).then(function (originalSubtestList) {
                                 $scope.pageList = _.map(originalSubtestList, 'name');
-                                $scope.platformList = _.uniq(_.map(originalSubtestList, 'platform'));
+                                $scope.platformList = [...new Set(_.map(originalSubtestList, 'platform'))];
                                 const startDateMs = ($scope.newResultSet.push_timestamp -
                                                      $scope.selectedTimeRange.value) * 1000;
                                 const endDateMs = $scope.newResultSet.push_timestamp * 1000;
@@ -846,12 +846,12 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     parent_signature: $scope.newSignature,
                                     framework: $scope.filterOptions.framework
                                 }).then(function (newSeriesList) {
-                                    $scope.platformList = _.uniq(_.union(
+                                    $scope.platformList = [...new Set(_.union(
                                         $scope.platformList,
-                                        _.map(newSeriesList, 'platform')));
-                                    $scope.testList = _.uniq(_.union(
+                                        _.map(newSeriesList, 'platform')))];
+                                    $scope.testList = [...new Set(_.union(
                                         $scope.testList,
-                                        _.map(newSeriesList, 'name')));
+                                        _.map(newSeriesList, 'name')))];
 
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                         newSeriesList,

@@ -236,7 +236,7 @@ treeherder.factory('PhCompare', [
                     seriesChunk => PhSeries.getSeriesData(
                         projectName, {
                             signature_id: _.map(seriesChunk, 'id'),
-                            framework: _.uniq(_.map(seriesChunk, 'frameworkId')),
+                            framework: [...new Set(_.map(seriesChunk, 'frameworkId'))],
                             ...params
                         }).then((seriesData) => {
                             // Aggregates data from the server on a single group of values which

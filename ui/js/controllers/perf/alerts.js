@@ -478,14 +478,14 @@ perf.controller('AlertsCtrl', [
                         });
                     }
 
-                    summary.downstreamSummaryIds = _.uniq(_.flatten(
+                    summary.downstreamSummaryIds = [...new Set(_.flatten(
                         summary.alerts.map((alert) => {
                             if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                                 alert.summary_id !== summary.id) {
                                 return alert.summary_id;
                             }
                             return [];
-                        })));
+                        })))];
 
                 });
 
