@@ -33,10 +33,9 @@ treeherder.factory('ThRepositoryModel', [
         const getOrderedRepoGroups = function () {
             if (!Object.keys(orderedRepoGroups).length) {
                 // group repos by 'repository_group.name'
-                const groups = $rootScope.repos.reduce(function (r, v, i, a, k = function (v) { return v.repository_group.name; }) {
-                    (r[k] || (r[k] = [])).push(v);
-                    return r;
-                }, {});
+                const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = v => v.repository_group.name) => (
+                    { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
+                ), {});
                 _.each(groups, function (reposAr, gName) {
                     orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
                 });
