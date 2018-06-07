@@ -48,6 +48,7 @@ const thTaskcluster = (() => {
 
       task.payload.artifacts.forEach((artifact) => {
         artifact.expires = fromNow('365 days');
+        return artifact;
       });
 
       return task;
