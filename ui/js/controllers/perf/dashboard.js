@@ -93,7 +93,7 @@ perf.controller('dashCtrl', [
 
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     const params = {
-                        signature_id: seriesChunk.map(serie => serie.id),
+                        signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
                     };
                     if ($scope.revision) {
@@ -296,7 +296,7 @@ perf.controller('dashSubtestCtrl', [
 
                 return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
                     const params = {
-                        signature_id: seriesChunk.map(serie => serie.id),
+                        signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
                     };
                     if ($scope.revision) {

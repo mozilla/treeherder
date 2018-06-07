@@ -235,8 +235,8 @@ treeherder.factory('PhCompare', [
                 return $q.all(_.chunk(seriesList, 40).map(
                     seriesChunk => PhSeries.getSeriesData(
                         projectName, {
-                            signature_id: seriesChunk.map(serie => serie.id),
-                            framework: [...new Set(seriesChunk.map(serie => serie.frameworkId))],
+                            signature_id: seriesChunk.map(series => series.id),
+                            framework: [...new Set(seriesChunk.map(series => series.frameworkId))],
                             ...params,
                         }).then((seriesData) => {
                             // Aggregates data from the server on a single group of values which
@@ -296,7 +296,8 @@ treeherder.factory('PhCompare', [
                                 t => (((Date.now() / 1000.0) -
                                         resultSet.push_timestamp) < t
                                 ))
-                            )));
+                            )
+                        ));
                     } else {
                         graphsLink += '&timerange=' + timeRange;
                     }
