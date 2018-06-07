@@ -244,7 +244,7 @@ perf.controller('AlertsCtrl', [
                           alert.related_summary_id !== alertSummary.id) &&
                         !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
                         !($scope.filterOptions.hideDwnToInv && alert.status === phAlertStatusMap.INVALID.id) &&
-                        _.every($scope.filterOptions.filter.split(' '),
+                        $scope.filterOptions.filter.split(' ').every(
                             function (matchText) {
                                 return !matchText ||
                                     alert.title.toLowerCase().indexOf(
@@ -286,7 +286,7 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.alertSelected = function (alertSummary) {
-            if (_.every(alertSummary.alerts, function (alert) {
+            if (alertSummary.alerts.every(function (alert) {
                 return !alert.visible || alert.selected;
             })) {
                 alertSummary.allSelected = true;
