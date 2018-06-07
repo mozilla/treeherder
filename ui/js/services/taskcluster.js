@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
 
 const thTaskcluster = (() => {
@@ -47,8 +46,9 @@ const thTaskcluster = (() => {
       task.created = fromNow(0);
       task.deadline = fromNow('1 day');
 
-      _.map(task.payload.artifacts, function (artifact) {
+      task.payload.artifacts.map(function (artifact) {
         artifact.expires = fromNow('365 days');
+        return artifact;
       });
 
       return task;

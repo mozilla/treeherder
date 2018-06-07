@@ -263,7 +263,7 @@ treeherder.factory('ThRepositoryModel', [
                             },
                         };
 
-                        $rootScope.repos = _.map(data, function (datum) {
+                        $rootScope.repos = data.map(function (datum) {
                             return new Repo(datum);
                         });
 

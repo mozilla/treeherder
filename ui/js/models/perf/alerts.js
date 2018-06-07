@@ -131,9 +131,8 @@ treeherder.factory('PhAlerts', [
                     resultStr += '\n';
                 }
                 resultStr += 'Regressions:\n\n' +
-                             _.map(regressed, function (alert) {
-                                 return formatAlert(alert, regressed);
-                             }).join('\n') + '\n';
+                             regressed.map(alert => formatAlert(alert, regressed)).join('\n') + 
+                             '\n';
             }
             if (improved.length > 0) {
                 // Add a newline if we displayed some regressions
@@ -141,9 +140,8 @@ treeherder.factory('PhAlerts', [
                     resultStr += '\n';
                 }
                 resultStr += 'Improvements:\n\n' +
-                             _.map(improved, function (alert) {
-                                 return formatAlert(alert, improved);
-                             }).join('\n') + '\n';
+                             improved.map(alert => formatAlert(alert, improved)).join('\n') + 
+                             '\n';
             }
             // include link to alert if getting text for clipboard only
             if (copySummary) {
@@ -161,10 +159,9 @@ treeherder.factory('PhAlerts', [
 
             // just treat related (reassigned or downstream) alerts as one
             // big block -- we'll display in the UI depending on their content
-            this.alerts = _.map(this.alerts.concat(this.related_alerts),
-                function (alertData) {
-                    return new Alert(alertData, optionCollectionMap);
-                });
+            this.alerts = this.alerts.concat(this.related_alerts).map(function (alertData) {
+                return new Alert(alertData, optionCollectionMap);
+            });
         };
         AlertSummary.prototype.updateStatus = function (newStatus) {
             const alertSummary = this;
@@ -205,8 +202,8 @@ treeherder.factory('PhAlerts', [
             }
 
             if (alertsInSummary.length > 1) {
-                title = _.min(_.map(alertsInSummary, 'amount_pct')) + ' - ' +
-                    _.max(_.map(alertsInSummary, 'amount_pct')) + '%';
+                title = _.min(alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
+                    _.max(alertsInSummary.map(alert => alert.amount_pct)) + '%';
             } else if (alertsInSummary.length === 1) {
                 title = alertsInSummary[0].amount_pct + '%';
             } else {
@@ -214,14 +211,10 @@ treeherder.factory('PhAlerts', [
             }
             // add test info
             title += ' ' + [...new Set(
-                _.map(alertsInSummary, function (a) {
-                    return PhSeries.getTestName(a.series_signature);
-                }))].sort().join(' / ');
+                alertsInSummary.map(a => PhSeries.getTestName(a.series_signature)))].sort().join(' / ');
             // add platform info
             title += ' (' + [...new Set(
-                _.map(alertsInSummary, function (a) {
-                    return a.series_signature.machine_platform;
-                }))].sort().join(', ') + ')';
+                alertsInSummary.map(a => a.series_signature.machine_platform))].sort().join(', ') + ')';
             return title;
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
@@ -336,7 +329,7 @@ treeherder.factory('PhAlerts', [
                     function (optionCollectionMap) {
                         return $http.get(href).then(function (response) {
                             return {
-                                results: _.map(response.data.results, function (alertSummaryData) {
+                                results: response.data.results.map(function (alertSummaryData) {
                                     return new AlertSummary(alertSummaryData, optionCollectionMap);
                                 }),
                                 next: response.data.next,

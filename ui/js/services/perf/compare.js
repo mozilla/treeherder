@@ -235,8 +235,8 @@ treeherder.factory('PhCompare', [
                 return $q.all(_.chunk(seriesList, 40).map(
                     seriesChunk => PhSeries.getSeriesData(
                         projectName, {
-                            signature_id: _.map(seriesChunk, 'id'),
-                            framework: [...new Set(_.map(seriesChunk, 'frameworkId'))],
+                            signature_id: seriesChunk.map(serie => serie.id),
+                            framework: [...new Set(seriesChunk.map(serie => serie.frameworkId))],
                             ...params,
                         }).then((seriesData) => {
                             // Aggregates data from the server on a single group of values which
@@ -277,13 +277,13 @@ treeherder.factory('PhCompare', [
 
             getGraphsLink: function (seriesList, resultSets, timeRange) {
                 let graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
-                    series: _.map(seriesList, function (series) {
+                    series: seriesList.map(function (series) {
                         return [
                             series.projectName,
                             series.signature, 1,
                             series.frameworkId];
                     }),
-                    highlightedRevisions: _.map(resultSets, function (resultSet) {
+                    highlightedRevisions: resultSets.map(function (resultSet) {
                         return resultSet.revision.slice(0, 12);
                     }),
                 });
@@ -291,15 +291,14 @@ treeherder.factory('PhCompare', [
                 if (resultSets) {
                     if (!timeRange) {
                         graphsLink += '&timerange=' + _.max(
-                        _.map(resultSets,
-                              function (resultSet) {
-                                  return _.find(
-                                      _.map(phTimeRanges, 'value'),
-                                      function (t) {
-                                          return ((Date.now() / 1000.0) -
-                                                  resultSet.push_timestamp) < t;
-                                      });
-                              }));
+                        resultSets.map(function (resultSet) {
+                            return _.find(
+                                phTimeRanges.map(range => range.value),
+                                function (t) {
+                                    return ((Date.now() / 1000.0) -
+                                        resultSet.push_timestamp) < t;
+                                });
+                        }));
                     } else {
                         graphsLink += '&timerange=' + timeRange;
                     }
