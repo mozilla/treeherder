@@ -1005,7 +1005,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             })).then(function (seriesList) {
                 // we get a list of lists because we are getting the results
                 // of multiple promises, filter that down to one flat list
-                seriesList = _.flatten(seriesList);
+                seriesList = seriesList.reduce((a, b) => [...a, ...b], []);
 
                 // filter out tests which are already displayed
                 $scope.testsToAdd = seriesList.filter(series =>
