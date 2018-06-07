@@ -389,11 +389,11 @@ perf.controller('AlertsCtrl', [
         $scope.resetAlerts = function (alertSummary) {
             // We need to update not only the summary when resetting the alert,
             // but other summaries affected by the change
-            const summariesToUpdate = [alertSummary].concat(_.flatten(
+            const summariesToUpdate = [alertSummary].concat((
                 alertSummary.alerts.filter(alert => alert.selected).map(
                 alert => (_.find($scope.alertSummaries, alertSummary =>
                         alertSummary.id === alert.related_summary_id) || [])
-                )));
+                )).reduce((a, b) => a.concat(b), []));
 
             alertSummary.modifySelectedAlerts({
                 status: phAlertStatusMap.UNTRIAGED.id,
@@ -478,14 +478,14 @@ perf.controller('AlertsCtrl', [
                         });
                     }
 
-                    summary.downstreamSummaryIds = _.uniq(_.flatten(
+                    summary.downstreamSummaryIds = _.uniq((
                         summary.alerts.map((alert) => {
                             if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                                 alert.summary_id !== summary.id) {
                                 return alert.summary_id;
                             }
                             return [];
-                        })));
+                        })).reduce((a, b) => a.concat(b), []));
 
                 });
 

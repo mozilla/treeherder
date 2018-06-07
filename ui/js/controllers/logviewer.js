@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl, getReftestUrl } from "../../helpers/url";
 import { isReftest } from "../../helpers/job";
@@ -214,7 +212,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
             TextLogStepModel.get($scope.job_id).then((textLogSteps) => {
                 let shouldPost = true;
-                const allErrors = _.flatten(textLogSteps.map(s => s.errors));
+                const allErrors = (textLogSteps.map(s => s.errors)).reduce((a, b) => a.concat(b), []);
                 const q = $location.search();
                 $scope.steps = textLogSteps;
 
