@@ -9,16 +9,21 @@ treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
     'ThRepositoryModel', 'thPinboard', 'thTabs', '$document',
     'thClassificationTypes', '$interval', '$window',
-    'thJobFilters', 'ThResultSetStore',
+    'thJobFilters', 'ThResultSetStore', 'thNotify',
     '$http',
     '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $location, $timeout, $q,
         ThRepositoryModel, thPinboard, thTabs, $document,
         thClassificationTypes, $interval, $window,
-        thJobFilters, ThResultSetStore,
+        thJobFilters, ThResultSetStore, thNotify,
         $http,
         $httpParamSerializer) {
+
+        if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
+          thNotify.send('Firefox ESR52 is not supported. Please update to ESR60 or ideally release/beta/nightly.',
+                        'danger', { sticky: true });
+        }
 
         /*
          *  revisionPollInterval: How often we check revision.txt for changes
