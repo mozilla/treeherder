@@ -89,7 +89,13 @@ input {
   max-width: 100% !important;
 }
 
+ul {
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
 .failure_li {
   max-width: 800px;
-  text-decoration: none;
+  list-style-type: none;
+  text-align: left;
 }

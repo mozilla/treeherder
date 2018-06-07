@@ -31,7 +31,7 @@ export default class BugLogColumn extends React.Component {
 
   render() {
     const { value, original } = this.props;
-    const { tooltipOpen } = this.state;
+    const { tooltipOpen, target } = this.state;
     return (
       <div>
         <span ref={this.updateTarget}>
@@ -42,17 +42,19 @@ export default class BugLogColumn extends React.Component {
           </a>
         </span>
 
-        {this.state.target && original.lines.length > 0 &&
+        {target && original.lines.length > 0 &&
         <Tooltip
           placement="left"
           isOpen={tooltipOpen}
-          target={this.state.target}
+          target={target}
           toggle={this.toggle}
           className="tooltip"
         >
-          {original.lines.map(line => (
-            <li key={line} className="failure_li text-truncate">{line}</li>
-          ))}
+          <ul>
+            {original.lines.map(line => (
+              <li key={line} className="failure_li text-truncate">{line}</li>
+            ))}
+          </ul>
         </Tooltip>}
       </div>
     );
