@@ -268,7 +268,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
                     // Build a mapping of buildbot buildername to taskcluster tasklabel for bbb tasks
                     const builderToTask = _.omit(_.invert(_.mapValues(graph, 'task.payload.buildername')), [undefined]);
-                    const allLabels = _.keys(graph);
+                    const allLabels = Object.keys(graph);
 
                     const tclabels = [];
 
