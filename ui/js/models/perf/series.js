@@ -9,7 +9,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
     const _getTestName = function (signatureProps) {
         // only return suite name if testname is identical, and handle
         // undefined test name
-        return [...new Set(_.filter([signatureProps.suite, signatureProps.test]))].join(" ");
+        return [...new Set([signatureProps.suite, signatureProps.test].filter(item => item))].join(" ");
     };
 
     const _getSeriesOptions = function (signatureProps, optionCollectionMap) {

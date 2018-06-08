@@ -557,14 +557,6 @@ class Job(models.Model):
             # classified this job.
             return
 
-        # Send event to NewRelic when a verifing an autoclassified failure.
-        matches = TextLogErrorMatch.objects.filter(text_log_error__step__job=self)
-        for match in matches:
-            newrelic.agent.record_custom_event('user_verified_classification', {
-                'matcher': match.matcher_name,
-                'job_id': self.id,
-            })
-
         JobNote.create_autoclassify_job_note(job=self, user=user)
 
     def get_manual_classification_line(self):
@@ -815,10 +807,11 @@ class JobNote(models.Model):
             return
 
         for bug_number in add_bugs:
-            classification, _ = text_log_error.set_classification("ManualDetector",
-                                                                  bug_number=bug_number)
+            classification, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug_number)
+            text_log_error.create_match("ManualDetector", classification)
+
         if len(add_bugs) == 1 and not existing_bugs:
-            text_log_error.mark_best_classification_verified(classification)
+            text_log_error.verify_classification(classification)
 
     def save(self, *args, **kwargs):
         super(JobNote, self).save(*args, **kwargs)
@@ -933,13 +926,6 @@ class FailureLine(models.Model):
         except TextLogErrorMetadata.DoesNotExist:
             return None
 
-    def best_automatic_match(self, min_score=0):
-        """Find the best related match above a given minimum score."""
-        return (self.matches.filter(score__gt=min_score)
-                            .order_by("-score", "-classified_failure__id")
-                            .select_related('classified_failure')
-                            .first())
-
     def _serialized_components(self):
         if self.action == "test_result":
             return ["TEST-UNEXPECTED-%s" % self.status.upper(),
@@ -1024,6 +1010,11 @@ class Group(models.Model):
 
 
 class ClassifiedFailure(models.Model):
+    """
+    Classifies zero or more TextLogErrors as a failure.
+
+    Optionally linked to a bug.
+    """
     id = models.BigAutoField(primary_key=True)
     text_log_errors = models.ManyToManyField("TextLogError", through='TextLogErrorMatch',
                                              related_name='classified_failures')
@@ -1183,66 +1174,31 @@ class TextLogError(models.Model):
         from treeherder.model import error_summary
         return error_summary.bug_suggestions_line(self)
 
-    def best_automatic_match(self, min_score=0):
-        return (TextLogErrorMatch.objects
-                .filter(text_log_error__id=self.id,
-                        score__gt=min_score)
-                .order_by("-score",
-                          "-classified_failure_id")
-                .select_related('classified_failure')
-                .first())
+    def create_match(self, matcher_name, classification):
+        """
+        Create a TextLogErrorMatch instance
 
-    @transaction.atomic
-    def set_classification(self, matcher_name, classification=None, bug_number=None, mark_best=False):
+        Typically used for manual "matches" or tests.
+        """
         if classification is None:
-            if bug_number:
-                classification, _ = ClassifiedFailure.objects.get_or_create(
-                    bug_number=bug_number)
-            else:
-                classification = ClassifiedFailure.objects.create()
+            classification = ClassifiedFailure.objects.create()
 
-        match = TextLogErrorMatch.objects.create(
+        TextLogErrorMatch.objects.create(
             text_log_error=self,
             classified_failure=classification,
             matcher_name=matcher_name,
             score=1,
         )
 
-        if mark_best:
-            self.mark_best_classification(classification.id)
-
-        return classification, match
-
-    def mark_best_classification(self, classification_id):
+    def verify_classification(self, classification):
         """
-        Set the given FailureClassification as the best one
+        Mark the given ClassifiedFailure as verified by a human.
 
-        Given an instance of FailureClassification links this TextLogError and
-        a possible FailureLine to it, denoting it's the best possible match.
-
-        If no TextLogErrorMetadata instance exists one will be created.
+        Handles no related FailureLine and duplicating the data onto
+        FailureLine.
         """
-        classification = ClassifiedFailure.objects.get(id=classification_id)
-
-        if self.metadata is None:
-            TextLogErrorMetadata.objects.create(
-                text_log_error=self,
-                best_classification=classification
-            )
-            return
-
-        self.metadata.best_classification = classification
-        self.metadata.save(update_fields=['best_classification'])
-
-        if self.metadata.failure_line:
-            self.metadata.failure_line.best_classification = classification
-            self.metadata.failure_line.save(update_fields=['best_classification'])
-
-            self.metadata.failure_line.elastic_search_insert()
-
-    def mark_best_classification_verified(self, classification):
         if classification not in self.classified_failures.all():
-            self.set_classification("ManualDetector", classification=classification)
+            self.create_match("ManualDetector", classification)
 
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
@@ -1259,6 +1215,16 @@ class TextLogError(models.Model):
             failure_line.best_is_verified = True
             failure_line.save(update_fields=['best_classification', 'best_is_verified'])
             failure_line.elastic_search_insert()
+
+        # Send event to NewRelic when a verifing an autoclassified failure.
+        match = self.matches.filter(classified_failure=classification).first()
+        if not match:
+            return
+
+        newrelic.agent.record_custom_event('user_verified_classification', {
+            'matcher': match.matcher_name,
+            'job_id': self.id,
+        })
 
     def get_failure_line(self):
         """Get a related FailureLine instance if one exists."""
