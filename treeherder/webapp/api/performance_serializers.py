@@ -96,8 +96,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                                                               validated_data)
 
     def get_classifier_email(self, performance_alert):
-        return performance_alert.classifier.email
-
+        return getattr(performance_alert.classifier, 'email', None)
 
     class Meta:
         model = PerformanceAlert
