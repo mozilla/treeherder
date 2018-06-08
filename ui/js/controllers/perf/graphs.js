@@ -1105,7 +1105,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                                             projectName: test.projectName,
                                             signature: test.signature });
                                     });
-                                $scope.loadingTestData = false;
+                                $scope.$apply($scope.loadingTestData = false);
                             });
                 };
 
