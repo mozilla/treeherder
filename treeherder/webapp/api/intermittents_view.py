@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from rest_framework import generics
@@ -5,7 +7,8 @@ from rest_framework import generics
 from treeherder.model.models import (BugJobMap,
                                      Job,
                                      OptionCollection,
-                                     Push)
+                                     Push,
+                                     TextLogError)
 from treeherder.webapp.api.pagination import CustomPagePagination
 from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
@@ -51,11 +54,23 @@ class FailuresByBug(generics.ListAPIView):
                                       .values('job__repository__name', 'job__machine_platform__platform',
                                               'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
                                               'job__signature__job_type_name', 'job__option_collection_hash',
-                                              'job__machine__name').order_by('-job__push__time'))
+                                              'job__machine__name')
+                                      .order_by('-job__push__time'))
+
+        lines = (TextLogError.objects.filter(step__job_id__in=queryset.values_list('job_id', flat=True),
+                                             line__contains='TEST-UNEXPECTED-FAIL')
+                                     .values_list('step__job_id', 'line'))
+
+        grouped_lines = defaultdict(list)
+        for job_id, line in lines:
+            if line is not None:
+                grouped_lines[job_id].append(line)
 
         hash_list = []
 
         for item in queryset:
+            item['lines'] = grouped_lines.get(item['job_id'], [])
+
             match = filter(lambda x: item['job__option_collection_hash'] == x, hash_list)
             if not match:
                 hash_list.append(item['job__option_collection_hash'])

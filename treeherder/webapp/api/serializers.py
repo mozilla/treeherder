@@ -288,10 +288,14 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
     push_time = serializers.CharField(source="job__push__time")
     build_type = serializers.CharField()
     machine_name = serializers.CharField(source="job__machine__name")
+    lines = serializers.ListField(
+        child=serializers.CharField()
+    )
 
     class Meta:
         model = models.BugJobMap
-        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id', 'bug_id', 'machine_name')
+        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id',
+                  'bug_id', 'machine_name', 'lines')
 
 
 class FailureCountSerializer(serializers.ModelSerializer):

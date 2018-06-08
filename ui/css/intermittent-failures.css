@@ -80,3 +80,22 @@ input {
 .hide {
   visibility: hidden;
 }
+
+.tooltip > .tooltip-inner {
+  background-color: lightgray;
+  color: black;
+  font-size: 14px;  
+  border: 1px solid lightgray;
+  max-width: 100% !important;
+}
+
+ul {
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.failure_li {
+  max-width: 800px;
+  list-style-type: none;
+  text-align: left;
+}
