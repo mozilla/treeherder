@@ -17,7 +17,9 @@ import BugLogColumn from './BugLogColumn';
 class BugDetailsView extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      bugNotFound: false,
+    };
     this.updateData = this.updateData.bind(this);
     this.setQueryParams = this.setQueryParams.bind(this);
   }
@@ -38,9 +40,15 @@ class BugDetailsView extends React.Component {
 
       updateQueryParams('/bugdetails', queryString, history, this.props.location);
     }
-    if (Object.keys(bugzillaData).length !== 0 && bugzillaData.bugs[0].summary !== summary) {
-      updateBugDetails(bugzillaData.bugs[0].id, bugzillaData.bugs[0].summary, 'BUG_DETAILS');
+
+    if (bugzillaData.bugs && !this.state.bugNotFound) {
+      if (bugzillaData.bugs.length === 0) {
+        this.setState({ bugNotFound: true });
+      } else if (bugzillaData.bugs[0].summary !== summary) {
+        updateBugDetails(bugzillaData.bugs[0].id, bugzillaData.bugs[0].summary, 'BUG_DETAILS');
+      }
     }
+
   }
 
   setQueryParams() {
@@ -155,30 +163,34 @@ class BugDetailsView extends React.Component {
           <Col xs="12" className="mx-auto"><p className="text-secondary">{bugDetails.count} total failures</p></Col>
         </Row>}
 
-        {!graphFailureMessage && graphOneData && graphTwoData ?
-          <GraphsContainer
-            graphOneData={graphOneData}
-            graphTwoData={graphTwoData}
-            name="BUG_DETAILS"
-            tree={tree}
-            graphName="BUG_DETAILS_GRAPHS"
-            tableApi={bugDetailsEndpoint}
-            params={params}
-            graphApi={graphsEndpoint}
-            bugId={bugId}
-            dateOptions
-          /> : <p>{tableFailureMessage}</p>}
+        {this.state.bugNotFound ?
+          <div className="pt-3">Can&apos;t find data for this bug.</div> :
+          <React.Fragment>
+            {!graphFailureMessage && graphOneData && graphTwoData ?
+              <GraphsContainer
+                graphOneData={graphOneData}
+                graphTwoData={graphTwoData}
+                name="BUG_DETAILS"
+                tree={tree}
+                graphName="BUG_DETAILS_GRAPHS"
+                tableApi={bugDetailsEndpoint}
+                params={params}
+                graphApi={graphsEndpoint}
+                bugId={bugId}
+                dateOptions
+              /> : <p>{tableFailureMessage}</p>}
 
-        {!tableFailureMessage || (bugDetails && bugId) ?
-          <GenericTable
-            bugs={bugDetails.results}
-            columns={columns}
-            name="BUG_DETAILS"
-            tableApi={bugDetailsEndpoint}
-            totalPages={bugDetails.total_pages}
-            params={params}
-            bugId={bugId}
-          /> : <p>{tableFailureMessage}</p>}
+            {!tableFailureMessage || (bugDetails && bugId) ?
+              <GenericTable
+                bugs={bugDetails.results}
+                columns={columns}
+                name="BUG_DETAILS"
+                tableApi={bugDetailsEndpoint}
+                totalPages={bugDetails.total_pages}
+                params={params}
+                bugId={bugId}
+              /> : <p>{tableFailureMessage}</p>}
+          </React.Fragment>}
       </Container>);
   }
 }
