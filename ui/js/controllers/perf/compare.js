@@ -206,8 +206,7 @@ perf.controller('CompareResultsCtrl', [
                                     signature: oldSig,
                                     frameworkId: $scope.filterOptions.framework.id,
                                 })), 
-                                [$scope.originalResultSet,
-                                $scope.newResultSet]),
+                                [$scope.originalResultSet, $scope.newResultSet]),
                         });
                     } else {
                         if (hasSubtests) {
