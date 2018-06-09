@@ -200,7 +200,7 @@ treeherder.controller('BugFilerCtrl', [
                     }
                     $scope.searching = false;
                     $scope.suggestedProducts = [];
-                    $scope.suggestedProducts = data.products.map(function (prod) {
+                    $scope.suggestedProducts = data.products.map((prod) => {
                         if (prod.product && prod.component) {
                             return prod.product + ' :: ' + prod.component;
                         }

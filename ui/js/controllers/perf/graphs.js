@@ -411,9 +411,9 @@ perf.controller('GraphsCtrl', [
                 // highlight the datapoints too
                 series.highlightedPoints = _.union(
                     series.highlightedPoints,
-                    series.flotSeries.resultSetData.map(function (seriesResultSetId, index) {
-                        return resultSetId === seriesResultSetId ? index : null;
-                    }).filter(v => v));
+                    series.flotSeries.resultSetData.map((seriesResultSetId, index) => (
+                        resultSetId === seriesResultSetId ? index : null
+                    )).filter(v => v));
             }
 
             if ($scope.highlightAlerts) {
@@ -604,7 +604,7 @@ perf.controller('GraphsCtrl', [
                         label: series.projectName + ' ' + series.name,
                         data: seriesData[series.signature].map(dataPoint => ([
                             new Date(dataPoint.push_timestamp*1000),
-                            dataPoint.value,
+                            dataPoint.value
                         ])),
                         resultSetData: seriesData[series.signature].map(dataPoint => dataPoint.push_id),
                         thSeries: $.extend({}, series),

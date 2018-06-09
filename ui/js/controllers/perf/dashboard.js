@@ -320,9 +320,7 @@ perf.controller('dashSubtestCtrl', [
                         });
                 })).then(function () {
                     $scope.dataLoading = false;
-                    const subtestNames = resultsMap.base.map(function (results) {
-                        return results.name;
-                    });
+                    const subtestNames = resultsMap.base.map(results => results.name);
                     subtestNames.forEach(function (subtestName) {
                         const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
                             return resultsMap.base[sig].name === subtestName;
@@ -337,14 +335,11 @@ perf.controller('dashSubtestCtrl', [
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',
-                                href: PhCompare.getGraphsLink(
-                                        [baseSig, variantSig].map(function (sig) {
-                                            return {
-                                                projectName: $scope.selectedRepo.name,
-                                                signature: sig,
-                                                frameworkId: $scope.framework,
-                                            };
-                                        })),
+                                href: PhCompare.getGraphsLink([baseSig, variantSig].map(sig => ({
+                                    projectName: $scope.selectedRepo.name,
+                                    signature: sig,
+                                    frameworkId: $scope.framework,
+                                })))
                             }];
 
                             if (!$scope.compareResults[summaryTestName]) {

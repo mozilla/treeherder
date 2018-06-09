@@ -147,7 +147,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             getResultSetJobs: function (resultSetIdList, repoName, locationParams) {
-                return resultSetIdList.map(function (resultSetId) {
+                return resultSetIdList.map((resultSetId) => {
                     const params = {
                         return_type: 'list',
                         result_set_id: resultSetId,

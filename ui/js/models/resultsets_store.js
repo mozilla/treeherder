@@ -885,9 +885,9 @@ treeherder.factory('ThResultSetStore', [
 
         var getLastModifiedJobTime = function (jobList) {
             if (jobList.length > 0) {
-                return _.max(jobList.map(function (job) {
-                    return new Date(job.last_modified + 'Z');
-                }));
+                return _.max(jobList.map(job => (
+                    new Date(job.last_modified + 'Z')
+                )));
             }
             return undefined;
         };

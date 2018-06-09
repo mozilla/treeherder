@@ -131,8 +131,9 @@ treeherder.factory('PhAlerts', [
                     resultStr += '\n';
                 }
                 resultStr += 'Regressions:\n\n' +
-                             regressed.map(alert => formatAlert(alert, regressed)).join('\n') + 
-                             '\n';
+                             regressed.map(alert => (
+                                 formatAlert(alert, regressed)
+                             )).join('\n') + '\n';
             }
             if (improved.length > 0) {
                 // Add a newline if we displayed some regressions
@@ -140,8 +141,9 @@ treeherder.factory('PhAlerts', [
                     resultStr += '\n';
                 }
                 resultStr += 'Improvements:\n\n' +
-                             improved.map(alert => formatAlert(alert, improved)).join('\n') + 
-                             '\n';
+                             improved.map(alert => (
+                                formatAlert(alert, improved)
+                             )).join('\n') + '\n';
             }
             // include link to alert if getting text for clipboard only
             if (copySummary) {
@@ -159,9 +161,9 @@ treeherder.factory('PhAlerts', [
 
             // just treat related (reassigned or downstream) alerts as one
             // big block -- we'll display in the UI depending on their content
-            this.alerts = this.alerts.concat(this.related_alerts).map(function (alertData) {
-                return new Alert(alertData, optionCollectionMap);
-            });
+            this.alerts = this.alerts.concat(this.related_alerts).map(alertData => (
+                new Alert(alertData, optionCollectionMap)
+            ));
         };
         AlertSummary.prototype.updateStatus = function (newStatus) {
             const alertSummary = this;
@@ -211,10 +213,12 @@ treeherder.factory('PhAlerts', [
             }
             // add test info
             title += ' ' + [...new Set(
-                alertsInSummary.map(a => PhSeries.getTestName(a.series_signature)))].sort().join(' / ');
+                    alertsInSummary.map(a => PhSeries.getTestName(a.series_signature))
+                )].sort().join(' / ');
             // add platform info
             title += ' (' + [...new Set(
-                alertsInSummary.map(a => a.series_signature.machine_platform))].sort().join(', ') + ')';
+                    alertsInSummary.map(a => a.series_signature.machine_platform)
+                )].sort().join(', ') + ')';
             return title;
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
@@ -329,9 +333,9 @@ treeherder.factory('PhAlerts', [
                     function (optionCollectionMap) {
                         return $http.get(href).then(function (response) {
                             return {
-                                results: response.data.results.map(function (alertSummaryData) {
-                                    return new AlertSummary(alertSummaryData, optionCollectionMap);
-                                }),
+                                results: response.data.results.map(alertSummaryData => (
+                                    new AlertSummary(alertSummaryData, optionCollectionMap)
+                                )),
                                 next: response.data.next,
                                 count: response.data.count,
                             };

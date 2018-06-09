@@ -263,9 +263,7 @@ treeherder.factory('ThRepositoryModel', [
                             },
                         };
 
-                        $rootScope.repos = data.map(function (datum) {
-                            return new Repo(datum);
-                        });
+                        $rootScope.repos = data.map(datum => new Repo(datum));
 
                         _.each(data, addRepoAsUnwatched);
 

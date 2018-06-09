@@ -277,28 +277,26 @@ treeherder.factory('PhCompare', [
 
             getGraphsLink: function (seriesList, resultSets, timeRange) {
                 let graphsLink = 'perf.html#/graphs?' + $httpParamSerializer({
-                    series: seriesList.map(function (series) {
-                        return [
-                            series.projectName,
-                            series.signature, 1,
-                            series.frameworkId];
-                    }),
-                    highlightedRevisions: resultSets.map(function (resultSet) {
-                        return resultSet.revision.slice(0, 12);
-                    }),
+                    series: seriesList.map(series => ([
+                        series.projectName,
+                        series.signature, 1,
+                        series.frameworkId,
+                    ])),
+                    highlightedRevisions: resultSets.map(resultSet => (
+                        resultSet.revision.slice(0, 12)
+                    ))
                 });
 
                 if (resultSets) {
                     if (!timeRange) {
                         graphsLink += '&timerange=' + _.max(
-                        resultSets.map(function (resultSet) {
-                            return _.find(
+                        resultSets.map(resultSet => (
+                            _.find(
                                 phTimeRanges.map(range => range.value),
-                                function (t) {
-                                    return ((Date.now() / 1000.0) -
-                                        resultSet.push_timestamp) < t;
-                                });
-                        }));
+                                t => (((Date.now() / 1000.0) -
+                                        resultSet.push_timestamp) < t
+                                ))
+                            )));
                     } else {
                         graphsLink += '&timerange=' + timeRange;
                     }

@@ -46,7 +46,7 @@ const thTaskcluster = (() => {
       task.created = fromNow(0);
       task.deadline = fromNow('1 day');
 
-      task.payload.artifacts.map(function (artifact) {
+      task.payload.artifacts.map((artifact) => {
         artifact.expires = fromNow('365 days');
         return artifact;
       });
