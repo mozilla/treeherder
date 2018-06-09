@@ -775,7 +775,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             }).then(function (newSeriesList) {
                                 $scope.platformList = [...new Set(_.union(
                                     $scope.platformList,
-                                    newSeriesList.map(series => series.platform)));
+                                    newSeriesList.map(series => series.platform)))];
                                 $scope.testList = [...new Set(_.union(
                                     $scope.testList,
                                     newSeriesList.map(series => series.name)))];
@@ -842,7 +842,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 }).then(function (newSeriesList) {
                                     $scope.platformList = [...new Set(_.union(
                                         $scope.platformList,
-                                        newSeriesList.map(series => series.platform)));
+                                        newSeriesList.map(series => series.platform)))];
                                     $scope.testList = [...new Set(_.union(
                                         $scope.testList,
                                         newSeriesList.map(series => series.name)))];
