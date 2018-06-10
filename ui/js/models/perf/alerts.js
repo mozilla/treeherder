@@ -64,9 +64,9 @@ treeherder.factory('PhAlerts', [
                              modification);
         };
         Object.values(phAlertStatusMap).forEach((status) => {
-            Alert.prototype['is' + _.capitalize(status.text)] = function () {
-                return this.status === status.id;
-            };
+            Alert.prototype['is' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => (
+                this.status === status.id
+            );
         });
         Alert.prototype.toggleStar = function () {
             const alert = this;
@@ -89,10 +89,10 @@ treeherder.factory('PhAlerts', [
                              modification);
         };
         Object.values(phAlertSummaryStatusMap).forEach((status) => {
-            AlertSummary.prototype['is' + _.capitalize(status.text)] = function () {
-                return this.status === status.id;
-            };
-            AlertSummary.prototype['mark' + _.capitalize(status.text)] = function () {
+            AlertSummary.prototype['is' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => (
+                this.status === status.id
+            );
+            AlertSummary.prototype['mark' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => {
                 this.updateStatus(status);
             };
         });
