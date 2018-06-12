@@ -259,7 +259,7 @@ perf.controller('CompareResultsCtrl', [
             });
 
             // Remove the tests with no data, report them as well; not needed for subtests
-            $scope.testNoResults = _.difference($scope.testList, Object.keys($scope.compareResults)).sort().join();
+            $scope.testNoResults = Array.from(new Set($scope.testList.filter(x => !Object.keys($scope.compareResults).includes(x)))).sort().join();
             $scope.testList = Object.keys($scope.compareResults).sort().concat([noiseMetricTestName]);
             $scope.titles[noiseMetricTestName] = noiseMetricTestName;
         }

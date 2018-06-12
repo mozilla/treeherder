@@ -362,8 +362,8 @@ treeherder.factory('thJobFilters', [
 
         function toggleResultStatuses(resultStatuses) {
             let rsValues = _getFiltersOrDefaults(RESULT_STATUS);
-            if (_.difference(resultStatuses, rsValues).length === 0) {
-                rsValues = _.difference(rsValues, resultStatuses);
+            if (Array.from(new Set(resultStatuses.filter(x => !rsValues.includes(x)))).length === 0) {
+                rsValues = Array.from(new Set(rsValues.filter(x => !resultStatuses.includes(x))));
             } else {
                 rsValues = [...new Set(rsValues.concat(resultStatuses))];
             }
@@ -524,7 +524,7 @@ treeherder.factory('thJobFilters', [
             field = _withoutPrefix(field);
             if (DEFAULTS.hasOwnProperty(field)) {
                 return values.length === DEFAULTS[field].length &&
-                    _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
+                    Array.from(new Set(DEFAULTS[field].filter(x => values.includes(x)))).length === DEFAULTS[field].length;
             }
             return false;
         }
