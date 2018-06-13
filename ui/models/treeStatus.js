@@ -6,7 +6,7 @@ export default class TreeStatusModel {
     // we use, so translate them.  pretty hacky, yes...
     // TODO: Move these to the repository fixture in the service.
     return name.includes("comm-") && name !== "try-comm-central" ?
-      `${name}-thunderbird"` : name;
+      `${name}-thunderbird` : name;
   }
 
   // the inverse of getTreeStatusName.  Seems like overhead to put this one
