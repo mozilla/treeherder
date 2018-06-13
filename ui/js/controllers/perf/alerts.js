@@ -476,15 +476,14 @@ perf.controller('AlertsCtrl', [
                         });
                     }
 
-                    summary.downstreamSummaryIds = _.uniq((
-                        summary.alerts.map((alert) => {
-                            if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
-                                alert.summary_id !== summary.id) {
-                                return alert.summary_id;
-                            }
-                            return [];
-                        })).reduce((a, b) => [...a, ...b], []));
-
+                    summary.downstreamSummaryIds = [...new Set((
+                      summary.alerts.map((alert) => {
+                        if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+                            alert.summary_id !== summary.id) {
+                          return alert.summary_id;
+                        }
+                        return [];
+                      })).reduce((a, b) => [...a, ...b], []))];
                 });
 
                 // update master list + visibility

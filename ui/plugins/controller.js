@@ -269,7 +269,7 @@ treeherder.controller('PluginCtrl', [
 
                     const performanceData = (Object.values(results[3])).reduce((a, b) => [...a, ...b], []);
                     if (performanceData) {
-                        const signatureIds = _.uniq(_.map(performanceData, 'signature_id'));
+                        const signatureIds = [...new Set(_.map(performanceData, 'signature_id'))];
                         $q.all(_.chunk(signatureIds, 20).map(
                             signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
                         )).then((seriesListList) => {

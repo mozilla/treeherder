@@ -280,7 +280,7 @@ treeherder.factory('thJobFilters', [
                 // set the value to an array
                 newQsVal = _toArray(oldQsVal);
                 newQsVal.push(value);
-                newQsVal = _.uniq(newQsVal);
+                newQsVal = [...new Set(newQsVal)];
             } else {
                 newQsVal = value;
             }
@@ -366,7 +366,7 @@ treeherder.factory('thJobFilters', [
             if (_.difference(resultStatuses, rsValues).length === 0) {
                 rsValues = _.difference(rsValues, resultStatuses);
             } else {
-                rsValues = _.uniq(rsValues.concat(resultStatuses));
+                rsValues = [...new Set(rsValues.concat(resultStatuses))];
             }
             // remove all query string params for this field if we match the defaults
             if (_matchesDefaults(RESULT_STATUS, rsValues)) {

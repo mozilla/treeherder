@@ -212,15 +212,15 @@ treeherder.factory('PhAlerts', [
                 title = "Empty alert";
             }
             // add test info
-            title += " " + _.uniq(
+            title += " " + [...new Set(
                 _.map(alertsInSummary, function (a) {
                     return PhSeries.getTestName(a.series_signature);
-                })).sort().join(' / ');
+                }))].sort().join(' / ');
             // add platform info
-            title += " (" + _.uniq(
+            title += " (" + [...new Set(
                 _.map(alertsInSummary, function (a) {
                     return a.series_signature.machine_platform;
-                })).sort().join(', ') + ')';
+                }))].sort().join(', ') + ')';
             return title;
         };
         AlertSummary.prototype.assignBug = function (taskNumber, issueTrackerId) {
