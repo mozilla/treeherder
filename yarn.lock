@@ -129,21 +129,21 @@ angular-marked@1.2.2:
   dependencies:
     marked "^0.3.3"
 
-angular-mocks@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.0.tgz#4957aaf966b6fc36edd6ac381a60814f7c05de3f"
+angular-mocks@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.2.tgz#8a2bc7a7ce355697a48ab00e548b88e78f71fa52"
 
-angular-resource@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.7.0.tgz#356f92cafd68ded59862d7af34ddf8c08ac414b4"
+angular-resource@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.7.2.tgz#36d1ddf40682b98f7a95803d63a64cc4ce5672a8"
 
-angular-route@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.7.0.tgz#37cbe8ddb58a331624d0a33e59c17e7254854e08"
+angular-route@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.7.2.tgz#a24b7a0c8ef09a3d4e2ca20de7f84e0e857a61ae"
 
-angular-sanitize@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.7.0.tgz#8ff2870fa3f6d4d0e0647900dbc01258ebeee1c1"
+angular-sanitize@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/angular-sanitize/-/angular-sanitize-1.7.2.tgz#e9f6e6a3e966c479c02dbc5712bee6de031f8eef"
 
 angular-ui-router@0.4.3:
   version "0.4.3"
@@ -155,7 +155,11 @@ angular1-ui-bootstrap4@2.4.22:
   version "2.4.22"
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
 
-angular@1.7.0, angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
+angular@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.2.tgz#687b955dbe5c533f8d73460461707af00360251f"
+
+angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.0.tgz#e45d679fc8d81040a4894c7ccc16a4e1ad0a9ca6"
 
