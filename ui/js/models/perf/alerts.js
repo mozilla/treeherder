@@ -199,8 +199,9 @@ treeherder.factory('PhAlerts', [
             // the summary should only incorporate those. if there
             // aren't, then use all of them (that aren't downstream,
             // see above)
-            if (_.some(_.map(alertsInSummary, 'is_regression'))) {
-                alertsInSummary = alertsInSummary.filter(alert => alert.is_regression);
+            const regressions = alertsInSummary.filter(alert => alert.is_regression);
+            if (regressions.length > 0) {
+                alertsInSummary = regressions;
             }
 
             if (alertsInSummary.length > 1) {
