@@ -7,14 +7,18 @@
   ],
   "ignoreDeps": [
     "deepmerge",
+    "eslint",
     "eslint-config-airbnb",
+    "eslint-plugin-import",
     "eslint-plugin-jsx-a11y",
     "eslint-plugin-react",
+    "html-loader",
+    "karma",
     "neutrino",
     "neutrino-lint-base",
     "neutrino-preset-karma",
     "neutrino-preset-react",
-    "raw-loader"
+    "react-hot-loader"
   ],
   "reviewers": [
     "@mozilla/treeherder-admins"
