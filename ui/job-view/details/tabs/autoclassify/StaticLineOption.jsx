@@ -2,23 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 
-import { getBugUrl } from '../../../../helpers/url';
 import { getSearchWords } from '../../../../helpers/display';
+import { getBugUrl } from '../../../../helpers/url';
 
 /**
  * Non-editable best option
  */
 export default function StaticLineOption(props) {
   const {
-    job,
-    canClassify,
-    errorLine,
-    option,
-    numOptions,
-    setEditable,
-    ignoreAlways,
-    manualBugNumber,
-    pinBoard,
+    job, canClassify, errorLine, option, numOptions, setEditable, ignoreAlways,
+    manualBugNumber, pinnedJobs, addBug,
   } = props;
 
   const optionCount = numOptions - 1;
@@ -33,10 +26,10 @@ export default function StaticLineOption(props) {
       </div>
 
       {!!option.bugNumber && <span className="line-option-text">
-        {!canClassify || pinBoard.isPinned(job) &&
+        {(!canClassify || job.id in pinnedJobs) &&
           <button
             className="btn btn-xs btn-light-bordered"
-            onClick={() => pinBoard.addBug({ id: option.bugNumber }, job)}
+            onClick={() => addBug({ id: option.bugNumber }, job)}
             title="add to list of bugs to associate with all pinned jobs"
           ><i className="fa fa-thumb-tack" /></button>}
         {!!option.bugResolution &&
@@ -86,11 +79,12 @@ StaticLineOption.propTypes = {
   job: PropTypes.object.isRequired,
   errorLine: PropTypes.object.isRequired,
   option: PropTypes.object.isRequired,
-  pinBoard: PropTypes.object.isRequired,
   numOptions: PropTypes.number.isRequired,
   ignoreAlways: PropTypes.bool.isRequired,
   canClassify: PropTypes.bool.isRequired,
   setEditable: PropTypes.func.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
+  addBug: PropTypes.func.isRequired,
   manualBugNumber: PropTypes.number,
 };
 

@@ -14,7 +14,7 @@ export class RevisionList extends React.PureComponent {
     const { push, repo } = this.props;
 
     return (
-      <span className="revision-list col-5">
+      <span className="revision-list col-5" data-job-clear-on-click>
         <ul className="list-unstyled">
           {push.revisions.map(revision =>
             (<Revision
@@ -47,7 +47,6 @@ export function MoreRevisionsLink(props) {
     <li>
       <a
         href={props.href}
-        data-ignore-job-clear-on-click
         target="_blank"
         rel="noopener"
       >{`\u2026and more`}<i className="fa fa-external-link-square" /></a>

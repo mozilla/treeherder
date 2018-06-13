@@ -22,8 +22,8 @@ def test_filter_jobs_by_keywords_from_job_panel(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
     page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     page.all_jobs[0].click()
-    keywords = page.info_panel.job_details.keywords
-    page.info_panel.job_details.filter_by_keywords()
+    keywords = page.details_panel.job_details.keywords
+    page.details_panel.job_details.filter_by_keywords()
     page.wait.until(lambda _: len(page.all_jobs) < len(test_jobs))
     assert page.quick_filter_term == keywords.lower()
 

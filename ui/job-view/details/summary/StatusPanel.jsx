@@ -4,29 +4,27 @@ import PropTypes from 'prop-types';
 import { getStatus } from '../../../helpers/job';
 
 export default function StatusPanel(props) {
-  const { job } = props;
-  const shadingClass = `result-status-shading-${getStatus(job)}`;
+  const { selectedJob } = props;
+  const shadingClass = `result-status-shading-${getStatus(selectedJob)}`;
 
   return (
-    <ul className="list-unstyled">
-      <li
-        id="result-status-pane"
-        className={`small ${shadingClass}`}
-      >
-        <div>
-          <label>Result:</label>
-          <span> {job.result}</span>
-        </div>
-        <div>
-          <label>State:</label>
-          <span> {job.state}</span>
-        </div>
-      </li>
-    </ul>
+    <li
+      id="result-status-pane"
+      className={`small ${shadingClass}`}
+    >
+      <div>
+        <label>Result:</label>
+        <span> {selectedJob.result}</span>
+      </div>
+      <div>
+        <label>State:</label>
+        <span> {selectedJob.state}</span>
+      </div>
+    </li>
   );
 }
 
 StatusPanel.propTypes = {
-  job: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
 };
 

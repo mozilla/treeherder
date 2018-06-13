@@ -23,7 +23,7 @@ def test_pin_job(base_url, selenium, test_jobs, method):
     page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     page.all_jobs[0].click()
     assert len(page.pinboard.jobs) == 0
-    page.info_panel.job_details.pin_job(method)
+    page.details_panel.job_details.pin_job(method)
     assert len(page.pinboard.jobs) == 1
     assert page.pinboard.jobs[0].symbol == page.all_jobs[0].symbol
 
@@ -32,7 +32,7 @@ def test_clear_pinboard(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
     page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))
     page.all_jobs[0].click()
-    page.info_panel.job_details.pin_job()
+    page.details_panel.job_details.pin_job()
     assert len(page.pinboard.jobs) == 1
     page.pinboard.clear()
     assert len(page.pinboard.jobs) == 0

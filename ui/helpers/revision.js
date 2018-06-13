@@ -21,3 +21,7 @@ export const isSHA = function isSHA(str) {
   }
   return true;
 };
+
+export const isSHAorCommit = function isSHAorCommit(str) {
+  return /^[a-f\d]{12,40}$/.test(str) || str.includes('hg.mozilla.org');
+};

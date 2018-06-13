@@ -3,26 +3,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup } from 'reactstrap';
 
+import { thEvents } from '../../../../js/constants';
+import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
+import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
+
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
 import StaticLineOption from './StaticLineOption';
-import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
-import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
-import { thEvents } from '../../../../js/constants';
-
 
 const GOOD_MATCH_SCORE = 0.75;
 const BAD_MATCH_SCORE = 0.25;
 
 export default class ErrorLine extends React.Component {
-
   constructor(props) {
     super(props);
 
-    const { $injector, errorLine, setEditable } = this.props;
+    const { errorLine, setEditable, $injector } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thPinboard = $injector.get('thPinboard');
     this.bestOption = null;
 
     let options = [];
@@ -55,17 +53,23 @@ export default class ErrorLine extends React.Component {
   }
 
   componentDidMount() {
-    this.$rootScope.$on(thEvents.autoclassifySelectOption,
-                   (ev, key) => this.onEventSelectOption(key));
+    this.autoclassifySelectOptionUnlisten = this.$rootScope.$on(thEvents.autoclassifySelectOption,
+      (ev, key) => this.onEventSelectOption(key));
 
-    this.$rootScope.$on(thEvents.autoclassifyIgnore,
+    this.autoclassifyIgnoreUnlisten = this.$rootScope.$on(thEvents.autoclassifyIgnore,
                    () => this.onEventIgnore());
 
-    this.$rootScope.$on(thEvents.autoclassifyToggleExpandOptions,
+    this.autoclassifyToggleExpandOptionsUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleExpandOptions,
                    () => this.onEventToggleExpandOptions());
 
     this.onOptionChange = this.onOptionChange.bind(this);
     this.onManualBugNumberChange = this.onManualBugNumberChange.bind(this);
+  }
+
+  componentWillUnmount() {
+    this.autoclassifySelectOptionUnlisten();
+    this.autoclassifyIgnoreUnlisten();
+    this.autoclassifyToggleExpandOptionsUnlisten();
   }
 
   /**
@@ -484,21 +488,11 @@ export default class ErrorLine extends React.Component {
 
   render() {
     const {
-      errorLine,
-      job,
-      canClassify,
-      isSelected,
-      isEditable,
-      setEditable,
-      $injector,
-      toggleSelect,
+      errorLine, job, canClassify, isSelected, isEditable, setEditable,
+      $injector, toggleSelect, pinnedJobs, addBug,
     } = this.props;
     const {
-      messageExpanded,
-      showHidden,
-      selectedOption,
-      options,
-      extraOptions,
+      messageExpanded, showHidden, selectedOption, options, extraOptions,
     } = this.state;
 
     const failureLine = errorLine.data.metadata.failure_line;
@@ -598,8 +592,9 @@ export default class ErrorLine extends React.Component {
                       canClassify={canClassify}
                       onOptionChange={this.onOptionChange}
                       ignoreAlways={option.ignoreAlways}
+                      pinnedJobs={pinnedJobs}
+                      addBug={addBug}
                       $injector={$injector}
-                      pinBoard={this.thPinboard}
                     />
                   </li>))}
               </ul>
@@ -625,7 +620,8 @@ export default class ErrorLine extends React.Component {
                       manualBugNumber={option.manualBugNumber}
                       ignoreAlways={option.ignoreAlways}
                       $injector={$injector}
-                      pinBoard={this.thPinboard}
+                      pinnedJobs={pinnedJobs}
+                      addBug={addBug}
                     />
                   </li>))}
               </ul>}
@@ -639,10 +635,11 @@ export default class ErrorLine extends React.Component {
               option={selectedOption}
               numOptions={options.length}
               canClassify={canClassify}
-              pinBoard={this.thPinboard}
               setEditable={setEditable}
               ignoreAlways={selectedOption.ignoreAlways}
               manualBugNumber={selectedOption.manualBugNumber}
+              pinnedJobs={pinnedJobs}
+              addBug={addBug}
             />
           </div>}
         </div>
@@ -661,6 +658,8 @@ ErrorLine.propTypes = {
   setEditable: PropTypes.func.isRequired,
   canClassify: PropTypes.bool.isRequired,
   $injector: PropTypes.object.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
+  addBug: PropTypes.func.isRequired,
   errorMatchers: PropTypes.object,
   prevErrorLine: PropTypes.object,
 };

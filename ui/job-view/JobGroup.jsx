@@ -16,7 +16,6 @@ class GroupSymbol extends React.PureComponent {
     return (
       <button
         className="btn group-symbol"
-        data-ignore-job-clear-on-click
         onClick={toggleExpanded}
       >{groupSymbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
       </button>

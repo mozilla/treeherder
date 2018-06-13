@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../../../js/treeherder';
 import { getCompareChooserUrl } from '../../../helpers/url';
 
-class PerformanceTab extends React.PureComponent {
+export default class PerformanceTab extends React.PureComponent {
 
   render() {
     const { repoName, revision, perfJobDetail } = this.props;
@@ -52,7 +50,3 @@ PerformanceTab.defaultProps = {
   perfJobDetail: [],
   revision: '',
 };
-
-treeherder.component('performanceTab', react2angular(
-  PerformanceTab,
-  ['repoName', 'revision', 'perfJobDetail']));

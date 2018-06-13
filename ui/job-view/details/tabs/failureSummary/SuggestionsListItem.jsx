@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import BugListItem from './BugListItem';
 import { thBugSuggestionLimit } from '../../../../js/constants';
+
+import BugListItem from './BugListItem';
 
 export default class SuggestionsListItem extends React.Component {
   constructor(props) {
@@ -20,16 +21,16 @@ export default class SuggestionsListItem extends React.Component {
 
   render() {
     const {
-      suggestion, selectedJob, $timeout, pinboardService, fileBug, index
+      suggestion, selectedJob, toggleBugFiler, addBug,
     } = this.props;
     const { suggestionShowMore } = this.state;
 
     return (
       <li>
-        <div className="job-tabs-content">
+        <div>
           <span
             className="btn btn-xs btn-light-bordered link-style"
-            onClick={() => fileBug(index)}
+            onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
           >
             <i className="fa fa-bug" />
@@ -45,9 +46,8 @@ export default class SuggestionsListItem extends React.Component {
               key={bug.id}
               bug={bug}
               selectedJob={selectedJob}
-              pinboardService={pinboardService}
               suggestion={suggestion}
-              $timeout={$timeout}
+              addBug={addBug}
             />))}
 
         </ul>}
@@ -68,11 +68,10 @@ export default class SuggestionsListItem extends React.Component {
                 key={bug.id}
                 bug={bug}
                 selectedJob={selectedJob}
-                pinboardService={pinboardService}
                 suggestion={suggestion}
-                $timeout={$timeout}
-                bugClassName={bug.resolution !== "" ? "deleted" : ""}
-                title={bug.resolution !== "" ? bug.resolution : ""}
+                bugClassName={bug.resolution !== '' ? 'deleted' : ''}
+                title={bug.resolution !== '' ? bug.resolution : ''}
+                addBug={addBug}
               />))}
           </ul>}
 
@@ -87,8 +86,6 @@ export default class SuggestionsListItem extends React.Component {
 SuggestionsListItem.propTypes = {
   suggestion: PropTypes.object.isRequired,
   selectedJob: PropTypes.object.isRequired,
-  $timeout: PropTypes.func.isRequired,
-  pinboardService: PropTypes.object.isRequired,
-  fileBug: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired,
+  addBug: PropTypes.func.isRequired,
+  toggleBugFiler: PropTypes.func.isRequired,
 };

@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 
-import { getBtnClass, getStatus } from '../../../helpers/job';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
+import { getBtnClass, getStatus } from '../../../helpers/job';
 import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
-import treeherder from '../../../js/treeherder';
-import { thEvents } from '../../../js/constants';
 import JobModel from '../../../models/job';
 import TextLogStepModel from '../../../models/textLogStep';
 
-class SimilarJobsTab extends React.Component {
+export default class SimilarJobsTab extends React.Component {
   constructor(props) {
     super(props);
 
@@ -18,11 +15,9 @@ class SimilarJobsTab extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.thNotify = $injector.get('thNotify');
-    this.thTabs = $injector.get('thTabs');
     this.thClassificationTypes = $injector.get('thClassificationTypes');
 
     this.pageSize = 20;
-    this.tab = this.thTabs.tabs.similarJobs;
 
     this.state = {
       similarJobs: [],
@@ -31,7 +26,6 @@ class SimilarJobsTab extends React.Component {
       page: 1,
       selectedSimilarJob: null,
       hasNextPage: false,
-      selectedJob: null,
       isLoading: true,
     };
 
@@ -47,18 +41,12 @@ class SimilarJobsTab extends React.Component {
     this.showNext = this.showNext.bind(this);
     this.toggleFilter = this.toggleFilter.bind(this);
 
-    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (event, job) => {
-      this.setState({ selectedJob: job, similarJobs: [], isLoading: true }, this.getSimilarJobs);
-    });
-  }
-
-  componentWillUnmount() {
-    this.jobClickUnlisten();
+    this.getSimilarJobs();
   }
 
   async getSimilarJobs() {
-    const { page, selectedJob, similarJobs, selectedSimilarJob } = this.state;
-    const { repoName } = this.props;
+    const { page, similarJobs, selectedSimilarJob } = this.state;
+    const { repoName, selectedJob } = this.props;
     const options = {
       // get one extra to detect if there are more jobs that can be loaded (hasNextPage)
       count: this.pageSize + 1,
@@ -146,8 +134,8 @@ class SimilarJobsTab extends React.Component {
     const selectedSimilarJobId = selectedSimilarJob ? selectedSimilarJob.id : null;
 
     return (
-      <div className="similar_jobs w-100">
-        <div className="left_panel">
+      <div className="similar-jobs w-100">
+        <div className="similar-job-list">
           <table className="table table-super-condensed table-hover">
             <thead>
               <tr>
@@ -194,7 +182,7 @@ class SimilarJobsTab extends React.Component {
             onClick={this.showNext}
           >Show previous jobs</button>}
         </div>
-        <div className="right_panel">
+        <div className="similar-job-detail-panel">
           <form className="form form-inline">
             <div className="checkbox">
               <input
@@ -293,8 +281,3 @@ SimilarJobsTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
 };
-
-treeherder.component('similarJobsTab', react2angular(
-  SimilarJobsTab,
-  ['repoName'],
-  ['$injector']));

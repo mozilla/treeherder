@@ -28,8 +28,6 @@ const serviceContext = require.context('../../../ui/js/services', true, /^\.\/.*
 serviceContext.keys().forEach(serviceContext);
 const componentContext = require.context('../../../ui/js/components', true, /^\.\/.*\.jsx?$/);
 componentContext.keys().forEach(componentContext);
-const pluginContext = require.context('../../../ui/plugins', true, /^\.\/.*\.jsx?$/);
-pluginContext.keys().forEach(pluginContext);
 
 const testContext = require.context('./', true, /^\.\/.*\.tests\.jsx?$/);
 testContext.keys().forEach(testContext);

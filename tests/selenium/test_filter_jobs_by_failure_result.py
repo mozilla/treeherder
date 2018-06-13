@@ -25,4 +25,4 @@ def test_filter_jobs_by_failure_result(base_url, selenium, test_jobs, result):
         getattr(filters, 'toggle_{}_jobs'.format(result))()
     assert len(page.all_jobs) == 1
     page.all_jobs[0].click()
-    assert page.info_panel.job_details.result == result
+    assert page.details_panel.job_details.result == result

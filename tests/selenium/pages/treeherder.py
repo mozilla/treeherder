@@ -95,8 +95,8 @@ class Treeherder(Base):
         self._get_next(50)
 
     @property
-    def info_panel(self):
-        return self.InfoPanel(self)
+    def details_panel(self):
+        return self.DetailsPanel(self)
 
     def _keyboard_shortcut(self, shortcut):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(shortcut)
@@ -123,14 +123,14 @@ class Treeherder(Base):
 
     def select_next_unclassified_job(self):
         self._keyboard_shortcut('n')
-        self.wait.until(lambda _: self.info_panel.is_open)
+        self.wait.until(lambda _: self.details_panel.is_open)
 
     def select_previous_job(self):
         self._keyboard_shortcut(Keys.ARROW_LEFT)
 
     def select_previous_unclassified_job(self):
         self._keyboard_shortcut('p')
-        self.wait.until(lambda _: self.info_panel.is_open)
+        self.wait.until(lambda _: self.details_panel.is_open)
 
     def select_repository(self, name):
         self.find_element(*self._repo_menu_locator).click()
@@ -230,8 +230,8 @@ class Treeherder(Base):
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
         _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
-        _set_bottom_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(6)')
-        _set_top_of_range_locator = (By.CSS_SELECTOR, 'ul.dropdown-menu > li:nth-child(5)')
+        _set_bottom_of_range_locator = (By.CLASS_NAME, 'bottom-of-range-menu-item')
+        _set_top_of_range_locator = (By.CLASS_NAME, 'top-of-range-menu-item')
 
         @property
         def author(self):
@@ -288,7 +288,7 @@ class Treeherder(Base):
 
             def click(self):
                 self.root.click()
-                self.wait.until(lambda _: self.page.info_panel.is_open)
+                self.wait.until(lambda _: self.page.details_panel.is_open)
 
             @property
             def selected(self):
@@ -334,10 +334,10 @@ class Treeherder(Base):
         def comment(self):
             return self.find_element(*self._comment_locator).text
 
-    class InfoPanel(Region):
+    class DetailsPanel(Region):
 
-        _root_locator = (By.ID, 'info-panel')
-        _close_locator = (By.CSS_SELECTOR, '.info-panel-navbar-controls a')
+        _root_locator = (By.ID, 'details-panel')
+        _close_locator = (By.CSS_SELECTOR, '.details-panel-close-btn')
         _loading_locator = (By.CSS_SELECTOR, '.overlay')
 
         def close(self, method='pointer'):
@@ -355,13 +355,13 @@ class Treeherder(Base):
 
         @property
         def job_details(self):
-            return self.JobDetails(self.page)
+            return self.SummaryPanel(self.page)
 
-        class JobDetails(Region):
+        class SummaryPanel(Region):
 
-            _root_locator = (By.ID, 'job-details-panel')
+            _root_locator = (By.ID, 'summary-panel')
             _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
-            _log_viewer_locator = (By.ID, 'logviewer-btn')
+            _log_viewer_locator = (By.CLASS_NAME, 'logviewer-btn')
             _pin_job_locator = (By.ID, 'pin-job-btn')
             _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
@@ -399,7 +399,7 @@ class Treeherder(Base):
     class Pinboard(Region):
 
         _root_locator = (By.ID, 'pinboard-panel')
-        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(5) a')
+        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(3) a')
         _jobs_locator = (By.CLASS_NAME, 'pinned-job')
         _save_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .save-btn-dropdown')
 
