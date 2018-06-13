@@ -11,6 +11,10 @@
     "yarn": "1.7.0"
   },
   "dependencies": {
+    "@types/angular": "1.6.46",
+    "@types/prop-types": "15.5.3",
+    "@types/react": "16.3.17",
+    "@types/react-dom": "16.0.6",
     "ajv": "6.5.1",
     "angular": "1.7.2",
     "angular-clipboard": "1.6.2",
@@ -25,7 +29,9 @@
     "bootstrap": "4.1.1",
     "d3": "4.13.0",
     "deepmerge": "1.5.2",
+    "eslint": "3.19.0",
     "eslint-config-airbnb": "15.1.0",
+    "eslint-plugin-import": "2.12.0",
     "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "7.5.1",
     "font-awesome": "4.7.0",
@@ -74,6 +80,7 @@
     "fetch-mock": "6.4.4",
     "jasmine-core": "3.1.0",
     "jasmine-jquery": "2.1.1",
+    "karma": "1.7.1",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "1.1.2",
     "neutrino-preset-karma": "4.2.1"
