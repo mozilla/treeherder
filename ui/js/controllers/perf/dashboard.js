@@ -86,10 +86,10 @@ perf.controller('dashCtrl', [
             }
 
             getSeriesList.then(function (seriesToMeasure) {
-                $scope.platformList = [...new Set(seriesToMeasure.map(serie => serie.platform))];
+                $scope.platformList = [...new Set(seriesToMeasure.map(series => series.platform))];
                 // we just use the unadorned suite name to distinguish tests in this view
                 // (so we can mash together pgo and opt)
-                $scope.testList = [...new Set(seriesToMeasure.map(serie => serie.testName))];
+                $scope.testList = [...new Set(seriesToMeasure.map(series => series.testName))];
 
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     const params = {
@@ -137,13 +137,12 @@ perf.controller('dashCtrl', [
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
-                                        [baseSig, variantSig].map(function (sig) {
-                                            return {
-                                                projectName: $scope.selectedRepo.name,
-                                                signature: sig,
-                                                frameworkId: $scope.framework,
-                                            };
-                                        })),
+                                        [baseSig, variantSig].map(sig => ({
+                                            projectName: $scope.selectedRepo.name,
+                                            signature: sig,
+                                            frameworkId: $scope.framework,
+                                        }))
+                                    ),
                                 }];
                                 if (resultsMap.base[baseSig].hasSubTests) {
                                     const params = {

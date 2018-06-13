@@ -61,7 +61,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
                 return $http.get(
                     getProjectUrl('/performance/signatures/', projectName),
                     { params: params }).then(function (response) {
-                        return response.data.map((signatureProps, signature) => (
+                        return Object.entries(response.data).map(([signature, signatureProps]) => (
                             _getSeriesSummary(projectName, signature,
                                               signatureProps,
                                               optionCollectionMap)
