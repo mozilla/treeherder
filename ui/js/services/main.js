@@ -74,7 +74,7 @@ treeherder.factory('thNotify', [
              * Delete the first non-sticky element from the notifications queue
              */
             shift: function () {
-                for (let i=0; i<thNotify.notifications.length; i++) {
+                for (let i = 0; i < thNotify.notifications.length; i++) {
                     if (!thNotify.notifications[i].sticky) {
                         thNotify.remove(i);
                         return;

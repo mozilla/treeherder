@@ -254,7 +254,7 @@ treeherder.factory('ThRepositoryModel', [
                                         return this.pushlogURL + '?changeset=' + arg;
                                     } else if (arg && arg.from && arg.to) {
                                         return this.pushlogURL + '?fromchange=' +
-                                            arg.from +'&tochange=' + arg.to;
+                                            arg.from + '&tochange=' + arg.to;
                                     }
                                 }
 

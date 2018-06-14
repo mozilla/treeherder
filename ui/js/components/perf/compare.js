@@ -144,13 +144,13 @@ treeherder.component('distributionGraph', {
             ctrl.maxValue = Math.max.apply(null, ctrl.replicates);
             ctrl.minValue = Math.min.apply(null, ctrl.replicates);
             if (ctrl.maxValue - ctrl.minValue > 1) {
-                ctrl.maxValue = Math.ceil(ctrl.maxValue*1.001);
-                ctrl.minValue = Math.floor(ctrl.minValue/1.001);
+                ctrl.maxValue = Math.ceil(ctrl.maxValue * 1.001);
+                ctrl.minValue = Math.floor(ctrl.minValue / 1.001);
             }
             ctx.globalAlpha = 0.3;
             ctrl.replicates.forEach((value) => {
                 ctx.beginPath();
-                ctx.arc(180/(ctrl.maxValue - ctrl.minValue)*(value - ctrl.minValue) + 5, 18, 5, 0, 360);
+                ctx.arc(180 / (ctrl.maxValue - ctrl.minValue) * (value - ctrl.minValue) + 5, 18, 5, 0, 360);
                 ctx.fillStyle = 'white';
                 ctx.fill();
             });

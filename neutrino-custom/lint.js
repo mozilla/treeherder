@@ -55,7 +55,6 @@ module.exports = neutrino => {
                     'react/forbid-prop-types': 'off',
                     'react/no-danger': 'off',
                     'react/no-multi-comp': 'off',
-                    'space-infix-ops': 'off',
                 },
             }
         }));

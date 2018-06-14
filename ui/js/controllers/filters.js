@@ -128,7 +128,7 @@ treeherderApp.controller('SearchCtrl', [
         $scope.search = function (ev) {
             // User hit enter
             if (ev.keyCode === 13) {
-                const filterVal = $scope.searchQueryStr === ''? null: $scope.searchQueryStr;
+                const filterVal = $scope.searchQueryStr === '' ? null : $scope.searchQueryStr;
                 thJobFilters.replaceFilter('searchStr', filterVal);
                 $rootScope.$broadcast('blur-this', 'quick-filter');
             }

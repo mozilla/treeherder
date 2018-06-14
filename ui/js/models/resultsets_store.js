@@ -619,7 +619,7 @@ treeherder.factory('ThResultSetStore', [
 
             var key = `${newJob.id}`;
             var loadedJobMap = repoData.jobMap[key];
-            var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
+            var loadedJob = loadedJobMap ? loadedJobMap.job_obj : null;
             var rsMapElement = repoData.rsMap[newJob.result_set_id];
 
             // We don't have this push id yet
@@ -895,7 +895,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getJobCount = jobList => (
           jobList.reduce((memo, job) => (
-            job.result !== 'superseded' ? { ...memo, [job.state]: memo[job.state]+1 } : memo
+            job.result !== 'superseded' ? { ...memo, [job.state]: memo[job.state] + 1 } : memo
             ), { running: 0, pending: 0, completed: 0 }
           )
         );
@@ -928,7 +928,7 @@ treeherder.factory('ThResultSetStore', [
             if (jobList.length === 0) { return groupedJobs; }
             groupedJobs.id = jobList[0].result_set_id;
             var lastModified = '';
-            for (var i=0; i<jobList.length; i++) {
+            for (var i = 0; i < jobList.length; i++) {
                 // search for the right platform
                 var job = jobList[i];
                 var platform = _.find(groupedJobs.platforms, function (platform) {
@@ -994,7 +994,7 @@ treeherder.factory('ThResultSetStore', [
             groupedJobs.platforms = _.sortBy(groupedJobs.platforms, function (platform) {
                 var priority = platformArray.indexOf(platform.name);
                 if (priority >= 0) {
-                    priority = priority*100 + thOptionOrder[platform.option];
+                    priority = priority * 100 + thOptionOrder[platform.option];
                 } else {
                     priority = NaN;
                 }

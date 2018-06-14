@@ -23,7 +23,7 @@ logViewerApp.controller('LogviewerCtrl', [
         }
 
         if (query_string.job_id !== '') {
-            $scope.job_id= query_string.job_id;
+            $scope.job_id = query_string.job_id;
         }
 
         $scope.loading = false;

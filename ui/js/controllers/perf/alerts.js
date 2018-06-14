@@ -30,7 +30,7 @@ perf.factory('PhBugs', [
                         alertSummary: alertSummary.getTextualSummary()
                     });
                     const pushDate = dateFilter(
-                        alertSummary.resultSetMetadata.push_timestamp*1000,
+                        alertSummary.resultSetMetadata.push_timestamp * 1000,
                         'EEE MMM d yyyy');
                     const bugTitle = alertSummary.getTitle() +
                         ' regression on push ' +
@@ -200,7 +200,7 @@ perf.controller('AlertsCtrl', [
         $scope.getCappedMagnitude = function (percent) {
             // arbitrary scale from 0-20% multiplied by 5, capped
             // at 100 (so 20% regression === 100% bad)
-            return Math.min(Math.abs(percent)*5, 100);
+            return Math.min(Math.abs(percent) * 5, 100);
         };
 
         $scope.editAlertSummaryNotes = function (alertSummary) {
@@ -440,7 +440,7 @@ perf.controller('AlertsCtrl', [
                         (response) => {
                             response.data.results.forEach((resultSet) => {
                                 resultSet.dateStr = dateFilter(
-                                    resultSet.push_timestamp*1000, thDateFormat);
+                                    resultSet.push_timestamp * 1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
                                 const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
                                 resultSet.timeRange = Math.max(timeRange, _.find(

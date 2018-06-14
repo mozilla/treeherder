@@ -63,7 +63,7 @@ export default function StaticLineOption(props) {
         {!!manualBugNumber && <span>No bug number specified</span>}
       </span>}
 
-      {option.type==='ignore' &&
+      {option.type === 'ignore' &&
         <span className="line-option-text">Ignore {ignoreAlwaysText}</span>}
       {optionCount > 0 && <span>, {optionCount} other {optionCount === 1 ? 'option' : 'options'}
 

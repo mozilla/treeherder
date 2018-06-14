@@ -159,7 +159,7 @@ export default class LineOption extends React.Component {
                 >[view]</a>}
               </div>}
 
-            {option.type ==='ignore' && <span
+            {option.type === 'ignore' && <span
               className={`line-option-text ignore ${canClassify ? '' : 'hidden'}`}
             >Ignore line
               <Select

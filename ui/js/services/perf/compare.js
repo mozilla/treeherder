@@ -151,7 +151,7 @@ treeherder.factory('PhCompare', [
                 cmap.deltaPercentage = math.percentOf(cmap.delta, cmap.originalValue);
                 // arbitrary scale from 0-20% multiplied by 5, capped
                 // at 100 (so 20% regression === 100% bad)
-                cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage)*5, 100);
+                cmap.magnitude = Math.min(Math.abs(cmap.deltaPercentage) * 5, 100);
 
                 const abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                 cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
@@ -353,7 +353,7 @@ treeherder.factory('PhCompare', [
 
                 // arbitrary scale from 0-20% multiplied by 5, capped
                 // at 100 (so 20% regression === 100% bad)
-                trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage)*5, 100);
+                trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage) * 5, 100);
 
                 return trendMap;
             }
