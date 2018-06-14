@@ -46,6 +46,7 @@ export default class ActionBar extends React.Component {
         case 'parsed':
           $('.logviewer-btn')[0].click();
       }
+      this.$rootScope.$apply();
     });
 
     this.jobRetriggerUnlisten = this.$rootScope.$on(thEvents.jobRetrigger, (event, job) => {
@@ -114,10 +115,12 @@ export default class ActionBar extends React.Component {
     }
     if (!user.isLoggedIn) {
       this.thNotify.send('Must be logged in to backfill a job', 'danger');
+      this.$rootScope.$apply();
       return;
     }
     if (!selectedJob.id) {
       this.thNotify.send('Job not yet loaded for backfill', 'warning');
+      this.$rootScope.$apply();
       return;
     }
 
@@ -197,6 +200,7 @@ export default class ActionBar extends React.Component {
       });
     } else {
       this.thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
+      this.$rootScope.$apply();
     }
   }
 
@@ -251,12 +255,14 @@ export default class ActionBar extends React.Component {
         })
     )).then(() => {
       this.thNotify.send('Cancel request sent', 'success');
+      this.$rootScope.$apply();
     }).catch(function (e) {
       this.thNotify.send(
         formatModelError(e, 'Unable to cancel job'),
         'danger',
         { sticky: true },
       );
+      this.$rootScope.$apply();
     });
   }
 
