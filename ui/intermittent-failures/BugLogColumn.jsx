@@ -68,10 +68,7 @@ BugLogColumn.propTypes = {
 Tooltip.propTypes = {
   isOpen: PropTypes.bool,
   toggle: PropTypes.func,
-  target: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.func,
-  ]),
+  target: PropTypes.shape({}),
   className: PropTypes.string,
   placement: PropTypes.oneOf([
     'auto',
