@@ -14,40 +14,40 @@ treeherder.directive('thWatchedRepo', [
 
         const statusInfo = {
             open: {
-                icon: "fa-circle-o",
-                color: "tree-open",
-                btnClass: "btn-view-nav"
+                icon: 'fa-circle-o',
+                color: 'tree-open',
+                btnClass: 'btn-view-nav'
             },
-            "approval required": {
-                icon: "fa-lock",
-                color: "tree-approval",
-                btnClass: "btn-view-nav"
+            'approval required': {
+                icon: 'fa-lock',
+                color: 'tree-approval',
+                btnClass: 'btn-view-nav'
             },
             closed: {
-                icon: "fa-times-circle",
-                color: "tree-closed",
-                btnClass: "btn-view-nav-closed"
+                icon: 'fa-times-circle',
+                color: 'tree-closed',
+                btnClass: 'btn-view-nav-closed'
             },
             unsupported: {
-                icon: "fa-question",
-                color: "tree-unavailable",
-                btnClass: "btn-view-nav"
+                icon: 'fa-question',
+                color: 'tree-unavailable',
+                btnClass: 'btn-view-nav'
             },
-            "not retrieved yet": {
-                icon: "fa-spinner",
-                iconClass: "fa-pulse",
-                color: "tree-unavailable",
-                btnClass: "btn-view-nav"
+            'not retrieved yet': {
+                icon: 'fa-spinner',
+                iconClass: 'fa-pulse',
+                color: 'tree-unavailable',
+                btnClass: 'btn-view-nav'
             },
             error: {
-                icon: "fa-question",
-                color: "tree-unavailable",
-                btnClass: "btn-view-nav"
+                icon: 'fa-question',
+                color: 'tree-unavailable',
+                btnClass: 'btn-view-nav'
             }
         };
 
         return {
-            restrict: "E",
+            restrict: 'E',
             link: function (scope) {
 
                 scope.repoData = ThRepositoryModel.repos[scope.watchedRepo];
@@ -66,13 +66,13 @@ treeherder.directive('thWatchedRepo', [
                     }
                 };
 
-                scope.btnClass = "btn-view-nav";
+                scope.btnClass = 'btn-view-nav';
 
                 scope.$watch('repoData.treeStatus.status', function (newVal) {
                     if (newVal) {
                         const si = statusInfo[newVal];
                         scope.statusIcon = si.icon;
-                        scope.statusIconClass = si.iconClass || "";
+                        scope.statusIconClass = si.iconClass || '';
                         scope.statusColor = si.color;
                         scope.btnClass = si.btnClass;
                         scope.updateTitleText();
@@ -88,7 +88,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
     function (ThRepositoryModel) {
 
         return {
-            restrict: "E",
+            restrict: 'E',
             replace: true,
             link: function (scope, element, attrs) {
                 scope.name = attrs.name;
@@ -110,12 +110,12 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
 treeherder.directive('thCheckboxDropdownContainer', function () {
 
         return {
-            restrict: "A",
+            restrict: 'A',
             link: function (scope, element) {
 
                 scope.closeable = true;
                 $(element).on({
-                    "hide.bs.dropdown": function () {
+                    'hide.bs.dropdown': function () {
                         const closeable = scope.closeable;
                         scope.closeable = true;
                         return closeable;
@@ -124,8 +124,8 @@ treeherder.directive('thCheckboxDropdownContainer', function () {
 
                 $('.checkbox-dropdown-menu').on({
                     click: function (ev) {
-                        if ($(ev.target).hasClass("dropdown-link") ||
-                            $(ev.target).parent().hasClass("dropdown-link")) {
+                        if ($(ev.target).hasClass('dropdown-link') ||
+                            $(ev.target).parent().hasClass('dropdown-link')) {
                             scope.closeable = false;
                         }
                     }
@@ -139,11 +139,11 @@ treeherder.directive('thRepoMenuItem',
     function () {
 
         return {
-            restrict: "E",
+            restrict: 'E',
             replace: true,
             link: function (scope, element) {
                 const elem = $(element);
-                elem.find('.dropdown-link').prop('href', scope.urlBasePath + "?repo=" + scope.repo.name);
+                elem.find('.dropdown-link').prop('href', scope.urlBasePath + '?repo=' + scope.repo.name);
                 if (scope.repo.name === scope.repoName) {
                     elem.find('.dropdown-checkbox').prop('disabled', 'disabled');
                 }
@@ -155,7 +155,7 @@ treeherder.directive('thRepoMenuItem',
 
 treeherder.directive('thResultStatusChicklet', function () {
     return {
-        restrict: "E",
+        restrict: 'E',
         link: function (scope) {
             scope.chickletClass = `${getBtnClass(scope.filterName)}-filter-chicklet`;
         },

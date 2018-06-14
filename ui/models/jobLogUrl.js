@@ -1,6 +1,6 @@
-import { createQueryParams, getProjectUrl } from "../helpers/url";
+import { createQueryParams, getProjectUrl } from '../helpers/url';
 
-const uri = getProjectUrl("/job-log-url/");
+const uri = getProjectUrl('/job-log-url/');
 
 export default class JobLogUrlModel {
   constructor(data) {
@@ -13,7 +13,7 @@ export default class JobLogUrlModel {
     return fetch(`${uri}${createQueryParams(options)}`, { signal })
       .then(resp => resp.json().then(data => (
         data.map((elem) => {
-          const buildUrl = elem.url.slice(0, elem.url.lastIndexOf("/")) + "/";
+          const buildUrl = elem.url.slice(0, elem.url.lastIndexOf('/')) + '/';
           elem.buildUrl = buildUrl;
           return new JobLogUrlModel(elem);
         })

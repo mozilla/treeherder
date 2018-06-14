@@ -6,17 +6,17 @@ import { toDateStr } from './display';
 import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
 
 const btnClasses = {
-  busted: "btn-red",
-  exception: "btn-purple",
-  testfailed: "btn-orange",
-  usercancel: "btn-pink",
-  retry: "btn-dkblue",
-  success: "btn-green",
-  running: "btn-dkgray",
-  pending: "btn-ltgray",
-  superseded: "btn-ltblue",
-  failures: "btn-red",
-  'in progress': "btn-dkgray",
+  busted: 'btn-red',
+  exception: 'btn-purple',
+  testfailed: 'btn-orange',
+  usercancel: 'btn-pink',
+  retry: 'btn-dkblue',
+  success: 'btn-green',
+  running: 'btn-dkgray',
+  pending: 'btn-ltgray',
+  superseded: 'btn-ltblue',
+  failures: 'btn-red',
+  'in progress': 'btn-dkgray',
 };
 
 // The result will be unknown unless the state is complete, so much check both.
@@ -31,15 +31,15 @@ export const getStatus = function getStatus(job) {
 // These also apply to result "groupings" like ``failures`` and ``in progress``
 // for the colored filter chicklets on the nav bar.
 export const getBtnClass = function getBtnClass(resultState, failureClassificationId) {
-  let btnClass = btnClasses[resultState] || "btn-default";
+  let btnClass = btnClasses[resultState] || 'btn-default';
 
   // handle if a job is classified
   const classificationId = parseInt(failureClassificationId, 10);
   if (classificationId > 1) {
-    btnClass += "-classified";
+    btnClass += '-classified';
     // autoclassification-only case
     if (classificationId === 7) {
-      btnClass += " autoclassified";
+      btnClass += ' autoclassified';
     }
   }
   return btnClass;
@@ -67,7 +67,7 @@ export const findInstance = function findInstance(el) {
 
 // Fetch the React instance of the currently selected job.
 export const findSelectedInstance = function findSelectedInstance() {
-  const selectedEl = $('.th-view-content').find(".job-btn.selected-job").first();
+  const selectedEl = $('.th-view-content').find('.job-btn.selected-job').first();
   if (selectedEl.length) {
     return findInstance(selectedEl[0]);
   }

@@ -12,7 +12,7 @@ import {
   scrollToElement
 } from '../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
-import { thEvents } from "../js/constants";
+import { thEvents } from '../js/constants';
 import JobModel from '../models/job';
 
 export default class PushList extends React.Component {
@@ -237,7 +237,7 @@ export default class PushList extends React.Component {
 
   noMoreUnclassifiedFailures() {
     this.$timeout(() => {
-      this.thNotify.send("No unclassified failures to select.");
+      this.thNotify.send('No unclassified failures to select.');
       this.$rootScope.$emit(thEvents.clearSelectedJob);
     });
   }
@@ -268,7 +268,7 @@ export default class PushList extends React.Component {
   }
 
   clearIfEligibleTarget(target) {
-    if (target.hasAttribute("data-job-clear-on-click")) {
+    if (target.hasAttribute('data-job-clear-on-click')) {
       this.$rootScope.$emit(thEvents.clearSelectedJob, target);
     }
   }

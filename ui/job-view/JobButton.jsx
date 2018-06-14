@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getBtnClass, findJobInstance } from "../helpers/job";
-import { getUrlParam } from "../helpers/location";
+import { getBtnClass, findJobInstance } from '../helpers/job';
+import { getUrlParam } from '../helpers/location';
 
 export default class JobButtonComponent extends React.Component {
   constructor(props) {
@@ -88,7 +88,7 @@ export default class JobButtonComponent extends React.Component {
             job_type_symbol, result } = job;
 
     if (!visible) return null;
-    const resultState = state === "completed" ? result : state;
+    const resultState = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
     const btnClass = getBtnClass(resultState, failure_classification_id);
     let title = `${job_type_name} - ${status}`;

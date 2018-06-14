@@ -15,7 +15,7 @@ import UserModel from '../../models/user';
  * This communicates to the rest of Treeherder by calling the onUserChange
  * function on the HTML element, which in turn stores that user in $rootScope.
  */
-treeherder.component("login", {
+treeherder.component('login', {
     template: `
         <span class="dropdown"
               ng-if="$ctrl.user.isLoggedIn">
@@ -42,7 +42,7 @@ treeherder.component("login", {
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
-        onUserChange: "&"
+        onUserChange: '&'
     },
     controller: ['$location', '$window', 'thNotify',
         '$http', '$timeout',
@@ -58,7 +58,7 @@ treeherder.component("login", {
              * results from the events from angular-local-storage.
              */
 
-            $window.addEventListener("storage", function (e) {
+            $window.addEventListener('storage', function (e) {
                 if (e.key === 'user') {
                     const oldUser = JSON.parse(e.oldValue);
                     const newUser = JSON.parse(e.newValue);
@@ -99,11 +99,11 @@ treeherder.component("login", {
              * the session token.  Then updates the UI
              */
             ctrl.logout = function () {
-                $http.get(getApiUrl("/auth/logout/"))
+                $http.get(getApiUrl('/auth/logout/'))
                     .then(function () {
                         ctrl.setLoggedOut();
                     }, function (data) {
-                        thNotify.send(`Logout failed: ${data.data}`, "danger", { sticky: true });
+                        thNotify.send(`Logout failed: ${data.data}`, 'danger', { sticky: true });
                     });
             };
 

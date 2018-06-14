@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
@@ -101,13 +101,13 @@ export default class PushHeader extends React.PureComponent {
     return Object.entries(this.thJobFilters.getActiveFilters())
       .reduce(function getFilterParamsStrings(acc, [key, value]) {
         if (Array.isArray(value)) {
-          acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, "");
+          acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, '');
         } else {
           acc += `&${key}=${value}`;
         }
         return acc;
       },
-        "");
+        '');
   }
 
   triggerNewJobs() {
@@ -121,7 +121,7 @@ export default class PushHeader extends React.PureComponent {
       const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(pushId);
       this.ThResultSetStore.getGeckoDecisionTaskId(pushId).then((decisionTaskID) => {
         this.ThResultSetModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
-          this.thNotify.send(result, "success");
+          this.thNotify.send(result, 'success');
           this.ThResultSetStore.deleteRunnableJobs(pushId);
           this.props.hideRunnableJobsCb();
           this.setState({ runnableJobsSelected: false });
@@ -130,7 +130,7 @@ export default class PushHeader extends React.PureComponent {
         });
       });
     } else {
-      this.thNotify.send("Must be logged in to trigger a job", 'danger');
+      this.thNotify.send('Must be logged in to trigger a job', 'danger');
     }
   }
 
@@ -144,7 +144,7 @@ export default class PushHeader extends React.PureComponent {
         this.thBuildApi.cancelAll(repoName, revision)
     )).catch((e) => {
       this.thNotify.send(
-          formatModelError(e, "Failed to cancel all jobs"),
+          formatModelError(e, 'Failed to cancel all jobs'),
           'danger',
           { sticky: true }
         );
@@ -166,14 +166,14 @@ export default class PushHeader extends React.PureComponent {
             showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState } = this.props;
     const { filterParams } = this.state;
     const cancelJobsTitle = isLoggedIn ?
-      "Cancel all jobs" :
-      "Must be logged in to cancel jobs";
+      'Cancel all jobs' :
+      'Must be logged in to cancel jobs';
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
 
     const watchStateLabel = {
-      none: "Watch",
-      push: "Notifying (per-push)",
-      job: "Notifying (per-job)"
+      none: 'Watch',
+      push: 'Notifying (per-push)',
+      job: 'Notifying (per-job)'
     }[watchState];
 
     return (

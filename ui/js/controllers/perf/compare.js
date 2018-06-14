@@ -7,7 +7,7 @@ import {
   phCompareDefaultNewRepo,
   phTimeRanges,
   phCompareBaseLineDefaultTimeRange,
-} from "../../constants";
+} from '../../constants';
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
@@ -95,10 +95,10 @@ perf.controller('CompareChooserCtrl', [
                 ));
 
                 $q.all(revisionPromises).then(function () {
-                    localStorageService.set('originalProject', $scope.originalProject.name, "sessionStorage");
-                    localStorageService.set('originalRevision', $scope.originalRevision, "sessionStorage");
-                    localStorageService.set('newProject', $scope.newProject.name, "sessionStorage");
-                    localStorageService.set('newRevision', $scope.newRevision, "sessionStorage");
+                    localStorageService.set('originalProject', $scope.originalProject.name, 'sessionStorage');
+                    localStorageService.set('originalRevision', $scope.originalRevision, 'sessionStorage');
+                    localStorageService.set('newProject', $scope.newProject.name, 'sessionStorage');
+                    localStorageService.set('newRevision', $scope.newRevision, 'sessionStorage');
                     if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
                         if ($scope.revisionComparison) {
                             $state.go('compare', {
@@ -141,7 +141,7 @@ perf.controller('CompareResultsCtrl', [
 
             $scope.oldStddevVariance = {};
             $scope.newStddevVariance = {};
-            $scope.testsTooVariable = [{ platform: "Platform", testname: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
+            $scope.testsTooVariable = [{ platform: 'Platform', testname: 'Testname', baseStddev: 'Base Stddev', newStddev: 'New Stddev' }];
 
             $scope.testList.forEach(function (testName) {
                 $scope.titles[testName] = testName;
@@ -434,7 +434,7 @@ perf.controller('CompareResultsCtrl', [
                 framework: _.find($scope.frameworks, {
                     id: parseInt($stateParams.framework)
                 }) || $scope.frameworks[0],
-                filter: $stateParams.filter || "",
+                filter: $stateParams.filter || '',
                 showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                            parseInt($stateParams.showOnlyImportant)),
                 showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
@@ -452,10 +452,10 @@ perf.controller('CompareResultsCtrl', [
             $scope.newRevision = $stateParams.newRevision;
 
             // always need to verify the new revision, only sometimes the original
-            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new')];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
@@ -527,7 +527,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             $scope.oldStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
             $scope.newStddevVariance = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
-            $scope.testsTooVariable = [{ testName: "Testname", baseStddev: "Base Stddev", newStddev: "New Stddev" }];
+            $scope.testsTooVariable = [{ testName: 'Testname', baseStddev: 'Base Stddev', newStddev: 'New Stddev' }];
             $scope.pageList.sort();
             $scope.pageList.forEach(function (page) {
                 const mapsigs = [];
@@ -622,7 +622,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 cmap.isNoiseMetric = true;
                 $scope.compareResults[noiseMetricTestName].push(cmap);
             }
-            $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + " : " + noiseMetricTestName;
+            $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTestName;
         }
 
         $scope.dataLoading = true;
@@ -653,10 +653,10 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.newSignature = $stateParams.newSignature;
 
             // always need to verify the new revision, only sometimes the original
-            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, "new")];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new')];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, "original"));
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = _.find($scope.timeRanges, {
@@ -684,7 +684,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
                 $scope.filterOptions = {
                     framework: $stateParams.framework || 1, // 1 == talos
-                    filter: $stateParams.filter || "",
+                    filter: $stateParams.filter || '',
                     showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                                parseInt($stateParams.showOnlyImportant)),
                     showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
@@ -923,10 +923,10 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                         }));
                         metricsgraphics.data_graphic({
                             title: `${target} replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
-                            chart_type: "bar",
+                            chart_type: 'bar',
                             data: replicateValues,
-                            y_accessor: "value",
-                            x_accessor: "replicate",
+                            y_accessor: 'value',
+                            x_accessor: 'replicate',
                             height: 275,
                             width: 1000,
                             target: `#${target}`

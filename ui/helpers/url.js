@@ -1,8 +1,8 @@
 import { Queue } from 'taskcluster-client-web';
 
-import thTaskcluster from "../js/services/taskcluster";
+import thTaskcluster from '../js/services/taskcluster';
 import { getUrlParam, getAllUrlParams } from './location';
-import { isSHA } from "./revision";
+import { isSHA } from './revision';
 
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);
@@ -65,7 +65,7 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
 // URL.  If not there, then try m-i and hope for the best.  The caller may
 // not actually need a repo if they're trying to get a job by ``id``.
 export const getProjectUrl = function getProjectUrl(uri, repoName) {
-  const repo = repoName || getUrlParam("repo") || 'mozilla-inbound';
+  const repo = repoName || getUrlParam('repo') || 'mozilla-inbound';
 
   return getApiUrl(`/project/${repo}${uri}`);
 };
@@ -91,7 +91,7 @@ export const linkifyRevisions = function linkifyRevisions(text, repo) {
   const urlText = linkifyURLs(text);
   const trimText = (urlText || '').trim();
 
-  if (repo.dvcs_type === "hg" && isSHA(trimText)) {
+  if (repo.dvcs_type === 'hg' && isSHA(trimText)) {
     return `<a href='${repo.url}/rev/${trimText}'>${trimText}</a>`;
   }
   return trimText;

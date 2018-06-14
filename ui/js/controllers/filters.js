@@ -1,5 +1,5 @@
 import treeherderApp from '../treeherder_app';
-import { thFailureResults, thAllResultStates, thEvents } from "../constants";
+import { thFailureResults, thAllResultStates, thEvents } from '../constants';
 
 treeherderApp.controller('JobFilterCtrl', [
     '$scope', '$rootScope', 'thJobFilters',
@@ -9,26 +9,26 @@ treeherderApp.controller('JobFilterCtrl', [
 
         $scope.filterGroups = {
             failures: {
-                value: "failures",
-                name: "failures",
+                value: 'failures',
+                name: 'failures',
                 resultStatuses: thFailureResults.slice()
             },
             nonfailures: {
-                value: "nonfailures",
-                name: "non-failures",
-                resultStatuses: ["success", "retry", "usercancel", "superseded"]
+                value: 'nonfailures',
+                name: 'non-failures',
+                resultStatuses: ['success', 'retry', 'usercancel', 'superseded']
             },
-            "in progress": {
-                value: "in progress",
-                name: "in progress",
-                resultStatuses: ["pending", "running"]
+            'in progress': {
+                value: 'in progress',
+                name: 'in progress',
+                resultStatuses: ['pending', 'running']
             }
         };
 
         $scope.resultStatusFilters = {};
         // flatten filter groups
         $scope.filterChicklets =
-          ["failures", $scope.filterGroups.nonfailures.resultStatuses, "in progress"].reduce(
+          ['failures', $scope.filterGroups.nonfailures.resultStatuses, 'in progress'].reduce(
             (acc, val) => acc.concat(val), []);
 
         /**
@@ -115,9 +115,9 @@ treeherderApp.controller('SearchCtrl', [
         const getSearchStr = function () {
             const ss = thJobFilters.getFieldFiltersObj().searchStr;
             if (ss) {
-                return ss.join(" ");
+                return ss.join(' ');
             }
-            return "";
+            return '';
         };
 
         $scope.searchQueryStr = getSearchStr();
@@ -128,9 +128,9 @@ treeherderApp.controller('SearchCtrl', [
         $scope.search = function (ev) {
             //User hit enter
             if (ev.keyCode === 13) {
-                const filterVal = $scope.searchQueryStr === ""? null: $scope.searchQueryStr;
-                thJobFilters.replaceFilter("searchStr", filterVal);
-                $rootScope.$broadcast('blur-this', "quick-filter");
+                const filterVal = $scope.searchQueryStr === ''? null: $scope.searchQueryStr;
+                thJobFilters.replaceFilter('searchStr', filterVal);
+                $rootScope.$broadcast('blur-this', 'quick-filter');
             }
         };
     }

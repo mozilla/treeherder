@@ -11,13 +11,13 @@ export const stringOverlap = function (str1, str2) {
       // Replace paths like /foo/bar/baz.html with just the filename baz.html
       return str.replace(/[^\s]+\/([^\s]+)\s/,
                          function (m, p1) {
-                           return " " + p1 + " ";
+                           return ' ' + p1 + ' ';
                          });
     })
     .map(function (str) {
       // Split into tokens on whitespace / ,  and |
       return str.split(/[\s\/\,|]+/).filter(function (x) {
-        return x !== "";
+        return x !== '';
       });
     });
 
@@ -43,14 +43,14 @@ export const stringOverlap = function (str1, str2) {
 };
 
 export const highlightLogLine = function highlightLogLine(logLine) {
-  const parts = logLine.split(" | ", 3);
+  const parts = logLine.split(' | ', 3);
   return (
     <span>
-      {parts[0].startsWith("TEST-UNEXPECTED") && <span>
+      {parts[0].startsWith('TEST-UNEXPECTED') && <span>
         <strong className="failure-line-status">{parts[0]}</strong>
         <strong>{parts[1]}</strong>
       </span>}
-      {!parts[0].startsWith("TEST-UNEXPECTED") && logLine}
+      {!parts[0].startsWith('TEST-UNEXPECTED') && logLine}
     </span>
   );
 };

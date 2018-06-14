@@ -18,13 +18,13 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
         const convertDates = function (locationParams) {
             // support date ranges.  we must convert the strings to a timezone
             // appropriate timestamp
-            if (_.has(locationParams, "startdate")) {
+            if (_.has(locationParams, 'startdate')) {
                 locationParams.push_timestamp__gte = Date.parse(
                     locationParams.startdate) / 1000;
 
                 delete locationParams.startdate;
             }
-            if (_.has(locationParams, "enddate")) {
+            if (_.has(locationParams, 'enddate')) {
                 locationParams.push_timestamp__lt = Date.parse(
                     locationParams.enddate) / 1000 + 84600;
 
@@ -48,7 +48,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 });
 
                 return $http.get(
-                    getProjectUrl("/resultset/", repoName),
+                    getProjectUrl('/resultset/', repoName),
                     { params: locationParams }
                 );
             },
@@ -104,13 +104,13 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 }
 
                 return $http.get(
-                    getProjectUrl("/resultset/", repoName),
+                    getProjectUrl('/resultset/', repoName),
                     { params: params }
                 );
             },
             getResultSetList: function (repoName, resultSetList, full) {
                 return $http.get(
-                    getProjectUrl("/resultset/", repoName), {
+                    getProjectUrl('/resultset/', repoName), {
                         params: {
                             full: _.isUndefined(full) ? true : full,
                             offset: 0,
@@ -131,16 +131,16 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 locationParams) {
                 // XXX: should never happen, but maybe sometimes does? see bug 1287501
                 if (!angular.isDate(lastModified)) {
-                    alert("Invalid parameter passed to get job updates: " +
-                        "please reload treeherder");
+                    alert('Invalid parameter passed to get job updates: ' +
+                        'please reload treeherder');
                     return;
                 }
 
                 const params = {
-                    result_set_id__in: resultSetIdList.join(","),
+                    result_set_id__in: resultSetIdList.join(','),
                     count: 2000,
-                    last_modified__gt: lastModified.toISOString().replace("Z", ""),
-                    return_type: "list"
+                    last_modified__gt: lastModified.toISOString().replace('Z', ''),
+                    return_type: 'list'
                 };
                 _.extend(params, locationParams);
                 return JobModel.getList(repoName, params, { fetch_all: true });
@@ -149,7 +149,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             getResultSetJobs: function (resultSetIdList, repoName, locationParams) {
                 return _.map(resultSetIdList, function (resultSetId) {
                     const params = {
-                        return_type: "list",
+                        return_type: 'list',
                         result_set_id: resultSetId,
                         count: 2000
                     };
@@ -168,8 +168,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                                 return r.revision;
                             });
                         }
-                        return $q.reject("No revisions found for result set " +
-                            resultSetId + " in project " + projectName);
+                        return $q.reject('No revisions found for result set ' +
+                            resultSetId + ' in project ' + projectName);
                     });
             },
 
@@ -182,14 +182,14 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                             return response.data.results;
                         }
                         return $q.reject('No results found for revision ' +
-                            revision + " on project " +
+                            revision + ' on project ' +
                             projectName);
                     });
             },
 
             cancelAll: function (resultset_id) {
                 const uri = resultset_id + '/cancel_all/';
-                return $http.post(getProjectUrl("/resultset/") + uri);
+                return $http.post(getProjectUrl('/resultset/') + uri);
             },
 
             triggerMissingJobs: function (decisionTaskId) {

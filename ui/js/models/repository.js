@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/url';
-import { thRepoGroupOrder } from "../constants";
+import { thRepoGroupOrder } from '../constants';
 import TreeStatusModel from '../../models/treeStatus';
 
 treeherder.factory('ThRepositoryModel', [
@@ -53,9 +53,9 @@ treeherder.factory('ThRepositoryModel', [
          */
         const getUnsupportedTreeStatus = function (repoName) {
             return {
-                status: "unsupported",
+                status: 'unsupported',
                 message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
-                reason: "",
+                reason: '',
                 tree: repoName
             };
         };
@@ -66,7 +66,7 @@ treeherder.factory('ThRepositoryModel', [
          */
         const getErrorTreeStatus = function (repoName) {
             return {
-                status: "error",
+                status: 'error',
                 message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
                 reason: '',
                 tree: repoName
@@ -130,7 +130,7 @@ treeherder.factory('ThRepositoryModel', [
 
         const loadWatchedRepos = function () {
             try {
-                return JSON.parse(localStorage.getItem("thWatchedRepos"));
+                return JSON.parse(localStorage.getItem('thWatchedRepos'));
             } catch (e) {
                 // localStorage is disabled/not supported.
                 return [];
@@ -139,7 +139,7 @@ treeherder.factory('ThRepositoryModel', [
 
         const saveWatchedRepos = function () {
             try {
-                localStorage.setItem("thWatchedRepos", JSON.stringify(watchedRepos));
+                localStorage.setItem('thWatchedRepos', JSON.stringify(watchedRepos));
             } catch (e) {
                 // localStorage is disabled/not supported.
             }
@@ -156,7 +156,7 @@ treeherder.factory('ThRepositoryModel', [
                 return;
             }
             _.extend(repos[name], {
-                treeStatus: { status: "not retrieved yet", message_of_the_day: "" },
+                treeStatus: { status: 'not retrieved yet', message_of_the_day: '' },
                 unclassifiedFailureCount: 0,
                 groupName: repos[name].groupName
             });
@@ -178,7 +178,7 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         const get_uri = function () {
-            return getApiUrl("/repository/");
+            return getApiUrl('/repository/');
         };
 
         const get_list = function () {
@@ -228,9 +228,9 @@ treeherder.factory('ThRepositoryModel', [
                                 // always be right -- unfortunately fixing this
                                 // requires backend changes as we're not storing
                                 // such info explicitly right now
-                                this.pushlogURL = this.url + "/commits/master";
+                                this.pushlogURL = this.url + '/commits/master';
                             } else {
-                                this.pushlogURL = this.url + "/pushloghtml";
+                                this.pushlogURL = this.url + '/pushloghtml';
                             }
                         }
                         Repo.prototype = {
@@ -259,7 +259,7 @@ treeherder.factory('ThRepositoryModel', [
                                 }
 
                                 // if neither git nor mercurial, undefined
-                                return "";
+                                return '';
                             }
                         };
 
@@ -322,7 +322,7 @@ treeherder.factory('ThRepositoryModel', [
             try {
                 return repos[$rootScope.repoName].treeStatus.status;
             } catch (Exception) {
-                return "unavailable";
+                return 'unavailable';
             }
         };
 

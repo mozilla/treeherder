@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 import treeherder from '../../treeherder';
-import { getApiUrl } from "../../../helpers/url";
-import { phTimeRanges } from "../../constants";
+import { getApiUrl } from '../../../helpers/url';
+import { phTimeRanges } from '../../constants';
 
 treeherder.factory('PhCompare', [
     '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math',
@@ -27,7 +27,7 @@ treeherder.factory('PhCompare', [
             // if our threshold was 75% (i.e. DIFF_CARE_MIN = 1.75).
             if (!oldVal || !newVal) {
                 // handle null case
-                return "";
+                return '';
             }
             let ratio = newVal / oldVal;
             if (ratio < 1) {
@@ -35,16 +35,16 @@ treeherder.factory('PhCompare', [
             }
 
             if (ratio < RATIO_CARE_MIN || abs_t_value < T_VALUE_CARE_MIN) {
-                return "";
+                return '';
             }
 
             if (abs_t_value < T_VALUE_CONFIDENT) {
                 // Since we (currently) have only one return value to indicate uncertainty,
                 // let's use it for regressions only. (Improvement would just not be marked).
-                return newIsBetter ? "" : "compare-notsure";
+                return newIsBetter ? '' : 'compare-notsure';
             }
 
-            return newIsBetter ? "compare-improvement" : "compare-regression";
+            return newIsBetter ? 'compare-improvement' : 'compare-regression';
         }
 
         return {
@@ -156,15 +156,15 @@ treeherder.factory('PhCompare', [
                 const abs_t_value = Math.abs(math.t_test(originalData.values, newData.values, STDDEV_DEFAULT_FACTOR));
                 cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, abs_t_value);
                 cmap.confidence = abs_t_value;
-                cmap.confidenceTextLong = "Result of running t-test on base versus new result distribution: ";
+                cmap.confidenceTextLong = 'Result of running t-test on base versus new result distribution: ';
                 if (abs_t_value < T_VALUE_CARE_MIN) {
-                    cmap.confidenceText = "low";
+                    cmap.confidenceText = 'low';
                     cmap.confidenceTextLong += "A value of 'low' suggests less confidence that there is a sustained, significant change between the two revisions.";
                 } else if (abs_t_value < T_VALUE_CONFIDENT) {
-                    cmap.confidenceText = "med";
+                    cmap.confidenceText = 'med';
                     cmap.confidenceTextLong += "A value of 'med' indicates uncertainty that there is a significant change. If you haven't already, consider retriggering the job to be more sure.";
                 } else {
-                    cmap.confidenceText = "high";
+                    cmap.confidenceText = 'high';
                     cmap.confidenceTextLong += "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
                 }
                 cmap.isRegression = (cmap.className === 'compare-regression');
@@ -177,7 +177,7 @@ treeherder.factory('PhCompare', [
                 } else {
                     cmap.isBlocker = false;
                 }
-                cmap.isMeaningful = (cmap.className !== "");
+                cmap.isMeaningful = (cmap.className !== '');
                 cmap.isComplete = (cmap.originalRuns.length &&
                                    cmap.newRuns.length);
                 cmap.isConfident = ((cmap.originalRuns.length > 1 &&

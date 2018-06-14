@@ -123,7 +123,7 @@ export default class PushJobs extends React.Component {
   }
 
   filterJobs() {
-    const selectedJobId = parseInt(getUrlParam("selectedJob"));
+    const selectedJobId = parseInt(getUrlParam('selectedJob'));
 
     if (_.isEmpty(this.state.platforms)) return;
     const platforms = Object.values(this.state.platforms).reduce((acc, platform) => ({
@@ -142,7 +142,7 @@ export default class PushJobs extends React.Component {
 
   applyNewJobs() {
     const { push } = this.props;
-    const selectedJobId = parseInt(getUrlParam("selectedJob"));
+    const selectedJobId = parseInt(getUrlParam('selectedJob'));
 
     if (!push.platforms) {
       return;

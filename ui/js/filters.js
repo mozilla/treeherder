@@ -26,15 +26,15 @@ treeherder.filter('linkifyBugs', function () {
 
         if (bug_matches) {
             // Separate passes to preserve prefix
-            str = str.replace(/Bug ([0-9]+)/g, "Bug " + bug_url);
-            str = str.replace(/bug ([0-9]+)/g, "bug " + bug_url);
-            str = str.replace(/-- ([0-9]+)/g, "-- " + bug_url);
+            str = str.replace(/Bug ([0-9]+)/g, 'Bug ' + bug_url);
+            str = str.replace(/bug ([0-9]+)/g, 'bug ' + bug_url);
+            str = str.replace(/-- ([0-9]+)/g, '-- ' + bug_url);
         }
 
         if (pr_matches) {
             // Separate passes to preserve prefix
-            str = str.replace(/PR#([0-9]+)/g, "PR#" + pr_url);
-            str = str.replace(/pr#([0-9]+)/g, "pr#" + pr_url);
+            str = str.replace(/PR#([0-9]+)/g, 'PR#' + pr_url);
+            str = str.replace(/pr#([0-9]+)/g, 'pr#' + pr_url);
         }
 
         return str;
@@ -53,7 +53,7 @@ treeherder.filter('getRevisionUrl', function () {
 treeherder.filter('displayNumber', ['$filter', function ($filter) {
     return function (input) {
         if (isNaN(input)) {
-            return "N/A";
+            return 'N/A';
         }
 
         return $filter('number')(input, 2);

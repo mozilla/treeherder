@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';
-import { thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents } from "../constants";
+import { thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents } from '../constants';
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout', '$q',
@@ -43,7 +43,7 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.repoName = repoName;
         } else {
             $rootScope.repoName = thDefaultRepo;
-            $location.search("repo", $rootScope.repoName);
+            $location.search('repo', $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
         thClassificationTypes.load();
@@ -59,13 +59,13 @@ treeherderApp.controller('MainCtrl', [
                 }).then(function successCallback(response) {
                     resolve(response.data);
                 }, function errorCallback(response) {
-                    reject("Error loading revision.txt: " + response.statusText);
+                    reject('Error loading revision.txt: ' + response.statusText);
                 });
             });
         };
 
         $scope.updateButtonClick = function () {
-            if (window.confirm("Reload the page to pick up Treeherder updates?")) {
+            if (window.confirm('Reload the page to pick up Treeherder updates?')) {
                 window.location.reload(true);
             }
         };
@@ -120,14 +120,14 @@ treeherderApp.controller('MainCtrl', [
                  *  Strip out unwanted things like additional lines, trychooser
                  *  syntax, request flags, mq cruft, whitespace, and punctuation
                  */
-                title = title.split("\n")[0];
+                title = title.split('\n')[0];
                 title = title.replace(/\btry: .*/, '');
                 title = title.replace(/\b(r|sr|f|a)=.*/, '');
                 title = title.replace(/(imported patch|\[mq\]:) /, '');
                 title = title.replace(/[;,\-\. ]+$/, '').trim();
                 if (title) {
                     if (title.length > thTitleSuffixLimit) {
-                        title = title.substr(0, thTitleSuffixLimit - 3) + "...";
+                        title = title.substr(0, thTitleSuffixLimit - 3) + '...';
                     }
                     break;
                 }
@@ -140,12 +140,12 @@ treeherderApp.controller('MainCtrl', [
             const params = $location.search();
 
             // repoName is undefined for the first few title update attempts, show something sensible
-            let title = "[" + ufc + "] " + ($rootScope.repoName ? $rootScope.repoName : "Treeherder");
+            let title = '[' + ufc + '] ' + ($rootScope.repoName ? $rootScope.repoName : 'Treeherder');
 
             if (params.revision) {
                 const desc = getSingleRevisionTitleString();
-                const revtitle = desc[0] ? ": " + desc[0] : "";
-                const percentage = desc[1] ? desc[1] + "% - " : "";
+                const revtitle = desc[0] ? ': ' + desc[0] : '';
+                const percentage = desc[1] ? desc[1] + '% - ' : '';
 
                 title = percentage + title + revtitle;
             }
@@ -164,9 +164,9 @@ treeherderApp.controller('MainCtrl', [
         $scope.setDropDownPull = function (event) {
             const element = event.target.offsetParent;
             if (element.offsetLeft > $(window).width() / 2) {
-                $(element).find(".dropdown-menu").addClass("pull-right");
+                $(element).find('.dropdown-menu').addClass('pull-right');
             } else {
-                $(element).find(".dropdown-menu").removeClass("pull-right");
+                $(element).find('.dropdown-menu').removeClass('pull-right');
             }
 
         };
@@ -181,14 +181,14 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.getGroupState = function () {
-            return $location.search().group_state || "collapsed";
+            return $location.search().group_state || 'collapsed';
         };
 
         $scope.groupState = $scope.getGroupState();
 
         $scope.toggleGroupState = function () {
-            const newGroupState = $scope.groupState === "collapsed" ? "expanded" : null;
-            $location.search("group_state", newGroupState);
+            const newGroupState = $scope.groupState === 'collapsed' ? 'expanded' : null;
+            $location.search('group_state', newGroupState);
         };
 
         /*
@@ -216,7 +216,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.isTierShowing = function (tier) {
-            return thJobFilters.isFilterSetToShow("tier", tier);
+            return thJobFilters.isFilterSetToShow('tier', tier);
         };
 
         $scope.tiers = {};
@@ -248,7 +248,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             // If the bug filer is opened, don't let these shortcuts work
-            if ($document[0].body.classList.contains("filer-open")) {
+            if ($document[0].body.classList.contains('filer-open')) {
                 return true;
             }
             const overrideFunc = stopOverrides.get(combo);
@@ -259,7 +259,7 @@ treeherderApp.controller('MainCtrl', [
                 }
             }
             if ((element.tagName === 'INPUT' &&
-                 element.type !== "radio" && element.type !== "checkbox") ||
+                 element.type !== 'radio' && element.type !== 'checkbox') ||
                 element.tagName === 'SELECT' ||
                 element.tagName === 'TEXTAREA' ||
                 element.isContentEditable || ev.keyCode === 16) {
@@ -289,11 +289,11 @@ treeherderApp.controller('MainCtrl', [
 
                     $timeout(
                         () => {
-                            $("#related-bug-input").focus();
+                            $('#related-bug-input').focus();
                         }, 0);
                 }
             }, (ev, element) => {
-                if (element.id === "pinboard-classification-select") {
+                if (element.id === 'pinboard-classification-select') {
                     return false;
                 }
                 return null;
@@ -311,11 +311,11 @@ treeherderApp.controller('MainCtrl', [
 
                     $timeout(
                         () => {
-                            $("#classification-comment").focus();
+                            $('#classification-comment').focus();
                         }, 0);
                 }
             }, (ev, element) => {
-                if (element.id === "pinboard-classification-select") {
+                if (element.id === 'pinboard-classification-select') {
                     return false;
                 }
                 return null;
@@ -428,7 +428,7 @@ treeherderApp.controller('MainCtrl', [
             // Shortcut: ignore selected in the autoclasify panel
             [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'o'], (ev) => {
                 $scope.$evalAsync($rootScope.$emit(thEvents.autoclassifySelectOption,
-                                                   ev.key === "o" ? "manual" : ev.key));
+                                                   ev.key === 'o' ? 'manual' : ev.key));
             }],
 
             // Shortcut: select previous job
@@ -525,7 +525,7 @@ treeherderApp.controller('MainCtrl', [
 
         $scope.toggleFieldFilterVisibility = function () {
             if ($scope.newFieldFilter === null) {
-                $scope.newFieldFilter = { field: "", value: "" };
+                $scope.newFieldFilter = { field: '', value: '' };
             }
             $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
@@ -563,26 +563,26 @@ treeherderApp.controller('MainCtrl', [
 
             const { value, field } = $scope.newFieldFilter;
 
-            if (field === "" || value === "") {
+            if (field === '' || value === '') {
                 return;
             }
 
             thJobFilters.addFilter(field, value);
 
             // Clear the values and close the input form group
-            $scope.newFieldFilter = { field: "", value: "" };
+            $scope.newFieldFilter = { field: '', value: '' };
             $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
         };
 
         $scope.fromChangeValue = function () {
             let url = window.location.href;
-            url = url.replace("&fromchange=" + $location.search().fromchange, "");
+            url = url.replace('&fromchange=' + $location.search().fromchange, '');
             return url;
         };
 
         $scope.toChangeValue = function () {
             let url = window.location.href;
-            url = url.replace("&tochange=" + $location.search().tochange, "");
+            url = url.replace('&tochange=' + $location.search().tochange, '');
             return url;
         };
 
@@ -651,13 +651,13 @@ treeherderApp.controller('MainCtrl', [
         $scope.filterParams = function () {
             let filters = $httpParamSerializer(thJobFilters.getActiveFilters());
             if (filters) {
-                filters = "&" + filters;
+                filters = '&' + filters;
             }
             return filters;
         };
 
         $scope.clearFilterBox = function () {
-            thJobFilters.removeFilter("searchStr");
+            thJobFilters.removeFilter('searchStr');
         };
 
         $scope.onscreenOverlayShowing = false;
@@ -678,7 +678,7 @@ treeherderApp.controller('MainCtrl', [
             const showDuplicateJobs = !$scope.showDuplicateJobs;
 
             // $scope.showDuplicateJobs will be changed in watch function above
-            $location.search("duplicate_jobs", showDuplicateJobs ? 'visible' : null);
+            $location.search('duplicate_jobs', showDuplicateJobs ? 'visible' : null);
         };
     }
 ]);

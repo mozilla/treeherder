@@ -1,7 +1,7 @@
-import { createQueryParams, getProjectUrl } from "../helpers/url";
-import { destroy, create } from "../helpers/http";
+import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { destroy, create } from '../helpers/http';
 
-const uri = getProjectUrl("/bug-job-map/");
+const uri = getProjectUrl('/bug-job-map/');
 
 export default class BugJobMapModel {
   constructor(data) {
