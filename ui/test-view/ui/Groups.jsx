@@ -16,8 +16,8 @@ class Groups extends React.Component {
   componentWillMount() {
     this.filterStr = new URLSearchParams(location.search).get('filter') || '';
   }
-  componentDidMount() { // eslint-disable-line class-methods-use-this
 
+  componentDidMount() {
     // Get the mapping of optionCollectionHash to option names
     store.dispatch(actions.groups.fetchOptions());
     // Get the test data
