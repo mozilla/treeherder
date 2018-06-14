@@ -1,7 +1,7 @@
 import { createQueryParams, getProjectUrl } from '../helpers/url';
 import { destroy, create } from '../helpers/http';
 
-const uri = getProjectUrl("/note/");
+const uri = getProjectUrl('/note/');
 
 export default class JobClassificationModel {
   // JobClassificationModel is the js counterpart of note

@@ -4,7 +4,7 @@ import angular from 'angular';
 import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
-import { getApiUrl, getJobsUrl } from "../../../helpers/url";
+import { getApiUrl, getJobsUrl } from '../../../helpers/url';
 import {
   thDateFormat,
   phTimeRanges,
@@ -12,7 +12,7 @@ import {
   phTimeRangeValues,
   phAlertSummaryStatusMap,
   phAlertStatusMap,
-} from "../../constants";
+} from '../../constants';
 import OptionCollectionModel from '../../../models/optionCollection';
 
 perf.factory('PhBugs', [
@@ -31,13 +31,13 @@ perf.factory('PhBugs', [
                     });
                     const pushDate = dateFilter(
                         alertSummary.resultSetMetadata.push_timestamp*1000,
-                        "EEE MMM d yyyy");
+                        'EEE MMM d yyyy');
                     const bugTitle = alertSummary.getTitle() +
-                        " regression on push " +
-                        alertSummary.resultSetMetadata.revision + " (" +
-                        pushDate + ")";
+                        ' regression on push ' +
+                        alertSummary.resultSetMetadata.revision + ' (' +
+                        pushDate + ')';
                     window.open(
-                        "https://bugzilla.mozilla.org/enter_bug.cgi?" + $httpParamSerializer({
+                        'https://bugzilla.mozilla.org/enter_bug.cgi?' + $httpParamSerializer({
                             cc: template.cc_list,
                             comment: compiledText,
                             component: template.default_component,
@@ -54,8 +54,8 @@ perf.factory('PhBugs', [
 perf.controller(
     'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'PhIssueTracker',
         function ($scope, $uibModalInstance, alertSummary, PhIssueTracker) {
-            $scope.title = "Link to bug";
-            $scope.placeholder = "Task #";
+            $scope.title = 'Link to bug';
+            $scope.placeholder = 'Task #';
             $scope.issueTrackers = [];
             PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
                 $scope.issueTrackers = issueTrackerList;
@@ -86,8 +86,8 @@ perf.controller(
 perf.controller(
     'EditAlertSummaryNotesCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
         function ($scope, $uibModalInstance, alertSummary) {
-            $scope.title = "Edit notes";
-            $scope.placeholder = "Leave notes here...";
+            $scope.title = 'Edit notes';
+            $scope.placeholder = 'Leave notes here...';
             $scope.error = false;
             $scope.alertSummaryCopy = angular.copy(alertSummary);
 
@@ -120,8 +120,8 @@ perf.controller(
     'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
         'allAlertSummaries',
         function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
-            $scope.title = "Mark alerts downstream";
-            $scope.placeholder = "Alert #";
+            $scope.title = 'Mark alerts downstream';
+            $scope.placeholder = 'Alert #';
 
             $scope.update = () => {
                 const newId = parseInt(
@@ -153,8 +153,8 @@ perf.controller(
         'allAlertSummaries',
         function ($scope, $uibModalInstance, $q, alertSummary, allAlertSummaries) {
 
-            $scope.title = "Reassign alerts";
-            $scope.placeholder = "Alert #";
+            $scope.title = 'Reassign alerts';
+            $scope.placeholder = 'Alert #';
 
             $scope.update = function () {
 
@@ -218,7 +218,7 @@ perf.controller('AlertsCtrl', [
 
         // can filter by alert statuses or just show everything
         $scope.statuses = Object.values(phAlertSummaryStatusMap);
-        $scope.statuses = $scope.statuses.concat({ id: -1, text: "all" });
+        $scope.statuses = $scope.statuses.concat({ id: -1, text: 'all' });
 
         $scope.changeAlertSummaryStatus = function (alertSummary, open) {
             PhAlerts.changeAlertSummaryStatus(
@@ -589,7 +589,7 @@ perf.controller('AlertsCtrl', [
                     framework: _.find($scope.frameworks, {
                         id: parseInt($stateParams.framework)
                     }) || $scope.frameworks[0],
-                    filter: $stateParams.filter || "",
+                    filter: $stateParams.filter || '',
                     hideImprovements: $stateParams.hideImprovements !== undefined &&
                     parseInt($stateParams.hideImprovements),
                     hideDwnToInv: $stateParams.hideDwnToInv !== undefined &&

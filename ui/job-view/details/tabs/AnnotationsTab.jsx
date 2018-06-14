@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thEvents } from "../../../js/constants";
+import { thEvents } from '../../../js/constants';
 import { getBugUrl } from '../../../helpers/url';
 
 function RelatedBugSaved(props) {

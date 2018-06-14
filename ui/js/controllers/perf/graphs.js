@@ -15,7 +15,7 @@ import {
   phDefaultTimeRangeValue,
   phDefaultFramework,
   thPerformanceBranches,
-} from "../../constants";
+} from '../../constants';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -318,7 +318,7 @@ perf.controller('GraphsCtrl', [
             });
 
             $scope.overviewPlot = $.plot(
-                $("#overview-plot"),
+                $('#overview-plot'),
                 $scope.seriesList.map(function (series) {
                     return series.flotSeries;
                 }),
@@ -345,9 +345,9 @@ perf.controller('GraphsCtrl', [
                 series.flotSeries.lines.show = false;
             });
 
-            $("#overview-plot").on("plotunselected", plotUnselected);
+            $('#overview-plot').on('plotunselected', plotUnselected);
 
-            $("#overview-plot").on("plotselected", plotSelected);
+            $('#overview-plot').on('plotselected', plotSelected);
         }
 
         function zoomGraph() {
@@ -385,7 +385,7 @@ perf.controller('GraphsCtrl', [
             // synchronize series visibility with flot, in case it's changed
             $scope.seriesList.forEach(function (series) {
                 series.flotSeries.points.show = series.visible;
-                series.blockColor = series.visible ? series.color : "grey";
+                series.blockColor = series.visible ? series.color : 'grey';
             });
 
             // reset highlights
@@ -400,7 +400,7 @@ perf.controller('GraphsCtrl', [
                 var index = series.flotSeries.resultSetData.indexOf(resultSetId);
                 if (index !== (-1)) {
                     markings.push({
-                        color: "#ddd",
+                        color: '#ddd',
                         lineWidth: 1,
                         xaxis: {
                             from: series.flotSeries.data[index][0],
@@ -451,7 +451,7 @@ perf.controller('GraphsCtrl', [
             $q.all(highlightPromises).then(function () {
                 // plot the actual graph
                 $scope.plot = $.plot(
-                    $("#graph"),
+                    $('#graph'),
                     $scope.seriesList.map(function (series) {
                         return series.flotSeries;
                     }),
@@ -489,7 +489,7 @@ perf.controller('GraphsCtrl', [
                     }
                 }
 
-                $("#graph").on("plothover", function (event, pos, item) {
+                $('#graph').on('plothover', function (event, pos, item) {
                     // if examining an item, disable this behaviour
                     if ($scope.selectedDataPoint) return;
 
@@ -524,7 +524,7 @@ perf.controller('GraphsCtrl', [
                     highlightDataPoints();
                 });
 
-                $('#graph').on("plotselected", function (event, ranges) {
+                $('#graph').on('plotselected', function (event, ranges) {
                     $scope.plot.clearSelection();
                     plotSelected(event, ranges);
                     zoomGraph();
@@ -546,12 +546,12 @@ perf.controller('GraphsCtrl', [
 
         function updateDocumentTitle() {
             if ($scope.seriesList.length) {
-                window.document.title = ($scope.seriesList[0].name + " " +
+                window.document.title = ($scope.seriesList[0].name + ' ' +
                     $scope.seriesList[0].platform +
-                        " (" + $scope.seriesList[0].projectName +
-                        ")");
+                        ' (' + $scope.seriesList[0].projectName +
+                        ')');
                 if ($scope.seriesList.length > 1) {
-                    window.document.title += " and others";
+                    window.document.title += ' and others';
                 }
             } else {
                 window.document.title = $state.current.title;
@@ -566,11 +566,11 @@ perf.controller('GraphsCtrl', [
                 highlightedRevisions: $scope.highlightedRevisions.filter(highlight => highlight && highlight.length >= 12),
                 highlightAlerts: !$scope.highlightAlerts ? 0 : undefined,
                 zoom: (function () {
-                    if ((typeof $scope.zoom.x !== "undefined")
-                        && (typeof $scope.zoom.y !== "undefined")
+                    if ((typeof $scope.zoom.x !== 'undefined')
+                        && (typeof $scope.zoom.y !== 'undefined')
                         && ($scope.zoom.x !== 0 && $scope.zoom.y !== 0)) {
-                        var modifiedZoom = ("[" + ($scope.zoom.x.toString()
-                                + ',' + $scope.zoom.y.toString()) + "]").replace(/[\[\{\}\]"]+/g, '');
+                        var modifiedZoom = ('[' + ($scope.zoom.x.toString()
+                                + ',' + $scope.zoom.y.toString()) + ']').replace(/[\[\{\}\]"]+/g, '');
                         return modifiedZoom;
                     }
                     $scope.zoom = [];
@@ -603,7 +603,7 @@ perf.controller('GraphsCtrl', [
                         lines: { show: false },
                         points: { show: series.visible },
                         color: series.color,
-                        label: series.projectName + " " + series.name,
+                        label: series.projectName + ' ' + series.name,
                         data: _.map(
                             seriesData[series.signature],
                             function (dataPoint) {
@@ -642,8 +642,8 @@ perf.controller('GraphsCtrl', [
                 return PhSeries.getSeriesList(
                     partialSeries.project, params).then(function (seriesList) {
                         if (!seriesList.length) {
-                            return $q.reject("Signature `" + partialSeries.signature +
-                                "` not found for " + partialSeries.project);
+                            return $q.reject('Signature `' + partialSeries.signature +
+                                '` not found for ' + partialSeries.project);
                         }
                         var seriesSummary = seriesList[0];
                         seriesSummary.projectName = partialSeries.project;
@@ -653,7 +653,7 @@ perf.controller('GraphsCtrl', [
                         $scope.seriesList.push(seriesSummary);
                     });
             }, function (error) {
-                alert("Error loading performance signature\n\n" + error);
+                alert('Error loading performance signature\n\n' + error);
             })).then(function () {
                 $q.all($scope.seriesList.map(getSeriesData)).then(function () {
                     plotGraph();
@@ -665,12 +665,12 @@ perf.controller('GraphsCtrl', [
                 });
             }, function (error) {
                 if (error.statusText) {
-                    error = "HTTP Error: " + error.statusText;
+                    error = 'HTTP Error: ' + error.statusText;
                 }
                 // we could probably do better than print this
                 // rather useless error, but at least this gives
                 // a hint on what the problem is
-                alert("Error loading performance data\n\n" + error);
+                alert('Error loading performance data\n\n' + error);
             });
         }
 
@@ -752,7 +752,7 @@ perf.controller('GraphsCtrl', [
 
             if ($stateParams.zoom) {
                 var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
-                var zoomArray = zoomString.split(",");
+                var zoomArray = zoomString.split(',');
                 var zoomObject = {
                     x: zoomArray.slice(0, 2),
                     y: zoomArray.slice(2, 4)
@@ -784,7 +784,7 @@ perf.controller('GraphsCtrl', [
                 // fetch everything else from the server
                 var partialSeriesList = $stateParams.series.map(function (encodedSeries) {
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
-                    var partialSeriesArray = partialSeriesString.split(",");
+                    var partialSeriesArray = partialSeriesString.split(',');
                     var partialSeriesObject = {
                         project: partialSeriesArray[0],
                         signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
@@ -801,7 +801,7 @@ perf.controller('GraphsCtrl', [
             }
             if ($stateParams.selected) {
                 var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
-                var tooltipArray = tooltipString.split(",");
+                var tooltipArray = tooltipString.split(',');
                 var tooltip = {
                     projectName: tooltipArray[0],
                     signatureId: parseInt(tooltipArray[1]),
@@ -1036,18 +1036,18 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         };
         if (options.option !== undefined) {
             $scope.loadingRelatedSignatures = false;
-            if (options.option === "addRelatedPlatform") {
+            if (options.option === 'addRelatedPlatform') {
                 addRelatedPlatforms(options.relatedSeries);
-            } else if (options.option === "addRelatedBranches") {
+            } else if (options.option === 'addRelatedBranches') {
                 addRelatedBranches(options.relatedSeries);
-            } else if (options.option === "addRelatedConfigs") {
+            } else if (options.option === 'addRelatedConfigs') {
                 addRelatedConfigs(options.relatedSeries);
             }
             loadingExtraDataPromise.promise.then(function (length) {
                 if (length > 0) {
                     $scope.loadingRelatedSignatures = true;
                 } else {
-                    window.alert("Oops, no related platforms or branches have been found.");
+                    window.alert('Oops, no related platforms or branches have been found.');
                 }
             });
         }

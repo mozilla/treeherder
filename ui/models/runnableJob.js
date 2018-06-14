@@ -1,7 +1,7 @@
-import { getProjectUrl } from "../helpers/url";
+import { getProjectUrl } from '../helpers/url';
 import JobModel from './job';
 
-const uri = getProjectUrl("/runnable_jobs/");
+const uri = getProjectUrl('/runnable_jobs/');
 
 export default class RunnableJobModel {
   constructor(data) {

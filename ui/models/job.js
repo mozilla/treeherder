@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
 import { thPlatformMap } from '../js/constants';
-import { createQueryParams, getProjectUrl } from "../helpers/url";
+import { createQueryParams, getProjectUrl } from '../helpers/url';
 import { create } from '../helpers/http';
 
-const uri = getProjectUrl("/jobs/");
+const uri = getProjectUrl('/jobs/');
 
 // JobModel is the js counterpart of job
 export default class JobModel {
@@ -18,7 +18,7 @@ export default class JobModel {
     // we want to do a search on something like `fxup-esr(`)
     let symbolInfo = (this.job_group_symbol === '?') ? '' :
       this.job_group_symbol;
-    symbolInfo += "(" + this.job_type_symbol + ")";
+    symbolInfo += '(' + this.job_type_symbol + ')';
 
     return [
       thPlatformMap[this.platform] || this.platform,

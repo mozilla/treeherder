@@ -4,7 +4,7 @@ treeherder.factory('thBuildApi', [
     '$http', 'thNotify',
     function ($http, thNotify) {
 
-        const selfServeUrl = "https://secure.pub.build.mozilla.org/buildapi/self-serve/";
+        const selfServeUrl = 'https://secure.pub.build.mozilla.org/buildapi/self-serve/';
 
         const notify = function (status, action) {
             /*
@@ -14,11 +14,11 @@ treeherder.factory('thBuildApi', [
               "sent" for now.
             */
             if (status === 0) {
-                thNotify.send(action + " sent");
+                thNotify.send(action + ' sent');
             } else if (status === 202 || status === 200) {
-                thNotify.send(action + " SUCCESS");
+                thNotify.send(action + ' SUCCESS');
             } else {
-                thNotify.send(action + " FAILED " + status, "danger", { sticky: true });
+                thNotify.send(action + ' FAILED ' + status, 'danger', { sticky: true });
             }
 
 
@@ -28,48 +28,48 @@ treeherder.factory('thBuildApi', [
             retriggerJob: function (repoName, requestId) {
 
                 return $http({
-                    url: selfServeUrl + repoName + "/request",
-                    method: "POST",
-                    data: "request_id=" + requestId,
+                    url: selfServeUrl + repoName + '/request',
+                    method: 'POST',
+                    data: 'request_id=' + requestId,
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     },
                     withCredentials: true
                 });
             },
             cancelJob: function (repoName, requestId) {
                 return $http({
-                    url: selfServeUrl + repoName + "/request/" + requestId,
-                    method: "POST",
-                    data: "_method=DELETE",
+                    url: selfServeUrl + repoName + '/request/' + requestId,
+                    method: 'POST',
+                    data: '_method=DELETE',
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     withCredentials: true
                 })
                     .then(({ status }) => {
-                        notify(status, "cancel");
+                        notify(status, 'cancel');
                     })
                     .catch(({ status }) => {
-                        notify(status, "cancel");
+                        notify(status, 'cancel');
                     });
             },
             cancelAll: function (repoName, revision) {
                 return $http({
-                    url: selfServeUrl + repoName + "/rev/" + revision,
-                    method: "POST",
-                    data: "_method=DELETE",
+                    url: selfServeUrl + repoName + '/rev/' + revision,
+                    method: 'POST',
+                    data: '_method=DELETE',
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     withCredentials: true
 
                 })
                     .then(({ status }) => {
-                        notify(status, "cancel all jobs");
+                        notify(status, 'cancel all jobs');
                     })
                     .catch(({ status }) => {
-                        notify(status, "cancel all jobs");
+                        notify(status, 'cancel all jobs');
                     });
             }
         };

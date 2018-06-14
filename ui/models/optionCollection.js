@@ -1,6 +1,6 @@
 import { getApiUrl } from '../helpers/url';
 
-const uri = getApiUrl("/optioncollectionhash/");
+const uri = getApiUrl('/optioncollectionhash/');
 
 export default class OptionCollectionModel {
 

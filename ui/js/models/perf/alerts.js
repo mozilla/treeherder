@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import treeherder from '../../treeherder';
-import { getApiUrl } from "../../../helpers/url";
+import { getApiUrl } from '../../../helpers/url';
 import OptionCollectionModel from '../../../models/optionCollection';
 import {
   phAlertSummaryStatusMap,
@@ -35,8 +35,8 @@ treeherder.factory('PhAlerts', [
             // the otherwise rather useless signature hash to avoid having to fetch this
             // information from the server)
             if (performanceFrameworkId === 1) {
-                const branches = (alertRepository === "mozilla-beta") ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
-                url += branches.map(branch => `&series=${branch},${this.series_signature.signature_hash},0`).join("");
+                const branches = (alertRepository === 'mozilla-beta') ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
+                url += branches.map(branch => `&series=${branch},${this.series_signature.signature_hash},0`).join('');
             }
 
             return url;
@@ -104,7 +104,7 @@ treeherder.factory('PhAlerts', [
             }
         };
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
-            let resultStr = "";
+            let resultStr = '';
             const improved = _.sortBy(
                 this.alerts.filter(alert => !alert.is_regression && alert.visible),
                 'amount_pct'
@@ -115,9 +115,9 @@ treeherder.factory('PhAlerts', [
             ).reverse();
 
             const formatAlert = function (alert, alertList) {
-                return _.padStart(alert.amount_pct.toFixed(0), 3) + "%  " +
+                return _.padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
                 _.padEnd(alert.title, _.max(alertList, function (alert) { return alert.title.length; }).title.length +5) +
-                displayNumberFilter(alert.prev_value) + " -> " + displayNumberFilter(alert.new_value);
+                displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };
 
             // add summary header if getting text for clipboard only
@@ -128,27 +128,27 @@ treeherder.factory('PhAlerts', [
             if (regressed.length > 0) {
                 // add a newline if we displayed the header
                 if (copySummary) {
-                    resultStr += "\n";
+                    resultStr += '\n';
                 }
-                resultStr += "Regressions:\n\n" +
+                resultStr += 'Regressions:\n\n' +
                              _.map(regressed, function (alert) {
                                  return formatAlert(alert, regressed);
-                             }).join('\n') + "\n";
+                             }).join('\n') + '\n';
             }
             if (improved.length > 0) {
                 // Add a newline if we displayed some regressions
                 if (resultStr.length > 0) {
-                    resultStr += "\n";
+                    resultStr += '\n';
                 }
-                resultStr += "Improvements:\n\n" +
+                resultStr += 'Improvements:\n\n' +
                              _.map(improved, function (alert) {
                                  return formatAlert(alert, improved);
-                             }).join('\n') + "\n";
+                             }).join('\n') + '\n';
             }
             // include link to alert if getting text for clipboard only
             if (copySummary) {
                 const alertLink = window.location.origin + '/perf.html#/alerts?id=' + this.id;
-                resultStr += "\nFor up to date results, see: " + alertLink;
+                resultStr += '\nFor up to date results, see: ' + alertLink;
             }
             return resultStr;
         };
@@ -205,20 +205,20 @@ treeherder.factory('PhAlerts', [
             }
 
             if (alertsInSummary.length > 1) {
-                title = _.min(_.map(alertsInSummary, 'amount_pct')) + " - " +
-                    _.max(_.map(alertsInSummary, 'amount_pct')) + "%";
+                title = _.min(_.map(alertsInSummary, 'amount_pct')) + ' - ' +
+                    _.max(_.map(alertsInSummary, 'amount_pct')) + '%';
             } else if (alertsInSummary.length === 1) {
-                title = alertsInSummary[0].amount_pct + "%";
+                title = alertsInSummary[0].amount_pct + '%';
             } else {
-                title = "Empty alert";
+                title = 'Empty alert';
             }
             // add test info
-            title += " " + [...new Set(
+            title += ' ' + [...new Set(
                 _.map(alertsInSummary, function (a) {
                     return PhSeries.getTestName(a.series_signature);
                 }))].sort().join(' / ');
             // add platform info
-            title += " (" + [...new Set(
+            title += ' (' + [...new Set(
                 _.map(alertsInSummary, function (a) {
                     return a.series_signature.machine_platform;
                 }))].sort().join(', ') + ')';
@@ -307,25 +307,25 @@ treeherder.factory('PhAlerts', [
                     const params = [];
                     if (options && !_.isUndefined(options.statusFilter) &&
                         options.statusFilter !== (-1)) {
-                        params[params.length] = ("status=" + options.statusFilter);
+                        params[params.length] = ('status=' + options.statusFilter);
                     }
                     if (options && !_.isUndefined(options.frameworkFilter)) {
-                        params[params.length] = ("framework=" + options.frameworkFilter);
+                        params[params.length] = ('framework=' + options.frameworkFilter);
                     }
                     if (options && !_.isUndefined(options.signatureId)) {
-                        params[params.length] = ("alerts__series_signature=" +
+                        params[params.length] = ('alerts__series_signature=' +
                                                  options.signatureId);
                     }
                     if (options && !_.isUndefined(options.repository)) {
-                        params[params.length] = ("repository=" +
+                        params[params.length] = ('repository=' +
                                                  options.repository);
                     }
                     if (options && !_.isUndefined(options.page)) {
-                        params[params.length] = ("page=" + options.page);
+                        params[params.length] = ('page=' + options.page);
                     }
 
                     if (params.length) {
-                        href += "?" + params.join("&");
+                        href += '?' + params.join('&');
                     }
                 } else {
                     href = options.href;

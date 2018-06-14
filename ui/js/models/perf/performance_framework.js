@@ -1,5 +1,5 @@
 import treeherder from '../../treeherder';
-import { getApiUrl } from "../../../helpers/url";
+import { getApiUrl } from '../../../helpers/url';
 
 treeherder.factory(
     'PhFramework', [

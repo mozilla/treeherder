@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 import JobButton from './JobButton';
 import JobCountComponent from './JobCount';
-import { getBtnClass, getStatus } from "../helpers/job";
-import { getUrlParam } from "../helpers/location";
-import { thFailureResults, thEvents } from "../js/constants";
+import { getBtnClass, getStatus } from '../helpers/job';
+import { getUrlParam } from '../helpers/location';
+import { thFailureResults, thEvents } from '../js/constants';
 
 class GroupSymbol extends React.PureComponent {
   render() {

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import perf from '../../perf';
-import { thDefaultRepo, phBlockers, phTimeRanges } from "../../constants";
+import { thDefaultRepo, phBlockers, phTimeRanges } from '../../constants';
 
 const phDashboardValues = {
     /*
@@ -176,7 +176,7 @@ perf.controller('dashCtrl', [
 
         // set filter options
         $scope.filterOptions = {
-            filter: $stateParams.filter || "",
+            filter: $stateParams.filter || '',
             showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                        parseInt($stateParams.showOnlyImportant)),
             showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&
@@ -290,7 +290,7 @@ perf.controller('dashSubtestCtrl', [
 
             // get base data
             getSeriesList.then(function (seriesList) {
-                const summaryTestName = seriesList[0].platform + ": " + seriesList[0].suite;
+                const summaryTestName = seriesList[0].platform + ': ' + seriesList[0].suite;
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
@@ -360,7 +360,7 @@ perf.controller('dashSubtestCtrl', [
         }
 
         $scope.filterOptions = {
-            filter: $stateParams.filter || "",
+            filter: $stateParams.filter || '',
             showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                        parseInt($stateParams.showOnlyImportant)),
             showOnlyComparable: Boolean($stateParams.showOnlyComparable !== undefined &&

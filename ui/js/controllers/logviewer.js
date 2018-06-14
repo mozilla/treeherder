@@ -1,7 +1,7 @@
 import logViewerApp from '../logviewer';
-import { getInspectTaskUrl, getReftestUrl } from "../../helpers/url";
-import { isReftest } from "../../helpers/job";
-import { thDateFormat } from "../constants";
+import { getInspectTaskUrl, getReftestUrl } from '../../helpers/url';
+import { isReftest } from '../../helpers/job';
+import { thDateFormat } from '../constants';
 import JobDetailModel from '../../models/jobDetail';
 import JobModel from '../../models/job';
 import TextLogStepModel from '../../models/textLogStep';
@@ -18,11 +18,11 @@ logViewerApp.controller('LogviewerCtrl', [
         $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
         $rootScope.logOffset = 7;
 
-        if (query_string.repo !== "") {
+        if (query_string.repo !== '') {
             $rootScope.repoName = query_string.repo;
         }
 
-        if (query_string.job_id !== "") {
+        if (query_string.job_id !== '') {
             $scope.job_id= query_string.job_id;
         }
 
@@ -102,7 +102,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 values.lineNumber -= $rootScope.logOffset;
             }
 
-            $document[0].getElementById('logview').contentWindow.postMessage(values, "*");
+            $document[0].getElementById('logview').contentWindow.postMessage(values, '*');
         };
 
         $scope.hasFailedSteps = () => {
@@ -127,7 +127,7 @@ logViewerApp.controller('LogviewerCtrl', [
         };
 
         // Get the css class for the result, step buttons and other general use
-        $scope.getShadingClass = result => "result-status-shading-" + result;
+        $scope.getShadingClass = result => 'result-status-shading-' + result;
 
         // @@@ it may be possible to do this with the angular date filter?
         $scope.formatTime = (startedStr, finishedStr) => {
@@ -140,7 +140,7 @@ logViewerApp.controller('LogviewerCtrl', [
             const m = Math.floor(sec % 3600 / 60);
             const s = Math.floor(sec % 3600 % 60);
             const secStng = sec.toString();
-            const ms = secStng.substr(secStng.indexOf(".") + 1, 2);
+            const ms = secStng.substr(secStng.indexOf('.') + 1, 2);
 
             return ((h > 0 ? h + 'h ' : '') + (m > 0 ? m + 'm ' : '') +
                    (s > 0 ? s + 's ' : '') + (ms > 0 ? ms + 'ms ' : '00ms'));
@@ -231,8 +231,8 @@ logViewerApp.controller('LogviewerCtrl', [
                     for (let i = 0; i < $scope.steps.length; i++) {
                         const step = $scope.steps[i];
 
-                        if (step.result !== "success" && ($scope.result &&
-                            $scope.result.value !== "success" && step.result !== "unknown")) {
+                        if (step.result !== 'success' && ($scope.result &&
+                            $scope.result.value !== 'success' && step.result !== 'unknown')) {
                             $scope.logPostMessage({
                                 lineNumber: step.started_line_number + 1,
                                 highlightStart: step.started_line_number + 1,

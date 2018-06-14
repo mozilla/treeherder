@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import treeherder from '../../treeherder';
-import { getProjectUrl, getApiUrl } from "../../../helpers/url";
+import { getProjectUrl, getApiUrl } from '../../../helpers/url';
 import OptionCollectionModel from '../../../models/optionCollection';
 
 treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
@@ -9,7 +9,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
     const _getTestName = function (signatureProps) {
         // only return suite name if testname is identical, and handle
         // undefined test name
-        return [...new Set([signatureProps.suite, signatureProps.test].filter(item => item))].join(" ");
+        return [...new Set([signatureProps.suite, signatureProps.test].filter(item => item))].join(' ');
     };
 
     const _getSeriesOptions = function (signatureProps, optionCollectionMap) {
@@ -26,10 +26,10 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
         let name = _getTestName(signatureProps);
 
         if (displayOptions && displayOptions.includePlatformInName) {
-            name = name + " " + platform;
+            name = name + ' ' + platform;
         }
         const options = _getSeriesOptions(signatureProps, optionCollectionMap);
-        return name + " " + options.join(" ");
+        return name + ' ' + options.join(' ');
     };
 
     const _getSeriesSummary = function (projectName, signature, signatureProps,
@@ -85,7 +85,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
                     if (response.data) {
                         return response.data;
                     }
-                    return $q.reject("No series data found");
+                    return $q.reject('No series data found');
                 });
         },
         getReplicateData: function (params) {
@@ -100,7 +100,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
                                 return response.data;
                             });
                         }
-                        return $q.reject("No replicate data found");
+                        return $q.reject('No replicate data found');
                     });
         }
     };

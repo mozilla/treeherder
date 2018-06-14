@@ -45,7 +45,7 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
         // comment out the next line to enable them
         $logProvider.debugEnabled(false);
 
-        localStorageServiceProvider.setPrefix("treeherder");
+        localStorageServiceProvider.setPrefix('treeherder');
 
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';

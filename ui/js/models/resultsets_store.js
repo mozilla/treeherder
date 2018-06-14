@@ -320,15 +320,15 @@ treeherder.factory('ThResultSetStore', [
 
                     if (jobList.length === 0) {
                         push.isRunnableVisible = false;
-                        thNotify.send("No new jobs available");
+                        thNotify.send('No new jobs available');
                     }
 
                     mapPushJobs(jobList);
                 }, function () {
-                    thNotify.send("Error fetching runnable jobs", "danger");
+                    thNotify.send('Error fetching runnable jobs', 'danger');
                 });
             }, function (reason) {
-                thNotify.send(`Error fetching runnable jobs: Failed to fetch task ID (${reason})`, "danger");
+                thNotify.send(`Error fetching runnable jobs: Failed to fetch task ID (${reason})`, 'danger');
             });
         };
 
@@ -430,7 +430,7 @@ treeherder.factory('ThResultSetStore', [
         var updateUnclassifiedFailureCountForTiers = function () {
             repoData.unclassifiedFailureCountForTiers = 0;
             Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
-                if (thJobFilters.isFilterSetToShow("tier", job.tier)) {
+                if (thJobFilters.isFilterSetToShow('tier', job.tier)) {
                     repoData.unclassifiedFailureCountForTiers += 1;
                 }
             });
@@ -715,15 +715,15 @@ treeherder.factory('ThResultSetStore', [
             var result = true;
             if (repoData && repoData.length) {
                 var meta = repoData.meta;
-                if (_.has(meta, "push_timestamp__gte") &&
+                if (_.has(meta, 'push_timestamp__gte') &&
                     push_timestamp < meta.push_timestamp__gte) {
                     result = false;
                 }
-                if (_.has(meta, "push_timestamp__lte") &&
+                if (_.has(meta, 'push_timestamp__lte') &&
                     push_timestamp > meta.push_timestamp__lte) {
                     result = false;
                 }
-                if (_.has(meta, "push_timestamp__lt") &&
+                if (_.has(meta, 'push_timestamp__lt') &&
                     push_timestamp >= meta.push_timestamp__lt) {
                     result = false;
                 }
@@ -755,13 +755,13 @@ treeherder.factory('ThResultSetStore', [
         var getGeckoDecisionJob = function (pushId) {
             const push = getPush(pushId);
             const platform = _.find(push.platforms, {
-                name: "gecko-decision",
-                groups: [{ jobs: [{ state: "completed", job_type_symbol: "D" }] }] });
+                name: 'gecko-decision',
+                groups: [{ jobs: [{ state: 'completed', job_type_symbol: 'D' }] }] });
             if (platform) {
                 // Gecko Decision Task has been completed.
                 // Let's fetch the URL of full-tasks-graph.json
                 // This extra search is important to avoid confusion with Action Tasks
-                return _.find(platform.groups[0].jobs, { job_type_symbol: "D" });
+                return _.find(platform.groups[0].jobs, { job_type_symbol: 'D' });
             }
 
             return undefined;
@@ -772,7 +772,7 @@ treeherder.factory('ThResultSetStore', [
             const dtid = push.geckoDecisionTaskId;
             // If we've retrieved it already, we can just return it again. Otherwise
             // try to find it. If it doesn't exist, we set it to an empty string.
-            if (dtid || dtid === "") {
+            if (dtid || dtid === '') {
                 return $q.when(dtid);
             }
 
@@ -783,14 +783,14 @@ treeherder.factory('ThResultSetStore', [
                         // this failure case is unlikely, but I guess you
                         // never know
                         if (!job.taskcluster_metadata) {
-                            return $q.reject("Decision task missing taskcluster metadata");
+                            return $q.reject('Decision task missing taskcluster metadata');
                         }
                         return job.taskcluster_metadata.task_id;
                     });
             }
 
             // no decision task, we fail
-            return $q.reject("No decision task");
+            return $q.reject('No decision task');
         };
 
         var toggleSelectedRunnableJob = function (pushId, buildername) {
@@ -833,7 +833,7 @@ treeherder.factory('ThResultSetStore', [
             return $q.all([loadRepositories, loadResultsets])
                 .then(() => appendPushes(pushes),
                      () => {
-                         thNotify.send("Error retrieving push data!", "danger", { sticky: true });
+                         thNotify.send('Error retrieving push data!', 'danger', { sticky: true });
                          appendPushes({ results: [] });
                      })
                 .then(() => {
@@ -927,7 +927,7 @@ treeherder.factory('ThResultSetStore', [
 
             if (jobList.length === 0) { return groupedJobs; }
             groupedJobs.id = jobList[0].result_set_id;
-            var lastModified = "";
+            var lastModified = '';
             for (var i=0; i<jobList.length; i++) {
                 // search for the right platform
                 var job = jobList[i];
@@ -976,8 +976,8 @@ treeherder.factory('ThResultSetStore', [
                         return job.job_type_symbol.replace(
                                 /([\D]*)([\d]*)/g,
                             function (matcher, s1, s2) {
-                                if (s2 !== "") {
-                                    s2 = "00" + s2;
+                                if (s2 !== '') {
+                                    s2 = '00' + s2;
                                     s2 = s2.slice(-3);
                                     return s1 + s2;
                                 }

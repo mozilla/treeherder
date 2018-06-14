@@ -6,7 +6,7 @@ import { getAllUrlParams } from '../helpers/location';
 function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;
   const urlParams = getAllUrlParams();
-  urlParams.delete("revision");
+  urlParams.delete('revision');
 
   const isRevision = revision => (
     revision && (revision.length === 12 || revision.length === 40)

@@ -8,7 +8,7 @@ import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 import * as groupsStore from './modules/groups';
 import { thPlatformMap } from '../../js/constants';
-import { getServiceUrl, getProjectUrl } from "../../helpers/url";
+import { getServiceUrl, getProjectUrl } from '../../helpers/url';
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?
@@ -25,7 +25,7 @@ function buildFailureLines(lsAcc, failureLine) {
   if (failureLine.test) {
     lsAcc[failureLine.test] = lsAcc[failureLine.test]
       ? lsAcc[failureLine.test]
-      : { group: failureLine.group.length ? failureLine.group[0].name : "Unavailable", failureLines: [] };
+      : { group: failureLine.group.length ? failureLine.group[0].name : 'Unavailable', failureLines: [] };
     lsAcc[failureLine.test].failureLines = [...lsAcc[failureLine.test].failureLines, failureLine];
   }
   return lsAcc;
@@ -238,9 +238,9 @@ function filterTests(store, { filter, groups, options, hideClassified }) {
   const params = new URLSearchParams(location.search.slice(1));
 
   if (filter) {
-    params.set("filter", filter);
+    params.set('filter', filter);
   } else {
-    params.delete("filter");
+    params.delete('filter');
   }
   history.push(location.pathname + '?' + params.toString());
   store.dispatch({
@@ -281,7 +281,7 @@ function stripHost(urlStr) {
  * @returns {Array}
  */
 function splitTestName(testName) {
-  return testName.split(" == ").map(testSub => testSub.substring(testSub.lastIndexOf('/')));
+  return testName.split(' == ').map(testSub => testSub.substring(testSub.lastIndexOf('/')));
 }
 
 function getMatchingTestBugs(bs, testName) {

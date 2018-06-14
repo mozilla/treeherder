@@ -49,7 +49,7 @@ export function MoreRevisionsLink(props) {
         href={props.href}
         target="_blank"
         rel="noopener"
-      >{`\u2026and more`}<i className="fa fa-external-link-square" /></a>
+      >{'\u2026and more'}<i className="fa fa-external-link-square" /></a>
     </li>
   );
 }

@@ -53,4 +53,4 @@ export const parseHash = qs => (
   })
 );
 
-export const loggedOutUser = { isStaff: false, username: "", email: "", isLoggedIn: false };
+export const loggedOutUser = { isStaff: false, username: '', email: '', isLoggedIn: false };

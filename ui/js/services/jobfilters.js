@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/job';
-import { thFailureResults, thDefaultFilterResultStates, thEvents } from "../constants";
+import { thFailureResults, thDefaultFilterResultStates, thEvents } from '../constants';
 
 /**
    This service handles whether or not a job, job group or platform row should
@@ -36,12 +36,12 @@ treeherder.factory('thJobFilters', [
         thPlatformName) {
 
         // prefix for all filter query string params
-        const PREFIX = "filter-";
+        const PREFIX = 'filter-';
 
         // constants for specific types of filters
-        const CLASSIFIED_STATE = "classifiedState";
-        const RESULT_STATUS = "resultStatus";
-        const SEARCH_STR = "searchStr";
+        const CLASSIFIED_STATE = 'classifiedState';
+        const RESULT_STATUS = 'resultStatus';
+        const SEARCH_STR = 'searchStr';
 
         const QS_CLASSIFIED_STATE = PREFIX + CLASSIFIED_STATE;
         const QS_RESULT_STATUS = PREFIX + RESULT_STATUS;
@@ -51,7 +51,7 @@ treeherder.factory('thJobFilters', [
         const DEFAULTS = {
             resultStatus: thDefaultFilterResultStates,
             classifiedState: ['classified', 'unclassified'],
-            tier: ["1", "2"]
+            tier: ['1', '2']
         };
 
         const NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
@@ -60,7 +60,7 @@ treeherder.factory('thJobFilters', [
         // failure classification ids that should be shown in "unclassified" mode
         const UNCLASSIFIED_IDS = [1, 7];
 
-        const TIERS = ["1", "2", "3"];
+        const TIERS = ['1', '2', '3'];
 
         // used with field-filters to determine how to match the value against the
         // job field.
@@ -74,49 +74,49 @@ treeherder.factory('thJobFilters', [
         // choices available for the field filters
         const FIELD_CHOICES = {
             ref_data_name: {
-                name: "buildername/jobname",
+                name: 'buildername/jobname',
                 matchType: MATCH_TYPE.substr
             },
             build_system_type: {
-                name: "build system",
+                name: 'build system',
                 matchType: MATCH_TYPE.substr
             },
             job_type_name: {
-                name: "job name",
+                name: 'job name',
                 matchType: MATCH_TYPE.substr
             },
             job_type_symbol: {
-                name: "job symbol",
+                name: 'job symbol',
                 matchType: MATCH_TYPE.exactstr
             },
             job_group_name: {
-                name: "group name",
+                name: 'group name',
                 matchType: MATCH_TYPE.substr
             },
             job_group_symbol: {
-                name: "group symbol",
+                name: 'group symbol',
                 matchType: MATCH_TYPE.exactstr
             },
             machine_name: {
-                name: "machine name",
+                name: 'machine name',
                 matchType: MATCH_TYPE.substr
             },
             platform: {
-                name: "platform",
+                name: 'platform',
                 matchType: MATCH_TYPE.substr
             },
             tier: {
-                name: "tier",
+                name: 'tier',
                 matchType: MATCH_TYPE.exactstr
             },
             failure_classification_id: {
-                name: "failure classification",
+                name: 'failure classification',
                 matchType: MATCH_TYPE.choice,
                 choices: thClassificationTypes.classifications
             },
             // text search across multiple fields
             searchStr: {
-                name: "search string",
+                name: 'search string',
                 matchType: MATCH_TYPE.searchStr
             }
         };
@@ -200,7 +200,7 @@ treeherder.factory('thJobFilters', [
             // when runnable jobs have been added to a resultset, they should be
             // shown regardless of settings for classified or result state
             const status = getStatus(job);
-            if (status !== "runnable") {
+            if (status !== 'runnable') {
                 // test against resultStatus and classifiedState
                 if (cachedResultStatusFilters.indexOf(status) === -1) {
                     return false;
@@ -402,7 +402,7 @@ treeherder.factory('thJobFilters', [
          */
         function setOnlySuperseded() {
             const locationSearch = _.clone($location.search());
-            locationSearch[QS_RESULT_STATUS] = "superseded";
+            locationSearch[QS_RESULT_STATUS] = 'superseded';
             locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
         }
@@ -504,7 +504,7 @@ treeherder.factory('thJobFilters', [
          */
         function _getJobFieldValue(job, field) {
             if (field === 'platform') {
-                return thPlatformName(job[field]) + " " + job.platform_option;
+                return thPlatformName(job[field]) + ' ' + job.platform_option;
             } else if (field === 'searchStr') {
                 // lazily get this to avoid storing redundant information
                 return job.getSearchStr();

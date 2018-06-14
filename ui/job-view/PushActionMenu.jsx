@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
-import { getUrlParam } from "../helpers/location";
+import { getUrlParam } from '../helpers/location';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
 
@@ -56,7 +56,7 @@ export default class PushActionMenu extends React.PureComponent {
 
   getRangeChangeUrl(param, revision) {
     let url = window.location.href;
-    url = url.replace(`&${param}=${getUrlParam(param)}`, "");
+    url = url.replace(`&${param}=${getUrlParam(param)}`, '');
     return `${url}&${param}=${revision}`;
   }
 
@@ -69,7 +69,7 @@ export default class PushActionMenu extends React.PureComponent {
       .then((decisionTaskID) => {
         this.ThResultSetModel.triggerMissingJobs(decisionTaskID)
           .then((msg) => {
-            this.thNotify.send(msg, "success");
+            this.thNotify.send(msg, 'success');
           }, (e) => {
             this.thNotify.send(
               formatModelError(e, "The action 'trigger missing jobs' failed"),
@@ -85,16 +85,16 @@ export default class PushActionMenu extends React.PureComponent {
       return;
     }
 
-    let times = parseInt(window.prompt("Enter number of instances to have for each talos job", 6));
+    let times = parseInt(window.prompt('Enter number of instances to have for each talos job', 6));
     while (times < 1 || times > 6 || isNaN(times)) {
-      times = window.prompt("We only allow instances of each talos job to be between 1 to 6 times. Enter again", 6);
+      times = window.prompt('We only allow instances of each talos job to be between 1 to 6 times. Enter again', 6);
     }
 
     this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
         this.ThResultSetModel.triggerAllTalosJobs(times, decisionTaskID)
           .then((msg) => {
-            this.thNotify.send(msg, "success");
+            this.thNotify.send(msg, 'success');
           }, (e) => {
             this.thNotify.send(
               formatTaskclusterError(e),

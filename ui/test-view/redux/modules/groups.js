@@ -129,7 +129,7 @@ export const actions = {
     type: types.FETCH_BUGS,
     meta: {
       type: 'api',
-      url: `/graphql?query=`,
+      url: '/graphql?query=',
       method: 'GET',
       rowData,
     },
@@ -138,7 +138,7 @@ export const actions = {
     type: types.FETCH_BUGS_SINGLE_TEST,
     meta: {
       type: 'api',
-      url: `/graphql?query=`,
+      url: '/graphql?query=',
       method: 'GET',
       test,
       bugSuggestions,

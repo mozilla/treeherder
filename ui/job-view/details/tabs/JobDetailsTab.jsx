@@ -7,7 +7,7 @@ export default class JobDetailsTab extends React.PureComponent {
   render() {
     const { jobDetails } = this.props;
     const sortedDetails = jobDetails ? jobDetails.slice() : [];
-    const builderNameItem = jobDetails.findIndex(detail => detail.title === "Buildername");
+    const builderNameItem = jobDetails.findIndex(detail => detail.title === 'Buildername');
     sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
     return (

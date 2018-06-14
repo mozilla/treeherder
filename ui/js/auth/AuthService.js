@@ -1,6 +1,6 @@
 import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 import thTaskcluster from '../services/taskcluster';
-import { getApiUrl } from "../../helpers/url";
+import { getApiUrl } from '../../helpers/url';
 
 export default class AuthService {
   constructor() {

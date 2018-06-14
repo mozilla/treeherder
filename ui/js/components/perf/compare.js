@@ -30,10 +30,10 @@ treeherder.component('phCompareTable', {
 
         ctrl.$onInit = function () {
             if (!ctrl.baseTitle) {
-                ctrl.baseTitle = "Base";
+                ctrl.baseTitle = 'Base';
             }
             if (!ctrl.newTitle) {
-                ctrl.newTitle = "New";
+                ctrl.newTitle = 'New';
             }
             ctrl.updateFilteredTestList();
         };
@@ -138,9 +138,9 @@ treeherder.component('distributionGraph', {
         const ctrl = this;
 
         ctrl.$onInit = function () {
-            const cvs = document.getElementById("distribution-graph-new");
-            const ctx = cvs.getContext("2d");
-            cvs.setAttribute("id", "distribution-graph-current");
+            const cvs = document.getElementById('distribution-graph-new');
+            const ctx = cvs.getContext('2d');
+            cvs.setAttribute('id', 'distribution-graph-current');
             ctrl.maxValue = Math.max.apply(null, ctrl.replicates);
             ctrl.minValue = Math.min.apply(null, ctrl.replicates);
             if (ctrl.maxValue - ctrl.minValue > 1) {

@@ -4,13 +4,13 @@ import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
 import { getPushTableId } from '../helpers/aggregateId';
-import { thEvents } from "../js/constants";
+import { thEvents } from '../js/constants';
 
 const watchCycleStates = [
-  "none",
-  "push",
-  "job",
-  "none"
+  'none',
+  'push',
+  'job',
+  'none'
 ];
 
 export default class Push extends React.Component {
@@ -28,7 +28,7 @@ export default class Push extends React.Component {
 
     this.state = {
       runnableVisible: false,
-      watched: "none",
+      watched: 'none',
 
       // props.push isn't actually immutable due to the way it hooks up to angular, therefore we
       // need to keep the previous value in the state.
@@ -44,7 +44,7 @@ export default class Push extends React.Component {
     const { watched, last_job_counts } = this.state;
     const { repoName, push: { revision, id: pushId } } = this.props;
 
-    if (Notification.permission !== "granted" || watched === "none") {
+    if (Notification.permission !== 'granted' || watched === 'none') {
       return;
     }
 
@@ -58,11 +58,11 @@ export default class Push extends React.Component {
 
       let message;
       if (lastUncompleted > 0 && nextUncompleted === 0) {
-        message = "Push completed";
-        this.setState({ watched: "none" });
-      } else if (watched === "job" && lastCompleted < nextCompleted) {
+        message = 'Push completed';
+        this.setState({ watched: 'none' });
+      } else if (watched === 'job' && lastCompleted < nextCompleted) {
         const completeCount = nextCompleted - lastCompleted;
-        message = completeCount + " jobs completed";
+        message = completeCount + ' jobs completed';
       }
 
       if (message) {
@@ -72,7 +72,7 @@ export default class Push extends React.Component {
         });
 
         notification.onerror = (event) => {
-          this.thNotify.send(`${event.target.title}: ${event.target.body}`, "danger");
+          this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
         };
 
         notification.onclick = (event) => {
@@ -103,13 +103,13 @@ export default class Push extends React.Component {
   async cycleWatchState() {
     let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
 
-    if (next !== "none" && Notification.permission !== "granted") {
+    if (next !== 'none' && Notification.permission !== 'granted') {
       const result = await Notification.requestPermission();
 
-      if (result === "denied") {
-        this.thNotify.send("Notification permission denied", "danger");
+      if (result === 'denied') {
+        this.thNotify.send('Notification permission denied', 'danger');
 
-        next = "none";
+        next = 'none';
       }
     }
     this.setState({ watched: next });
