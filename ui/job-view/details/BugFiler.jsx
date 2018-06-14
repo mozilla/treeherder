@@ -13,6 +13,7 @@ import {
   hgBaseUrl,
 } from '../../helpers/url';
 import { create } from '../../helpers/http';
+import { withNotifications } from '../../shared/context/Notifications';
 
 const crashRegex = /application crashed \[@ (.+)\]$/g;
 const omittedLeads = ['TEST-UNEXPECTED-FAIL', 'PROCESS-CRASH', 'TEST-UNEXPECTED-ERROR', 'REFTEST ERROR'];
@@ -79,7 +80,7 @@ const parseSummary = (suggestion) => {
   return [summaryParts, possibleFilename];
 };
 
-export default class BugFiler extends React.Component {
+export class BugFilerClass extends React.Component {
   constructor(props) {
     super(props);
 
@@ -294,12 +295,12 @@ export default class BugFiler extends React.Component {
     const [product, component] = selectedProduct.split(' :: ');
 
     if (!selectedProduct) {
-      notify.send('Please select (or search and select) a product/component pair to continue', 'danger');
+      notify('Please select (or search and select) a product/component pair to continue', 'danger');
       return;
     }
 
     if (summary.length > 255) {
-      notify.send('Please ensure the summary is no more than 255 characters', 'danger');
+      notify('Please ensure the summary is no more than 255 characters', 'danger');
       return;
     }
 
@@ -353,7 +354,7 @@ export default class BugFiler extends React.Component {
         this.submitFailure('Bugzilla', productResp.status, productResp.statusText, productData);
       }
     } catch (e) {
-      notify.send(`Error filing bug: ${e.toString()}`, 'danger', { sticky: true });
+      notify(`Error filing bug: ${e.toString()}`, 'danger', { sticky: true });
     }
   }
 
@@ -367,7 +368,7 @@ export default class BugFiler extends React.Component {
     if (status === 403) {
       failureString += '\n\nAuthentication failed. Has your Treeherder session expired?';
     }
-    notify.send(failureString, 'danger', { sticky: true });
+    notify(failureString, 'danger', { sticky: true });
   }
 
   toggleTooltip(key) {
@@ -601,7 +602,7 @@ export default class BugFiler extends React.Component {
   }
 }
 
-BugFiler.propTypes = {
+BugFilerClass.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   suggestion: PropTypes.object.isRequired,
@@ -611,5 +612,7 @@ BugFiler.propTypes = {
   reftestUrl: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
   jobGroupName: PropTypes.string.isRequired,
-  notify: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
 };
+
+export default withNotifications(BugFilerClass);

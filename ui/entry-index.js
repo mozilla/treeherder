@@ -30,7 +30,5 @@ import './job-view/JobView';
 import './shared/ShortcutTable';
 
 // Treeherder JS
-import './js/directives/treeherder/main';
-import './js/services/main';
 import './js/models/perf/series';
 import './js/controllers/main';

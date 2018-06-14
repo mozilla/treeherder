@@ -9,6 +9,7 @@ import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
+import { withNotifications } from '../../shared/context/Notifications';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -63,10 +64,7 @@ PushCounts.propTypes = {
 class PushHeader extends React.PureComponent {
   constructor(props) {
     super(props);
-    const { $injector, pushTimestamp } = this.props;
-
-    this.$rootScope = $injector.get('$rootScope');
-    this.thNotify = $injector.get('thNotify');
+    const { pushTimestamp } = this.props;
 
     this.pushDateStr = toDateStr(pushTimestamp);
   }
@@ -90,7 +88,10 @@ class PushHeader extends React.PureComponent {
   }
 
   triggerNewJobs() {
-    const { isLoggedIn, pushId, getGeckoDecisionTaskId, selectedRunnableJobs, hideRunnableJobs } = this.props;
+    const {
+      isLoggedIn, pushId, getGeckoDecisionTaskId, selectedRunnableJobs,
+      hideRunnableJobs, notify,
+    } = this.props;
 
     if (!window.confirm(
         'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
@@ -101,21 +102,23 @@ class PushHeader extends React.PureComponent {
       getGeckoDecisionTaskId(pushId)
         .then((decisionTaskID) => {
           PushModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
-            this.thNotify.send(result, 'success');
+            notify(result, 'success');
             hideRunnableJobs(pushId);
             this.props.hideRunnableJobs();
           }).catch((e) => {
-            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
         }).catch((e) => {
-          this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
         });
     } else {
-      this.thNotify.send('Must be logged in to trigger a job', 'danger');
+      notify('Must be logged in to trigger a job', 'danger');
     }
   }
 
   cancelAllJobs() {
+    const { notify, repoName } = this.props;
+
     if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
       const { push, isLoggedIn, getGeckoDecisionTaskId } = this.props;
       // Any job Id inside the push will do
@@ -123,12 +126,7 @@ class PushHeader extends React.PureComponent {
 
       if (!isLoggedIn) return;
 
-      JobModel.cancelAll(
-        jobId,
-        this.$rootScope.repoName,
-        getGeckoDecisionTaskId,
-        this.thNotify,
-      );
+      JobModel.cancelAll(jobId, repoName, getGeckoDecisionTaskId, notify);
     }
   }
 
@@ -148,7 +146,7 @@ class PushHeader extends React.PureComponent {
 
   render() {
     const { repoName, isLoggedIn, pushId, jobCounts, author,
-            revision, runnableVisible, $injector, watchState,
+            revision, runnableVisible, watchState,
             showRunnableJobs, hideRunnableJobs, cycleWatchState,
             notificationSupported, selectedRunnableJobs } = this.props;
     const cancelJobsTitle = isLoggedIn ?
@@ -235,7 +233,6 @@ class PushHeader extends React.PureComponent {
               revision={revision}
               repoName={repoName}
               pushId={pushId}
-              $injector={$injector}
               showRunnableJobs={showRunnableJobs}
               hideRunnableJobs={hideRunnableJobs}
             />
@@ -253,7 +250,6 @@ PushHeader.propTypes = {
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
@@ -267,6 +263,7 @@ PushHeader.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   selectedRunnableJobs: PropTypes.array.isRequired,
+  notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
   selectedJob: PropTypes.object,
@@ -278,4 +275,4 @@ PushHeader.defaultProps = {
   watchState: 'none',
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(PushHeader)));
+export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(PushHeader))));

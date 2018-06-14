@@ -12,6 +12,7 @@ import {
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
 import { withPushes } from './context/Pushes';
+import { withNotifications } from '../shared/context/Notifications';
 
 class CustomJobActions extends React.Component {
   constructor(props) {
@@ -97,13 +98,13 @@ class CustomJobActions extends React.Component {
         input = jsyaml.safeLoad(payload);
       } catch (e) {
         this.setState({ triggering: false });
-        notify.send(`YAML Error: ${e.message}`, 'danger');
+        notify(`YAML Error: ${e.message}`, 'danger');
         return;
       }
       const valid = validate(input);
       if (!valid) {
         this.setState({ triggering: false });
-        notify.send(ajv.errorsText(validate.errors), 'danger');
+        notify(ajv.errorsText(validate.errors), 'danger');
         return;
       }
     }
@@ -130,10 +131,10 @@ class CustomJobActions extends React.Component {
         message = 'Visit Taskcluster Tools site to access loaner:';
         url = `${url}/connect`;
       }
-      notify.send(message, 'success', { linkText: 'Open in Taskcluster', url });
+      notify(message, 'success', { linkText: 'Open in Taskcluster', url });
       this.close();
     }, (e) => {
-      notify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
       this.setState({ triggering: false });
       this.close();
     });
@@ -229,7 +230,7 @@ class CustomJobActions extends React.Component {
 CustomJobActions.propTypes = {
   pushId: PropTypes.number.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  notify: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   job: PropTypes.object,
@@ -239,4 +240,4 @@ CustomJobActions.defaultProps = {
   job: null,
 };
 
-export default withPushes(CustomJobActions);
+export default withNotifications(withPushes(CustomJobActions));

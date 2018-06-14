@@ -17,7 +17,7 @@ class PushList extends React.Component {
 
   render() {
     const {
-      $injector, user, repoName, revision, currentRepo, filterModel, pushList,
+      user, repoName, revision, currentRepo, filterModel, pushList,
       loadingPushes, getNextPushes, jobsLoaded, duplicateJobsVisible,
       groupCountsExpanded,
     } = this.props;
@@ -39,7 +39,6 @@ class PushList extends React.Component {
               currentRepo={currentRepo}
               repoName={repoName}
               filterModel={filterModel}
-              $injector={$injector}
               notificationSupported={notificationSupported}
               duplicateJobsVisible={duplicateJobsVisible}
               groupCountsExpanded={groupCountsExpanded}
@@ -78,7 +77,6 @@ class PushList extends React.Component {
 }
 
 PushList.propTypes = {
-  $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,

@@ -2,35 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { toShortDateStr } from '../../helpers/display';
+import { withNotifications } from '../../shared/context/Notifications';
 
-export default class NotificationsMenu extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const { $injector } = this.props;
-    this.thNotify = $injector.get('thNotify');
-
-    this.state = {
-      notifications: [],
-    };
-  }
-
-  componentDidMount() {
-    this.unlistenStorage = window.addEventListener('storage', (e) => {
-      if (e.key === 'notifications') {
-        this.changeCallback(JSON.parse(localStorage.getItem('notifications') || '[]'));
-      }
-    });
-
-    this.changeCallback = this.changeCallback.bind(this);
-    this.thNotify.setChangeCallback(this.changeCallback);
-    this.changeCallback(this.thNotify.storedNotifications);
-  }
-
-  componentWillUnmount() {
-    this.unlistenStorage();
-  }
-
+class NotificationsMenu extends React.Component {
   getSeverityClass(severity) {
     switch (severity) {
       case 'danger': return 'fa fa-ban text-danger';
@@ -40,12 +14,8 @@ export default class NotificationsMenu extends React.Component {
     return 'fa fa-info-circle text-info';
   }
 
-  changeCallback(notifications) {
-    this.setState({ notifications });
-  }
-
   render() {
-    const { notifications } = this.state;
+    const { storedNotifications, clearStoredNotifications } = this.props;
 
     return (
       <span className="dropdown">
@@ -67,14 +37,14 @@ export default class NotificationsMenu extends React.Component {
             className="dropdown-header"
             title="Notifications"
           >Recent notifications
-            {!!notifications.length && <button
+            {!!storedNotifications.length && <button
               className="btn btn-xs btn-light-bordered notification-dropdown-btn"
               title="Clear all notifications"
-              onClick={this.thNotify.clear}
+              onClick={clearStoredNotifications}
             >Clear all</button>}
           </li>
-          {notifications.length ?
-            notifications.map(notification => (
+          {storedNotifications.length ?
+            storedNotifications.map(notification => (
               <li
                 className="notification-dropdown-line"
                 key={notification.created}
@@ -100,5 +70,8 @@ export default class NotificationsMenu extends React.Component {
 }
 
 NotificationsMenu.propTypes = {
-  $injector: PropTypes.object.isRequired,
+  storedNotifications: PropTypes.array.isRequired,
+  clearStoredNotifications: PropTypes.func.isRequired,
 };
+
+export default withNotifications(NotificationsMenu);

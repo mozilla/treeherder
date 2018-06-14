@@ -13,6 +13,7 @@ import { getAllUrlParams } from '../../helpers/location';
 import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
 import { withSelectedJob } from '../context/SelectedJob';
+import { withNotifications } from '../../shared/context/Notifications';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
@@ -21,9 +22,6 @@ const jobPollInterval = 60000;
 class Push extends React.Component {
   constructor(props) {
     super(props);
-    const { $injector } = props;
-
-    this.thNotify = $injector.get('thNotify');
 
     this.state = {
       platforms: [],
@@ -229,7 +227,7 @@ class Push extends React.Component {
   showUpdateNotifications(prevState) {
     const { watched, jobCounts } = this.state;
     const {
-      repoName, notificationSupported, push: { revision, id: pushId },
+      repoName, notificationSupported, push: { revision, id: pushId }, notify,
     } = this.props;
 
     if (!notificationSupported || Notification.permission !== 'granted' || watched === 'none') {
@@ -260,7 +258,7 @@ class Push extends React.Component {
         });
 
         notification.onerror = (event) => {
-          this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
+          notify(`${event.target.title}: ${event.target.body}`, 'danger');
         };
 
         notification.onclick = (event) => {
@@ -274,7 +272,7 @@ class Push extends React.Component {
   }
 
   async showRunnableJobs() {
-    const { push, repoName, getGeckoDecisionTaskId } = this.props;
+    const { push, repoName, getGeckoDecisionTaskId, notify } = this.props;
 
     try {
       const decisionTaskId = await getGeckoDecisionTaskId(push.id, repoName);
@@ -286,12 +284,12 @@ class Push extends React.Component {
         job.id = escapeId(job.push_id + job.ref_data_name);
       });
       if (jobList.length === 0) {
-        this.thNotify.send('No new jobs available');
+        notify('No new jobs available');
       }
       this.mapPushJobs(jobList, true);
       this.setState({ runnableVisible: jobList.length > 0 });
     } catch (error) {
-      this.thNotify.send(`Error fetching runnable jobs: Failed to fetch task ID (${error})`, 'danger');
+      notify(`Error fetching runnable jobs: Failed to fetch task ID (${error})`, 'danger');
     }
   }
 
@@ -307,6 +305,8 @@ class Push extends React.Component {
   }
 
   async cycleWatchState() {
+    const { notify } = this.props;
+
     if (!this.props.notificationSupported) {
       return;
     }
@@ -317,7 +317,7 @@ class Push extends React.Component {
       const result = await Notification.requestPermission();
 
       if (result === 'denied') {
-        this.thNotify.send('Notification permission denied', 'danger');
+        notify('Notification permission denied', 'danger');
 
         next = 'none';
       }
@@ -327,7 +327,7 @@ class Push extends React.Component {
 
   render() {
     const {
-      push, isLoggedIn, $injector, repoName, currentRepo, duplicateJobsVisible,
+      push, isLoggedIn, repoName, currentRepo, duplicateJobsVisible,
       filterModel, notificationSupported, getAllShownJobs, groupCountsExpanded,
     } = this.props;
     const {
@@ -349,7 +349,6 @@ class Push extends React.Component {
           isLoggedIn={isLoggedIn}
           repoName={repoName}
           filterModel={filterModel}
-          $injector={$injector}
           runnableVisible={runnableVisible}
           showRunnableJobs={this.showRunnableJobs}
           hideRunnableJobs={this.hideRunnableJobs}
@@ -364,7 +363,6 @@ class Push extends React.Component {
           {currentRepo &&
             <RevisionList
               push={push}
-              $injector={$injector}
               repo={currentRepo}
             />
           }
@@ -379,7 +377,6 @@ class Push extends React.Component {
               runnableVisible={runnableVisible}
               duplicateJobsVisible={duplicateJobsVisible}
               groupCountsExpanded={groupCountsExpanded}
-              $injector={$injector}
             />
           </span>
         </div>
@@ -391,7 +388,6 @@ class Push extends React.Component {
 Push.propTypes = {
   push: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
@@ -402,6 +398,7 @@ Push.propTypes = {
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
-export default withPushes(withSelectedJob(Push));
+export default withNotifications(withPushes(withSelectedJob(Push)));

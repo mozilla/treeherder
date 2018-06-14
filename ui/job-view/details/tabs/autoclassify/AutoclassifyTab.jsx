@@ -11,6 +11,7 @@ import ErrorLine from './ErrorLine';
 import ErrorLineData from './ErrorLineModel';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
+import { withNotifications } from '../../../../shared/context/Notifications';
 
 class AutoclassifyTab extends React.Component {
   constructor(props) {
@@ -18,7 +19,6 @@ class AutoclassifyTab extends React.Component {
 
     const { $injector } = this.props;
 
-    this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
@@ -235,6 +235,7 @@ class AutoclassifyTab extends React.Component {
       return Promise.reject('No lines to save');
     }
     const { errorLines } = this.state;
+    const { notify } = this.props;
     const data = Object.values(lines).map(input => ({
       id: input.id,
       best_classification: input.classifiedFailureId || null,
@@ -255,7 +256,7 @@ class AutoclassifyTab extends React.Component {
       .catch((err) => {
         const prefix = 'Error saving classifications: ';
         const msg = err.stack ? `${prefix}${err}${err.stack}` : `${prefix}${err.statusText} - ${err.data.detail}`;
-        this.thNotify.send(msg, 'danger', { sticky: true });
+        notify(msg, 'danger', { sticky: true });
       });
   }
 
@@ -391,6 +392,7 @@ AutoclassifyTab.propTypes = {
   selectedJob: PropTypes.object.isRequired,
   hasLogs: PropTypes.bool.isRequired,
   pinJob: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
   autoclassifyStatus: PropTypes.string,
   logsParsed: PropTypes.bool,
   logParseStatus: PropTypes.string,
@@ -402,4 +404,4 @@ AutoclassifyTab.defaultProps = {
   logParseStatus: 'pending',
 };
 
-export default withSelectedJob(withPinnedJobs(AutoclassifyTab));
+export default withNotifications(withSelectedJob(withPinnedJobs(AutoclassifyTab)));

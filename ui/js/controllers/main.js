@@ -5,14 +5,9 @@ import { thTitleSuffixLimit, thDefaultRepo } from '../../helpers/constants';
 import { getUrlParam } from '../../helpers/location';
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', 'thNotify',
+    '$scope', '$rootScope',
     function MainController(
-        $scope, $rootScope, thNotify) {
-
-        if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
-          thNotify.send('Firefox ESR52 is not supported. Please update to ESR60 or ideally release/beta/nightly.',
-                        'danger', { sticky: true });
-        }
+        $scope, $rootScope) {
 
         // set to the default repo if one not specified
         const repoName = getUrlParam('repo');

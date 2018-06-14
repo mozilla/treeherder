@@ -7,7 +7,7 @@ import { getStatus } from '../../helpers/job';
 export default class JobsAndGroups extends React.Component {
   render() {
     const {
-      $injector, groups, repoName, platform, filterPlatformCb, filterModel,
+      groups, repoName, platform, filterPlatformCb, filterModel,
       pushGroupState, duplicateJobsVisible, groupCountsExpanded,
     } = this.props;
 
@@ -19,7 +19,6 @@ export default class JobsAndGroups extends React.Component {
               group.visible && <JobGroup
                 group={group}
                 repoName={repoName}
-                $injector={$injector}
                 filterModel={filterModel}
                 filterPlatformCb={filterPlatformCb}
                 platform={platform}
@@ -34,7 +33,6 @@ export default class JobsAndGroups extends React.Component {
             group.jobs.map(job => (
               <JobButton
                 job={job}
-                $injector={$injector}
                 filterModel={filterModel}
                 repoName={repoName}
                 visible={job.visible}
@@ -55,7 +53,6 @@ export default class JobsAndGroups extends React.Component {
 JobsAndGroups.propTypes = {
   groups: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,

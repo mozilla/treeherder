@@ -5,6 +5,7 @@ import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPushes } from '../../context/Pushes';
+import { withNotifications } from '../../../shared/context/Notifications';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -144,7 +145,6 @@ class AnnotationsTab extends React.Component {
     super(props);
 
     const { $injector } = props;
-    this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
 
     this.deleteBug = this.deleteBug.bind(this);
@@ -152,7 +152,7 @@ class AnnotationsTab extends React.Component {
   }
 
   componentDidMount() {
-    const { classifications, bugs } = this.props;
+    const { classifications, bugs, notify } = this.props;
 
     this.deleteClassificationUnlisten = this.$rootScope.$on(thEvents.deleteClassification, () => {
       if (classifications.length) {
@@ -160,7 +160,7 @@ class AnnotationsTab extends React.Component {
         // Delete any number of bugs if they exist
         bugs.forEach((bug) => { this.deleteBug(bug); });
       } else {
-        this.thNotify.send('No classification on this job to delete', 'warning');
+        notify('No classification on this job to delete', 'warning');
       }
     });
   }
@@ -170,14 +170,14 @@ class AnnotationsTab extends React.Component {
   }
 
   deleteClassification(classification) {
-    const { selectedJob, recalculateUnclassifiedCounts } = this.props;
+    const { selectedJob, recalculateUnclassifiedCounts, notify } = this.props;
 
     selectedJob.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
 
     classification.destroy().then(
       () => {
-        this.thNotify.send('Classification successfully deleted', 'success');
+        notify('Classification successfully deleted', 'success');
         // also be sure the job object in question gets updated to the latest
         // classification state (in case one was added or removed).
         this.$rootScope.$emit(
@@ -186,23 +186,19 @@ class AnnotationsTab extends React.Component {
         );
       },
       () => {
-        this.thNotify.send(
-          'Classification deletion failed',
-          'danger',
-          { sticky: true },
-        );
+        notify('Classification deletion failed', 'danger', { sticky: true });
       });
   }
 
   deleteBug(bug) {
-    const { selectedJob } = this.props;
+    const { selectedJob, notify } = this.props;
 
     bug.destroy()
       .then(() => {
-        this.thNotify.send(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
+        notify(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
         this.$rootScope.$emit(thEvents.jobsClassified, { jobs: { [selectedJob.id]: selectedJob } });
       }, () => {
-        this.thNotify.send(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
+        notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
       });
   }
 
@@ -247,6 +243,7 @@ AnnotationsTab.propTypes = {
   bugs: PropTypes.array.isRequired,
   classifications: PropTypes.array.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -254,4 +251,4 @@ AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
 
-export default withPushes(withSelectedJob(AnnotationsTab));
+export default withNotifications(withPushes(withSelectedJob(AnnotationsTab)));

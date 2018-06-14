@@ -18,7 +18,6 @@ class FailureSummaryTab extends React.Component {
 
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thNotify = $injector.get('thNotify');
 
     this.state = {
       isBugFilerOpen: false,
@@ -122,7 +121,6 @@ class FailureSummaryTab extends React.Component {
           reftestUrl={isReftest(selectedJob) ? reftestUrl : ''}
           successCallback={this.bugFilerCallback}
           jobGroupName={selectedJob.job_group_name}
-          notify={this.thNotify}
         />}
       </div>
     );

@@ -97,13 +97,11 @@ export default class JobModel {
     return JobModel.getList(repoName, options, config);
   }
 
-  static async retrigger(jobIds, repoName, getGeckoDecisionTaskId, thNotify) {
+  static async retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify) {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
-      thNotify.send(
-        `Attempting to retrigger ${jobTerm} via actions.json`,
-        'info');
+      notify(`Attempting to retrigger ${jobTerm} via actions.json`, 'info');
 
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
@@ -123,22 +121,19 @@ export default class JobModel {
         } catch (e) {
           // The full message is too large to fit in a Treeherder
           // notification box.
-          thNotify.send(
-            formatTaskclusterError(e),
-            'danger',
-            { sticky: true });
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
       }
       /* eslint-enable no-await-in-loop */
 
-      thNotify.send(`Request sent to retrigger ${jobTerm} via action.json`, 'success');
+      notify(`Request sent to retrigger ${jobTerm} via action.json`, 'success');
     } catch (e) {
-      thNotify.send(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
+      notify(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 
   // Any jobId inside the push will do
-  static async cancelAll(jobId, repoName, getGeckoDecisionTaskId, thNotify) {
+  static async cancelAll(jobId, repoName, getGeckoDecisionTaskId, notify) {
     const job = await JobModel.get(repoName, jobId);
     const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
     const results = await TaskclusterModel.load(decisionTaskId);
@@ -154,22 +149,17 @@ export default class JobModel {
     } catch (e) {
       // The full message is too large to fit in a Treeherder
       // notification box.
-      thNotify.send(
-        formatTaskclusterError(e),
-        'danger',
-        { sticky: true });
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
 
-    thNotify.send('Request sent to cancel all jobs via action.json', 'success');
+    notify('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobIds, repoName, getGeckoDecisionTaskId, thNotify) {
+  static async cancel(jobIds, repoName, getGeckoDecisionTaskId, notify) {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
-      thNotify.send(
-        `Attempting to cancel selected ${jobTerm} via actions.json`,
-        'info');
+      notify(`Attempting to cancel selected ${jobTerm} via actions.json`, 'info');
 
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
@@ -189,17 +179,14 @@ export default class JobModel {
         } catch (e) {
           // The full message is too large to fit in a Treeherder
           // notification box.
-          thNotify.send(
-            formatTaskclusterError(e),
-            'danger',
-            { sticky: true });
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
       }
       /* eslint-enable no-await-in-loop */
 
-      thNotify.send(`Request sent to cancel ${jobTerm} via action.json`, 'success');
+      notify(`Request sent to cancel ${jobTerm} via action.json`, 'success');
     } catch (e) {
-      thNotify.send(`Unable to cancel ${jobTerm}`, 'danger', { sticky: true });
+      notify(`Unable to cancel ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 }

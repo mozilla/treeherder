@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
 
 import { thEvents } from '../../helpers/constants';
+import { withNotifications } from '../../shared/context/Notifications';
 import { formatModelError } from '../../helpers/errorMessage';
 import { getJobBtnClass, getHoverText } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
@@ -19,7 +20,6 @@ class PinBoard extends React.Component {
     super(props);
 
     const { $injector } = this.props;
-    this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
@@ -67,7 +67,7 @@ class PinBoard extends React.Component {
   }
 
   save() {
-    const { isLoggedIn, pinnedJobs, recalculateUnclassifiedCounts } = this.props;
+    const { isLoggedIn, pinnedJobs, recalculateUnclassifiedCounts, notify } = this.props;
 
     let errorFree = true;
     if (this.state.enteringBugNumber) {
@@ -75,15 +75,15 @@ class PinBoard extends React.Component {
       // just forgot to hit enter. Returns false if invalid
       errorFree = this.saveEnteredBugNumber();
       if (!errorFree) {
-        this.thNotify.send('Please enter a valid bug number', 'danger');
+        notify('Please enter a valid bug number', 'danger');
       }
     }
     if (!this.canSaveClassifications() && isLoggedIn) {
-      this.thNotify.send('Please classify this failure before saving', 'danger');
+      notify('Please classify this failure before saving', 'danger');
       errorFree = false;
     }
     if (!isLoggedIn) {
-      this.thNotify.send('Must be logged in to save job classifications', 'danger');
+      notify('Must be logged in to save job classifications', 'danger');
       errorFree = false;
     }
     if (errorFree) {
@@ -122,7 +122,7 @@ class PinBoard extends React.Component {
   }
 
   saveClassification(job) {
-    const { recalculateUnclassifiedCounts } = this.props;
+    const { recalculateUnclassifiedCounts, notify } = this.props;
     const classification = this.createNewClassification();
 
     // classification can be left unset making this a no-op
@@ -133,16 +133,16 @@ class PinBoard extends React.Component {
 
       classification.job_id = job.id;
       return classification.create().then(() => {
-          this.thNotify.send(`Classification saved for ${job.platform} ${job.job_type_name}`, 'success');
+          notify(`Classification saved for ${job.platform} ${job.job_type_name}`, 'success');
         }).catch((response) => {
           const message = `Error saving classification for ${job.platform} ${job.job_type_name}`;
-          this.thNotify.send(formatModelError(response, message), 'danger');
+          notify(formatModelError(response, message), 'danger');
         });
     }
   }
 
   saveBugs(job) {
-    const { pinnedJobBugs } = this.props;
+    const { pinnedJobBugs, notify } = this.props;
 
     Object.values(pinnedJobBugs).forEach((bug) => {
       const bjm = new BugJobMapModel({
@@ -153,11 +153,11 @@ class PinBoard extends React.Component {
 
       bjm.create()
         .then(() => {
-          this.thNotify.send(`Bug association saved for ${job.platform} ${job.job_type_name}`, 'success');
+          notify(`Bug association saved for ${job.platform} ${job.job_type_name}`, 'success');
         })
         .catch((response) => {
           const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
-          this.thNotify.send(formatModelError(response, message), 'danger');
+          notify(formatModelError(response, message), 'danger');
       });
     });
   }
@@ -191,7 +191,7 @@ class PinBoard extends React.Component {
   }
 
   cancelAllPinnedJobs() {
-    const { getGeckoDecisionTaskId } = this.props;
+    const { getGeckoDecisionTaskId, notify } = this.props;
 
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
@@ -200,7 +200,7 @@ class PinBoard extends React.Component {
         jobIds,
         this.$rootScope.repoName,
         getGeckoDecisionTaskId,
-        this.thNotify,
+        notify,
       );
 
       this.unPinAll();
@@ -332,12 +332,12 @@ class PinBoard extends React.Component {
   }
 
   retriggerAllPinnedJobs() {
-    const { getGeckoDecisionTaskId } = this.props;
+    const { getGeckoDecisionTaskId, notify } = this.props;
     JobModel.retrigger(
       Object.keys(this.props.pinnedJobs),
       this.$rootScope.repoName,
       getGeckoDecisionTaskId,
-      this.thNotify,
+      notify,
     );
   }
 
@@ -548,6 +548,7 @@ PinBoard.propTypes = {
   unPinAll: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
   revisionTips: PropTypes.array,
@@ -559,4 +560,4 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(PinBoard)));
+export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(PinBoard))));

@@ -16,6 +16,7 @@ import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import { withPinnedJobs } from './PinnedJobs';
 import { withPushes } from './Pushes';
+import { withNotifications } from '../../shared/context/Notifications';
 
 const SelectedJobContext = React.createContext({});
 
@@ -96,7 +97,7 @@ class SelectedJobClass extends React.Component {
 
               // the job exists, but isn't in any loaded push.
               // provide a message and link to load the right push
-              notify.send(
+              notify(
                 `Selected job id: ${selectedJobId} not within current push range.`,
                 'danger',
                 { sticky: true, linkText: 'Load push', url: newPushUrl });
@@ -108,7 +109,7 @@ class SelectedJobClass extends React.Component {
           // the job wasn't found in the db.  Either never existed,
           // or was expired and deleted.
           this.clearSelectedJob();
-          notify.send(`Selected Job - ${error}`,
+          notify(`Selected Job - ${error}`,
             'danger',
             { sticky: true });
         });
@@ -169,7 +170,7 @@ class SelectedJobClass extends React.Component {
   noMoreUnclassifiedFailures() {
     const { pinnedJobs, notify } = this.props;
 
-    notify.send('No unclassified failures to select.');
+    notify('No unclassified failures to select.');
     this.clearSelectedJob(Object.keys(pinnedJobs).length);
   }
 
@@ -257,13 +258,13 @@ class SelectedJobClass extends React.Component {
 
 SelectedJobClass.propTypes = {
   jobsLoaded: PropTypes.bool.isRequired,
-  notify: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
   jobMap: PropTypes.object.isRequired,
   children: PropTypes.object.isRequired,
 };
 
-export const SelectedJob = withPushes(withPinnedJobs(SelectedJobClass));
+export const SelectedJob = withNotifications(withPushes(withPinnedJobs(SelectedJobClass)));
 
 export function withSelectedJob(Component) {
   return function SelectedJobComponent(props) {

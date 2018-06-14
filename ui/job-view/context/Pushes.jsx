@@ -17,6 +17,7 @@ import { isUnclassifiedFailure } from '../../helpers/job';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { reloadOnChangeParameters } from '../../helpers/filter';
+import { withNotifications } from '../../shared/context/Notifications';
 
 const PushesContext = React.createContext({});
 const defaultPushCount = 10;
@@ -26,13 +27,12 @@ const pushPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
 const pushFetchKeys = [...pushPollingKeys, 'fromchange', 'startdate'];
 const pushPollInterval = 60000;
 
-export class Pushes extends React.Component {
+export class PushesClass extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thNotify = $injector.get('thNotify');
 
     this.skipNextPageReload = false;
 
@@ -208,6 +208,7 @@ export class Pushes extends React.Component {
 
   poll() {
     this.pushIntervalId = setInterval(() => {
+      const { notify } = this.props;
       const { pushList } = this.state;
       // these params will be passed in each time we poll to remain
       // within the constraints of the URL params
@@ -221,7 +222,7 @@ export class Pushes extends React.Component {
             const data = await resp.json();
             this.addPushes(data);
           } else {
-            this.thNotify.send('Error fetching new push data', 'danger', { sticky: true });
+            notify('Error fetching new push data', 'danger', { sticky: true });
           }
         });
 
@@ -262,6 +263,7 @@ export class Pushes extends React.Component {
    * @param count How many to fetch
    */
   fetchPushes(count) {
+    const { notify } = this.props;
     const { oldestPushTimestamp } = this.state;
     // const isAppend = (repoData.pushes.length > 0);
     // Only pass supported query string params to this endpoint.
@@ -285,7 +287,7 @@ export class Pushes extends React.Component {
 
         this.addPushes(data.results.length ? data : { results: [] });
       } else {
-        this.thNotify.send('Error retrieving push data!', 'danger', { sticky: true });
+        notify('Error retrieving push data!', 'danger', { sticky: true });
       }
     }).then(() => this.setValue({ loadingPushes: false }));
   }
@@ -370,11 +372,14 @@ export class Pushes extends React.Component {
 
 }
 
-Pushes.propTypes = {
+PushesClass.propTypes = {
   children: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
 };
+
+export const Pushes = withNotifications(PushesClass);
 
 export function withPushes(Component) {
   return function PushesComponent(props) {

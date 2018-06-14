@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withNotifications } from '../../shared/context/Notifications';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';
 const MAX_SIZE = 500;
 const PinnedJobsContext = React.createContext({});
 
-export class PinnedJobs extends React.Component {
+export class PinnedJobsClass extends React.Component {
   constructor(props) {
     super(props);
 
@@ -73,7 +74,7 @@ export class PinnedJobs extends React.Component {
       }, () => { if (callback) callback(); });
       this.pulsePinCount();
     } else {
-      notify.send(COUNT_ERROR, 'danger');
+      notify(COUNT_ERROR, 'danger');
     }
   }
 
@@ -92,7 +93,7 @@ export class PinnedJobs extends React.Component {
     const newPinnedJobs = jobsToPin.slice(0, spaceRemaining).reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
 
     if (!spaceRemaining) {
-      notify.send(COUNT_ERROR, 'danger', { sticky: true });
+      notify(COUNT_ERROR, 'danger', { sticky: true });
       return;
     }
 
@@ -101,7 +102,7 @@ export class PinnedJobs extends React.Component {
       isPinBoardVisible: true,
     }, () => {
       if (showError) {
-        notify.send(COUNT_ERROR, 'danger', { sticky: true });
+        notify(COUNT_ERROR, 'danger', { sticky: true });
       }
     });
   }
@@ -160,6 +161,13 @@ export class PinnedJobs extends React.Component {
   }
 }
 
+PinnedJobsClass.propTypes = {
+  notify: PropTypes.func.isRequired,
+  children: PropTypes.object.isRequired,
+};
+
+export const PinnedJobs = withNotifications(PinnedJobsClass);
+
 export function withPinnedJobs(Component) {
   return function PinBoardComponent(props) {
     return (
@@ -184,8 +192,3 @@ export function withPinnedJobs(Component) {
     );
   };
 }
-
-PinnedJobs.propTypes = {
-  notify: PropTypes.object.isRequired,
-  children: PropTypes.object.isRequired,
-};

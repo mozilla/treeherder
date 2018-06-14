@@ -25,21 +25,13 @@ export default function PrimaryNavBar(props) {
           <div id="th-global-navbar-top">
             <LogoMenu />
             <span className="navbar-right">
-              <NotificationsMenu $injector={$injector} />
+              <NotificationsMenu />
               <InfraMenu />
               <ReposMenu repos={repos} />
-              <TiersMenu
-                filterModel={filterModel}
-              />
-              <FiltersMenu
-                filterModel={filterModel}
-              />
+              <TiersMenu filterModel={filterModel} />
+              <FiltersMenu filterModel={filterModel} />
               <HelpMenu />
-              <Login
-                user={user}
-                setUser={setUser}
-                $injector={$injector}
-              />
+              <Login user={user} setUser={setUser} />
             </span>
           </div>
           <SecondaryNavBar

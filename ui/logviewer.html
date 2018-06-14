@@ -40,7 +40,7 @@
           </li>
           <li ng-if="!jobExists" class="alert-danger">
             <div>
-              <span title="The job does not exist or has expired">Unavailable</span>
+              <span title="The job does not exist or has expired">Unavailable: {{jobError}}</span>
             </div>
           </li>
 
@@ -128,7 +128,6 @@
     </div>
 
     <th-log-viewer class="logview-container"></th-log-viewer>
-    <th-notification-box></th-notification-box>
 
   </body>
 </html>
