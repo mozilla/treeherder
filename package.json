@@ -88,7 +88,7 @@
   },
   "scripts": {
     "build": "node ./node_modules/neutrino/bin/neutrino build --presets ./neutrino-custom/production.js",
-    "lint": "node ./node_modules/eslint/bin/eslint.js --ext .js,.jsx ui/",
+    "lint": "node ./node_modules/eslint/bin/eslint.js --cache --ext js,jsx \".*.js\" \"*.js\" ui/",
     "start": "node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
     "start:local": "BACKEND_DOMAIN=http://localhost:8000 node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
     "start:stage": "BACKEND_DOMAIN=https://treeherder.allizom.org node ./node_modules/neutrino/bin/neutrino start --presets ./neutrino-custom/development.js",
