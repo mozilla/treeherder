@@ -403,7 +403,7 @@ treeherder.factory('thJobFilters', [
         function setOnlySuperseded() {
             const locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = 'superseded';
-            locationSearch[QS_CLASSIFIED_STATE]= DEFAULTS.classifiedState.slice();
+            locationSearch[QS_CLASSIFIED_STATE] = DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
         }
 
@@ -440,7 +440,7 @@ treeherder.factory('thJobFilters', [
 
         function getNonFieldFiltersArray() {
             return Object.entries($location.search()).reduce((acc, [key, value]) => (
-                NON_FIELD_FILTERS.includes(key) ? [...acc, { field: key, key, value }]: acc
+                NON_FIELD_FILTERS.includes(key) ? [...acc, { field: key, key, value }] : acc
             ), []);
         }
 
@@ -531,7 +531,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function _withPrefix(field) {
-            return (!field.startsWith(PREFIX) && !NON_FIELD_FILTERS.includes(field)) ? PREFIX+field : field;
+            return (!field.startsWith(PREFIX) && !NON_FIELD_FILTERS.includes(field)) ? PREFIX + field : field;
         }
 
         function _withoutPrefix(field) {

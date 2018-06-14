@@ -60,7 +60,7 @@ treeherder.controller('BugFilerCtrl', [
             let thisFailure = '';
 
             for (let i = 0; i < allFailures.length; i++) {
-                for (let j=0; j < $scope.omittedLeads.length; j++) {
+                for (let j = 0; j < $scope.omittedLeads.length; j++) {
                     if (allFailures[i][0].search($scope.omittedLeads[j]) >= 0 && allFailures[i].length > 1) {
                         allFailures[i].shift();
                     }
@@ -129,7 +129,7 @@ treeherder.controller('BugFilerCtrl', [
             // contains any of the omittedLeads, that lead is needed
             // for the full string match, so don't omit it in this case.
             // If it's not needed, go ahead and omit it.
-            for (let i=0; i < $scope.omittedLeads.length; i++) {
+            for (let i = 0; i < $scope.omittedLeads.length; i++) {
                 if ($scope.search_terms.length > 0 && summary.length > 1 &&
                     !$scope.search_terms[0].includes($scope.omittedLeads[i]) &&
                     summary[0].search($scope.omittedLeads[i]) >= 0) {

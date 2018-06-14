@@ -116,11 +116,11 @@ perf.controller('GraphsCtrl', [
                 var firstResultSetIndex = phSeries.flotSeries.resultSetData.indexOf(
                     dataPoint.resultSetId);
                 var prevResultSetId = (firstResultSetIndex > 0) ?
-                    phSeries.flotSeries.resultSetData[firstResultSetIndex- 1] : null;
+                    phSeries.flotSeries.resultSetData[firstResultSetIndex - 1] : null;
 
                 var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
                     function (resultSetId) {
-                        return resultSetId === dataPoint.resultSetId ? 'retrigger':'original';
+                        return resultSetId === dataPoint.resultSetId ? 'retrigger' : 'original';
                     });
                 var prevFlotDataPointIndex = (flotData.pointIndex - 1);
                 var flotSeriesData = flotData.series.data;
@@ -148,7 +148,7 @@ perf.controller('GraphsCtrl', [
                     resultSetId: dataPoint.resultSetId,
                     jobId: dataPoint.jobId,
                     series: phSeries,
-                    value: Math.round(v*1000)/1000,
+                    value: Math.round(v * 1000) / 1000,
                     deltaValue: dv.toFixed(1),
                     deltaPercentValue: (100 * dvp).toFixed(1),
                     date: $.plot.formatDate(new Date(t), '%a %b %d, %H:%M:%S'),
@@ -608,7 +608,7 @@ perf.controller('GraphsCtrl', [
                             seriesData[series.signature],
                             function (dataPoint) {
                                 return [
-                                    new Date(dataPoint.push_timestamp*1000),
+                                    new Date(dataPoint.push_timestamp * 1000),
                                     dataPoint.value
                                 ];
                             }),

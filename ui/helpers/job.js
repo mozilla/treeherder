@@ -163,7 +163,7 @@ export const getTimeFields = function getTimeFields(job) {
   // If we have both starttime and endtime, then duration will be between those two
   const endtime = job.end_timestamp || Date.now() / 1000;
   const starttime = job.start_timestamp || job.submit_timestamp;
-  const duration = `${Math.round((endtime - starttime)/60, 0)} minute(s)`;
+  const duration = `${Math.round((endtime - starttime) / 60, 0)} minute(s)`;
 
   if (job.start_timestamp) {
     timeFields.startTime = toDateStr(job.start_timestamp);

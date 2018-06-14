@@ -113,7 +113,7 @@ treeherderApp.controller('MainCtrl', [
             }
 
             let title;
-            for (let i=0; i<revisions.length; i++) {
+            for (let i = 0; i < revisions.length; i++) {
                 title = _.unescape(revisions[i].comments);
 
                 /*
