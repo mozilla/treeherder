@@ -361,12 +361,12 @@ perf.controller('CompareResultsCtrl', [
                 });
             }
         }
-        //TODO: duplicated in comparesubtestctrl
+        // TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
                 function (resultSets) {
                     const resultSet = resultSets[0];
-                    //TODO: this is a bit hacky to pass in 'original' as a text string
+                    // TODO: this is a bit hacky to pass in 'original' as a text string
                     if (rsid === 'original') {
                         $scope.originalResultSet = resultSet;
                     } else {
@@ -400,10 +400,10 @@ perf.controller('CompareResultsCtrl', [
             });
         }
         $scope.timeRangeChanged = function (selectedTimeRange) {
-                    //This function is used to alter
-                    //$scope.selectedTimeRange for baseline comparison.
-                    //selectedTimeRange is passed as parameter
-                    //because angular assigns it to a different scope
+                    // This function is used to alter
+                    // $scope.selectedTimeRange for baseline comparison.
+                    // selectedTimeRange is passed as parameter
+                    // because angular assigns it to a different scope
             $scope.selectedTimeRange = selectedTimeRange;
             updateURL();
             load();
@@ -418,7 +418,7 @@ perf.controller('CompareResultsCtrl', [
 
         $q.all([loadRepositories, loadFrameworks]).then(function () {
             $scope.errors = [];
-            //validation works only for revision to revision comparison
+            // validation works only for revision to revision comparison
             if ($stateParams.originalRevision) {
                 $scope.errors = PhCompare.validateInput($stateParams.originalProject,
                                             $stateParams.newProject,
@@ -496,12 +496,12 @@ perf.controller('CompareSubtestResultsCtrl', [
                                        $q, PhSeries,
                                        PhCompare,
                                        $httpParamSerializer) {
-         //TODO: duplicated from comparectrl
+         // TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
             return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
                function (resultSets) {
                    const resultSet = resultSets[0];
-                    //TODO: this is a bit hacky to pass in 'original' as a text string
+                    // TODO: this is a bit hacky to pass in 'original' as a text string
                    if (rsid === 'original') {
                        $scope.originalResultSet = resultSet;
                    } else {
@@ -582,7 +582,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             };
                         }), [$scope.originalResultSet, $scope.newResultSet])
                     }];
-                    //replicate distribution is added only for talos
+                    // replicate distribution is added only for talos
                     if ($scope.filterOptions.framework === '1') {
                         cmap.links.push({
                             title: 'replicates',
@@ -717,10 +717,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                 });
 
                 $scope.timeRangeChanged = function (selectedTimeRange) {
-                    //This function is used to alter
-                    //$scope.selectedTimeRange for baseline comparison.
-                    //selectedTimeRange is passed as parameter
-                    //because angular assigns it to a different scope
+                    // This function is used to alter
+                    // $scope.selectedTimeRange for baseline comparison.
+                    // selectedTimeRange is passed as parameter
+                    // because angular assigns it to a different scope
                     $scope.selectedTimeRange = selectedTimeRange;
                     $state.go('comparesubtest', {
                         filter: $scope.filterOptions.filter,
@@ -916,7 +916,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                                     return subtest.replicates;
                                 })
                             );
-                        //metrics-graphics doesn't accept "0" as x_accesor
+                        // metrics-graphics doesn't accept "0" as x_accesor
                         replicateValues = replicateValues.map((value, index) => ({
                             replicate: (index + 1).toString(),
                             value: value

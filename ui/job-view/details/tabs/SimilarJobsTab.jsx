@@ -71,7 +71,7 @@ export default class SimilarJobsTab extends React.Component {
       // get pushes and revisions for the given ids
       const pushListResp = await this.ThResultSetModel.getResultSetList(repoName, pushIds, true);
       const pushList = pushListResp.data;
-      //decorate the list of jobs with their result sets
+      // decorate the list of jobs with their result sets
       const pushes = pushList.results.reduce((acc, push) => (
         { ...acc, [push.id]: push }
       ), {});
@@ -105,7 +105,7 @@ export default class SimilarJobsTab extends React.Component {
         nextJob.failure_classification = this.thClassificationTypes.classifications[
           nextJob.failure_classification_id];
 
-        //retrieve the list of error lines
+        // retrieve the list of error lines
         TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
           nextJob.error_lines = textLogSteps.reduce((acc, step) => (
             [...acc, ...step.errors]), []);

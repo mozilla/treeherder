@@ -271,7 +271,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function addFilter(field, value) {
-            //check for existing value
+            // check for existing value
             const oldQsVal = _getFiltersOrDefaults(field);
             let newQsVal = null;
 
@@ -309,7 +309,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function replaceFilter(field, value) {
-            //check for existing value
+            // check for existing value
             $location.search(_withPrefix(field), value);
         }
 
@@ -576,7 +576,7 @@ treeherder.factory('thJobFilters', [
             return filters;
         }
 
-        /*********************************
+        /**
          * Externally available API fields
          */
 

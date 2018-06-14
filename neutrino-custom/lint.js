@@ -56,7 +56,6 @@ module.exports = neutrino => {
                     'react/no-danger': 'off',
                     'react/no-multi-comp': 'off',
                     'space-infix-ops': 'off',
-                    'spaced-comment': 'off',
                 },
             }
         }));

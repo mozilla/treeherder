@@ -137,7 +137,7 @@ export const createApiUrl = function createApiUrl(api, params) {
   return `/api/${api}${query}`;
 };
 
-//bugs can be one bug or a comma separated (no spaces) string of bugs
+// bugs can be one bug or a comma separated (no spaces) string of bugs
 export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   const query = createQueryParams(params);
   return `https://bugzilla.mozilla.org/${api}${query}`;

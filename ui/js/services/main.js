@@ -9,7 +9,7 @@ import { thPlatformMap } from '../constants';
 treeherder.factory('thNotify', [
     '$timeout', 'localStorageService',
     function ($timeout, localStorageService) {
-        //a growl-like notification system
+        // a growl-like notification system
 
         const thNotify = {
             // message queue
