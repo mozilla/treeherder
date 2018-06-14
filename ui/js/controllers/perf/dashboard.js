@@ -112,7 +112,7 @@ perf.controller('dashCtrl', [
                                 lowerIsBetter: series.lowerIsBetter,
                                 hasSubTests: series.hasSubtests,
                                 option: series.options.indexOf('opt') >= 0 ? 'opt' : 'pgo',
-                                values: data.map(data => data.value)
+                                values: data.map(data => data.value),
                             };
                         });
                     });
@@ -313,7 +313,7 @@ perf.controller('dashSubtestCtrl', [
                                     suite: series.suite,
                                     name: PhSeries.getTestName(series),
                                     lowerIsBetter: series.lowerIsBetter,
-                                    values: data.map(d => d.value)
+                                    values: data.map(d => d.value),
                                 };
                             });
                         });

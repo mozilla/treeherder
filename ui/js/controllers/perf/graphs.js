@@ -603,8 +603,8 @@ perf.controller('GraphsCtrl', [
                         color: series.color,
                         label: series.projectName + ' ' + series.name,
                         data: seriesData[series.signature].map(dataPoint => ([
-                            new Date(dataPoint.push_timestamp*1000),
-                            dataPoint.value
+                            new Date(dataPoint.push_timestamp * 1000),
+                            dataPoint.value,
                         ])),
                         resultSetData: seriesData[series.signature].map(dataPoint => dataPoint.push_id),
                         thSeries: $.extend({}, series),

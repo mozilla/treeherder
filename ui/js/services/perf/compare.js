@@ -284,7 +284,7 @@ treeherder.factory('PhCompare', [
                     ])),
                     highlightedRevisions: resultSets.map(resultSet => (
                         resultSet.revision.slice(0, 12)
-                    ))
+                    )),
                 });
 
                 if (resultSets) {

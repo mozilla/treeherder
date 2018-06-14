@@ -844,7 +844,7 @@ treeherder.factory('ThResultSetStore', [
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         pushes.results.map(result => result.id),
-                        repoData.name
+                        repoData.name,
                     );
                     $q.all(jobsPromiseList)
                         .then((pushJobList) => {
