@@ -24,7 +24,6 @@ module.exports = neutrino => {
                     // TODO: Fix & remove these deviations from AirBnB style (bug 1183749).
                     'camelcase': 'off',
                     'class-methods-use-this': 'off',
-                    'comma-dangle': 'off',
                     'consistent-return': 'off',
                     'default-case': 'off',
                     'func-names': 'off',

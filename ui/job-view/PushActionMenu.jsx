@@ -74,7 +74,7 @@ export default class PushActionMenu extends React.PureComponent {
             this.thNotify.send(
               formatModelError(e, "The action 'trigger missing jobs' failed"),
               'danger',
-              { sticky: true }
+              { sticky: true },
             );
           });
       });
@@ -99,7 +99,7 @@ export default class PushActionMenu extends React.PureComponent {
             this.thNotify.send(
               formatTaskclusterError(e),
               'danger',
-              { sticky: true }
+              { sticky: true },
             );
           });
       });

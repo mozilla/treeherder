@@ -34,7 +34,7 @@ perf.controller('dashCtrl', [
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = _.find($scope.timeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange
+            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange,
         });
         $scope.revision = $stateParams.revision;
         $scope.topic = $stateParams.topic;
@@ -58,7 +58,7 @@ perf.controller('dashCtrl', [
         function loadData() {
             const resultsMap = {
                 variant: {},
-                base: {}
+                base: {},
             };
             $scope.testList = [];
             $scope.dataLoading = true;
@@ -94,7 +94,7 @@ perf.controller('dashCtrl', [
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     const params = {
                         signature_id: _.map(seriesChunk, 'id'),
-                        framework: $scope.framework
+                        framework: $scope.framework,
                     };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
@@ -112,7 +112,7 @@ perf.controller('dashCtrl', [
                                 lowerIsBetter: series.lowerIsBetter,
                                 hasSubTests: series.hasSubtests,
                                 option: series.options.indexOf('opt') >= 0 ? 'opt' : 'pgo',
-                                values: _.map(data, 'value')
+                                values: _.map(data, 'value'),
                             };
                         });
                     });
@@ -141,16 +141,16 @@ perf.controller('dashCtrl', [
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
-                                                frameworkId: $scope.framework
+                                                frameworkId: $scope.framework,
                                             };
-                                        }))
+                                        })),
                                 }];
                                 if (resultsMap.base[baseSig].hasSubTests) {
                                     const params = {
                                         topic: $stateParams.topic,
                                         baseSignature: baseSig,
                                         variantSignature: variantSig,
-                                        repo: $scope.selectedRepo.name
+                                        repo: $scope.selectedRepo.name,
                                     };
                                     if ($scope.revision) {
                                         params.revision = $scope.revision;
@@ -159,7 +159,7 @@ perf.controller('dashCtrl', [
                                     }
                                     cmap.links.push({
                                         title: 'subtests',
-                                        href: 'perf.html#/dashboardsubtest?' + $httpParamSerializer(params)
+                                        href: 'perf.html#/dashboardsubtest?' + $httpParamSerializer(params),
                                     });
                                     if (!$scope.compareResults[testName]) {
                                         $scope.compareResults[testName] = [cmap];
@@ -184,7 +184,7 @@ perf.controller('dashCtrl', [
             showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                        parseInt($stateParams.showOnlyConfident)),
             showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
-                                      parseInt($stateParams.showOnlyBlockers))
+                                      parseInt($stateParams.showOnlyBlockers)),
         };
 
         function updateURL() {
@@ -196,19 +196,19 @@ perf.controller('dashCtrl', [
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 showOnlyBlockers: $scope.filterOptions.showOnlyBlockers ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
-                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined
+                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined,
             }, {
                 location: true,
                 inherit: true,
                 relative: $state.$current,
-                notify: false
+                notify: false,
             });
         }
 
         ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
-                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
+                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo,
             });
 
             $scope.$watchGroup([
@@ -216,7 +216,7 @@ perf.controller('dashCtrl', [
                 'filterOptions.showOnlyImportant',
                 'filterOptions.showOnlyComparable',
                 'filterOptions.showOnlyConfident',
-                'filterOptions.showOnlyBlockers'
+                'filterOptions.showOnlyBlockers',
             ], updateURL);
 
             $scope.globalOptionsChanged = function (selectedRepo, selectedTimeRange) {
@@ -231,7 +231,7 @@ perf.controller('dashCtrl', [
 
             loadData();
         });
-    }
+    },
 
 ]);
 
@@ -249,7 +249,7 @@ perf.controller('dashSubtestCtrl', [
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = _.find(phTimeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange
+            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange,
         });
         $scope.revision = $stateParams.revision;
         $scope.topic = $stateParams.topic;
@@ -263,7 +263,7 @@ perf.controller('dashSubtestCtrl', [
         function loadData() {
             const resultsMap = {
                 variant: {},
-                base: {}
+                base: {},
             };
             $scope.testList = [];
             $scope.dataLoading = true;
@@ -278,13 +278,13 @@ perf.controller('dashSubtestCtrl', [
                         resultSetId = resultSets[0].id;
                         return PhSeries.getSeriesList($scope.selectedRepo.name, {
                             parent_signature: [baseSignature, variantSignature],
-                            framework: $scope.framework
+                            framework: $scope.framework,
                         });
                     });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     parent_signature: [baseSignature, variantSignature],
-                    framework: $scope.framework
+                    framework: $scope.framework,
                 });
             }
 
@@ -297,7 +297,7 @@ perf.controller('dashSubtestCtrl', [
                 return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
                     const params = {
                         signature_id: _.map(seriesChunk, 'id'),
-                        framework: $scope.framework
+                        framework: $scope.framework,
                     };
                     if ($scope.revision) {
                         params.push_id = resultSetId;
@@ -314,7 +314,7 @@ perf.controller('dashSubtestCtrl', [
                                     suite: series.suite,
                                     name: PhSeries.getTestName(series),
                                     lowerIsBetter: series.lowerIsBetter,
-                                    values: _.map(data, 'value')
+                                    values: _.map(data, 'value'),
                                 };
                             });
                         });
@@ -343,9 +343,9 @@ perf.controller('dashSubtestCtrl', [
                                             return {
                                                 projectName: $scope.selectedRepo.name,
                                                 signature: sig,
-                                                frameworkId: $scope.framework
+                                                frameworkId: $scope.framework,
                                             };
-                                        }))
+                                        })),
                             }];
 
                             if (!$scope.compareResults[summaryTestName]) {
@@ -368,7 +368,7 @@ perf.controller('dashSubtestCtrl', [
             showOnlyConfident: Boolean($stateParams.showOnlyConfident !== undefined &&
                                        parseInt($stateParams.showOnlyConfident)),
             showOnlyBlockers: Boolean($stateParams.showOnlyBlockers !== undefined &&
-                                      parseInt($stateParams.showOnlyBlockers))
+                                      parseInt($stateParams.showOnlyBlockers)),
         };
         function updateURL() {
             $state.transitionTo('dashboardsubtest', {
@@ -378,26 +378,26 @@ perf.controller('dashSubtestCtrl', [
                 showOnlyComparable: $scope.filterOptions.showOnlyComparable ? 1 : undefined,
                 showOnlyConfident: $scope.filterOptions.showOnlyConfident ? 1 : undefined,
                 repo: $scope.selectedRepo.name === thDefaultRepo ? undefined : $scope.selectedRepo.name,
-                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined
+                timerange: ($scope.selectedTimeRange.value !== defaultTimeRange) ? $scope.selectedTimeRange.value : undefined,
             }, {
                 location: true,
                 inherit: true,
                 relative: $state.$current,
-                notify: false
+                notify: false,
             });
         }
 
         ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
             $scope.selectedRepo = _.find($scope.projects, {
-                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo
+                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo,
             });
 
             $scope.$watchGroup([
                 'filterOptions.filter',
                 'filterOptions.showOnlyImportant',
                 'filterOptions.showOnlyComparable',
-                'filterOptions.showOnlyConfident'
+                'filterOptions.showOnlyConfident',
             ], updateURL);
 
             $scope.globalOptionsChanged = function (selectedRepo, selectedTimeRange) {
@@ -412,5 +412,5 @@ perf.controller('dashSubtestCtrl', [
 
             loadData();
         });
-    }
+    },
 ]);

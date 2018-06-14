@@ -14,7 +14,7 @@ export default class OptionCollectionModel {
         .reduce((hashAcc, optColl) => (
           {
             ...hashAcc,
-            [optColl.option_collection_hash]: optColl.options.map(opt => opt.name).sort().join()
+            [optColl.option_collection_hash]: optColl.options.map(opt => opt.name).sort().join(),
           }
          ), {});
       return OptionCollectionModel.prototype.optionCollectionMap;

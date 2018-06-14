@@ -15,7 +15,7 @@ const thTaskcluster = (() => {
     if (userSession) {
       credentialAgent = new OIDCCredentialAgent({
         accessToken: JSON.parse(userSession).accessToken,
-        oidcProvider: 'mozilla-auth0'
+        oidcProvider: 'mozilla-auth0',
       });
     }
 

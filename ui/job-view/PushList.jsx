@@ -9,7 +9,7 @@ import {
   findInstance,
   findSelectedInstance,
   findJobInstance,
-  scrollToElement
+  scrollToElement,
 } from '../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
 import { thEvents } from '../js/constants';
@@ -44,7 +44,7 @@ export default class PushList extends React.Component {
     // get our first set of resultsets
     this.ThResultSetStore.fetchPushes(
         this.ThResultSetStore.defaultPushCount,
-        true
+        true,
     );
   }
 
@@ -86,7 +86,7 @@ export default class PushList extends React.Component {
     this.changeSelectionUnlisten = this.$rootScope.$on(
       thEvents.changeSelection, (ev, direction, jobNavSelector) => {
         this.changeSelectedJob(ev, direction, jobNavSelector);
-      }
+      },
     );
 
     this.jobsClassifiedUnlisten = this.$rootScope.$on(
@@ -95,7 +95,7 @@ export default class PushList extends React.Component {
           findJobInstance(job.id).props.job.failure_classification_id = job.failure_classification_id;
         });
         this.$rootScope.$emit(thEvents.globalFilterChanged);
-      }
+      },
     );
   }
 

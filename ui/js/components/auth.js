@@ -42,7 +42,7 @@ treeherder.component('login', {
     `,
     bindings: {
         // calls to the HTML which sets the user value in the $rootScope.
-        onUserChange: '&'
+        onUserChange: '&',
     },
     controller: ['$location', '$window', 'thNotify',
         '$http', '$timeout',
@@ -129,5 +129,5 @@ treeherder.component('login', {
                 ctrl.user = loggedOutUser;
                 ctrl.onUserChange({ $event: { user: loggedOutUser } });
             };
-        }]
+        }],
 });

@@ -15,17 +15,17 @@ export default class AuthService {
         headers: {
           authorization: `Bearer ${userSession.accessToken}`,
           idToken: userSession.idToken,
-          expiresAt: userSession.expiresAt
+          expiresAt: userSession.expiresAt,
         },
         method: 'GET',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       });
 
       const user = await userResponse.json();
 
       if (!userResponse.ok) {
         reject(
-          new Error(user.detail || userResponse.statusText)
+          new Error(user.detail || userResponse.statusText),
         );
       }
 

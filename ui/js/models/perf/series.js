@@ -51,7 +51,7 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
             options: options,
             frameworkId: signatureProps.framework_id,
             lowerIsBetter: (signatureProps.lower_is_better === undefined ||
-                            signatureProps.lower_is_better)
+                            signatureProps.lower_is_better),
         };
     };
 
@@ -102,6 +102,6 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
                         }
                         return $q.reject('No replicate data found');
                     });
-        }
+        },
     };
 }]);

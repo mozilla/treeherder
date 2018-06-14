@@ -24,7 +24,7 @@ export default class TabsPanel extends React.Component {
     if (state.jobId !== selectedJob.id || state.perfJobDetailSize !== perfJobDetail.length) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
         getStatus(selectedJob),
-        !!perfJobDetail.length, showAutoclassifyTab
+        !!perfJobDetail.length, showAutoclassifyTab,
       );
 
       return {
@@ -38,7 +38,7 @@ export default class TabsPanel extends React.Component {
 
   static getTabNames(showPerf, showAutoclassify) {
     return [
-      'details', 'failure', 'autoclassify', 'annotations', 'similar', 'perf'
+      'details', 'failure', 'autoclassify', 'annotations', 'similar', 'perf',
     ].filter(name => (
       !((name === 'autoclassify' && !showAutoclassify) || (name === 'perf' && !showPerf))
     ));

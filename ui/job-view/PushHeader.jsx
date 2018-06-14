@@ -83,12 +83,12 @@ export default class PushHeader extends React.PureComponent {
         if (this.props.pushId === pushId) {
           this.setState({ runnableJobsSelected: runnableJobs.length > 0 });
         }
-      }
+      },
     );
     this.globalFilterChangedUnlisten = this.$rootScope.$on(
       thEvents.globalFilterChanged, () => {
         this.setState({ filterParams: this.getFilterParams() });
-      }
+      },
     );
   }
 
@@ -146,7 +146,7 @@ export default class PushHeader extends React.PureComponent {
       this.thNotify.send(
           formatModelError(e, 'Failed to cancel all jobs'),
           'danger',
-          { sticky: true }
+          { sticky: true },
         );
     });
   }
@@ -173,7 +173,7 @@ export default class PushHeader extends React.PureComponent {
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
-      job: 'Notifying (per-job)'
+      job: 'Notifying (per-job)',
     }[watchState];
 
     return (

@@ -2,7 +2,7 @@ import treeherder from '../treeherder';
 
 treeherder.component('loading', {
     bindings: {
-        data: '<'
+        data: '<',
     },
     template: `
         <div ng-if="$ctrl.data" class="overlay">
@@ -10,5 +10,5 @@ treeherder.component('loading', {
                 <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
             </div>        
         </div>
-    `
+    `,
 });

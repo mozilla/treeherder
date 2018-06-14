@@ -50,14 +50,14 @@ export default class JobGroup extends React.Component {
       thEvents.duplicateJobsVisibilityChanged,
       () => {
         this.setState({ showDuplicateJobs: !this.state.showDuplicateJobs });
-      }
+      },
     );
 
     this.groupStateChangedUnlisten = this.$rootScope.$on(
       thEvents.groupStateChanged,
       (e, newState) => {
         this.setState({ expanded: newState === 'expanded' });
-      }
+      },
     );
     this.toggleExpanded = this.toggleExpanded.bind(this);
   }
@@ -85,7 +85,7 @@ export default class JobGroup extends React.Component {
         const status = getStatus(job);
         let countInfo = {
           btnClass: getBtnClass(status, job.failure_classification_id),
-          countText: status
+          countText: status,
         };
         if (thFailureResults.includes(status) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && showDuplicateJobs)) {
@@ -122,13 +122,13 @@ export default class JobGroup extends React.Component {
   render() {
     const {
       $injector, repoName, filterPlatformCb, platform,
-      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs }
+      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs },
     } = this.props;
     const { expanded, showDuplicateJobs } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(
       groupJobs,
       expanded,
-      showDuplicateJobs
+      showDuplicateJobs,
     );
 
     return (

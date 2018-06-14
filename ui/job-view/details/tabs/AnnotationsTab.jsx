@@ -102,7 +102,7 @@ TableRow.propTypes = {
 
 function AnnotationsTable(props) {
   const {
-    classifications, deleteClassification, classificationTypes, dateFilter
+    classifications, deleteClassification, classificationTypes, dateFilter,
   } = props;
 
   return (
@@ -183,14 +183,14 @@ export default class AnnotationsTab extends React.Component {
         this.ThResultSetStore.fetchJobs([job.id]);
         this.$rootScope.$emit(
           thEvents.jobsClassified,
-          { jobs: { [job.id]: job } }
+          { jobs: { [job.id]: job } },
         );
       },
       () => {
         this.thNotify.send(
           'Classification deletion failed',
           'danger',
-          { sticky: true }
+          { sticky: true },
         );
       });
   }
@@ -210,7 +210,7 @@ export default class AnnotationsTab extends React.Component {
   render() {
     const {
       $injector, classifications, classificationTypes,
-      bugs
+      bugs,
     } = this.props;
     const dateFilter = $injector.get('$filter')('date');
 

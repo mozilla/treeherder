@@ -15,13 +15,13 @@ treeherder.factory('thClassificationTypes', [
             4: 'label-warning', // intermittent",
             5: 'label-default', // infra",
             6: 'label-danger', // intermittent needs filing",
-            7: 'label-warning' // autoclassified intermittent
+            7: 'label-warning', // autoclassified intermittent
         };
 
         const addClassification = function (cl) {
             classifications[cl.id] = {
                 name: cl.name,
-                star: classificationColors[cl.id]
+                star: classificationColors[cl.id],
             };
             classificationOptions.push(cl);
         };
@@ -36,6 +36,6 @@ treeherder.factory('thClassificationTypes', [
         return {
             classifications: classifications,
             classificationOptions: classificationOptions,
-            load: load
+            load: load,
         };
     }]);

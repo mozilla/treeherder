@@ -14,7 +14,7 @@ treeherder.factory('PhIssueTracker', [
                         return this.cachedIssueTrackerList;
                 });
             },
-            cachedIssueTrackerList: null
+            cachedIssueTrackerList: null,
         };
 
         return issueTrackerService;

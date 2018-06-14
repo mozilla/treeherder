@@ -7,7 +7,7 @@ export const webAuth = new WebAuth({
   responseType: 'id_token token',
   audience: 'login.taskcluster.net',
   redirectUri: `${location.protocol}//${location.host}/login.html`,
-  scope: 'taskcluster-credentials openid profile email'
+  scope: 'taskcluster-credentials openid profile email',
 });
 
 export const userSessionFromAuthResult = (authResult) => {
@@ -21,7 +21,7 @@ export const userSessionFromAuthResult = (authResult) => {
     // expiresAt is used by the django backend to expire the user session
     expiresAt,
     // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
-    renewAfter: fromNow('15 minutes')
+    renewAfter: fromNow('15 minutes'),
   };
 
   return userSession;

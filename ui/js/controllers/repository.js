@@ -9,5 +9,5 @@ treeherderApp.controller('RepositoryMenuCtrl', [
 
         $scope.closeable = true;
 
-    }
+    },
 ]);

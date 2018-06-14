@@ -63,7 +63,7 @@ treeherder.factory('math', [
                 Math.sqrt(
                     stddevC * stddevC / lenC // control-variance / control-size
                         +
-                        stddevT * stddevT / lenT // ...
+                        stddevT * stddevT / lenT, // ...
                 )
             );
 
@@ -74,6 +74,6 @@ treeherder.factory('math', [
             percentOf: percentOf,
             average: average,
             stddev: stddev,
-            t_test: t_test
+            t_test: t_test,
         };
     }]);

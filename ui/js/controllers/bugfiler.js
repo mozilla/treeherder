@@ -247,7 +247,7 @@ treeherder.controller('BugFilerCtrl', [
                         const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${$uibModalInstance.possibleFilename}&redirect=false&limit=5`;
                         // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
                         $http.get(dxrlink, { headers: {
-                            Accept: 'application/json'
+                            Accept: 'application/json',
                         } }).then((secondRequest) => {
                             const results = secondRequest.data.results;
                             let resultsCount = results.length;
@@ -292,7 +292,7 @@ treeherder.controller('BugFilerCtrl', [
         $scope.checkedLogLinks = {
             parsedLog: $scope.parsedLog,
             fullLog: $scope.fullLog,
-            reftest: $scope.reftest
+            reftest: $scope.reftest,
         };
 
         $scope.isIntermittent = true;
@@ -362,7 +362,7 @@ treeherder.controller('BugFilerCtrl', [
                         url: getApiUrl('/bugzilla/create_bug/'),
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json; charset=utf-8'
+                            'Content-Type': 'application/json; charset=utf-8',
                         },
                         data: {
                             product: productString,
@@ -377,8 +377,8 @@ treeherder.controller('BugFilerCtrl', [
                             severity: severity,
                             priority: priority,
                             comment: descriptionStrings,
-                            comment_tags: 'treeherder'
-                        }
+                            comment_tags: 'treeherder',
+                        },
                     });
                 })
                 .then((response) => {
@@ -411,5 +411,5 @@ treeherder.controller('BugFilerCtrl', [
         $scope.toggleForm = function (disabled) {
             $(':input', '#modalForm').attr('disabled', disabled);
         };
-    }
+    },
 ]);

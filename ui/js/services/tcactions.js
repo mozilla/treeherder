@@ -12,8 +12,8 @@ treeherder.factory('tcactions', [
         function taskInContext(tagSetList, taskTags) {
             return tagSetList.some(tagSet =>
                 Object.keys(tagSet).every(
-                    tag => taskTags[tag] && taskTags[tag] === tagSet[tag]
-                )
+                    tag => taskTags[tag] && taskTags[tag] === tagSet[tag],
+                ),
             );
         }
 
@@ -21,7 +21,7 @@ treeherder.factory('tcactions', [
             render: (template, context) => jsone(template, context),
             submit: async ({
                                action, actionTaskId, decisionTaskId, taskId,
-                               task, input, staticActionVariables
+                               task, input, staticActionVariables,
                            }) => {
                 const context = _.defaults({}, {
                     taskGroupId: decisionTaskId,
@@ -49,20 +49,20 @@ treeherder.factory('tcactions', [
                     const hooks = new Hooks({ credentialAgent: thTaskcluster.getAgent() });
                     const decisionTask = await queue.task(decisionTaskId);
                     const expansion = await auth.expandScopes({
-                        scopes: decisionTask.scopes
+                        scopes: decisionTask.scopes,
                     });
                     const expression = `in-tree:hook-action:${hookGroupId}/${hookId}`;
 
                     if (!satisfiesExpression(expansion.scopes, expression)) {
                         throw new Error(
-                            `Action is misconfigured: decision task's scopes do not satisfy ${expression}`
+                            `Action is misconfigured: decision task's scopes do not satisfy ${expression}`,
                         );
                     }
 
                     const result = await hooks.triggerHook(
                         hookGroupId,
                         hookId,
-                        hookPayload
+                        hookPayload,
                     );
 
                     return result.status.taskId;
@@ -78,7 +78,7 @@ treeherder.factory('tcactions', [
                 const actionsUrl = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskID,
-                    'public/actions.json'
+                    'public/actions.json',
                 );
                 const knownKinds = ['task', 'hook'];
 
@@ -126,8 +126,8 @@ treeherder.factory('tcactions', [
                                 ((!action.context.length && !originalTask) ||
                                     (originalTask &&
                                         originalTask.tags &&
-                                        taskInContext(action.context, originalTask.tags)))
-                        )
+                                        taskInContext(action.context, originalTask.tags))),
+                        ),
                     };
                 });
             },

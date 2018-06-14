@@ -55,7 +55,7 @@ treeherderApp.controller('MainCtrl', [
             return $q(function (resolve, reject) {
                 $http({
                     method: 'GET',
-                    url: '/revision.txt'
+                    url: '/revision.txt',
                 }).then(function successCallback(response) {
                     resolve(response.data);
                 }, function errorCallback(response) {
@@ -303,7 +303,7 @@ treeherderApp.controller('MainCtrl', [
             ['c', (ev) => {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob),
                     );
 
                     // Prevent shortcut key overflow during focus
@@ -391,7 +391,7 @@ treeherderApp.controller('MainCtrl', [
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
                         $rootScope.$emit(thEvents.jobRetrigger,
-                                         $rootScope.selectedJob)
+                                         $rootScope.selectedJob),
                     );
                 }
             }],
@@ -405,7 +405,7 @@ treeherderApp.controller('MainCtrl', [
             ['t', () => {
                 if ($scope.selectedJob) {
                     $scope.$evalAsync(
-                        $rootScope.$emit(thEvents.selectNextTab)
+                        $rootScope.$emit(thEvents.selectNextTab),
                     );
                 }
             }],
@@ -454,7 +454,7 @@ treeherderApp.controller('MainCtrl', [
                     ev.preventDefault();
 
                     $scope.$evalAsync(
-                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob)
+                        $rootScope.$emit(thEvents.jobPin, $rootScope.selectedJob),
                     );
                 }
             }],
@@ -483,7 +483,7 @@ treeherderApp.controller('MainCtrl', [
             // Shortcut: display onscreen keyboard shortcuts
             ['?', () => {
                 $scope.$evalAsync($scope.setOnscreenShortcutsShowing(true));
-            }]
+            }],
         ];
 
         keyShortcuts.forEach(function (data) {
@@ -510,7 +510,7 @@ treeherderApp.controller('MainCtrl', [
         const getNewReloadTriggerParams = function () {
             return _.pick(
                 $location.search(),
-                ThResultSetStore.reloadOnChangeParameters
+                ThResultSetStore.reloadOnChangeParameters,
             );
         };
 
@@ -644,7 +644,7 @@ treeherderApp.controller('MainCtrl', [
         $scope.changeRepo = function (repo_name) {
             // preserves filter params as the user changes repos and revisions
             $location.search(_.extend({
-                repo: repo_name
+                repo: repo_name,
             }, thJobFilters.getActiveFilters()));
         };
 
@@ -680,5 +680,5 @@ treeherderApp.controller('MainCtrl', [
             // $scope.showDuplicateJobs will be changed in watch function above
             $location.search('duplicate_jobs', showDuplicateJobs ? 'visible' : null);
         };
-    }
+    },
 ]);

@@ -65,7 +65,7 @@ export default class PinBoard extends React.Component {
   unPinAll() {
     this.props.unPinAll();
     this.setState({
-      classification: this.createNewClassification()
+      classification: this.createNewClassification(),
     });
   }
 
@@ -115,7 +115,7 @@ export default class PinBoard extends React.Component {
     return new JobClassificationModel({
       text: failureClassificationComment,
       who: email,
-      failure_classification_id: failureClassificationId
+      failure_classification_id: failureClassificationId,
     });
   }
 
@@ -145,7 +145,7 @@ export default class PinBoard extends React.Component {
       const bjm = new BugJobMapModel({
         bug_id: bug.id,
         job_id: job.id,
-        type: 'annotation'
+        type: 'annotation',
       });
 
       bjm.create()

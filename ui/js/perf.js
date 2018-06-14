@@ -11,5 +11,5 @@ export default angular.module('perf', [
   uiBootstrap,
   treeherderModule.name,
   angularClipboardModule.name,
-  'ngTextTruncate'
+  'ngTextTruncate',
 ]);

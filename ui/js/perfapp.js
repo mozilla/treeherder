@@ -32,49 +32,49 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 title: 'Alerts',
                 template: alertsCtrlTemplate,
                 url: '/alerts?id&status&framework&filter&hideImprovements&hideDwnToInv&page',
-                controller: 'AlertsCtrl'
+                controller: 'AlertsCtrl',
             })
             .state('graphs', {
                 title: 'Graphs',
                 template: graphsCtrlTemplate,
                 url: '/graphs?timerange&series&highlightedRevisions&highlightAlerts&zoom&selected',
-                controller: 'GraphsCtrl'
+                controller: 'GraphsCtrl',
             })
             .state('compare', {
                 title: 'Compare',
                 template: compareCtrlTemplate,
                 url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&selectedTimeRange&showOnlyNoise?',
-                controller: 'CompareResultsCtrl'
+                controller: 'CompareResultsCtrl',
             })
             .state('comparesubtest', {
                 title: 'Compare - Subtests',
                 template: compareSubtestCtrlTemplate,
                 url: '/comparesubtest?originalProject&originalRevision?&newProject&newRevision&originalSignature&newSignature&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&framework&selectedTimeRange&showOnlyNoise?',
-                controller: 'CompareSubtestResultsCtrl'
+                controller: 'CompareSubtestResultsCtrl',
             })
             .state('comparechooser', {
                 title: 'Compare Chooser',
                 template: compareChooserCtrlTemplate,
                 url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
-                controller: 'CompareChooserCtrl'
+                controller: 'CompareChooserCtrl',
             })
             .state('dashboard', {
                 title: 'Perfherder Dashboard',
                 template: dashboardTemplate,
                 url: '/dashboard?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
-                controller: 'dashCtrl'
+                controller: 'dashCtrl',
             })
             .state('dashboardsubtest', {
                 title: 'Perfherder Dashboard - Subtests',
                 template: dashboardSubtestTemplate,
                 url: '/dashboardsubtest?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
-                controller: 'dashSubtestCtrl'
+                controller: 'dashSubtestCtrl',
             })
             .state('comparesubtestdistribution', {
                 title: 'Compare Subtest Distribution',
                 template: compareSubtestDistributionTemplate,
                 url: '/comparesubtestdistribution?originalProject&newProject&originalRevision&newRevision&originalSubtestSignature?newSubtestSignature',
-                controller: 'CompareSubtestDistributionCtrl'
+                controller: 'CompareSubtestDistributionCtrl',
             });
         $urlRouterProvider.otherwise('/graphs');
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {

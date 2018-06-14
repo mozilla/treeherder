@@ -101,7 +101,7 @@ export default class JobButtonComponent extends React.Component {
     const classes = ['btn', btnClass, 'filter-shown'];
     const attributes = {
       'data-job-id': id,
-      title
+      title,
     };
 
     if (runnable) {

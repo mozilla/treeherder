@@ -31,5 +31,5 @@ treeherder.component('thLogViewer', {
                     $element[0].childNodes[0].src = $sce.trustAsResourceUrl(`${unifiedLogviewerUrl}?url=${parent.rawLogURL}${logParams()}`);
                 }
             });
-        }]
+        }],
 });

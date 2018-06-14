@@ -55,10 +55,10 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
             .when('/jobs', {
                 // see controllers/filters.js ``skipNextSearchChangeReload`` for
                 // why we set this to false.
-                reloadOnSearch: false
+                reloadOnSearch: false,
             })
             .when('/jobs/:tree', {
-                reloadOnSearch: false
+                reloadOnSearch: false,
             })
             .otherwise({ redirectTo: '/jobs' });
     }]).run(['$templateCache', ($templateCache) => {

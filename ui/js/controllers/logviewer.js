@@ -175,7 +175,7 @@ logViewerApp.controller('LogviewerCtrl', [
                     { label: 'Job', value: $scope.logViewerTitle },
                     { label: 'Machine', value: job.machine_name },
                     { label: 'Start', value: dateFilter(job.start_timestamp * 1000, thDateFormat) },
-                    { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) }
+                    { label: 'End', value: dateFilter(job.end_timestamp * 1000, thDateFormat) },
                 ];
 
                 // Test to disable successful steps checkbox on taskcluster jobs
@@ -237,7 +237,7 @@ logViewerApp.controller('LogviewerCtrl', [
                                 lineNumber: step.started_line_number + 1,
                                 highlightStart: step.started_line_number + 1,
                                 highlightEnd: step.finished_line_number + 1,
-                                customStyle: $scope.css
+                                customStyle: $scope.css,
                             });
 
                             break;
@@ -258,5 +258,5 @@ logViewerApp.controller('LogviewerCtrl', [
 
             $scope.logPostMessage({ lineNumber: highlightStart, highlightStart, highlightEnd });
         };
-    }
+    },
 ]);

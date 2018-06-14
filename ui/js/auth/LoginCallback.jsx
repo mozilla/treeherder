@@ -8,7 +8,7 @@ export default class LoginCallback extends React.PureComponent {
     super(props);
 
     this.state = {
-      loginError: null
+      loginError: null,
     };
 
     this.authService = new AuthService();
