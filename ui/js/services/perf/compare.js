@@ -198,7 +198,7 @@ treeherder.factory('PhCompare', [
                 let timeRange = Math.min(oldTimestamp, newTimestamp);
                 timeRange = Math.round(now - timeRange);
 
-                //now figure out which predefined set of data we can query from
+                // now figure out which predefined set of data we can query from
                 const phTimeRange = _.find(phTimeRanges, function (i) { return timeRange <= i.value; });
                 return phTimeRange.value;
             },

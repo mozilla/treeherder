@@ -448,7 +448,7 @@ export default class PinBoard extends React.Component {
                     placeholder="click to add comment"
                     value={failureClassificationComment}
                   />
-                  {/*blur-this*/}
+                  {/* blur-this */}
                   {failureClassificationId === 2 && <div>
                     <FormGroup>
                       <Input

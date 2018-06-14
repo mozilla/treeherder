@@ -875,10 +875,10 @@ perf.controller('GraphsCtrl', [
     }]);
 
 perf.filter('testNameContainsWords', function () {
-    /**
+    /*
      Filter a list of test by ensuring that every word in the textFilter is
      present in the test name.
-     **/
+     */
     return function (tests, textFilter) {
         if (!textFilter) {
             return tests;

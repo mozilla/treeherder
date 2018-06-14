@@ -63,7 +63,7 @@ export default class JobModel {
         }
         if ('job_property_names' in data) {
           // the results came as list of fields
-          //we need to convert them to objects
+          // we need to convert them to objects
           item_list = data.results.map(elem => new JobModel(_.zipObject(data.job_property_names, elem)));
         } else {
           item_list = data.results.map(job_obj => new JobModel(job_obj));

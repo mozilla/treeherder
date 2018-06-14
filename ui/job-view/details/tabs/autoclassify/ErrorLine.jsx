@@ -336,7 +336,7 @@ export default class ErrorLine extends React.Component {
     if (!ignore && this.bestOption && this.bestOption.score > BAD_MATCH_SCORE) {
       return this.bestOption;
     }
-    //Otherwise select either the ignore option or the manual bug option
+    // Otherwise select either the ignore option or the manual bug option
     const offset = ignore ? -1 : -2;
 
     return extraOptions[extraOptions.length + offset];

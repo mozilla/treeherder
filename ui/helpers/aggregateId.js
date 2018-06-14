@@ -12,6 +12,6 @@ export const getPushTableId = (repoName, pushId, revision) => (
 );
 
 export const getGroupMapKey = (pushId, grSymbol, grTier, plName, plOpt) => (
-  //Build string key for groupMap entries
+  // Build string key for groupMap entries
   escapeId(pushId + grSymbol + grTier + plName + plOpt)
 );

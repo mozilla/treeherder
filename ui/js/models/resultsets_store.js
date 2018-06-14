@@ -23,9 +23,9 @@ treeherder.factory('ThResultSetStore', [
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array
         var platformArray = _.map(thPlatformMap, function (val, idx) { return idx; });
 
-        /******
+        /**
          * Handle updating the push datamodel based on a queue of jobs
-         * and pushs.
+         * and pushes.
          *
          * manages:
          *     push array
@@ -236,7 +236,7 @@ treeherder.factory('ThResultSetStore', [
         });
 
         var initRepository = function (repoName) {
-            //Initialize a new repository in the repoData structure
+            // Initialize a new repository in the repoData structure
 
             if (_.isEmpty(repoData)) {
                 repoData = {
@@ -259,7 +259,7 @@ treeherder.factory('ThResultSetStore', [
                     unclassifiedFailureCountForTiers: 0,
                     // count of unclassified jobs within enabled tiers and filtered out
                     filteredUnclassifiedFailureCount: 0,
-                    //used as the offset in paging
+                    // used as the offset in paging
                     rsMapOldestTimestamp: null,
                     pushes: [],
 
@@ -340,7 +340,7 @@ treeherder.factory('ThResultSetStore', [
             $rootScope.$emit(thEvents.globalFilterChanged);
         };
 
-        /******
+        /**
          * Build the Job and Resultset object mappings to make it faster and
          * easier to find and update jobs and pushes
          *
@@ -474,7 +474,7 @@ treeherder.factory('ThResultSetStore', [
             return 0;
         };
 
-        /******
+        /**
          * Ensure that the platform for ``newJob`` exists.  Create it if
          * necessary.  Add to the datamodel AND the map
          * @param newJob
@@ -509,7 +509,7 @@ treeherder.factory('ThResultSetStore', [
             return plMapElement;
         };
 
-        /******
+        /**
          * Ensure that the group and platform for ``newJob`` exist.
          * Create it if necessary.  Add to the datamodel AND the map
          * @param newJob
@@ -582,7 +582,7 @@ treeherder.factory('ThResultSetStore', [
 
         };
 
-        /******
+        /**
          *
          * Add or update a new job.  Either we have it loaded already and the
          * status and info need to be updated.  Or we have the push, and
@@ -622,7 +622,7 @@ treeherder.factory('ThResultSetStore', [
             var loadedJob = loadedJobMap? loadedJobMap.job_obj: null;
             var rsMapElement = repoData.rsMap[newJob.result_set_id];
 
-            //We don't have this push id yet
+            // We don't have this push id yet
             if (_.isEmpty(rsMapElement)) {
                 return;
             }
@@ -1004,7 +1004,7 @@ treeherder.factory('ThResultSetStore', [
             return groupedJobs;
         };
 
-        //Public interface
+        // Public interface
         var api = {
 
             initRepository: initRepository,

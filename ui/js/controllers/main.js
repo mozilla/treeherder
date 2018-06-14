@@ -107,7 +107,7 @@ treeherderApp.controller('MainCtrl', [
                 return [false, false];
             }
 
-            //Job counts are calculated at a later point in the page load, so this is undefined for a while
+            // Job counts are calculated at a later point in the page load, so this is undefined for a while
             if (ThResultSetStore.getPushArray()[0].job_counts) {
                 percentComplete = ThResultSetStore.getPushArray()[0].job_counts.percentComplete;
             }

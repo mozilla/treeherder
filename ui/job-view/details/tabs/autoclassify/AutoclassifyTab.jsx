@@ -159,7 +159,7 @@ export default class AutoclassifyTab extends React.Component {
    * Pin selected job to the pinBoard
    */
   onPin() {
-    //TODO: consider whether this should add bugs or mark all lines as ignored
+    // TODO: consider whether this should add bugs or mark all lines as ignored
     this.props.pinJob(this.props.job);
   }
 
@@ -339,7 +339,7 @@ export default class AutoclassifyTab extends React.Component {
       return false;
     }
     if (!settings) {
-      //This can happen when we are switching jobs
+      // This can happen when we are switching jobs
       return false;
     }
     if (settings.type === null) {
