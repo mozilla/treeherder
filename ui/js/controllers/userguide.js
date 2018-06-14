@@ -12,5 +12,5 @@ userguideApp.controller('UserguideCtrl', ['$scope',
 
         $scope.startDate = y + '-' + m + '-' + sd;
         $scope.endDate = y + '-' + m + '-' + ed;
-    }
+    },
 ]);

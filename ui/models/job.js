@@ -25,7 +25,7 @@ export default class JobModel {
       this.platform_option,
       (this.job_group_name === 'unknown') ? undefined : this.job_group_name,
       this.job_type_name,
-      symbolInfo
+      symbolInfo,
     ].filter(item => typeof item !== 'undefined').join(' ');
   }
 
@@ -33,7 +33,7 @@ export default class JobModel {
     return [
       this.getTitle(),
       this.ref_data_name,
-      (this.signature !== this.ref_data_name) ? this.signature : undefined
+      (this.signature !== this.ref_data_name) ? this.signature : undefined,
     ].filter(item => typeof item !== 'undefined').join(' ');
   }
 

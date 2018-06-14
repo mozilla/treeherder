@@ -50,7 +50,7 @@ export default class SimilarJobsTab extends React.Component {
     const options = {
       // get one extra to detect if there are more jobs that can be loaded (hasNextPage)
       count: this.pageSize + 1,
-      offset: (page - 1) * this.pageSize
+      offset: (page - 1) * this.pageSize,
     };
 
     ['filterBuildPlatformId', 'filterOptionCollectionHash']
@@ -117,7 +117,7 @@ export default class SimilarJobsTab extends React.Component {
   toggleFilter(filterField) {
     this.setState(
       { [filterField]: !this.state[filterField], similarJobs: [], isLoading: true },
-      this.getSimilarJobs
+      this.getSimilarJobs,
     );
   }
 

@@ -24,7 +24,7 @@ export default class PushJobs extends React.Component {
     this.aggregateId = getPushTableId(
       repoName,
       this.pushId,
-      push.revision
+      push.revision,
     );
 
     this.onMouseDown = this.onMouseDown.bind(this);
@@ -47,19 +47,19 @@ export default class PushJobs extends React.Component {
         if (appliedpushId === this.pushId) {
           this.applyNewJobs();
         }
-      }
+      },
     );
 
     this.globalFilterChangedUnlisten = this.$rootScope.$on(
       thEvents.globalFilterChanged, () => {
         this.filterJobs();
-      }
+      },
     );
 
     this.groupStateChangedUnlisten = this.$rootScope.$on(
       thEvents.groupStateChanged, () => {
         this.filterJobs();
-      }
+      },
     );
 
     this.showRunnableJobsUnlisten = this.$rootScope.$on(thEvents.showRunnableJobs, (ev, pushId) => {
@@ -113,7 +113,7 @@ export default class PushJobs extends React.Component {
       this.props.repoName,
       this.props.push.id,
       platform.name,
-      platform.option
+      platform.option,
     );
   }
 
@@ -127,7 +127,7 @@ export default class PushJobs extends React.Component {
 
     if (_.isEmpty(this.state.platforms)) return;
     const platforms = Object.values(this.state.platforms).reduce((acc, platform) => ({
-      ...acc, [platform.id]: this.filterPlatform(platform, selectedJobId)
+      ...acc, [platform.id]: this.filterPlatform(platform, selectedJobId),
     }), {});
     this.setState({ platforms });
   }
@@ -166,7 +166,7 @@ export default class PushJobs extends React.Component {
     const { repoName } = this.props;
     JobModel.get(
       repoName,
-      jobId
+      jobId,
     ).then((data) => {
       if (data.logs.length > 0) {
         window.open(location.origin + '/' +
@@ -178,7 +178,7 @@ export default class PushJobs extends React.Component {
   handleRunnableClick(job) {
     this.ThResultSetStore.toggleSelectedRunnableJob(
       this.pushId,
-      job.ref_data_name
+      job.ref_data_name,
     );
     findJobInstance(job.id, false).toggleRunnableSelected();
   }

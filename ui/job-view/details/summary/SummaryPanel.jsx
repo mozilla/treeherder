@@ -13,7 +13,7 @@ export default class SummaryPanel extends React.Component {
     super(props);
 
     this.state = {
-      machineUrl: ''
+      machineUrl: '',
     };
   }
 

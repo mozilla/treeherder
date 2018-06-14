@@ -61,8 +61,8 @@ export default class LineOption extends React.Component {
            const bugId = data.success;
            window.open(getBugUrl(bugId));
            onManualBugNumberChange(optionModel, `${bugId}`);
-         }
-       }
+         },
+       },
      });
 
     selectedOption.id = optionModel.id;

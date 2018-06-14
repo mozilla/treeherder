@@ -32,8 +32,8 @@ class StatusNavbar extends React.Component {
       options,
       {
         ...hideClassified,
-        [classification]: !hideClassified[classification]
-      }
+        [classification]: !hideClassified[classification],
+      },
     ));
   }
 

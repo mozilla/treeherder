@@ -32,9 +32,9 @@ treeherder.factory('thBuildApi', [
                     method: 'POST',
                     data: 'request_id=' + requestId,
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                     },
-                    withCredentials: true
+                    withCredentials: true,
                 });
             },
             cancelJob: function (repoName, requestId) {
@@ -43,9 +43,9 @@ treeherder.factory('thBuildApi', [
                     method: 'POST',
                     data: '_method=DELETE',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    withCredentials: true
+                    withCredentials: true,
                 })
                     .then(({ status }) => {
                         notify(status, 'cancel');
@@ -60,9 +60,9 @@ treeherder.factory('thBuildApi', [
                     method: 'POST',
                     data: '_method=DELETE',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    withCredentials: true
+                    withCredentials: true,
 
                 })
                     .then(({ status }) => {
@@ -71,6 +71,6 @@ treeherder.factory('thBuildApi', [
                     .catch(({ status }) => {
                         notify(status, 'cancel all jobs');
                     });
-            }
+            },
         };
     }]);

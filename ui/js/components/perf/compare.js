@@ -23,7 +23,7 @@ treeherder.component('phCompareTable', {
         testList: '<',
         filterOptions: '<',
         filterByFramework: '@',
-        releaseBlockerCriteria: '@'
+        releaseBlockerCriteria: '@',
     },
     controller: ['$attrs', function ($attrs) {
         const ctrl = this;
@@ -82,10 +82,10 @@ treeherder.component('phCompareTable', {
                 }
             });
             ctrl.filteredResultList = Object.keys(ctrl.filteredResultList).map(
-              testName => ({ testName, results: ctrl.filteredResultList[testName] })
+              testName => ({ testName, results: ctrl.filteredResultList[testName] }),
             );
         };
-    }]
+    }],
 });
 
 treeherder.component('phAverage', {
@@ -94,8 +94,8 @@ treeherder.component('phAverage', {
         value: '@',
         stddev: '@',
         stddevpct: '@',
-        replicates: '<'
-    }
+        replicates: '<',
+    },
 });
 
 treeherder.component('revisionInformation', {
@@ -107,8 +107,8 @@ treeherder.component('revisionInformation', {
         newRevision: '<',
         originalResultSet: '<',
         newResultSet: '<',
-        selectedTimeRange: '<'
-    }
+        selectedTimeRange: '<',
+    },
 });
 
 treeherder.component('compareError', {
@@ -118,8 +118,8 @@ treeherder.component('compareError', {
         originalProject: '<',
         originalRevision: '<',
         newProject: '<',
-        newRevision: '<'
-    }
+        newRevision: '<',
+    },
 });
 
 treeherder.component('distributionGraph', {
@@ -132,7 +132,7 @@ treeherder.component('distributionGraph', {
             </tr>
         </table>`,
     bindings: {
-        replicates: '<'
+        replicates: '<',
     },
     controller: [function () {
         const ctrl = this;
@@ -155,5 +155,5 @@ treeherder.component('distributionGraph', {
                 ctx.fill();
             });
         };
-    }]
+    }],
 });

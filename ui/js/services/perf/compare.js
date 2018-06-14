@@ -98,7 +98,7 @@ treeherder.factory('PhCompare', [
 
                         // We use slice to keep the original values at their original order
                         // in case the order is important elsewhere.
-                        runs: values.slice().sort(numericCompare)
+                        runs: values.slice().sort(numericCompare),
                     };
                 }
 
@@ -237,7 +237,7 @@ treeherder.factory('PhCompare', [
                         projectName, {
                             signature_id: _.map(seriesChunk, 'id'),
                             framework: [...new Set(_.map(seriesChunk, 'frameworkId'))],
-                            ...params
+                            ...params,
                         }).then((seriesData) => {
                             // Aggregates data from the server on a single group of values which
                             // will be compared later to another group. Ends up with an object
@@ -263,7 +263,7 @@ treeherder.factory('PhCompare', [
                                         if (!entry[signatureHash]) {
                                             entry[signatureHash] = {
                                                 ...signature,
-                                                values: [datum.value]
+                                                values: [datum.value],
                                             };
                                         } else {
                                             entry[signatureHash].values.push(datum.value);
@@ -271,7 +271,7 @@ treeherder.factory('PhCompare', [
                                     });
                                 }
                             });
-                        })
+                        }),
                 )).then(() => resultsMap);
             },
 
@@ -285,7 +285,7 @@ treeherder.factory('PhCompare', [
                     }),
                     highlightedRevisions: _.map(resultSets, function (resultSet) {
                         return resultSet.revision.slice(0, 12);
-                    })
+                    }),
                 });
 
                 if (resultSets) {
@@ -356,6 +356,6 @@ treeherder.factory('PhCompare', [
                 trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage) * 5, 100);
 
                 return trendMap;
-            }
+            },
         };
     }]);

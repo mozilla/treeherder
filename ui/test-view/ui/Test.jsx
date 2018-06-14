@@ -27,7 +27,7 @@ class BugCountComponent extends React.Component {
   onClick() {
     store.dispatch(actions.groups.fetchBugsSingleTest(
       this.props.test,
-      this.props.bugSuggestions
+      this.props.bugSuggestions,
     ));
     store.dispatch(actions.groups.toggleExpanded(
       Boolean(!this.props.expanded[this.props.testName]),
@@ -108,7 +108,7 @@ class TestComponent extends React.Component {
   onClick() {
     store.dispatch(actions.groups.fetchBugsSingleTest(
       this.props.test,
-      this.props.bugSuggestions
+      this.props.bugSuggestions,
     ));
     store.dispatch(actions.groups.toggleExpanded(
       Boolean(!this.props.expanded[this.props.name]),

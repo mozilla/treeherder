@@ -51,7 +51,7 @@ treeherder.factory('thJobFilters', [
         const DEFAULTS = {
             resultStatus: thDefaultFilterResultStates,
             classifiedState: ['classified', 'unclassified'],
-            tier: ['1', '2']
+            tier: ['1', '2'],
         };
 
         const NON_FIELD_FILTERS = ['fromchange', 'tochange', 'author',
@@ -68,57 +68,57 @@ treeherder.factory('thJobFilters', [
             exactstr: 'exactstr',
             substr: 'substr', // returns true if any values match the substring
             searchStr: 'searchStr', // returns true only if ALL the values match the substring
-            choice: 'choice'
+            choice: 'choice',
         };
 
         // choices available for the field filters
         const FIELD_CHOICES = {
             ref_data_name: {
                 name: 'buildername/jobname',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             build_system_type: {
                 name: 'build system',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             job_type_name: {
                 name: 'job name',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             job_type_symbol: {
                 name: 'job symbol',
-                matchType: MATCH_TYPE.exactstr
+                matchType: MATCH_TYPE.exactstr,
             },
             job_group_name: {
                 name: 'group name',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             job_group_symbol: {
                 name: 'group symbol',
-                matchType: MATCH_TYPE.exactstr
+                matchType: MATCH_TYPE.exactstr,
             },
             machine_name: {
                 name: 'machine name',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             platform: {
                 name: 'platform',
-                matchType: MATCH_TYPE.substr
+                matchType: MATCH_TYPE.substr,
             },
             tier: {
                 name: 'tier',
-                matchType: MATCH_TYPE.exactstr
+                matchType: MATCH_TYPE.exactstr,
             },
             failure_classification_id: {
                 name: 'failure classification',
                 matchType: MATCH_TYPE.choice,
-                choices: thClassificationTypes.classifications
+                choices: thClassificationTypes.classifications,
             },
             // text search across multiple fields
             searchStr: {
                 name: 'search string',
-                matchType: MATCH_TYPE.searchStr
-            }
+                matchType: MATCH_TYPE.searchStr,
+            },
         };
 
         // filter caches so that we only collect them when the filter params
@@ -429,7 +429,7 @@ treeherder.factory('thJobFilters', [
                             fieldFilters.push({
                                 field: _withoutPrefix(fieldName),
                                 value: val,
-                                key: fieldName
+                                key: fieldName,
                             });
                         }
                     });
@@ -611,6 +611,6 @@ treeherder.factory('thJobFilters', [
             // CONSTANTS
             classifiedState: CLASSIFIED_STATE,
             resultStatus: RESULT_STATUS,
-            tiers: TIERS
+            tiers: TIERS,
         };
     }]);

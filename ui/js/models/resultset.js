@@ -44,12 +44,12 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             getResultSetsFromChange: function (repoName, revision, locationParams) {
                 locationParams = convertDates(locationParams);
                 _.extend(locationParams, {
-                    fromchange: revision
+                    fromchange: revision,
                 });
 
                 return $http.get(
                     getProjectUrl('/resultset/', repoName),
-                    { params: locationParams }
+                    { params: locationParams },
                 );
             },
 
@@ -59,7 +59,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
 
                 const params = {
-                    full: full
+                    full: full,
                 };
 
                 // count defaults to 10, but can be no larger than the max.
@@ -105,7 +105,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
                 return $http.get(
                     getProjectUrl('/resultset/', repoName),
-                    { params: params }
+                    { params: params },
                 );
             },
             getResultSetList: function (repoName, resultSetList, full) {
@@ -115,13 +115,13 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                             full: _.isUndefined(full) ? true : full,
                             offset: 0,
                             count: resultSetList.length,
-                            id__in: resultSetList.join()
-                        }
+                            id__in: resultSetList.join(),
+                        },
                     });
             },
             getResultSet: function (repoName, pk) {
                 return $http.get(
-                    getProjectUrl(`/resultset/${pk}/`, repoName)
+                    getProjectUrl(`/resultset/${pk}/`, repoName),
                 );
             },
             get: function (uri) {
@@ -140,7 +140,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     result_set_id__in: resultSetIdList.join(','),
                     count: 2000,
                     last_modified__gt: lastModified.toISOString().replace('Z', ''),
-                    return_type: 'list'
+                    return_type: 'list',
                 };
                 _.extend(params, locationParams);
                 return JobModel.getList(repoName, params, { fetch_all: true });
@@ -151,7 +151,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     const params = {
                         return_type: 'list',
                         result_set_id: resultSetId,
-                        count: 2000
+                        count: 2000,
                     };
                     _.extend(params, locationParams);
                     return JobModel.getList(repoName, params, { fetch_all: true });
@@ -261,7 +261,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 const url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,
-                    'public/full-task-graph.json'
+                    'public/full-task-graph.json',
                 );
                 return $http.get(url).then(function (resp) {
                     const graph = resp.data;

@@ -141,7 +141,7 @@ export default class ActionBar extends React.Component {
               }).then(() => {
                 this.$timeout(() => this.thNotify.send(
                   `Request sent to backfill job via actions.json (${actionTaskId})`,
-                  'success')
+                  'success'),
                 );
               }, (e) => {
                 // The full message is too large to fit in a Treeherder
@@ -149,7 +149,7 @@ export default class ActionBar extends React.Component {
                 this.$timeout(() => this.thNotify.send(
                   formatTaskclusterError(e),
                   'danger',
-                  { sticky: true })
+                  { sticky: true }),
                 );
               });
             }
@@ -167,7 +167,7 @@ export default class ActionBar extends React.Component {
           const url = queue.buildUrl(
             queue.getLatestArtifact,
             decisionTaskId,
-            'public/action.yml'
+            'public/action.yml',
           );
           fetch(url).then((resp) => {
             let action = resp.data;
@@ -181,7 +181,7 @@ export default class ActionBar extends React.Component {
             queue.createTask(actionTaskId, task).then(function () {
               this.$timeout(() => this.thNotify.send(
                 `Request sent to backfill job via actions.yml (${actionTaskId})`,
-                'success')
+                'success'),
               );
             }, (e) => {
               // The full message is too large to fit in a Treeherder
@@ -189,7 +189,7 @@ export default class ActionBar extends React.Component {
               this.$timeout(() => this.thNotify.send(
                 formatTaskclusterError(e),
                 'danger',
-                { sticky: true })
+                { sticky: true }),
               );
             });
           });
@@ -239,7 +239,7 @@ export default class ActionBar extends React.Component {
     // first
     JobDetailModel.getJobDetails({
       job_id__in: jobIdsToCancel,
-      title: 'buildbot_request_id'
+      title: 'buildbot_request_id',
     }).then(buildbotRequestIdDetails => (
       JobModel.cancel(repoName, jobIdsToCancel).then(
         () => {
@@ -255,7 +255,7 @@ export default class ActionBar extends React.Component {
       this.thNotify.send(
         formatModelError(e, 'Unable to cancel job'),
         'danger',
-        { sticky: true }
+        { sticky: true },
       );
     });
   }
@@ -274,8 +274,8 @@ export default class ActionBar extends React.Component {
       resolve: {
         job: () => selectedJob,
         repoName: () => repoName,
-        resultsetId: () => selectedJob.result_set_id
-      }
+        resultsetId: () => selectedJob.result_set_id,
+      },
     });
   }
 

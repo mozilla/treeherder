@@ -191,9 +191,9 @@ async function fetchTests(store, fetchParams) {
       counts: {
         failed: failedJobs.filter(job => !(['infra', 'intermittent'].includes(job.failureClassification.name))).length,
         infra: failedJobs.filter(job => job.failureClassification.name === 'infra').length,
-        intermittent: failedJobs.filter(job => job.failureClassification.name === 'intermittent').length
+        intermittent: failedJobs.filter(job => job.failureClassification.name === 'intermittent').length,
       },
-    }
+    },
   });
 }
 
@@ -206,9 +206,9 @@ async function fetchOptions(store, fetchParams) {
     payload: {
       options: options.data.allOptionCollections.reduce((acc, opt) => ({
         ...acc,
-        [opt.optionCollectionHash]: opt.option.name
+        [opt.optionCollectionHash]: opt.option.name,
       }), {}),
-    }
+    },
   });
 }
 
@@ -226,7 +226,7 @@ async function fetchCounts(store, fetchParams) {
     type: groupsStore.types.RENDER_COUNTS,
     payload: {
       counts,
-    }
+    },
   });
 }
 
@@ -326,14 +326,14 @@ async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
         bsAcc = { ...bsAcc, [`${test.jobGroup}-${test.name}`]: test.bugs };
       });
       return bsAcc;
-    }, {})
+    }, {}),
   };
 
   store.dispatch({
     type: groupsStore.types.RENDER_BUGS,
     payload: {
       bugSuggestions: updatedBugSuggestions,
-    }
+    },
   });
 }
 
@@ -364,7 +364,7 @@ async function fetchBugs(store, { rowData, url }) {
     type: groupsStore.types.RENDER_BUGS,
     payload: {
       bugSuggestions,
-    }
+    },
   });
 }
 
@@ -373,7 +373,7 @@ async function toggleExpanded(store, { toggled, testName, expanded }) {
     type: groupsStore.types.RENDER_EXPANDED,
     payload: {
       expanded: { ...expanded, [testName]: toggled },
-    }
+    },
   });
 }
 

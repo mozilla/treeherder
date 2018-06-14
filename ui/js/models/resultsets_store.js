@@ -60,7 +60,7 @@ treeherder.factory('ThResultSetStore', [
             'tochange',
             'startdate',
             'enddate',
-            'nojobs'
+            'nojobs',
         ];
 
         var registerPushPollers = function () {
@@ -88,7 +88,7 @@ treeherder.factory('ThResultSetStore', [
                         ThResultSetModel.getResultSetsFromChange(
                             repoData.name,
                             fromChangeRev,
-                            rsPollingParams
+                            rsPollingParams,
                         ).then(function (data) {
                             prependPushes(data.data);
                         });
@@ -137,7 +137,7 @@ treeherder.factory('ThResultSetStore', [
                 // server) if there are a lot of them
                 jobUpdatesPromise = $q.all(ThResultSetModel.getResultSetJobs(
                     pushIdList,
-                    repoData.name
+                    repoData.name,
                 ));
             } else {
                 jobUpdatesPromise = ThResultSetModel.getResultSetJobsUpdates(
@@ -169,7 +169,7 @@ treeherder.factory('ThResultSetStore', [
                         // due e.g. to looking at a completed push)
                         lastJobUpdate = _.max([
                             new Date(Date.now() - (5 * jobPollInterval)),
-                            lastJobUpdate
+                            lastJobUpdate,
                         ]);
                     }
                     schedulePoll();
@@ -209,7 +209,7 @@ treeherder.factory('ThResultSetStore', [
                 }
                 var sortAndGroupJobs = _.flowRight(
                     sortGroupedJobs,
-                    groupJobByPlatform
+                    groupJobByPlatform,
                 );
                 _.extend(push, sortAndGroupJobs(push.jobList));
                 mapPlatforms(push);
@@ -266,7 +266,7 @@ treeherder.factory('ThResultSetStore', [
                     // this is "watchable" by the controller now to update its scope.
                     loadingStatus: {
                         appending: false,
-                        prepending: false
+                        prepending: false,
                     },
                 };
 
@@ -292,7 +292,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getSelectedJob = function () {
             return {
-                job: repoData.lastJobObjSelected
+                job: repoData.lastJobObjSelected,
             };
         };
 
@@ -355,7 +355,7 @@ treeherder.factory('ThResultSetStore', [
 
                 var rsMapElement = {
                     rs_obj: rs_obj,
-                    platforms: {}
+                    platforms: {},
                 };
                 repoData.rsMap[rs_obj.id] = rsMapElement;
 
@@ -377,7 +377,7 @@ treeherder.factory('ThResultSetStore', [
                 var plMapElement = {
                     pl_obj: pl_obj,
                     parent: repoData.rsMap[rs_obj.id],
-                    groups: {}
+                    groups: {},
                 };
                 var platformKey = getPlatformKey(pl_obj.name, pl_obj.option);
                 repoData.rsMap[rs_obj.id].platforms[platformKey] = plMapElement;
@@ -390,7 +390,7 @@ treeherder.factory('ThResultSetStore', [
                     var grMapElement = {
                         grp_obj: gr_obj,
                         parent: plMapElement,
-                        jobs: {}
+                        jobs: {},
                     };
                     plMapElement.groups[gr_obj.symbol] = grMapElement;
 
@@ -401,7 +401,7 @@ treeherder.factory('ThResultSetStore', [
 
                         var jobMapElement = {
                             job_obj: job_obj,
-                            parent: grMapElement
+                            parent: grMapElement,
                         };
                         grMapElement.jobs[key] = jobMapElement;
                         repoData.jobMap[key] = jobMapElement;
@@ -490,7 +490,7 @@ treeherder.factory('ThResultSetStore', [
                 var pl_obj = {
                     name: newJob.platform,
                     option: newJob.platform_option,
-                    groups: []
+                    groups: [],
                 };
 
                 // add the new platform to the datamodel and resort
@@ -501,7 +501,7 @@ treeherder.factory('ThResultSetStore', [
                     rsMapElement.platforms[platformKey] = {
                         pl_obj: pl_obj,
                         parent: rsMapElement,
-                        groups: {}
+                        groups: {},
                     };
                     plMapElement = rsMapElement.platforms[platformKey];
                 }
@@ -529,7 +529,7 @@ treeherder.factory('ThResultSetStore', [
                         symbol: groupInfo.symbol,
                         name: groupInfo.name,
                         mapKey: groupInfo.mapKey,
-                        jobs: []
+                        jobs: [],
                     };
 
                     // add the new group to the datamodel
@@ -539,7 +539,7 @@ treeherder.factory('ThResultSetStore', [
                     plMapElement.groups[grp_obj.symbol] = {
                         grp_obj: grp_obj,
                         parent: plMapElement,
-                        jobs: {}
+                        jobs: {},
                     };
 
                     grMapElement = plMapElement.groups[groupInfo.symbol];
@@ -562,7 +562,7 @@ treeherder.factory('ThResultSetStore', [
                 var jobFetchSlice = jobFetchList.splice(0, count);
                 JobModel.getList(repoData.name, {
                     id__in: jobFetchSlice.join(),
-                    count: count
+                    count: count,
                 })
                     .then(function (jobsFetched) {
                         // if there are jobs unfetched, enqueue them for the next run
@@ -638,7 +638,7 @@ treeherder.factory('ThResultSetStore', [
                     // add the job mapping to the group
                     grpMapElement.jobs[key] = {
                         job_obj: newJob,
-                        parent: grpMapElement
+                        parent: grpMapElement,
                     };
                     // add the job to the datamodel
                     grpMapElement.grp_obj.jobs.push(newJob);
@@ -646,7 +646,7 @@ treeherder.factory('ThResultSetStore', [
                     // add job to the jobmap
                     var jobMapElement = {
                         job_obj: newJob,
-                        parent: grpMapElement
+                        parent: grpMapElement,
                     };
                     repoData.jobMap[key] = jobMapElement;
 
@@ -692,7 +692,7 @@ treeherder.factory('ThResultSetStore', [
                 });
 
                 Array.prototype.push.apply(
-                    repoData.pushes, newResultsets
+                    repoData.pushes, newResultsets,
                 );
                 mapPushes(newResultsets);
 
@@ -821,7 +821,7 @@ treeherder.factory('ThResultSetStore', [
             var pushes;
             var loadRepositories = ThRepositoryModel.load({
                 name: repoData.name,
-                watchRepos: true
+                watchRepos: true,
             });
             var loadResultsets = ThResultSetModel.getResultSets(repoData.name,
                                                                 repoData.rsMapOldestTimestamp,
@@ -845,7 +845,7 @@ treeherder.factory('ThResultSetStore', [
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
                         _.map(pushes.results, 'id'),
-                        repoData.name
+                        repoData.name,
                     );
                     $q.all(jobsPromiseList)
                         .then((pushJobList) => {
@@ -896,14 +896,14 @@ treeherder.factory('ThResultSetStore', [
         var getJobCount = jobList => (
           jobList.reduce((memo, job) => (
             job.result !== 'superseded' ? { ...memo, [job.state]: memo[job.state] + 1 } : memo
-            ), { running: 0, pending: 0, completed: 0 }
+            ), { running: 0, pending: 0, completed: 0 },
           )
         );
 
         const getJobGroupInfo = function (job) {
           const {
             job_group_name: name, job_group_symbol,
-            platform, platform_option, result_set_id, tier
+            platform, platform_option, result_set_id, tier,
           } = job;
           // this has to do with group sorting so that the tier-1 ungrouped
           // jobs show first, and the tier>1 ungrouped jobs show last.
@@ -922,7 +922,7 @@ treeherder.factory('ThResultSetStore', [
         var groupJobByPlatform = function (jobList) {
             var groupedJobs = {
                 platforms: [],
-                job_counts: getJobCount(jobList)
+                job_counts: getJobCount(jobList),
             };
 
             if (jobList.length === 0) { return groupedJobs; }
@@ -939,7 +939,7 @@ treeherder.factory('ThResultSetStore', [
                     platform = {
                         name: job.platform,
                         option: job.platform_option,
-                        groups: []
+                        groups: [],
                     };
                     groupedJobs.platforms.push(platform);
                 }
@@ -955,7 +955,7 @@ treeherder.factory('ThResultSetStore', [
                         name: groupInfo.name,
                         symbol: groupInfo.symbol,
                         tier: groupInfo.tier,
-                        jobs: []
+                        jobs: [],
                     };
                     platform.groups.push(group);
                 }
@@ -982,7 +982,7 @@ treeherder.factory('ThResultSetStore', [
                                     return s1 + s2;
                                 }
                                 return matcher;
-                            }
+                            },
                         );
                     });
                 });
@@ -1025,7 +1025,7 @@ treeherder.factory('ThResultSetStore', [
             setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultPushCount: defaultPushCount,
-            reloadOnChangeParameters: reloadOnChangeParameters
+            reloadOnChangeParameters: reloadOnChangeParameters,
 
         };
 

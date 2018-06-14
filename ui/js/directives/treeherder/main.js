@@ -33,7 +33,7 @@ treeherder.directive('focusMe', [
                         }, 0);
                     }
                 });
-            }
+            },
         };
     }]);
 
@@ -55,9 +55,9 @@ treeherder.directive('copyValue', [
                     cont.style.display = 'none';
                     clip.value = '';
                 });
-            }
+            },
         };
-    }
+    },
 ]);
 
 // Prevent default behavior on left mouse click. Useful
@@ -75,9 +75,9 @@ treeherder.directive('preventDefaultOnLeftClick', [
                     }
                     element.blur();
                 });
-            }
+            },
         };
-    }
+    },
 ]);
 
 treeherder.directive('stopPropagationOnLeftClick', [
@@ -90,9 +90,9 @@ treeherder.directive('stopPropagationOnLeftClick', [
                         event.stopPropagation();
                     }
                 });
-            }
+            },
         };
-    }
+    },
 ]);
 
 treeherder.directive('thNotificationBox', [
@@ -104,7 +104,7 @@ treeherder.directive('thNotificationBox', [
             link: function (scope) {
                 scope.notifier = thNotify;
                 scope.alert_class_prefix = 'alert-';
-            }
+            },
         };
     }]);
 
@@ -121,7 +121,7 @@ treeherder.directive('thFaviconLink', [
                     }
                 });
             },
-            template: '<link id="favicon" type="image/png" rel="shortcut icon" href="{{favicon}}" />'
+            template: '<link id="favicon" type="image/png" rel="shortcut icon" href="{{favicon}}" />',
         };
     }]);
 
@@ -138,6 +138,6 @@ treeherder.directive('bugInput', function () {
             });
             elem.attr('type', 'text');
             elem.attr('pattern', '\\s*\\d+\\s*');
-        }
+        },
     };
 });

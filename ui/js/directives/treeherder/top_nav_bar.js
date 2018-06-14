@@ -16,34 +16,34 @@ treeherder.directive('thWatchedRepo', [
             open: {
                 icon: 'fa-circle-o',
                 color: 'tree-open',
-                btnClass: 'btn-view-nav'
+                btnClass: 'btn-view-nav',
             },
             'approval required': {
                 icon: 'fa-lock',
                 color: 'tree-approval',
-                btnClass: 'btn-view-nav'
+                btnClass: 'btn-view-nav',
             },
             closed: {
                 icon: 'fa-times-circle',
                 color: 'tree-closed',
-                btnClass: 'btn-view-nav-closed'
+                btnClass: 'btn-view-nav-closed',
             },
             unsupported: {
                 icon: 'fa-question',
                 color: 'tree-unavailable',
-                btnClass: 'btn-view-nav'
+                btnClass: 'btn-view-nav',
             },
             'not retrieved yet': {
                 icon: 'fa-spinner',
                 iconClass: 'fa-pulse',
                 color: 'tree-unavailable',
-                btnClass: 'btn-view-nav'
+                btnClass: 'btn-view-nav',
             },
             error: {
                 icon: 'fa-question',
                 color: 'tree-unavailable',
-                btnClass: 'btn-view-nav'
-            }
+                btnClass: 'btn-view-nav',
+            },
         };
 
         return {
@@ -79,7 +79,7 @@ treeherder.directive('thWatchedRepo', [
                     }
                 });
             },
-            template: thWatchedRepoTemplate
+            template: thWatchedRepoTemplate,
         };
     }]);
 
@@ -102,7 +102,7 @@ treeherder.directive('thWatchedRepoInfoDropDown', [
                     }
                 }, true);
             },
-            template: thWatchedRepoInfoDropDownTemplate
+            template: thWatchedRepoInfoDropDownTemplate,
         };
     }]);
 
@@ -119,7 +119,7 @@ treeherder.directive('thCheckboxDropdownContainer', function () {
                         const closeable = scope.closeable;
                         scope.closeable = true;
                         return closeable;
-                    }
+                    },
                 });
 
                 $('.checkbox-dropdown-menu').on({
@@ -128,10 +128,10 @@ treeherder.directive('thCheckboxDropdownContainer', function () {
                             $(ev.target).parent().hasClass('dropdown-link')) {
                             scope.closeable = false;
                         }
-                    }
+                    },
                 });
 
-            }
+            },
         };
     });
 
@@ -149,7 +149,7 @@ treeherder.directive('thRepoMenuItem',
                 }
 
             },
-            template: thRepoMenuItemTemplate
+            template: thRepoMenuItemTemplate,
         };
     });
 
@@ -159,6 +159,6 @@ treeherder.directive('thResultStatusChicklet', function () {
         link: function (scope) {
             scope.chickletClass = `${getBtnClass(scope.filterName)}-filter-chicklet`;
         },
-        template: thResultStatusChickletTemplate
+        template: thResultStatusChickletTemplate,
     };
 });

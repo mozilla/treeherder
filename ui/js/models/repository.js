@@ -56,7 +56,7 @@ treeherder.factory('ThRepositoryModel', [
                 status: 'unsupported',
                 message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
                 reason: '',
-                tree: repoName
+                tree: repoName,
             };
         };
 
@@ -69,7 +69,7 @@ treeherder.factory('ThRepositoryModel', [
                 status: 'error',
                 message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
                 reason: '',
-                tree: repoName
+                tree: repoName,
             };
         };
 
@@ -124,7 +124,7 @@ treeherder.factory('ThRepositoryModel', [
             repos[repo.name] = {
                 treeStatus: null,
                 unclassifiedFailureCount: 0,
-                groupName: repo.repository_group.name
+                groupName: repo.repository_group.name,
             };
         };
 
@@ -158,7 +158,7 @@ treeherder.factory('ThRepositoryModel', [
             _.extend(repos[name], {
                 treeStatus: { status: 'not retrieved yet', message_of_the_day: '' },
                 unclassifiedFailureCount: 0,
-                groupName: repos[name].groupName
+                groupName: repos[name].groupName,
             });
             watchedRepos.unshift(name);
             updateTreeStatus(name);
@@ -260,7 +260,7 @@ treeherder.factory('ThRepositoryModel', [
 
                                 // if neither git nor mercurial, undefined
                                 return '';
-                            }
+                            },
                         };
 
                         $rootScope.repos = _.map(data, function (datum) {
@@ -355,7 +355,7 @@ treeherder.factory('ThRepositoryModel', [
 
             unwatchRepo: unwatchRepo,
 
-            toggleWatched: toggleWatched
+            toggleWatched: toggleWatched,
 
         };
     }]);

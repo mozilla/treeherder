@@ -12,7 +12,7 @@ export const extendProperties = function extendProperties(dest, src) {
           get: descriptor.get,
           set: descriptor.set,
           enumerable: descriptor.enumerable,
-          configurable: descriptor.configurable
+          configurable: descriptor.configurable,
         });
       } else {
         dest[key] = src[key];

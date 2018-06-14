@@ -10,7 +10,7 @@ const watchCycleStates = [
   'none',
   'push',
   'job',
-  'none'
+  'none',
 ];
 
 export default class Push extends React.Component {
@@ -68,7 +68,7 @@ export default class Push extends React.Component {
       if (message) {
         const notification = new Notification(message, {
           body: `${repoName} rev ${revision.substring(0, 12)}`,
-          tag: pushId
+          tag: pushId,
         });
 
         notification.onerror = (event) => {

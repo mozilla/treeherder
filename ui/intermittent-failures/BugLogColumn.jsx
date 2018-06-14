@@ -25,7 +25,7 @@ export default class BugLogColumn extends React.Component {
 
   toggle() {
     this.setState({
-      tooltipOpen: !this.state.tooltipOpen
+      tooltipOpen: !this.state.tooltipOpen,
     });
   }
 

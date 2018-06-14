@@ -135,7 +135,7 @@ class DetailsPanel extends React.Component {
     return this.ThResultSetStore.getPushArray().map(push => ({
       revision: push.revision,
       author: push.author,
-      title: push.revisions[0].comments.split('\n')[0]
+      title: push.revisions[0].comments.split('\n')[0],
     }));
   }
 
@@ -177,7 +177,7 @@ class DetailsPanel extends React.Component {
                       .map(step => ({
                         name: step.name,
                         result: step.result,
-                        logViewerUrl: getLogViewerUrl(job.id, repoName, step.finished_line_number)
+                        logViewerUrl: getLogViewerUrl(job.id, repoName, step.finished_line_number),
                       }));
                   this.setState({ errors });
               });
@@ -223,7 +223,7 @@ class DetailsPanel extends React.Component {
       jobPromise,
       jobDetailPromise,
       jobLogUrlPromise,
-      phSeriesPromise
+      phSeriesPromise,
     ]).then(async (results) => {
 
       // The first result comes from the job promise.
@@ -269,17 +269,17 @@ class DetailsPanel extends React.Component {
       if (performanceData) {
         const signatureIds = [...new Set(performanceData.map(perf => perf.signature_id))];
         const seriesListList = await Promise.all(chunk(signatureIds, 20).map(
-          signatureIdChunk => this.PhSeries.getSeriesList(repoName, { id: signatureIdChunk })
+          signatureIdChunk => this.PhSeries.getSeriesList(repoName, { id: signatureIdChunk }),
         ));
         const seriesList = seriesListList.reduce((a, b) => [...a, ...b], []);
 
         perfJobDetail = performanceData.map(d => ({
           series: seriesList.find(s => d.signature_id === s.id),
-          ...d
+          ...d,
         })).filter(d => !d.series.parentSignature).map(d => ({
           url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, job.result_set_id, d.id]}`,
           value: d.value,
-          title: d.series.name
+          title: d.series.name,
         }));
       }
 

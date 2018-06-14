@@ -52,8 +52,8 @@ export default class FailureSummaryTab extends React.Component {
               thEvents.saveClassification));
           // Open the newly filed bug in a new tab or window for further editing
           window.open(getBugUrl(data.success));
-        }
-      }
+        },
+      },
     });
     pinJob(selectedJob);
 
@@ -65,7 +65,7 @@ export default class FailureSummaryTab extends React.Component {
   render() {
     const {
       jobLogUrls, logParseStatus, suggestions, errors,
-      bugSuggestionsLoading, selectedJob, addBug
+      bugSuggestionsLoading, selectedJob, addBug,
     } = this.props;
     const logs = jobLogUrls;
     const jobLogsAllParsed = logs.every(jlu => (jlu.parse_status !== 'pending'));

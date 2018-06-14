@@ -22,7 +22,7 @@ export class RevisionList extends React.PureComponent {
               revision={revision}
               repo={repo}
               key={revision.revision}
-            />)
+            />),
           )}
           {this.hasMore &&
           <MoreRevisionsLink

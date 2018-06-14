@@ -26,7 +26,7 @@ class Groups extends React.Component {
     // Update the tests every two minutes.
     this.testTimerId = setInterval(
       () => this.updateTests(),
-      120000
+      120000,
     );
   }
 

@@ -198,7 +198,7 @@ export default class ErrorLine extends React.Component {
         cf.bug_number,
         cf.bug ? cf.bug.summary : '',
         cf.bug ? cf.bug.resolution : '',
-        classificationMatches(cf.id)
+        classificationMatches(cf.id),
       ));
     const autoclassifiedBugs = autoclassifyOptions
       .reduce((classifiedBugs, option) => classifiedBugs.add(option.bugNumber),
@@ -309,7 +309,7 @@ export default class ErrorLine extends React.Component {
     const importantLines = [
       /\d+ bytes leaked/,
       /application crashed/,
-      /TEST-UNEXPECTED-/
+      /TEST-UNEXPECTED-/,
     ];
 
     if (prevTest && thisTest && prevTest === thisTest) {
@@ -361,7 +361,7 @@ export default class ErrorLine extends React.Component {
         function (match) {
           return {
             matcher: errorMatchers.get(match.matcher),
-            score: match.score
+            score: match.score,
           };
         });
     };

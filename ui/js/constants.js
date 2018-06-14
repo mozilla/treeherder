@@ -151,7 +151,7 @@ export const thPlatformMap = {
     packages: 'Packages',
     toolchains: 'Toolchains',
     diff: 'Diffoscope',
-    other: 'Other'
+    other: 'Other',
 };
 
 // Platforms where the `opt` should be dropped from
@@ -181,7 +181,7 @@ export const thAllResultStates = [
   'running',
   'pending',
   'superseded',
-  'runnable'
+  'runnable',
 ];
 
 export const thDefaultFilterResultStates = [
@@ -193,7 +193,7 @@ export const thDefaultFilterResultStates = [
   'usercancel',
   'running',
   'pending',
-  'runnable'
+  'runnable',
 ];
 
 export const thOptionOrder = {
@@ -203,7 +203,7 @@ export const thOptionOrder = {
   tsan: 3,
   debug: 4,
   cc: 5,
-  addon: 6
+  addon: 6,
 };
 
 export const thTitleSuffixLimit = 70;
@@ -212,7 +212,7 @@ export const thFavicons = {
   closed: closedTreeFavicon,
   open: treeFavicon,
   'approval required': treeFavicon,
-  unavailable: treeFavicon
+  unavailable: treeFavicon,
 };
 
 export const thRepoGroupOrder = {
@@ -222,7 +222,7 @@ export const thRepoGroupOrder = {
   'comm-repositories': 4,
   'qa automation tests': 5,
   try: 6,
-  taskcluster: 7
+  taskcluster: 7,
 };
 
 export const thDefaultRepo = 'mozilla-inbound';
@@ -232,12 +232,12 @@ export const thDateFormat = 'EEE MMM d, HH:mm:ss';
 export const thJobNavSelectors = {
   ALL_JOBS: {
     name: 'jobs',
-    selector: '.job-btn, .selected-job'
+    selector: '.job-btn, .selected-job',
   },
   UNCLASSIFIED_FAILURES: {
     name: 'unclassified failures',
-    selector: '.selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple, .job-btn.autoclassified'
-  }
+    selector: '.selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple, .job-btn.autoclassified',
+  },
 };
 
 export const thPinboardCountError = 'Max pinboard size of 500 reached.';
@@ -319,7 +319,7 @@ export const phTimeRanges = [
 export const phDefaultTimeRangeValue = 1209600;
 
 export const phTimeRangeValues = {
-  'mozilla-beta': 7776000
+  'mozilla-beta': 7776000,
 };
 
 export const phBlockers = {
@@ -347,7 +347,7 @@ export const phBlockers = {
   ts_paint: 2.0,
   tscrollx: 2.0,
   'tsvgr_opacity summary': 5.0,
-  'tsvgx summary': 5.0
+  'tsvgx summary': 5.0,
 };
 
 export const phDefaultFramework = 'talos';
@@ -362,7 +362,7 @@ export const phAlertSummaryStatusMap = {
   WONTFIX: { id: 6, text: 'wontfix' },
   FIXED: { id: 7, text: 'fixed' },
   BACKEDOUT: { id: 8, text: 'backedout' },
-  CONFIRMING: { id: 9, text: 'confirming' }
+  CONFIRMING: { id: 9, text: 'confirming' },
 };
 
 export const phAlertStatusMap = {
@@ -371,7 +371,7 @@ export const phAlertStatusMap = {
   REASSIGNED: { id: 2, text: 'reassigned' },
   INVALID: { id: 3, text: 'invalid' },
   ACKNOWLEDGED: { id: 4, text: 'acknowledged' },
-  CONFIRMING: { id: 5, text: 'confirming' }
+  CONFIRMING: { id: 5, text: 'confirming' },
 };
 
 export const phCompareBaseLineDefaultTimeRange = 86400 * 2;

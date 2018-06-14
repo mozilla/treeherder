@@ -35,6 +35,6 @@ treeherder.directive('lvLogSteps', ['$timeout', ($timeout) => {
                     $('.steps-data').scrollTop(scrollTop);
                 });
             };
-        }
+        },
     };
 }]);

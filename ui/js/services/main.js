@@ -38,7 +38,7 @@ treeherder.factory('thNotify', [
                     ...opts,
                     message,
                     severity,
-                    created: Date.now()
+                    created: Date.now(),
                 };
                 thNotify.notifications.unshift(notification);
                 thNotify.storedNotifications.unshift(notification);
@@ -62,7 +62,7 @@ treeherder.factory('thNotify', [
                 const notification = {
                     message,
                     severity,
-                    created: Date.now()
+                    created: Date.now(),
                 };
                 const storedNotifications = thNotify.storedNotifications;
 
@@ -94,7 +94,7 @@ treeherder.factory('thNotify', [
             clear: function () {
                 thNotify.storedNotifications = [];
                 localStorageService.set('notifications', thNotify.storedNotifications);
-            }
+            },
         };
         return thNotify;
 
@@ -127,9 +127,9 @@ treeherder.factory('customPushActions', [
                 },
                 resultsetId: function () {
                   return pushId;
-                }
-              }
+                },
+              },
             });
-          }
+          },
         };
     }]);

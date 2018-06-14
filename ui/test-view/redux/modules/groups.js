@@ -151,7 +151,7 @@ export const actions = {
       groups,
       options,
       hideClassified,
-      debounce: 'filter'
+      debounce: 'filter',
     },
   }),
   toggleHideClassified: (filter, groups, options, hideClassified) => ({

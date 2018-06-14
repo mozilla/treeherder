@@ -11,18 +11,18 @@ treeherderApp.controller('JobFilterCtrl', [
             failures: {
                 value: 'failures',
                 name: 'failures',
-                resultStatuses: thFailureResults.slice()
+                resultStatuses: thFailureResults.slice(),
             },
             nonfailures: {
                 value: 'nonfailures',
                 name: 'non-failures',
-                resultStatuses: ['success', 'retry', 'usercancel', 'superseded']
+                resultStatuses: ['success', 'retry', 'usercancel', 'superseded'],
             },
             'in progress': {
                 value: 'in progress',
                 name: 'in progress',
-                resultStatuses: ['pending', 'running']
-            }
+                resultStatuses: ['pending', 'running'],
+            },
         };
 
         $scope.resultStatusFilters = {};
@@ -104,7 +104,7 @@ treeherderApp.controller('JobFilterCtrl', [
         $rootScope.$on(thEvents.globalFilterChanged, function () {
             updateToggleFilters();
         });
-    }
+    },
 ]);
 
 treeherderApp.controller('SearchCtrl', [
@@ -133,5 +133,5 @@ treeherderApp.controller('SearchCtrl', [
                 $rootScope.$broadcast('blur-this', 'quick-filter');
             }
         };
-    }
+    },
 ]);

@@ -133,7 +133,7 @@ export const getSearchStr = function getSearchStr(job) {
     job.platform_option,
     (job.job_group_name === 'unknown') ? undefined : job.job_group_name,
     job.job_type_name,
-    `${symbolInfo}(${job.job_type_symbol})`
+    `${symbolInfo}(${job.job_type_symbol})`,
   ].filter(item => typeof item !== 'undefined').join(' ');
 };
 
@@ -155,7 +155,7 @@ export const getJobMachineUrl = function getJobMachineUrl(job) {
 export const getTimeFields = function getTimeFields(job) {
   // time fields to show in detail panel, but that should be grouped together
   const timeFields = {
-    requestTime: toDateStr(job.submit_timestamp)
+    requestTime: toDateStr(job.submit_timestamp),
   };
 
   // If start time is 0, then duration should be from requesttime to now

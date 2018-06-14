@@ -74,7 +74,7 @@ export default class AutoclassifyTab extends React.Component {
           const msg = (canClassify ? 'selected lines not classified' : 'Not logged in');
           this.thNotify.send(`Can't save: ${msg}`, 'danger');
         }
-      }
+      },
     );
 
     this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
@@ -321,7 +321,7 @@ export default class AutoclassifyTab extends React.Component {
 
       this.setState({
         errorLines,
-        loadStatus: 'ready'
+        loadStatus: 'ready',
       });
     }
   }
@@ -374,7 +374,7 @@ export default class AutoclassifyTab extends React.Component {
     const data = Object.values(lines).map(input => ({
       id: input.id,
       best_classification: input.classifiedFailureId || null,
-      bug_number: input.bugNumber
+      bug_number: input.bugNumber,
     }));
 
     this.setState({ loadStatus: 'loading' });
@@ -466,7 +466,7 @@ export default class AutoclassifyTab extends React.Component {
       selectedLineIds,
       editableLineIds,
       canClassify,
-      errorMatchers
+      errorMatchers,
     } = this.state;
     const loadStatusText = this.getLoadStatusText();
     const canSave = Array.from(selectedLineIds).every(id => this.canSave(id));

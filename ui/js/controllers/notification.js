@@ -5,5 +5,5 @@ treeherderApp.controller('NotificationCtrl', [
     function NotificationCtrl($scope, thNotify) {
         $scope.notifications = () => thNotify.storedNotifications;
         $scope.clear = () => thNotify.clear();
-    }
+    },
 ]);

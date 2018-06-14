@@ -48,7 +48,7 @@ treeherder.factory('PhAlerts', [
                 originalProject: alertSummary.repository,
                 originalSignature: this.series_signature.signature_hash,
                 newProject: alertSummary.repository,
-                newSignature: this.series_signature.signature_hash
+                newSignature: this.series_signature.signature_hash,
             };
             if (alertSummary.prevResultSetMetadata) {
                 urlParameters.originalRevision = alertSummary.prevResultSetMetadata.revision;
@@ -72,11 +72,11 @@ treeherder.factory('PhAlerts', [
             const alert = this;
             const toggledStar = !this.starred;
             this.modify({
-                starred: toggledStar
+                starred: toggledStar,
             }).then(
                 function () {
                     alert.starred = toggledStar;
-                }
+                },
             );
         };
 
@@ -107,11 +107,11 @@ treeherder.factory('PhAlerts', [
             let resultStr = '';
             const improved = _.sortBy(
                 this.alerts.filter(alert => !alert.is_regression && alert.visible),
-                'amount_pct'
+                'amount_pct',
             ).reverse();
             const regressed = _.sortBy(
                 this.alerts.filter(alert => alert.is_regression && alert.visible && !alert.isInvalid()),
-                'amount_pct'
+                'amount_pct',
             ).reverse();
 
             const formatAlert = function (alert, alertList) {
@@ -192,7 +192,7 @@ treeherder.factory('PhAlerts', [
             const alertSummary = this;
             let alertsInSummary = this.alerts.filter(alert =>
                 (alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
-                        alert.summary_id === alertSummary.id)
+                        alert.summary_id === alertSummary.id),
             );
 
             // figure out if there are any regressions -- if there are,
@@ -274,9 +274,9 @@ treeherder.factory('PhAlerts', [
                                         function (response) {
                                             return new AlertSummary(response.data,
                                                                     optionCollectionMap);
-                                        }
+                                        },
                     );
-                }
+                },
             );
             promise.cancel = function () {
                 canceller.resolve();
@@ -340,7 +340,7 @@ treeherder.factory('PhAlerts', [
                                     return new AlertSummary(alertSummaryData, optionCollectionMap);
                                 }),
                                 next: response.data.next,
-                                count: response.data.count
+                                count: response.data.count,
                             };
                         });
                     });
@@ -350,16 +350,16 @@ treeherder.factory('PhAlerts', [
                     repository_id: data.project.id,
                     framework_id: data.series.frameworkId,
                     push_id: data.resultSetId,
-                    prev_push_id: data.prevResultSetId
+                    prev_push_id: data.prevResultSetId,
                 }).then(function (response) {
                     const newAlertSummaryId = response.data.alert_summary_id;
                     return $http.post(getApiUrl('/performance/alert/'), {
                         summary_id: newAlertSummaryId,
-                        signature_id: data.series.id
+                        signature_id: data.series.id,
                     }).then(function () {
                         return newAlertSummaryId;
                     });
                 });
-            }
+            },
         };
     }]);

@@ -21,7 +21,7 @@ export default class AutoclassifyToolbar extends React.Component {
   render() {
     const {
       hasSelection, canSave, canSaveAll, canClassify, onPin, onIgnore, onSave,
-      onSaveAll, onEdit, autoclassifyStatus
+      onSaveAll, onEdit, autoclassifyStatus,
     } = this.props;
 
     return (

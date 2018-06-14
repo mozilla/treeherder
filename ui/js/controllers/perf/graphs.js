@@ -44,7 +44,7 @@ perf.controller('GraphsCtrl', [
             PhAlerts.createAlert(dataPoint).then(function (alertSummaryId) {
                 PhAlerts.getAlertSummaries({
                     seriesSignature: dataPoint.series.seriesSignature,
-                    repository: dataPoint.project.id
+                    repository: dataPoint.project.id,
                 }).then(function (alertSummaryData) {
                     $scope.creatingAlert = false;
 
@@ -76,7 +76,7 @@ perf.controller('GraphsCtrl', [
                 flotDataOffset: (flotItem.dataIndex -
                                  flotItem.series.resultSetData.indexOf(resultSetId)),
                 id: flotItem.series.idData[flotItem.dataIndex],
-                jobId: flotItem.series.jobIdData[flotItem.dataIndex]
+                jobId: flotItem.series.jobIdData[flotItem.dataIndex],
             };
         }
 
@@ -109,7 +109,7 @@ perf.controller('GraphsCtrl', [
                 var flotData = {
                     series: _.find($scope.plot.getData(),
                                    fs => fs.thSeries.id === dataPoint.signatureId),
-                    pointIndex: flotIndex
+                    pointIndex: flotIndex,
                 };
                 // check if there are any points belonging to earlier pushes in this
                 // graph -- if so, get the previous push so we can link to a pushlog
@@ -155,26 +155,26 @@ perf.controller('GraphsCtrl', [
                     retriggers: (retriggerNum.retrigger - 1),
                     alertSummary: alertSummary,
                     revisionInfoAvailable: true,
-                    alert: alert
+                    alert: alert,
                 };
 
                 // Get revision information for both this datapoint and the previous
                 // one
                 _.each([{
                     resultSetId: dataPoint.resultSetId,
-                    scopeKey: 'revision'
+                    scopeKey: 'revision',
                 }, {
                     resultSetId: prevResultSetId,
-                    scopeKey: 'prevRevision'
+                    scopeKey: 'prevRevision',
                 }], function (resultRevision) {
                     ThResultSetModel.getRevisions(
-                        phSeries.projectName, resultRevision.resultSetId
+                        phSeries.projectName, resultRevision.resultSetId,
                     ).then(function (revisions) {
                         $scope.tooltipContent[resultRevision.scopeKey] = revisions[0];
                         if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
                             $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogHref({
                                 from: $scope.tooltipContent.prevRevision,
-                                to: $scope.tooltipContent.revision
+                                to: $scope.tooltipContent.revision,
                             });
                         }
                     }, function () {
@@ -193,7 +193,7 @@ perf.controller('GraphsCtrl', [
                     function getTipPosition(tip, x, y, yoffset) {
                         return {
                             left: x - tip.width() / 2,
-                            top: y - tip.height() - yoffset
+                            top: y - tip.height() - yoffset,
                         };
                     }
 
@@ -216,7 +216,7 @@ perf.controller('GraphsCtrl', [
                         tip.animate({
                             opacity: 1,
                             left: tipPosition.left,
-                            top: tipPosition.top
+                            top: tipPosition.top,
                         }, 250);
                     } else {
                         tip.css({
@@ -335,9 +335,9 @@ perf.controller('GraphsCtrl', [
                         backgroundColor: '#fff',
                         hoverable: true,
                         clickable: true,
-                        autoHighlight: false
-                    }
-                }
+                        autoHighlight: false,
+                    },
+                },
             );
             // Reset $scope.seriesList with lines.show = false
             $scope.seriesList.forEach(function (series) {
@@ -368,12 +368,12 @@ perf.controller('GraphsCtrl', [
                     $scope.overviewPlot.setSelection({
                         xaxis: {
                             from: $scope.zoom.x[0],
-                            to: $scope.zoom.x[1]
+                            to: $scope.zoom.x[1],
                         },
                         yaxis: {
                             from: $scope.zoom.y[0],
-                            to: $scope.zoom.y[1]
-                        }
+                            to: $scope.zoom.y[1],
+                        },
                     }, true);
                     $scope.overviewPlot.draw();
                     $scope.plot.draw();
@@ -404,8 +404,8 @@ perf.controller('GraphsCtrl', [
                         lineWidth: 1,
                         xaxis: {
                             from: series.flotSeries.data[index][0],
-                            to: series.flotSeries.data[index][0]
-                        }
+                            to: series.flotSeries.data[index][0],
+                        },
                     });
                 }
                 // highlight the datapoints too
@@ -469,9 +469,9 @@ perf.controller('GraphsCtrl', [
                             hoverable: true,
                             clickable: true,
                             autoHighlight: false,
-                            markings: markings
-                        }
-                    }
+                            markings: markings,
+                        },
+                    },
                 );
 
                 updateSelectedItem(null);
@@ -582,12 +582,12 @@ perf.controller('GraphsCtrl', [
                         $scope.selectedDataPoint.resultSetId,
                         $scope.selectedDataPoint.id,
                         $scope.selectedDataPoint.frameworkId].toString() : undefined;
-                }())
+                }()),
             }, {
                 location: true,
                 inherit: true,
                 relative: $state.$current,
-                notify: false
+                notify: false,
             });
 
             updateDocumentTitle();
@@ -596,7 +596,7 @@ perf.controller('GraphsCtrl', [
         function getSeriesData(series) {
             return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
                 signature_id: series.id,
-                framework: series.frameworkId
+                framework: series.frameworkId,
             }).then(
                 function (seriesData) {
                     series.flotSeries = {
@@ -609,7 +609,7 @@ perf.controller('GraphsCtrl', [
                             function (dataPoint) {
                                 return [
                                     new Date(dataPoint.push_timestamp * 1000),
-                                    dataPoint.value
+                                    dataPoint.value,
                                 ];
                             }),
                         resultSetData: _.map(
@@ -617,7 +617,7 @@ perf.controller('GraphsCtrl', [
                             'push_id'),
                         thSeries: $.extend({}, series),
                         jobIdData: _.map(seriesData[series.signature], 'job_id'),
-                        idData: _.map(seriesData[series.signature], 'id')
+                        idData: _.map(seriesData[series.signature], 'id'),
                     };
                 }).then(function () {
                     series.relatedAlertSummaries = [];
@@ -755,7 +755,7 @@ perf.controller('GraphsCtrl', [
                 var zoomArray = zoomString.split(',');
                 var zoomObject = {
                     x: zoomArray.slice(0, 2),
-                    y: zoomArray.slice(2, 4)
+                    y: zoomArray.slice(2, 4),
                 };
                 $scope.zoom = (zoomString) ? zoomObject : [];
             } else {
@@ -790,7 +790,7 @@ perf.controller('GraphsCtrl', [
                         signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
                         id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
                         visible: partialSeriesArray[2] !== 0,
-                        frameworkId: partialSeriesArray[3]
+                        frameworkId: partialSeriesArray[3],
                     };
                     return partialSeriesObject;
                 });
@@ -807,7 +807,7 @@ perf.controller('GraphsCtrl', [
                     signatureId: parseInt(tooltipArray[1]),
                     resultSetId: parseInt(tooltipArray[2]),
                     id: parseInt(tooltipArray[3]),
-                    frameworkId: parseInt(tooltipArray[4]) || 1
+                    frameworkId: parseInt(tooltipArray[4]) || 1,
                 };
                 $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
             }
@@ -846,8 +846,8 @@ perf.controller('GraphsCtrl', [
                         defaultFrameworkId: function () { return defaultFrameworkId; },
                         defaultProjectName: function () { return defaultProjectName; },
                         defaultPlatform: function () { return defaultPlatform; },
-                        options: function () { return options; }
-                    }
+                        options: function () { return options; },
+                    },
                 });
 
                 modalInstance.result.then(function (seriesList) {
@@ -899,7 +899,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = _.find(projects, {
-            name: defaultProjectName || thDefaultRepo
+            name: defaultProjectName || thDefaultRepo,
         });
         $scope.includeSubtests = false;
         $scope.loadingTestData = false;
@@ -971,14 +971,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             PhSeries.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
-                    framework: originalSeries.frameworkId
+                    framework: originalSeries.frameworkId,
                 }).then(function (seriesList) {
                     $scope.testsToAdd = _.clone(seriesList.filter(series =>
                         series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name &&
                         !testsDisplayed.map(test =>
                           (test.projectName === series.projectName &&
-                           test.signature === series.signature)).some(x => x)
+                           test.signature === series.signature)).some(x => x),
                     ));
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
@@ -1000,7 +1000,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 return PhSeries.getSeriesList(project.name, {
                     interval: $scope.timeRange,
                     signature: originalSeries.signature,
-                    framework: originalSeries.frameworkId
+                    framework: originalSeries.frameworkId,
                 });
             })).then(function (seriesList) {
                 // we get a list of lists because we are getting the results
@@ -1021,12 +1021,12 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             PhSeries.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
-                    framework: originalSeries.frameworkId
+                    framework: originalSeries.frameworkId,
                 }).then(function (seriesList) {
                     $scope.testsToAdd = _.clone(seriesList.filter(series =>
                         series.platform === originalSeries.platform &&
                         series.testName === originalSeries.testName &&
-                        series.name !== originalSeries.name
+                        series.name !== originalSeries.name,
                     ));
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
@@ -1056,11 +1056,11 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
                 $scope.selectedFramework = _.find($scope.frameworkList, {
-                    id: defaultFrameworkId
+                    id: defaultFrameworkId,
                 });
             } else {
                 $scope.selectedFramework = _.find($scope.frameworkList, {
-                    name: phDefaultFramework
+                    name: phDefaultFramework,
                 });
             }
             $scope.updateTestInput = function () {
@@ -1095,7 +1095,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                             subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
                                 $scope.unselectedTestList = _.sortBy(
                                     seriesList.filter(series => series.platform === $scope.selectedPlatform),
-                                    'name'
+                                    'name',
                                 );
                                 // filter out tests which are already displayed or are
                                 // already selected

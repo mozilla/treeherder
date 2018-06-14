@@ -11,7 +11,7 @@ function getLogUrlProps(logUrl, logViewerUrl, logViewerFullUrl) {
         rel: 'noopener',
         href: logViewerUrl,
         'copy-value': logViewerFullUrl,
-        title: 'Open the log viewer in a new window'
+        title: 'Open the log viewer in a new window',
       };
     case 'failed':
       return {
@@ -21,7 +21,7 @@ function getLogUrlProps(logUrl, logViewerUrl, logViewerFullUrl) {
     case 'pending':
       return {
         className: 'disabled',
-        title: 'Log parsing in progress'
+        title: 'Log parsing in progress',
       };
   }
 }
