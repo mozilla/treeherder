@@ -48,7 +48,6 @@ module.exports = neutrino => {
                     'object-shorthand': 'off',
                     'padded-blocks': 'off',
                     'prefer-arrow-callback': 'off',
-                    'prefer-rest-params': 'off',
                     'prefer-template': 'off',
                     'radix': 'off',
                     'react/forbid-prop-types': 'off',
