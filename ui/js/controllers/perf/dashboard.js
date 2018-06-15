@@ -116,6 +116,7 @@ perf.controller('dashCtrl', [
                                 values: data.map(data => data.value),
                             };
                         });
+                    });
                 })).then(function () {
                     $scope.dataLoading = false;
                     $scope.testList.forEach(function (testName) {
