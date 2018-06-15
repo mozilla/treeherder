@@ -2,7 +2,7 @@ strong {
   font-weight: bold;
 }
 
-details-panel {
+#details-panel {
   font-size: 12px;
   height: 35%;
   max-height: 75%;

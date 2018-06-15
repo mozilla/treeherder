@@ -1,9 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../js/treeherder';
 import Push from './Push';
 import {
   findInstance,
@@ -334,8 +332,3 @@ PushList.defaultProps = {
   revision: null,
   currentRepo: {},
 };
-
-treeherder.component('pushList', react2angular(
-  PushList,
-  ['repoName', 'user', 'revision', 'currentRepo'],
-  ['$injector']));

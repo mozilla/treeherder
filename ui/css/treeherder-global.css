@@ -43,9 +43,14 @@ a {
   height: 100%;
 }
 
+job-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 63px);
+}
+
 .th-global-content {
-  flex: 1;
-  position: relative; /* Required to position inner content */
   overflow-y: auto;
   overflow-x: hidden;
 }

@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { chunk } from 'lodash';
 import $ from 'jquery';
 
-import treeherder from '../../js/treeherder';
 import {
   thEvents,
   thBugSuggestionLimit,
@@ -24,7 +22,15 @@ import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
 
-class DetailsPanel extends React.Component {
+export default class DetailsPanel extends React.Component {
+
+  static getDerivedStateFromProps(props) {
+    if (!props.selectedJob) {
+      return { job: null };
+    }
+    return {};
+  }
+
   constructor(props) {
     super(props);
 
@@ -42,6 +48,7 @@ class DetailsPanel extends React.Component {
     this.selectJobController = null;
 
     this.state = {
+      job: null,
       isPinBoardVisible: false,
       jobDetails: [],
       jobLogUrls: [],
@@ -424,7 +431,7 @@ class DetailsPanel extends React.Component {
     } = this.state;
 
     return (
-      <div className={job ? 'details-panel-slide' : 'hidden'}>
+      <div id="details-panel" className={job ? 'details-panel-slide' : 'hidden'}>
         <div
           id="details-panel-resizer"
           resizer="horizontal"
@@ -507,8 +514,3 @@ DetailsPanel.defaultProps = {
   user: { isLoggedIn: false, isStaff: false, email: null },
   currentRepo: { isTryRepo: true },
 };
-
-treeherder.component('detailsPanel', react2angular(
-  DetailsPanel,
-  ['repoName', 'selectedJob', 'user'],
-  ['$injector']));

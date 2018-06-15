@@ -24,8 +24,7 @@ import './css/treeherder-loading-overlay.css';
 import './js/treeherder_app';
 
 // Treeherder React UI
-import './job-view/PushList';
-import './job-view/details/DetailsPanel';
+import './job-view/JobView';
 
 // Treeherder JS
 import './js/components/auth';
