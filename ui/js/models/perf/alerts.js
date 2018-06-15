@@ -213,11 +213,11 @@ treeherder.factory('PhAlerts', [
             }
             // add test info
             title += ' ' + [...new Set(
-                    alertsInSummary.map(a => PhSeries.getTestName(a.series_signature))
+                    alertsInSummary.map(a => PhSeries.getTestName(a.series_signature)),
                 )].sort().join(' / ');
             // add platform info
             title += ' (' + [...new Set(
-                    alertsInSummary.map(a => a.series_signature.machine_platform)
+                    alertsInSummary.map(a => a.series_signature.machine_platform),
                 )].sort().join(', ') + ')';
             return title;
         };

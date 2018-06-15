@@ -296,7 +296,7 @@ treeherder.factory('PhCompare', [
                                 t => (((Date.now() / 1000.0) -
                                         resultSet.push_timestamp) < t
                                 ))
-                            )
+                            ),
                         ));
                     } else {
                         graphsLink += '&timerange=' + timeRange;

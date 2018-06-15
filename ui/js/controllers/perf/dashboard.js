@@ -141,7 +141,7 @@ perf.controller('dashCtrl', [
                                             projectName: $scope.selectedRepo.name,
                                             signature: sig,
                                             frameworkId: $scope.framework,
-                                        }))
+                                        })),
                                     ),
                                 }];
                                 if (resultsMap.base[baseSig].hasSubTests) {
@@ -338,7 +338,7 @@ perf.controller('dashSubtestCtrl', [
                                     projectName: $scope.selectedRepo.name,
                                     signature: sig,
                                     frameworkId: $scope.framework,
-                                })))
+                                }))),
                             }];
 
                             if (!$scope.compareResults[summaryTestName]) {

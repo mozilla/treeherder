@@ -205,7 +205,7 @@ perf.controller('CompareResultsCtrl', [
                                     projectName: project.name,
                                     signature: oldSig,
                                     frameworkId: $scope.filterOptions.framework.id,
-                                })), 
+                                })),
                                 [$scope.originalResultSet, $scope.newResultSet]),
                         });
                     } else {
@@ -233,7 +233,7 @@ perf.controller('CompareResultsCtrl', [
                                     projectName: project.name,
                                     signature: oldSig,
                                     frameworkId: $scope.filterOptions.framework.id,
-                                })), 
+                                })),
                                 [$scope.newResultSet], $scope.selectedTimeRange.value),
                         });
                     }
