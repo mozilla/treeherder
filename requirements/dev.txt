@@ -77,9 +77,9 @@ pyflakes==1.6.0 \
     --hash=sha256:08bd6a50edf8cffa9fa09a463063c425ecaaf10d1eb0335a7e8b1401aef89e6f \
     --hash=sha256:8d616a382f243dbf19b54743f280b80198be0bca3a5396f1d2e1fca6223e8805
 
-pytest-django==3.2.1 \
-    --hash=sha256:534505e0261cc566279032d9d887f844235342806fd63a6925689670fa1b29d7 \
-    --hash=sha256:7501942093db2250a32a4e36826edfc542347bb9b26c78ed0649cdcfd49e5789
+pytest-django==3.3.0 \
+    --hash=sha256:ac34de5fbd2356632bdc38e00aacc98137e48298d49e8a5ae41216d35e45a90e \
+    --hash=sha256:745d2659213de09d2da17eb9397db863359f6005a83b0875882d1ad3d64115cb
 
 # Required by pytest-selenium
 selenium==3.12.0 \
