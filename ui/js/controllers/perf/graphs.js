@@ -964,14 +964,14 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             PhSeries.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
-                    framework: originalSeries.frameworkId
+                    framework: originalSeries.frameworkId,
                 }).then((seriesList) => {
                     const filteredSeriesList = seriesList.filter(series =>
                         series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name &&
                         !testsDisplayed.map(test =>
                             (test.projectName === series.projectName &&
-                            test.signature === series.signature)).some(x => x)
+                            test.signature === series.signature)).some(x => x),
                     );
                     $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : filteredSeriesList.slice());
                 }).then(function () {
@@ -1021,7 +1021,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     const filteredSeriesList = seriesList.filter(series =>
                         series.platform === originalSeries.platform &&
                         series.testName === originalSeries.testName &&
-                        series.name !== originalSeries.name
+                        series.name !== originalSeries.name,
                     );
                     $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : filteredSeriesList.slice());
                 }).then(function () {
