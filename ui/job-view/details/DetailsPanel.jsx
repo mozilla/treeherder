@@ -446,7 +446,7 @@ class DetailsPanel extends React.Component {
           unPinAll={this.unPinAll}
           $injector={$injector}
         />
-        {!!job && <div id="details-panel">
+        {!!job && <div id="details-panel-content">
           <SummaryPanel
             repoName={repoName}
             selectedJob={job}
