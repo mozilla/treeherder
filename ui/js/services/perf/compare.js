@@ -84,7 +84,7 @@ treeherder.factory('PhCompare', [
                     let stddev;
 
                     if (testName === 'Noise Metric') {
-                        average = Math.sqrt(_.sum(values.map(x => x ** 2)));
+                        average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
                         stddev = 1;
                     } else {
                         average = math.average(values);
