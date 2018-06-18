@@ -272,21 +272,11 @@ treeherder.factory('ThResultSetStore', [
             }
         };
 
-        var getAllShownJobs = (pushId) => {
-            var shownJobs = [];
-            var jobMap = getJobMap();
-            for (var job_id in jobMap) {
-                if (jobMap.hasOwnProperty(job_id)) {
-                    if (jobMap[job_id].job_obj.result_set_id !== pushId) {
-                        continue;
-                    }
-                    if (jobMap[job_id].job_obj.visible) {
-                        shownJobs.push(jobMap[job_id].job_obj);
-                    }
-                }
-            }
-            return shownJobs;
-        };
+        const getAllShownJobs = pushId => (
+            Object.values(getJobMap())
+                .map(jobEl => jobEl.job_obj)
+                .filter(job => job.result_set_id === pushId && job.visible)
+            );
 
         var getSelectedJob = function () {
             return {
