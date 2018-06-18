@@ -310,11 +310,11 @@ perf.controller('CompareResultsCtrl', [
                     }).then((newSeriesList) => {
                         $scope.platformList = [...new Set([
                             ...$scope.platformList,
-                            ...[...new Set(newSeriesList.map(series => series.platform))],
+                            ...new Set(newSeriesList.map(series => series.platform)),
                         ])];
                         $scope.testList = [...new Set([
                             ...$scope.testList,
-                            ...[...new Set(newSeriesList.map(series => series.name))],
+                            ...new Set(newSeriesList.map(series => series.name)),
                         ])];
                         return PhCompare.getResultsMap($scope.newProject.name,
                                                        newSeriesList,
@@ -349,11 +349,11 @@ perf.controller('CompareResultsCtrl', [
                     }).then((newSeriesList) => {
                         $scope.platformList = [...new Set([
                             ...$scope.platformList,
-                            ...[...new Set(newSeriesList.map(series => series.platform))],
+                            ...new Set(newSeriesList.map(series => series.platform)),
                         ])];
                         $scope.testList = [...new Set([
                             ...$scope.testList,
-                            ...[...new Set(newSeriesList.map(series => series.name))],
+                            ...new Set(newSeriesList.map(series => series.name)),
                         ])];
                         return PhCompare.getResultsMap($scope.newProject.name,
                                                        newSeriesList,
