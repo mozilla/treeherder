@@ -24,8 +24,8 @@ treeherder.factory('PhAlerts', [
                 { includePlatformInName: true });
         };
         Alert.prototype.getStatusText = function () {
-            return _.result(_.find(phAlertStatusMap, { id: this.status }),
-                            'text');
+            return _.result(phAlertStatusMap.find(status =>
+                status.id === this.status), 'text');
         };
         Alert.prototype.getGraphsURL = function (timeRange, alertRepository,
                                                 performanceFrameworkId) {
@@ -99,7 +99,7 @@ treeherder.factory('PhAlerts', [
         AlertSummary.prototype.getIssueTrackerUrl = function () {
             if (!this.bug_number) { return; }
             if (this.issue_tracker) {
-                const issueTrackerUrl = _.find(issueTrackers, { id: this.issue_tracker }).issueTrackerUrl;
+                const issueTrackerUrl = issueTrackers.find(tracker => tracker.id === this.issue_tracker).issueTrackerUrl;
                 return issueTrackerUrl + this.bug_number;
             }
         };
@@ -245,7 +245,8 @@ treeherder.factory('PhAlerts', [
                 }));
         };
         AlertSummary.prototype.getStatusText = function () {
-            return _.find(phAlertSummaryStatusMap, { id: this.status }).text;
+            return phAlertSummaryStatusMap.find(status =>
+                status.id === this.status).text;
         };
 
         AlertSummary.prototype.saveNotes = function () {

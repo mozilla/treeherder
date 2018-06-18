@@ -196,7 +196,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
                     // In this case we have actions.json tasks
                     if (results) {
-                        const missingtask = _.find(results.actions, { name: 'run-missing-tests' });
+                        const missingtask = results.actions.find(action =>
+                            action.name === 'run-missing-tests');
                         // We'll fall back to actions.yaml if this isn't true
                         if (missingtask) {
                             return tcactions.submit({
@@ -219,7 +220,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
                     // In this case we have actions.json tasks
                     if (results) {
-                        const talostask = _.find(results.actions, { name: 'run-all-talos' });
+                        const talostask = results.actions.find(action =>
+                            action.name === 'run-all-talos');
                         // We'll fall back to actions.yaml if this isn't true
                         if (talostask) {
                             return tcactions.submit({
@@ -289,7 +291,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                         const actionTaskId = slugid();
                         // In this case we have actions.json tasks
                         if (results) {
-                            const addjobstask = _.find(results.actions, { name: 'add-new-jobs' });
+                            const addjobstask = results.actions.find(action =>
+                                action.name === 'add-new-jobs');
                             // We'll fall back to actions.yaml if this isn't true
                             if (addjobstask) {
                                 return tcactions.submit({

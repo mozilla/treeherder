@@ -48,8 +48,8 @@ perf.controller('GraphsCtrl', [
                 }).then(function (alertSummaryData) {
                     $scope.creatingAlert = false;
 
-                    var alertSummary = _.find(alertSummaryData.results,
-                        { id: alertSummaryId });
+                    var alertSummary = alertSummaryData.results.find(result =>
+                        result.id === alertSummaryId);
                     $scope.tooltipContent.alertSummary = alertSummary;
 
                     dataPoint.series.relatedAlertSummaries = alertSummaryData.results;
@@ -99,16 +99,16 @@ perf.controller('GraphsCtrl', [
                     $scope.ttHideTimer = null;
                 }
 
-                var phSeries = _.find($scope.seriesList,
-                                      s => s.id === dataPoint.signatureId);
+                var phSeries = $scope.seriesList.find(
+                    s => s.id === dataPoint.signatureId);
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
                 var flotIndex = phSeries.flotSeries.idData.indexOf(
                     dataPoint.id);
                 var flotData = {
-                    series: _.find($scope.plot.getData(),
-                                   fs => fs.thSeries.id === dataPoint.signatureId),
+                    series: $scope.plot.getData().find(
+                        fs => fs.thSeries.id === dataPoint.signatureId),
                     pointIndex: flotIndex,
                 };
                 // check if there are any points belonging to earlier pushes in this
@@ -130,19 +130,16 @@ perf.controller('GraphsCtrl', [
                 var v0 = (prevFlotDataPointIndex >= 0) ? flotSeriesData[prevFlotDataPointIndex][1] : v;
                 var dv = v - v0;
                 var dvp = v / v0 - 1;
-                var alertSummary = _.find(phSeries.relatedAlertSummaries, function (alertSummary) {
-                    return alertSummary.push_id === dataPoint.resultSetId;
-                });
+                var alertSummary = phSeries.relatedAlertSummaries.find(alertSummary =>
+                    alertSummary.push_id === dataPoint.resultSetId);
                 var alert;
                 if (alertSummary) {
-                    alert = _.find(alertSummary.alerts,
-                        function (alert) {
-                            return alert.series_signature.id === phSeries.id;
-                        });
+                    alert = alertSummary.alerts(alert =>
+                        alert.series_signature.id === phSeries.id);
                 }
                 $scope.tooltipContent = {
-                    project: _.find($rootScope.repos,
-                                    { name: phSeries.projectName }),
+                    project: $rootScope.repos.find(repo =>
+                                repo.name === phSeries.projectName),
                     revisionUrl: `/#/jobs?repo=${phSeries.projectName}`,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
@@ -353,7 +350,7 @@ perf.controller('GraphsCtrl', [
         function zoomGraph() {
             // If either x or y exists then there is zoom set in the variable
             if ($scope.zoom.x) {
-                if (_.find($scope.seriesList, function (series) { return series.visible; })) {
+                if ($scope.seriesList.find(series => series.visible)) {
                     $.each($scope.plot.getXAxes(), function (_, axis) {
                         var opts = axis.options;
                         opts.min = $scope.zoom.x[0];
@@ -613,7 +610,8 @@ perf.controller('GraphsCtrl', [
                     };
                 }).then(function () {
                     series.relatedAlertSummaries = [];
-                    var repo = _.find($rootScope.repos, { name: series.projectName });
+                    var repo = $rootScope.repos.find(repo =>
+                        repo.name === series.projectName);
                     return PhAlerts.getAlertSummaries({
                         signatureId: series.id,
                         repository: repo.id }).then(function (data) {
@@ -722,12 +720,12 @@ perf.controller('GraphsCtrl', [
 
         ThRepositoryModel.load().then(function () {
             if ($stateParams.timerange) {
-                var timeRange = _.find(phTimeRanges,
-                    { value: parseInt($stateParams.timerange) });
+                var timeRange = phTimeRanges.find(timeRange =>
+                    timeRange.value === parseInt($stateParams.timerange));
                 $scope.myTimerange = timeRange;
             } else {
-                $scope.myTimerange = _.find(phTimeRanges,
-                    { value: phDefaultTimeRangeValue });
+                $scope.myTimerange = phTimeRanges.find(timeRange =>
+                    timeRange.value === phDefaultTimeRangeValue);
             }
             $scope.timeRangeChanged = function () {
                 $scope.loadingGraphs = true;
@@ -817,7 +815,8 @@ perf.controller('GraphsCtrl', [
                 }
 
                 if (option !== undefined) {
-                    var series = _.find($scope.seriesList, { signature: seriesSignature });
+                    var series = $scope.seriesList.find(series =>
+                        series.signature === seriesSignature);
                     options = { option: option, relatedSeries: series };
                 }
 
@@ -890,9 +889,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         defaultPlatform, $q, testsDisplayed, options) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
-        $scope.selectedProject = _.find(projects, {
-            name: defaultProjectName || thDefaultRepo,
-        });
+        $scope.selectedProject = projects.find(project =>
+            project.name === defaultProjectName || thDefaultRepo);
         $scope.includeSubtests = false;
         $scope.loadingTestData = false;
         $scope.loadingRelatedSignatures = true;
@@ -930,8 +928,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             $scope.selectedTestsToAdd.forEach(function (testValue) {
                 // selectedTestsToAdd is stored in JSON format, need to convert
                 // it back to an object and get the actual value
-                var test = _.find($scope.testsToAdd, JSON.parse(testValue));
-
+                var test = $scope.testsToAdd.find(test =>
+                    test.id === JSON.parse(testValue).id);
                 // add test back to unselected test list if we're browsing for
                 // the current project/platform, otherwise just discard it
                 if (test.projectName === $scope.selectedProject.name &&
@@ -951,7 +949,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             $scope.selectedTestSignatures.forEach(function (signature) {
                 // Add the selected tests to the selected test list
                 $scope.testsToAdd.push(_.clone(
-                    _.find($scope.unselectedTestList, { signature: signature })));
+                    $scope.unselectedTestList.find(test =>
+                        test.signature === signature)));
 
                 // Remove the added tests from the unselected test list
                 _.remove($scope.unselectedTestList, { signature: signature });
@@ -983,7 +982,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             var branchList = [];
             thPerformanceBranches.forEach(function (branch) {
                 if (branch !== originalSeries.projectName) {
-                    branchList.push(_.find($scope.projects, { name: branch }));
+                    branchList.push($scope.projects.find(project =>
+                        project.name === branch));
                 }
             });
             // get each project's series data from remote and use promise to
@@ -1047,13 +1047,13 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         PhFramework.getFrameworkList().then(function (frameworkList) {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
-                $scope.selectedFramework = _.find($scope.frameworkList, {
-                    id: defaultFrameworkId,
-                });
+                $scope.selectedFramework = $scope.frameworkList.find(framework =>
+                    framework.id === defaultFrameworkId,
+                );
             } else {
-                $scope.selectedFramework = _.find($scope.frameworkList, {
-                    name: phDefaultFramework,
-                });
+                $scope.selectedFramework = $scope.frameworkList.find(framework =>
+                    framework.name === phDefaultFramework,
+                );
             }
             $scope.updateTestInput = function () {
                 $scope.addTestDataDisabled = true;

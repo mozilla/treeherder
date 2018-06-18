@@ -194,8 +194,8 @@ treeherder.factory('ThResultSetStore', [
                 // jobList contains jobs belonging to the same push,
                 // so we can pick the result_set_id from the first job
                 var pushId = jobList[0].result_set_id;
-                var push = _.find(repoData.pushes,
-                                       { id: pushId });
+                var push = repoData.pushes.find(push =>
+                    push.id === pushId);
                 if (_.isUndefined(push)) { return $q.defer().resolve(); }
                 if (_.has(push, 'jobList')) {
                     // get the new job ids
@@ -274,18 +274,17 @@ treeherder.factory('ThResultSetStore', [
 
         var getAllShownJobs = (pushId) => {
             var shownJobs = [];
-
-            var addIfShown = function (jMap) {
-                if (pushId && jMap.job_obj.result_set_id !== pushId) {
-                    return;
+            var jobMap = getJobMap();
+            for (var job_id in jobMap) {
+                if (jobMap.hasOwnProperty(job_id)) {
+                    if (pushId && job_id.job_obj.result_set_id !== pushId) {
+                        continue;
+                    }
+                    if (job_id.job_obj.visible) {
+                        shownJobs.push(job_id.job_obj);
+                    }
                 }
-                if (jMap.job_obj.visible) {
-                    shownJobs.push(jMap.job_obj);
-                }
-                return false;
-            };
-            _.find(getJobMap(), addIfShown);
-
+            }
             return shownJobs;
         };
 
@@ -753,16 +752,16 @@ treeherder.factory('ThResultSetStore', [
 
         var getGeckoDecisionJob = function (pushId) {
             const push = getPush(pushId);
-            const platform = _.find(push.platforms, {
-                name: 'gecko-decision',
-                groups: [{ jobs: [{ state: 'completed', job_type_symbol: 'D' }] }] });
+            const platform = push.platforms.find(platform =>
+                platform.name === 'gecko-decision' &&
+                platform.groups[0].jobs.find(job =>
+                    job.state === 'completed' && job.job_type_symbol === 'D'));
             if (platform) {
                 // Gecko Decision Task has been completed.
                 // Let's fetch the URL of full-tasks-graph.json
                 // This extra search is important to avoid confusion with Action Tasks
-                return _.find(platform.groups[0].jobs, { job_type_symbol: 'D' });
+                return platform.groups[0].jobs.find(job => job.job_type_symbol === 'D');
             }
-
             return undefined;
         };
 
@@ -928,10 +927,10 @@ treeherder.factory('ThResultSetStore', [
             for (var i = 0; i < jobList.length; i++) {
                 // search for the right platform
                 var job = jobList[i];
-                var platform = _.find(groupedJobs.platforms, function (platform) {
-                    return job.platform === platform.name &&
-                        job.platform_option === platform.option;
-                });
+                var platform = groupedJobs.platforms.find(platform =>
+                    job.platform === platform.name &&
+                        job.platform_option === platform.option,
+                );
                 if (_.isUndefined(platform)) {
                     platform = {
                         name: job.platform,
@@ -943,10 +942,10 @@ treeherder.factory('ThResultSetStore', [
 
                 var groupInfo = getJobGroupInfo(job);
                 // search for the right group
-                var group = _.find(platform.groups, function (group) {
-                    return (groupInfo.symbol === group.symbol &&
-                            groupInfo.tier === group.tier);
-                });
+                var group = platform.groups.find(group =>
+                    groupInfo.symbol === group.symbol &&
+                        groupInfo.tier === group.tier,
+                );
                 if (_.isUndefined(group)) {
                     group = {
                         name: groupInfo.name,
