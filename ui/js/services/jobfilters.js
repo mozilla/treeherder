@@ -162,7 +162,7 @@ treeherder.factory('thJobFilters', [
             const fieldFilters = {};
             // get the search params and lay any defaults over it so we test
             // against those as well.
-            const locationSearch = _.defaults(Object.assign({}, $location.search()),
+            const locationSearch = _.defaults({...$location.search()},
                                             _.mapKeys(DEFAULTS, function (value, key) {
                                                 return _withPrefix(key);
                                             }));
@@ -337,7 +337,7 @@ treeherder.factory('thJobFilters', [
          * is used to undo the call to ``setOnlyUnclassifiedFailures``.
          */
         function resetNonFieldFilters() {
-            const locationSearch = Object.assign({}, $location.search());
+            const locationSearch = {...$location.search()};
             delete locationSearch[QS_RESULT_STATUS];
             delete locationSearch[QS_CLASSIFIED_STATE];
             $location.search(locationSearch);
@@ -392,7 +392,7 @@ treeherder.factory('thJobFilters', [
          * Set the non-field filters so that we only view unclassified failures
          */
         function setOnlyUnclassifiedFailures() {
-            const locationSearch = Object.assign({}, $location.search());
+            const locationSearch = {...$location.search()};
             locationSearch[QS_RESULT_STATUS] = thFailureResults.slice();
             locationSearch[QS_CLASSIFIED_STATE] = ['unclassified'];
             $location.search(locationSearch);
@@ -402,7 +402,7 @@ treeherder.factory('thJobFilters', [
          * Set the non-field filters so that we only view superseded jobs
          */
         function setOnlySuperseded() {
-            const locationSearch = Object.assign({}, $location.search());
+            const locationSearch = {...$location.search()};
             locationSearch[QS_RESULT_STATUS] = 'superseded';
             locationSearch[QS_CLASSIFIED_STATE] = DEFAULTS.classifiedState.slice();
             $location.search(locationSearch);
@@ -446,7 +446,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function getFieldChoices() {
-            const choices = Object.assign({}, FIELD_CHOICES);
+            const choices = {...FIELD_CHOICES};
             delete choices.searchStr;
             return choices;
         }

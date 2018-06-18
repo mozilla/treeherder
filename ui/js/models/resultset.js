@@ -78,7 +78,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     // pass directly to the set of resultsets.
                     // with the exception of ``repo``.  That has no effect on the
                     // service at this time, but it could be confusing.
-                    let locationParams = Object.assign({}, $location.search());
+                    let locationParams = {...$location.search()};
                     delete locationParams.repo;
 
                     // if they submit an offset timestamp, then they have resultsets

@@ -909,7 +909,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         var addTestToGraph = function () {
             $scope.selectedSeriesList = $scope.testsToAdd;
             $scope.selectedSeriesList.forEach(function (selectedSeries, i) {
-                series[i] = Object.assign({}, selectedSeries);
+                series[i] = {...selectedSeries};
                 series[i].projectName = selectedSeries.projectName;
             });
             $uibModalInstance.close(series);
@@ -948,11 +948,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         $scope.selectTest = function () {
             $scope.selectedTestSignatures.forEach(function (signature) {
                 // Add the selected tests to the selected test list
-                $scope.testsToAdd.push(_.clone(
-                    $scope.unselectedTestList.find(test =>
-                        test.signature === signature)));
-                $scope.testsToAdd.push({ ...$scope.unselectedTestList.find(test =>
-                        test.signature === signature)}));
+                $scope.testsToAdd.push({...
+                    $scope.unselectedTestList.find(test => test.signature === signature)
+                });
 
                 // Remove the added tests from the unselected test list
                 _.remove($scope.unselectedTestList, { signature: signature });
