@@ -277,7 +277,7 @@ treeherder.factory('ThResultSetStore', [
             var jobMap = getJobMap();
             for (var job_id in jobMap) {
                 if (jobMap.hasOwnProperty(job_id)) {
-                    if (pushId && job_id.job_obj.result_set_id !== pushId) {
+                    if (!job_id.job_obj || (pushId && job_id.job_obj.result_set_id !== pushId)) {
                         continue;
                     }
                     if (job_id.job_obj.visible) {
