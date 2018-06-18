@@ -909,7 +909,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         var addTestToGraph = function () {
             $scope.selectedSeriesList = $scope.testsToAdd;
             $scope.selectedSeriesList.forEach(function (selectedSeries, i) {
-                series[i] = {...selectedSeries};
+                series[i] = { ...selectedSeries };
                 series[i].projectName = selectedSeries.projectName;
             });
             $uibModalInstance.close(series);
