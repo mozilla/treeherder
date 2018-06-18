@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
@@ -64,7 +65,7 @@ treeherder.factory('PhAlerts', [
                              modification);
         };
         Object.values(phAlertStatusMap).forEach((status) => {
-            Alert.prototype['is' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => (
+            Alert.prototype['is' + capitalize(status.text)] = () => (
                 this.status === status.id
             );
         });
@@ -89,10 +90,10 @@ treeherder.factory('PhAlerts', [
                              modification);
         };
         Object.values(phAlertSummaryStatusMap).forEach((status) => {
-            AlertSummary.prototype['is' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => (
+            AlertSummary.prototype['is' + capitalize(status.text)] = () => (
                 this.status === status.id
             );
-            AlertSummary.prototype['mark' + (status.text.charAt(0).toUpperCase() + status.text.toLowerCase().slice(1))] = () => {
+            AlertSummary.prototype['mark' + capitalize(status.text)] = () => {
                 this.updateStatus(status);
             };
         });
