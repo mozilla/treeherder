@@ -2,7 +2,7 @@ strong {
   font-weight: bold;
 }
 
-details-panel {
+#details-panel {
   font-size: 12px;
   height: 35%;
   max-height: 75%;
@@ -18,7 +18,7 @@ details-panel {
   100% { transform: translateY(0%); }
 }
 
-div#details-panel .navbar,
+div#details-panel-content .navbar,
 div#tabs-panel .tab-headers {
   border-radius: 0;
   height: 33px;
@@ -46,45 +46,45 @@ div#details-panel-resizer {
   padding-left: 5px;
 }
 
-div#details-panel .navbar-nav > ul {
+div#details-panel-content .navbar-nav > ul {
   height: 32px;
 }
 
-div#details-panel .navbar-nav.actionbar-nav > li > a,
-div#details-panel .navbar-nav.actionbar-nav > li > button {
+div#details-panel-content .navbar-nav.actionbar-nav > li > a,
+div#details-panel-content .navbar-nav.actionbar-nav > li > button {
   padding: 8px 15px;
   line-height: 16px;
 }
 
-div#details-panel .navbar-nav.tab-headers > li > a,
-div#details-panel .navbar-nav.tab-headers > li > button {
+div#details-panel-content .navbar-nav.tab-headers > li > a,
+div#details-panel-content .navbar-nav.tab-headers > li > button {
   padding: 8px 15px;
   line-height: 30px;
 }
 
-div#details-panel .navbar-nav > li > button {
+div#details-panel-content .navbar-nav > li > button {
   border: none;
   background: transparent;
 }
 /* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
-div#details-panel .navbar-nav > li > a#logviewer-btn {
+div#details-panel-content .navbar-nav > li > a#logviewer-btn {
   line-height: 18px;
 }
 
-div#details-panel .navbar-nav > li > a.disabled,
-div#details-panel .navbar-nav > li > button.disabled,
+div#details-panel-content .navbar-nav > li > a.disabled,
+div#details-panel-content .navbar-nav > li > button.disabled,
 ul.actionbar-menu > li.disabled {
   cursor: not-allowed;
   text-decoration: none;
 }
 
-div#details-panel .navbar-nav > li.active a,
-div#details-panel .navbar-nav > li.active a:hover,
-div#details-panel .navbar-nav > li.active a:focus {
+div#details-panel-content .navbar-nav > li.active a,
+div#details-panel-content .navbar-nav > li.active a:hover,
+div#details-panel-content .navbar-nav > li.active a:focus {
   outline: 0;
 }
 
-div#details-panel .details-panel-navbar > ul.tab-headers > li {
+div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   border-right: 1px solid #42484F;
 }
 
@@ -114,7 +114,7 @@ div#details-panel .details-panel-navbar > ul.tab-headers > li {
   color: #9FA3A5;
 }
 
-#details-panel ul.tab-headers {
+#details-panel-content ul.tab-headers {
   list-style: none;
   flex-direction: row;
   min-width: 550px;
@@ -152,23 +152,23 @@ div#details-panel .details-panel-navbar > ul.tab-headers > li {
   padding: 4px 15px;
 }
 
-div#details-panel .navbar-nav > li > a:hover,
-div#details-panel .navbar-nav > li > a:focus,
-div#details-panel .navbar-nav > li > button:hover,
-div#details-panel .navbar-nav > li > button:focus
+div#details-panel-content .navbar-nav > li > a:hover,
+div#details-panel-content .navbar-nav > li > a:focus,
+div#details-panel-content .navbar-nav > li > button:hover,
+div#details-panel-content .navbar-nav > li > button:focus
 {
   background-color: #1E252B;
   color: #D3D8DA;
 }
 
-div#details-panel .navbar-nav > li > a:active,
-div#details-panel .navbar-nav > li > button:active
+div#details-panel-content .navbar-nav > li > a:active,
+div#details-panel-content .navbar-nav > li > button:active
 {
   background-color: #000;
 }
 
-div#details-panel .navbar-nav > li > a.disabled:active,
-div#details-panel .navbar-nav > li > button.disabled:active
+div#details-panel-content .navbar-nav > li > a.disabled:active,
+div#details-panel-content .navbar-nav > li > button.disabled:active
 {
   background-color: #1E252B;
 }
@@ -177,12 +177,12 @@ div#details-panel .navbar-nav > li > button.disabled:active
   flex: auto;
 }
 
-div#details-panel .details-panel-navbar .navbar-nav > li.active a,
-div#details-panel .details-panel-navbar .navbar-nav > li.active a:hover,
-div#details-panel .details-panel-navbar .navbar-nav > li.active a:focus,
-div#details-panel .details-panel-navbar > li.active a,
-div#details-panel .details-panel-navbar > li.active a:hover,
-div#details-panel .details-panel-navbar > li.active a:focus {
+div#details-panel-content .details-panel-navbar .navbar-nav > li.active a,
+div#details-panel-content .details-panel-navbar .navbar-nav > li.active a:hover,
+div#details-panel-content .details-panel-navbar .navbar-nav > li.active a:focus,
+div#details-panel-content .details-panel-navbar > li.active a,
+div#details-panel-content .details-panel-navbar > li.active a:hover,
+div#details-panel-content .details-panel-navbar > li.active a:focus {
   background-color: #1A4666;
   color: #EEF0F2;
 }
@@ -207,14 +207,14 @@ div#details-panel .details-panel-navbar > li.active a:focus {
   width: 100%;
 }
 
-#details-panel #job-details-list,
-#details-panel .failure-summary-list,
-#details-panel .similar-jobs > .similar-job-list tbody {
+#details-panel-content #job-details-list,
+#details-panel-content .failure-summary-list,
+#details-panel-content .similar-jobs > .similar-job-list tbody {
   overflow-y: auto;
   height: 100%;
 }
 
-#details-panel {
+#details-panel-content {
   position: relative; /* So we can absolutely position the loading overlay */
   height: 100%;
   flex: auto;
