@@ -753,23 +753,6 @@ class BugJobMap(models.Model):
     def save(self, *args, **kwargs):
         super(BugJobMap, self).save(*args, **kwargs)
 
-        from treeherder.etl.tasks.classification_mirroring_tasks import submit_elasticsearch_doc
-
-        if settings.ORANGEFACTOR_HAWK_KEY:
-            if self.job.state == "completed":
-                # Submit bug associations to Elasticsearch using an async
-                # task.
-                submit_elasticsearch_doc.apply_async(
-                    args=[
-                        self.job.repository.name,
-                        self.job.id,
-                        self.bug_id,
-                        int(time.mktime(self.created.timetuple())),
-                        self.who
-                    ],
-                    routing_key='classification_mirroring'
-                )
-
         # if we have a user, then update the autoclassification relations
         if self.user:
             self.job.update_autoclassification_bug(self.bug_id)
@@ -890,6 +873,7 @@ class JobNote(models.Model):
         """
         # Only insert bugs for verified failures since these are automatically
         # mirrored to ES and the mirroring can't be undone
+        # TODO: Decide whether this should change now that we're no longer mirroring.
         bug_numbers = set(ClassifiedFailure.objects
                           .filter(best_for_errors__text_log_error__step__job=job,
                                   best_for_errors__best_is_verified=True)
