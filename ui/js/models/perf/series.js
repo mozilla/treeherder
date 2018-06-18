@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import treeherder from '../../treeherder';
 import { getProjectUrl, getApiUrl } from '../../../helpers/url';
 import OptionCollectionModel from '../../../models/optionCollection';
@@ -63,11 +61,11 @@ treeherder.factory('PhSeries', ['$http', '$q', function ($http, $q) {
                 return $http.get(
                     getProjectUrl('/performance/signatures/', projectName),
                     { params: params }).then(function (response) {
-                         return _.map(response.data, function (signatureProps, signature) {
-                             return _getSeriesSummary(projectName, signature,
-                                                      signatureProps,
-                                                      optionCollectionMap);
-                         });
+                        return Object.entries(response.data).map(([signature, signatureProps]) => (
+                            _getSeriesSummary(projectName, signature,
+                                              signatureProps,
+                                              optionCollectionMap)
+                            ));
                      });
             });
         },

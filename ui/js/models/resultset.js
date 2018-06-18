@@ -147,7 +147,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             getResultSetJobs: function (resultSetIdList, repoName, locationParams) {
-                return _.map(resultSetIdList, function (resultSetId) {
+                return resultSetIdList.map((resultSetId) => {
                     const params = {
                         return_type: 'list',
                         result_set_id: resultSetId,
@@ -164,9 +164,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     `/resultset/${resultSetId}/`, projectName), { cache: true }).then(
                     function (response) {
                         if (response.data.revisions.length > 0) {
-                            return _.map(response.data.revisions, function (r) {
-                                return r.revision;
-                            });
+                            return response.data.revisions.map(r => r.revision);
                         }
                         return $q.reject('No revisions found for result set ' +
                             resultSetId + ' in project ' + projectName);

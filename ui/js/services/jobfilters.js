@@ -170,8 +170,7 @@ treeherder.factory('thJobFilters', [
                         // we cache this one a little differently
                         fieldFilters[_withoutPrefix(field)] = decodeURIComponent(values).replace(/ +(?= )/g, ' ').toLowerCase().split(' ');
                     } else {
-                        fieldFilters[_withoutPrefix(field)] = _.map(
-                            _toArray(values), v => String(v).toLowerCase());
+                        fieldFilters[_withoutPrefix(field)] = _toArray(values).map(v => String(v).toLowerCase());
                     }
                 }
             });

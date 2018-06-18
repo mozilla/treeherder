@@ -86,14 +86,14 @@ perf.controller('dashCtrl', [
             }
 
             getSeriesList.then(function (seriesToMeasure) {
-                $scope.platformList = [...new Set(_.map(seriesToMeasure, 'platform'))];
+                $scope.platformList = [...new Set(seriesToMeasure.map(series => series.platform))];
                 // we just use the unadorned suite name to distinguish tests in this view
                 // (so we can mash together pgo and opt)
-                $scope.testList = [...new Set(_.map(seriesToMeasure, 'testName'))];
+                $scope.testList = [...new Set(seriesToMeasure.map(series => series.testName))];
 
                 $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
                     const params = {
-                        signature_id: _.map(seriesChunk, 'id'),
+                        signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
                     };
                     if ($scope.revision) {
@@ -112,7 +112,7 @@ perf.controller('dashCtrl', [
                                 lowerIsBetter: series.lowerIsBetter,
                                 hasSubTests: series.hasSubtests,
                                 option: series.options.indexOf('opt') >= 0 ? 'opt' : 'pgo',
-                                values: _.map(data, 'value'),
+                                values: data.map(data => data.value),
                             };
                         });
                     });
@@ -137,13 +137,12 @@ perf.controller('dashCtrl', [
                                 cmap.links = [{
                                     title: 'graph',
                                     href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, variantSig], function (sig) {
-                                            return {
-                                                projectName: $scope.selectedRepo.name,
-                                                signature: sig,
-                                                frameworkId: $scope.framework,
-                                            };
+                                        [baseSig, variantSig].map(sig => ({
+                                            projectName: $scope.selectedRepo.name,
+                                            signature: sig,
+                                            frameworkId: $scope.framework,
                                         })),
+                                    ),
                                 }];
                                 if (resultsMap.base[baseSig].hasSubTests) {
                                     const params = {
@@ -296,7 +295,7 @@ perf.controller('dashSubtestCtrl', [
 
                 return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
                     const params = {
-                        signature_id: _.map(seriesChunk, 'id'),
+                        signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
                     };
                     if ($scope.revision) {
@@ -314,16 +313,13 @@ perf.controller('dashSubtestCtrl', [
                                     suite: series.suite,
                                     name: PhSeries.getTestName(series),
                                     lowerIsBetter: series.lowerIsBetter,
-                                    values: _.map(data, 'value'),
+                                    values: data.map(d => d.value),
                                 };
                             });
                         });
                 })).then(function () {
                     $scope.dataLoading = false;
-                    const subtestNames = _.map(resultsMap.base,
-                                             function (results) {
-                                                 return results.name;
-                                             });
+                    const subtestNames = resultsMap.base.map(results => results.name);
                     subtestNames.forEach(function (subtestName) {
                         const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
                             return resultsMap.base[sig].name === subtestName;
@@ -338,14 +334,11 @@ perf.controller('dashSubtestCtrl', [
                             cmap.name = subtestName;
                             cmap.links = [{
                                 title: 'graph',
-                                href: PhCompare.getGraphsLink(
-                                        _.map([baseSig, variantSig], function (sig) {
-                                            return {
-                                                projectName: $scope.selectedRepo.name,
-                                                signature: sig,
-                                                frameworkId: $scope.framework,
-                                            };
-                                        })),
+                                href: PhCompare.getGraphsLink([baseSig, variantSig].map(sig => ({
+                                    projectName: $scope.selectedRepo.name,
+                                    signature: sig,
+                                    frameworkId: $scope.framework,
+                                }))),
                             }];
 
                             if (!$scope.compareResults[summaryTestName]) {

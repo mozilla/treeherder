@@ -20,9 +20,8 @@ treeherder.factory('ThResultSetStore', [
         thNotify, thJobFilters, ThRepositoryModel,
         $timeout) {
 
-        // indexOf doesn't work on objects so we need to map thPlatformMap to an array
-        var platformArray = _.map(thPlatformMap, function (val, idx) { return idx; });
-
+        // indexOf doesn't work on objects so we need to map thPlatformMap to an array (keeping only indexes)
+        var platformArray = Object.keys(thPlatformMap);
         /**
          * Handle updating the push datamodel based on a queue of jobs
          * and pushes.
@@ -200,7 +199,7 @@ treeherder.factory('ThResultSetStore', [
                 if (_.isUndefined(push)) { return $q.defer().resolve(); }
                 if (_.has(push, 'jobList')) {
                     // get the new job ids
-                    var jobIds = _.map(jobList, 'id');
+                    var jobIds = jobList.map(job => job.id);
                     // remove the elements that need to be updated
                     push.jobList = push.jobList.filter(job => jobIds.indexOf(job.id) === -1);
                     push.jobList = push.jobList.concat(jobList);
@@ -844,7 +843,7 @@ treeherder.factory('ThResultSetStore', [
                         return;
                     }
                     var jobsPromiseList = ThResultSetModel.getResultSetJobs(
-                        _.map(pushes.results, 'id'),
+                        pushes.results.map(result => result.id),
                         repoData.name,
                     );
                     $q.all(jobsPromiseList)
@@ -886,9 +885,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getLastModifiedJobTime = function (jobList) {
             if (jobList.length > 0) {
-                return _.max(_.map(jobList, function (job) {
-                    return new Date(job.last_modified + 'Z');
-                }));
+                return _.max(jobList.map(job => new Date(job.last_modified + 'Z')));
             }
             return undefined;
         };
