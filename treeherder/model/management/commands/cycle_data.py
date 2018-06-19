@@ -1,6 +1,5 @@
 import datetime
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import (Job,
@@ -26,7 +25,7 @@ class Command(BaseCommand):
             '--days',
             action='store',
             dest='days',
-            default=settings.DATA_CYCLE_DAYS,
+            default=120,
             type=int,
             help='Data cycle interval expressed in days'
         )
@@ -34,7 +33,7 @@ class Command(BaseCommand):
             '--chunk-size',
             action='store',
             dest='chunk_size',
-            default=settings.DATA_CYCLE_CHUNK_SIZE,
+            default=100,
             type=int,
             help=('Define the size of the chunks '
                   'Split the job deletes into chunks of this size')
@@ -43,7 +42,7 @@ class Command(BaseCommand):
             '--sleep-time',
             action='store',
             dest='sleep_time',
-            default=settings.DATA_CYCLE_SLEEP_TIME,
+            default=0,
             type=int,
             help='How many seconds to pause between each query'
         )
