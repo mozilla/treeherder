@@ -449,17 +449,6 @@ WHITENOISE_ROOT = path("..", "dist")
 
 # TREEHERDER
 
-# API
-# the amount of time we cache bug suggestion lookups (to speed up loading the bug
-# suggestions or autoclassify panels for recently finished jobs)
-BUG_SUGGESTION_CACHE_TIMEOUT = 86400
-
-REPO_GROUPS = {
-    'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
-    'firefox-releases': ['mozilla-beta', 'mozilla-release'],
-    'comm-releases': ['comm-beta', 'comm-release'],
-}
-
 # Autoclassification
 AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
 
