@@ -1,6 +1,8 @@
 /* eslint-disable no-use-before-define */
 
 import _ from 'lodash';
+import intersection from 'lodash/intersection';
+import difference from 'lodash/difference';
 
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/job';
@@ -362,8 +364,8 @@ treeherder.factory('thJobFilters', [
 
         function toggleResultStatuses(resultStatuses) {
             let rsValues = _getFiltersOrDefaults(RESULT_STATUS);
-            if (_.difference(resultStatuses, rsValues).length === 0) {
-                rsValues = _.difference(rsValues, resultStatuses);
+            if (difference(resultStatuses, rsValues).length === 0) {
+                rsValues = difference(rsValues, resultStatuses);
             } else {
                 rsValues = [...new Set(rsValues.concat(resultStatuses))];
             }
@@ -524,7 +526,7 @@ treeherder.factory('thJobFilters', [
             field = _withoutPrefix(field);
             if (DEFAULTS.hasOwnProperty(field)) {
                 return values.length === DEFAULTS[field].length &&
-                    _.intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
+                    intersection(DEFAULTS[field], values).length === DEFAULTS[field].length;
             }
             return false;
         }
