@@ -3,9 +3,14 @@ from datetime import (datetime,
                       timedelta)
 
 import django_filters
-from django.conf import settings
 
 from treeherder.model.models import Repository
+
+REPO_GROUPS = {
+    'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
+    'firefox-releases': ['mozilla-beta', 'mozilla-release'],
+    'comm-releases': ['comm-beta', 'comm-release'],
+}
 
 
 class NumberInFilter(django_filters.filters.BaseInFilter,
@@ -50,8 +55,8 @@ def get_repository(name):
     if name == 'all':
         return queryset.filter(active_status='active')
 
-    if name in settings.REPO_GROUPS:
-        param = settings.REPO_GROUPS[name]
+    if name in REPO_GROUPS:
+        param = REPO_GROUPS[name]
     else:
         param = [name]
 
