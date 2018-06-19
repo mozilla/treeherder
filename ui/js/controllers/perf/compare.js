@@ -30,12 +30,12 @@ perf.controller('CompareChooserCtrl', [
                 return defaultValue;
             };
 
-            $scope.originalProject = _.find(projects, {
-                name: getParameter('originalProject', phCompareDefaultOriginalRepo),
-            }) || projects[0];
-            $scope.newProject = _.find(projects, {
-                name: getParameter('newProject', phCompareDefaultNewRepo),
-            }) || projects[0];
+            $scope.originalProject = projects.find(project =>
+                project.name === getParameter('originalProject', phCompareDefaultOriginalRepo),
+            ) || projects[0];
+            $scope.newProject = projects.find(project =>
+                project.name === getParameter('newProject', phCompareDefaultNewRepo),
+            ) || projects[0];
 
             $scope.originalRevision = getParameter('originalRevision', '');
             $scope.newRevision = getParameter('newRevision', '');
@@ -153,12 +153,12 @@ perf.controller('CompareResultsCtrl', [
                         $scope.newStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
                     }
 
-                    const oldSig = _.find(Object.keys(rawResultsMap), function (sig) {
-                        return rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform;
-                    });
-                    const newSig = _.find(Object.keys(newRawResultsMap), function (sig) {
-                        return newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform;
-                    });
+                    const oldSig = Object.keys(rawResultsMap).find(sig =>
+                        rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform,
+                    );
+                    const newSig = Object.keys(newRawResultsMap).find(sig =>
+                        newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform,
+                    );
 
                     const cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
                     if (cmap.isEmpty) {
@@ -428,9 +428,9 @@ perf.controller('CompareResultsCtrl', [
                 }
             }
             $scope.filterOptions = {
-                framework: _.find($scope.frameworks, {
-                    id: parseInt($stateParams.framework),
-                }) || $scope.frameworks[0],
+                framework: $scope.frameworks.find(fw =>
+                    fw.id === parseInt($stateParams.framework),
+                ) || $scope.frameworks[0],
                 filter: $stateParams.filter || '',
                 showOnlyImportant: Boolean($stateParams.showOnlyImportant !== undefined &&
                                            parseInt($stateParams.showOnlyImportant)),
@@ -455,9 +455,9 @@ perf.controller('CompareResultsCtrl', [
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
             } else {
                 $scope.timeRanges = phTimeRanges;
-                $scope.selectedTimeRange = _.find($scope.timeRanges, {
-                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange,
-                });
+                $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
+                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange),
+                );
             }
             $q.all(verifyPromises).then(function () {
                 if ($scope.errors.length > 0) {
@@ -532,9 +532,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                     let tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
-                        tempsig = _.find(Object.keys(resultsMap), function (sig) {
-                            return resultsMap[sig].name === page;
-                        });
+                        tempsig = Object.keys(resultsMap).find(sig =>
+                            resultsMap[sig].name === page,
+                        );
                     } else {
                         tempsig = 'undefined';
                         resultsMap = {};
@@ -652,9 +652,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                 verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
             } else {
                 $scope.timeRanges = phTimeRanges;
-                $scope.selectedTimeRange = _.find($scope.timeRanges, {
-                    value: ($stateParams.selectedTimeRange) ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange,
-                });
+                $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
+                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange),
+                );
             }
 
             $q.all(verifyPromises).then(function () {

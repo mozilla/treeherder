@@ -199,7 +199,7 @@ treeherder.factory('PhCompare', [
                 timeRange = Math.round(now - timeRange);
 
                 // now figure out which predefined set of data we can query from
-                const phTimeRange = _.find(phTimeRanges, function (i) { return timeRange <= i.value; });
+                const phTimeRange = phTimeRanges.find(i => timeRange <= i.value);
                 return phTimeRange.value;
             },
 
@@ -219,11 +219,11 @@ treeherder.factory('PhCompare', [
                 }
 
                 $http.get(getApiUrl('/repository/')).then(function (response) {
-                    if (!_.find(response.data, { name: originalProject })) {
+                    if (!response.data.find(project => project.name === originalProject)) {
                         errors.push("Invalid project, doesn't exist: " + originalProject);
                     }
 
-                    if (!_.find(response.data, { name: newProject })) {
+                    if (!response.data.find(project => project.name === newProject)) {
                         errors.push("Invalid project, doesn't exist: " + newProject);
                     }
                 });
@@ -244,7 +244,8 @@ treeherder.factory('PhCompare', [
                             // with description (name/platform) and values.
                             // The values are later processed at getCounterMap as the data arguments.
                             _.forIn(seriesData, (data, signatureHash) => {
-                                const signature = _.find(seriesList, { signature: signatureHash });
+                                const signature = seriesList.find(series =>
+                                    series.signature === signatureHash);
                                 if (signature) {
                                     // helper method to either return the push
                                     // index (if getting per-push results) or
@@ -290,13 +291,10 @@ treeherder.factory('PhCompare', [
                 if (resultSets) {
                     if (!timeRange) {
                         graphsLink += '&timerange=' + _.max(
-                        resultSets.map(resultSet => (
-                            _.find(
-                                phTimeRanges.map(range => range.value),
-                                t => (((Date.now() / 1000.0) -
-                                        resultSet.push_timestamp) < t
-                                ))
-                            ),
+                        resultSets.map(resultSet =>
+                            phTimeRanges.map(range => range.value).find(t =>
+                                ((Date.now() / 1000.0) -
+                                      resultSet.push_timestamp) < t),
                         ));
                     } else {
                         graphsLink += '&timerange=' + timeRange;

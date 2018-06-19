@@ -33,9 +33,9 @@ perf.controller('dashCtrl', [
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
-        $scope.selectedTimeRange = _.find($scope.timeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange,
-        });
+        $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
+            timeRange.value === ($stateParams.timerange ? parseInt($stateParams.timerange) : defaultTimeRange),
+        );
         $scope.revision = $stateParams.revision;
         $scope.topic = $stateParams.topic;
 
@@ -104,7 +104,8 @@ perf.controller('dashCtrl', [
 
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
                         _.forIn(seriesData, function (data, signature) {
-                            const series = _.find(seriesChunk, { signature: signature });
+                            const series = seriesChunk.find(series =>
+                                series.signature === signature);
                             const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                             resultsMap[type][signature] = {
                                 platform: series.platform,
@@ -121,14 +122,14 @@ perf.controller('dashCtrl', [
                     $scope.testList.forEach(function (testName) {
                         $scope.titles[testName] = testName;
                         $scope.platformList.forEach(function (platform) {
-                            const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
-                                return resultsMap.base[sig].name === testName &&
-                                    resultsMap.base[sig].platform === platform;
-                            });
-                            const variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
-                                return resultsMap.variant[sig].name === testName &&
-                                    resultsMap.variant[sig].platform === platform;
-                            });
+                            const baseSig = Object.keys(resultsMap.base).find(sig =>
+                                resultsMap.base[sig].name === testName &&
+                                resultsMap.base[sig].platform === platform,
+                            );
+                            const variantSig = Object.keys(resultsMap.variant).find(sig =>
+                                resultsMap.variant[sig].name === testName &&
+                                resultsMap.variant[sig].platform === platform,
+                            );
                             if (variantSig && baseSig) {
                                 const cmap = PhCompare.getCounterMap(
                                     testName, resultsMap.base[baseSig],
@@ -206,9 +207,9 @@ perf.controller('dashCtrl', [
 
         ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
-            $scope.selectedRepo = _.find($scope.projects, {
-                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo,
-            });
+            $scope.selectedRepo = $scope.projects.find(project =>
+                project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
+            );
 
             $scope.$watchGroup([
                 'filterOptions.filter',
@@ -247,9 +248,9 @@ perf.controller('dashSubtestCtrl', [
 
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
-        $scope.selectedTimeRange = _.find(phTimeRanges, {
-            value: ($stateParams.timerange) ? parseInt($stateParams.timerange) : defaultTimeRange,
-        });
+        $scope.selectedTimeRange = phTimeRanges.find(timeRange =>
+            timeRange.value === ($stateParams.timerange ? parseInt($stateParams.timerange) : defaultTimeRange),
+        );
         $scope.revision = $stateParams.revision;
         $scope.topic = $stateParams.topic;
 
@@ -306,7 +307,8 @@ perf.controller('dashSubtestCtrl', [
                     return PhSeries.getSeriesData(
                         $scope.selectedRepo.name, params).then(function (seriesData) {
                             _.forIn(seriesData, function (data, signature) {
-                                const series = _.find(seriesList, { signature: signature });
+                                const series = seriesList.find(series =>
+                                    series.signature === signature);
                                 const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
                                 resultsMap[type][signature] = {
                                     platform: series.platform,
@@ -321,12 +323,12 @@ perf.controller('dashSubtestCtrl', [
                     $scope.dataLoading = false;
                     const subtestNames = resultsMap.base.map(results => results.name);
                     subtestNames.forEach(function (subtestName) {
-                        const baseSig = _.find(Object.keys(resultsMap.base), function (sig) {
-                            return resultsMap.base[sig].name === subtestName;
-                        });
-                        const variantSig = _.find(Object.keys(resultsMap.variant), function (sig) {
-                            return resultsMap.variant[sig].name === subtestName;
-                        });
+                        const baseSig = Object.keys(resultsMap.base).find(sig =>
+                            resultsMap.base[sig].name === subtestName,
+                        );
+                        const variantSig = Object.keys(resultsMap.variant).find(sig =>
+                            resultsMap.variant[sig].name === subtestName,
+                        );
                         if (variantSig && baseSig) {
                             const cmap = PhCompare.getCounterMap(
                                 subtestName, resultsMap.base[baseSig],
@@ -382,9 +384,9 @@ perf.controller('dashSubtestCtrl', [
 
         ThRepositoryModel.load().then(function () {
             $scope.projects = $rootScope.repos;
-            $scope.selectedRepo = _.find($scope.projects, {
-                name: $stateParams.repo ? $stateParams.repo : thDefaultRepo,
-            });
+            $scope.selectedRepo = $scope.projects.find(project =>
+                project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
+            );
 
             $scope.$watchGroup([
                 'filterOptions.filter',

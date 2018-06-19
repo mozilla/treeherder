@@ -22,7 +22,8 @@ perf.factory('PhBugs', [
             fileBug: function (alertSummary) {
                 $http.get(getApiUrl(`/performance/bug-template/?framework=${alertSummary.framework}`)).then(function (response) {
                     const template = response.data[0];
-                    const repo = _.find($rootScope.repos, { name: alertSummary.repository });
+                    const repo = $rootScope.repos.find(repo =>
+                        repo.name === alertSummary.repository);
                     const compiledText = $interpolate(template.text)({
                         revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
@@ -132,7 +133,7 @@ perf.controller(
                     related_summary_id: newId,
                 }).then(() => {
                         const summariesToUpdate = [alertSummary].concat(
-                            _.find(allAlertSummaries, alertSummary =>
+                            allAlertSummaries.find(alertSummary =>
                                 alertSummary.id === newId) || []);
                         $q.all(summariesToUpdate.map(alertSummary => alertSummary.update(),
                       )).then(() => $uibModalInstance.close('downstreamed'));
@@ -168,7 +169,7 @@ perf.controller(
                 }).then(function () {
                     // FIXME: duplication with downstream alerts controller
                     const summariesToUpdate = [alertSummary].concat(
-                        _.find(allAlertSummaries, alertSummary =>
+                        allAlertSummaries.find(alertSummary =>
                           alertSummary.id === newId) || []);
                     $q.all(summariesToUpdate.map(alertSummary => alertSummary.update(),
                   )).then(() => $uibModalInstance.close('downstreamed'));
@@ -389,7 +390,7 @@ perf.controller('AlertsCtrl', [
             // but other summaries affected by the change
             const summariesToUpdate = [alertSummary].concat((
                 alertSummary.alerts.filter(alert => alert.selected).map(
-                alert => (_.find($scope.alertSummaries, alertSummary =>
+                alert => ($scope.alertSummaries.find(alertSummary =>
                         alertSummary.id === alert.related_summary_id) || []),
                 )).reduce((a, b) => [...a, ...b], []));
 
@@ -443,9 +444,9 @@ perf.controller('AlertsCtrl', [
                                     resultSet.push_timestamp * 1000, thDateFormat);
                                 // want at least 14 days worth of results for relative comparisons
                                 const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
-                                resultSet.timeRange = Math.max(timeRange, _.find(
-                                    phTimeRanges.map(timeRange => timeRange.value),
-                                    (t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t)));
+                                resultSet.timeRange = Math.max(timeRange,
+                                    phTimeRanges.map(timeRange => timeRange.value).find(
+                                    t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t));
                                 resultSetToSummaryMap[repo][resultSet.id].forEach(
                                           (summary) => {
                                               if (summary.push_id === resultSet.id) {
@@ -461,8 +462,8 @@ perf.controller('AlertsCtrl', [
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 alertSummaries.forEach((summary) => {
-                    const repo = _.find($rootScope.repos,
-                                      { name: summary.repository });
+                    const repo = $rootScope.repos.find(repo =>
+                        repo.name === summary.repository);
 
                     if (summary.prevResultSetMetadata &&
                         summary.resultSetMetadata) {
@@ -583,12 +584,12 @@ perf.controller('AlertsCtrl', [
                 $scope.optionCollectionMap = optionCollectionMap;
             })]).then(function () {
                 $scope.filterOptions = {
-                    status: _.find($scope.statuses, {
-                        id: parseInt($stateParams.status),
-                    }) || $scope.statuses[0],
-                    framework: _.find($scope.frameworks, {
-                        id: parseInt($stateParams.framework),
-                    }) || $scope.frameworks[0],
+                    status: $scope.statuses.find(status =>
+                        status.id === parseInt($stateParams.status),
+                    ) || $scope.statuses[0],
+                    framework: $scope.frameworks.find(fw =>
+                        fw.id === parseInt($stateParams.framework),
+                    ) || $scope.frameworks[0],
                     filter: $stateParams.filter || '',
                     hideImprovements: $stateParams.hideImprovements !== undefined &&
                     parseInt($stateParams.hideImprovements),
