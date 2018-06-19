@@ -25,8 +25,8 @@ treeherder.factory('PhAlerts', [
                 { includePlatformInName: true });
         };
         Alert.prototype.getStatusText = function () {
-            return _.result(phAlertStatusMap.find(status =>
-                status.id === this.status), 'text');
+            return Object.values(phAlertStatusMap).find(status =>
+                status.id === this.status).text;
         };
         Alert.prototype.getGraphsURL = function (timeRange, alertRepository,
                                                 performanceFrameworkId) {
@@ -246,7 +246,7 @@ treeherder.factory('PhAlerts', [
                 }));
         };
         AlertSummary.prototype.getStatusText = function () {
-            return phAlertSummaryStatusMap.find(status =>
+            return Object.values(phAlertSummaryStatusMap).find(status =>
                 status.id === this.status).text;
         };
 
