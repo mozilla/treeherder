@@ -307,6 +307,7 @@ treeherder.factory('thJobFilters', [
                 }
             }
             $location.search(_withPrefix(field), newQsVal);
+            $rootScope.$apply();
         }
 
         function replaceFilter(field, value) {
@@ -315,20 +316,11 @@ treeherder.factory('thJobFilters', [
         }
 
         function clearAllFilters() {
-            removeAllFieldFilters();
-            removeClearableNonFieldFilters();
-        }
-
-        function removeAllFieldFilters() {
             const locationSearch = $location.search();
             _stripFieldFilters(locationSearch);
-            $location.search(locationSearch);
-        }
-
-        function removeClearableNonFieldFilters() {
-            const locationSearch = $location.search();
             _stripClearableFieldFilters(locationSearch);
             $location.search(locationSearch);
+            $rootScope.$apply();
         }
 
         /**
@@ -589,7 +581,6 @@ treeherder.factory('thJobFilters', [
             addFilter: addFilter,
             removeFilter: removeFilter,
             replaceFilter: replaceFilter,
-            removeAllFieldFilters: removeAllFieldFilters,
             resetNonFieldFilters: resetNonFieldFilters,
             clearAllFilters: clearAllFilters,
             toggleFilters: toggleFilters,

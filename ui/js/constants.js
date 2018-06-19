@@ -311,6 +311,7 @@ export const thEvents = {
   autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
   autoclassifyOpenLogViewer: 'ac-open-log-viewer-EVT',
   selectRunnableJob: 'select-runnable-job-EVT',
+  toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
 };
 
 export const phCompareDefaultOriginalRepo = 'mozilla-central';

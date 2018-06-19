@@ -514,64 +514,8 @@ treeherderApp.controller('MainCtrl', [
             );
         };
 
-        $scope.getFiltersForBar = function () {
-            return [...thJobFilters.getNonFieldFiltersArray(), ...thJobFilters.getFieldFiltersArray()];
-        };
-
-        // field filters
-        $scope.newFieldFilter = null;
-        $scope.fieldFilters = [];
-        $scope.fieldChoices = thJobFilters.getFieldChoices();
-
-        $scope.toggleFieldFilterVisibility = function () {
-            if ($scope.newFieldFilter === null) {
-                $scope.newFieldFilter = { field: '', value: '' };
-            }
-            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
-        };
-
-        $scope.cancelNewFieldFilter = function () {
-            $scope.newFieldFilter = null;
-            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
-        };
-
-        // we have to set the field match type here so that the UI can either
-        // show a text field for entering a value, or switch to a drop-down select.
-        $scope.setFieldMatchType = function () {
-            if ($scope.newFieldFilter.field) {
-              $scope.newFieldFilter.matchType = $scope.fieldChoices[$scope.newFieldFilter.field].matchType;
-              $scope.newFieldFilter.choices = $scope.fieldChoices[$scope.newFieldFilter.field].choices;
-            }
-        };
-
-        // for most match types we want to show just the raw value.  But for
-        // choice value type, we want to show the string representation of the
-        // value.  For example, failure_classification_id is an int, but we
-        // want to show the text.
-        $scope.getFilterValue = function (field, value) {
-            if ($scope.fieldChoices[field].matchType === 'choice' &&
-                $scope.fieldChoices[field].choices[value]) {
-                return $scope.fieldChoices[field].choices[value].name;
-            }
-            return value;
-        };
-
-        $scope.addNewFieldFilter = function () {
-            if (!$scope.newFieldFilter) {
-                return;
-            }
-
-            const { value, field } = $scope.newFieldFilter;
-
-            if (field === '' || value === '') {
-                return;
-            }
-
-            thJobFilters.addFilter(field, value);
-
-            // Clear the values and close the input form group
-            $scope.newFieldFilter = { field: '', value: '' };
-            $scope.isFieldFilterVisible = !$scope.isFieldFilterVisible;
+        $scope.toggleFieldFilterVisible = function () {
+            $rootScope.$emit(thEvents.toggleFieldFilterVisible);
         };
 
         $scope.fromChangeValue = function () {
@@ -603,8 +547,6 @@ treeherderApp.controller('MainCtrl', [
 
             // used to avoid bad urls when the app redirects internally
             $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-
-            $scope.filterBarFilters = $scope.getFiltersForBar();
 
             const newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
