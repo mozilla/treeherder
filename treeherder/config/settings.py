@@ -566,10 +566,6 @@ PULSE_DATA_INGESTION_QUEUES_DURABLE = True
 # For local data ingestion, you probably should set this to True
 PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
 
-# Push Loader
-GITHUB_CLIENT_ID = env("GITHUB_CLIENT_ID", default=None)
-GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default=None)
-
 # Timeouts
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
