@@ -29,8 +29,7 @@ class CollectionNotStoredException(Exception):
         )
 
 
-def make_request(url, method='GET', headers=None,
-                 timeout=settings.REQUESTS_TIMEOUT, **kwargs):
+def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}
     headers['User-Agent'] = 'treeherder/{}'.format(settings.SITE_HOSTNAME)
