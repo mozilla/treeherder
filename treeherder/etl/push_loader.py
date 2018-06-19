@@ -1,7 +1,7 @@
 import logging
 
+import environ
 import newrelic.agent
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.etl.common import (fetch_json,
@@ -9,6 +9,7 @@ from treeherder.etl.common import (fetch_json,
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
 
+env = environ.Env()
 logger = logging.getLogger(__name__)
 
 
@@ -61,8 +62,8 @@ class PushLoader(object):
 class GithubTransformer(object):
 
     CREDENTIALS = {
-        "client_id": settings.GITHUB_CLIENT_ID,
-        "client_secret": settings.GITHUB_CLIENT_SECRET
+        "client_id": env("GITHUB_CLIENT_ID", default=None),
+        "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
     }
 
     def __init__(self, message_body):
