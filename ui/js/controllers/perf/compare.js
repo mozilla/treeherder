@@ -782,15 +782,15 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject.name, {
                                 parent_signature: $scope.newSignature,
                                 framework: $scope.filterOptions.framework,
-                            }).then(function (newSeriesList) {
-                                $scope.platformList = [...new Set([...new Set([
+                            }).then((newSeriesList) => {
+                                $scope.platformList = [...new Set([
                                     ...$scope.platformList,
                                     ...newSeriesList.map(series => series.platform),
-                                ])])];
-                                $scope.testList = [...new Set([...new Set([
+                                ])];
+                                $scope.testList = [...new Set([
                                     ...$scope.testList,
                                     ...newSeriesList.map(series => series.name),
-                                ])])];
+                                ])];
 
                                 return PhCompare.getResultsMap($scope.newProject.name,
                                     newSeriesList,
@@ -852,14 +852,14 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     parent_signature: $scope.newSignature,
                                     framework: $scope.filterOptions.framework,
                                 }).then(function (newSeriesList) {
-                                    $scope.platformList = [...new Set([...new Set([
+                                    $scope.platformList = [...new Set([
                                         ...$scope.platformList,
                                         ...newSeriesList.map(series => series.platform),
-                                    ])])];
-                                    $scope.testList = [...new Set([...new Set([
+                                    ])];
+                                    $scope.testList = [...new Set([
                                         ...$scope.testList,
                                         ...newSeriesList.map(series => series.name),
-                                    ])])];
+                                    ])];
 
                                     return PhCompare.getResultsMap($scope.newProject.name,
                                         newSeriesList,
