@@ -472,14 +472,6 @@ BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
 BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
 
-# Data Cycling
-# Default to retaining data for ~4 months.
-DATA_CYCLE_DAYS = env.int("DATA_CYCLE_DAYS", default=120)
-# Determines the number of jobs we try to delete per iteration when
-# cycling data
-DATA_CYCLE_CHUNK_SIZE = env.int("DATA_CYCLE_CHUNK_SIZE", default=100)
-DATA_CYCLE_SLEEP_TIME = env.int("DATA_CYCLE_SLEEP_TIME", default=0)
-
 # ETL
 # the max size of a posted request to treeherder client during Buildbot
 # data job ingestion.
