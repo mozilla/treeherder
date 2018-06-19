@@ -565,8 +565,3 @@ PULSE_DATA_INGESTION_QUEUES_DURABLE = True
 # are closed.
 # For local data ingestion, you probably should set this to True
 PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
-
-# Timeouts
-# timeout for requests to external sources
-# like ftp.mozilla.org or hg.mozilla.org
-REQUESTS_TIMEOUT = 30
