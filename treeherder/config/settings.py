@@ -570,4 +570,3 @@ PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
 # timeout for requests to external sources
 # like ftp.mozilla.org or hg.mozilla.org
 REQUESTS_TIMEOUT = 30
-TREEHERDER_USER_AGENT = 'treeherder/{}'.format(SITE_HOSTNAME)
