@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
 import { thDefaultRepo, phBlockers, phTimeRanges } from '../../constants';
@@ -91,7 +92,7 @@ perf.controller('dashCtrl', [
                 // (so we can mash together pgo and opt)
                 $scope.testList = [...new Set(seriesToMeasure.map(series => series.testName))];
 
-                $q.all(_.chunk(seriesToMeasure, 40).map(function (seriesChunk) {
+                $q.all(chunk(seriesToMeasure, 40).map((seriesChunk) => {
                     const params = {
                         signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
@@ -294,7 +295,7 @@ perf.controller('dashSubtestCtrl', [
                 $scope.testList = [summaryTestName];
                 $scope.titles[summaryTestName] = summaryTestName;
 
-                return $q.all(_.chunk(seriesList, 40).map(function (seriesChunk) {
+                return $q.all(chunk(seriesList, 40).map((seriesChunk) => {
                     const params = {
                         signature_id: seriesChunk.map(series => series.id),
                         framework: $scope.framework,
@@ -304,20 +305,20 @@ perf.controller('dashSubtestCtrl', [
                     } else {
                         params.interval = $scope.selectedTimeRange.value;
                     }
-                    return PhSeries.getSeriesData(
-                        $scope.selectedRepo.name, params).then(function (seriesData) {
-                            _.forIn(seriesData, function (data, signature) {
-                                const series = seriesList.find(series =>
-                                    series.signature === signature);
-                                const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
-                                resultsMap[type][signature] = {
-                                    platform: series.platform,
-                                    suite: series.suite,
-                                    name: PhSeries.getTestName(series),
-                                    lowerIsBetter: series.lowerIsBetter,
-                                    values: data.map(d => d.value),
-                                };
-                            });
+                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then((seriesData) => {
+                        _.forIn(seriesData, function (data, signature) {
+                            const series = seriesList.find(series =>
+                                series.signature === signature);
+                            const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
+                            resultsMap[type][signature] = {
+                                platform: series.platform,
+                                suite: series.suite,
+                                name: PhSeries.getTestName(series),
+                                lowerIsBetter: series.lowerIsBetter,
+                                values: data.map(d => d.value),
+                            };
+                        });
+                    });
                 })).then(function () {
                     $scope.dataLoading = false;
                     const subtestNames = resultsMap.base.map(results => results.name);

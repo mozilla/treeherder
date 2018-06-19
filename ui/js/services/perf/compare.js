@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import chunk from 'lodash/chunk';
 
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
@@ -232,7 +233,7 @@ treeherder.factory('PhCompare', [
 
             getResultsMap: (projectName, seriesList, params) => {
                 const resultsMap = {};
-                return $q.all(_.chunk(seriesList, 40).map(
+                return $q.all(chunk(seriesList, 40).map(
                     seriesChunk => PhSeries.getSeriesData(
                         projectName, {
                             signature_id: seriesChunk.map(series => series.id),
