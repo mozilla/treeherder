@@ -24,6 +24,7 @@ const JobView = (props) => {
       </div>
       <DetailsPanel
         className={selectedJob ? '' : 'hidden'}
+        currentRepo={currentRepo}
         repoName={repoName}
         selectedJob={selectedJob}
         user={user}
@@ -42,6 +43,8 @@ JobView.propTypes = {
   selectedJob: PropTypes.object,
 };
 
+// Sometime of these props are not ready by the time this renders, so
+// need some defaults for them.
 JobView.defaultProps = {
   revision: null,
   currentRepo: {},

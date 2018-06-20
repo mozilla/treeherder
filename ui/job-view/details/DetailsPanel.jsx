@@ -461,7 +461,7 @@ export default class DetailsPanel extends React.Component {
             logParseStatus={logParseStatus}
             jobDetailLoading={jobDetailLoading}
             latestClassification={classifications.length ? classifications[0] : null}
-            isTryRepo={currentRepo.isTryRepo}
+            isTryRepo={currentRepo.is_try_repo}
             logViewerUrl={logViewerUrl}
             logViewerFullUrl={logViewerFullUrl}
             pinJob={this.pinJob}
@@ -504,13 +504,11 @@ export default class DetailsPanel extends React.Component {
 DetailsPanel.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
-  user: PropTypes.object,
-  currentRepo: PropTypes.object,
 };
 
 DetailsPanel.defaultProps = {
   selectedJob: null,
-  user: { isLoggedIn: false, isStaff: false, email: null },
-  currentRepo: { isTryRepo: true },
 };
