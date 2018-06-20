@@ -182,7 +182,7 @@ treeherder.factory('thJobFilters', [
         function _getFiltersOrDefaults(field) {
             // NON_FIELD_FILTERS are filter params that don't have the prefix
             const qsField = NON_FIELD_FILTERS.includes(field) ? _withoutPrefix(field) : _withPrefix(field);
-            const filters = ($location.search()[qsField] === undefined ? undefined : ($location.search()[qsField]).slice());
+            const filters = ($location.search()[qsField] === undefined ? undefined : [...($location.search()[qsField])]);
             if (filters) {
                 return _toArray(filters);
             } else if (DEFAULTS.hasOwnProperty(_withoutPrefix(field))) {
