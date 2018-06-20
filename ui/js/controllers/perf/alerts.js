@@ -481,7 +481,7 @@ perf.controller('AlertsCtrl', [
                       summary.alerts.map((alert) => {
                         if (alert.status === phAlertStatusMap.DOWNSTREAM.id &&
                             alert.summary_id !== summary.id) {
-                          return alert.summary_id;
+                          return [alert.summary_id];
                         }
                         return [];
                       })).reduce((a, b) => [...a, ...b], []))];
