@@ -3,6 +3,8 @@ from collections import defaultdict
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import (BugJobMap,
                                      Job,
@@ -12,9 +14,11 @@ from treeherder.model.models import (BugJobMap,
 from treeherder.webapp.api.pagination import CustomPagePagination
 from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
-                                               FailuresSerializer)
+                                               FailuresSerializer,
+                                               QueryParamsSerializer)
 from treeherder.webapp.api.utils import (get_end_of_day,
-                                         get_repository)
+                                         get_repository,
+                                         validate_bug)
 
 
 class Failures(generics.ListAPIView):
@@ -22,19 +26,26 @@ class Failures(generics.ListAPIView):
 
     serializer_class = FailuresSerializer
     pagination_class = CustomPagePagination
+    queryset = None
 
-    def get_queryset(self):
-        startday = self.request.query_params.get('startday')
-        endday = get_end_of_day(self.request.query_params.get('endday').encode('utf-8'))
-        repo = list(get_repository(self.request.query_params.get('tree')))
+    def list(self, request):
+        query_params = QueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors,
+                            status=HTTP_400_BAD_REQUEST)
 
-        queryset = (BugJobMap.failures.default(repo, startday, endday)
-                                      .values('bug_id')
-                                      .annotate(bug_count=Count('job_id'))
-                                      .values('bug_id', 'bug_count')
-                                      .order_by('-bug_count'))
+        startday = query_params.validated_data['startday']
+        endday = get_end_of_day(query_params.validated_data['endday'])
+        repo = list(get_repository(query_params.validated_data['tree']))
 
-        return queryset
+        self.queryset = (BugJobMap.failures.default(repo, startday, endday)
+                                  .values('bug_id')
+                                  .annotate(bug_count=Count('job_id'))
+                                  .values('bug_id', 'bug_count')
+                                  .order_by('-bug_count'))
+
+        serializer = self.get_serializer(self.paginate_queryset(self.queryset), many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class FailuresByBug(generics.ListAPIView):
@@ -42,22 +53,29 @@ class FailuresByBug(generics.ListAPIView):
 
     serializer_class = FailuresByBugSerializer
     pagination_class = CustomPagePagination
+    queryset = None
 
-    def get_queryset(self):
-        startday = self.request.query_params.get('startday')
-        endday = get_end_of_day(self.request.query_params.get('endday').encode('utf-8'))
-        repo = list(get_repository(self.request.query_params.get('tree')))
-        bug_id = int(self.request.query_params.get('bug'))
+    def list(self, request):
+        query_params = QueryParamsSerializer(data=request.query_params,
+                                             context='requireBug')
+        if not query_params.is_valid():
+            return Response(data=query_params.errors,
+                            status=HTTP_400_BAD_REQUEST)
 
-        queryset = (BugJobMap.failures.default(repo, startday, endday)
-                                      .by_bug(bug_id)
-                                      .values('job__repository__name', 'job__machine_platform__platform',
-                                              'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
-                                              'job__signature__job_type_name', 'job__option_collection_hash',
-                                              'job__machine__name')
-                                      .order_by('-job__push__time'))
+        startday = query_params.validated_data['startday']
+        endday = get_end_of_day(query_params.validated_data['endday'])
+        repo = list(get_repository(query_params.validated_data['tree']))
+        bug_id = validate_bug(query_params.validated_data['bug'])
 
-        lines = (TextLogError.objects.filter(step__job_id__in=queryset.values_list('job_id', flat=True),
+        self.queryset = (BugJobMap.failures.default(repo, startday, endday)
+                                  .by_bug(bug_id)
+                                  .values('job__repository__name', 'job__machine_platform__platform',
+                                          'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
+                                          'job__signature__job_type_name', 'job__option_collection_hash',
+                                          'job__machine__name')
+                                  .order_by('-job__push__time'))
+
+        lines = (TextLogError.objects.filter(step__job_id__in=self.queryset.values_list('job_id', flat=True),
                                              line__contains='TEST-UNEXPECTED-FAIL')
                                      .values_list('step__job_id', 'line'))
 
@@ -68,7 +86,7 @@ class FailuresByBug(generics.ListAPIView):
 
         hash_list = []
 
-        for item in queryset:
+        for item in self.queryset:
             item['lines'] = grouped_lines.get(item['job_id'], [])
 
             match = filter(lambda x: item['job__option_collection_hash'] == x, hash_list)
@@ -79,7 +97,7 @@ class FailuresByBug(generics.ListAPIView):
                                               .select_related('option')
                                               .values('option__name', 'option_collection_hash'))
 
-        for item in queryset:
+        for item in self.queryset:
             # Casting to list since Python 3's `filter` produces an iterator
             # rather than a list, which is not subscriptable.
             match = list(filter(lambda x: item['job__option_collection_hash'] == x['option_collection_hash'], hash_query))
@@ -88,19 +106,27 @@ class FailuresByBug(generics.ListAPIView):
             else:
                 item['build_type'] = 'unknown'
 
-        return queryset
+        serializer = self.get_serializer(self.paginate_queryset(self.queryset), many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class FailureCount(generics.ListAPIView):
     """ List of failures (optionally by bug) and testruns by day per date range and repo"""
 
     serializer_class = FailureCountSerializer
+    queryset = None
 
-    def get_queryset(self):
-        startday = self.request.query_params.get('startday')
-        endday = get_end_of_day(self.request.query_params.get('endday').encode('utf-8'))
-        repo = list(get_repository(self.request.query_params.get('tree')))
-        bug_id = self.request.query_params.get('bug')
+    def list(self, request):
+        query_params = QueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+        startday = query_params.validated_data['startday']
+        endday = get_end_of_day(query_params.validated_data['endday'])
+        repo = list(get_repository(query_params.validated_data['tree']))
+        bug_id = (validate_bug(query_params.validated_data['bug'])
+                  if query_params.validated_data['bug'] else None)
 
         push_query = (Push.objects.filter(repository_id__in=repo, time__range=(startday, endday))
                                   .annotate(date=TruncDate('time'))
@@ -130,15 +156,16 @@ class FailureCount(generics.ListAPIView):
         # merges the push_query and job_query results into a list; if a date is found in both queries,
         # update the job_query with the test_run count, if a date is in push_query but not job_query,
         # add a new object with push_query data and a default for failure_count
-        queryset = []
+        self.queryset = []
         for push in push_query:
             # Casting to list since Python 3's `filter` produces an iterator
             # rather than a list, which is not subscriptable.
             match = list(filter(lambda x: push['date'] == x['date'], job_query))
             if match:
                 match[0]['test_runs'] = push['test_runs']
-                queryset.append(match[0])
+                self.queryset.append(match[0])
             else:
-                queryset.append({'date': push['date'], 'test_runs': push['test_runs'], 'failure_count': 0})
+                self.queryset.append({'date': push['date'], 'test_runs': push['test_runs'], 'failure_count': 0})
 
-        return queryset
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(serializer.data)

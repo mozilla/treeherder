@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import { setDateRange } from '../helpers';
 
-export const fetchData = (name = '') => (state = { data: {}, message: '' }, action) => {
+export const fetchData = (name = '') => (state = { data: {}, message: {}, status: null }, action) => {
   switch (action.type) {
     case `FETCH_${name}_SUCCESS`:
       return {
@@ -13,6 +13,7 @@ export const fetchData = (name = '') => (state = { data: {}, message: '' }, acti
       return {
         ...state,
         message: action.message,
+        status: action.status,
       };
     default:
       return state;

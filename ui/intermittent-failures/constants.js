@@ -43,3 +43,20 @@ export const treeOptions = [
   'comm-esr60',
   'comm-releases',
 ];
+
+export const prettyErrorMessages = {
+  startday: 'startday is required and must be in YYYY-MM-DD format.',
+  endday: 'endday is required and must be in YYYY-MM-DD format.',
+  bug: 'bug is required and must be a valid integer.',
+  tree: 'tree is required and must be a valid repository.',
+  default: 'Something went wrong. Please try again later.',
+  status503: 'There was a problem retrieving the data. Please try again in a minute.',
+};
+
+// names of the specific redux state slices to update when dispatching actions
+export const name = {
+  mainView: 'BUGS',
+  mainViewGraphs: 'BUGS_GRAPHS',
+  detailsView: 'BUG_DETAILS',
+  detailsViewGraphs: 'BUG_DETAILS_GRAPHS',
+};

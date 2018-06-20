@@ -1,31 +1,66 @@
 import { formatBugs } from '../helpers';
 import { bugzillaBugsApi } from '../../helpers/url';
 
-export const fetchBugDataSuccess = (data, name) => ({
-  type: `FETCH_${name}_SUCCESS`,
-  data,
-});
-
-export const fetchBugDataFailure = name => ({
+const fetchBugDataFailure = (name, error, status) => ({
   type: `FETCH_${name}_FAILURE`,
-  message: 'Oops, there was a problem retrieving the data. Please try again later.',
+  message: error,
+  status,
 });
 
-export const fetchBugData = (url, name) => dispatch => (
-  fetch(url).then(response => response.json())
-    .then(json => dispatch(fetchBugDataSuccess(json, name)))
-    .catch(() => dispatch(fetchBugDataFailure(name)))
-);
+export const updateSelectedBugDetails = (bugId, summary, name) => ({
+  type: `UPDATE_SELECTED_${name}`,
+  bugId,
+  summary,
+});
+
+export const fetchBugData = (url, name) => (dispatch) => {
+  // reset when fetching data after a previous failure
+  let status = null;
+  dispatch(fetchBugDataFailure(name, {}, null));
+  return fetch(url)
+    .then((response) => {
+      status = response.status;
+      return response.json();
+    })
+    .then((data) => {
+      if (status === 200) {
+        return dispatch({
+          type: `FETCH_${name}_SUCCESS`,
+          data,
+        });
+      }
+      return dispatch(fetchBugDataFailure(name, data, status));
+    });
+};
 
 export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
   dispatch(fetchBugData(url, name),
   ).then(() => {
-    const { results } = getState().bugsData.data;
-    const bugs_list = formatBugs(results);
-    return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
-      include_fields: 'id,status,summary,whiteboard',
-      id: bugs_list,
-    }), 'BUGZILLA'));
+    if (!getState().bugsData.status) {
+      const { results } = getState().bugsData.data;
+      const bugs_list = formatBugs(results);
+      return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
+        include_fields: 'id,status,summary,whiteboard',
+        id: bugs_list,
+      }), `BUGZILLA_${name}`));
+    }
+  })
+);
+
+export const fetchBugsThenBugDetails = (url, name, bug) => (dispatch, getState) => (
+  dispatch(fetchBugData(url, name),
+  ).then(() => {
+    if (!getState().bugDetailsData.status) {
+      return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
+        include_fields: 'summary',
+        id: bug,
+      }), `BUGZILLA_${name}`))
+      .then((response) => {
+        const summary = response.data.bugs.length < 1 ? '' : response.data.bugs[0].summary;
+        dispatch(
+          updateSelectedBugDetails(bug, summary, name));
+      });
+    }
   })
 );
 
@@ -40,8 +75,3 @@ export const updateTreeName = (tree, name) => ({
   tree,
 });
 
-export const updateSelectedBugDetails = (bugId, summary, name) => ({
-  type: `UPDATE_SELECTED_${name}`,
-  bugId,
-  summary,
-});

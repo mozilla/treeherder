@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { prettyErrorMessages } from './constants';
 
 // be sure to wrap date arg in a moment()
 export const ISODate = function formatISODate(date) {
@@ -97,4 +98,23 @@ export const checkQueryParams = function checkQueryParams(obj) {
     obj.endday = to;
   }
   return obj;
+};
+
+export const processErrorMessage = function processErrorMessage(errorMessage, status) {
+  const messages = [];
+
+  if (status === 503) {
+    return [prettyErrorMessages.status503];
+  }
+
+  if (Object.keys(errorMessage).length > 0) {
+    for (const [key, value] of Object.entries(errorMessage)) {
+      if (prettyErrorMessages[key]) {
+        messages.push(prettyErrorMessages[key]);
+      } else {
+        messages.push(key !== 'detail' ? `${key}: ${value}` : value);
+      }
+    }
+  }
+  return messages || [prettyErrorMessages.default];
 };

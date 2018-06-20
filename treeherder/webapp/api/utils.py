@@ -3,8 +3,11 @@ from datetime import (datetime,
                       timedelta)
 
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound
 
-from treeherder.model.models import Repository
+from treeherder.model.models import (Bugscache,
+                                     Repository)
 
 REPO_GROUPS = {
     'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
@@ -38,10 +41,8 @@ def to_timestamp(datetime_obj):
 
 
 def get_end_of_day(date):
-    """Turn a date string into a datetime in order to
-       add a 23:59:59.999 timestamp (default is 00:00:00)"""
-    new_date = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1, microseconds=-1)
-    return new_date.strftime('%Y-%m-%d %H:%M:%S.%f')
+    """Add a 23:59:59.999 timestamp (default is 00:00:00)"""
+    return date + timedelta(days=1, microseconds=-1)
 
 
 def get_repository(name):
@@ -54,6 +55,22 @@ def get_repository(name):
     if name in REPO_GROUPS:
         param = REPO_GROUPS[name]
     else:
+        try:
+            Repository.objects.get(name=name)
+
+        except ObjectDoesNotExist:
+            raise NotFound('The {} repository does not exist.'.format(name))
+
         param = [name]
 
     return queryset.filter(name__in=param)
+
+
+def validate_bug(bug_id):
+    try:
+        Bugscache.objects.get(id=bug_id)
+
+    except ObjectDoesNotExist:
+        raise NotFound('Bug #{} does not exist.'.format(bug_id))
+
+    return bug_id

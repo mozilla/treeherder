@@ -306,3 +306,15 @@ class FailureCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Push
         fields = ('date', 'test_runs', 'failure_count')
+
+
+class QueryParamsSerializer(serializers.Serializer):
+    startday = serializers.DateTimeField(format='%Y-%m-%d', input_formats=['%Y-%m-%d'])
+    endday = serializers.DateTimeField(format='%Y-%m-%d', input_formats=['%Y-%m-%d'])
+    tree = serializers.CharField()
+    bug = serializers.IntegerField(required=False, allow_null=True, default=None)
+
+    def validate_bug(self, bug):
+        if bug is None and self.context == 'requireBug':
+            raise serializers.ValidationError('This field is required.')
+        return bug

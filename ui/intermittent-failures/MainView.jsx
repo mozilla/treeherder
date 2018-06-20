@@ -10,6 +10,8 @@ import BugColumn from './BugColumn';
 import { updateQueryParams, mergeData, calculateMetrics, prettyDate, checkQueryParams } from './helpers';
 import GraphsContainer from './GraphsContainer';
 import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/url';
+import ErrorMessages from './ErrorMessages';
+import { name } from './constants';
 
 class MainView extends React.Component {
   constructor(props) {
@@ -50,7 +52,7 @@ class MainView extends React.Component {
 
       if (Object.keys(graphs).length === 0) {
         // only fetch graph data on initial page load
-        fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
+        fetchData(createApiUrl(graphsEndpoint, params), name.mainViewGraphs);
       }
     } else {
       // if some query strings are missing when url is pasted into address bar,
@@ -66,14 +68,15 @@ class MainView extends React.Component {
     const { startday, endday, tree } = params;
     const { updateTree, updateDates, fetchData, fetchFullBugData } = this.props;
 
-    updateDates(startday, endday, 'BUGS');
-    updateTree(tree, 'BUGS');
-    fetchData(createApiUrl(graphsEndpoint, params), 'BUGS_GRAPHS');
-    fetchFullBugData(createApiUrl(bugsEndpoint, params), 'BUGS');
+    updateDates(startday, endday, name.mainView);
+    updateTree(tree, name.mainView);
+    fetchData(createApiUrl(graphsEndpoint, params), name.mainViewGraphs);
+    fetchFullBugData(createApiUrl(bugsEndpoint, params), name.mainView);
   }
 
   render() {
-    const { bugs, tableFailureMessage, graphFailureMessage, from, to, tree, bugzillaData, graphs } = this.props;
+    const { bugs, tableFailureMessage, graphFailureMessage, from, to, tree, bugzillaData, graphs,
+      tableFailureStatus, graphFailureStatus } = this.props;
     const columns = [
       {
         Header: 'Bug',
@@ -113,53 +116,61 @@ class MainView extends React.Component {
     if (graphs && graphs.length > 0) {
       ({ graphOneData, graphTwoData, totalFailures, totalRuns } = calculateMetrics(graphs));
     }
-
     const params = { startday: from, endday: to, tree };
+
     return (
       <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
         <Navigation
-          name="BUGS"
-          graphName="BUGS_GRAPHS"
+          name={name.mainView}
+          graphName={name.mainViewGraphs}
           tableApi={bugsEndpoint}
           params={params}
           graphApi={graphsEndpoint}
           tree={tree}
         />
-        <Row>
-          <Col xs="12" className="mx-auto pt-3"><h1>Intermittent Test Failures</h1></Col>
-        </Row>
-        <Row>
-          <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs="12" className="mx-auto"><p className="text-secondary">{totalFailures} bugs in {totalRuns} pushes</p>
-          </Col>
-        </Row>
 
-        {!graphFailureMessage && graphOneData && graphTwoData ?
-          <GraphsContainer
-            graphOneData={graphOneData}
-            graphTwoData={graphTwoData}
-            name="BUGS"
-            params={params}
-            graphName="BUGS_GRAPHS"
-            tableApi={bugsEndpoint}
-            graphApi={graphsEndpoint}
-            tree={tree}
-          /> : <p>{tableFailureMessage}</p>}
+        {tableFailureStatus || graphFailureStatus ?
+          <ErrorMessages
+            failureMessage={!tableFailureMessage ? graphFailureMessage : tableFailureMessage}
+            failureStatus={tableFailureStatus || graphFailureStatus}
+          /> :
+          <React.Fragment>
+            <Row>
+              <Col xs="12" className="mx-auto pt-3"><h1>Intermittent Test Failures</h1></Col>
+            </Row>
+            <Row>
+              <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12" className="mx-auto"><p className="text-secondary">{totalFailures} bugs in {totalRuns} pushes</p>
+              </Col>
+            </Row>
 
-        {!tableFailureMessage ?
-          <GenericTable
-            bugs={bugsData}
-            columns={columns}
-            name="BUGS"
-            tableApi={bugsEndpoint}
-            params={params}
-            totalPages={bugs.total_pages}
-            trStyling
-            updateTable={this.updateTable}
-          /> : <p>{tableFailureMessage}</p>}
+            {graphOneData && graphTwoData &&
+              <GraphsContainer
+                graphOneData={graphOneData}
+                graphTwoData={graphTwoData}
+                name={name.mainView}
+                params={params}
+                graphName={name.mainViewGraphs}
+                tableApi={bugsEndpoint}
+                graphApi={graphsEndpoint}
+                tree={tree}
+              />}
+
+            {bugsData &&
+            <GenericTable
+              bugs={bugsData}
+              columns={columns}
+              name={name.mainView}
+              tableApi={bugsEndpoint}
+              params={params}
+              totalPages={bugs.total_pages}
+              trStyling
+              updateTable={this.updateTable}
+            />}
+          </React.Fragment>}
       </Container>);
   }
 }
@@ -213,13 +224,17 @@ MainView.propTypes = {
   from: PropTypes.string.isRequired,
   to: PropTypes.string.isRequired,
   tree: PropTypes.string.isRequired,
-  tableFailureMessage: PropTypes.string,
-  graphFailureMessage: PropTypes.string,
+  tableFailureMessage: PropTypes.object,
+  graphFailureMessage: PropTypes.object,
+  tableFailureStatus: PropTypes.number,
+  graphFailureStatus: PropTypes.number,
 };
 
 MainView.defaultProps = {
-  tableFailureMessage: '',
-  graphFailureMessage: '',
+  tableFailureMessage: null,
+  graphFailureMessage: null,
+  tableFailureStatus: null,
+  graphFailureStatus: null,
   fetchData: null,
   updateTree: null,
   updateDates: null,
@@ -230,7 +245,9 @@ const mapStateToProps = state => ({
   bugs: state.bugsData.data,
   graphs: state.bugsGraphData.data,
   tableFailureMessage: state.bugsData.message,
+  tableFailureStatus: state.bugsData.status,
   graphsFailureMessage: state.bugsGraphData.message,
+  graphsFailureStatus: state.bugsGraphData.status,
   from: state.dates.from,
   to: state.dates.to,
   tree: state.mainTree.tree,
