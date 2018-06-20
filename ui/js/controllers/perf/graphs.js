@@ -948,8 +948,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         $scope.selectTest = function () {
             $scope.selectedTestSignatures.forEach(function (signature) {
                 // Add the selected tests to the selected test list
-                $scope.testsToAdd.push({...
-                    $scope.unselectedTestList.find(test => test.signature === signature)
+                $scope.testsToAdd.push({ ...$scope.unselectedTestList.find(
+                    test => test.signature === signature),
                 });
 
                 // Remove the added tests from the unselected test list
