@@ -23,8 +23,6 @@ export default class Push extends React.Component {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.aggregateId = getPushTableId(repoName, pushId, revision);
-    this.showRunnableJobs = this.showRunnableJobs.bind(this);
-    this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
 
     this.state = {
       runnableVisible: false,
@@ -34,6 +32,10 @@ export default class Push extends React.Component {
       // need to keep the previous value in the state.
       last_job_counts: job_counts ? { ...job_counts } : null,
     };
+  }
+  componentDidMount() {
+    this.showRunnableJobs = this.showRunnableJobs.bind(this);
+    this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {

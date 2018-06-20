@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import JobButton from './JobButton';
-import JobCountComponent from './JobCount';
+import JobCount from './JobCount';
 import { getBtnClass, getStatus } from '../helpers/job';
 import { getUrlParam } from '../helpers/location';
 import { thFailureResults, thEvents } from '../js/constants';
@@ -25,8 +25,12 @@ class GroupSymbol extends React.PureComponent {
 
 GroupSymbol.propTypes = {
   symbol: PropTypes.string.isRequired,
-  tier: PropTypes.number.isRequired,
   toggleExpanded: PropTypes.func.isRequired,
+  tier: PropTypes.number,
+};
+
+GroupSymbol.defaultProps = {
+  tier: 1,
 };
 
 
@@ -160,13 +164,12 @@ export default class JobGroup extends React.Component {
             </span>
             <span className="group-count-list">
               {counts.map(countInfo => (
-                <JobCountComponent
+                <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
                   className={`${countInfo.btnClass}-count`}
                   title={`${countInfo.count} ${countInfo.countText} jobs in group`}
                   key={countInfo.lastJob.id}
-                  countKey={countInfo.lastJob.id}
                 />
               ))}
             </span>
