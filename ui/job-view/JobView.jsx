@@ -48,7 +48,7 @@ JobView.propTypes = {
 JobView.defaultProps = {
   revision: null,
   selectedJob: null,
-  currentRepo: { is_try_repo: true },
+  currentRepo: {},
 };
 
 treeherder.component('jobView', react2angular(
