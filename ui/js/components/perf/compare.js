@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import treeherder from '../../treeherder';
 import trendTableTemplate from '../../../partials/perf/trendtable.html';
 import compareTableTemplate from '../../../partials/perf/comparetable.html';
@@ -59,7 +57,7 @@ treeherder.component('phCompareTable', {
                 (!ctrl.filterOptions.showOnlyNoise || result.isNoiseMetric);
         }
         function filterResult(results, key) {
-            if (_.isUndefined(ctrl.filterOptions.filter)) {
+            if (ctrl.filterOptions.filter === undefined) {
                 return results;
             }
             return results.filter((result) => {

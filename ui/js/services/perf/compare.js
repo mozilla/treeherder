@@ -169,8 +169,8 @@ treeherder.factory('PhCompare', [
                 }
                 cmap.isRegression = (cmap.className === 'compare-regression');
                 cmap.isImprovement = (cmap.className === 'compare-improvement');
-                if (!_.isUndefined(blockerCriteria) &&
-                    !_.isUndefined(blockerCriteria[testName]) &&
+                if (blockerCriteria !== undefined &&
+                    blockerCriteria[testName] !== undefined &&
                     cmap.isRegression &&
                     cmap.deltaPercentage > blockerCriteria[testName]) {
                     cmap.isBlocker = true;

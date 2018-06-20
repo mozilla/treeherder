@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import _ from 'lodash';
 
 import { thPlatformMap } from '../js/constants';
 import { toDateStr } from './display';
@@ -91,7 +90,7 @@ const isOnScreen = function isOnScreen(el) {
 // Scroll the element into view.
 // TODO: see if Element.scrollIntoView() can be used here. (bug 1434679)
 export const scrollToElement = function scrollToElement(el, duration) {
-  if (_.isUndefined(duration)) {
+  if (duration === undefined) {
     duration = 50;
   }
   if (el.position() !== undefined) {
