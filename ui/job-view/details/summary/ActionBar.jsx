@@ -126,24 +126,64 @@ export default class ActionBar extends React.Component {
 
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
       this.ThResultSetStore.getGeckoDecisionTaskId(
-        selectedJob.result_set_id).then(function (decisionTaskId) {
-        return this.tcactions.load(decisionTaskId, selectedJob).then((results) => {
-          const actionTaskId = slugid();
-          if (results) {
-            const backfilltask = results.actions.find(result => result.name === 'backfill');
-            // We'll fall back to actions.yaml if this isn't true
-            if (backfilltask) {
-              return this.tcactions.submit({
-                action: backfilltask,
-                actionTaskId,
-                decisionTaskId,
-                taskId: results.originalTaskId,
-                task: results.originalTask,
-                input: {},
-                staticActionVariables: results.staticActionVariables,
-              }).then(() => {
+        selectedJob.result_set_id).then(decisionTaskId => (
+          this.tcactions.load(decisionTaskId, selectedJob).then((results) => {
+            const actionTaskId = slugid();
+            if (results) {
+              const backfilltask = results.actions.find(result => result.name === 'backfill');
+              // We'll fall back to actions.yaml if this isn't true
+              if (backfilltask) {
+                return this.tcactions.submit({
+                  action: backfilltask,
+                  actionTaskId,
+                  decisionTaskId,
+                  taskId: results.originalTaskId,
+                  task: results.originalTask,
+                  input: {},
+                  staticActionVariables: results.staticActionVariables,
+                }).then(() => {
+                  this.$timeout(() => this.thNotify.send(
+                    `Request sent to backfill job via actions.json (${actionTaskId})`,
+                    'success'),
+                  );
+                }, (e) => {
+                  // The full message is too large to fit in a Treeherder
+                  // notification box.
+                  this.$timeout(() => this.thNotify.send(
+                    formatTaskclusterError(e),
+                    'danger',
+                    { sticky: true }),
+                  );
+                });
+              }
+            }
+
+            // Otherwise we'll figure things out with actions.yml
+            const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
+
+            // buildUrl is documented at
+            // https://github.com/taskcluster/taskcluster-client-web#construct-urls
+            // It is necessary here because getLatestArtifact assumes it is getting back
+            // JSON as a reponse due to how the client library is constructed. Since this
+            // result is yml, we'll fetch it manually using $http and can use the url
+            // returned by this method.
+            const url = queue.buildUrl(
+              queue.getLatestArtifact,
+              decisionTaskId,
+              'public/action.yml',
+            );
+            fetch(url).then((resp) => {
+              let action = resp.data;
+              const template = this.$interpolate(action);
+              action = template({
+                action: 'backfill',
+                action_args: `--project=${repoName}' --job=${selectedJob.id}`,
+              });
+
+              const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+              queue.createTask(actionTaskId, task).then(function () {
                 this.$timeout(() => this.thNotify.send(
-                  `Request sent to backfill job via actions.json (${actionTaskId})`,
+                  `Request sent to backfill job via actions.yml (${actionTaskId})`,
                   'success'),
                 );
               }, (e) => {
@@ -155,49 +195,9 @@ export default class ActionBar extends React.Component {
                   { sticky: true }),
                 );
               });
-            }
-          }
-
-          // Otherwise we'll figure things out with actions.yml
-          const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
-
-          // buildUrl is documented at
-          // https://github.com/taskcluster/taskcluster-client-web#construct-urls
-          // It is necessary here because getLatestArtifact assumes it is getting back
-          // JSON as a reponse due to how the client library is constructed. Since this
-          // result is yml, we'll fetch it manually using $http and can use the url
-          // returned by this method.
-          const url = queue.buildUrl(
-            queue.getLatestArtifact,
-            decisionTaskId,
-            'public/action.yml',
-          );
-          fetch(url).then((resp) => {
-            let action = resp.data;
-            const template = this.$interpolate(action);
-            action = template({
-              action: 'backfill',
-              action_args: `--project=${repoName}' --job=${selectedJob.id}`,
             });
-
-            const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-            queue.createTask(actionTaskId, task).then(function () {
-              this.$timeout(() => this.thNotify.send(
-                `Request sent to backfill job via actions.yml (${actionTaskId})`,
-                'success'),
-              );
-            }, (e) => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.$timeout(() => this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true }),
-              );
-            });
-          });
-        });
-      });
+          })
+      ));
     } else {
       this.thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
       this.$rootScope.$apply();
