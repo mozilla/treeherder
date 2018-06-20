@@ -971,7 +971,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                             (test.projectName === series.projectName &&
                             test.signature === series.signature)).some(x => x),
                     );
-                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : filteredSeriesList.slice());
+                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
@@ -1021,7 +1021,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                         series.testName === originalSeries.testName &&
                         series.name !== originalSeries.name,
                     );
-                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : filteredSeriesList.slice());
+                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
