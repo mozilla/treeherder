@@ -15,28 +15,6 @@ treeherder.directive('blurThis', ['$timeout', function ($timeout) {
     };
 }]);
 
-// Directive focusMe which sets a global focus state for elements
-// which listen to it via ''focus-me="focusInput'' in angular markup
-treeherder.directive('focusMe', [
-    '$timeout',
-    function ($timeout) {
-        return {
-            link: function (scope, element, attrs) {
-                scope.$watch(attrs.focusMe, function (value) {
-                    if (value) {
-                        $timeout(function () {
-                            element[0].focus();
-                        }, 0);
-                    } else {
-                        $timeout(function () {
-                            element[0].blur();
-                        }, 0);
-                    }
-                });
-            },
-        };
-    }]);
-
 // Allow copy to system clipboard during hover
 treeherder.directive('copyValue', [
     function () {
