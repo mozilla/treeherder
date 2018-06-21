@@ -895,6 +895,7 @@ class FailureLine(models.Model):
     best_classification = models.ForeignKey("ClassifiedFailure",
                                             related_name="best_for_lines",
                                             null=True,
+                                            db_constraint=False,
                                             db_index=True,
                                             on_delete=models.SET_NULL)
 
