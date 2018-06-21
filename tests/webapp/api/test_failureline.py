@@ -28,8 +28,7 @@ def test_get_failure_line(client, failure_lines):
     exp_failure_keys = ["id", "job_guid", "repository", "job_log",
                         "action", "line", "test", "subtest", "status", "expected", "message",
                         "signature", "level", "created", "modified", "matches",
-                        "best_classification", "best_is_verified", "classified_failures",
-                        "unstructured_bugs"]
+                        "classified_failures", "unstructured_bugs"]
 
     assert set(failure_line.keys()) == set(exp_failure_keys)
 
