@@ -157,13 +157,13 @@ perf.controller('GraphsCtrl', [
 
                 // Get revision information for both this datapoint and the previous
                 // one
-                _.each([{
+                [{
                     resultSetId: dataPoint.resultSetId,
                     scopeKey: 'revision',
                 }, {
                     resultSetId: prevResultSetId,
                     scopeKey: 'prevRevision',
-                }], function (resultRevision) {
+                }].forEach((resultRevision) => {
                     ThResultSetModel.getRevisions(
                         phSeries.projectName, resultRevision.resultSetId,
                     ).then(function (revisions) {
@@ -427,7 +427,7 @@ perf.controller('GraphsCtrl', [
 
             // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
-            _.each($scope.highlightedRevisions, function (rev) {
+            $scope.highlightedRevisions.forEach((rev) => {
                 if (rev && rev.length === 12) {
                     highlightPromises = _.union(
                         highlightPromises, $scope.seriesList.map(function (series) {

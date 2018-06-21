@@ -36,9 +36,9 @@ treeherder.factory('ThRepositoryModel', [
                   const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
                       { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
                   ), {});
-                  _.each(groups, function (reposAr, gName) {
-                      orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
-                  });
+                Object.keys(groups).forEach((key) => {
+                    orderedRepoGroups[thRepoGroupOrder[key] || key] = { name: key, repos: groups[key] };
+                });
                 }
             }
             return orderedRepoGroups;
@@ -60,10 +60,37 @@ treeherder.factory('ThRepositoryModel', [
             // hitting an endpoint we know will never work.
             repoNames = repoNames.filter(repo => watchedRepos.indexOf(repo) !== -1 && repos[repo].treeStatus.status !== 'unsupported');
 
-            repoNames.forEach((repoName) => {
-              TreeStatusModel.get(repoName).then((data) => {
-                repos[repoName].treeStatus = data.result;
-              });
+            const newStatuses = {};
+
+            const updateStatusesIfDone = function () {
+                if (Object.keys(newStatuses).length === repoNames.length) {
+                    // we've received all the statuses we expect to
+                    _.defer(function () {
+                        Object.keys(newStatuses).forEach((status) => {
+                            repos[TreeStatusModel.getRepoName(newStatuses[status].tree)].treeStatus = newStatuses[status];
+                        });
+                    });
+                }
+            };
+
+            const getStatus = function (repo) {
+                TreeStatusModel.get(repo).then(
+                    function (data) {
+                        newStatuses[repo] = data.result;
+                        updateStatusesIfDone();
+                    },
+                    function (data) {
+                        if (data !== null) {
+                            newStatuses[repo] = getUnsupportedTreeStatus(repo);
+                        } else {
+                            newStatuses[repo] = getErrorTreeStatus(repo);
+                        }
+                        updateStatusesIfDone();
+                    });
+            };
+
+            repoNames.forEach((repo) => {
+                getStatus(repo);
             });
         };
 
@@ -144,7 +171,7 @@ treeherder.factory('ThRepositoryModel', [
                 // controllers, etc, are watching the reference to it, which would
                 // be lost by replacing.
                 if (watchedRepos.length <= 1) {
-                    _.each(watchedRepos, function (r, rname) {
+                    watchedRepos.forEach((rname) => {
                         unwatchRepo(rname);
                     });
                 }
@@ -212,8 +239,9 @@ treeherder.factory('ThRepositoryModel', [
 
                         $rootScope.repos = data.map(datum => new Repo(datum));
 
-                        _.each(data, addRepoAsUnwatched);
-
+                        data.forEach((repo) => {
+                            addRepoAsUnwatched(repo);
+                        });
                         // This needs to be done before `setCurrent` because
                         // `setCurrent` overwrites the entire listing
                         // with only the default repo
@@ -237,7 +265,7 @@ treeherder.factory('ThRepositoryModel', [
                                 storedWatched.reverse();
                                 storedWatched.push(options.name);
 
-                                _.each(storedWatched, function (repo) {
+                                storedWatched.forEach((repo) => {
                                     watchRepo(repo);
                                 });
                             }

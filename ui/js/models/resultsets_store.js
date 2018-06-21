@@ -306,7 +306,7 @@ treeherder.factory('ThResultSetStore', [
             getGeckoDecisionTaskId(push.id).then(function (decisionTaskId) {
                 return RunnableJobModel.getList(repoData.name, { decision_task_id: decisionTaskId }).then(function (jobList) {
                     var id = push.id;
-                    _.each(jobList, function (job) {
+                    jobList.forEach((job) => {
                         job.result_set_id = id;
                         job.id = escapeId(job.result_set_id + job.ref_data_name);
                     });
@@ -678,7 +678,7 @@ treeherder.factory('ThResultSetStore', [
                 // the latest ``push_timestamp`` and theoretically we could
                 // get
                 var newResultsets = [];
-                _.each(data.results, function (rs) {
+                data.results.forEach((rs) => {
                     if (rsIds.indexOf(rs.id) === -1) {
                         newResultsets.push(rs);
                     }
@@ -957,8 +957,8 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var sortGroupedJobs = function (groupedJobs) {
-            _.each(groupedJobs.platforms, function (platform) {
-                _.each(platform.groups, function (group) {
+            groupedJobs.platforms.forEach((platform) => {
+                platform.groups.forEach((group) => {
                     group.jobs = _.sortBy(group.jobs, function (job) {
                         // Symbol could be something like 1, 2 or 3. Or A, B, C or R1,
                         // R2, R10.
