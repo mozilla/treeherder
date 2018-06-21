@@ -4304,9 +4304,9 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-json-e@2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.5.0.tgz#5416b595777e2946d5e065e7e384c19ffa8b409f"
+json-e@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.6.0.tgz#ef6ffdb310517d33c9d507ffb4d67c582a96bfc5"
   dependencies:
     json-stable-stringify "^1.0.1"
 
