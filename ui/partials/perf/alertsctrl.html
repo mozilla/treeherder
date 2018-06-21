@@ -128,7 +128,7 @@
         </td>
         <td class="alert-title">
           <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
-                uib-tooltip="{{ !alert.isUntriaged() ? (alert.classifier ?  'Classified by ' + alert.classifier : 'Classified automatically') : ''}}">
+                uib-tooltip="{{ !alert.isUntriaged() ? (alert.classifier_email ?  'Classified by ' + alert.classifier_email : 'Classified automatically') : ''}}">
             {{alert.title}}
           </span>
           &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
