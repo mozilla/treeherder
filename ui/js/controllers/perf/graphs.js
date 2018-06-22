@@ -408,9 +408,11 @@ perf.controller('GraphsCtrl', [
                 // highlight the datapoints too
                 series.highlightedPoints = _.union(
                     series.highlightedPoints,
-                    series.flotSeries.resultSetData.map((seriesResultSetId, index) => (
-                        resultSetId === seriesResultSetId ? index : null
-                    )).filter(v => v));
+                    _.map(
+                        series.flotSeries.resultSetData,
+                        function (seriesResultSetId, index) {
+                            return resultSetId === seriesResultSetId ? index : null;
+                        }).filter(v => v));
             }
 
             if ($scope.highlightAlerts) {
@@ -599,14 +601,20 @@ perf.controller('GraphsCtrl', [
                         points: { show: series.visible },
                         color: series.color,
                         label: series.projectName + ' ' + series.name,
-                        data: seriesData[series.signature].map(dataPoint => ([
-                            new Date(dataPoint.push_timestamp * 1000),
-                            dataPoint.value,
-                        ])),
-                        resultSetData: seriesData[series.signature].map(dataPoint => dataPoint.push_id),
+                        data: _.map(
+                            seriesData[series.signature],
+                            function (dataPoint) {
+                                return [
+                                    new Date(dataPoint.push_timestamp * 1000),
+                                    dataPoint.value,
+                                ];
+                            }),
+                        resultSetData: _.map(
+                            seriesData[series.signature],
+                            'push_id'),
                         thSeries: $.extend({}, series),
-                        jobIdData: seriesData[series.signature].map(dataPoint => dataPoint.job_id),
-                        idData: seriesData[series.signature].map(dataPoint => dataPoint.id),
+                        jobIdData: _.map(seriesData[series.signature], 'job_id'),
+                        idData: _.map(seriesData[series.signature], 'id'),
                     };
                 }).then(function () {
                     series.relatedAlertSummaries = [];
