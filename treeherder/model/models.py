@@ -15,6 +15,7 @@ from django.db import (models,
                        transaction)
 from django.db.models import (Count,
                               Q)
+from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -225,6 +226,13 @@ class Bugscache(models.Model):
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
 
+        try:
+            open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
+        except ProgrammingError as e:
+            newrelic.record_exception()
+            logger.error('Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(e, recent_qs.query.__str__()))
+            open_recent = []
+
         all_others_qs = cls.objects.raw(
             """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
@@ -239,8 +247,12 @@ class Bugscache(models.Model):
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
 
-        open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
-        all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
+        try:
+            all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
+        except ProgrammingError as e:
+            newrelic.record_exception()
+            logger.error('Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(e, recent_qs.query.__str__()))
+            all_others = []
 
         return {"open_recent": open_recent, "all_others": all_others}
 
