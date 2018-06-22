@@ -239,8 +239,10 @@ class Bugscache(models.Model):
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
 
-        return {"open_recent": [model_to_dict(item, exclude=["modified"]) for item in recent],
-                "all_others": [model_to_dict(item, exclude=["modified"]) for item in all_others]}
+        open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
+        all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
+
+        return {"open_recent": open_recent, "all_others": all_others}
 
 
 class Machine(NamedModel):
