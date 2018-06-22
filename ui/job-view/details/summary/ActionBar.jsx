@@ -320,7 +320,7 @@ export default class ActionBar extends React.Component {
                 title="Launch the Reftest Analyser in a new window"
                 target="_blank"
                 rel="noopener"
-                href={getReftestUrl(jobLogUrl)}
+                href={getReftestUrl(jobLogUrl.url)}
               ><span className="fa fa-bar-chart-o" /></a>
             </li>))}
             {this.canCancel() && <li>
