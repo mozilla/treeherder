@@ -89,9 +89,7 @@ treeherder.factory('ThRepositoryModel', [
                     });
             };
 
-            repoNames.forEach((repo) => {
-                getStatus(repo);
-            });
+            repoNames.forEach(repo => getStatus(repo));
         };
 
         const addRepoAsUnwatched = function (repo) {
@@ -171,9 +169,7 @@ treeherder.factory('ThRepositoryModel', [
                 // controllers, etc, are watching the reference to it, which would
                 // be lost by replacing.
                 if (watchedRepos.length <= 1) {
-                    watchedRepos.forEach((rname) => {
-                        unwatchRepo(rname);
-                    });
+                    watchedRepos.forEach(rname => unwatchRepo(rname));
                 }
                 if (!_.has(watchedRepos, name)) {
                     watchRepo(name);
@@ -239,9 +235,7 @@ treeherder.factory('ThRepositoryModel', [
 
                         $rootScope.repos = data.map(datum => new Repo(datum));
 
-                        data.forEach((repo) => {
-                            addRepoAsUnwatched(repo);
-                        });
+                        data.forEach(repo => addRepoAsUnwatched(repo));
                         // This needs to be done before `setCurrent` because
                         // `setCurrent` overwrites the entire listing
                         // with only the default repo
@@ -265,9 +259,7 @@ treeherder.factory('ThRepositoryModel', [
                                 storedWatched.reverse();
                                 storedWatched.push(options.name);
 
-                                storedWatched.forEach((repo) => {
-                                    watchRepo(repo);
-                                });
+                                storedWatched.forEach(repo => watchRepo(repo));
                             }
                             saveWatchedRepos();
                         }
