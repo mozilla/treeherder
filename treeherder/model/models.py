@@ -199,39 +199,45 @@ class Bugscache(models.Model):
     @classmethod
     def search(cls, search_term):
         max_size = 50
+
         # 90 days ago
         time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
+
         # Wrap search term so it is used as a phrase in the full-text search.
         search_term_fulltext = '"%s"' % search_term.replace("\"", "")
+
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
-        search_term_like = search_term.replace('=', '==').replace(
-            '%', '=%').replace('_', '=_')
-        recent = cls.objects.raw(
-            '''
-            SELECT id, summary, crash_signature, keywords, os, resolution, status,
-            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-            FROM bugscache
-            WHERE 1
-              AND resolution = ''
-              AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-              AND modified >= %s
-            ORDER BY relevance DESC
-            LIMIT 0,%s
-            ''', [search_term_fulltext, search_term_like, time_limit,
-                  max_size])
+        search_term_like = search_term.replace('=', '==').replace('%', '=%').replace('_', '=_')
 
-        all_others = cls.objects.raw(
-            '''
+        recent_qs = cls.objects.raw(
+            """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
-            MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-            FROM bugscache
-            WHERE 1
-            AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-            AND (modified < %s OR resolution <> '')
-            ORDER BY relevance DESC
-            LIMIT 0,%s''', [search_term_fulltext, search_term_like, time_limit,
-                            max_size])
+             MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
+              FROM bugscache
+             WHERE 1
+               AND resolution = ''
+               AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
+               AND modified >= %s
+          ORDER BY relevance DESC
+             LIMIT 0,%s
+            """,
+            [search_term_fulltext, search_term_like, time_limit, max_size],
+        )
+
+        all_others_qs = cls.objects.raw(
+            """
+            SELECT id, summary, crash_signature, keywords, os, resolution, status,
+             MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
+              FROM bugscache
+             WHERE 1
+               AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
+               AND (modified < %s OR resolution <> '')
+          ORDER BY relevance DESC
+             LIMIT 0,%s
+            """,
+            [search_term_fulltext, search_term_like, time_limit, max_size],
+        )
 
         return {"open_recent": [model_to_dict(item, exclude=["modified"]) for item in recent],
                 "all_others": [model_to_dict(item, exclude=["modified"]) for item in all_others]}
