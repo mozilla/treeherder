@@ -205,7 +205,7 @@ class Bugscache(models.Model):
         time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
 
         # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = '"%s"' % search_term.replace("\"", "")
+        search_term_fulltext = '"%s"' % search_term.replace("\"", "").replace("-", " ")
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
