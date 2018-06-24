@@ -1,4 +1,4 @@
-import _ from 'lodash';
+
 
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
@@ -64,7 +64,8 @@ export default class JobModel {
         if ('job_property_names' in data) {
           // the results came as list of fields
           // we need to convert them to objects
-          item_list = data.results.map(elem => new JobModel(_.zipObject(data.job_property_names, elem)));
+          item_list = data.results.map(elem => new JobModel(data.job_property_names.reduce((prev, prop, i) =>
+                                                             ({ ...prev, [prop]: elem[i] }), {})));
         } else {
           item_list = data.results.map(job_obj => new JobModel(job_obj));
         }
