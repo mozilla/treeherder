@@ -4,8 +4,7 @@ strong {
 
 #details-panel {
   font-size: 12px;
-  height: 35%;
-  max-height: 75%;
+  height: 100%;
 }
 
 .details-panel-slide {
@@ -32,14 +31,6 @@ div#tabs-panel .tab-headers {
   border: 1px solid transparent;
   color: #CED3D9;
   justify-content: space-between;
-}
-
-div#details-panel-resizer {
-  display: flex;
-  flex: none;
-  background-color: #919dad;
-  cursor: ns-resize;
-  height: 2px;
 }
 
 #tab-header-buttons > span > span {
