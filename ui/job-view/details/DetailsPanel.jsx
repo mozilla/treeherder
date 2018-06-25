@@ -325,8 +325,8 @@ export default class DetailsPanel extends React.Component {
   toggleJobPin(job) {
     const { pinnedJobs } = this.state;
 
-    if (pinnedJobs.includes(job)) {
-      this.unPinJob(job);
+    if (pinnedJobs[job.id]) {
+      this.unPinJob(job.id);
     } else {
       this.pinJob(job);
     }
