@@ -1,0 +1,24 @@
+ADR 1: Services Directory
+=========================
+
+Context
+-------
+This project uses many types of services in its general operation.
+They are configured in different places around the application, including but not limited to the global settings module, ``treeherder/config/settings.py``, and ``treeherder/model/models.py``.
+We define a service in the sense `The Twelve-Factor App does <https://12factor.net/backing-services>`_.
+
+Decision
+--------
+Configure external services in the ``treeherder/services`` directory to provide a consistent import API to other engineers.
+Each service is free to define its own module/package structure but should aim to expose a clean interface for importing.
+We will move relevant settings into their relevant services module/package since it is expected engineers will import a configured service not, for instance, a URL to said service.
+
+Status
+------
+Accepted.
+
+Consequences
+------------
+Engineers will import configured services in the form: ``from treeherder.services.elasticsearch import index``.
+
+Service authors will attempt to keep related settings out of ``settings.py`` and provide simple APIs for importing the configured service.

@@ -7,3 +7,5 @@ More context can be found in this blog post: http://thinkrelevance.com/blog/2011
 
 .. toctree::
     :maxdepth: 1
+
+    arch/adr-001.rst
