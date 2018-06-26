@@ -17,3 +17,4 @@ Welcome to the Treeherder documentation!
    troubleshooting
    testcases
    admin
+   adrs
