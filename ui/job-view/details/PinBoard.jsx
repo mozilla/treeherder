@@ -38,6 +38,7 @@ export default class PinBoard extends React.Component {
     this.handleRelatedBugDocumentClick = this.handleRelatedBugDocumentClick.bind(this);
     this.unPinAll = this.unPinAll.bind(this);
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
+    this.pasteSHA = this.pasteSHA.bind(this);
 
     this.addRelatedBugUnlisten = this.$rootScope.$on(thEvents.addRelatedBug, (event, job) => {
       this.props.pinJob(job);
@@ -97,7 +98,13 @@ export default class PinBoard extends React.Component {
         this.$rootScope.$emit(thEvents.jobsClassified, { jobs: [...jobs] });
         this.unPinAll();
         this.completeClassification();
-        this.setState({ classification: this.createNewClassification() });
+        this.setState({
+          failureClassificationId: 4,
+          failureClassificationComment: '',
+          enteringBugNumber: false,
+          newBugNumber: null,
+          classification: this.createNewClassification(),
+        });
       });
 
       // HACK: it looks like Firefox on Linux and Windows doesn't
@@ -163,9 +170,10 @@ export default class PinBoard extends React.Component {
   // or if the pasted data is an hg.m.o url, automatically select
   // the 'fixed by commit' classification type
   pasteSHA(evt) {
-    const pastedData = evt.originalEvent.clipboardData.getData('text');
+    const pastedData = evt.clipboardData.getData('text');
+
     if (isSHAorCommit(pastedData)) {
-      this.state.classification.failure_classification_id = 2;
+      this.setState({ failureClassificationId: 2 });
     }
   }
 
@@ -430,6 +438,7 @@ export default class PinBoard extends React.Component {
                     name="failureClassificationId"
                     id="pinboard-classification-select"
                     className="classification-select"
+                    value={failureClassificationId}
                     onChange={evt => this.setClassificationId(evt)}
                   >
                     {classificationTypes.classificationOptions.map(opt => (
