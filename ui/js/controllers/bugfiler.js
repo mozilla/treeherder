@@ -170,7 +170,7 @@ treeherder.controller('BugFilerCtrl', [
                     addProduct('Testing :: Talos');
                 }
                 if (jg.includes('mochitest') && (fp.includes('webextensions/') || fp.includes('components/extensions'))) {
-                    addProduct('Toolkit :: WebExtensions: General');
+                    addProduct('WebExtensions :: General');
                 }
                 if (jg.includes('mochitest') && fp.includes('webrtc/')) {
                     addProduct('Core :: WebRTC');
