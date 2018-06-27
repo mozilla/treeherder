@@ -229,7 +229,7 @@ class Bugscache(models.Model):
         try:
             open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
         except ProgrammingError as e:
-            newrelic.record_exception()
+            newrelic.agent.record_exception()
             logger.error('Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(e, recent_qs.query.__str__()))
             open_recent = []
 
@@ -250,7 +250,7 @@ class Bugscache(models.Model):
         try:
             all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
         except ProgrammingError as e:
-            newrelic.record_exception()
+            newrelic.agent.record_exception()
             logger.error('Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(e, recent_qs.query.__str__()))
             all_others = []
 
