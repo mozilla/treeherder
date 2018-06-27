@@ -196,7 +196,7 @@ treeherder.factory('ThResultSetStore', [
                 var pushId = jobList[0].result_set_id;
                 var push = repoData.pushes.find(push =>
                     push.id === pushId);
-                if (_.isUndefined(push)) { return $q.defer().resolve(); }
+                if (push === undefined) { return $q.defer().resolve(); }
                 if (_.has(push, 'jobList')) {
                     // get the new job ids
                     var jobIds = jobList.map(job => job.id);
@@ -686,7 +686,7 @@ treeherder.factory('ThResultSetStore', [
 
                 // only set the meta-data on the first pull for a repo.
                 // because this will establish ranges from then-on for auto-updates.
-                if (_.isUndefined(repoData.meta)) {
+                if (repoData.meta === undefined) {
                     repoData.meta = data.meta;
                 }
             }
@@ -921,7 +921,7 @@ treeherder.factory('ThResultSetStore', [
                     job.platform === platform.name &&
                         job.platform_option === platform.option,
                 );
-                if (_.isUndefined(platform)) {
+                if (platform === undefined) {
                     platform = {
                         name: job.platform,
                         option: job.platform_option,
@@ -936,7 +936,7 @@ treeherder.factory('ThResultSetStore', [
                     groupInfo.symbol === group.symbol &&
                         groupInfo.tier === group.tier,
                 );
-                if (_.isUndefined(group)) {
+                if (group === undefined) {
                     group = {
                         name: groupInfo.name,
                         symbol: groupInfo.symbol,

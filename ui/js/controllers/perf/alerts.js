@@ -488,7 +488,7 @@ perf.controller('AlertsCtrl', [
                 });
 
                 // update master list + visibility
-                if (_.isUndefined($scope.alertSummaries)) {
+                if ($scope.alertSummaries === undefined) {
                     $scope.alertSummaries = alertSummaries;
                 } else {
                     $scope.alertSummaries = _.union($scope.alertSummaries,

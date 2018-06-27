@@ -304,22 +304,22 @@ treeherder.factory('PhAlerts', [
 
                     // add filter parameters for status and framework
                     const params = [];
-                    if (options && !_.isUndefined(options.statusFilter) &&
+                    if (options && options.statusFilter !== undefined &&
                         options.statusFilter !== (-1)) {
                         params[params.length] = ('status=' + options.statusFilter);
                     }
-                    if (options && !_.isUndefined(options.frameworkFilter)) {
+                    if (options && options.frameworkFilter !== undefined) {
                         params[params.length] = ('framework=' + options.frameworkFilter);
                     }
-                    if (options && !_.isUndefined(options.signatureId)) {
+                    if (options && options.signatureId !== undefined) {
                         params[params.length] = ('alerts__series_signature=' +
                                                  options.signatureId);
                     }
-                    if (options && !_.isUndefined(options.repository)) {
+                    if (options && options.repository !== undefined) {
                         params[params.length] = ('repository=' +
                                                  options.repository);
                     }
-                    if (options && !_.isUndefined(options.page)) {
+                    if (options && options.page !== undefined) {
                         params[params.length] = ('page=' + options.page);
                     }
 

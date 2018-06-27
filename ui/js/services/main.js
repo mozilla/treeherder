@@ -102,7 +102,7 @@ treeherder.factory('thNotify', [
 
 treeherder.factory('thPlatformName', () => (name) => {
     let platformName = thPlatformMap[name];
-    if (_.isUndefined(platformName)) {
+    if (platformName === undefined) {
         platformName = name;
     }
     return platformName;

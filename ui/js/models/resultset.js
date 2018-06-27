@@ -55,8 +55,8 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
 
             getResultSets: function (repoName, rsOffsetTimestamp, count, full, keep_filters) {
                 rsOffsetTimestamp = typeof rsOffsetTimestamp === 'undefined' ? 0 : rsOffsetTimestamp;
-                full = _.isUndefined(full) ? true : full;
-                keep_filters = _.isUndefined(keep_filters) ? true : keep_filters;
+                full = full === undefined ? true : full;
+                keep_filters = keep_filters === undefined ? true : keep_filters;
 
                 const params = {
                     full: full,
@@ -112,7 +112,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                 return $http.get(
                     getProjectUrl('/resultset/', repoName), {
                         params: {
-                            full: _.isUndefined(full) ? true : full,
+                            full: full === undefined ? true : full,
                             offset: 0,
                             count: resultSetList.length,
                             id__in: resultSetList.join(),

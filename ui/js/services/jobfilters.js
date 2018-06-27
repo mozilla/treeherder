@@ -233,7 +233,7 @@ treeherder.factory('thJobFilters', [
                     const values = cachedFieldFilters[field];
                     let jobFieldValue = _getJobFieldValue(job, field);
 
-                    if (!_.isUndefined(jobFieldValue)) {
+                    if (jobFieldValue !== undefined) {
                         // if a filter is added somehow, but the job object doesn't
                         // have that field, then don't filter.  Consider it a pass.
                         jobFieldValue = String(jobFieldValue).toLowerCase();
@@ -553,7 +553,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function _toArray(value) {
-            if (_.isUndefined(value)) {
+            if (value === undefined) {
                 return value;
             }
             if (!Array.isArray(value)) {
