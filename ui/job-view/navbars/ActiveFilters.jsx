@@ -21,6 +21,7 @@ export default class ActiveFilters extends React.Component {
     this.addNewFieldFilter = this.addNewFieldFilter.bind(this);
     this.setNewFilterValue = this.setNewFilterValue.bind(this);
     this.setNewFilterField = this.setNewFilterField.bind(this);
+    this.clearNewFieldFilter = this.clearNewFieldFilter.bind(this);
   }
 
   setNewFilterField(field) {
@@ -44,15 +45,14 @@ export default class ActiveFilters extends React.Component {
 
   addNewFieldFilter() {
     const { newFilterField, newFilterValue } = this.state;
-      if (newFilterField && newFilterValue) {
-        this.thJobFilters.addFilter(newFilterField, newFilterValue);
-      }
 
-      // Clear the values and close the input form group
+    if (newFilterField && newFilterValue) {
+      this.thJobFilters.addFilter(newFilterField, newFilterValue);
       this.clearNewFieldFilter();
-      this.props.toggleFieldFilterVisible();
+    }
   }
 
+  // Clear the values and close the input form group
   clearNewFieldFilter() {
     this.setState({
       newFilterField: '',
@@ -60,6 +60,7 @@ export default class ActiveFilters extends React.Component {
       newFilterValue: '',
       newFilterChoices: [],
     });
+    this.props.toggleFieldFilterVisible();
   }
 
   render() {
@@ -137,7 +138,6 @@ export default class ActiveFilters extends React.Component {
                 )) }
               </select>}
               <button
-                type="submit"
                 className="btn btn-light-bordered btn-sm"
                 onClick={this.addNewFieldFilter}
               >add</button>
@@ -149,7 +149,6 @@ export default class ActiveFilters extends React.Component {
           </form>
         </div>}
       </div>
-
     );
   }
 }
