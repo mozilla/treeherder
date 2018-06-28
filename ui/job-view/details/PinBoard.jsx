@@ -28,7 +28,6 @@ export default class PinBoard extends React.Component {
       failureClassificationComment: '',
       enteringBugNumber: false,
       newBugNumber: null,
-      classification: {},
     };
   }
 
@@ -66,7 +65,10 @@ export default class PinBoard extends React.Component {
   unPinAll() {
     this.props.unPinAll();
     this.setState({
-      classification: this.createNewClassification(),
+      failureClassificationId: 4,
+      failureClassificationComment: '',
+      enteringBugNumber: false,
+      newBugNumber: null,
     });
   }
 
@@ -103,7 +105,6 @@ export default class PinBoard extends React.Component {
           failureClassificationComment: '',
           enteringBugNumber: false,
           newBugNumber: null,
-          classification: this.createNewClassification(),
         });
       });
 
@@ -208,22 +209,25 @@ export default class PinBoard extends React.Component {
   }
 
   canSaveClassifications() {
-    const thisClass = this.state.classification;
     const { pinnedJobBugs, isLoggedIn } = this.props;
+    const { failureClassificationId, failureClassificationComment } = this.state;
+
     return this.hasPinnedJobs() && isLoggedIn &&
       (!!Object.keys(pinnedJobBugs).length ||
-        (thisClass.failure_classification_id !== 4 && thisClass.failure_classification_id !== 2) ||
+        (failureClassificationId !== 4 && failureClassificationId !== 2) ||
         this.$rootScope.currentRepo.is_try_repo ||
         this.$rootScope.currentRepo.repository_group.name === 'project repositories' ||
-        (thisClass.failure_classification_id === 4 && thisClass.text.length > 0) ||
-        (thisClass.failure_classification_id === 2 && thisClass.text.length > 7));
+        (failureClassificationId === 4 && failureClassificationComment.length > 0) ||
+        (failureClassificationId === 2 && failureClassificationComment.length > 7));
   }
 
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
   pinboardIsDirty() {
-    return this.state.classification.text !== '' ||
+    const { failureClassificationId, failureClassificationComment } = this.state;
+
+    return failureClassificationComment !== '' ||
       !!Object.keys(this.props.pinnedJobBugs).length ||
-      this.state.classification.failure_classification_id !== 4;
+      failureClassificationId !== 4;
   }
 
   // Dynamic btn/anchor title for classification save
@@ -309,9 +313,9 @@ export default class PinBoard extends React.Component {
   }
 
   saveEnteredBugNumber() {
-    const { newBugNumber } = this.state;
+    const { newBugNumber, enteringBugNumber } = this.state;
 
-    if (this.state.enteringBugNumber) {
+    if (enteringBugNumber) {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
       } else if (this.isNumber(newBugNumber)) {
