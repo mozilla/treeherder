@@ -175,7 +175,6 @@ def test_update_error_mark_job_with_human_note(client,
 
 def test_update_error_line_mark_job_with_auto_note(client,
                                                    test_job,
-                                                   mock_autoclassify_jobs_true,
                                                    text_log_errors_failure_lines,
                                                    classified_failures,
                                                    test_user):
@@ -211,7 +210,6 @@ def test_update_error_line_mark_job_with_auto_note(client,
 
 
 def test_update_errors(client,
-                       mock_autoclassify_jobs_true,
                        test_repository,
                        text_log_errors_failure_lines,
                        classified_failures,
@@ -288,7 +286,6 @@ def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
 
 def test_update_error_all_ignore_mark_job(client,
                                           test_job,
-                                          mock_autoclassify_jobs_true,
                                           text_log_errors_failure_lines,
                                           classified_failures,
                                           test_user):
@@ -327,7 +324,6 @@ def test_update_error_all_ignore_mark_job(client,
 
 def test_update_error_partial_ignore_mark_job(client,
                                               test_job,
-                                              mock_autoclassify_jobs_true,
                                               text_log_errors_failure_lines,
                                               classified_failures,
                                               test_user):

@@ -1,7 +1,6 @@
 import logging
 
 import newrelic.agent
-from django.conf import settings
 
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.log_parser.crossreference import crossreference_job
@@ -72,7 +71,7 @@ def parse_logs(job_id, job_log_ids, priority):
 
         success = crossreference_error_lines(job)
 
-        if success and settings.AUTOCLASSIFY_JOBS:
+        if success:
             logger.debug("Scheduling autoclassify for job %i", job_id)
             autoclassify.apply_async(
                 args=[job_id],
