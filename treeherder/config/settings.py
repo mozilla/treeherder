@@ -449,9 +449,6 @@ WHITENOISE_ROOT = path("..", "dist")
 
 # TREEHERDER
 
-# Autoclassification
-AUTOCLASSIFY_JOBS = env.bool("AUTOCLASSIFY_JOBS", default=True)
-
 # Bugzilla
 # BZ_API_URL is used to fetch bug suggestions from bugzilla
 # BUGFILER_API_URL is used when filing bugs

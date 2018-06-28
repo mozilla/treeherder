@@ -80,8 +80,7 @@ def test_no_autoclassify_job_success(text_log_errors_failure_lines,
         assert failure_line.error.classified_failures.count() == 0
 
 
-def test_autoclassify_update_job_classification(failure_lines, classified_failures,
-                                                test_job_2, mock_autoclassify_jobs_true):
+def test_autoclassify_update_job_classification(failure_lines, classified_failures, test_job_2):
     for i, item in enumerate(classified_failures):
         item.bug_number = "1234%i" % i
         item.save()

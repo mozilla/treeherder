@@ -571,9 +571,6 @@ class Job(models.Model):
         """
         Updates a job's state after being verified by a sheriff
         """
-        if not settings.AUTOCLASSIFY_JOBS:
-            return
-
         if not self.is_fully_verified():
             return
 

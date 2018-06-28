@@ -542,11 +542,6 @@ def test_perf_signature(test_repository, test_perf_framework):
 
 
 @pytest.fixture
-def mock_autoclassify_jobs_true(monkeypatch):
-    monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
-
-
-@pytest.fixture
 def mock_bugzilla_api_request(monkeypatch):
     """Mock fetch_json() used by Bugzilla ETL to return a local sample file."""
     import treeherder.etl.bugzilla
