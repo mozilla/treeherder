@@ -16,7 +16,6 @@ env = environ.Env()
 
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
-ENABLE_DEBUG_TOOLBAR = env.bool("ENABLE_DEBUG_TOOLBAR", False)
 
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
@@ -74,7 +73,7 @@ MIDDLEWARE = [middleware for middleware in [
     # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
     'treeherder.middleware.CustomWhiteNoise',
     'django.middleware.gzip.GZipMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware' if ENABLE_DEBUG_TOOLBAR else False,
+    'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -401,7 +400,7 @@ CELERYBEAT_SCHEDULE = {
 CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
 # Debug Toolbar
-if ENABLE_DEBUG_TOOLBAR:
+if DEBUG:
     # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
     # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:
     # http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/
@@ -409,7 +408,6 @@ if ENABLE_DEBUG_TOOLBAR:
     # we'll have to do: https://github.com/jazzband/django-debug-toolbar/pull/805#issuecomment-240976813
     INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
 
-if ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS.append('debug_toolbar')
 
 # Elasticsearch
