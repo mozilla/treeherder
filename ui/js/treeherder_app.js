@@ -4,7 +4,6 @@ import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 
 import treeherderModule from './treeherder';
-import thActiveFiltersBarTemplate from '../partials/main/thActiveFiltersBar.html';
 import thFilterChickletsTemplate from '../partials/main/thFilterChicklets.html';
 import thGlobalTopNavPanelTemplate from '../partials/main/thGlobalTopNavPanel.html';
 import thHelpMenuTemplate from '../partials/main/thHelpMenu.html';
@@ -64,7 +63,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
     }]).run(['$templateCache', ($templateCache) => {
         // Templates used by ng-include have to be manually put in the template cache.
         // Those used by directives should instead be imported at point of use.
-        $templateCache.put('partials/main/thActiveFiltersBar.html', thActiveFiltersBarTemplate);
         $templateCache.put('partials/main/thFilterChicklets.html', thFilterChickletsTemplate);
         $templateCache.put('partials/main/thGlobalTopNavPanel.html', thGlobalTopNavPanelTemplate);
         $templateCache.put('partials/main/thHelpMenu.html', thHelpMenuTemplate);
