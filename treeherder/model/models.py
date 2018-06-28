@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import datetime
 import itertools
 import logging
+import re
 import time
 from hashlib import sha1
 
@@ -25,6 +26,10 @@ from ..services.elasticsearch import (bulk,
 from ..utils.queryset import chunked_qs
 
 logger = logging.getLogger(__name__)
+
+# MySQL Full Text Search operators, based on:
+# https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
+mysql_fts_operators_re = re.compile(r'[-+@<>()~*"]')
 
 
 @python_2_unicode_compatible
@@ -204,8 +209,12 @@ class Bugscache(models.Model):
         # 90 days ago
         time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
 
+        # Replace MySQL's Full Text Search Operators with spaces so searching
+        # for errors that have been pasted in still works.
+        sanitised_term = re.sub(mysql_fts_operators_re, search_term, " ")
+
         # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = '"%s"' % search_term.replace("\"", "").replace("-", " ")
+        search_term_fulltext = '"%s"' % sanitised_term
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
