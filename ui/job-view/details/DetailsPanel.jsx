@@ -22,6 +22,8 @@ import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
 
+export const pinboardHeight = 100;
+
 export default class DetailsPanel extends React.Component {
 
   static getDerivedStateFromProps(props) {
@@ -422,22 +424,21 @@ export default class DetailsPanel extends React.Component {
 
   render() {
     const {
-      repoName, $injector, user, currentRepo,
+      repoName, $injector, user, currentRepo, resizedHeight,
     } = this.props;
     const {
       job, isPinBoardVisible, jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
       perfJobDetail, suggestions, errors, bugSuggestionsLoading, logParseStatus,
       classifications, logViewerUrl, logViewerFullUrl, pinnedJobs, pinnedJobBugs, bugs, reftestUrl,
     } = this.state;
+    const detailsPanelHeight = isPinBoardVisible ? resizedHeight - pinboardHeight : resizedHeight;
 
     return (
-      <div id="details-panel" className={job ? 'details-panel-slide' : 'hidden'}>
-        <div
-          id="details-panel-resizer"
-          resizer="horizontal"
-          resizer-height="6"
-          resizer-bottom="#details-panel"
-        />
+      <div
+        id="details-panel"
+        style={{ height: `${detailsPanelHeight}px` }}
+        className={job ? 'details-panel-slide' : 'hidden'}
+      >
         <PinBoard
           isVisible={isPinBoardVisible}
           selectedJob={job}
@@ -506,6 +507,7 @@ DetailsPanel.propTypes = {
   repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
+  resizedHeight: PropTypes.number.isRequired,
   selectedJob: PropTypes.object,
 };
 
