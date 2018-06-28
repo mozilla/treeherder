@@ -25,7 +25,6 @@ class JobView extends React.Component {
     return JobView.getSplitterDimensions(props);
   }
 
-
   static getSplitterDimensions(props) {
     const { selectedJob } = props;
     const defaultPushListPct = selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
