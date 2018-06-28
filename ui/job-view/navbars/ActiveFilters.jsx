@@ -123,6 +123,7 @@ export default class ActiveFilters extends React.Component {
                 onChange={evt => this.setNewFilterValue(evt.target.value)}
                 id="job-filter-value"
                 type="text"
+                required
                 placeholder="enter filter value"
               />}
               <label className="sr-only" htmlFor="job-filter-choice-value">Value</label>
@@ -138,10 +139,12 @@ export default class ActiveFilters extends React.Component {
                 )) }
               </select>}
               <button
+                type="submit"
                 className="btn btn-light-bordered btn-sm"
                 onClick={this.addNewFieldFilter}
               >add</button>
               <button
+                type="reset"
                 className="btn btn-light-bordered btn-sm"
                 onClick={this.clearNewFieldFilter}
               >cancel</button>
