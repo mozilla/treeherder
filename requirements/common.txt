@@ -101,9 +101,9 @@ djangorestframework==3.8.2 \
     --hash=sha256:c375e4f95a3a64fccac412e36fb42ba36881e52313ec021ef410b40f67cddca4 \
     --hash=sha256:b6714c3e4b0f8d524f193c91ecf5f5450092c2145439ac2769711f7eba89a9d9
 
-django-cors-headers==2.2.1 \
-    --hash=sha256:82e584102859b62d74d73095e8ab9f787bdd0dcb0ce92437118b975fc28ec3c1 \
-    --hash=sha256:0598467ca54baf7be4aec7927d5657e4d9e173d9709cd9fb105b32aea9b80ecf
+django-cors-headers==2.3.0 \
+    --hash=sha256:1460b67c51706307e3f66515e86b10181badd66448a2fc44278f47bf402c6fd3 \
+    --hash=sha256:3c618a964e3034ae4dad8bbb902e625daa6c894444ddeaf7b24125299add54f0
 
 mozlog==3.7 \
     --hash=sha256:fbcbef51c80cdfee0803b3ecd6260589b9b3bafc085fbc6459314ec56b545327 \
