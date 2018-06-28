@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import newrelic.agent
 import simplejson as json
-from django.conf import settings
 from django.core.cache import cache
 from six import iteritems
 
@@ -23,6 +22,11 @@ CACHE_KEYS = {
 }
 ONE_HOUR_IN_SECONDS = 3600
 FOUR_HOURS_IN_SECONDS = 14400
+
+BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
+PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
+RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
+
 
 # Signature sets are for
 # autoland
@@ -424,14 +428,15 @@ class Builds4hJobsProcess(Builds4hTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new completed jobs were loaded, False otherwise. """
-        builds_4hr = common.fetch_json(settings.BUILDAPI_BUILDS4H_URL)
+        builds_4hr = common.fetch_json(BUILDS4H_URL)
         job_collections, job_ids_seen = self.transform(builds_4hr,
                                                        revision_filter=revision_filter,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
+
         if job_collections:
-            store_jobs(job_collections,
-                       chunk_size=settings.BUILDAPI_BUILDS4H_CHUNK_SIZE)
+            store_jobs(job_collections, chunk_size=500)
+
         cache.set(CACHE_KEYS['complete'], job_ids_seen, FOUR_HOURS_IN_SECONDS)
         return bool(job_collections)
 
@@ -440,15 +445,16 @@ class PendingJobsProcess(PendingRunningTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new pending jobs were loaded, False otherwise. """
-        builds_pending = common.fetch_json(settings.BUILDAPI_PENDING_URL)
+        builds_pending = common.fetch_json(PENDING_URL)
         job_collections, job_ids_seen = self.transform(builds_pending,
                                                        'pending',
                                                        revision_filter=revision_filter,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
+
         if job_collections:
-            store_jobs(job_collections,
-                       chunk_size=settings.BUILDAPI_PENDING_CHUNK_SIZE)
+            store_jobs(job_collections, chunk_size=500)
+
         cache.set(CACHE_KEYS['pending'], job_ids_seen, ONE_HOUR_IN_SECONDS)
         return bool(job_collections)
 
@@ -457,15 +463,16 @@ class RunningJobsProcess(PendingRunningTransformerMixin):
 
     def run(self, revision_filter=None, project_filter=None, job_group_filter=None):
         """ Returns True if new running jobs were loaded, False otherwise. """
-        builds_running = common.fetch_json(settings.BUILDAPI_RUNNING_URL)
+        builds_running = common.fetch_json(RUNNING_URL)
         job_collections, job_ids_seen = self.transform(builds_running,
                                                        'running',
                                                        revision_filter=revision_filter,
                                                        project_filter=project_filter,
                                                        job_group_filter=job_group_filter)
+
         if job_collections:
-            store_jobs(job_collections,
-                       chunk_size=settings.BUILDAPI_RUNNING_CHUNK_SIZE)
+            store_jobs(job_collections, chunk_size=500)
+
         cache.set(CACHE_KEYS['running'], job_ids_seen, ONE_HOUR_IN_SECONDS)
         return bool(job_collections)
 

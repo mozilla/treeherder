@@ -1,9 +1,9 @@
 import responses
 
-from treeherder.config.settings import (TASKCLUSTER_INDEX_URL,
-                                        TASKCLUSTER_RUNNABLE_JOBS_URL)
 from treeherder.etl.buildbot import get_symbols_and_platforms
-from treeherder.etl.runnable_jobs import (RunnableJobsProcess,
+from treeherder.etl.runnable_jobs import (RUNNABLE_JOBS_URL,
+                                          TASKCLUSTER_INDEX_URL,
+                                          RunnableJobsProcess,
                                           _taskcluster_runnable_jobs)
 from treeherder.model.models import (BuildPlatform,
                                      JobType,
@@ -13,7 +13,7 @@ from treeherder.model.models import (BuildPlatform,
 
 TASK_ID = 'AFq3FRt4TyiTwIN7fUqOQg'
 CONTENT1 = {'taskId': TASK_ID}
-RUNNABLE_JOBS_URL = TASKCLUSTER_RUNNABLE_JOBS_URL.format(task_id=TASK_ID)
+RUNNABLE_JOBS_URL = RUNNABLE_JOBS_URL.format(task_id=TASK_ID)
 JOB_NAME = 'job name'
 API_RETURN = {
     'build_platform': 'plaform name',

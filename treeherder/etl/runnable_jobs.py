@@ -4,12 +4,10 @@ import logging
 from hashlib import sha1
 
 import requests
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from six import iteritems
 
-from treeherder.config.settings import TASKCLUSTER_INDEX_URL
 from treeherder.etl.buildbot import get_symbols_and_platforms
 from treeherder.etl.common import fetch_json
 from treeherder.model.models import (BuildPlatform,
@@ -22,6 +20,10 @@ from treeherder.model.models import (BuildPlatform,
                                      RunnableJob)
 
 logger = logging.getLogger(__name__)
+
+ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
+RUNNABLE_JOBS_URL = 'https://public-artifacts.taskcluster.net/{task_id}/0/public/runnable-jobs.json.gz'
+TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
 
 
 class RunnableJobsTransformerMixin(object):
@@ -114,7 +116,7 @@ class RunnableJobsProcess(RunnableJobsTransformerMixin):
 
     def run(self):
         logger.info('Fetching allthethings.json')
-        all_the_things = fetch_json(settings.ALLTHETHINGS_URL)
+        all_the_things = fetch_json(ALLTHETHINGS_URL)
         jobs_per_branch = self.transform(all_the_things)
         logger.info('Updating runnable jobs table with transformed allthethings.json data.')
         self.update_runnable_jobs_table(jobs_per_branch)
@@ -129,7 +131,7 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     if not decision_task_id:
         return ret
 
-    tc_graph_url = settings.TASKCLUSTER_RUNNABLE_JOBS_URL.format(task_id=decision_task_id)
+    tc_graph_url = RUNNABLE_JOBS_URL.format(task_id=decision_task_id)
     validate = URLValidator()
     try:
         validate(tc_graph_url)

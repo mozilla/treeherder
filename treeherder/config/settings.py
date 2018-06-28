@@ -461,22 +461,6 @@ BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
 BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
 
-# ETL
-# the max size of a posted request to treeherder client during Buildbot
-# data job ingestion.
-# If TreeherderCollections are larger, they will be chunked
-# to this size.
-BUILDAPI_PENDING_CHUNK_SIZE = 500
-BUILDAPI_RUNNING_CHUNK_SIZE = 500
-BUILDAPI_BUILDS4H_CHUNK_SIZE = 500
-
-BUILDAPI_PENDING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-pending.js"
-BUILDAPI_RUNNING_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-running.js"
-BUILDAPI_BUILDS4H_URL = "https://secure.pub.build.mozilla.org/builddata/buildjson/builds-4hr.js.gz"
-ALLTHETHINGS_URL = "https://secure.pub.build.mozilla.org/builddata/reports/allthethings.json"
-TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
-TASKCLUSTER_RUNNABLE_JOBS_URL = 'https://public-artifacts.taskcluster.net/{task_id}/0/public/runnable-jobs.json.gz'
-
 # Log Parsing
 PARSER_MAX_STEP_ERROR_LINES = 100
 FAILURE_LINES_CUTOFF = 35

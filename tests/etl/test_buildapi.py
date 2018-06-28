@@ -3,10 +3,12 @@ import time
 
 import pytest
 import responses
-from django.conf import settings
 from django.core.cache import cache
 
-from treeherder.etl.buildapi import (CACHE_KEYS,
+from treeherder.etl.buildapi import (BUILDS4H_URL,
+                                     CACHE_KEYS,
+                                     PENDING_URL,
+                                     RUNNING_URL,
                                      Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
@@ -23,7 +25,7 @@ def mock_buildapi_pending_url(activate_responses):
     )
     with open(path) as f:
         mocked_content = f.read()
-    responses.add(responses.GET, settings.BUILDAPI_PENDING_URL,
+    responses.add(responses.GET, PENDING_URL,
                   body=mocked_content, status=200,
                   content_type='application/json')
 
@@ -38,7 +40,7 @@ def mock_buildapi_running_url(activate_responses):
     )
     with open(path) as f:
         mocked_content = f.read()
-    responses.add(responses.GET, settings.BUILDAPI_RUNNING_URL,
+    responses.add(responses.GET, RUNNING_URL,
                   body=mocked_content, status=200,
                   content_type='application/json')
 
@@ -53,7 +55,7 @@ def mock_buildapi_builds4h_url(activate_responses):
     )
     with open(path) as f:
         mocked_content = f.read()
-    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+    responses.add(responses.GET, BUILDS4H_URL,
                   body=mocked_content, status=200,
                   content_type='application/json')
 
@@ -68,7 +70,7 @@ def mock_buildapi_builds4h_missing1_url(activate_responses):
     )
     with open(path) as f:
         mocked_content = f.read()
-    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+    responses.add(responses.GET, BUILDS4H_URL,
                   body=mocked_content, status=200,
                   content_type='application/json')
 
@@ -83,7 +85,7 @@ def mock_buildapi_builds4h_missing_branch_url(activate_responses):
     )
     with open(path) as f:
         mocked_content = f.read()
-    responses.add(responses.GET, settings.BUILDAPI_BUILDS4H_URL,
+    responses.add(responses.GET, BUILDS4H_URL,
                   body=mocked_content, status=200,
                   content_type='application/json')
 
