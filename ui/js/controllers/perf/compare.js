@@ -263,6 +263,10 @@ perf.controller('CompareResultsCtrl', [
             $scope.testNoResults = difference($scope.testList, Object.keys($scope.compareResults)).sort().join();
             $scope.testList = Object.keys($scope.compareResults).sort().concat([noiseMetricTestName]);
             $scope.titles[noiseMetricTestName] = noiseMetricTestName;
+
+            // call digest explicitly so we don't have to worry about when promises
+            // get resolved (see bug 1470600)
+            $scope.$digest();
         }
 
         function load() {
@@ -617,6 +621,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                 $scope.compareResults[noiseMetricTestName].push(cmap);
             }
             $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTestName;
+
+            // call digest explicitly so we don't have to worry about when promises
+            // get resolved (see bug 1470600)
+            $scope.$digest();
         }
 
         $scope.dataLoading = true;
