@@ -142,3 +142,5 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   const query = createQueryParams(params);
   return `https://bugzilla.mozilla.org/${api}${query}`;
 };
+
+export const deployedRevisionUrl = '/revision.txt';
