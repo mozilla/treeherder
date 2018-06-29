@@ -272,8 +272,8 @@ ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c
 future==0.16.0 \
     --hash=sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb
-furl==1.1 \
-    --hash=sha256:47b25a4c4e48d926c399a5538466134fc7aed8b357a6290dcb83e3a1b9f3aa29
+furl==1.2 \
+    --hash=sha256:5436226c89536b5fa8c5faa1e34d684d417f69dea91d406edaab102c5da6de8c
 orderedmultidict==1.0 \
     --hash=sha256:b89895ba6438038d0bdf88020ceff876cf3eae0d5c66a69b526fab31125db2c5
 first==2.0.1 \
