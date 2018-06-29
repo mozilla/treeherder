@@ -6,7 +6,7 @@ import { createBrowserHistory } from 'history';
 
 import treeherder from '../js/treeherder';
 import { thEvents } from '../js/constants';
-import { getRevisionTxtUrl } from '../helpers/url';
+import { deployedRevisionUrl } from '../helpers/url';
 import DetailsPanel from './details/DetailsPanel';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
@@ -82,11 +82,11 @@ class JobView extends React.Component {
       });
     });
 
-    // Only set up the revision polling interval if revision.txt exists on page load
-    this.checkServerRevision().then((revision) => {
+    // Get the current Treeherder revision and poll to notify on updates.
+    this.fetchDeployedRevision().then((revision) => {
       this.setState({ serverRev: revision });
       this.updateInterval = setInterval(() => {
-        this.checkServerRevision()
+        this.fetchDeployedRevision()
           .then((revision) => {
             const { serverChangedTimestamp, serverRev } = this.state;
             if (this.$rootScope.serverChanged) {
@@ -98,11 +98,12 @@ class JobView extends React.Component {
             }
             // This request returns the treeherder git revision running on the server
             // If this differs from the version chosen during the UI page load, show a warning
-            // Update $rootScope.serverChanged so that the subdued notification
-            // can be shown on the secondary navbar.
 
             // TODO: Change this to a state/prop var when that secondary bar is
             // converted to React.
+            // For now, set $rootScope.serverChanged so that the subdued notification
+            // can be shown on the secondary navbar.
+
             if (serverRev && serverRev !== revision) {
               this.setState({ serverRev: revision });
               if (this.$rootScope.serverChanged === false) {
@@ -116,8 +117,8 @@ class JobView extends React.Component {
     });
   }
 
-  checkServerRevision() {
-    return fetch(getRevisionTxtUrl()).then(resp => resp.text());
+  fetchDeployedRevision() {
+    return fetch(deployedRevisionUrl).then(resp => resp.text());
   }
 
   updateButtonClick() {

@@ -9,7 +9,11 @@ export default function UpdateAvailable(props) {
     <div className="alert alert-info update-alert-panel">
       <i className="fa fa-info-circle" aria-hidden="true" />
       Treeherder has updated. To pick up the changes, you can reload the page &nbsp;
-      <button onClick={updateButtonClick} className="btn btn-xs btn-danger">Reload</button>
+      <button
+        onClick={updateButtonClick}
+        className="btn btn-xs btn-danger"
+        type="button"
+      >Reload</button>
     </div>
   );
 }

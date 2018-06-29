@@ -6,18 +6,16 @@ import treeherderApp from '../treeherder_app';
 import { thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents } from '../constants';
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$location', '$timeout', '$q',
+    '$scope', '$rootScope', '$location', '$timeout',
     'ThRepositoryModel', '$document',
-    'thClassificationTypes', '$interval', '$window',
+    'thClassificationTypes', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
-    '$http',
     '$httpParamSerializer',
     function MainController(
-        $scope, $rootScope, $location, $timeout, $q,
+        $scope, $rootScope, $location, $timeout,
         ThRepositoryModel, $document,
-        thClassificationTypes, $interval, $window,
+        thClassificationTypes, $window,
         thJobFilters, ThResultSetStore, thNotify,
-        $http,
         $httpParamSerializer) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {

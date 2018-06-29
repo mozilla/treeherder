@@ -143,6 +143,4 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   return `https://bugzilla.mozilla.org/${api}${query}`;
 };
 
-export const getRevisionTxtUrl = function getRevisionTxtUrl() {
-  return '/revision.txt';
-};
+export const deployedRevisionUrl = '/revision.txt';
