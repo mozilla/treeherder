@@ -18,18 +18,19 @@ export default class SummaryPanel extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.selectedJob || !Object.keys(nextProps.selectedJob).length) {
+    const { selectedJob } = nextProps;
+    if (!selectedJob || !Object.keys(selectedJob).length) {
       return;
     }
 
-    this.setJobMachineUrl(nextProps);
+    this.setJobMachineUrl(selectedJob);
   }
 
-  async setJobMachineUrl(props) {
+  async setJobMachineUrl(job) {
     let machineUrl = null;
 
     try {
-      machineUrl = await getJobMachineUrl(props);
+      machineUrl = await getJobMachineUrl(job);
     } catch (err) {
       machineUrl = '';
     }
