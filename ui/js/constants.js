@@ -112,6 +112,7 @@ export const thPlatformMap = {
     'android-5-1-armv7-api15': 'Android 5.1 API15+',
     'android-6-0-armv8-api15': 'Android 6.0 API15+',
     'android-6-0-armv8-api16': 'Android 6.0 API16+',
+    'android-em-7-0-x86': 'Android 7.0 x86',
     'android-7-1-armv8-api15': 'Android 7.1 API15+',
     'android-7-1-armv8-api16': 'Android 7.1 API16+',
     'b2gdroid-4-0-armv7-api11': 'B2GDroid 4.0 API11+',
