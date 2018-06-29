@@ -111,12 +111,13 @@ class JobView extends React.Component {
                 this.setState({ serverChangedTimestamp: Date.now() });
               }
             }
-          })
-          .catch((error) => {
-            console.error(error); // eslint-disable-line no-console
           });
       }, REVISION_POLL_INTERVAL);
     });
+  }
+
+  checkServerRevision() {
+    return fetch(getRevisionTxtUrl()).then(resp => resp.text());
   }
 
   updateButtonClick() {
@@ -136,15 +137,6 @@ class JobView extends React.Component {
   handleSplitChange(latestSplitSize) {
     this.setState({
       latestSplitPct: latestSplitSize / getWindowHeight() * 100,
-    });
-  }
-
-  checkServerRevision() {
-    return fetch(getRevisionTxtUrl()).then((resp) => {
-      if (!resp.ok) {
-        throw Error(`Error loading revision.txt: ${resp.statusText}`);
-      }
-      return resp.text();
     });
   }
 
