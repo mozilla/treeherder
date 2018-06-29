@@ -113,7 +113,7 @@ class JobView extends React.Component {
             }
           })
           .catch((error) => {
-            console.error(error);
+            console.error(error); // eslint-disable-line no-console
           });
       }, REVISION_POLL_INTERVAL);
     });
