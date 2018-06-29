@@ -9,7 +9,6 @@ import thGlobalTopNavPanelTemplate from '../partials/main/thGlobalTopNavPanel.ht
 import thHelpMenuTemplate from '../partials/main/thHelpMenu.html';
 import thInfraMenuTemplate from '../partials/main/thInfraMenu.html';
 import thShortcutTableTemplate from '../partials/main/thShortcutTable.html';
-import thTreeherderUpdateBarTemplate from '../partials/main/thTreeherderUpdateBar.html';
 import thWatchedRepoNavPanelTemplate from '../partials/main/thWatchedRepoNavPanel.html';
 
 const treeherderApp = angular.module('treeherder.app', [
@@ -68,7 +67,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
         $templateCache.put('partials/main/thHelpMenu.html', thHelpMenuTemplate);
         $templateCache.put('partials/main/thInfraMenu.html', thInfraMenuTemplate);
         $templateCache.put('partials/main/thShortcutTable.html', thShortcutTableTemplate);
-        $templateCache.put('partials/main/thTreeherderUpdateBar.html', thTreeherderUpdateBarTemplate);
         $templateCache.put('partials/main/thWatchedRepoNavPanel.html', thWatchedRepoNavPanelTemplate);
     }]);
 

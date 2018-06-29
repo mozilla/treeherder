@@ -25,14 +25,8 @@ treeherderApp.controller('MainCtrl', [
                         'danger', { sticky: true });
         }
 
-        /*
-         *  revisionPollInterval: How often we check revision.txt for changes
-         *  revisionPollDelayedInterval: Aggressively notify about revision changes after this delay
-         */
-        const revisionPollInterval = 1000 * 60 * 5;
-        const revisionPollDelayedInterval = 1000 * 60 * 60;
+        // whether a new version of Treeherder was deployed since page load.
         $rootScope.serverChanged = false;
-        $rootScope.serverChangedDelayed = false;
 
         // Ensure user is available on initial page load
         $rootScope.user = {};
@@ -51,48 +45,12 @@ treeherderApp.controller('MainCtrl', [
         // TODO: remove this once we're off of Angular completely.
         $rootScope.countPinnedJobs = () => 0;
 
-        const checkServerRevision = function () {
-            return $q(function (resolve, reject) {
-                $http({
-                    method: 'GET',
-                    url: '/revision.txt',
-                }).then(function successCallback(response) {
-                    resolve(response.data);
-                }, function errorCallback(response) {
-                    reject('Error loading revision.txt: ' + response.statusText);
-                });
-            });
-        };
-
+        // TODO: remove this when we convert the watchedRepoNavBar to React.
         $scope.updateButtonClick = function () {
             if (window.confirm('Reload the page to pick up Treeherder updates?')) {
                 window.location.reload(true);
             }
         };
-
-        // Only set up the revision polling interval if revision.txt exists on page load
-        checkServerRevision().then(function (revision) {
-            $rootScope.serverRev = revision;
-            $interval(function () {
-                checkServerRevision().then(function (revision) {
-                    if ($rootScope.serverChanged) {
-                        if (Date.now() - $rootScope.serverChangedTimestamp > revisionPollDelayedInterval) {
-                            $rootScope.serverChangedDelayed = true;
-                        }
-                    }
-                    // This request returns the treeherder git revision running on the server
-                    // If this differs from the version chosen during the UI page load, show a warning
-                    // Update $rootScope.serverRev so this warning is only shown once per server-side change
-                    if ($rootScope.serverRev && $rootScope.serverRev !== revision) {
-                        $rootScope.serverRev = revision;
-                        if ($rootScope.serverChanged === false) {
-                            $rootScope.serverChanged = true;
-                            $rootScope.serverChangedTimestamp = Date.now();
-                        }
-                    }
-                });
-            }, revisionPollInterval);
-        });
 
         const getSingleRevisionTitleString = function () {
             let revisions = [];
