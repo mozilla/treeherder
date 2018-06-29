@@ -13,30 +13,37 @@ export default class SummaryPanel extends React.Component {
     super(props);
 
     this.state = {
-      machineUrl: '',
+      machineUrl: null,
+      machineUrlStatus: '',
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { selectedJob } = nextProps;
-    if (!selectedJob || !Object.keys(selectedJob).length) {
-      return;
-    }
-
-    this.setJobMachineUrl(selectedJob);
+  componentDidMount() {
+    this.setJobMachineUrl(this.props.selectedJob, null);
   }
 
-  async setJobMachineUrl(job) {
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedJob } = this.props;
+    if (!selectedJob || selectedJob === prevProps.selectedJob) {
+      return;
+    }
+    this.setJobMachineUrl(selectedJob, prevState.machineUrl);
+  }
+
+  async setJobMachineUrl(selectedJob, prevMachineUrl) {
+    // If we can't get the machineUrl, then this text will be added as a suffix
+    // after the machine name to let the user know there was a problem.
     let machineUrl = null;
+    let machineUrlStatus = '';
 
     try {
-      machineUrl = await getJobMachineUrl(job);
+      machineUrl = await getJobMachineUrl(selectedJob);
     } catch (err) {
-      machineUrl = '';
+      machineUrlStatus = '(Load error)';
+      console.error(`Error fetching machine URL: ${err}`); // eslint-disable-line no-console
     }
-
-    if (this.state.machineUrl !== machineUrl) {
-      this.setState({ machineUrl });
+    if (machineUrl !== prevMachineUrl) {
+      this.setState({ machineUrl, machineUrlStatus });
     }
   }
 
@@ -46,6 +53,7 @@ export default class SummaryPanel extends React.Component {
       jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl, isTryRepo, logParseStatus,
       pinJob, $injector, user,
     } = this.props;
+    const { machineUrl, machineUrlStatus } = this.state;
 
     const timeFields = getTimeFields(selectedJob);
     const jobMachineName = selectedJob.machine_name;
@@ -108,11 +116,12 @@ export default class SummaryPanel extends React.Component {
                 {jobMachineName &&
                   <li className="small">
                     <label>Machine: </label>
-                    <a
+                    {machineUrl ? <a
                       title="Inspect machine"
                       target="_blank"
-                      href={this.state.machineUrl}
-                    >{jobMachineName}</a>
+                      href={machineUrl}
+                    >{jobMachineName}</a> :
+                    <span>{jobMachineName} {machineUrlStatus}</span>}
                   </li>
                 }
                 {selectedJob.taskcluster_metadata &&
