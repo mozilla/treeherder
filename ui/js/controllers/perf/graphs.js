@@ -134,7 +134,7 @@ perf.controller('GraphsCtrl', [
                     alertSummary.push_id === dataPoint.resultSetId);
                 var alert;
                 if (alertSummary) {
-                    alert = alertSummary.alerts(alert =>
+                    alert = alertSummary.alerts.find(alert =>
                         alert.series_signature.id === phSeries.id);
                 }
                 $scope.tooltipContent = {
