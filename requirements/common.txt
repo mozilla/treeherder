@@ -34,9 +34,9 @@ Brotli==1.0.4 \
     --hash=sha256:39ee2de7907210d35669b80a3cf5234a8d1a89e0d82424b6603b2b8fea1c6877 \
     --hash=sha256:ec5680c8b5c45de0346a2111b73f7d3edc9e3c9c43e5ee8b2787836ccc3d5d32
 
-Django==1.11.13 \
-    --hash=sha256:18986bcffe69653a84eaf1faa1fa5a7eded32cee41cfecc77fdc65a3e046404d \
-    --hash=sha256:46adfe8e0abe4d1f026c1086889970b611aec492784fbdfbdaabc2457360a4a5  # pyup: <2 # Bug 1426683
+Django==1.11.14 \
+    --hash=sha256:b7f77c0d168de4c4ad30a02ae31b9dca04fb3c10472f04918d5c02b4117bba68 \
+    --hash=sha256:eb9271f0874f53106a2719c0c35ce67631f6cc27cf81a60c6f8c9817b35a3f6e  # pyup: <2 # Bug 1426683
 
 celery==3.1.26.post2 \
     --hash=sha256:60211897aee321266ff043fe2b33eaac825dfe9f46843cf964fc97507a186334 \
