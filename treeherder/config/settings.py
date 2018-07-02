@@ -237,8 +237,10 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',
-    # We can't set X_FRAME_OPTIONS to DENY since renewal of auth token requires
-    # opening an invisible iframe with the same origin.
+    # We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
+    # requires opening the auth handler page in an invisible iframe with the
+    # same origin.  This is the default setting ('SAMEORIGIN') for Django's
+    # X_FRAME_OPTIONS setting so it isn't set in this file.
     'security.W019'
 ]
 
@@ -260,11 +262,6 @@ DISALLOWED_USER_AGENTS = (
 # Auth0 setup
 AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
 AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
-
-# Set the `X-Frame-Options` header, which forbids embedding of site pages in frames other than origin.
-# AUTH0 renewal opens the auth handler page in an invisible frame
-# hence requiring the need to support frames with same origin
-X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Celery
 CELERY_QUEUES = [
