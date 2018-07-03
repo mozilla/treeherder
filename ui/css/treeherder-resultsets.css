@@ -179,6 +179,14 @@ th-action-button .btn-push {
   color: #777;
 }
 
+.revision-comment div {
+  display: inline-block;
+}
+
+.revision-comment div > p {
+  display: inline;
+}
+
 /*
  * Job table
  */

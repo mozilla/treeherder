@@ -77,24 +77,42 @@ export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
 export const linkifyURLs = function linkifyURLs(input) {
   const urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
 
-  return input.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return input.replace(urlpattern, '[$1]($1)');
 };
 
 /**
- * Makes links out of any revisions in the text
+ * Makes Markdown links out of any revisions in the text
  * @param text - Text to linkify
  * @param repo - Must be a repo object, not just a repoName string.  Needs to
  *               have fields of ``dvcs_type`` and ``url``.
- * @returns String of HTML with Linkified revision SHAs
+ * @returns String in Markdown format with Linkified revision SHAs
  */
 export const linkifyRevisions = function linkifyRevisions(text, repo) {
-  const urlText = linkifyURLs(text);
-  const trimText = (urlText || '').trim();
+  // escape any square brackets so they don't become false links
+  let linkifiedText = text.replace(/\[/g, '\\[');
+  linkifiedText = linkifiedText.replace(/]/g, '\\]');
+  linkifiedText = linkifyURLs(linkifiedText);
+  linkifiedText = (linkifiedText || '').trim();
 
-  if (repo.dvcs_type === 'hg' && isSHA(trimText)) {
-    return `<a href='${repo.url}/rev/${trimText}'>${trimText}</a>`;
+  if (repo.dvcs_type === 'hg' && isSHA(linkifiedText)) {
+    return `[${linkifiedText}](${repo.url}/rev/${linkifiedText})`;
   }
-  return trimText;
+  return linkifiedText;
+};
+
+export const linkifyBugs = function linkifyBugs(text) {
+  let linkifiedText = text.replace(/\[/g, '\\[');
+  linkifiedText = linkifiedText.replace(/]/g, '\\]');
+  const bugMatches = linkifiedText.match(/-- ([0-9]+)|bug.([0-9]+)/ig);
+  const bugUrl = '[$1](https://bugzilla.mozilla.org/show_bug.cgi?id=$1 "bugzilla.mozilla.org")';
+
+  if (bugMatches) {
+    // Separate passes to preserve prefix
+    linkifiedText = linkifiedText.replace(/Bug ([0-9]+)/g, `Bug ${bugUrl}`);
+    linkifiedText = linkifiedText.replace(/bug ([0-9]+)/g, `bug ${bugUrl}`);
+    linkifiedText = linkifiedText.replace(/-- ([0-9]+)/g, `-- ${bugUrl}`);
+  }
+  return linkifiedText;
 };
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {

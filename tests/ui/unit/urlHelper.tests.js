@@ -1,10 +1,10 @@
-import { linkifyURLs, linkifyRevisions } from "../../../ui/helpers/url";
+import { linkifyURLs, linkifyRevisions } from '../../../ui/helpers/url';
 
 describe('linkifyURLs helper', () => {
 
   it('linkifies a URL', () => {
     expect(linkifyURLs('https://www.mozilla.org'))
-      .toEqual('<a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a>');
+      .toEqual('[https://www.mozilla.org](https://www.mozilla.org)');
   });
 
   it('does not linkify a non-URL', () => {
@@ -13,19 +13,19 @@ describe('linkifyURLs helper', () => {
 
   it('linkifies a mix of URL and non-URL', () => {
     expect(linkifyURLs('This is a test: https://www.mozilla.org Did I pass?'))
-      .toEqual('This is a test: <a href="https://www.mozilla.org" target="_blank" rel="noopener">https://www.mozilla.org</a> Did I pass?');
+      .toEqual('This is a test: [https://www.mozilla.org](https://www.mozilla.org) Did I pass?');
   });
 });
 
 describe('linkifyRevisions helper', () => {
   let repo;
-  beforeEach(angular.mock.module('treeherder'));
+
   beforeEach((() => {
     repo = {
       id: 1,
       repository_group: {
         description: '',
-        name: 'development'
+        name: 'development',
       },
       name: 'mozilla-central',
       dvcs_type: 'hg',
@@ -35,12 +35,12 @@ describe('linkifyRevisions helper', () => {
 
   it('linkifies a 20 char revision', () => {
     expect(linkifyRevisions('1234567890ab', repo))
-      .toEqual("<a href='https://hg.mozilla.org/mozilla/central/rev/1234567890ab'>1234567890ab</a>");
+      .toEqual('[1234567890ab](https://hg.mozilla.org/mozilla/central/rev/1234567890ab)');
   });
 
   it('linkifies a 40 char revision', () => {
     expect(linkifyRevisions('dec7c40f3be3fc3e2b0a7c7f968757a9541b5efb', repo))
-      .toEqual("<a href='https://hg.mozilla.org/mozilla/central/rev/dec7c40f3be3fc3e2b0a7c7f968757a9541b5efb'>dec7c40f3be3fc3e2b0a7c7f968757a9541b5efb</a>");
+      .toEqual('[dec7c40f3be3fc3e2b0a7c7f968757a9541b5efb](https://hg.mozilla.org/mozilla/central/rev/dec7c40f3be3fc3e2b0a7c7f968757a9541b5efb)');
   });
 
   it('does not linkify a non revision', () => {
