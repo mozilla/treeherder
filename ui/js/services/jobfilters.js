@@ -172,8 +172,7 @@ treeherder.factory('thJobFilters', [
                                             _.mapKeys(DEFAULTS, function (value, key) {
                                                 return _withPrefix(key);
                                             }));
-            Object.keys(locationSearch).forEach((field) => {
-                const values = locationSearch[field];
+            Object.entries(locationSearch).forEach(([field, values]) => {
                 if (_isFieldFilter(field)) {
                     if (field === QS_SEARCH_STR) {
                         // we cache this one a little differently
@@ -421,10 +420,9 @@ treeherder.factory('thJobFilters', [
          */
         function getFieldFiltersArray() {
             const fieldFilters = [];
-            Object.keys($location.search()).forEach((fieldName) => {
-                const location = $location.search();
+            Object.entries($location.search()).forEach(([fieldName, values]) => {
                 if (_isFieldFilter(fieldName)) {
-                    const valArr = _toArray(location[fieldName]);
+                    const valArr = _toArray(values);
                     valArr.forEach((val) => {
                         if (fieldName !== QS_SEARCH_STR) {
                             fieldFilters.push({

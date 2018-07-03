@@ -36,8 +36,8 @@ treeherder.factory('ThRepositoryModel', [
                   const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
                       { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
                   ), {});
-                Object.keys(groups).forEach((key) => {
-                    orderedRepoGroups[thRepoGroupOrder[key] || key] = { name: key, repos: groups[key] };
+                Object.entries(groups).forEach(([reposAr, gName]) => {
+                    orderedRepoGroups[thRepoGroupOrder[reposAr] || reposAr] = { name: reposAr, repos: gName };
                 });
                 }
             }
@@ -66,8 +66,8 @@ treeherder.factory('ThRepositoryModel', [
                 if (Object.keys(newStatuses).length === repoNames.length) {
                     // we've received all the statuses we expect to
                     _.defer(function () {
-                        Object.keys(newStatuses).forEach((status) => {
-                            repos[TreeStatusModel.getRepoName(newStatuses[status].tree)].treeStatus = newStatuses[status];
+                        Object.entries(newStatuses).forEach(([, status]) => {
+                            repos[TreeStatusModel.getRepoName(status.tree)].treeStatus = status;
                         });
                     });
                 }
