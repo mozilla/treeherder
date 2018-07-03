@@ -214,7 +214,7 @@ export default class PushJobs extends React.Component {
     const { $injector, repoName } = this.props;
 
     return (
-      <table id={this.aggregateId} className="table-hover">
+      <table id={this.aggregateId} className="table-hover" data-job-clear-on-click>
         <tbody onMouseDown={this.onMouseDown}>
           {platforms ? Object.keys(platforms).map(id => (
           platforms[id].visible &&
