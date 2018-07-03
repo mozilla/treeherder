@@ -9,7 +9,7 @@ export default class JobsAndGroups extends React.Component {
     const { $injector, groups, repoName, platform, filterPlatformCb } = this.props;
 
     return (
-      <td className="job-row">
+      <td className="job-row" data-job-clear-on-click>
         {groups.map((group) => {
           if (group.tier !== 1 || group.symbol !== '?') {
             return (

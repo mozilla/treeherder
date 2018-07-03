@@ -5,8 +5,8 @@ import JobsAndGroups from './JobsAndGroups';
 function PlatformName(props) {
   const titleText = props.title;
   return (
-    <td className="platform">
-      <span title={titleText}>{titleText}</span>
+    <td className="platform" data-job-clear-on-click>
+      <span title={titleText} data-job-clear-on-click>{titleText}</span>
     </td>
   );
 }
@@ -20,7 +20,7 @@ export default function Platform(props) {
   const { title, groups, id } = platform;
 
   return (
-    <tr id={id} key={id}>
+    <tr id={id} key={id} data-job-clear-on-click>
       <PlatformName title={title} />
       <JobsAndGroups
         groups={groups}
