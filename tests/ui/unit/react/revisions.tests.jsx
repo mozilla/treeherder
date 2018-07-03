@@ -161,11 +161,9 @@ describe('Revision item component', () => {
         revision={mockData.revision}
         linkifyBugsFilter={linkifyBugsFilter}
       />);
-    const escapedComment = _.escape(mockData.revision.comments.split('\n')[0]);
-    const linkifiedCommentText = linkifyBugsFilter(escapedComment);
 
     const comment = wrapper.find('.revision-comment em');
-    expect(comment.html()).toEqual(`<em>${linkifiedCommentText}</em>`);
+    expect(comment.html()).toEqual('<em data-job-clear-on-click="true">Bug <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1319926" data-bugid="1319926" title="bugzilla.mozilla.org">1319926</a> - Part 2: Collect telemetry about deprecated String generics methods. r=jandem</em>');
   });
 
   it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
@@ -209,7 +207,7 @@ describe('initials filter', function () {
     const initials = mount(<Initials title={`${name}: ${email}`}
                                      author={name}
     />);
-    expect(initials.html()).toEqual('<span title="Starscream: foo@bar.baz"><span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div></span>');
+    expect(initials.html()).toEqual('<span title="Starscream: foo@bar.baz"><span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true" data-job-clear-on-click="true"></i></span><div class="icon-superscript user-push-initials" data-job-clear-on-click="true">S</div></span>');
   });
 
   it('initializes a two-word name', function () {
@@ -218,7 +216,7 @@ describe('initials filter', function () {
                                      author={name}
     />);
     const userPushInitials = initials.find('.user-push-initials');
-    expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials">OP</div>');
+    expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials" data-job-clear-on-click="true">OP</div>');
   });
 
   it('initializes a three-word name', function () {
@@ -227,7 +225,7 @@ describe('initials filter', function () {
                                      author={name}
     />);
     const userPushInitials = initials.find('.user-push-initials');
-    expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials">ST</div>');
+    expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials" data-job-clear-on-click="true">ST</div>');
   });
 });
 
