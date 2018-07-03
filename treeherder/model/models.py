@@ -211,7 +211,7 @@ class Bugscache(models.Model):
 
         # Replace MySQL's Full Text Search Operators with spaces so searching
         # for errors that have been pasted in still works.
-        sanitised_term = re.sub(mysql_fts_operators_re, search_term, " ")
+        sanitised_term = re.sub(mysql_fts_operators_re, " ", search_term)
 
         # Wrap search term so it is used as a phrase in the full-text search.
         search_term_fulltext = '"%s"' % sanitised_term
