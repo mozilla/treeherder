@@ -201,7 +201,7 @@ export default class AnnotationsTab extends React.Component {
     bug.destroy()
       .then(() => {
         this.thNotify.send(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
-        this.$rootScope.$emit(thEvents.bugsAssociated, { jobs: { [selectedJob.id]: selectedJob } });
+        this.$rootScope.$emit(thEvents.jobsClassified, { jobs: { [selectedJob.id]: selectedJob } });
       }, () => {
         this.thNotify.send(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
       });

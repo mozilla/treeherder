@@ -272,8 +272,6 @@ export const thEvents = {
   jobRetrigger: 'job-retrigger-EVT',
   // fired when jobs are classified locally
   jobsClassified: 'jobs-classified-EVT',
-  // fired when bugs are associated to jobs locally
-  bugsAssociated: 'bugs-associated-EVT',
   // after loading a group of jobs
   jobsLoaded: 'jobs-loaded-EVT',
   // when new pushes are prepended, or appended
