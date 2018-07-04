@@ -391,8 +391,8 @@ perf.controller('AlertsCtrl', [
             const summariesToUpdate = [alertSummary].concat((
                 alertSummary.alerts.filter(alert => alert.selected).map(
                 alert => ($scope.alertSummaries.find(alertSummary =>
-                        alertSummary.id === alert.related_summary_id) || []),
-                )).reduce((a, b) => [...a, ...b], []));
+                        alertSummary.id === alert.related_summary_id)),
+                )).filter(alertSummary => alertSummary !== undefined));
 
             alertSummary.modifySelectedAlerts({
                 status: phAlertStatusMap.UNTRIAGED.id,
