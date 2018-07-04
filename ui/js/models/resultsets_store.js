@@ -273,8 +273,8 @@ treeherder.factory('ThResultSetStore', [
         };
 
         const getAllShownJobs = (pushId) => {
-          const shownJobs = Object.values(getJobMap())
-            .map(jobEl => jobEl.job_obj);
+          const shownJobs = Object.values(getJobMap()).map(jobEl => jobEl.job_obj);
+
           if (pushId) {
             return shownJobs.filter(job => job.result_set_id === pushId && job.visible);
           }
