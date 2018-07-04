@@ -295,6 +295,7 @@ export const thEvents = {
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   clearPinboard: 'clear-pinboard-EVT',
+  pinJobs: 'pin-jobs-EVT',
   selectJob: 'select-job-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
   openLogviewer: 'open-logviewer-EVT',
