@@ -554,6 +554,10 @@ treeherderApp.controller('MainCtrl', [
             return filters;
         };
 
+        $scope.pinJobs = function () {
+          $rootScope.$emit(thEvents.pinJobs, ThResultSetStore.getAllShownJobs());
+        };
+
         $scope.clearFilterBox = function () {
             thJobFilters.removeFilter('searchStr');
         };
