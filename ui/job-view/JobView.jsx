@@ -141,6 +141,12 @@ class JobView extends React.Component {
     });
   }
 
+  clearIfEligibleTarget(target) {
+    if (target.hasAttribute('data-job-clear-on-click')) {
+      this.$rootScope.$emit(thEvents.clearSelectedJob, target);
+    }
+  }
+
   render() {
     const {
       user, repoName, revision, currentRepo, selectedJob, $injector,
@@ -167,7 +173,7 @@ class JobView extends React.Component {
         size={`${pushListPct}%`}
         onDragFinished={size => this.handleSplitChange(size)}
       >
-        <div className="d-flex flex-column w-100">
+        <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
           {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
             $injector={$injector}
             filterBarFilters={filterBarFilters}
@@ -178,7 +184,7 @@ class JobView extends React.Component {
           {serverChangedDelayed && <UpdateAvailable
             updateButtonClick={this.updateButtonClick}
           />}
-          <div id="th-global-content" className="th-global-content">
+          <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
             <span className="th-view-content">
               <PushList
                 user={user}

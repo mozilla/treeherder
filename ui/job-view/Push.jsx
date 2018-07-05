@@ -151,7 +151,7 @@ export default class Push extends React.Component {
               repo={currentRepo}
             />
           }
-          <span className="job-list job-list-pad col-7">
+          <span className="job-list job-list-pad col-7" data-job-clear-on-click>
             <PushJobs
               push={push}
               repoName={repoName}
