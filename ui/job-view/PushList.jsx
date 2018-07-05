@@ -265,19 +265,13 @@ export default class PushList extends React.Component {
     }
   }
 
-  clearIfEligibleTarget(target) {
-    if (target.hasAttribute('data-job-clear-on-click')) {
-      this.$rootScope.$emit(thEvents.clearSelectedJob, target);
-    }
-  }
-
   render() {
     const { $injector, user, repoName, revision, currentRepo } = this.props;
     const { pushList, loadingPushes, jobsReady } = this.state;
     const { isLoggedIn, isStaff } = user;
 
     return (
-      <div onClick={evt => this.clearIfEligibleTarget(evt.target)}>
+      <div>
         {jobsReady && <span className="hidden ready" />}
         {repoName && pushList.map(push => (
           <Push
