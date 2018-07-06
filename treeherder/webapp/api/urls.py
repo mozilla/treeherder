@@ -7,7 +7,6 @@ from rest_framework import routers
 from treeherder.webapp.api import (auth,
                                    bug,
                                    bugzilla,
-                                   classifiedfailure,
                                    intermittents_view,
                                    job_log_url,
                                    jobs,
@@ -101,9 +100,6 @@ default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashVie
 default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'matcher', refdata.MatcherViewSet)
-default_router.register(r'classified-failure',
-                        classifiedfailure.ClassifiedFailureViewSet,
-                        base_name='classified-failure')
 default_router.register(r'text-log-error',
                         text_log_error.TextLogErrorViewSet,
                         base_name='text-log-error')
