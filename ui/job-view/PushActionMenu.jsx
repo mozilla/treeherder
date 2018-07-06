@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getUrlParam } from '../helpers/location';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
-import { thEvents } from '../js/constants';
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -41,23 +40,29 @@ export default class PushActionMenu extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.unlistenGlobalFilterChanged = this.$rootScope.$on(
-      thEvents.globalFilterChanged, () => {
-        this.setState({
-          topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
-          bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
-        });
-      });
+    const { history } = this.props;
+
+    this.updateRangeLinks = this.updateRangeLinks.bind(this);
+
+    this.unlistenHistory = history.listen(this.updateRangeLinks);
   }
 
   componentWillUnmount() {
-    this.unlistenGlobalFilterChanged();
+    this.unlistenHistory();
   }
 
   getRangeChangeUrl(param, revision) {
     let url = window.location.href;
     url = url.replace(`&${param}=${getUrlParam(param)}`, '');
+    url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
     return `${url}&${param}=${revision}`;
+  }
+
+  updateRangeLinks() {
+    this.setState({
+      topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
+      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+    });
   }
 
   triggerMissingJobs() {
@@ -190,5 +195,6 @@ PushActionMenu.propTypes = {
   pushId: PropTypes.number.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
   showRunnableJobsCb: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
 };

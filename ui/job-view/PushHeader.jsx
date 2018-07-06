@@ -163,7 +163,7 @@ export default class PushHeader extends React.PureComponent {
 
   render() {
     const { repoName, isLoggedIn, pushId, isStaff, jobCounts, author,
-            revision, runnableVisible, $injector, watchState,
+            revision, runnableVisible, $injector, watchState, history,
             showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState } = this.props;
     const { filterParams } = this.state;
     const cancelJobsTitle = isLoggedIn ?
@@ -249,7 +249,7 @@ export default class PushHeader extends React.PureComponent {
               $injector={$injector}
               showRunnableJobsCb={showRunnableJobsCb}
               hideRunnableJobsCb={hideRunnableJobsCb}
-
+              history={history}
             />
           </span>
         </div>
@@ -285,6 +285,7 @@ PushHeader.propTypes = {
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
   isLoggedIn: PropTypes.bool,
