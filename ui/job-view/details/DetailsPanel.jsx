@@ -332,9 +332,6 @@ export default class DetailsPanel extends React.Component {
     } else {
       this.pinJob(job);
     }
-    if (!this.selectedJob) {
-      this.selectJob(job);
-    }
   }
 
   pulsePinCount() {
