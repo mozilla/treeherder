@@ -290,46 +290,6 @@ def test_job_detail_not_found(client, test_repository):
     assert resp.status_code == 404
 
 
-def test_job_error_lines(client, eleven_jobs_stored, failure_lines, classified_failures):
-    """
-    test retrieving failure lines
-    """
-    job = Job.objects.get(id=1)
-
-    resp = client.get(
-        reverse("jobs-failure-lines",
-                kwargs={"project": job.repository.name, "pk": job.id})
-    )
-    assert resp.status_code == 200
-
-    failures = resp.json()
-    assert isinstance(failures, list)
-
-    failure = failures[0]
-
-    exp_failure_keys = ["id", "job_guid", "repository", "job_log", "action", "line",
-                        "test", "subtest", "status", "expected", "message",
-                        "signature", "level", "created", "modified", "matches",
-                        "best_classification", "best_is_verified", "classified_failures",
-                        "unstructured_bugs"]
-
-    assert set(failure.keys()) == set(exp_failure_keys)
-
-    matches = failure["matches"]
-    assert isinstance(matches, list)
-
-    exp_matches_keys = ["id", "matcher_name", "score", "classified_failure"]
-
-    assert set(matches[0].keys()) == set(exp_matches_keys)
-
-    classified = failure["classified_failures"][0]
-    assert isinstance(classified, dict)
-
-    exp_classified_keys = ["id", "bug_number", "bug"]
-
-    assert set(classified.keys()) == set(exp_classified_keys)
-
-
 def test_text_log_steps_and_errors(client, test_job):
 
     TextLogStep.objects.create(job=test_job,
