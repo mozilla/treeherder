@@ -171,7 +171,7 @@ class JobView extends React.Component {
       <SplitPane
         split="horizontal"
         size={`${pushListPct}%`}
-        onDragFinished={size => this.handleSplitChange(size)}
+        onChange={size => this.handleSplitChange(size)}
       >
         <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
           {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
