@@ -118,7 +118,7 @@ export default class Push extends React.Component {
   }
 
   render() {
-    const { push, isLoggedIn, isStaff, $injector, repoName, history } = this.props;
+    const { push, isLoggedIn, isStaff, $injector, repoName } = this.props;
     const { watched, runnableVisible } = this.state;
     const { currentRepo, urlBasePath } = this.$rootScope;
     const { id, push_timestamp, revision, job_counts, author } = push;
@@ -141,7 +141,6 @@ export default class Push extends React.Component {
           showRunnableJobsCb={this.showRunnableJobs}
           hideRunnableJobsCb={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
-          history={history}
         />
         <div className="push-body-divider" />
         <div className="row push clearfix">
@@ -168,7 +167,6 @@ export default class Push extends React.Component {
 Push.propTypes = {
   push: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
   repoName: PropTypes.string,

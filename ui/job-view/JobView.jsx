@@ -177,6 +177,7 @@ class JobView extends React.Component {
           {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
             $injector={$injector}
             filterBarFilters={filterBarFilters}
+            history={this.history}
             isFieldFilterVisible={isFieldFilterVisible}
             toggleFieldFilterVisible={this.toggleFieldFilterVisible}
           />}
@@ -190,7 +191,6 @@ class JobView extends React.Component {
                 repoName={repoName}
                 revision={revision}
                 currentRepo={currentRepo}
-                history={this.history}
                 $injector={$injector}
               />
             </span>
