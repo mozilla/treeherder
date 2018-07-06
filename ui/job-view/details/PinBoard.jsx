@@ -181,7 +181,20 @@ export default class PinBoard extends React.Component {
   retriggerAllPinnedJobs() {
     // pushing pinned jobs to a list.
     const jobIds = Object.keys(this.props.pinnedJobs);
-    JobModel.retrigger(this.$rootScope.repoName, jobIds);
+    const plurality = jobIds.length > 1 ? 's' : '';
+
+    JobModel.retrigger(this.$rootScope.repoName, jobIds)
+      .then((resp) => {
+        if (resp.ok) {
+          this.thNotify.send(
+            `Retrigger request sent for ${jobIds.length} pinned job${plurality}`,
+            'success');
+        } else {
+          throw new Error(formatModelError(resp, `Unable to send retrigger${plurality}`));
+        }
+      })
+      .catch(error => this.$timeout(this.thNotify.send(error, 'danger')))
+      .finally(() => this.$rootScope.$apply());
   }
 
   cancelAllPinnedJobsTitle() {
