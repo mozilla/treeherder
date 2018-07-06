@@ -1246,5 +1246,31 @@
         "repository_group": 8,
         "description": ""
     }
+},
+{
+    "pk": 97,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "ci-admin",
+        "url": "https://hg.mozilla.org/build/ci-admin",
+        "active_status": "active",
+        "codebase": "ci-admin",
+        "repository_group": 9,
+        "description": "Administrative scripts for Firefox CI"
+    }
+},
+{
+    "pk": 98,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "hg",
+        "name": "ci-configuration",
+        "url": "https://hg.mozilla.org/build/ci-configuration",
+        "active_status": "active",
+        "codebase": "ci-admin",
+        "repository_group": 9,
+        "description": "Administrative configuration for Firefox CI"
+    }
 }
 ]
