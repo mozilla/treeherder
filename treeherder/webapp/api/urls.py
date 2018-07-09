@@ -86,23 +86,31 @@ project_bound_router.register(
     base_name='performance-signatures-platforms')
 
 
-# this is the default router for plain restful endpoints
-class ExtendedRouter(routers.DefaultRouter):
+class TextLogErrorRouter(routers.DefaultRouter):
+    """
+    TextLogError specific router
+
+    The TLE endpoints accept PUT to a non-detail endpoint (no PK/ID in the
+    URL).  This router tells DRF to route those calls to a ViewSet's
+    `update_many` method.
+    """
     routes = copy.deepcopy(routers.DefaultRouter.routes)
     routes[0].mapping[u"put"] = u"update_many"
 
 
+tle_router = TextLogErrorRouter()
+tle_router.register(r'text-log-error',
+                    text_log_error.TextLogErrorViewSet,
+                    base_name='text-log-error')
+
 # refdata endpoints:
-default_router = ExtendedRouter()
+default_router = routers.DefaultRouter()
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
                         base_name='optioncollectionhash')
 default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'matcher', refdata.MatcherViewSet)
-default_router.register(r'text-log-error',
-                        text_log_error.TextLogErrorViewSet,
-                        base_name='text-log-error')
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
                         base_name='performance-alert-summaries')
@@ -126,10 +134,9 @@ default_router.register(r'auth', auth.AuthViewSet,
                         base_name='auth')
 
 urlpatterns = [
-    url(r'^project/(?P<project>[\w-]{0,50})/',
-        include(project_bound_router.urls)),
-    url(r'^',
-        include(default_router.urls)),
+    url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
+    url(r'^', include(default_router.urls)),
+    url(r'^', include(tle_router.urls)),
     url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
     url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
