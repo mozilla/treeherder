@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import treeherder from '../../treeherder';
 
 treeherder.factory('math', [
@@ -13,8 +11,7 @@ treeherder.factory('math', [
                 return 0;
             }
 
-            return _.sum(values) / values.length;
-
+            return values.reduce((a, b) => a + b, 0) / values.length;
         }
 
         function stddev(values, avg) {
