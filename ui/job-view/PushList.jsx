@@ -141,6 +141,7 @@ export default class PushList extends React.Component {
       // the user it's not in the range of the current result set list.
       JobModel.get(repoName, selectedJobId).then((job) => {
         this.ThResultSetModel.getResultSet(repoName, job.result_set_id).then((push) => {
+          this.$location.search('selectedJob', null);
           const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
 
           // the job exists, but isn't in any loaded push.

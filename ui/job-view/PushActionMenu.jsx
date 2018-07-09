@@ -57,6 +57,7 @@ export default class PushActionMenu extends React.PureComponent {
   getRangeChangeUrl(param, revision) {
     let url = window.location.href;
     url = url.replace(`&${param}=${getUrlParam(param)}`, '');
+    url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
     return `${url}&${param}=${revision}`;
   }
 
