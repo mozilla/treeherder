@@ -9,14 +9,32 @@ export default class TreeStatusModel {
       `${name}-thunderbird` : name;
   }
 
-  // the inverse of getTreeStatusName.  Seems like overhead to put this one
-  // line here, but it keeps the logic to do/undo all in one place.
-  static getRepoName(name) {
-    return name.replace('-thunderbird', '');
-  }
-
   static get(repoName) {
     return fetch(`${uri}${TreeStatusModel.getTreeStatusName(repoName)}`)
-      .then(resp => resp.json());
+      .then((resp) => {
+        if (resp.ok) {
+          return resp.json();
+        } else if (resp.status === 404) {
+          return Promise.resolve({
+            result: {
+              status: 'unsupported',
+              message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
+              reason: '',
+              tree: repoName,
+            },
+          });
+        }
+        throw new Error(resp.statusText);
+      })
+      .catch(reason => (
+        Promise.resolve({
+          result: {
+            status: 'error',
+            message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
+            reason,
+            tree: repoName,
+          },
+        })
+      ));
   }
 }
