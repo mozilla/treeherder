@@ -195,7 +195,7 @@ class Commenter(object):
         # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
         session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
         session.headers = {
-            'User-Agent': settings.TREEHERDER_USER_AGENT,
+            'User-Agent': TREEHERDER_USER_AGENT,
             'x-bugzilla-api-key': settings.COMMENTER_API_KEY,
             'Accept': 'application/json'
         }
@@ -210,7 +210,7 @@ class Commenter(object):
 
         try:
             response = self.session.get(self.create_url(bug_id), headers=self.session.headers, params=params,
-                                        timeout=settings.REQUESTS_TIMEOUT)
+                                        timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
         except RequestException as e:
             logger.warning('error fetching bugzilla metadata for bug {} because {}'.format(bug_id, e))
@@ -227,7 +227,7 @@ class Commenter(object):
     def submit_bug_comment(self, params, bug_id):
         try:
             response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=params,
-                                        timeout=settings.REQUESTS_TIMEOUT)
+                                        timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
         except RequestException as e:
             logger.error('error posting comment to bugzilla for bug {} because {}'.format(bug_id, e))

@@ -1,6 +1,10 @@
 import logging
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
+TREEHERDER_USER_AGENT = 'treeherder/{}'.format(settings.SITE_HOSTNAME)
+REQUESTS_TIMEOUT = 30
 
 # Min required failures per bug in order to post a comment
 MIN_DAILY_THRESHOLD = 15
