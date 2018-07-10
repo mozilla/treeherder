@@ -1,5 +1,3 @@
-
-
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
 import { create } from '../helpers/http';
