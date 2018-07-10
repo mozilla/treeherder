@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'treeherder.autoclassify',
     'treeherder.credentials',
     'treeherder.seta',
+    'treeherder.intermittents_commenter',
 ]
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
@@ -395,24 +396,19 @@ CELERYBEAT_SCHEDULE = {
     },
     'daily-intermittents-commenter': {
         # Executes every morning at 7 a.m.
-        'run-every-morning': {
-            'task': 'intermittents-commenter',
-            'schedule': crontab(hour=7),
-            'args': (False, False),
-            'options': {
-                'queue': 'intermittents_commenter'
-            }
+        'task': 'intermittents-commenter',
+        'schedule': crontab(hour=7),
+        'options': {
+            'queue': 'intermittents_commenter'
         },
     },
     'weekly-intermittents-commenter': {
         # Executes every sunday morning at 8 a.m.
-        'run-every-sunday': {
-            'task': 'intermittents-commenter',
-            'schedule': crontab(hour=8, day_of_week=0),
-            'args': (True, False),
-            'options': {
-                'queue': 'intermittents_commenter'
-            }
+        'task': 'intermittents-commenter',
+        'schedule': crontab(hour=8, day_of_week='sunday'),
+        'kwargs': {'weekly_mode': True},
+        'options': {
+            'queue': 'intermittents_commenter'
         },
     },
 }
@@ -477,9 +473,16 @@ BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
 BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
 
+# For intermittents commenter
+COMMENTER_API_KEY = env("COMMENTER_API_KEY", default=None)
+
 # Log Parsing
 PARSER_MAX_STEP_ERROR_LINES = 100
 FAILURE_LINES_CUTOFF = 35
+
+# Auth0 setup
+AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
+AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
 
 # Orange Factor
 ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"

@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 import time
 from collections import Counter
@@ -13,50 +12,25 @@ from django.db.models import Count
 from jinja2 import Template
 from requests.exceptions import RequestException
 
+from treeherder.intermittents_commenter.constants import *
 from treeherder.model.models import (BugJobMap,
                                      Push)
 from treeherder.webapp.api.utils import get_repository
 
-# Min required failures per bug in order to post a comment
-MIN_DAILY_THRESHOLD = 15
-MIN_WEEKLY_THRESHOLD = 1
-TOP_BUGS_THRESHOLD = 50
-
-# Includes call-to-action message for priority threshold bugs
-PRIORITY1_THRESHOLD = 75
-PRIORITY2_THRESHOLD = 30
-
-DISABLE_THRESHOLD = 150
-DISABLE_DAYS = 21
-
-# Change [stockwell needswork] to [stockwell unknown] when failure rate
-# drops below 20 failures/week
-UNKNOWN_THRESHOLD = 20
-
-WHITEBOARD_DISABLE_RECOMMENDED = '[stockwell disable-recommended]'
-WHITEBOARD_NEEDSWORK_OWNER = '[stockwell needswork:owner]'
-WHITEBOARD_NEEDSWORK = '[stockwell needswork]'
-WHITEBOARD_UNKNOWN = '[stockwell unknown]'
-
-TRIAGE_PARAMS = {'include_fields': 'product,component,priority,whiteboard'}
-
-logger = logging.getLogger(__name__)
-
 
 class Commenter(object):
     """handles fetching, transforming and submitting bug comments based on
-    daily or weekly thresholds and date range; if in test_mode, comments
+    daily or weekly thresholds and date range; if in dry_run, comments
     will be output to stdout rather than submitted to bugzilla"""
 
-    def __init__(self, weekly_mode, test_mode):
+    def __init__(self, **kwargs):
         """booleans args are passed from the run_intermittents_commenter
-           command based on --weekly_mode and --test_mode flags; if flags
-           are omitted, default values for both are False"""
+           based on --weekly and --dry-run flags or from the run_commenter
+           celery task; default values for weekly_mode and dry_run are False."""
 
-        self.weekly_mode = weekly_mode
-        self.test_mode = test_mode
+        self.weekly_mode = kwargs['weekly_mode']
+        self.dry_run = kwargs['dry_run']
         self.session = self.new_request()
-        self.components = self.open_file('owner_triage_components.json', True)
 
     def run(self):
         startday, endday = self.calculate_date_strings(self.weekly_mode, 6)
@@ -133,7 +107,7 @@ class Commenter(object):
         return all_params
 
     def check_needswork_owner(self, change_priority, bug_info, whiteboard):
-        if (([bug_info['product'], bug_info['component']] in self.components) and
+        if (([bug_info['product'], bug_info['component']] in COMPONENTS) and
             not self.check_whiteboard_status(whiteboard)):
 
             if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
@@ -173,7 +147,7 @@ class Commenter(object):
 
     def print_or_submit_comments(self, all_params):
         for params in all_params:
-            if self.test_mode:
+            if self.dry_run:
                 print(params['comment']['body'] + '\n')
             else:
                 self.submit_bug_comment(params['comment'], params['bug_id'])
@@ -181,7 +155,7 @@ class Commenter(object):
                 time.sleep(1)
 
     def open_file(self, filename, load):
-        with open('treeherder/services/intermittents_commenter/{}'.format(filename), 'r') as myfile:
+        with open('treeherder/intermittents_commenter/{}'.format(filename), 'r') as myfile:
             if load:
                 return json.load(myfile)
             else:
@@ -222,7 +196,7 @@ class Commenter(object):
         session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
         session.headers = {
             'User-Agent': settings.TREEHERDER_USER_AGENT,
-            'x-bugzilla-api-key': settings.BUGFILER_API_KEY,
+            'x-bugzilla-api-key': settings.COMMENTER_API_KEY,
             'Accept': 'application/json'
         }
         return session
