@@ -120,14 +120,18 @@ treeherder.factory('tcactions', [
                         originalTask,
                         originalTaskId,
                         staticActionVariables: response.data.variables,
-                        actions: response.data.actions.filter(
-                            action =>
-                                knownKinds.includes(action.kind) &&
-                                ((!action.context.length && !originalTask) ||
-                                    (originalTask &&
-                                        originalTask.tags &&
-                                        taskInContext(action.context, originalTask.tags))),
-                        ),
+                        actions: response.data.actions.reduce((actions, action) => {
+                          if (knownKinds.includes(action.kind) &&
+                            !actions.some(({ name }) => name === action.name) &&
+                            ((!action.context.length && !originalTask) ||
+                              (originalTask &&
+                                originalTask.tags &&
+                                taskInContext(action.context, originalTask.tags)))) {
+                            return actions.concat(action);
+                          }
+
+                          return actions;
+                        }, []),
                     };
                 });
             },
