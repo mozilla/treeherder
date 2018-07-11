@@ -6,7 +6,7 @@ import difference from 'lodash/difference';
 
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/job';
-import { thFailureResults, thDefaultFilterResultStates, thEvents } from '../constants';
+import { thFailureResults, thDefaultFilterResultStatuses, thEvents } from '../constants';
 
 /**
    This service handles whether or not a job, job group or platform row should
@@ -51,7 +51,7 @@ treeherder.factory('thJobFilters', [
 
         // default filter values, when a filter is not specified in the query string
         const DEFAULTS = {
-            resultStatus: thDefaultFilterResultStates,
+            resultStatus: thDefaultFilterResultStatuses,
             classifiedState: ['classified', 'unclassified'],
             tier: ['1', '2'],
         };

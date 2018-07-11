@@ -179,7 +179,7 @@ export const thSimplePlatforms = [
 
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
 
-export const thAllResultStates = [
+export const thAllResultStatuses = [
   'testfailed',
   'busted',
   'exception',
@@ -192,7 +192,7 @@ export const thAllResultStates = [
   'runnable',
 ];
 
-export const thDefaultFilterResultStates = [
+export const thDefaultFilterResultStatuses = [
   'testfailed',
   'busted',
   'exception',
