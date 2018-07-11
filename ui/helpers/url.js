@@ -32,7 +32,7 @@ export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
-  return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}`;
+  return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
 };
 
 export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
