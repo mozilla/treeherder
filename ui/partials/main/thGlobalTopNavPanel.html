@@ -109,7 +109,7 @@
       </span>
 
       <!-- Filters Menu -->
-      <span ng-controller="JobFilterCtrl" >
+      <span>
         <span th-checkbox-dropdown-container class="dropdown">
           <button id="filterLabel" title="Set filters" role="button"
                   data-toggle="dropdown"
@@ -118,48 +118,42 @@
           <ul id="filter-dropdown"
               class="dropdown-menu nav-dropdown-menu-right checkbox-dropdown-menu"
               role="menu" aria-labelledby="filterLabel">
-            <span class="filtergroup" ng-repeat="(group_order, group) in filterGroups">
-              <li role="presentation" class="dropdown-header">
-                  {{::group.name}}
-                  <span class="fa fa-info-circle"></span>
-              </li>
-              <span ng-repeat="filterName in group.resultStatuses" >
-                <label class="{{::checkClass}} dropdown-item">
-                  <input type="checkbox"
-                         class="mousetrap"
-                         id="{{::filterName}}"
-                         ng-model="resultStatusFilters[filterName]"
-                         ng-change="toggleResultStatusFilter(filterName)"> {{::filterName}}
-                  </label>
-              </span>
-              <li class="dropdown-divider separator"></li>
-            </span>
-
-
+            <li>
+                <span ng-repeat="filterName in resultStatuses">
+                  <span>
+                    <label class="{{::checkClass}} dropdown-item">
+                      <input type="checkbox"
+                             class="mousetrap"
+                             id="{{::filterName}}"
+                             ng-checked="isFilterOn(filterName)"
+                             ng-click="jobFilters.toggleResultStatuses([filterName])"> {{::filterName}}
+                      </label>
+                  </span>
+                </span>
+            </li>
+            <li class="dropdown-divider separator"></li>
             <label class="dropdown-item">
               <input type="checkbox"
                      id="classified"
-                     ng-model="classifiedFilter"
-                     ng-click="toggleClassifiedFilter()"> classified
+                     ng-checked="isFilterOn('classified')"
+                     ng-click="jobFilters.toggleClassifiedFilter('classified')"> classified
             </label>
             <label class="dropdown-item">
               <input type="checkbox"
                      id="unclassified"
-                     ng-model="unClassifiedFilter"
-                     ng-click="toggleUnClassifiedFilter()"> un-classified
+                     ng-checked="isFilterOn('unclassified')"
+                     ng-click="jobFilters.toggleClassifiedFilter('unclassified')"> un-classified
             </label>
-
             <li class="dropdown-divider separator"></li>
-
             <li title="Pin all jobs that pass the global filters"
                 class="dropdown-item"
                 ng-click="pinJobs()">Pin all showing</li>
             <li title="Show only superseded jobs"
                 class="dropdown-item"
-                ng-click="thJobFilters.setOnlySuperseded()">Superseded only</li>
+                ng-click="jobFilters.setOnlySuperseded()">Superseded only</li>
             <li title="Reset to default status filters"
                 class="dropdown-item"
-                ng-click="thJobFilters.resetNonFieldFilters()">Reset</li>
+                ng-click="jobFilters.resetNonFieldFilters()">Reset</li>
           </ul>
         </span>
       </span>
@@ -181,5 +175,5 @@
     </span>
 
   </div>
-  <ng-include class="watched-repo-navbar" src="'partials/main/thWatchedRepoNavPanel.html'" ng-show="locationPath==='jobs'"></ng-include>
+  <secondary-nav-bar update-button-click="updateButtonClick" server-changed="serverChanged" />
 </nav>

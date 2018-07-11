@@ -123,6 +123,24 @@ treeherder.factory('thJobFilters', [
             },
         };
 
+        const FILTER_GROUPS = {
+            failures: {
+                value: 'failures',
+                name: 'failures',
+                resultStatuses: thFailureResults.slice(),
+            },
+            nonfailures: {
+                value: 'nonfailures',
+                name: 'non-failures',
+                resultStatuses: ['success', 'retry', 'usercancel', 'superseded'],
+            },
+            'in progress': {
+                value: 'in progress',
+                name: 'in progress',
+                resultStatuses: ['pending', 'running'],
+            },
+        };
+
         // filter caches so that we only collect them when the filter params
         // change in the query string
         let cachedResultStatusFilters = {};
@@ -288,9 +306,7 @@ treeherder.factory('thJobFilters', [
             if (_matchesDefaults(field, newQsVal)) {
                 newQsVal = null;
             }
-            $timeout(() => {
-                $location.search(_withPrefix(field), newQsVal);
-            }, 0);
+            $timeout(() => $location.search(_withPrefix(field), newQsVal));
         }
 
         function removeFilter(field, value) {
@@ -306,8 +322,7 @@ treeherder.factory('thJobFilters', [
                     newQsVal = null;
                 }
             }
-            $location.search(_withPrefix(field), newQsVal);
-            $rootScope.$apply();
+            $timeout(() => $location.search(_withPrefix(field), newQsVal));
         }
 
         function replaceFilter(field, value) {
@@ -319,8 +334,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = $location.search();
             _stripFieldFilters(locationSearch);
             _stripClearableFieldFilters(locationSearch);
-            $location.search(locationSearch);
-            $rootScope.$apply();
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -366,6 +380,11 @@ treeherder.factory('thJobFilters', [
                 rsValues = null;
             }
             $location.search(QS_RESULT_STATUS, rsValues);
+        }
+
+        function toggleClassifiedFilter(classifiedState) {
+          const func = getClassifiedStateArray().includes(classifiedState) ? removeFilter : addFilter;
+          func('classifiedState', classifiedState);
         }
 
         function toggleUnclassifiedFailures() {
@@ -587,6 +606,7 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
+            toggleClassifiedFilter: toggleClassifiedFilter,
             setOnlySuperseded: setOnlySuperseded,
             getActiveFilters: getActiveFilters,
 
@@ -601,6 +621,7 @@ treeherder.factory('thJobFilters', [
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
+            filterGroups: FILTER_GROUPS,
             classifiedState: CLASSIFIED_STATE,
             resultStatus: RESULT_STATUS,
             tiers: TIERS,

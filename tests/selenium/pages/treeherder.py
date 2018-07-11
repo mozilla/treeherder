@@ -14,7 +14,7 @@ class Treeherder(Base):
 
     URL_TEMPLATE = '/#/jobs?repo={}'.format(settings.TREEHERDER_TEST_REPOSITORY_NAME)
 
-    _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar button.active')
+    _active_watched_repo_locator = (By.CSS_SELECTOR, '#watched-repo-navbar a.active')
     _clear_filter_locator = (By.ID, 'quick-filter-clear-button')
     _filter_failures_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title=failures]')
     _filter_in_progress_locator = (By.CSS_SELECTOR, '.btn-nav-filter[title*=progress]')
@@ -31,7 +31,7 @@ class Treeherder(Base):
     _repo_menu_locator = (By.ID, 'repoLabel')
     _pushes_locator = (By.CSS_SELECTOR, '.push:not(.row)')
     _unclassified_filter_locator = (By.CSS_SELECTOR, '.btn-unclassified-failures')
-    _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar th-watched-repo')
+    _watched_repos_locator = (By.CSS_SELECTOR, '#watched-repo-navbar .watched-repos')
 
     @property
     def loaded(self):
@@ -43,6 +43,8 @@ class Treeherder(Base):
 
     @property
     def active_watched_repo(self):
+        self.wait.until(lambda _: self.is_element_displayed(
+            *self._active_watched_repo_locator))
         return self.find_element(*self._active_watched_repo_locator).text
 
     @property

@@ -136,6 +136,10 @@ login {
  * Left hand lower navbar
  */
 
+secondary-nav-bar {
+    width: 100%;
+}
+
 .watched-repo-main-btn {
     border-right: 0;
     padding-right: 5px;

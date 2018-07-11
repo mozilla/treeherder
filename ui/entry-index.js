@@ -25,6 +25,7 @@ import './js/treeherder_app';
 
 // Treeherder React UI
 import './job-view/JobView';
+import './job-view/headerbars/SecondaryNavBar';
 
 // Treeherder JS
 import './js/components/auth';
@@ -44,7 +45,6 @@ import './js/models/perf/series';
 import './js/controllers/main';
 import './js/controllers/repository';
 import './js/controllers/notification';
-import './js/controllers/filters';
 import './js/controllers/bugfiler';
 import './js/controllers/tcjobactions';
 import './js/filters';

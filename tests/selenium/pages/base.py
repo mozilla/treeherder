@@ -21,6 +21,8 @@ class Base(Page):
             # Initially try to compare with the text of the menu item.
             # But if there's an image instead of just text, then compare the
             # ``alt`` property of the image instead.
+            self.wait.until(lambda _: self.is_element_displayed(
+                *self._app_menu_locator))
             menu = self.find_element(*self._app_menu_locator).text
             return menu if menu else self.find_element(
                 *self._app_logo_locator).get_attribute("alt")
