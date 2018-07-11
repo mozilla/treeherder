@@ -831,33 +831,31 @@ class JobNote(models.Model):
             return
 
         # if the failure type isn't intermittent, ignore
-        if self.failure_classification.name not in [
-                "intermittent", "intermittent needs filing"]:
+        if self.failure_classification.name not in ["intermittent", "intermittent needs filing"]:
             return
 
         # if the linked Job has more than one TextLogError, ignore
         text_log_error = self.job.get_manual_classification_line()
         if not text_log_error:
             return
-        bug_numbers = set(BugJobMap.objects
-                          .filter(job=self.job)
-                          .values_list('bug_id', flat=True))
 
-        existing_bugs = set(ClassifiedFailure.objects
-                            .filter(error_matches__text_log_error=text_log_error)
-                            .values_list('bug_number', flat=True))
+        # evaluate the QuerySet here so it can be used when creating new_bugs below
+        existing_bugs = list(ClassifiedFailure.objects.filter(error_matches__text_log_error=text_log_error)
+                                                      .values_list('bug_number', flat=True))
 
-        add_bugs = (bug_numbers - existing_bugs)
-        if not add_bugs:
+        new_bugs = (self.job.bugjobmap_set.exclude(bug_id__in=existing_bugs)
+                                          .values_list('bug_id', flat=True))
+
+        if not new_bugs:
             return
 
         # Create Match instances for each new bug
-        for bug_number in add_bugs:
+        for bug_number in new_bugs:
             classification, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug_number)
             text_log_error.create_match("ManualDetector", classification)
 
         # if there's only one new bug and no existing ones, verify it
-        if len(add_bugs) == 1 and not existing_bugs:
+        if len(new_bugs) == 1 and not existing_bugs:
             text_log_error.verify_classification(classification)
 
     def save(self, *args, **kwargs):
