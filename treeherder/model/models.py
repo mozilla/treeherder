@@ -876,7 +876,14 @@ class JobNote(models.Model):
 
     @classmethod
     def create_autoclassify_job_note(self, job, user=None):
+        """
+        Create a JobNote, possibly via auto-classification.
 
+        Create mappings from the given Job to Bugs via verified Classifications
+        of this Job.
+
+        Also creates a JobNote.
+        """
         # Only insert bugs for verified failures since these are automatically
         # mirrored to ES and the mirroring can't be undone
         bug_numbers = set(ClassifiedFailure.objects
