@@ -812,8 +812,7 @@ class JobNote(models.Model):
         if note:
             self.job.failure_classification_id = note.failure_classification.id
         else:
-            self.job.failure_classification_id = FailureClassification.objects.values_list(
-                'id', flat=True).get(name='not classified')
+            self.job.failure_classification_id = FailureClassification.objects.get(name='not classified').id
         self.job.save()
 
     def _ensure_classification(self):
