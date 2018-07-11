@@ -778,11 +778,11 @@ class BugJobMap(models.Model):
 
 
 class JobNote(models.Model):
-    '''
-    Note associated with a job.
+    """
+    Associates a Failure type with a Job and optionally a text comment from a User.
 
     Generally these are generated manually in the UI.
-    '''
+    """
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
@@ -800,7 +800,13 @@ class JobNote(models.Model):
             return self.user.email
         return "autoclassifier"
 
-    def _update_failure_classification(self):
+    def _update_failure_type(self):
+        """
+        Updates the failure type of this Note's Job.
+
+        Set the linked Job's failure type to that of the previous Note or set
+        to Not Classified if this is the last note.
+        """
         # update the job classification
         note = JobNote.objects.filter(job=self.job).order_by('-created').first()
         if note:
@@ -810,14 +816,27 @@ class JobNote(models.Model):
                 'id', flat=True).get(name='not classified')
         self.job.save()
 
-        # if a manually filed job, update the autoclassification information
+    def _ensure_classification(self):
+        """
+        Ensures a single TextLogError's related bugs have Classifications.
+
+        If the linked Job has a single meaningful TextLogError:
+         - find the bugs currently related to it via a Classification
+         - find the bugs mapped to the job related to this note
+         - find the bugs that are mapped but not classified
+         - link this subset of bugs to Classifications
+         - if there's only one new bug and no existing ones, verify it
+        """
+        # if this note was automatically filed, don't update the auto-classification information
         if not self.user:
             return
 
+        # if the failure type isn't intermittent, ignore
         if self.failure_classification.name not in [
                 "intermittent", "intermittent needs filing"]:
             return
 
+        # if the linked Job has more than one TextLogError, ignore
         text_log_error = self.job.get_manual_classification_line()
         if not text_log_error:
             return
@@ -833,20 +852,24 @@ class JobNote(models.Model):
         if not add_bugs:
             return
 
+        # Create Match instances for each new bug
         for bug_number in add_bugs:
             classification, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug_number)
             text_log_error.create_match("ManualDetector", classification)
 
+        # if there's only one new bug and no existing ones, verify it
         if len(add_bugs) == 1 and not existing_bugs:
             text_log_error.verify_classification(classification)
 
     def save(self, *args, **kwargs):
         super(JobNote, self).save(*args, **kwargs)
-        self._update_failure_classification()
+        self._update_failure_type()
+        self._ensure_classification()
 
     def delete(self, *args, **kwargs):
         super(JobNote, self).delete(*args, **kwargs)
-        self._update_failure_classification()
+        self._update_failure_type()
+        self._ensure_classification()
 
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id,
