@@ -37,10 +37,6 @@ def to_timestamp(datetime_obj):
     return None
 
 
-def as_dict(queryset, key):
-    return {getattr(item, key): item for item in queryset}
-
-
 def get_end_of_day(date):
     """Turn a date string into a datetime in order to
        add a 23:59:59.999 timestamp (default is 00:00:00)"""
