@@ -552,10 +552,14 @@ class Job(models.Model):
         return classified_error_count == len(get_filtered_error_lines(self))
 
     def is_fully_verified(self):
-        # Line is not fully verified if there are either structured failure lines
-        # with no best failure, or unverified unstructured lines not associated with
-        # a structured line
+        """
+        Determine if this Job is fully verified based on the state of its Errors.
 
+        An Error (TextLogError or FailureLine) is considered Verified once its
+        related TextLogErrorMetadata has best_is_verified set to True.  A Job
+        is then considered Verified once all its Errors TextLogErrorMetadata
+        instances are set to True.
+        """
         unverified_errors = TextLogError.objects.filter(
             _metadata__best_is_verified=False,
             step__job=self).count()
