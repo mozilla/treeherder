@@ -1279,14 +1279,18 @@ class TextLogError(models.Model):
 
     def verify_classification(self, classification):
         """
-        Mark the given ClassifiedFailure as verified by a human.
+        Mark the given ClassifiedFailure as verified.
 
-        Handles no related FailureLine and duplicating the data onto
-        FailureLine.
+        Handles the classification not currently being related to this
+        TextLogError and no Metadata existing.
         """
         if classification not in self.classified_failures.all():
             self.create_match("ManualDetector", classification)
 
+        # create a TextLogErrorMetadata instance for this TextLogError if it
+        # doesn't exist.  We can't use update_or_create here since OneToOne
+        # relations don't use an object manager so a missing relation is simply
+        # None as opposed to RelatedManager.
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
                                                 best_classification=classification,
