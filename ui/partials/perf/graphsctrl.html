@@ -74,9 +74,25 @@
       </div>
       <div>
         <p ng-show="tooltipContent.revision">
+          <button title="Nudge left"
+            ng-if="user.isStaff && tooltipContent.alert"
+            ng-click="nudgeAlert(tooltipContent, 'left')">
+            <span class="fa fa-angle-double-left"
+              ng-if="!nudgingAlert"></span>
+            <span class="fa fa-spinner fa-pulse th-spinner-lg"
+              ng-if="nudgingAlert"></span>
+          </button>
           <a id="tt-cset" ng-href="{{tooltipContent.pushlogURL}}" target="_blank" rel="noopener">
             {{tooltipContent.revision| limitTo: 12}}
           </a>
+          <button title="Nudge right"
+            ng-if="user.isStaff && tooltipContent.alert"
+            ng-click="nudgeAlert(tooltipContent, 'right')">
+            <span class="fa fa-angle-double-right"
+              ng-if="!nudgingAlert"></span>
+            <span class="fa fa-spinner fa-pulse th-spinner-lg"
+              ng-if="nudgingAlert"></span>
+          </button>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
             (<span ng-if="tooltipContent.jobId"><a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank" rel="noopener">job</a>, </span><a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signature}}&newSignature={{selectedDataPoint.signature}}&framework={{selectedDataPoint.frameworkId}}" target="_blank" rel="noopener">compare</a>)
           </span>

@@ -31,6 +31,7 @@ perf.controller('GraphsCtrl', [
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
+        $scope.nudgingAlert = false;
 
         $scope.timeranges = phTimeRanges;
 
@@ -57,6 +58,21 @@ perf.controller('GraphsCtrl', [
                     plotGraph();
                 });
             });
+        };
+
+        $scope.nudgeAlert = (dataPoint, direction) => {
+            $scope.nudgingAlert = true;
+
+            const resultSetData = dataPoint.series.flotSeries.resultSetData;
+            const towardsDataPoint = PhAlerts.findPushIdNeighbours(dataPoint, resultSetData, direction);
+
+            PhAlerts.nudgeAlert(dataPoint, towardsDataPoint).then(() => {
+                $scope.nudgingAlert = false;
+            }, (error) => {
+                $scope.nudgingAlert = false;
+                alertHttpError(error);
+            });
+
         };
 
         function getSeriesDataPoint(flotItem) {
@@ -155,6 +171,8 @@ perf.controller('GraphsCtrl', [
                     revisionInfoAvailable: true,
                     alert: alert,
                 };
+                console.log('$scope.tooltipContent:'); // eslint-disable-line no-console
+                console.log(JSON.stringify($scope.tooltipContent)); // eslint-disable-line no-console
 
                 // Get revision information for both this datapoint and the previous
                 // one
@@ -645,6 +663,7 @@ perf.controller('GraphsCtrl', [
                 }
                 return PhSeries.getSeriesList(
                     partialSeries.project, params).then(function (seriesList) {
+                        console.log('seriesList: ' + JSON.stringify(seriesList)); // eslint-disable-line no-console
                         if (!seriesList.length) {
                             return $q.reject('Signature `' + partialSeries.signature +
                                 '` not found for ' + partialSeries.project);
@@ -667,15 +686,17 @@ perf.controller('GraphsCtrl', [
                         showTooltip($scope.selectedDataPoint);
                     }
                 });
-            }, function (error) {
-                if (error.statusText) {
-                    error = 'HTTP Error: ' + error.statusText;
-                }
-                // we could probably do better than print this
-                // rather useless error, but at least this gives
-                // a hint on what the problem is
-                alert('Error loading performance data\n\n' + error);
-            });
+            }, alertHttpError);
+        }
+
+        function alertHttpError(error) {
+            if (error.statusText) {
+                error = 'HTTP Error: ' + error.statusText;
+            }
+            // we could probably do better than print this
+            // rather useless error, but at least this gives
+            // a hint on what the problem is
+            alert('Error loading performance data\n\n' + error);
         }
 
         $scope.removeSeries = function (projectName, signature) {
@@ -787,6 +808,7 @@ perf.controller('GraphsCtrl', [
 
                 // we only store the signature + project name in the url, we need to
                 // fetch everything else from the server
+                console.log('$stateParams.series: ' + $stateParams.series);  // eslint-disable-line no-console
                 var partialSeriesList = $stateParams.series.map(function (encodedSeries) {
                     var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
                     var partialSeriesArray = partialSeriesString.split(',');
@@ -799,6 +821,7 @@ perf.controller('GraphsCtrl', [
                     };
                     return partialSeriesObject;
                 });
+                console.log('partialSeriesList: ' + JSON.stringify(partialSeriesList)); // eslint-disable-line no-console
                 addSeriesList(partialSeriesList);
             } else {
                 $scope.seriesList = [];
