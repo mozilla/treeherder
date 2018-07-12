@@ -1318,8 +1318,13 @@ class TextLogError(models.Model):
 
 @python_2_unicode_compatible
 class TextLogErrorMetadata(models.Model):
-    """Optional, mutable, data that can be associated with a TextLogError."""
+    """
+    Link matching TextLogError and FailureLine instances.
 
+    Tracks best classification and verificiation of a classification.
+
+    TODO: Merge into TextLogError.
+    """
     text_log_error = models.OneToOneField(TextLogError,
                                           primary_key=True,
                                           related_name="_metadata",
