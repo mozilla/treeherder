@@ -184,9 +184,9 @@ python-dateutil==2.7.3 \
 
 requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc4ced495f0f386f8fe26
 
-django-filter==1.1.0 \
-    --hash=sha256:ea204242ea83790e1512c9d0d8255002a652a6f4986e93cee664f28955ba0c22 \
-    --hash=sha256:ec0ef1ba23ef95b1620f5d481334413700fb33f45cd76d56a63f4b0b1d76976a
+django-filter==2.0.0 \
+    --hash=sha256:86c3925020c27d072cdae7b828aaa5d165c2032a629abbe3c3a1be1edae61c58 \
+    --hash=sha256:6f4e4bc1a11151178520567b50320e5c32f8edb552139d93ea3e30613b886f56
 
 djangorestframework-filters==0.10.2 \
     --hash=sha256:6d72c304d543b0e5597defe89ba581517455e86ac84efd17526eda27118236e8 \
