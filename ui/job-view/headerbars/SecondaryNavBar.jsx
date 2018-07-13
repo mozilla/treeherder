@@ -21,7 +21,7 @@ class SecondaryNavBar extends React.Component {
 
     this.filterChicklets = [
       'failures',
-      this.thJobFilters.filterGroups.nonfailures.resultStatuses,
+      this.thJobFilters.filterGroups.nonfailures,
       'in progress'].reduce((acc, val) => acc.concat(val), []);
     const searchStr = this.thJobFilters.getFieldFiltersObj().searchStr;
     this.repoName = getUrlParam('repo');
@@ -66,8 +66,8 @@ class SecondaryNavBar extends React.Component {
   }
 
   getSearchStr() {
-    const ss = this.thJobFilters.getFieldFiltersObj().searchStr;
-    return ss ? ss.join(' ') : '';
+    const searchStr = this.thJobFilters.getFieldFiltersObj().searchStr;
+    return searchStr ? searchStr.join(' ') : '';
   }
 
   setSearchStr(ev) {
@@ -90,7 +90,7 @@ class SecondaryNavBar extends React.Component {
     const filterGroups = this.thJobFilters.filterGroups;
 
     if (filter in filterGroups) {
-      return filterGroups[filter].resultStatuses.some(val => resultStatusFilters.includes(val));
+      return filterGroups[filter].some(val => resultStatusFilters.includes(val));
     }
     return resultStatusFilters.includes(filter);
   }
@@ -102,7 +102,7 @@ class SecondaryNavBar extends React.Component {
   toggleResultStatusFilterChicklet(filter) {
     const filterGroups = this.thJobFilters.filterGroups;
     const filterValues = filter in filterGroups ?
-      filterGroups[filter].resultStatuses : // this is a filter grouping, so toggle all on/off
+      filterGroups[filter] : // this is a filter grouping, so toggle all on/off
       [filter];
 
     this.thJobFilters.toggleResultStatuses(filterValues);

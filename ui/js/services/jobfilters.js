@@ -124,21 +124,9 @@ treeherder.factory('thJobFilters', [
         };
 
         const FILTER_GROUPS = {
-            failures: {
-                value: 'failures',
-                name: 'failures',
-                resultStatuses: thFailureResults.slice(),
-            },
-            nonfailures: {
-                value: 'nonfailures',
-                name: 'non-failures',
-                resultStatuses: ['success', 'retry', 'usercancel', 'superseded'],
-            },
-            'in progress': {
-                value: 'in progress',
-                name: 'in progress',
-                resultStatuses: ['pending', 'running'],
-            },
+          failures: thFailureResults.slice(),
+          nonfailures: ['success', 'retry', 'usercancel', 'superseded'],
+          'in progress': ['pending', 'running'],
         };
 
         // filter caches so that we only collect them when the filter params
