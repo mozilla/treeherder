@@ -66,7 +66,9 @@ treeherder.factory('ThResultSetStore', [
 
             // these params will be passed in each time we poll to remain
             // within the constraints of the URL params
-            var rsPollingParams = _.pick($location.search(), rsPollingKeys);
+            const locationSearch = $location.search();
+            var rsPollingParams = rsPollingKeys.reduce(
+                (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
 
             // Register push poller if it's not registered
             var pushPoller = $interval(function () {
