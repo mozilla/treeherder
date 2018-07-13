@@ -9,7 +9,7 @@ export default class RevisionLinkify extends React.Component {
     super(props);
 
     linkify.add('rev:', {
-      validate: function (text, pos, self) {
+      validate: (text, pos, self) => {
         const revision = text.slice(pos).split(' ')[0];
 
         self.re.rev = revRe;
