@@ -420,7 +420,6 @@ fieldset[disabled] .btn-view-nav-closed.active {
   overflow-y: scroll;
   padding-left: 20px;
   padding-right: 14px;
-  white-space: nowrap;
 }
 
 #notification-dropdown .dropdown-header {

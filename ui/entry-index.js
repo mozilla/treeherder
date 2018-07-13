@@ -25,12 +25,9 @@ import './js/treeherder_app';
 
 // Treeherder React UI
 import './job-view/JobView';
-import './job-view/headerbars/SecondaryNavBar';
 
 // Treeherder JS
-import './js/components/auth';
 import './js/directives/treeherder/main';
-import './js/directives/treeherder/top_nav_bar';
 import './js/services/main';
 import './js/services/buildapi';
 import './js/services/taskcluster';
@@ -43,8 +40,6 @@ import './js/models/resultsets_store';
 import './js/models/repository';
 import './js/models/perf/series';
 import './js/controllers/main';
-import './js/controllers/repository';
-import './js/controllers/notification';
 import './js/controllers/bugfiler';
 import './js/controllers/tcjobactions';
 import './js/filters';

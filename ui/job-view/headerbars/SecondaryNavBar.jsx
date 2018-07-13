@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../../js/treeherder';
 import { thEvents } from '../../js/constants';
 import { getBtnClass } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import WatchedRepo from './WatchedRepo';
 
-class SecondaryNavBar extends React.Component {
+export default class SecondaryNavBar extends React.Component {
   constructor(props) {
     super(props);
 
@@ -38,15 +36,22 @@ class SecondaryNavBar extends React.Component {
   }
 
   componentDidMount() {
+    const { history } = this.props;
+
     this.toggleGroupState = this.toggleGroupState.bind(this);
     this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(this);
     this.clearFilterBox = this.clearFilterBox.bind(this);
     this.unwatchRepo = this.unwatchRepo.bind(this);
 
-    this.unlistenGlobalFilterChanged = this.$rootScope.$on(thEvents.globalFilterChanged, () => {
+    this.unlistenHistory = history.listen(() => {
       this.updateToggleFilters();
-      this.setState({ searchQueryStr: this.getSearchStr() });
+      this.ThResultSetStore.recalculateUnclassifiedCounts();
+      this.setState({
+        searchQueryStr: this.getSearchStr(),
+        allUnclassifiedFailureCount: this.ThResultSetStore.getAllUnclassifiedFailureCount(),
+        filteredUnclassifiedFailureCount: this.ThResultSetStore.getFilteredUnclassifiedFailureCount(),
+      });
     });
     this.unlistenRepositoriesLoaded = this.$rootScope.$on(thEvents.repositoriesLoaded, () => (
       this.setState({ watchedRepos: this.ThRepositoryModel.watchedRepos })
@@ -60,7 +65,7 @@ class SecondaryNavBar extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unlistenGlobalFilterChanged();
+    this.unlistenHistory();
     this.unlistenRepositoriesLoaded();
     this.unlistenJobsLoaded();
   }
@@ -294,9 +299,5 @@ SecondaryNavBar.propTypes = {
   $injector: PropTypes.object.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
+  history: PropTypes.object.isRequired,
 };
-
-treeherder.component('secondaryNavBar', react2angular(
-  SecondaryNavBar,
-  ['updateButtonClick', 'serverChanged'],
-  ['$injector']));

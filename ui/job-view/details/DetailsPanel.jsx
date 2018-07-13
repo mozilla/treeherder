@@ -81,7 +81,7 @@ export default class DetailsPanel extends React.Component {
     this.closeJob = this.closeJob.bind(this);
     this.countPinnedJobs = this.countPinnedJobs.bind(this);
     // give access to this count to components that don't have a common ancestor in React
-    // TODO: remove this once we're fully on ReactJS: Bug 1450042
+    // TODO: remove this once pinnedJobs is converted to a model or Context
     this.$rootScope.countPinnedJobs = this.countPinnedJobs;
 
     this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (evt, job) => {

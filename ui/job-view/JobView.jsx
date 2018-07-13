@@ -11,6 +11,7 @@ import DetailsPanel from './details/DetailsPanel';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import PushList from './PushList';
+import PrimaryNavBar from './headerbars/PrimaryNavBar';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -49,10 +50,14 @@ class JobView extends React.Component {
     const { $injector } = this.props;
     this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
+    this.ThRepositoryModel = $injector.get('ThRepositoryModel');
+    this.ThResultSetStore = $injector.get('ThResultSetStore');
+    this.thNotify = $injector.get('thNotify');
 
     this.history = createBrowserHistory();
 
     this.state = {
+      user: { isLoggedIn: false },
       isFieldFilterVisible: false,
       filterBarFilters: [
        ...this.thJobFilters.getNonFieldFiltersArray(),
@@ -60,12 +65,14 @@ class JobView extends React.Component {
       ],
       pushListPct: props.selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
       serverChangedDelayed: false,
+      serverChanged: false,
     };
   }
 
   componentDidMount() {
     this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
+    this.setUser = this.setUser.bind(this);
 
     window.addEventListener('resize', this.updateDimensions);
 
@@ -79,6 +86,7 @@ class JobView extends React.Component {
          ...this.thJobFilters.getNonFieldFiltersArray(),
          ...this.thJobFilters.getFieldFiltersArray(),
         ],
+        serverChanged: false,
       });
     });
 
@@ -88,8 +96,9 @@ class JobView extends React.Component {
       this.updateInterval = setInterval(() => {
         this.fetchDeployedRevision()
           .then((revision) => {
-            const { serverChangedTimestamp, serverRev } = this.state;
-            if (this.$rootScope.serverChanged) {
+            const { serverChangedTimestamp, serverRev, serverChanged } = this.state;
+
+            if (serverChanged) {
               if (Date.now() - serverChangedTimestamp > REVISION_POLL_DELAYED_INTERVAL) {
                 this.setState({ serverChangedDelayed: true });
                 // Now that we know there's an update, stop polling.
@@ -98,23 +107,19 @@ class JobView extends React.Component {
             }
             // This request returns the treeherder git revision running on the server
             // If this differs from the version chosen during the UI page load, show a warning
-
-            // TODO: Change this to a state/prop var when that secondary bar is
-            // converted to React.
-            // For now, set $rootScope.serverChanged so that the subdued notification
-            // can be shown on the secondary navbar.
-
             if (serverRev && serverRev !== revision) {
               this.setState({ serverRev: revision });
-              if (this.$rootScope.serverChanged === false) {
-                this.$rootScope.serverChanged = true;
-                this.$rootScope.$apply();
-                this.setState({ serverChangedTimestamp: Date.now() });
+              if (serverChanged === false) {
+                this.setState({ serverChangedTimestamp: Date.now(), serverChanged: true });
               }
             }
           });
       }, REVISION_POLL_INTERVAL);
     });
+  }
+
+  setUser(user) {
+    this.setState({ user });
   }
 
   fetchDeployedRevision() {
@@ -129,6 +134,10 @@ class JobView extends React.Component {
 
   toggleFieldFilterVisible() {
     this.setState({ isFieldFilterVisible: !this.state.isFieldFilterVisible });
+  }
+
+  pinJobs() {
+    this.$rootScope.$emit(thEvents.pinJobs, this.ThResultSetStore.getAllShownJobs());
   }
 
   updateDimensions() {
@@ -149,11 +158,11 @@ class JobView extends React.Component {
 
   render() {
     const {
-      user, repoName, revision, currentRepo, selectedJob, $injector,
+      repoName, revision, currentRepo, selectedJob, $injector,
     } = this.props;
     const {
-      isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
-      defaultPushListPct, defaultDetailsHeight, latestSplitPct,
+      user, isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
+      defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
     } = this.state;
     // SplitPane will adjust the CSS height of the top component, but not the
     // bottom component.  So the scrollbars won't work in the DetailsPanel when
@@ -168,58 +177,69 @@ class JobView extends React.Component {
       getWindowHeight() * (1 - latestSplitPct / 100);
 
     return (
-      <SplitPane
-        split="horizontal"
-        size={`${pushListPct}%`}
-        onChange={size => this.handleSplitChange(size)}
-      >
-        <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
-          {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-            $injector={$injector}
-            filterBarFilters={filterBarFilters}
-            history={this.history}
-            isFieldFilterVisible={isFieldFilterVisible}
-            toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-          />}
-          {serverChangedDelayed && <UpdateAvailable
-            updateButtonClick={this.updateButtonClick}
-          />}
-          <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-            <span className="th-view-content">
-              <PushList
-                user={user}
-                repoName={repoName}
-                revision={revision}
-                currentRepo={currentRepo}
-                $injector={$injector}
-              />
-            </span>
-          </div>
-        </div>
-        <DetailsPanel
-          resizedHeight={detailsHeight}
-          currentRepo={currentRepo}
-          repoName={repoName}
-          selectedJob={selectedJob}
+      <React.Fragment>
+        <PrimaryNavBar
+          jobFilters={this.thJobFilters}
+          groupedRepos={this.ThRepositoryModel.getOrderedRepoGroups()}
+          updateButtonClick={this.updateButtonClick}
+          pinJobs={this.pinJobs}
+          serverChanged={serverChanged}
+          history={this.history}
+          setUser={this.setUser}
           user={user}
           $injector={$injector}
         />
-      </SplitPane>
+        <SplitPane
+          split="horizontal"
+          size={`${pushListPct}%`}
+          onChange={size => this.handleSplitChange(size)}
+        >
+          <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
+            {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
+              $injector={$injector}
+              filterBarFilters={filterBarFilters}
+              history={this.history}
+              isFieldFilterVisible={isFieldFilterVisible}
+              toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+            />}
+            {serverChangedDelayed && <UpdateAvailable
+              updateButtonClick={this.updateButtonClick}
+            />}
+            <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+              <span className="th-view-content">
+                <PushList
+                  user={user}
+                  repoName={repoName}
+                  revision={revision}
+                  currentRepo={currentRepo}
+                  $injector={$injector}
+                />
+              </span>
+            </div>
+          </div>
+          <DetailsPanel
+            resizedHeight={detailsHeight}
+            currentRepo={currentRepo}
+            repoName={repoName}
+            selectedJob={selectedJob}
+            user={user}
+            $injector={$injector}
+          />
+        </SplitPane>
+      </React.Fragment>
     );
   }
 }
 
 JobView.propTypes = {
   $injector: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
   selectedJob: PropTypes.object,
 };
 
-// Sometime of these props are not ready by the time this renders, so
-// need some defaults for them.
+// Some of these props are not ready by the time this renders.
 JobView.defaultProps = {
   revision: null,
   currentRepo: {},
@@ -228,5 +248,5 @@ JobView.defaultProps = {
 
 treeherder.component('jobView', react2angular(
   JobView,
-  ['repoName', 'user', 'revision', 'currentRepo', 'selectedJob'],
+  ['repoName', 'revision', 'currentRepo', 'selectedJob'],
   ['$injector']));
