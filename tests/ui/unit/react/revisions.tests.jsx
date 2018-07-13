@@ -8,10 +8,9 @@ import {
 } from '../../../../ui/job-view/RevisionList';
 
 describe('Revision list component', () => {
-  let $injector, mockData;
-  beforeEach(angular.mock.module('treeherder'));
-  beforeEach(inject((_$injector_) => {
-    $injector = _$injector_;
+  let mockData;
+
+  beforeEach(() => {
 
     const repo = {
       id: 2,
@@ -30,7 +29,6 @@ describe('Revision list component', () => {
       pushlogURL: "https://hg.mozilla.org/integration/mozilla-inbound/pushloghtml"
     };
     // Mock these simple functions so we don't have to call ThRepositoryModel.load() first to use them
-    repo.getRevisionHref = () => `${repo.url}/rev/${push.revision}`;
     repo.getPushLogHref = revision => `${repo.pushlogURL}?changeset=${revision}`;
 
         const push = {
@@ -64,14 +62,15 @@ describe('Revision list component', () => {
             push,
             repo
         };
-    }));
+    repo.getRevisionHref = () => `${repo.url}/rev/${push.revision}`;
+  });
 
   it('renders the correct number of revisions in a list', () => {
     const wrapper = mount(
       <RevisionList
-        repo={mockData.repo} push={mockData.push}
-        $injector={$injector}
-      />
+        repo={mockData.repo}
+        push={mockData.push}
+      />,
     );
     expect(wrapper.find(Revision).length).toEqual(mockData.push.revision_count);
   });
@@ -81,9 +80,9 @@ describe('Revision list component', () => {
 
     const wrapper = mount(
       <RevisionList
-        repo={mockData.repo} push={mockData.push}
-        $injector={$injector}
-      />
+        repo={mockData.repo}
+        push={mockData.push}
+      />,
     );
     expect(wrapper.find(MoreRevisionsLink).length).toEqual(1);
   });
@@ -91,11 +90,9 @@ describe('Revision list component', () => {
 });
 
 describe('Revision item component', () => {
-  let linkifyBugsFilter, mockData;
-  beforeEach(angular.mock.module('treeherder'));
-  beforeEach(inject((_$injector_, $filter) => {
-    linkifyBugsFilter = $filter('linkifyBugs');
+  let mockData;
 
+  beforeEach(() => {
     const repo = {
       id: 2,
       repository_group: {
@@ -127,17 +124,15 @@ describe('Revision item component', () => {
       revision,
       repo
     };
-  }));
+  });
 
   it('renders a linked revision', () => {
     const wrapper = mount(
       <Revision
         repo={mockData.repo}
         revision={mockData.revision}
-        linkifyBugsFilter={linkifyBugsFilter}
       />);
-    const link = wrapper.find('a');
-    expect(link.length).toEqual(1);
+    const link = wrapper.find('a').first();
     expect(link.props().href).toEqual(mockData.repo.getRevisionHref());
     expect(link.props().title).toEqual(`Open revision ${mockData.revision.revision} on ${mockData.repo.url}`);
   });
@@ -147,7 +142,6 @@ describe('Revision item component', () => {
       <Revision
         repo={mockData.repo}
         revision={mockData.revision}
-        linkifyBugsFilter={linkifyBugsFilter}
       />);
     const initials = wrapper.find('.user-push-initials');
     expect(initials.length).toEqual(1);
@@ -159,11 +153,10 @@ describe('Revision item component', () => {
       <Revision
         repo={mockData.repo}
         revision={mockData.revision}
-        linkifyBugsFilter={linkifyBugsFilter}
       />);
 
     const comment = wrapper.find('.revision-comment em');
-    expect(comment.html()).toEqual('<em data-job-clear-on-click="true">Bug <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1319926" data-bugid="1319926" title="bugzilla.mozilla.org">1319926</a> - Part 2: Collect telemetry about deprecated String generics methods. r=jandem</em>');
+    expect(comment.html()).toEqual('<em data-job-clear-on-click="true"><span class="Linkify"><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1319926" target="_blank" rel="noopener noreferrer">Bug 1319926</a> - Part 2: Collect telemetry about deprecated String generics methods. r=jandem</span></em>');
   });
 
   it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
@@ -172,15 +165,14 @@ describe('Revision item component', () => {
       <Revision
         repo={mockData.repo}
         revision={mockData.revision}
-        linkifyBugsFilter={linkifyBugsFilter}
       />);
     expect(wrapper.find({ 'data-tags': 'backout' }).length).toEqual(1);
 
     mockData.revision.comments = "Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure";
     wrapper = mount(
       <Revision
-        repo={mockData.repo} revision={mockData.revision}
-        linkifyBugsFilter={linkifyBugsFilter}
+        repo={mockData.repo}
+        revision={mockData.revision}
       />);
     expect(wrapper.find({ 'data-tags': 'backout' }).length).toEqual(1);
   });

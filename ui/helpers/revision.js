@@ -5,23 +5,6 @@ export const parseAuthor = function parseAuthor(author) {
   return { name, email };
 };
 
-export const isSHA = function isSHA(str) {
-  // SHAs come in 12 and 40 character varieties
-  if (str.length !== 12 && str.length !== 40) {
-    return false;
-  }
-  // SHAs are a-f,0-9
-  for (let i = 0, len = str.length; i < len; i++) {
-    const code = str.charCodeAt(i);
-    if (!(code > 47 && code < 58) && // numeric (0-9)
-        !(code > 64 && code < 71) && // upper alpha (A-F)
-        !(code > 96 && code < 103)) { // lower alpha (a-f)
-      return false;
-    }
-  }
-  return true;
-};
-
 export const isSHAorCommit = function isSHAorCommit(str) {
   return /^[a-f\d]{12,40}$/.test(str) || str.includes('hg.mozilla.org');
 };

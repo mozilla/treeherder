@@ -6,7 +6,6 @@ import { Revision } from './Revision';
 export class RevisionList extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.linkifyBugsFilter = this.props.$injector.get('linkifyBugsFilter');
     this.hasMore = props.push.revision_count > props.push.revisions.length;
   }
 
@@ -18,7 +17,6 @@ export class RevisionList extends React.PureComponent {
         <ul className="list-unstyled">
           {push.revisions.map(revision =>
             (<Revision
-              linkifyBugsFilter={this.linkifyBugsFilter}
               revision={revision}
               repo={repo}
               key={revision.revision}
@@ -38,7 +36,6 @@ export class RevisionList extends React.PureComponent {
 
 RevisionList.propTypes = {
   push: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   repo: PropTypes.object.isRequired,
 };
 

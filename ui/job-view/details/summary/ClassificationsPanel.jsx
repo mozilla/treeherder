@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { linkifyRevisions, getBugUrl } from '../../../helpers/url';
+import { getBugUrl } from '../../../helpers/url';
+import RevisionLinkify from '../../../shared/RevisionLinkify';
 
 export default function ClassificationsPanel(props) {
   const {
@@ -13,7 +14,6 @@ export default function ClassificationsPanel(props) {
   const classificationTypes = $injector.get('thClassificationTypes');
 
   const repo = ThRepositoryModel.getRepo(repoName);
-  const repoURLHTML = { __html: linkifyRevisions(classification.text, repo) };
   const failureId = classification.failure_classification_id;
   const iconClass = `${(failureId === 7 ? 'fa-star-o' : 'fa fa-star')} star-${job.result}`;
   const classificationName = classificationTypes.classifications[failureId];
@@ -34,7 +34,7 @@ export default function ClassificationsPanel(props) {
           ><em> {bugs[0].bug_id}</em></a>}
       </li>
       {classification.text.length > 0 &&
-        <li><em dangerouslySetInnerHTML={repoURLHTML} /></li>
+      <li><em><RevisionLinkify repo={repo}>{classification.text}</RevisionLinkify></em></li>
       }
       <li className="revision-comment">
         {dateFilter(classification.created, 'EEE MMM d, H:mm:ss')}
