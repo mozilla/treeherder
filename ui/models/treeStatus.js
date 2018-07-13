@@ -18,7 +18,7 @@ export default class TreeStatusModel {
           return Promise.resolve({
             result: {
               status: 'unsupported',
-              message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
+              message_of_the_day: '',
               reason: '',
               tree: repoName,
             },
@@ -30,7 +30,7 @@ export default class TreeStatusModel {
         Promise.resolve({
           result: {
             status: 'error',
-            message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
+            message_of_the_day: 'Unable to connect to the https://mozilla-releng.net/treestatus API',
             reason,
             tree: repoName,
           },

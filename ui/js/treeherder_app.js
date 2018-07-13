@@ -4,12 +4,10 @@ import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 
 import treeherderModule from './treeherder';
-import thFilterChickletsTemplate from '../partials/main/thFilterChicklets.html';
 import thGlobalTopNavPanelTemplate from '../partials/main/thGlobalTopNavPanel.html';
 import thHelpMenuTemplate from '../partials/main/thHelpMenu.html';
 import thInfraMenuTemplate from '../partials/main/thInfraMenu.html';
 import thShortcutTableTemplate from '../partials/main/thShortcutTable.html';
-import thWatchedRepoNavPanelTemplate from '../partials/main/thWatchedRepoNavPanel.html';
 
 const treeherderApp = angular.module('treeherder.app', [
   treeherderModule.name,
@@ -51,7 +49,7 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
 
         $routeProvider
             .when('/jobs', {
-                // see controllers/filters.js ``skipNextSearchChangeReload`` for
+                // see controllers/main.js ``skipNextPageReload`` for
                 // why we set this to false.
                 reloadOnSearch: false,
             })
@@ -62,12 +60,10 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
     }]).run(['$templateCache', ($templateCache) => {
         // Templates used by ng-include have to be manually put in the template cache.
         // Those used by directives should instead be imported at point of use.
-        $templateCache.put('partials/main/thFilterChicklets.html', thFilterChickletsTemplate);
         $templateCache.put('partials/main/thGlobalTopNavPanel.html', thGlobalTopNavPanelTemplate);
         $templateCache.put('partials/main/thHelpMenu.html', thHelpMenuTemplate);
         $templateCache.put('partials/main/thInfraMenu.html', thInfraMenuTemplate);
         $templateCache.put('partials/main/thShortcutTable.html', thShortcutTableTemplate);
-        $templateCache.put('partials/main/thWatchedRepoNavPanel.html', thWatchedRepoNavPanelTemplate);
     }]);
 
 export default treeherderApp;

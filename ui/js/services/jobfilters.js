@@ -6,7 +6,7 @@ import difference from 'lodash/difference';
 
 import treeherder from '../treeherder';
 import { getStatus } from '../../helpers/job';
-import { thFailureResults, thDefaultFilterResultStates, thEvents } from '../constants';
+import { thFailureResults, thDefaultFilterResultStatuses, thEvents } from '../constants';
 
 /**
    This service handles whether or not a job, job group or platform row should
@@ -51,7 +51,7 @@ treeherder.factory('thJobFilters', [
 
         // default filter values, when a filter is not specified in the query string
         const DEFAULTS = {
-            resultStatus: thDefaultFilterResultStates,
+            resultStatus: thDefaultFilterResultStatuses,
             classifiedState: ['classified', 'unclassified'],
             tier: ['1', '2'],
         };
@@ -121,6 +121,12 @@ treeherder.factory('thJobFilters', [
                 name: 'search string',
                 matchType: MATCH_TYPE.searchStr,
             },
+        };
+
+        const FILTER_GROUPS = {
+          failures: thFailureResults.slice(),
+          nonfailures: ['success', 'retry', 'usercancel', 'superseded'],
+          'in progress': ['pending', 'running'],
         };
 
         // filter caches so that we only collect them when the filter params
@@ -288,9 +294,7 @@ treeherder.factory('thJobFilters', [
             if (_matchesDefaults(field, newQsVal)) {
                 newQsVal = null;
             }
-            $timeout(() => {
-                $location.search(_withPrefix(field), newQsVal);
-            }, 0);
+            $timeout(() => $location.search(_withPrefix(field), newQsVal));
         }
 
         function removeFilter(field, value) {
@@ -306,8 +310,7 @@ treeherder.factory('thJobFilters', [
                     newQsVal = null;
                 }
             }
-            $location.search(_withPrefix(field), newQsVal);
-            $rootScope.$apply();
+            $timeout(() => $location.search(_withPrefix(field), newQsVal));
         }
 
         function replaceFilter(field, value) {
@@ -319,8 +322,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = $location.search();
             _stripFieldFilters(locationSearch);
             _stripClearableFieldFilters(locationSearch);
-            $location.search(locationSearch);
-            $rootScope.$apply();
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -366,6 +368,11 @@ treeherder.factory('thJobFilters', [
                 rsValues = null;
             }
             $location.search(QS_RESULT_STATUS, rsValues);
+        }
+
+        function toggleClassifiedFilter(classifiedState) {
+          const func = getClassifiedStateArray().includes(classifiedState) ? removeFilter : addFilter;
+          func('classifiedState', classifiedState);
         }
 
         function toggleUnclassifiedFailures() {
@@ -587,6 +594,7 @@ treeherder.factory('thJobFilters', [
             toggleResultStatuses: toggleResultStatuses,
             toggleInProgress: toggleInProgress,
             toggleUnclassifiedFailures: toggleUnclassifiedFailures,
+            toggleClassifiedFilter: toggleClassifiedFilter,
             setOnlySuperseded: setOnlySuperseded,
             getActiveFilters: getActiveFilters,
 
@@ -601,6 +609,7 @@ treeherder.factory('thJobFilters', [
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS
+            filterGroups: FILTER_GROUPS,
             classifiedState: CLASSIFIED_STATE,
             resultStatus: RESULT_STATUS,
             tiers: TIERS,

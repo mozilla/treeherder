@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/url';
-import { thRepoGroupOrder } from '../constants';
+import { thRepoGroupOrder, thEvents } from '../constants';
 import TreeStatusModel from '../../models/treeStatus';
 
 treeherder.factory('ThRepositoryModel', [
@@ -243,6 +243,7 @@ treeherder.factory('ThRepositoryModel', [
                             }
                             saveWatchedRepos();
                         }
+                        $rootScope.$emit(thEvents.repositoriesLoaded);
                     });
             }
 

@@ -179,24 +179,24 @@ export const thSimplePlatforms = [
 
 export const thFailureResults = ['testfailed', 'busted', 'exception'];
 
-export const thAllResultStates = [
-  'success',
+export const thAllResultStatuses = [
   'testfailed',
   'busted',
   'exception',
+  'success',
   'retry',
   'usercancel',
+  'superseded',
   'running',
   'pending',
-  'superseded',
   'runnable',
 ];
 
-export const thDefaultFilterResultStates = [
-  'success',
+export const thDefaultFilterResultStatuses = [
   'testfailed',
   'busted',
   'exception',
+  'success',
   'retry',
   'usercancel',
   'running',
@@ -308,6 +308,7 @@ export const thEvents = {
   autoclassifyOpenLogViewer: 'ac-open-log-viewer-EVT',
   selectRunnableJob: 'select-runnable-job-EVT',
   toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
+  repositoriesLoaded: 'repositories-loaded-EVT',
 };
 
 export const phCompareDefaultOriginalRepo = 'mozilla-central';

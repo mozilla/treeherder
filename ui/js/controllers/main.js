@@ -3,20 +3,20 @@ import _ from 'lodash';
 import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';
-import { thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents } from '../constants';
+import {
+  thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents, thAllResultStatuses,
+} from '../constants';
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
     'ThRepositoryModel', '$document',
     'thClassificationTypes', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
-    '$httpParamSerializer',
     function MainController(
         $scope, $rootScope, $location, $timeout,
         ThRepositoryModel, $document,
         thClassificationTypes, $window,
-        thJobFilters, ThResultSetStore, thNotify,
-        $httpParamSerializer) {
+        thJobFilters, ThResultSetStore, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
           thNotify.send('Firefox ESR52 is not supported. Please update to ESR60 or ideally release/beta/nightly.',
@@ -40,10 +40,10 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.revision = $location.search().revision;
         thClassificationTypes.load();
 
-        // TODO: remove this once we're off of Angular completely.
+        // TODO: remove this when the thGlobalTopNavPanel is converted to React.
         $rootScope.countPinnedJobs = () => 0;
 
-        // TODO: remove this when we convert the watchedRepoNavBar to React.
+        // TODO: remove this when SecondaryNavBar has JobView as an ancestor.
         $scope.updateButtonClick = function () {
             if (window.confirm('Reload the page to pick up Treeherder updates?')) {
                 window.location.reload(true);
@@ -92,7 +92,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $rootScope.getWindowTitle = function () {
-            const ufc = $scope.getAllUnclassifiedFailureCount();
+            const ufc = ThResultSetStore.getAllUnclassifiedFailureCount();
             const params = $location.search();
 
             // repoName is undefined for the first few title update attempts, show something sensible
@@ -106,45 +106,6 @@ treeherderApp.controller('MainCtrl', [
                 title = percentage + title + revtitle;
             }
             return title;
-        };
-
-        $scope.repoModel = ThRepositoryModel;
-
-        /**
-         * The watched repos in the nav bar can be either on the left or the
-         * right side of the screen and the drop-down menu may get cut off
-         * if it pulls right while on the left side of the screen.
-         * And it can change any time the user re-sizes the window, so we must
-         * check this each time a drop-down is invoked.
-         */
-        $scope.setDropDownPull = function (event) {
-            const element = event.target.offsetParent;
-            if (element.offsetLeft > $(window).width() / 2) {
-                $(element).find('.dropdown-menu').addClass('pull-right');
-            } else {
-                $(element).find('.dropdown-menu').removeClass('pull-right');
-            }
-
-        };
-
-        $scope.getFilteredUnclassifiedFailureCount = ThResultSetStore.getFilteredUnclassifiedFailureCount;
-        $scope.getAllUnclassifiedFailureCount = ThResultSetStore.getAllUnclassifiedFailureCount;
-
-        $scope.toggleUnclassifiedFailures = thJobFilters.toggleUnclassifiedFailures;
-
-        $scope.toggleInProgress = function () {
-            thJobFilters.toggleInProgress();
-        };
-
-        $scope.getGroupState = function () {
-            return $location.search().group_state || 'collapsed';
-        };
-
-        $scope.groupState = $scope.getGroupState();
-
-        $scope.toggleGroupState = function () {
-            const newGroupState = $scope.groupState === 'collapsed' ? 'expanded' : null;
-            $location.search('group_state', newGroupState);
         };
 
         /*
@@ -193,6 +154,14 @@ treeherderApp.controller('MainCtrl', [
                 $rootScope.$emit(thEvents.recalculateUnclassified);
             }
         };
+
+        // For the Filter menu on the thGlobalTopNavPanel
+        $scope.resultStatuses = thAllResultStatuses.slice();
+        $scope.resultStatuses.splice(thAllResultStatuses.indexOf('runnable'), 1);
+
+        $scope.isFilterOn = field => (
+          [...thJobFilters.getResultStatusArray(), ...thJobFilters.getClassifiedStateArray()].includes(field)
+        );
 
         // Setup key event handling
         const stopOverrides = new Map();
@@ -293,12 +262,12 @@ treeherderApp.controller('MainCtrl', [
             ['ctrl+shift+f', (ev) => {
                 // Prevent shortcut key overflow during focus
                 ev.preventDefault();
-                $scope.$evalAsync($scope.clearFilterBox());
+                $scope.$evalAsync(thJobFilters.removeFilter('searchStr'));
             }],
 
             // Shortcut: toggle display in-progress jobs (pending/running)
             ['i', () => {
-                $scope.$evalAsync($scope.toggleInProgress());
+                $scope.$evalAsync(thJobFilters.toggleInProgress());
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
@@ -368,7 +337,7 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: display only unclassified failures
             ['u', () => {
-                $scope.$evalAsync($scope.toggleUnclassifiedFailures);
+                $scope.$evalAsync(thJobFilters.toggleUnclassifiedFailures);
             }],
 
             // Shortcut: clear the pinboard
@@ -469,22 +438,6 @@ treeherderApp.controller('MainCtrl', [
                 (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
         };
 
-        $scope.toggleFieldFilterVisible = function () {
-            $rootScope.$emit(thEvents.toggleFieldFilterVisible);
-        };
-
-        $scope.fromChangeValue = function () {
-            let url = window.location.href;
-            url = url.replace('&fromchange=' + $location.search().fromchange, '');
-            return url;
-        };
-
-        $scope.toChangeValue = function () {
-            let url = window.location.href;
-            url = url.replace('&tochange=' + $location.search().tochange, '');
-            return url;
-        };
-
         $scope.cachedReloadTriggerParams = getNewReloadTriggerParams();
 
         // reload the page if certain params were changed in the URL.  For
@@ -518,47 +471,12 @@ treeherderApp.controller('MainCtrl', [
             }
             $rootScope.skipNextPageReload = false;
 
-            // handle a change in the groupState whether it was by the button
-            // or directly in the url.
-            const newGroupState = $scope.getGroupState();
-            if (newGroupState !== $scope.groupState) {
-                $scope.groupState = newGroupState;
-                $rootScope.$emit(thEvents.groupStateChanged, newGroupState);
-            }
-
-            // handle a change in the show duplicate jobs variable
-            // whether it was by the button or directly in the url.
-            const showDuplicateJobs = $scope.isShowDuplicateJobs();
-            if (showDuplicateJobs !== $scope.showDuplicateJobs) {
-                $scope.showDuplicateJobs = showDuplicateJobs;
-                $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
-            }
-
             // update the tier drop-down menu if a tier setting was changed
             $scope.updateTiers();
         });
 
-        $scope.changeRepo = function (repo_name) {
-            // preserves filter params as the user changes repos and revisions
-            $location.search(_.extend({
-                repo: repo_name,
-            }, thJobFilters.getActiveFilters()));
-        };
-
-        $scope.filterParams = function () {
-            let filters = $httpParamSerializer(thJobFilters.getActiveFilters());
-            if (filters) {
-                filters = '&' + filters;
-            }
-            return filters;
-        };
-
         $scope.pinJobs = function () {
           $rootScope.$emit(thEvents.pinJobs, ThResultSetStore.getAllShownJobs());
-        };
-
-        $scope.clearFilterBox = function () {
-            thJobFilters.removeFilter('searchStr');
         };
 
         $scope.onscreenOverlayShowing = false;
@@ -570,16 +488,5 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $scope.jobFilters = thJobFilters;
-
-        $scope.isShowDuplicateJobs = function () {
-            return $location.search().duplicate_jobs === 'visible';
-        };
-        $scope.showDuplicateJobs = $scope.isShowDuplicateJobs();
-        $scope.toggleShowDuplicateJobs = function () {
-            const showDuplicateJobs = !$scope.showDuplicateJobs;
-
-            // $scope.showDuplicateJobs will be changed in watch function above
-            $location.search('duplicate_jobs', showDuplicateJobs ? 'visible' : null);
-        };
     },
 ]);

@@ -88,9 +88,9 @@ export default class JobButtonComponent extends React.Component {
             job_type_symbol, result } = job;
 
     if (!visible) return null;
-    const resultState = state === 'completed' ? result : state;
+    const resultStatus = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
-    const btnClass = getBtnClass(resultState, failure_classification_id);
+    const btnClass = getBtnClass(resultStatus, failure_classification_id);
     let title = `${job_type_name} - ${status}`;
 
     if (state === 'completed') {
