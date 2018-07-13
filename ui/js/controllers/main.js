@@ -510,7 +510,7 @@ treeherderApp.controller('MainCtrl', [
         const getNewReloadTriggerParams = function () {
             const locationSearch = $location.search();
             return ThResultSetStore.reloadOnChangeParameters.reduce(
-                    (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
+                (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
         };
 
         $scope.getFiltersForBar = function () {
