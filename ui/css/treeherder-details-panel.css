@@ -483,6 +483,11 @@ annotations-tab {
   background: #fff;
 }
 
+.classification-revisions div,
+.classification-revisions div > p {
+  display: inline;
+}
+
 .annotations-bug-list {
   list-style: none inside none;
   padding-left: 0;

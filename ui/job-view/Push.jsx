@@ -147,7 +147,6 @@ export default class Push extends React.Component {
           {currentRepo &&
             <RevisionList
               push={push}
-              $injector={$injector}
               repo={currentRepo}
             />
           }
