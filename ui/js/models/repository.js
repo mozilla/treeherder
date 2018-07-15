@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/url';
-import { thRepoGroupOrder, thEvents } from '../constants';
+import { thRepoGroupOrder } from '../constants';
 import TreeStatusModel from '../../models/treeStatus';
 
 treeherder.factory('ThRepositoryModel', [
@@ -45,6 +45,34 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         /**
+         * if the repo isn't supported by treestatus, then these are the generic
+         * values to use for it.
+         * setting the value to 'unsupported' means that it won't bother checking
+         * treestatus again for that repo when the interval does the updates.
+         */
+        const getUnsupportedTreeStatus = function (repoName) {
+            return {
+                status: 'unsupported',
+                message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
+                reason: '',
+                tree: repoName,
+            };
+        };
+
+        /**
+         * if there's an error fetching data from treestatus, make that obvious
+         * in the treestatus field in treeherder
+         */
+        const getErrorTreeStatus = function (repoName) {
+            return {
+                status: 'error',
+                message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
+                reason: '',
+                tree: repoName,
+            };
+        };
+
+        /**
          * Update the status for ``repoName``.  If it's not passed in,
          * then update all ``watchedRepos`` status.
          * @param repoName
@@ -54,7 +82,7 @@ treeherder.factory('ThRepositoryModel', [
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            let repoNames = watchedRepos.includes(repoName) ? [repoName] : watchedRepos;
+            let repoNames = watchedRepos.indexOf(repoName) !== -1 ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
@@ -263,7 +291,6 @@ treeherder.factory('ThRepositoryModel', [
                             }
                             saveWatchedRepos();
                         }
-                        $rootScope.$emit(thEvents.repositoriesLoaded);
                     });
             }
 
