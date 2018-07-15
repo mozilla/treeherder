@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import treeherder from '../treeherder';
 import { getApiUrl } from '../../helpers/url';
-import { thRepoGroupOrder } from '../constants';
+import { thRepoGroupOrder, thEvents } from '../constants';
 import TreeStatusModel from '../../models/treeStatus';
 
 treeherder.factory('ThRepositoryModel', [
@@ -45,34 +45,6 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         /**
-         * if the repo isn't supported by treestatus, then these are the generic
-         * values to use for it.
-         * setting the value to 'unsupported' means that it won't bother checking
-         * treestatus again for that repo when the interval does the updates.
-         */
-        const getUnsupportedTreeStatus = function (repoName) {
-            return {
-                status: 'unsupported',
-                message_of_the_day: `${repoName} is not listed on <a href="https://mozilla-releng.net/treestatus">TreeStatus</a>`,
-                reason: '',
-                tree: repoName,
-            };
-        };
-
-        /**
-         * if there's an error fetching data from treestatus, make that obvious
-         * in the treestatus field in treeherder
-         */
-        const getErrorTreeStatus = function (repoName) {
-            return {
-                status: 'error',
-                message_of_the_day: 'Unable to connect to the <a href="https://mozilla-releng.net/treestatus">TreeStatus</a> API',
-                reason: '',
-                tree: repoName,
-            };
-        };
-
-        /**
          * Update the status for ``repoName``.  If it's not passed in,
          * then update all ``watchedRepos`` status.
          * @param repoName
@@ -82,42 +54,17 @@ treeherder.factory('ThRepositoryModel', [
             // The $interval will pass in the number of times it was called,
             // rather than a ``repoName``.  So repoName would equal 1, 2, 3.  So
             // if repoName isn't a valid watched repo, we update all.
-            let repoNames = watchedRepos.indexOf(repoName) !== -1 ? [repoName] : watchedRepos;
+            let repoNames = watchedRepos.includes(repoName) ? [repoName] : watchedRepos;
 
             // filter out non-watched and unsupported repos to prevent repeatedly
             // hitting an endpoint we know will never work.
             repoNames = repoNames.filter(repo => watchedRepos.indexOf(repo) !== -1 && repos[repo].treeStatus.status !== 'unsupported');
 
-            const newStatuses = {};
-
-            const updateStatusesIfDone = function () {
-                if (Object.keys(newStatuses).length === repoNames.length) {
-                    // we've received all the statuses we expect to
-                    _.defer(function () {
-                        Object.entries(newStatuses).forEach(([, status]) => {
-                            repos[TreeStatusModel.getRepoName(status.tree)].treeStatus = status;
-                        });
-                    });
-                }
-            };
-
-            const getStatus = function (repo) {
-                TreeStatusModel.get(repo).then(
-                    function (data) {
-                        newStatuses[repo] = data.result;
-                        updateStatusesIfDone();
-                    },
-                    function (data) {
-                        if (data !== null) {
-                            newStatuses[repo] = getUnsupportedTreeStatus(repo);
-                        } else {
-                            newStatuses[repo] = getErrorTreeStatus(repo);
-                        }
-                        updateStatusesIfDone();
-                    });
-            };
-
-            repoNames.forEach(repo => getStatus(repo));
+            repoNames.forEach((repoName) => {
+              TreeStatusModel.get(repoName).then((data) => {
+                repos[repoName].treeStatus = data.result;
+              });
+            });
         };
 
         const addRepoAsUnwatched = function (repo) {
@@ -291,6 +238,7 @@ treeherder.factory('ThRepositoryModel', [
                             }
                             saveWatchedRepos();
                         }
+                        $rootScope.$emit(thEvents.repositoriesLoaded);
                     });
             }
 
