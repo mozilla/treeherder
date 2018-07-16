@@ -24,7 +24,9 @@ OUTPUT_RE = re.compile(r'^\s*(?:GECKO\(\d+\)|PID \d+)\s*$')
 
 def get_error_summary(job):
     """
-    Create a list of bug suggestions for a job
+    Create a list of bug suggestions for a job.
+
+    Caches the results if there are any.
     """
     cache_key = 'error-summary-{}'.format(job.id)
     cached_error_summary = cache.get(cache_key)
@@ -45,16 +47,25 @@ def get_error_summary(job):
 
 
 def bug_suggestions_line(err, term_cache=None):
+    """
+    Get Bug suggestions for a given TextLogError (err).
+
+    Tries to extract a search term from a clean version of the given error's
+    line.  We build a search term from the cleaned line and use that to search
+    for bugs.  Returns a dictionary with the cleaned line, the generated search
+    term, and any bugs found with said search term.
+    """
     if term_cache is None:
         term_cache = {}
     # remove the mozharness prefix
     clean_line = get_mozharness_substring(err.line)
-    search_terms = []
+
     # get a meaningful search term out of the error line
     search_term = get_error_search_term(clean_line)
     bugs = dict(open_recent=[], all_others=[])
 
     # collect open recent and all other bugs suggestions
+    search_terms = []
     if search_term:
         search_terms.append(search_term)
         if search_term not in term_cache:
@@ -82,13 +93,16 @@ def bug_suggestions_line(err, term_cache=None):
 
 
 def get_mozharness_substring(line):
+    """Strip possible mozharness bits from the given line."""
     return MOZHARNESS_RE.sub('', line).strip()
 
 
 def get_error_search_term(error_line):
     """
-    retrieves bug suggestions from bugscache using search_term
-    in a full_text search.
+    Generate a search term from the given error_line string.
+
+    Attempt to build a search term that will yield meaningful results when used
+    in a MySQL FTS query.
     """
     if not error_line:
         return None
@@ -144,10 +158,7 @@ def get_error_search_term(error_line):
 
 
 def get_crash_signature(error_line):
-    """
-    Detect if the error_line contains a crash signature
-    and return it if it's a helpful search term
-    """
+    """Try to get a crash signature from the given error_line string."""
     search_term = None
     match = CRASH_RE.match(error_line)
     if match and is_helpful_search_term(match.group(1)):
@@ -156,6 +167,14 @@ def get_crash_signature(error_line):
 
 
 def is_helpful_search_term(search_term):
+    """
+    Decide if the given search_term string is helpful or not.
+
+    We define "helpful" here as search terms that won't match an excessive
+    number of bug summaries.  Very short terms and those matching generic
+    strings (listed in the blacklist) are deemed unhelpful since they wouldn't
+    result in useful suggestions.
+    """
     # Search terms that will match too many bug summaries
     # and so not result in useful suggestions.
     search_term = search_term.strip()
@@ -183,12 +202,13 @@ def is_helpful_search_term(search_term):
         'leakcheck',
         'ImportError: No module named pygtk',
         '# TBPL FAILURE #'
-
     ]
 
     return len(search_term) > 4 and search_term not in blacklist
 
 
 def get_filtered_error_lines(job):
-    return [item for item in get_error_summary(job) if
-            is_helpful_search_term(item["search"])]
+    """
+    Filter error_summary dicts if their search term is deemed "helpful"
+    """
+    return [item for item in get_error_summary(job) if is_helpful_search_term(item["search"])]
