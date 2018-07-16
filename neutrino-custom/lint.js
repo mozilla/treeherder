@@ -18,7 +18,7 @@ module.exports = neutrino => {
                 plugins: ['react'],
                 envs: ['browser', 'es6', 'commonjs', 'jasmine'],
                 baseConfig: {
-                    extends: ['airbnb']
+                    extends: ['airbnb'],
                 },
                 rules: {
                     // TODO: Fix & remove these deviations from AirBnB style (bug 1183749).
@@ -51,9 +51,8 @@ module.exports = neutrino => {
                     'prefer-template': 'off',
                     'radix': 'off',
                     'react/forbid-prop-types': 'off',
-                    'react/no-danger': 'off',
                     'react/no-multi-comp': 'off',
                 },
-            }
+            },
         }));
 };
