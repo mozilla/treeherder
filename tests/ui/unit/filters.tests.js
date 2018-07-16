@@ -1,17 +1,3 @@
-describe('linkifyBugs filter', function() {
-    var $filter;
-    beforeEach(angular.mock.module('treeherder'));
-    beforeEach(inject(function(_$filter_) {
-        $filter = _$filter_;
-    }));
-
-    it('linkifies a Bug', function() {
-        var linkifyBugs = $filter('linkifyBugs');
-        expect(linkifyBugs('Bug 123456'))
-          .toEqual('Bug <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=123456" data-bugid="123456" title="bugzilla.mozilla.org">123456</a>');
-    });
-});
-
 describe('getRevisionUrl filter', function() {
     var $filter;
     beforeEach(angular.mock.module('treeherder'));

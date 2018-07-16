@@ -7,7 +7,7 @@ export default class BugLinkify extends React.Component {
     super(props);
 
     linkify.add('bug:', {
-      validate: function (text, pos, self) {
+      validate: (text, pos, self) => {
         const bugNumber = text.slice(pos).split(' ')[0];
 
         self.re.bug = /^([0-9]+)/ig;

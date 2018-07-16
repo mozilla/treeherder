@@ -2,7 +2,6 @@ import { Queue } from 'taskcluster-client-web';
 
 import thTaskcluster from '../js/services/taskcluster';
 import { getUrlParam, getAllUrlParams } from './location';
-import { isSHA } from './revision';
 
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);
@@ -72,29 +71,6 @@ export const getProjectUrl = function getProjectUrl(uri, repoName) {
 
 export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
   return getProjectUrl(`/jobs/${jobId}${url}`);
-};
-
-export const linkifyURLs = function linkifyURLs(input) {
-  const urlpattern = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-
-  return input.replace(urlpattern, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-};
-
-/**
- * Makes links out of any revisions in the text
- * @param text - Text to linkify
- * @param repo - Must be a repo object, not just a repoName string.  Needs to
- *               have fields of ``dvcs_type`` and ``url``.
- * @returns String of HTML with Linkified revision SHAs
- */
-export const linkifyRevisions = function linkifyRevisions(text, repo) {
-  const urlText = linkifyURLs(text);
-  const trimText = (urlText || '').trim();
-
-  if (repo.dvcs_type === 'hg' && isSHA(trimText)) {
-    return `<a href='${repo.url}/rev/${trimText}'>${trimText}</a>`;
-  }
-  return trimText;
 };
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
