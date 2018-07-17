@@ -1,4 +1,7 @@
+from __future__ import division
+
 import json
+import logging
 import re
 import time
 from collections import Counter
@@ -11,11 +14,16 @@ from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
 from requests.exceptions import RequestException
+from six import iteritems
 
-from treeherder.intermittents_commenter.constants import *
+from treeherder.intermittents_commenter.constants import (COMPONENTS,
+                                                          TRIAGE_PARAMS,
+                                                          WHITEBOARD_NEEDSWORK_OWNER)
 from treeherder.model.models import (BugJobMap,
                                      Push)
 from treeherder.webapp.api.utils import get_repository
+
+logger = logging.getLogger(__name__)
 
 
 class Commenter(object):
@@ -23,18 +31,14 @@ class Commenter(object):
     daily or weekly thresholds and date range; if in dry_run, comments
     will be output to stdout rather than submitted to bugzilla"""
 
-    def __init__(self, **kwargs):
-        """booleans args are passed from the run_intermittents_commenter
-           based on --weekly and --dry-run flags or from the run_commenter
-           celery task; default values for weekly_mode and dry_run are False."""
-
-        self.weekly_mode = kwargs['weekly_mode']
-        self.dry_run = kwargs['dry_run']
+    def __init__(self, weekly_mode=False, dry_run=False):
+        self.weekly_mode = weekly_mode
+        self.dry_run = dry_run
         self.session = self.new_request()
 
     def run(self):
         startday, endday = self.calculate_date_strings(self.weekly_mode, 6)
-        alt_startday, alt_endday = self.calculate_date_strings(True, DISABLE_DAYS)
+        alt_startday, alt_endday = self.calculate_date_strings(True, DISABLE_DAYS=21)
         all_params = self.create_comments(startday, endday, alt_startday, alt_endday)
         self.print_or_submit_comments(all_params)
 
@@ -51,9 +55,9 @@ class Commenter(object):
 
         if self.weekly_mode:
             top_bugs = [bug[0] for bug in sorted(bug_stats.items(), key=lambda x: x[1]['total'],
-                        reverse=True)][:TOP_BUGS_THRESHOLD]
+                        reverse=True)][:50]
 
-        for bug_id, counts in bug_stats.iteritems():
+        for bug_id, counts in iteritems(bug_stats):
             change_priority = None
             bug_info = None
             whiteboard = None
@@ -61,12 +65,12 @@ class Commenter(object):
             rank = None
 
             # recommend disabling when more than 150 failures tracked over 21 days
-            if alt_bug_stats[bug_id]['total'] >= DISABLE_THRESHOLD:
+            if alt_bug_stats[bug_id]['total'] >= 150:
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
 
                 if not self.check_whiteboard_status(whiteboard):
                     priority = 3
-                    whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_DISABLE_RECOMMENDED)
+                    whiteboard = self.update_whiteboard(whiteboard, '[stockwell disable-recommended]')
 
             if self.weekly_mode:
                 priority = self.assign_priority(priority, counts)
@@ -74,7 +78,8 @@ class Commenter(object):
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
                     change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
-                if (counts['total'] < UNKNOWN_THRESHOLD):
+                # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
+                if (counts['total'] < 20):
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
                     whiteboard = self.check_needswork(whiteboard)
 
@@ -124,14 +129,14 @@ class Commenter(object):
             stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
             # covers all 'needswork' possibilities, ie 'needswork:owner'
             if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
-                whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_UNKNOWN)
+                whiteboard = self.update_whiteboard(whiteboard, '[stockwell unknown]')
 
         return whiteboard
 
     def assign_priority(self, priority, counts):
-        if priority == 0 and counts['total'] >= PRIORITY1_THRESHOLD:
+        if priority == 0 and counts['total'] >= 75:
             priority = 1
-        elif priority == 0 and counts['total'] >= PRIORITY2_THRESHOLD:
+        elif priority == 0 and counts['total'] >= 30:
             priority = 2
 
         return priority
@@ -147,8 +152,11 @@ class Commenter(object):
 
     def print_or_submit_comments(self, all_params):
         for params in all_params:
-            if self.dry_run:
-                print(params['comment']['body'] + '\n')
+            if settings.COMMENTER_API_KEY is None:
+                # prevent duplicate comments when on stage/dev
+                pass
+            elif self.dry_run:
+                logger.info(params['comment']['body'] + '\n')
             else:
                 self.submit_bug_comment(params['comment'], params['bug_id'])
                 # sleep between comment submissions to avoid overwhelming servers
@@ -195,7 +203,7 @@ class Commenter(object):
         # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
         session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
         session.headers = {
-            'User-Agent': TREEHERDER_USER_AGENT,
+            'User-Agent': 'treeherder/{}'.format(settings.SITE_HOSTNAME),
             'x-bugzilla-api-key': settings.COMMENTER_API_KEY,
             'Accept': 'application/json'
         }
@@ -210,7 +218,7 @@ class Commenter(object):
 
         try:
             response = self.session.get(self.create_url(bug_id), headers=self.session.headers, params=params,
-                                        timeout=REQUESTS_TIMEOUT)
+                                        timeout=30)
             response.raise_for_status()
         except RequestException as e:
             logger.warning('error fetching bugzilla metadata for bug {} because {}'.format(bug_id, e))
@@ -222,12 +230,12 @@ class Commenter(object):
         if 'bugs' not in data:
             return None
 
-        return {key.encode('UTF8'): value.encode('UTF8') for key, value in data['bugs'][0].iteritems()}
+        return {key.encode('UTF8'): value.encode('UTF8') for key, value in iteritems(data['bugs'][0])}
 
     def submit_bug_comment(self, params, bug_id):
         try:
             response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=params,
-                                        timeout=REQUESTS_TIMEOUT)
+                                        timeout=30)
             response.raise_for_status()
         except RequestException as e:
             logger.error('error posting comment to bugzilla for bug {} because {}'.format(bug_id, e))
@@ -261,8 +269,8 @@ class Commenter(object):
             ...
         }
         """
-
-        threshold = MIN_WEEKLY_THRESHOLD if self.weekly_mode else MIN_DAILY_THRESHOLD
+        # Min required failures per bug in order to post a comment
+        threshold = 1 if self.weekly_mode else 15
         bugs = (BugJobMap.failures.default(get_repository('all'), startday, endday)
                                   .values('job__repository__name', 'job__machine_platform__platform',
                                           'bug_id'))
@@ -282,4 +290,4 @@ class Commenter(object):
                 bug_map[bug_id]['per_platform'] = Counter([platform])
                 bug_map[bug_id]['per_repository'] = Counter([repo])
 
-        return {key: value for key, value in bug_map.iteritems() if value['total'] >= threshold}
+        return {key: value for key, value in iteritems(bug_map) if value['total'] >= threshold}

@@ -395,7 +395,7 @@ CELERYBEAT_SCHEDULE = {
         }
     },
     'daily-intermittents-commenter': {
-        # Executes every morning at 7 a.m.
+        # Executes every morning at 7 a.m. UTC
         'task': 'intermittents-commenter',
         'schedule': crontab(hour=7),
         'options': {
@@ -403,7 +403,7 @@ CELERYBEAT_SCHEDULE = {
         },
     },
     'weekly-intermittents-commenter': {
-        # Executes every sunday morning at 8 a.m.
+        # Executes every sunday morning at 8 a.m. UTC
         'task': 'intermittents-commenter',
         'schedule': crontab(hour=8, day_of_week='sunday'),
         'kwargs': {'weekly_mode': True},
@@ -471,18 +471,14 @@ WHITENOISE_ROOT = path("..", "dist")
 # to stage bmo, while suggestions can still be fetched from prod bmo
 BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
-BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
+BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
 
 # For intermittents commenter
-COMMENTER_API_KEY = env("COMMENTER_API_KEY", default=None)
+COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 
 # Log Parsing
 PARSER_MAX_STEP_ERROR_LINES = 100
 FAILURE_LINES_CUTOFF = 35
-
-# Auth0 setup
-AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
-AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
 
 # Orange Factor
 ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
