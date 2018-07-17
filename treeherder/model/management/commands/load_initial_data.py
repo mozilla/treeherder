@@ -9,7 +9,7 @@ class Command(BaseCommand):
         call_command('loaddata',
                      'repository_group',
                      'repository',
-                     'failure_classification',
+                     'failure_type',
                      'issue_tracker',
                      'performance_framework',
                      'performance_bug_templates')

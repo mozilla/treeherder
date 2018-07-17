@@ -40,7 +40,7 @@ export default class DetailsPanel extends React.Component {
 
     this.PhSeries = $injector.get('PhSeries');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.thClassificationTypes = $injector.get('thClassificationTypes');
+    this.thFailureTypes = $injector.get('thFailureTypes');
     this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
@@ -440,7 +440,7 @@ export default class DetailsPanel extends React.Component {
           isVisible={isPinBoardVisible}
           selectedJob={job}
           isLoggedIn={user.isLoggedIn || false}
-          classificationTypes={this.thClassificationTypes}
+          failureTypes={this.thFailureTypes}
           revisionList={this.getRevisionTips()}
           pinnedJobs={pinnedJobs}
           pinnedJobBugs={pinnedJobBugs}
@@ -479,7 +479,7 @@ export default class DetailsPanel extends React.Component {
             bugSuggestionsLoading={bugSuggestionsLoading}
             logParseStatus={logParseStatus}
             classifications={classifications}
-            classificationTypes={this.thClassificationTypes}
+            failureTypes={this.thFailureTypes}
             jobLogUrls={jobLogUrls}
             isPinBoardVisible={isPinBoardVisible}
             pinnedJobs={pinnedJobs}

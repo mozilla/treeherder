@@ -44,7 +44,7 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
 
 
 def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
-                           failure_classifications, mock_log_parser):
+                           failure_types, mock_log_parser):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -80,7 +80,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
 
 
 def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
-                                  failure_classifications, mock_log_parser):
+                                  failure_types, mock_log_parser):
     """
     Test that ingesting a pending job (1) works and (2) ingests the
     taskcluster metadata
@@ -106,7 +106,7 @@ def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
 
 
 def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
-                                       failure_classifications, mock_log_parser):
+                                       failure_types, mock_log_parser):
     """
     Test ingesting a pulse job with bad repo will skip, ingest others
     """
@@ -143,7 +143,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
 
 
 def test_transition_pending_running_complete(first_job,
-                                             failure_classifications,
+                                             failure_types,
                                              mock_log_parser):
     jl = JobLoader()
 
@@ -153,7 +153,7 @@ def test_transition_pending_running_complete(first_job,
 
 
 def test_transition_complete_pending_stays_complete(first_job,
-                                                    failure_classifications,
+                                                    failure_types,
                                                     mock_log_parser):
     jl = JobLoader()
 
@@ -162,7 +162,7 @@ def test_transition_complete_pending_stays_complete(first_job,
 
 
 def test_transition_complete_running_stays_complete(first_job,
-                                                    failure_classifications,
+                                                    failure_types,
                                                     mock_log_parser):
     jl = JobLoader()
 
@@ -171,7 +171,7 @@ def test_transition_complete_running_stays_complete(first_job,
 
 
 def test_transition_running_pending_stays_running(first_job,
-                                                  failure_classifications,
+                                                  failure_types,
                                                   mock_log_parser):
     jl = JobLoader()
 
@@ -180,7 +180,7 @@ def test_transition_running_pending_stays_running(first_job,
 
 
 def test_transition_running_superseded(first_job,
-                                       failure_classifications,
+                                       failure_types,
                                        mock_log_parser):
     jl = JobLoader()
 
@@ -189,7 +189,7 @@ def test_transition_running_superseded(first_job,
 
 
 def test_transition_pending_retry_fail_stays_retry(first_job,
-                                                   failure_classifications,
+                                                   failure_types,
                                                    mock_log_parser):
     jl = JobLoader()
 
@@ -200,7 +200,7 @@ def test_transition_pending_retry_fail_stays_retry(first_job,
     change_state_result(first_job, jl, "completed", "fail", "completed", "retry")
 
 
-def test_skip_unscheduled(first_job, failure_classifications,
+def test_skip_unscheduled(first_job, failure_types,
                           mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"

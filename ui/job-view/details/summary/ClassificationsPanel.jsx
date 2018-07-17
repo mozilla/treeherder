@@ -11,12 +11,12 @@ export default function ClassificationsPanel(props) {
 
   const ThRepositoryModel = $injector.get('ThRepositoryModel');
   const dateFilter = $injector.get('dateFilter');
-  const classificationTypes = $injector.get('thClassificationTypes');
+  const failureTypes = $injector.get('thFailureTypes');
 
   const repo = ThRepositoryModel.getRepo(repoName);
-  const failureId = classification.failure_classification_id;
+  const failureId = classification.failure_type_id;
   const iconClass = `${(failureId === 7 ? 'fa-star-o' : 'fa fa-star')} star-${job.result}`;
-  const classificationName = classificationTypes.classifications[failureId];
+  const classificationName = failureTypes.classifications[failureId];
 
   return (
     <React.Fragment>

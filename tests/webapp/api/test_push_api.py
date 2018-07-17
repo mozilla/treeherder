@@ -6,7 +6,7 @@ import pytest
 from django.core.urlresolvers import reverse
 
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (FailureClassification,
+from treeherder.model.models import (FailureType,
                                      Job,
                                      JobNote,
                                      Push)
@@ -411,7 +411,7 @@ def test_push_detail_bad_project(client, test_repository):
     assert resp.status_code == 404
 
 
-def test_push_cancel_all(client, failure_classifications,
+def test_push_cancel_all(client, failure_types,
                          push_with_three_jobs, pulse_action_consumer,
                          test_repository, test_user):
     """
@@ -445,7 +445,7 @@ def test_push_status(client, test_job, test_user):
     """
     test retrieving the status of a push
     """
-    failure_classification = FailureClassification.objects.get(
+    failure_type = FailureType.objects.get(
         name="fixed by commit")
 
     push = test_job.push
@@ -459,7 +459,7 @@ def test_push_status(client, test_job, test_user):
     assert resp.json() == {'success': 1}
 
     JobNote.objects.create(job=test_job,
-                           failure_classification=failure_classification,
+                           failure_type=failure_type,
                            user=test_user,
                            text='A random note')
 

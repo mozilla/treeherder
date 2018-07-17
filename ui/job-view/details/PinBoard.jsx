@@ -24,8 +24,8 @@ export default class PinBoard extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
-      failureClassificationId: 4,
-      failureClassificationComment: '',
+      failuretypeId: 4,
+      failuretypeComment: '',
       enteringBugNumber: false,
       newBugNumber: null,
     };
@@ -55,18 +55,18 @@ export default class PinBoard extends React.Component {
   }
 
   setClassificationId(evt) {
-    this.setState({ failureClassificationId: parseInt(evt.target.value) });
+    this.setState({ failuretypeId: parseInt(evt.target.value) });
   }
 
   setClassificationText(evt) {
-    this.setState({ failureClassificationComment: evt.target.value });
+    this.setState({ failuretypeComment: evt.target.value });
   }
 
   unPinAll() {
     this.props.unPinAll();
     this.setState({
-      failureClassificationId: 4,
-      failureClassificationComment: '',
+      failuretypeId: 4,
+      failuretypeComment: '',
       enteringBugNumber: false,
       newBugNumber: null,
     });
@@ -101,8 +101,8 @@ export default class PinBoard extends React.Component {
         this.unPinAll();
         this.completeClassification();
         this.setState({
-          failureClassificationId: 4,
-          failureClassificationComment: '',
+          failuretypeId: 4,
+          failuretypeComment: '',
           enteringBugNumber: false,
           newBugNumber: null,
         });
@@ -118,12 +118,12 @@ export default class PinBoard extends React.Component {
 
   createNewClassification() {
     const { email } = this.props;
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const { failuretypeId, failuretypeComment } = this.state;
 
     return new JobClassificationModel({
-      text: failureClassificationComment,
+      text: failuretypeComment,
       who: email,
-      failure_classification_id: failureClassificationId,
+      failure_type_id: failuretypeId,
     });
   }
 
@@ -131,8 +131,8 @@ export default class PinBoard extends React.Component {
     const classification = this.createNewClassification();
 
     // classification can be left unset making this a no-op
-    if (classification.failure_classification_id > 0) {
-      job.failure_classification_id = classification.failure_classification_id;
+    if (classification.failure_type_id > 0) {
+      job.failure_type_id = classification.failure_type_id;
       // update the unclassified failure count for the page
       this.ThResultSetStore.updateUnclassifiedFailureMap(job);
 
@@ -174,7 +174,7 @@ export default class PinBoard extends React.Component {
     const pastedData = evt.clipboardData.getData('text');
 
     if (isSHAorCommit(pastedData)) {
-      this.setState({ failureClassificationId: 2 });
+      this.setState({ failuretypeId: 2 });
     }
   }
 
@@ -223,24 +223,24 @@ export default class PinBoard extends React.Component {
 
   canSaveClassifications() {
     const { pinnedJobBugs, isLoggedIn } = this.props;
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const { failuretypeId, failuretypeComment } = this.state;
 
     return this.hasPinnedJobs() && isLoggedIn &&
       (!!Object.keys(pinnedJobBugs).length ||
-        (failureClassificationId !== 4 && failureClassificationId !== 2) ||
+        (failuretypeId !== 4 && failuretypeId !== 2) ||
         this.$rootScope.currentRepo.is_try_repo ||
         this.$rootScope.currentRepo.repository_group.name === 'project repositories' ||
-        (failureClassificationId === 4 && failureClassificationComment.length > 0) ||
-        (failureClassificationId === 2 && failureClassificationComment.length > 7));
+        (failuretypeId === 4 && failuretypeComment.length > 0) ||
+        (failuretypeId === 2 && failuretypeComment.length > 7));
   }
 
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
   pinboardIsDirty() {
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const { failuretypeId, failuretypeComment } = this.state;
 
-    return failureClassificationComment !== '' ||
+    return failuretypeComment !== '' ||
       !!Object.keys(this.props.pinnedJobBugs).length ||
-      failureClassificationId !== 4;
+      failuretypeId !== 4;
   }
 
   // Dynamic btn/anchor title for classification save
@@ -357,11 +357,11 @@ export default class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJob, revisionList, isLoggedIn, isVisible, classificationTypes,
+      selectedJob, revisionList, isLoggedIn, isVisible, failureTypes,
       pinnedJobs, pinnedJobBugs, removeBug, unPinJob,
     } = this.props;
     const {
-      failureClassificationId, failureClassificationComment,
+      failuretypeId, failuretypeComment,
       enteringBugNumber, newBugNumber,
     } = this.state;
     const selectedJobId = selectedJob ? selectedJob.id : null;
@@ -452,13 +452,13 @@ export default class PinBoard extends React.Component {
                 <FormGroup>
                   <Input
                     type="select"
-                    name="failureClassificationId"
+                    name="failuretypeId"
                     id="pinboard-classification-select"
                     className="classification-select"
-                    value={failureClassificationId}
+                    value={failuretypeId}
                     onChange={evt => this.setClassificationId(evt)}
                   >
-                    {classificationTypes.classificationOptions.map(opt => (
+                    {failureTypes.classificationOptions.map(opt => (
                       <option value={opt.id} key={opt.id}>{opt.name}</option>
                     ))}
                   </Input>
@@ -472,10 +472,10 @@ export default class PinBoard extends React.Component {
                     onChange={evt => this.setClassificationText(evt)}
                     onPaste={this.pasteSHA}
                     placeholder="click to add comment"
-                    value={failureClassificationComment}
+                    value={failuretypeComment}
                   />
                   {/* blur-this */}
-                  {failureClassificationId === 2 && <div>
+                  {failuretypeId === 2 && <div>
                     <FormGroup>
                       <Input
                         id="pinboard-revision-select"
@@ -552,7 +552,7 @@ export default class PinBoard extends React.Component {
 
 PinBoard.propTypes = {
   $injector: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
+  failureTypes: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.object.isRequired,

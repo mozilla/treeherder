@@ -65,7 +65,7 @@
                       "kind": "Field",
                       "name": {
                         "kind": "Name",
-                        "value": "failureClassification"
+                        "value": "failuretype"
                       },
                       "selection_set": {
                         "kind": "SelectionSet",

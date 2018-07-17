@@ -174,7 +174,7 @@ def test_commit(create_commit, test_push):
 
 
 @pytest.fixture(name='create_jobs')
-def fixture_create_jobs(test_repository, failure_classifications):
+def fixture_create_jobs(test_repository, failure_types):
     """Return a function to create jobs"""
     from treeherder.model.models import Job
 
@@ -279,7 +279,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
 
 
 @pytest.fixture
-def eleven_jobs_stored(test_repository, failure_classifications, eleven_job_blobs):
+def eleven_jobs_stored(test_repository, failure_types, eleven_job_blobs):
     """stores a list of 11 job samples"""
     store_job_data(test_repository, eleven_job_blobs)
 
@@ -294,9 +294,9 @@ def taskcluster_jobs_stored(test_repository, sample_data):
 def test_job_with_notes(test_job, test_user):
     """test job with job notes."""
 
-    for failure_classification_id in [2, 3]:
+    for failure_type_id in [2, 3]:
         JobNote.objects.create(job=test_job,
-                               failure_classification_id=failure_classification_id,
+                               failure_type_id=failure_type_id,
                                user=test_user,
                                text="you look like a man-o-lantern")
 
@@ -387,12 +387,12 @@ def failure_lines(test_job, elasticsearch):
 
 
 @pytest.fixture
-def failure_classifications(transactional_db):
-    from treeherder.model.models import FailureClassification
+def failure_types(transactional_db):
+    from treeherder.model.models import FailureType
     for name in ["not classified", "fixed by commit", "expected fail",
                  "intermittent", "infra", "intermittent needs filing",
                  "autoclassified intermittent"]:
-        FailureClassification(name=name).save()
+        FailureType(name=name).save()
 
 
 @pytest.fixture
@@ -418,7 +418,7 @@ def test_matcher(request):
 
 @pytest.fixture
 def classifications(test_job, text_log_errors_failure_lines, test_matcher,
-                    failure_classifications):
+                    failure_types):
     from treeherder.model.models import Classification
     from treeherder.services.elasticsearch import refresh_index
 

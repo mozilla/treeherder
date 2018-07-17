@@ -96,9 +96,9 @@ class ProductGraph(DjangoObjectType):
         model = Product
 
 
-class FailureClassificationGraph(DjangoObjectType):
+class FailureTypeGraph(DjangoObjectType):
     class Meta:
-        model = FailureClassification
+        model = FailureType
 
 
 class RepositoryGraph(DjangoObjectType):
@@ -130,7 +130,7 @@ class PushGraph(DjangoObjectType):
             "jobLog": ("job_log", "prefetch"),
             "jobType": ("job_type", "select"),
             "jobGroup": ("job_group", "select"),
-            "failureClassification": ("failure_classification", "prefetch"),
+            "failuretype": ("failure_type", "prefetch"),
             "failureLine": ("job_log__failure_line", "prefetch"),
             "group": ("job_log__failure_line__group", "prefetch"),
             "textLogStep": ("text_log_step", "prefetch"),
@@ -150,7 +150,7 @@ class Query(graphene.ObjectType):
     all_option_collections = graphene.List(OptionCollectionGraph)
     all_job_types = graphene.List(JobTypeGraph)
     all_products = graphene.List(ProductGraph)
-    all_failure_classifications = graphene.List(FailureClassificationGraph)
+    all_failure_types = graphene.List(FailureTypeGraph)
     all_pushes = DjangoFilterConnectionField(PushGraph)
     all_text_log_steps = graphene.List(TextLogStepGraph)
 
@@ -183,8 +183,8 @@ class Query(graphene.ObjectType):
     def resolve_all_products(self, info, **kwargs):
         return Product.objects.all()
 
-    def resolve_all_failure_classifications(self, info, **kwargs):
-        return FailureClassification.objects.all()
+    def resolve_all_failure_types(self, info, **kwargs):
+        return FailureType.objects.all()
 
     def resolve_all_pushes(self, info, **kwargs):
         return Push.objects.filter(**kwargs)

@@ -216,7 +216,7 @@ def create_generic_job(guid, repository, push_id, generic_reference_data):
         job_type=generic_reference_data.job_type,
         job_group=generic_reference_data.job_group,
         product=generic_reference_data.product,
-        failure_classification_id=1,
+        failure_type_id=1,
         who='testuser@foo.com',
         reason='success',
         result='finished',

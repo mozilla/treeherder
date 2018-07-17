@@ -10,12 +10,12 @@ import {
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
     'ThRepositoryModel', '$document',
-    'thClassificationTypes', '$window',
+    'thFailureTypes', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
     function MainController(
         $scope, $rootScope, $location, $timeout,
         ThRepositoryModel, $document,
-        thClassificationTypes, $window,
+        thFailureTypes, $window,
         thJobFilters, ThResultSetStore, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
@@ -38,7 +38,7 @@ treeherderApp.controller('MainCtrl', [
             $location.search('repo', $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
-        thClassificationTypes.load();
+        thFailureTypes.load();
 
         // TODO: remove this when the thGlobalTopNavPanel is converted to React.
         $rootScope.countPinnedJobs = () => 0;

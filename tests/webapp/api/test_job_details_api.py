@@ -9,7 +9,7 @@ from treeherder.model.models import (Job,
                                      Repository)
 
 
-def test_job_details(test_repository, failure_classifications,
+def test_job_details(test_repository, failure_types,
                      generic_reference_data, push_stored, client):
     details = {
         'abcd': {

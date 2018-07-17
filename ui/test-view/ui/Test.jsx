@@ -60,8 +60,8 @@ BugCountComponent.propTypes = {
 };
 
 class Platform extends React.Component {
-  getIcon(failureClassification) {
-    switch (failureClassification) {
+  getIcon(failuretype) {
+    switch (failuretype) {
       case 'not classified':
         return;
       case 'intermittent':
@@ -77,14 +77,14 @@ class Platform extends React.Component {
     return (
       <span
         className="platform badge"
-        title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
+        title={`${this.props.job.jobType.symbol} ${this.props.job.failuretype.name}`}
       >
         <Link
           to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
           target="_blank"
           rel="noopener"
         >
-          {this.getIcon(this.props.job.failureClassification.name)}
+          {this.getIcon(this.props.job.failuretype.name)}
           {this.props.platform} {this.props.option}
         </Link>
       </span>

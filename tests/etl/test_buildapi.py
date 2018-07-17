@@ -91,7 +91,7 @@ def mock_buildapi_builds4h_missing_branch_url(activate_responses):
 
 
 def test_ingest_pending_jobs(push_stored,
-                             failure_classifications,
+                             failure_types,
                              mock_buildapi_pending_url,
                              mock_log_parser):
     """
@@ -110,7 +110,7 @@ def test_ingest_pending_jobs(push_stored,
 
 
 def test_ingest_running_jobs(push_stored,
-                             failure_classifications,
+                             failure_types,
                              mock_buildapi_running_url,
                              mock_log_parser):
     """
@@ -129,7 +129,7 @@ def test_ingest_running_jobs(push_stored,
 
 
 def test_ingest_builds4h_jobs(push_stored,
-                              failure_classifications,
+                              failure_types,
                               mock_buildapi_builds4h_url,
                               mock_log_parser):
     """
@@ -148,7 +148,7 @@ def test_ingest_builds4h_jobs(push_stored,
 
 
 def test_ingest_running_to_complete_job(push_stored,
-                                        failure_classifications,
+                                        failure_types,
                                         mock_buildapi_running_url,
                                         mock_buildapi_builds4h_url,
                                         mock_log_parser):
@@ -175,7 +175,7 @@ def test_ingest_running_to_complete_job(push_stored,
 
 
 def test_ingest_running_job_fields(push_stored,
-                                   failure_classifications,
+                                   failure_types,
                                    mock_buildapi_running_url,
                                    mock_log_parser):
     """
@@ -189,7 +189,7 @@ def test_ingest_running_job_fields(push_stored,
 
 
 def test_ingest_builds4h_jobs_1_missing_push(push_stored,
-                                             failure_classifications,
+                                             failure_types,
                                              mock_buildapi_builds4h_missing1_url,
                                              mock_log_parser):
     """
@@ -202,7 +202,7 @@ def test_ingest_builds4h_jobs_1_missing_push(push_stored,
 
 
 def test_ingest_builds4h_jobs_missing_branch(push_stored,
-                                             failure_classifications,
+                                             failure_types,
                                              mock_buildapi_builds4h_missing_branch_url,
                                              mock_log_parser):
     """

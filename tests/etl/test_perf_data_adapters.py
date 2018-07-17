@@ -26,7 +26,7 @@ def perf_push(test_repository):
 
 
 @pytest.fixture
-def perf_job(perf_push, failure_classifications, generic_reference_data):
+def perf_job(perf_push, failure_types, generic_reference_data):
     return create_generic_job('myfunguid', perf_push.repository,
                               perf_push.id, generic_reference_data)
 
@@ -258,7 +258,7 @@ def test_load_generic_data(test_repository,
 
 
 def test_no_performance_framework(test_repository,
-                                  failure_classifications,
+                                  failure_types,
                                   generic_reference_data):
     _generate_perf_data_range(test_repository,
                               generic_reference_data,
@@ -372,7 +372,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                                False, True),
                         ])
 def test_alert_generation(test_repository, test_issue_tracker,
-                          failure_classifications, generic_reference_data,
+                          failure_types, generic_reference_data,
                           alerts_enabled_repository,
                           add_suite_value, extra_suite_metadata,
                           extra_subtest_metadata, expected_subtest_alert,
@@ -449,7 +449,7 @@ def test_alert_generation(test_repository, test_issue_tracker,
 
 
 def test_alert_generation_repo_no_alerts(test_repository,
-                                         failure_classifications,
+                                         failure_types,
                                          generic_reference_data):
     # validates that no alerts generated on "try" repos
     test_repository.performance_alerts_enabled = False
@@ -463,7 +463,7 @@ def test_alert_generation_repo_no_alerts(test_repository,
 
 
 def test_framework_not_enabled(test_repository,
-                               failure_classifications,
+                               failure_types,
                                generic_reference_data):
     # The field enabled has been defaulted to 'False'
     _generate_perf_data_range(test_repository,
@@ -476,7 +476,7 @@ def test_framework_not_enabled(test_repository,
 
 
 def test_last_updated(test_repository, test_issue_tracker,
-                      failure_classifications, generic_reference_data):
+                      failure_types, generic_reference_data):
     _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               reverse_push_range=True)

@@ -57,7 +57,7 @@ def _generate_performance_data(test_repository, test_perf_signature,
 
 def test_detect_alerts_in_series(test_repository,
                                  test_issue_tracker,
-                                 failure_classifications,
+                                 failure_types,
                                  generic_reference_data,
                                  test_perf_signature):
 
@@ -107,7 +107,7 @@ def test_detect_alerts_in_series(test_repository,
 
 def test_detect_alerts_in_series_with_retriggers(
         test_repository, test_issue_tracker,
-        failure_classifications, generic_reference_data, test_perf_signature):
+        failure_types, generic_reference_data, test_perf_signature):
 
     # sometimes we detect an alert in the middle of a series
     # where there are retriggers, make sure we handle this case
@@ -144,7 +144,7 @@ def test_detect_alerts_in_series_with_retriggers(
 
 def test_no_alerts_with_old_data(
         test_repository, test_issue_tracker,
-        failure_classifications, generic_reference_data, test_perf_signature):
+        failure_types, generic_reference_data, test_perf_signature):
     base_time = 0  # 1970, too old!
     INTERVAL = 30
     _generate_performance_data(test_repository,
@@ -166,7 +166,7 @@ def test_no_alerts_with_old_data(
 
 def test_custom_alert_threshold(
         test_repository, test_issue_tracker,
-        failure_classifications, generic_reference_data, test_perf_signature):
+        failure_types, generic_reference_data, test_perf_signature):
 
     test_perf_signature.alert_threshold = 200.0
     test_perf_signature.save()
@@ -202,7 +202,7 @@ def test_custom_alert_threshold(
                          [(1.0, 1), (0.25, 0)])
 def test_alert_change_type_absolute(test_repository,
                                     test_issue_tracker,
-                                    failure_classifications,
+                                    failure_types,
                                     generic_reference_data,
                                     test_perf_signature, new_value,
                                     expected_num_alerts):

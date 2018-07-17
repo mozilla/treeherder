@@ -90,7 +90,7 @@ export default class PushList extends React.Component {
     this.jobsClassifiedUnlisten = this.$rootScope.$on(
       thEvents.jobsClassified, (ev, { jobs }) => {
         Object.values(jobs).forEach((job) => {
-          findJobInstance(job.id).props.job.failure_classification_id = job.failure_classification_id;
+          findJobInstance(job.id).props.job.failure_type_id = job.failure_type_id;
         });
         this.$rootScope.$emit(thEvents.globalFilterChanged);
       },

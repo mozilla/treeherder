@@ -42,7 +42,7 @@ def test_graphql_push_with_jobs(client, sample_push, eleven_jobs_stored, test_re
                   edges {{
                     node {{
                       guid
-                      failureClassification {{
+                      failureType {{
                         name
                       }}
                       jobLog {{
@@ -79,7 +79,7 @@ def test_graphql_push_with_jobs(client, sample_push, eleven_jobs_stored, test_re
     response_dict = resp.json()
     expected = {'data': {'allPushes': {'edges': [{'node': {'jobs': {
         'edges': [{'node': {'buildPlatform': {'platform': 'b2g-emu-jb'},
-                            'failureClassification': {
+                            'failureType': {
                                 'name': 'not classified'},
                             'guid': 'f1c75261017c7c5ce3000931dce4c442fe0a1297',
                             'jobGroup': {'symbol': '?'},
@@ -89,7 +89,7 @@ def test_graphql_push_with_jobs(client, sample_push, eleven_jobs_stored, test_re
                                 '32faaecac742100f7753f0c1d0aa0add01b4046b',
                             'textLogStep': []}},
                   {'node': {'buildPlatform': {'platform': 'b2g-emu-ics'},
-                            'failureClassification': {
+                            'failureType': {
                                 'name': 'not classified'},
                             'guid': '3f317a2869250b7f85876ac0cdc885923897ded2',
                             'jobGroup': {'symbol': '?'},

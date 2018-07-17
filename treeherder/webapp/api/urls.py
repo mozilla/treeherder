@@ -108,7 +108,7 @@ default_router = routers.DefaultRouter()
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
                         base_name='optioncollectionhash')
-default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
+default_router.register(r'failuretype', refdata.FailureTypeViewSet)
 default_router.register(r'user', refdata.UserViewSet, base_name='user')
 default_router.register(r'matcher', refdata.MatcherViewSet)
 default_router.register(r'performance/alertsummary',

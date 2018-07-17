@@ -3,7 +3,7 @@ from six import iteritems
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
+                                     FailureType,
                                      JobGroup,
                                      JobType,
                                      Machine,
@@ -85,12 +85,12 @@ class Command(BaseCommand):
                 })
 
         # failure classification
-        for failure_classification in c.get_failure_classifications():
-            FailureClassification.objects.get_or_create(
-                id=failure_classification['id'],
-                name=failure_classification['name'],
+        for failure_type in c.get_failure_types():
+            FailureType.objects.get_or_create(
+                id=failure_type['id'],
+                name=failure_type['name'],
                 defaults={
-                    'description': failure_classification['description']
+                    'description': failure_type['description']
                 })
 
         # build platform

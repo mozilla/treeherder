@@ -15,7 +15,7 @@ export default class SimilarJobsTab extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.thNotify = $injector.get('thNotify');
-    this.thClassificationTypes = $injector.get('thClassificationTypes');
+    this.thFailureTypes = $injector.get('thFailureTypes');
 
     this.pageSize = 20;
 
@@ -102,8 +102,8 @@ export default class SimilarJobsTab extends React.Component {
       .then((nextJob) => {
         nextJob.result_status = getStatus(nextJob);
         nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
-        nextJob.failure_classification = this.thClassificationTypes.classifications[
-          nextJob.failure_classification_id];
+        nextJob.failure_type = this.thFailureTypes.classifications[
+          nextJob.failure_type_id];
 
         // retrieve the list of error lines
         TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
@@ -156,7 +156,7 @@ export default class SimilarJobsTab extends React.Component {
                     <button
                       className={`btn btn-similar-jobs btn-xs ${button_class(similarJob)}`}
                     >{similarJob.job_type_symbol}
-                      {similarJob.failure_classification_id > 1 &&
+                      {similarJob.failure_type_id > 1 &&
                       <span>*</span>}
                     </button>
                   </td>
@@ -250,8 +250,8 @@ export default class SimilarJobsTab extends React.Component {
                   <th>Classification</th>
                   <td>
                     <label
-                      className={`badge ${selectedSimilarJob.failure_classification.star}`}
-                    >{selectedSimilarJob.failure_classification.name}</label>
+                      className={`badge ${selectedSimilarJob.failure_type.star}`}
+                    >{selectedSimilarJob.failure_type.name}</label>
                   </td>
                 </tr>
                 {!!selectedSimilarJob.error_lines && <tr>

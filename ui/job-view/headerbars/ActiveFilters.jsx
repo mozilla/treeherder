@@ -91,11 +91,11 @@ export default class ActiveFilters extends React.Component {
               </span>
               <span title={`Filter by ${filter.field}: ${filter.value}`}>
                 <b>{filter.field}:</b>
-                {filter.field === 'failure_classification_id' && (
+                {filter.field === 'failure_type_id' && (
                   <span> {this.getFilterValue(filter.field, filter.value)}</span>
                 )}
                 {filter.field === 'author' && <span> {filter.value.split('@')[0].substr(0, 20)}</span>}
-                {filter.field !== 'author' && filter.field !== 'failure_classification_id' && <span> {filter.value.substr(0, 12)}</span>}
+                {filter.field !== 'author' && filter.field !== 'failure_type_id' && <span> {filter.value.substr(0, 12)}</span>}
               </span>
             </span>))}
           </div>}

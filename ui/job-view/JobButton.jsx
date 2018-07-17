@@ -44,13 +44,13 @@ export default class JobButtonComponent extends React.Component {
    * shallow compare would allow.
    */
   shouldComponentUpdate(nextProps, nextState) {
-    const { visible, status, failureClassificationId } = this.props;
+    const { visible, status, failuretypeId } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
 
     return (
       visible !== nextProps.visible ||
       status !== nextProps.status ||
-      failureClassificationId !== nextProps.failureClassificationId ||
+      failuretypeId !== nextProps.failuretypeId ||
       isSelected !== nextState.isSelected ||
       isRunnableSelected !== nextState.isRunnableSelected
     );
@@ -83,14 +83,14 @@ export default class JobButtonComponent extends React.Component {
   render() {
     const { job } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
-    const { state, job_type_name, failure_classification_id, end_timestamp,
+    const { state, job_type_name, failure_type_id, end_timestamp,
             start_timestamp, ref_data_name, visible, id,
             job_type_symbol, result } = job;
 
     if (!visible) return null;
     const resultStatus = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
-    const btnClass = getBtnClass(resultStatus, failure_classification_id);
+    const btnClass = getBtnClass(resultStatus, failure_type_id);
     let title = `${resultStatus} | ${job_type_name} - ${status}`;
 
     if (state === 'completed') {
@@ -135,9 +135,9 @@ JobButtonComponent.propTypes = {
   status: PropTypes.string.isRequired,
   platform: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
-  failureClassificationId: PropTypes.number,  // runnable jobs won't have this
+  failuretypeId: PropTypes.number,  // runnable jobs won't have this
 };
 
 JobButtonComponent.defaultProps = {
-  failureClassificationId: 1,
+  failuretypeId: 1,
 };

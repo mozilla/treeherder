@@ -87,7 +87,7 @@ describe('BugFilerCtrl', function() {
           build_platform_id: 106,
           build_system_type: "taskcluster",
           end_timestamp: 1491433995,
-          failure_classification_id: 1,
+          failure_type_id: 1,
           id: 89017089,
           job_group_description: "",
           job_group_id: 257,

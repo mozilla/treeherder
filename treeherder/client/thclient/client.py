@@ -442,7 +442,7 @@ class TreeherderClient(object):
     PRODUCT_ENDPOINT = 'product'
     MACHINE_ENDPOINT = 'machine'
     MACHINE_PLATFORM_ENDPOINT = 'machineplatform'
-    FAILURE_CLASSIFICATION_ENDPOINT = 'failureclassification'
+    FAILURE_TYPE_ENDPOINT = 'failuretype'
     BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
@@ -581,7 +581,7 @@ class TreeherderClient(object):
         """
         return self._get_json(self.JOBGROUP_ENDPOINT)
 
-    def get_failure_classifications(self):
+    def get_failure_types(self):
         """
         Gets a list of failure classification types stored inside Treeherder
 
@@ -593,7 +593,7 @@ class TreeherderClient(object):
               description: <description>
             }
         """
-        return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT)
+        return self._get_json(self.FAILURE_TYPE_ENDPOINT)
 
     def get_build_platforms(self):
         """

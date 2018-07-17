@@ -129,8 +129,8 @@ class Push(models.Model):
         Gets a summary of what passed/failed for the push
         '''
         jobs = Job.objects.filter(push=self).filter(
-            Q(failure_classification__isnull=True) |
-            Q(failure_classification__name='not classified')).exclude(tier=3)
+            Q(failure_type__isnull=True) |
+            Q(failure_type__name='not classified')).exclude(tier=3)
 
         status_dict = {}
         for (state, result, total) in jobs.values_list(
@@ -351,7 +351,7 @@ class JobType(models.Model):
             self.name, self.symbol)
 
 
-class FailureClassification(NamedModel):
+class FailureType(NamedModel):
 
     class Meta:
         db_table = 'failure_classification'
@@ -480,7 +480,7 @@ class Job(models.Model):
     job_type = models.ForeignKey(JobType, on_delete=models.CASCADE, related_name='jobs')
     job_group = models.ForeignKey(JobGroup, on_delete=models.CASCADE, related_name='jobs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    failure_classification = models.ForeignKey(FailureClassification, on_delete=models.CASCADE, related_name='jobs')
+    failure_type = models.ForeignKey(FailureType, on_delete=models.CASCADE, related_name='jobs', db_column="failure_classification_id")
     who = models.CharField(max_length=50)
     reason = models.CharField(max_length=125)
     result = models.CharField(max_length=25)
@@ -581,7 +581,7 @@ class Job(models.Model):
         classification = 'autoclassified intermittent'
 
         already_classified = (JobNote.objects.filter(job=self)
-                                             .exclude(failure_classification__name=classification)
+                                             .exclude(failure_type__name=classification)
                                              .exists())
         if already_classified:
             # Don't add an autoclassification note if a Human already
@@ -790,7 +790,7 @@ class JobNote(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    failure_classification = models.ForeignKey(FailureClassification, on_delete=models.CASCADE)
+    failure_type = models.ForeignKey(FailureType, on_delete=models.CASCADE, db_column="failure_classification_id")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
     text = models.TextField()
     created = models.DateTimeField(default=timezone.now)
@@ -814,9 +814,9 @@ class JobNote(models.Model):
         # update the job classification
         note = JobNote.objects.filter(job=self.job).order_by('-created').first()
         if note:
-            self.job.failure_classification_id = note.failure_classification.id
+            self.job.failure_type_id = note.failure_type.id
         else:
-            self.job.failure_classification_id = FailureClassification.objects.get(name='not classified').id
+            self.job.failure_type_id = FailureType.objects.get(name='not classified').id
         self.job.save()
 
     def _ensure_classification(self):
@@ -835,7 +835,7 @@ class JobNote(models.Model):
             return
 
         # if the failure type isn't intermittent, ignore
-        if self.failure_classification.name not in ["intermittent", "intermittent needs filing"]:
+        if self.failure_type.name not in ["intermittent", "intermittent needs filing"]:
             return
 
         # if the linked Job has more than one TextLogError, ignore
@@ -875,7 +875,7 @@ class JobNote(models.Model):
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id,
                                         self.job.guid,
-                                        self.failure_classification,
+                                        self.failure_type,
                                         self.who)
 
     @classmethod
@@ -907,10 +907,10 @@ class JobNote(models.Model):
         # if user is not specified, then this is an autoclassified job note and
         # we should mark it as such
         classification_name = 'intermittent' if user else 'autoclassified intermittent'
-        classification = FailureClassification.objects.get(name=classification_name)
+        classification = FailureType.objects.get(name=classification_name)
 
         return JobNote.objects.create(job=job,
-                                      failure_classification=classification,
+                                      failure_type=classification,
                                       user=user,
                                       text="")
 

@@ -114,7 +114,7 @@ def test_autoclassify_no_update_job_classification(test_job, test_job_2,
 def test_autoclassified_after_manual_classification(test_user,
                                                     test_job_2,
                                                     text_log_errors_failure_lines,
-                                                    failure_classifications, bugs):
+                                                    failure_types, bugs):
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
     bug = bugs.first()
@@ -123,7 +123,7 @@ def test_autoclassified_after_manual_classification(test_user,
                              bug_id=bug.id,
                              user=test_user)
     JobNote.objects.create(job=test_job_2,
-                           failure_classification_id=4,
+                           failure_type_id=4,
                            user=test_user,
                            text="")
 
@@ -146,13 +146,13 @@ def test_autoclassified_after_manual_classification(test_user,
 
 def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
                                                                 test_user,
-                                                                failure_classifications):
+                                                                failure_types):
     # Line type won't be detected by the matchers we have registered
     lines = [(log_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
 
     JobNote.objects.create(job=test_job_2,
-                           failure_classification_id=4,
+                           failure_type_id=4,
                            user=test_user,
                            text="")
 
@@ -165,14 +165,14 @@ def test_autoclassified_no_update_after_manual_classification_1(test_job_2,
 
 
 def test_autoclassified_no_update_after_manual_classification_2(test_user, test_job_2,
-                                                                failure_classifications):
+                                                                failure_types):
     # Too many failure lines
     _, test_failure_lines = create_lines(test_job_2,
                                          [(log_line, {}),
                                           (test_line, {"subtest": "subtest2"})])
 
     JobNote.objects.create(job=test_job_2,
-                           failure_classification_id=4,
+                           failure_type_id=4,
                            user=test_user,
                            text="")
 

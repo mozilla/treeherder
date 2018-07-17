@@ -113,7 +113,7 @@ def jp_index_fixture(job_priority_list):
 
 @pytest.fixture
 def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_user,
-                            failure_classifications):
+                            failure_types):
     """provide 15 jobs with job notes."""
     counter = 0
     for job in Job.objects.all():
@@ -122,28 +122,28 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
         # add 5 valid job notes related to 'this is revision x'
         if counter < 6:
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="this is revision x")
             continue
 
         # add 3 valid job notes with raw revision 31415926535
         if counter < 9:
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="314159265358")
             continue
 
         # Add 3 job notes with full url to revision, expected to map to 31415926535
         if counter < 12:
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358")
             continue
 
         # Add 1 valid job with trailing slash, expected to map to 31415926535
         if counter < 13:
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="http://hg.mozilla.org/mozilla-central/314159265358/")
             continue
 
@@ -151,7 +151,7 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
         if counter < 14:
             # We will ignore this based on text length
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="too short")
             continue
 
@@ -159,7 +159,7 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
         if counter < 15:
             # We will ignore this based on blank note
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="")
             continue
 
@@ -167,7 +167,7 @@ def fifteen_jobs_with_notes(eleven_jobs_stored, taskcluster_jobs_stored, test_us
         if counter < 16:
             # We will ignore this based on effectively blank note
             JobNote.objects.create(job=job,
-                                   failure_classification_id=2,
+                                   failure_type_id=2,
                                    user=test_user, text="/")
             continue
 

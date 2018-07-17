@@ -50,7 +50,7 @@ def check_job_log(test_repository, job_guid, parse_status):
     assert job_logs[0].status == parse_status
 
 
-def test_post_job_with_unparsed_log(test_repository, failure_classifications,
+def test_post_job_with_unparsed_log(test_repository, failure_types,
                                     push_stored, mock_post_json,
                                     monkeypatch, activate_responses):
     """
@@ -97,7 +97,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
 
 def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
                                                          push_stored,
-                                                         failure_classifications,
+                                                         failure_types,
                                                          activate_responses,
                                                          mock_post_json):
 
@@ -144,7 +144,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
 
 
 def test_post_job_with_parsed_log(test_repository, push_stored,
-                                  failure_classifications,
+                                  failure_types,
                                   mock_post_json,
                                   monkeypatch,
                                   ):
@@ -184,7 +184,7 @@ def test_post_job_with_parsed_log(test_repository, push_stored,
 
 def test_post_job_with_text_log_summary_artifact_parsed(
         test_repository,
-        failure_classifications,
+        failure_types,
         push_stored,
         monkeypatch,
         mock_post_json,
@@ -233,7 +233,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
 
 def test_post_job_with_text_log_summary_artifact_pending(
         test_repository,
-        failure_classifications,
+        failure_types,
         push_stored,
         monkeypatch,
         mock_post_json,
@@ -284,7 +284,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
 def test_post_job_artifacts_by_add_artifact(
         test_repository,
-        failure_classifications,
+        failure_types,
         push_stored,
         monkeypatch,
         mock_post_json,
@@ -391,7 +391,7 @@ def test_post_job_artifacts_by_add_artifact(
     assert mock_parse.called is False
 
 
-def test_post_job_with_tier(test_repository, failure_classifications,
+def test_post_job_with_tier(test_repository, failure_types,
                             push_stored,
                             mock_post_json):
     """test submitting a job with tier specified"""
@@ -415,7 +415,7 @@ def test_post_job_with_tier(test_repository, failure_classifications,
     assert job.tier == 3
 
 
-def test_post_job_with_default_tier(test_repository, failure_classifications,
+def test_post_job_with_default_tier(test_repository, failure_types,
                                     push_stored,
                                     mock_post_json):
     """test submitting a job with no tier specified gets default"""
@@ -438,7 +438,7 @@ def test_post_job_with_default_tier(test_repository, failure_classifications,
     assert job.tier == 1
 
 
-def test_post_job_with_buildapi_artifact(test_repository, failure_classifications,
+def test_post_job_with_buildapi_artifact(test_repository, failure_types,
                                          push_stored,
                                          mock_post_json):
     """

@@ -81,7 +81,7 @@ class JobFilter(django_filters.FilterSet):
         fields = {
             'option_collection_hash': ['exact'],
             'build_platform_id': ['exact'],
-            'failure_classification_id': ['exact'],
+            'failure_type_id': ['exact'],
             'job_type_id': ['exact'],
             'job_group_id': ['exact'],
             'reason': ['exact'],
@@ -131,7 +131,7 @@ class JobsViewSet(viewsets.ViewSet):
         ('build_platform_id', 'build_platform_id', None),
         ('build_system_type', 'signature__build_system_type', None),
         ('end_timestamp', 'end_time', to_timestamp),
-        ('failure_classification_id', 'failure_classification_id', None),
+        ('failure_type_id', 'failure_type_id', None),
         ('id', 'id', None),
         ('job_group_description', 'job_group__description', None),
         ('job_group_id', 'job_group_id', None),

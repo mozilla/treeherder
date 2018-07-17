@@ -29,11 +29,11 @@ export const getStatus = function getStatus(job) {
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
 // These also apply to result "groupings" like ``failures`` and ``in progress``
 // for the colored filter chicklets on the nav bar.
-export const getBtnClass = function getBtnClass(resultStatus, failureClassificationId) {
+export const getBtnClass = function getBtnClass(resultStatus, failuretypeId) {
   let btnClass = btnClasses[resultStatus] || 'btn-default';
 
   // handle if a job is classified
-  const classificationId = parseInt(failureClassificationId, 10);
+  const classificationId = parseInt(failuretypeId, 10);
   if (classificationId > 1) {
     btnClass += '-classified';
     // autoclassification-only case
@@ -45,7 +45,7 @@ export const getBtnClass = function getBtnClass(resultStatus, failureClassificat
 };
 
 export const getJobBtnClass = function getJobBtnClass(job) {
-  return getBtnClass(getStatus(job), job.failure_classification_id);
+  return getBtnClass(getStatus(job), job.failure_type_id);
 };
 
 export const isReftest = function isReftest(job) {

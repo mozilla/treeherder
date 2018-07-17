@@ -1,49 +1,49 @@
 [
 {
     "pk": 1,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "not classified"
     }
 },
 {
     "pk": 2,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "fixed by commit"
     }
 },
 {
     "pk": 3,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "expected fail"
     }
 },
 {
     "pk": 4,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "intermittent"
     }
 },
 {
     "pk": 5,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "infra"
     }
 },
 {
     "pk": 6,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "intermittent needs filing"
     }
 },
 {
     "pk": 7,
-    "model": "model.failureclassification",
+    "model": "model.failuretype",
     "fields": {
         "name": "autoclassified intermittent"
     }

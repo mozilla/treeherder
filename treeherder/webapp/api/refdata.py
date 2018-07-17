@@ -35,11 +35,10 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
         return Response(ret)
 
 
-class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
-
+class FailureTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for the refdata FailureClassification model"""
-    queryset = models.FailureClassification.objects.exclude(name="intermittent needs filing")
-    serializer_class = th_serializers.FailureClassificationSerializer
+    queryset = models.FailureType.objects.exclude(name="intermittent needs filing")
+    serializer_class = th_serializers.FailureTypeSerializer
 
 #############################
 # User profiles

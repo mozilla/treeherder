@@ -14,7 +14,7 @@ def query_node(sample_data):
 
 def test_collect_fields(query_node):
     fields = helpers.collect_fields(query_node)
-    exp_fields = {"jobs", "edges", "node", "failureClassification", "name",
+    exp_fields = {"jobs", "edges", "node", "failuretype", "name",
                   "jobType", "symbol", "jobGroup"}
     assert exp_fields == fields
 
@@ -24,9 +24,9 @@ def test_optimize(query_node, push_stored):
     field_map = {
         "jobType": ("job_type", "select"),
         "jobGroup": ("job_group", "select"),
-        "failureClassification": ("failure_classification", "prefetch"),
+        "failuretype": ("failure_type", "prefetch"),
     }
     qs = helpers.optimize(qs, query_node, field_map)
 
-    assert ('failure_classification',) == qs._prefetch_related_lookups
+    assert ('failure_type',) == qs._prefetch_related_lookups
     assert {'job_type': {}, 'job_group': {}} == qs.query.select_related

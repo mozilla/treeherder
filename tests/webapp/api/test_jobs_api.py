@@ -69,7 +69,7 @@ def test_job_list(client, eleven_jobs_stored, test_repository,
         "machine_platform_os",
         "build_os",
         "machine_platform_architecture",
-        "failure_classification_id",
+        "failure_type_id",
         "tier",
         "last_modified",
         "ref_data_name",
@@ -110,7 +110,7 @@ job_filter_values = [
     (u'build_platform_id', 3),
     (u'build_system_type', u'buildbot'),
     (u'end_timestamp', 1384364849),
-    (u'failure_classification_id', 1),
+    (u'failure_type_id', 1),
     (u'id', 4),
     (u'job_group_id', 2),
     (u'job_group_name', u'Mochitest'),
@@ -456,7 +456,7 @@ def test_list_similar_jobs(client, eleven_jobs_stored,
 
 
 def test_job_create(client, test_repository, test_user, eleven_job_blobs,
-                    failure_classifications, monkeypatch):
+                    failure_types, monkeypatch):
     monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
 
     url = reverse("jobs-list",

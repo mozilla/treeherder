@@ -7,7 +7,7 @@ from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceSignature)
 
 
-def test_post_perf_artifact(test_repository, failure_classifications,
+def test_post_perf_artifact(test_repository, failure_types,
                             push_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
@@ -53,7 +53,7 @@ def test_post_perf_artifact(test_repository, failure_classifications,
 
 
 def test_post_perf_artifact_multiple(test_repository,
-                                     failure_classifications,
+                                     failure_types,
                                      push_stored, mock_post_json):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
     perfobj = {

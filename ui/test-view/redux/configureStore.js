@@ -48,7 +48,7 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
     // different test paths (more than one test can happen as a result of
     // one job).  So we can't just store this ``filterStr`` in the job
     // on data load.
-    if (hideClassified[job.failureClassification.name]) {
+    if (hideClassified[job.failuretype.name]) {
       return;
     }
     const filterStr = [groupName, testName, test.group,
@@ -189,9 +189,9 @@ async function fetchTests(store, fetchParams) {
     type: groupsStore.types.RENDER_COUNTS,
     payload: {
       counts: {
-        failed: failedJobs.filter(job => !(['infra', 'intermittent'].includes(job.failureClassification.name))).length,
-        infra: failedJobs.filter(job => job.failureClassification.name === 'infra').length,
-        intermittent: failedJobs.filter(job => job.failureClassification.name === 'intermittent').length,
+        failed: failedJobs.filter(job => !(['infra', 'intermittent'].includes(job.failuretype.name))).length,
+        infra: failedJobs.filter(job => job.failuretype.name === 'infra').length,
+        intermittent: failedJobs.filter(job => job.failuretype.name === 'intermittent').length,
       },
     },
   });

@@ -63,7 +63,7 @@ def get_failures_fixed_by_commit():
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
     fixed_by_commit_data_set = models.JobNote.objects.filter(
-            failure_classification=2,
+            failure_type=2,
             created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
             text__isnull=False,
             job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS

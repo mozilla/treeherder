@@ -51,7 +51,7 @@ class NoteViewSet(viewsets.ViewSet):
         JobNote.objects.create(
             job=Job.objects.get(repository__name=project,
                                 id=int(request.data['job_id'])),
-            failure_classification_id=int(request.data['failure_classification_id']),
+            failure_type_id=int(request.data['failure_type_id']),
             user=request.user,
             text=request.data.get('text', ''))
 

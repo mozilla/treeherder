@@ -23,7 +23,7 @@ def test_note_list(client, test_job_with_notes):
     assert resp.json() == [{
         "id": note.id,
         "job_id": note.job.id,
-        "failure_classification_id": note.failure_classification.id,
+        "failure_type_id": note.failure_type.id,
         "who": note.user.email,
         "created": note.created.isoformat(),
         "text": note.text
@@ -50,7 +50,7 @@ def test_note_detail(client, test_job_with_notes):
     assert resp.json() == {
         "id": 1,
         "job_id": note.job.id,
-        "failure_classification_id": 2,
+        "failure_type_id": 2,
         "who": note.user.email,
         "created": note.created.isoformat(),
         "text": "you look like a man-o-lantern"
@@ -94,7 +94,7 @@ def test_create_note(client, test_job, mock_message_broker,
         reverse("note-list", kwargs={"project": test_job.repository.name}),
         data={
             "job_id": test_job.id,
-            "failure_classification_id": 2,
+            "failure_type_id": 2,
             "who": test_user.email,
             "text": "you look like a man-o-lantern"
         },
@@ -113,7 +113,7 @@ def test_create_note(client, test_job, mock_message_broker,
 
         assert len(note_list) == 1
         assert note_list[0].user == test_user
-        assert note_list[0].failure_classification.id == 2
+        assert note_list[0].failure_type.id == 2
         assert note_list[0].text == 'you look like a man-o-lantern'
 
         # verify that the job's last_modified field got updated

@@ -119,7 +119,7 @@ class FailureCount(generics.ListAPIView):
                                            .values('date', 'failure_count'))
         else:
             job_query = (Job.objects.filter(push__time__range=(startday, endday),
-                                            repository_id__in=repo, failure_classification_id=4)
+                                            repository_id__in=repo, failure_type_id=4)
                                     .select_related('push')
                                     .annotate(date=TruncDate('push__time'))
                                     .values('date')

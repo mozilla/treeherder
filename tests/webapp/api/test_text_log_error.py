@@ -136,7 +136,7 @@ def test_update_error_mark_job(client,
 
     # should only be one, will assert if that isn't the case
     note = JobNote.objects.get(job=test_job)
-    assert note.failure_classification.id == 4
+    assert note.failure_type.id == 4
     assert note.user == test_user
     job_bugs = BugJobMap.objects.filter(job=test_job)
     assert job_bugs.count() == 1
@@ -152,7 +152,7 @@ def test_update_error_mark_job_with_human_note(client,
     client.force_authenticate(user=test_user)
 
     JobNote.objects.create(job=test_job,
-                           failure_classification_id=4,
+                           failure_type_id=4,
                            user=test_user,
                            text="note")
 
@@ -169,7 +169,7 @@ def test_update_error_mark_job_with_human_note(client,
 
     # should only be one, will assert if that isn't the case
     note = JobNote.objects.get(job=test_job)
-    assert note.failure_classification.id == 4
+    assert note.failure_type.id == 4
     assert note.user == test_user
 
 
@@ -184,7 +184,7 @@ def test_update_error_line_mark_job_with_auto_note(client,
     client.force_authenticate(user=test_user)
 
     JobNote.objects.create(job=test_job,
-                           failure_classification_id=7,
+                           failure_type_id=7,
                            text="note")
 
     for text_log_error in text_log_errors:
@@ -200,11 +200,11 @@ def test_update_error_line_mark_job_with_auto_note(client,
     notes = JobNote.objects.filter(job=test_job).order_by('-created')
     assert notes.count() == 2
 
-    assert notes[0].failure_classification.id == 4
+    assert notes[0].failure_type.id == 4
     assert notes[0].user == test_user
     assert notes[0].text == ''
 
-    assert notes[1].failure_classification.id == 7
+    assert notes[1].failure_type.id == 7
     assert not notes[1].user
     assert notes[1].text == "note"
 
@@ -255,7 +255,7 @@ def test_update_errors(client,
 
         # will assert if we don't have exactly one job, which is what we want
         note = JobNote.objects.get(job=job)
-        assert note.failure_classification.id == 4
+        assert note.failure_type.id == 4
         assert note.user == test_user
 
 
@@ -355,7 +355,7 @@ def test_update_error_partial_ignore_mark_job(client,
     # will assert if we don't have exactly one note for this job, which is
     # what we want
     note = JobNote.objects.get(job=test_job)
-    assert note.failure_classification.id == 4
+    assert note.failure_type.id == 4
     assert note.user == test_user
 
 

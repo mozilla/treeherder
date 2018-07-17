@@ -69,7 +69,7 @@ def test_failure_count(bug_data, client, test_run_data):
 
     for job in list(bug_data['jobs']):
         if (job.repository.name == bug_data['tree'] and
-            job.failure_classification_id == 4 and
+            job.failure_type_id == 4 and
             job.push.time.strftime('%Y-%m-%d') == test_run_data['push_time']):
             failure_count += 1
 

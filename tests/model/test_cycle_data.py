@@ -21,7 +21,7 @@ from treeherder.services.elasticsearch import (all_documents,
                                                refresh_index)
 
 
-def test_cycle_all_data(test_repository, failure_classifications, sample_data,
+def test_cycle_all_data(test_repository, failure_types, sample_data,
                         sample_push, mock_log_parser, failure_lines):
     """
     Test cycling the sample data
@@ -47,7 +47,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert count_index() == 0
 
 
-def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
+def test_cycle_all_but_one_job(test_repository, failure_types, sample_data,
                                sample_push, mock_log_parser, elasticsearch,
                                failure_lines):
     """
@@ -101,7 +101,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     assert indexed_ids == expected
 
 
-def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
+def test_cycle_all_data_in_chunks(test_repository, failure_types, sample_data,
                                   sample_push, mock_log_parser):
     """
     Test cycling the sample data in chunks.
@@ -129,7 +129,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     assert count_index() == 0
 
 
-def test_cycle_job_model_reference_data(test_repository, failure_classifications,
+def test_cycle_job_model_reference_data(test_repository, failure_types,
                                         sample_data, sample_push,
                                         mock_log_parser):
     job_data = sample_data.job_data[:20]
@@ -160,7 +160,7 @@ def test_cycle_job_model_reference_data(test_repository, failure_classifications
 
 
 @pytest.mark.skip(reason="Perf data cycling temporarily disabled (bug 1346567)")
-def test_cycle_job_with_performance_data(test_repository, failure_classifications,
+def test_cycle_job_with_performance_data(test_repository, failure_types,
                                          test_job, mock_log_parser,
                                          test_perf_signature):
     # build a date that will cause the data to be cycled

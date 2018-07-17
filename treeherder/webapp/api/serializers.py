@@ -53,7 +53,7 @@ class JobSerializer(serializers.ModelSerializer):
             'build_platform_id': job.build_platform_id,
             'build_system_type': job.signature.build_system_type,
             'end_timestamp': to_timestamp(job.end_time),
-            'failure_classification_id': job.failure_classification_id,
+            'failure_type_id': job.failure_type_id,
             'id': job.id,
             'job_group_description': job.job_group.description,
             'job_group_id': job.job_group_id,
@@ -88,10 +88,10 @@ class JobSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FailureClassificationSerializer(serializers.ModelSerializer):
+class FailureTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.FailureClassification
+        model = models.FailureType
         fields = '__all__'
 
 
@@ -215,14 +215,14 @@ class JobNoteSerializer(serializers.ModelSerializer):
         source="job", read_only=True)
 
     # these custom fields are for backwards compatibility
-    failure_classification_id = serializers.SlugRelatedField(
+    failure_type_id = serializers.SlugRelatedField(
         slug_field="id",
-        source="failure_classification",
+        source="failure_type",
         read_only=True)
 
     class Meta:
         model = models.JobNote
-        fields = ['id', 'job_id', 'failure_classification_id',
+        fields = ['id', 'job_id', 'failure_type_id',
                   'created', 'who', 'text']
 
 

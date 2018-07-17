@@ -88,7 +88,7 @@ export default class JobGroup extends React.Component {
         if (!job.visible) return;
         const status = getStatus(job);
         let countInfo = {
-          btnClass: getBtnClass(status, job.failure_classification_id),
+          btnClass: getBtnClass(status, job.failure_type_id),
           countText: status,
         };
         if (thFailureResults.includes(status) ||
@@ -154,7 +154,7 @@ export default class JobGroup extends React.Component {
                   $injector={$injector}
                   visible={job.visible}
                   status={getStatus(job)}
-                  failureClassificationId={job.failure_classification_id}
+                  failuretypeId={job.failure_type_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
                   platform={platform}

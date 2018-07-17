@@ -27,7 +27,7 @@ def jobs_with_local_log(activate_responses):
     return [job]
 
 
-def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_push):
+def test_parse_log(test_repository, failure_types, jobs_with_local_log, sample_push):
     """
     check that 2 job_artifacts get inserted when running a parse_log task for
     a successful job and that JobDetail objects get created
@@ -47,7 +47,7 @@ def test_parse_log(test_repository, failure_classifications, jobs_with_local_log
     print(JobDetail.objects.count() == 4)
 
 
-def test_create_error_summary(failure_classifications,
+def test_create_error_summary(failure_types,
                               jobs_with_local_log, sample_push,
                               test_repository):
     """

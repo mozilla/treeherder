@@ -13,7 +13,7 @@ from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
 from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
+                                     FailureType,
                                      Job,
                                      JobGroup,
                                      JobLog,
@@ -143,7 +143,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
 
     reference_data_name = job_datum.get('reference_data_name', None)
 
-    default_failure_classification = FailureClassification.objects.get(
+    default_failure_type = FailureType.objects.get(
         name='not classified')
 
     sh = sha1()
@@ -220,7 +220,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
                 "job_type": job_type,
                 "job_group": job_group,
                 "product": product,
-                "failure_classification": default_failure_classification,
+                "failure_type": default_failure_type,
                 "who": who,
                 "reason": reason,
                 "result": result,
@@ -262,7 +262,7 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
         job_type=job_type,
         job_group=job_group,
         product=product,
-        failure_classification=default_failure_classification,
+        failure_type=default_failure_type,
         who=who,
         reason=reason,
         result=result,

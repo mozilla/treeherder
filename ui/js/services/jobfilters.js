@@ -29,12 +29,12 @@ import { thFailureResults, thDefaultFilterResultStatuses, thEvents } from '../co
 treeherder.factory('thJobFilters', [
     '$rootScope', '$location',
     '$timeout',
-    'thClassificationTypes',
+    'thFailureTypes',
     'thPlatformName',
     function (
         $rootScope, $location,
         $timeout,
-        thClassificationTypes,
+        thFailureTypes,
         thPlatformName) {
 
         // prefix for all filter query string params
@@ -111,10 +111,10 @@ treeherder.factory('thJobFilters', [
                 name: 'tier',
                 matchType: MATCH_TYPE.exactstr,
             },
-            failure_classification_id: {
+            failure_type_id: {
                 name: 'failure classification',
                 matchType: MATCH_TYPE.choice,
-                choices: thClassificationTypes.classifications,
+                choices: thFailureTypes.classifications,
             },
             // text search across multiple fields
             searchStr: {
@@ -461,7 +461,7 @@ treeherder.factory('thJobFilters', [
         }
 
         function _isJobClassified(job) {
-            return UNCLASSIFIED_IDS.indexOf(job.failure_classification_id) === -1;
+            return UNCLASSIFIED_IDS.indexOf(job.failure_type_id) === -1;
         }
 
         /**
