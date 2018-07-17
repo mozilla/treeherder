@@ -3,12 +3,19 @@ import PropTypes from 'prop-types';
 
 import { getPerfAnalysisUrl, getWptUrl } from '../../../helpers/url';
 
+const UNTITLED = 'Untitled data';
+
 export default class JobDetailsTab extends React.PureComponent {
   render() {
     const { jobDetails } = this.props;
     const sortedDetails = jobDetails ? jobDetails.slice() : [];
     const builderNameItem = jobDetails.findIndex(detail => detail.title === 'Buildername');
-    sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
+
+    sortedDetails.sort((a, b) => {
+      const compareA = a.title || UNTITLED;
+      const compareB = b.title || UNTITLED;
+      return compareA.localeCompare(compareB);
+    });
 
     return (
       <div id="job-details-list">
@@ -18,7 +25,7 @@ export default class JobDetailsTab extends React.PureComponent {
               className="small"
               key={idx} // eslint-disable-line react/no-array-index-key
             >
-              <label>{line.title ? line.title : 'Untitled data'}:</label>&nbsp;
+              <label>{line.title ? line.title : UNTITLED}:</label>&nbsp;
               {/* URL provided */}
               {!!line.url && <a
                 title={line.title ? line.title : line.value}
