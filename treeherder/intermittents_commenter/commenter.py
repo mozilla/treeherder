@@ -27,9 +27,10 @@ logger = logging.getLogger(__name__)
 
 
 class Commenter(object):
-    """handles fetching, transforming and submitting bug comments based on
-    daily or weekly thresholds and date range; if in dry_run, comments
-    will be output to stdout rather than submitted to bugzilla"""
+    """Handles fetching, composing and submitting bug comments based on
+       daily or weekly thresholds and date range, and updating whiteboard
+       and priority status as need; if in dry_run, comments will be output
+       to stdout rather than submitting to bugzilla."""
 
     def __init__(self, weekly_mode=False, dry_run=False):
         self.weekly_mode = weekly_mode
@@ -38,19 +39,21 @@ class Commenter(object):
 
     def run(self):
         startday, endday = self.calculate_date_strings(self.weekly_mode, 6)
-        alt_startday, alt_endday = self.calculate_date_strings(True, DISABLE_DAYS=21)
-        all_params = self.create_comments(startday, endday, alt_startday, alt_endday)
-        self.print_or_submit_comments(all_params)
+        alt_startday, alt_endday = self.calculate_date_strings(True, 21)
+        all_bug_changes = self.generate_bug_changes(startday, endday, alt_startday, alt_endday)
+        self.print_or_submit_changes(all_bug_changes)
 
-    def create_comments(self, startday, endday, alt_startday, alt_endday):
-        """Posts a bug comment containing stats to each bug whose total number of
-           occurrences (daily or weekly) meet the appropriate threshold."""
+    def generate_bug_changes(self, startday, endday, alt_startday, alt_endday):
+        """Returns a list of dicts containing a bug id, a bug comment (only
+           for bugs whose total number of daily or weekly occurrences meet
+           the appropriate threshold) and potentially an updated whiteboard
+           or priority status."""
 
         bug_stats = self.get_bug_stats(startday, endday)
         alt_bug_stats = self.get_bug_stats(alt_startday, alt_endday)
         test_run_count = self.get_test_runs(startday, endday)
 
-        all_params = []
+        all_bug_changes = []
         template = Template(self.open_file('comment.template', False))
 
         if self.weekly_mode:
@@ -89,27 +92,31 @@ class Commenter(object):
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
                 change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
-            text = template.render(bug_id=bug_id,
-                                   total=counts['total'],
-                                   test_run_count=test_run_count,
-                                   rank=rank,
-                                   priority=priority,
-                                   failure_rate=round(counts['total']/float(test_run_count), 3),
-                                   repositories=counts['per_repository'],
-                                   platforms=counts['per_platform'],
-                                   startday=startday,
-                                   endday=endday.split()[0],
-                                   weekly_mode=self.weekly_mode)
+            comment = template.render(bug_id=bug_id,
+                                      total=counts['total'],
+                                      test_run_count=test_run_count,
+                                      rank=rank,
+                                      priority=priority,
+                                      failure_rate=round(counts['total']/float(test_run_count), 3),
+                                      repositories=counts['per_repository'],
+                                      platforms=counts['per_platform'],
+                                      startday=startday,
+                                      endday=endday.split()[0],
+                                      weekly_mode=self.weekly_mode)
 
-            params = {'bug_id': bug_id, 'comment': {'body': text}}
+            bug_changes = {'bug_id': bug_id,
+                           'changes': {
+                              'comment': {'body': comment}
+                            }
+                           }
             if whiteboard:
-                params['whiteboard'] = whiteboard
+                bug_changes['changes']['whiteboard'] = whiteboard
             if change_priority:
-                params['priority'] = change_priority
+                bug_changes['changes']['priority'] = change_priority
 
-            all_params.append(params)
+            all_bug_changes.append(bug_changes)
 
-        return all_params
+        return all_bug_changes
 
     def check_needswork_owner(self, change_priority, bug_info, whiteboard):
         if (([bug_info['product'], bug_info['component']] in COMPONENTS) and
@@ -142,7 +149,7 @@ class Commenter(object):
         return priority
 
     def check_bug_info(self, bug_info, bug_id):
-        """check for previously fetched bug metadata"""
+        """Check for previously fetched bug metadata."""
         if not bug_info:
             bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id)
             if bug_info is None:
@@ -150,15 +157,15 @@ class Commenter(object):
 
         return bug_info, bug_info['whiteboard']
 
-    def print_or_submit_comments(self, all_params):
-        for params in all_params:
-            if settings.COMMENTER_API_KEY is None:
+    def print_or_submit_changes(self, all_bug_changes):
+        for bug in all_bug_changes:
+            if self.dry_run:
+                logger.info('\n' + bug['changes']['comment']['body'] + '\n')
+            elif settings.COMMENTER_API_KEY is None:
                 # prevent duplicate comments when on stage/dev
                 pass
-            elif self.dry_run:
-                logger.info(params['comment']['body'] + '\n')
             else:
-                self.submit_bug_comment(params['comment'], params['bug_id'])
+                self.submit_bug_changes(bug['changes'], bug['bug_id'])
                 # sleep between comment submissions to avoid overwhelming servers
                 time.sleep(1)
 
@@ -186,7 +193,7 @@ class Commenter(object):
     def check_whiteboard_status(self, whiteboard):
         """Extracts stockwell text from a bug's whiteboard status to
            determine whether it matches specified stockwell text;
-           returns a boolean"""
+           returns a boolean."""
 
         stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
         if stockwell_text is not None:
@@ -213,15 +220,15 @@ class Commenter(object):
         return settings.BZ_API_URL + '/rest/bug/' + str(bug_id)
 
     def fetch_bug_details(self, params, bug_id):
-        """fetches bug metadata from bugzilla and returns an encoded
-           dict if successful, otherwise returns None"""
+        """Fetches bug metadata from bugzilla and returns an encoded
+           dict if successful, otherwise returns None."""
 
         try:
             response = self.session.get(self.create_url(bug_id), headers=self.session.headers, params=params,
                                         timeout=30)
             response.raise_for_status()
         except RequestException as e:
-            logger.warning('error fetching bugzilla metadata for bug {} because {}'.format(bug_id, e))
+            logger.warning('error fetching bugzilla metadata for bug {} due to {}'.format(bug_id, e))
             return None
 
         # slow down: bmo server may refuse service if too many requests made too frequently
@@ -232,17 +239,17 @@ class Commenter(object):
 
         return {key.encode('UTF8'): value.encode('UTF8') for key, value in iteritems(data['bugs'][0])}
 
-    def submit_bug_comment(self, params, bug_id):
+    def submit_bug_changes(self, changes, bug_id):
         try:
-            response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=params,
+            response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=changes,
                                         timeout=30)
             response.raise_for_status()
         except RequestException as e:
-            logger.error('error posting comment to bugzilla for bug {} because {}'.format(bug_id, e))
+            logger.error('error posting comment to bugzilla for bug {} due to {}'.format(bug_id, e))
 
     def get_test_runs(self, startday, endday):
-        """returns an aggregate of pushes for specified date range and
-           repository"""
+        """Returns an aggregate of pushes for specified date range and
+           repository."""
 
         test_runs = (Push.objects.filter(repository_id__in=get_repository('all'),
                                          time__range=(startday, endday))
@@ -250,7 +257,7 @@ class Commenter(object):
         return test_runs['author__count']
 
     def get_bug_stats(self, startday, endday):
-        """get all intermittent failures per specified date range and repository,
+        """Get all intermittent failures per specified date range and repository,
            returning a dict of bug_id's with total, repository and platform totals
            if totals are greater than or equal to the threshold.
         eg:

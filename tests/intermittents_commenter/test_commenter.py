@@ -12,7 +12,7 @@ def test_intermittents_commenter(bug_data):
     alt_endday = endday
 
     process = Commenter(weekly_mode=True, dry_run=True)
-    comment_params = process.create_comments(startday, endday, alt_startday, alt_endday)
+    comment_params = process.generate_bug_changes(startday, endday, alt_startday, alt_endday)
     url = process.create_url(bug_data['bug_id']) + '?include_fields={}'.format(TRIAGE_PARAMS['include_fields'])
 
     content = {
@@ -37,4 +37,4 @@ def test_intermittents_commenter(bug_data):
     with open('tests/intermittents_commenter/expected_comment.text', 'r') as comment:
         expected_comment = comment.read()
 
-    assert comment_params[0]['comment']['body'] == expected_comment
+    assert comment_params[0]['changes']['comment']['body'] == expected_comment
