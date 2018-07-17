@@ -36,9 +36,9 @@ treeherder.factory('ThRepositoryModel', [
                   const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
                       { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
                   ), {});
-                  _.each(groups, function (reposAr, gName) {
-                      orderedRepoGroups[thRepoGroupOrder[gName] || gName] = { name: gName, repos: reposAr };
-                  });
+                Object.entries(groups).forEach(([reposAr, gName]) => {
+                    orderedRepoGroups[thRepoGroupOrder[reposAr] || reposAr] = { name: reposAr, repos: gName };
+                });
                 }
             }
             return orderedRepoGroups;
@@ -144,9 +144,7 @@ treeherder.factory('ThRepositoryModel', [
                 // controllers, etc, are watching the reference to it, which would
                 // be lost by replacing.
                 if (watchedRepos.length <= 1) {
-                    _.each(watchedRepos, function (r, rname) {
-                        unwatchRepo(rname);
-                    });
+                    watchedRepos.forEach(rname => unwatchRepo(rname));
                 }
                 if (!_.has(watchedRepos, name)) {
                     watchRepo(name);
@@ -212,8 +210,7 @@ treeherder.factory('ThRepositoryModel', [
 
                         $rootScope.repos = data.map(datum => new Repo(datum));
 
-                        _.each(data, addRepoAsUnwatched);
-
+                        data.forEach(repo => addRepoAsUnwatched(repo));
                         // This needs to be done before `setCurrent` because
                         // `setCurrent` overwrites the entire listing
                         // with only the default repo
@@ -237,9 +234,7 @@ treeherder.factory('ThRepositoryModel', [
                                 storedWatched.reverse();
                                 storedWatched.push(options.name);
 
-                                _.each(storedWatched, function (repo) {
-                                    watchRepo(repo);
-                                });
+                                storedWatched.forEach(repo => watchRepo(repo));
                             }
                             saveWatchedRepos();
                         }
