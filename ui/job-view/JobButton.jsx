@@ -91,7 +91,7 @@ export default class JobButtonComponent extends React.Component {
     const resultStatus = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
     const btnClass = getBtnClass(resultStatus, failure_classification_id);
-    let title = `${job_type_name} - ${status}`;
+    let title = `${resultStatus} | ${job_type_name} - ${status}`;
 
     if (state === 'completed') {
       const duration = Math.round((end_timestamp - start_timestamp) / 60);

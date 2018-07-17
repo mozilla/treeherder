@@ -32,7 +32,7 @@ describe('JobGroup component', () => {
       '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
         '<span class="group-content">' +
-          '<span class="group-job-list"><button data-job-id="166315800" title="test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
+          '<span class="group-job-list"><button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
           '<span class="group-count-list"><button class="btn-dkgray-count btn group-btn btn-xs job-group-count filter-shown" title="2 running jobs in group">2</button>' +
        '</span></span></span></span>'
     );
@@ -52,7 +52,7 @@ describe('JobGroup component', () => {
       '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
         '<span class="group-content">' +
-          '<span class="group-job-list"><button data-job-id="166315800" title="test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
+          '<span class="group-job-list"><button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
           '<span class="group-count-list"><button class="btn-dkgray-count btn group-btn btn-xs job-group-count filter-shown" title="2 running jobs in group">2</button>' +
        '</span></span></span></span>'
     );
@@ -72,9 +72,9 @@ describe('JobGroup component', () => {
         '<button class="btn group-symbol">W-e10s</button>' +
           '<span class="group-content">' +
             '<span class="group-job-list">' +
-              '<button data-job-id="166315799" title="test-linux64/debug-web-platform-tests-wdspec-e10s - " class="btn btn-dkgray filter-shown job-btn btn-xs">Wd</button>' +
-              '<button data-job-id="166315800" title="test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button>' +
-              '<button data-job-id="166315797" title="test-linux64/debug-web-platform-tests-e10s-1 - " class="btn btn-dkgray filter-shown job-btn btn-xs">wpt1</button>' +
+              '<button data-job-id="166315799" title="running | test-linux64/debug-web-platform-tests-wdspec-e10s - " class="btn btn-dkgray filter-shown job-btn btn-xs">Wd</button>' +
+              '<button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button>' +
+              '<button data-job-id="166315797" title="running | test-linux64/debug-web-platform-tests-e10s-1 - " class="btn btn-dkgray filter-shown job-btn btn-xs">wpt1</button>' +
             '</span>' +
             '<span class="group-count-list"></span></span></span></span>'
     );
@@ -95,9 +95,9 @@ describe('JobGroup component', () => {
         '<button class="btn group-symbol">W-e10s</button>' +
           '<span class="group-content">' +
             '<span class="group-job-list">' +
-              '<button data-job-id="166315799" title="test-linux64/debug-web-platform-tests-wdspec-e10s - " class="btn btn-dkgray filter-shown job-btn btn-xs">Wd</button>' +
-              '<button data-job-id="166315800" title="test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button>' +
-              '<button data-job-id="166315797" title="test-linux64/debug-web-platform-tests-e10s-1 - " class="btn btn-dkgray filter-shown job-btn btn-xs">wpt1</button>' +
+              '<button data-job-id="166315799" title="running | test-linux64/debug-web-platform-tests-wdspec-e10s - " class="btn btn-dkgray filter-shown job-btn btn-xs">Wd</button>' +
+              '<button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button>' +
+              '<button data-job-id="166315797" title="running | test-linux64/debug-web-platform-tests-e10s-1 - " class="btn btn-dkgray filter-shown job-btn btn-xs">wpt1</button>' +
             '</span>' +
             '<span class="group-count-list"></span></span></span></span>'
     );
@@ -116,7 +116,7 @@ describe('JobGroup component', () => {
       '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
-          '<button data-job-id="166316707" title="spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
+          '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
         '</span>' +
         '<span class="group-count-list">' +
           '<button class="btn-green-count btn group-btn btn-xs job-group-count filter-shown" title="6 success jobs in group">6</button>' +
@@ -138,8 +138,8 @@ describe('JobGroup component', () => {
       '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
-          '<button data-job-id="166316707" title="spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
-          '<button data-job-id="166321182" title="spidermonkey-sm-msan-linux64/opt -  (10 mins)" class="btn btn-green filter-shown job-btn btn-xs">msan</button>' +
+          '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
+          '<button data-job-id="166321182" title="success | spidermonkey-sm-msan-linux64/opt -  (10 mins)" class="btn btn-green filter-shown job-btn btn-xs">msan</button>' +
         '</span>' +
         '<span class="group-count-list">' +
           '<button class="btn-green-count btn group-btn btn-xs job-group-count filter-shown" title="5 success jobs in group">5</button>' +
@@ -161,8 +161,8 @@ describe('JobGroup component', () => {
       '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
-          '<button data-job-id="166316707" title="spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
-          '<button data-job-id="166321182" title="spidermonkey-sm-msan-linux64/opt -  (10 mins)" class="btn btn-green filter-shown job-btn btn-xs">msan</button>' +
+          '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
+          '<button data-job-id="166321182" title="success | spidermonkey-sm-msan-linux64/opt -  (10 mins)" class="btn btn-green filter-shown job-btn btn-xs">msan</button>' +
         '</span>' +
         '<span class="group-count-list">' +
           '<button class="btn-green-count btn group-btn btn-xs job-group-count filter-shown" title="5 success jobs in group">5</button>' +
