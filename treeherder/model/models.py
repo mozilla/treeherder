@@ -844,8 +844,8 @@ class JobNote(models.Model):
             return
 
         # evaluate the QuerySet here so it can be used when creating new_bugs below
-        existing_bugs = list(ClassifiedFailure.objects.filter(error_matches__text_log_error=text_log_error)
-                                                      .values_list('bug_number', flat=True))
+        existing_bugs = list(Classification.objects.filter(error_matches__text_log_error=text_log_error)
+                                                   .values_list('bug_number', flat=True))
 
         new_bugs = (self.job.bugjobmap_set.exclude(bug_id__in=existing_bugs)
                                           .values_list('bug_id', flat=True))
@@ -855,7 +855,7 @@ class JobNote(models.Model):
 
         # Create Match instances for each new bug
         for bug_number in new_bugs:
-            classification, _ = ClassifiedFailure.objects.get_or_create(bug_number=bug_number)
+            classification, _ = Classification.objects.get_or_create(bug_number=bug_number)
             text_log_error.create_match("ManualDetector", classification)
 
         # if there's only one new bug and no existing ones, verify it
@@ -890,7 +890,7 @@ class JobNote(models.Model):
         """
         # Only insert bugs for verified failures since these are automatically
         # mirrored to ES and the mirroring can't be undone
-        bug_numbers = set(ClassifiedFailure.objects
+        bug_numbers = set(Classification.objects
                           .filter(best_for_errors__text_log_error__step__job=job,
                                   best_for_errors__best_is_verified=True)
                           .exclude(bug_number=None)
@@ -949,10 +949,11 @@ class FailureLine(models.Model):
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered
     # for future autoclassifications.
-    best_classification = models.ForeignKey("ClassifiedFailure",
+    best_classification = models.ForeignKey("Classification",
                                             related_name="best_for_lines",
                                             null=True,
                                             db_index=True,
+                                            db_column="best_classification_id",
                                             on_delete=models.SET_NULL)
 
     best_is_verified = models.BooleanField(default=False)
@@ -1072,7 +1073,7 @@ class Group(models.Model):
         db_table = 'group'
 
 
-class ClassifiedFailure(models.Model):
+class Classification(models.Model):
     """
     Classifies zero or more TextLogErrors as a failure.
 
@@ -1080,7 +1081,7 @@ class ClassifiedFailure(models.Model):
     """
     id = models.BigAutoField(primary_key=True)
     text_log_errors = models.ManyToManyField("TextLogError", through='TextLogErrorMatch',
-                                             related_name='classified_failures')
+                                             related_name='classifications')
     # Note that we use a bug number of 0 as a sentinel value to indicate lines that
     # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True, unique=True)
@@ -1099,13 +1100,13 @@ class ClassifiedFailure(models.Model):
         """
         Set the bug number of this Classified Failure
 
-        If an existing ClassifiedFailure exists with the same bug number
+        If an existing Classification exists with the same bug number
         replace this instance with the existing one.
         """
         if bug_number == self.bug_number:
             return self
 
-        other = ClassifiedFailure.objects.filter(bug_number=bug_number).first()
+        other = Classification.objects.filter(bug_number=bug_number).first()
         if not other:
             self.bug_number = bug_number
             self.save(update_fields=['bug_number'])
@@ -1139,17 +1140,17 @@ class ClassifiedFailure(models.Model):
         score if less than ours and mark our matches for deletion.
 
         If there are no other matches, update ours to point to the other
-        ClassifiedFailure.
+        Classification.
         """
         for match in self.error_matches.all():
             other_matches = TextLogErrorMatch.objects.filter(
-                classified_failure=other,
+                classification=other,
                 text_log_error=match.text_log_error,
             )
 
             if not other_matches:
-                match.classified_failure = other
-                match.save(update_fields=['classified_failure'])
+                match.classification = other
+                match.save(update_fields=['classification'])
                 continue
 
             # if any of our matches have higher scores than other's matches,
@@ -1272,23 +1273,23 @@ class TextLogError(models.Model):
         Typically used for manual "matches" or tests.
         """
         if classification is None:
-            classification = ClassifiedFailure.objects.create()
+            classification = Classification.objects.create()
 
         TextLogErrorMatch.objects.create(
             text_log_error=self,
-            classified_failure=classification,
+            classification=classification,
             matcher_name=matcher_name,
             score=1,
         )
 
     def verify_classification(self, classification):
         """
-        Mark the given ClassifiedFailure as verified.
+        Mark the given Classification as verified.
 
         Handles the classification not currently being related to this
         TextLogError and no Metadata existing.
         """
-        if classification not in self.classified_failures.all():
+        if classification not in self.classifications.all():
             self.create_match("ManualDetector", classification)
 
         # create a TextLogErrorMetadata instance for this TextLogError if it
@@ -1307,7 +1308,7 @@ class TextLogError(models.Model):
         self.metadata.failure_line.elastic_search_insert()
 
         # Send event to NewRelic when a verifing an autoclassified failure.
-        match = self.matches.filter(classified_failure=classification).first()
+        match = self.matches.filter(classification=classification).first()
         if not match:
             return
 
@@ -1346,9 +1347,10 @@ class TextLogErrorMetadata(models.Model):
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered
     # for future autoclassifications.
-    best_classification = models.ForeignKey(ClassifiedFailure,
+    best_classification = models.ForeignKey(Classification,
                                             related_name="best_for_errors",
                                             null=True,
+                                            db_column="best_classification_id",
                                             on_delete=models.SET_NULL)
     best_is_verified = models.BooleanField(default=False)
 
@@ -1361,7 +1363,7 @@ class TextLogErrorMetadata(models.Model):
 
 
 class TextLogErrorMatch(models.Model):
-    """Association table between TextLogError and ClassifiedFailure, containing
+    """Association table between TextLogError and Classification, containing
     additional data about the association including the matcher that was used
     to create it and a score in the range 0-1 for the goodness of match."""
 
@@ -1369,9 +1371,10 @@ class TextLogErrorMatch(models.Model):
     text_log_error = models.ForeignKey(TextLogError,
                                        related_name="matches",
                                        on_delete=models.CASCADE)
-    classified_failure = models.ForeignKey(ClassifiedFailure,
-                                           related_name="error_matches",
-                                           on_delete=models.CASCADE)
+    classification = models.ForeignKey(Classification,
+                                       related_name="error_matches",
+                                       on_delete=models.CASCADE,
+                                       db_column="classified_failure_id")
 
     matcher_name = models.CharField(max_length=255)
     score = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
@@ -1380,9 +1383,9 @@ class TextLogErrorMatch(models.Model):
         db_table = 'text_log_error_match'
         verbose_name_plural = 'text log error matches'
         unique_together = (
-            ('text_log_error', 'classified_failure', 'matcher_name')
+            ('text_log_error', 'classification', 'matcher_name')
         )
 
     def __str__(self):
         return "{0} {1}".format(
-            self.text_log_error.id, self.classified_failure.id)
+            self.text_log_error.id, self.classification.id)

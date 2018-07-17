@@ -189,10 +189,10 @@ export default class ErrorLine extends React.Component {
       this.props.errorLine.data.bug_suggestions.bugs.open_recent,
       this.props.errorLine.data.bug_suggestions.bugs.all_others);
     const classificationMatches = this.getClassifiedFailureMatcher();
-    const autoclassifyOptions = this.props.errorLine.data.classified_failures
+    const autoclassifyOptions = this.props.errorLine.data.classifications
       .filter(cf => cf.bug_number !== 0)
       .map(cf => new LineOptionModel(
-        'classifiedFailure',
+        'classification',
         `${this.props.errorLine.id}-${cf.id}`,
         cf.id,
         cf.bug_number,
@@ -220,7 +220,7 @@ export default class ErrorLine extends React.Component {
     if (!this.bestIsIgnore()) {
       const bestIndex = this.props.errorLine.bestClassification ?
         autoclassifyOptions
-          .findIndex(option => option.classifiedFailureId === this.props.errorLine.bestClassification.id) : -1;
+          .findIndex(option => option.classificationId === this.props.errorLine.bestClassification.id) : -1;
 
       if (bestIndex > -1) {
         this.bestOption = autoclassifyOptions[bestIndex];
@@ -349,10 +349,10 @@ export default class ErrorLine extends React.Component {
   getClassifiedFailureMatcher() {
     const matchesByCF = this.props.errorLine.data.matches.reduce(
       function (matchesByCF, match) {
-        if (!matchesByCF.has(match.classified_failure)) {
-          matchesByCF.set(match.classified_failure, []);
+        if (!matchesByCF.has(match.classification)) {
+          matchesByCF.set(match.classification, []);
         }
-        matchesByCF.get(match.classified_failure).push(match);
+        matchesByCF.get(match.classification).push(match);
         return matchesByCF;
       }, new Map());
     const matchFunc = (cf_id) => {
@@ -375,11 +375,11 @@ export default class ErrorLine extends React.Component {
     // TODO: consider adding the update/create options back here, although it's
     // not clear anyone ever understood how they were supposed to work
     const { errorLine, setErrorLineInput } = this.props;
-    const classifiedFailureId = ((this.bestOption &&
-      this.bestOption.classifiedFailureId &&
+    const classificationId = ((this.bestOption &&
+      this.bestOption.classificationId &&
       this.bestOption.bugNumber === null) ?
-      this.bestOption.classifiedFailureId :
-      option.classifiedFailureId);
+      this.bestOption.classificationId :
+      option.classificationId);
     const bug = (option.type === 'manual' ?
       option.manualBugNumber :
       (option.type === 'ignore' ?
@@ -388,7 +388,7 @@ export default class ErrorLine extends React.Component {
     const data = {
       id: errorLine.id,
       type: option.type,
-      classifiedFailureId: classifiedFailureId,
+      classificationId: classificationId,
       bugNumber: bug,
     };
 
@@ -444,10 +444,10 @@ export default class ErrorLine extends React.Component {
       .forEach((option) => {
         let score;
         const data = this.props.errorLine.data;
-        if (option.type === 'classifiedFailure') {
+        if (option.type === 'classification') {
           score = parseFloat(
             data.matches.find(
-              x => x.classified_failure === option.classifiedFailureId).score);
+              x => x.classification === option.classificationId).score);
         } else {
           score = stringOverlap(data.bug_suggestions.search,
                                 option.bugSummary.replace(/^\s*Intermittent\s+/, ''));

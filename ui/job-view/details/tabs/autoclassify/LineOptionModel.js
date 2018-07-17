@@ -1,12 +1,12 @@
 import { extendProperties } from '../../../../helpers/object';
 
 export default class LineOptionModel {
-  constructor(type, id, classifiedFailureId, bugNumber,
+  constructor(type, id, classificationId, bugNumber,
               bugSummary, bugResolution, matches) {
     extendProperties(this, {
       type: type,
       id: id,
-      classifiedFailureId: classifiedFailureId || null,
+      classificationId: classificationId || null,
       bugNumber: bugNumber || null,
       bugSummary: bugSummary || null,
       bugResolution: bugResolution || null,
@@ -15,7 +15,7 @@ export default class LineOptionModel {
       hidden: false,
       score: null,
       ignoreAlways: false,
-      selectable: !(type === 'classifiedFailure' && !bugNumber),
+      selectable: !(type === 'classification' && !bugNumber),
     });
   }
 }

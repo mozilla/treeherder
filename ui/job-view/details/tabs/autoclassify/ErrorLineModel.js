@@ -10,7 +10,7 @@ export default class ErrorLineModel {
     if (line.metadata) {
       this.verified = line.metadata.best_is_verified;
       this.bestClassification = line.metadata.best_classification ?
-        line.classified_failures
+        line.classifications
           .find(cf => cf.id === line.metadata.best_classification) : null;
     } else {
       this.verified = false;

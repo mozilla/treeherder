@@ -12,14 +12,14 @@ from .utils import (create_failure_lines,
                     create_text_log_errors)
 
 
-def test_precise_matcher_with_matches(classified_failures):
+def test_precise_matcher_with_matches(classifications):
     tle = TextLogErrorMatch.objects.first().text_log_error
 
     results = precise_matcher(tle)
-    score, classified_failure_id = first(results)
+    score, classification_id = first(results)
 
     match = tle.matches.first()
-    assert classified_failure_id == match.classified_failure_id
+    assert classification_id == match.classification_id
     assert score == match.score
 
 
@@ -62,13 +62,13 @@ def test_score_matches_empty_return():
     assert output == []
 
 
-def test_scored_matches(classified_failures):
+def test_scored_matches(classifications):
     matches = TextLogErrorMatch.objects.all()
     output = list(score_matches(matches))
     assert len(output) == len(matches)
 
 
-def test_scored_matches_with_manipulated_score(classified_failures):
+def test_scored_matches_with_manipulated_score(classifications):
     matches = TextLogErrorMatch.objects.all()
 
     results = list(score_matches(matches, score_multiplier=(8, 10)))

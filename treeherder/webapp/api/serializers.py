@@ -109,11 +109,11 @@ class MatcherSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ClassifiedFailureSerializer(serializers.ModelSerializer):
+class ClassificationSerializer(serializers.ModelSerializer):
     bug = BugscacheSerializer(read_only=True)
 
     class Meta:
-        model = models.ClassifiedFailure
+        model = models.Classification
         exclude = ['created', 'modified', 'text_log_errors']
 
 
@@ -146,12 +146,12 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
             matches = []
         tle_serializer = TextLogErrorMatchSerializer(matches, many=True)
 
-        classified_failures = models.ClassifiedFailure.objects.filter(error_matches__in=matches)
-        cf_serializer = ClassifiedFailureSerializer(classified_failures, many=True)
+        classifications = models.Classification.objects.filter(error_matches__in=matches)
+        cf_serializer = ClassificationSerializer(classifications, many=True)
 
         response = super(FailureLineNoStackSerializer, self).to_representation(failure_line)
         response['matches'] = tle_serializer.data
-        response['classified_failures'] = cf_serializer.data
+        response['classifications'] = cf_serializer.data
         return response
 
 
@@ -165,7 +165,7 @@ class TextLogErrorMetadataSerializer(serializers.ModelSerializer):
 
 class TextLogErrorSerializer(serializers.ModelSerializer):
     matches = TextLogErrorMatchSerializer(many=True)
-    classified_failures = ClassifiedFailureSerializer(many=True)
+    classifications = ClassificationSerializer(many=True)
     bug_suggestions = NoOpSerializer(read_only=True)
     metadata = TextLogErrorMetadataSerializer(read_only=True)
 

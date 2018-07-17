@@ -52,7 +52,7 @@ def match_errors(job, matchers=None):
     if job.result not in ["testfailed", "busted", "exception"]:
         return
 
-    all_errors = set(TextLogError.objects.filter(step__job=job, classified_failures=None)
+    all_errors = set(TextLogError.objects.filter(step__job=job, classifications=None)
                                          .prefetch_related('step', '_metadata', '_metadata__failure_line'))
     errors = [t for t in all_errors if t.metadata and t.metadata.failure_line]
 
@@ -97,7 +97,7 @@ def find_best_matches(errors, matchers):
     for text_log_error in errors:
         matches = find_all_matches(text_log_error, matchers)  # TextLogErrorMatch instances, unsaved!
 
-        best_match = first(matches, key=lambda m: (-m.score, -m.classified_failure_id))
+        best_match = first(matches, key=lambda m: (-m.score, -m.classification_id))
         if not best_match:
             continue
 
@@ -118,15 +118,15 @@ def find_all_matches(text_log_error, matchers):
     """
     for matcher_func in matchers:
         matches = matcher_func(text_log_error)
-        # matches: iterator of (score, ClassifiedFailure.id)
+        # matches: iterator of (score, Classification.id)
         if not matches:
             continue
 
-        for score, classified_failure_id in matches:
+        for score, classification_id in matches:
             yield TextLogErrorMatch(
                 score=score,
                 matcher_name=matcher_func.__name__,
-                classified_failure_id=classified_failure_id,
+                classification_id=classification_id,
                 text_log_error=text_log_error,
             )
 
@@ -139,20 +139,20 @@ def get_best_match(text_log_error):
     """
     score_cut_off = 0.7
     return (text_log_error.matches.filter(score__gt=score_cut_off)
-                                  .order_by("-score", "-classified_failure_id")
-                                  .select_related('classified_failure')
+                                  .order_by("-score", "-classification_id")
+                                  .select_related('classification')
                                   .first())
 
 
-def mark_best_classification(text_log_error, classified_failure):
+def mark_best_classification(text_log_error, classification):
     """
     Wrapper for setting best_classification on both TextLogError and FailureLine.
 
-    Set the given ClassifiedFailure as best_classification for the given
+    Set the given Classification as best_classification for the given
     TextLogError. Handles the duplication of best_classification on FailureLine
     so you don't have to!
     """
-    text_log_error.metadata.best_classification = classified_failure
+    text_log_error.metadata.best_classification = classification
     text_log_error.metadata.save(update_fields=['best_classification'])
     text_log_error.metadata.failure_line.elastic_search_insert()
 
@@ -170,7 +170,7 @@ def mark_best_classifications(errors):
         if not best_match:
             continue
 
-        mark_best_classification(text_log_error, best_match.classified_failure)
+        mark_best_classification(text_log_error, best_match.classification)
 
 
 def update_db(matches):
@@ -184,9 +184,9 @@ def update_db(matches):
         try:
             match.save()
         except IntegrityError:
-            args = (match.text_log_error_id, match.matcher_name, match.classified_failure_id)
+            args = (match.text_log_error_id, match.matcher_name, match.classification_id)
             logger.warning(
-                "Tried to create duplicate match for TextLogError %i with matcher %s and classified_failure %i",
+                "Tried to create duplicate match for TextLogError %i with matcher %s and classification %i",
                 args,
             )
 

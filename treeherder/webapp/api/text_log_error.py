@@ -8,7 +8,7 @@ from rest_framework.status import (HTTP_200_OK,
                                    HTTP_404_NOT_FOUND)
 from six import iteritems
 
-from treeherder.model.models import (ClassifiedFailure,
+from treeherder.model.models import (Classification,
                                      TextLogError)
 from treeherder.webapp.api import (pagination,
                                    serializers)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TextLogErrorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TextLogErrorSerializer
-    queryset = TextLogError.objects.prefetch_related("classified_failures",
+    queryset = TextLogError.objects.prefetch_related("classifications",
                                                      "matches",
                                                      "_metadata",
                                                      "_metadata__failure_line").all()
@@ -53,18 +53,18 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
                 bug_number is not None and
                 bug_number not in bug_number_classifications):
                 bug_number_classifications[bug_number], _ = (
-                    ClassifiedFailure.objects.get_or_create(bug_number=bug_number))
+                    Classification.objects.get_or_create(bug_number=bug_number))
 
             ids.append((line_id, classification_id, bug_number))
 
-        error_lines = TextLogError.objects.prefetch_related('classified_failures').filter(id__in=error_line_ids)
+        error_lines = TextLogError.objects.prefetch_related('classifications').filter(id__in=error_line_ids)
         error_lines = {tle.id: tle for tle in error_lines}
         if len(error_lines) != len(error_line_ids):
             missing = error_line_ids - set(error_lines.keys())
             return ("No text log error with id: {0}".format(", ".join(missing)),
                     HTTP_404_NOT_FOUND)
 
-        classifications = ClassifiedFailure.objects.filter(id__in=classification_ids)
+        classifications = Classification.objects.filter(id__in=classification_ids)
         classifications = {c.id: c for c in classifications}
         if len(classifications) != len(classification_ids):
             missing = classification_ids - set(classifications.keys())
@@ -95,9 +95,9 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
         for job in jobs:
             job.update_after_verification(user)
 
-        # Force failure line to be reloaded, including .classified_failures
+        # Force failure line to be reloaded, including .classifications
         rv = (TextLogError.objects
-              .prefetch_related('classified_failures')
+              .prefetch_related('classifications')
               .filter(id__in=error_line_ids))
 
         if not many:

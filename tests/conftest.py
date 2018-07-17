@@ -417,28 +417,28 @@ def test_matcher(request):
 
 
 @pytest.fixture
-def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
-                        failure_classifications):
-    from treeherder.model.models import ClassifiedFailure
+def classifications(test_job, text_log_errors_failure_lines, test_matcher,
+                    failure_classifications):
+    from treeherder.model.models import Classification
     from treeherder.services.elasticsearch import refresh_index
 
     _, failure_lines = text_log_errors_failure_lines
 
-    classified_failures = []
+    classifications = []
 
     for failure_line in failure_lines:
         if failure_line.job_guid == test_job.guid:
-            classified_failure = ClassifiedFailure.objects.create()
+            classification = Classification.objects.create()
 
-            failure_line.error.create_match(test_matcher, classified_failure)
-            mark_best_classification(failure_line.error, classified_failure)
+            failure_line.error.create_match(test_matcher, classification)
+            mark_best_classification(failure_line.error, classification)
 
-            classified_failures.append(classified_failure)
+            classifications.append(classification)
 
     if settings.ELASTICSEARCH_URL:
         refresh_index()
 
-    return classified_failures
+    return classifications
 
 
 @pytest.fixture

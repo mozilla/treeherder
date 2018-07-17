@@ -348,7 +348,7 @@ export default class AutoclassifyTab extends React.Component {
     if (settings.type === 'ignore') {
       return true;
     }
-    return !!(settings.classifiedFailureId || settings.bugNumber);
+    return !!(settings.classificationId || settings.bugNumber);
   }
 
   /**
@@ -373,7 +373,7 @@ export default class AutoclassifyTab extends React.Component {
     const { errorLines } = this.state;
     const data = Object.values(lines).map(input => ({
       id: input.id,
-      best_classification: input.classifiedFailureId || null,
+      best_classification: input.classificationId || null,
       bug_number: input.bugNumber,
     }));
 

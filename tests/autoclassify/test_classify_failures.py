@@ -3,7 +3,7 @@ from treeherder.autoclassify.matchers import (crash_signature_matcher,
                                               elasticsearch_matcher,
                                               precise_matcher)
 from treeherder.model.models import (BugJobMap,
-                                     ClassifiedFailure,
+                                     Classification,
                                      JobNote,
                                      TextLogError,
                                      TextLogErrorMatch)
@@ -26,7 +26,7 @@ def do_autoclassify(job, test_failure_lines, matchers, status="testfailed"):
 
 
 def test_classify_test_failure(text_log_errors_failure_lines,
-                               classified_failures,
+                               classifications,
                                test_job_2):
     # Ensure that running autoclassify on a new job classifies lines that
     # exactly match previous classifications
@@ -45,17 +45,17 @@ def test_classify_test_failure(text_log_errors_failure_lines,
     expected_unclassified = test_error_lines[2:], test_failure_lines[2:]
 
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
-                                                    classified_failures):
-        assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+                                                    classifications):
+        assert list(error_line.classifications.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classifications.values_list('id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
-        assert error_line.classified_failures.count() == 0
-        assert failure_line.error.classified_failures.count() == 0
+        assert error_line.classifications.count() == 0
+        assert failure_line.error.classifications.count() == 0
 
 
 def test_no_autoclassify_job_success(text_log_errors_failure_lines,
-                                     classified_failures,
+                                     classifications,
                                      test_job_2):
     # Ensure autoclassification doesn't occur for successful jobs
     lines = [(test_line, {}),
@@ -71,17 +71,17 @@ def test_no_autoclassify_job_success(text_log_errors_failure_lines,
     expected_unclassified = test_error_lines, test_failure_lines
 
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
-                                                    classified_failures):
-        assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+                                                    classifications):
+        assert list(error_line.classifications.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classifications.values_list('id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
-        assert error_line.classified_failures.count() == 0
-        assert failure_line.error.classified_failures.count() == 0
+        assert error_line.classifications.count() == 0
+        assert failure_line.error.classifications.count() == 0
 
 
-def test_autoclassify_update_job_classification(failure_lines, classified_failures, test_job_2):
-    for i, item in enumerate(classified_failures):
+def test_autoclassify_update_job_classification(failure_lines, classifications, test_job_2):
+    for i, item in enumerate(classifications):
         item.bug_number = "1234%i" % i
         item.save()
 
@@ -98,7 +98,7 @@ def test_autoclassify_update_job_classification(failure_lines, classified_failur
 
 def test_autoclassify_no_update_job_classification(test_job, test_job_2,
                                                    text_log_errors_failure_lines,
-                                                   classified_failures):
+                                                   classifications):
 
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
@@ -136,11 +136,11 @@ def test_autoclassified_after_manual_classification(test_user,
     fl1 = test_failure_lines[0]
 
     assert tle1.matches.count() == 1
-    assert tle1.metadata.best_classification == tle1.classified_failures.first()
+    assert tle1.metadata.best_classification == tle1.classifications.first()
     assert tle1.metadata.best_is_verified
 
     assert fl1.error.matches.count() == 1
-    assert fl1.error.metadata.best_classification == fl1.error.classified_failures.first()
+    assert fl1.error.metadata.best_classification == fl1.error.classifications.first()
     assert fl1.text_log_error_metadata.best_is_verified
 
 
@@ -184,7 +184,7 @@ def test_autoclassified_no_update_after_manual_classification_2(test_user, test_
 
 def test_classify_skip_ignore(test_job_2,
                               text_log_errors_failure_lines,
-                              classified_failures):
+                              classifications):
 
     text_log_errors, failure_lines = text_log_errors_failure_lines
     text_log_errors[1].metadata.best_is_verified = True
@@ -200,14 +200,14 @@ def test_classify_skip_ignore(test_job_2,
     expected_classified = test_failure_lines[:1]
     expected_unclassified = test_failure_lines[1:]
 
-    for actual, expected in zip(expected_classified, classified_failures):
-        assert [item.id for item in actual.error.classified_failures.all()] == [expected.id]
+    for actual, expected in zip(expected_classified, classifications):
+        assert [item.id for item in actual.error.classifications.all()] == [expected.id]
 
     for item in expected_unclassified:
-        assert item.error.classified_failures.count() == 0
+        assert item.error.classifications.count() == 0
 
 
-def test_classify_es(test_job_2, failure_lines, classified_failures):
+def test_classify_es(test_job_2, failure_lines, classifications):
     _, test_failure_lines = create_lines(test_job_2,
                                          [(test_line, {}),
                                           (test_line, {"message": "message2"}),
@@ -223,13 +223,13 @@ def test_classify_es(test_job_2, failure_lines, classified_failures):
     expected_unclassified = test_failure_lines[4:]
 
     for actual in expected_classified:
-        assert [item.id for item in actual.error.classified_failures.all()] == [classified_failures[0].id]
+        assert [item.id for item in actual.error.classifications.all()] == [classifications[0].id]
 
     for item in expected_unclassified:
-        assert item.error.classified_failures.count() == 0
+        assert item.error.classifications.count() == 0
 
 
-def test_classify_multiple(test_job_2, failure_lines, classified_failures):
+def test_classify_multiple(test_job_2, failure_lines, classifications):
     _, test_failure_lines = create_lines(test_job_2,
                                          [(test_line, {}),
                                           (test_line, {"message": "message 1.2"})])
@@ -240,12 +240,12 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
     do_autoclassify(test_job_2, test_failure_lines, [precise_matcher,
                                                      elasticsearch_matcher])
 
-    for actual, expected in zip(expected_classified_precise, classified_failures):
-        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+    for actual, expected in zip(expected_classified_precise, classifications):
+        assert list(actual.error.classifications.values_list('id', flat=True)) == [expected.id]
         assert actual.error.matches.first().matcher_name == "precise_matcher"
 
-    for actual, expected in zip(expected_classified_fuzzy, classified_failures):
-        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+    for actual, expected in zip(expected_classified_fuzzy, classifications):
+        assert list(actual.error.classifications.values_list('id', flat=True)) == [expected.id]
         assert actual.error.matches.first().matcher_name == "elasticsearch_matcher"
 
 
@@ -259,9 +259,9 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
                                      (crash_line, {"signature": "signature1"}),
                                      (crash_line, {"signature": None})])
 
-    classified_failure = ClassifiedFailure.objects.create()
+    classification = Classification.objects.create()
     TextLogErrorMatch.objects.create(text_log_error=error_lines_ref[0],
-                                     classified_failure=classified_failure,
+                                     classification=classification,
                                      matcher_name=test_matcher.__class__.__name__,
                                      score=1.0)
     do_autoclassify(test_job_2, failure_lines, [crash_signature_matcher])
@@ -270,7 +270,7 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
     expected_unclassified = failure_lines[2:]
 
     for actual in expected_classified:
-        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [classified_failure.id]
+        assert list(actual.error.classifications.values_list('id', flat=True)) == [classification.id]
 
     for item in expected_unclassified:
-        assert item.error.classified_failures.count() == 0
+        assert item.error.classifications.count() == 0

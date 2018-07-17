@@ -340,7 +340,7 @@ def test_text_log_steps_and_errors(client, test_job):
                     },
                     'metadata': None,
                     'matches': [],
-                    'classified_failures': []
+                    'classifications': []
                 },
                 {
                     'id': 2,
@@ -353,7 +353,7 @@ def test_text_log_steps_and_errors(client, test_job):
                     },
                     'metadata': None,
                     'matches': [],
-                    'classified_failures': []
+                    'classifications': []
                 }
             ],
             'finished': '1970-01-01T00:03:20',
@@ -405,7 +405,7 @@ def test_text_log_errors(client, test_job):
             },
             'metadata': None,
             'matches': [],
-            'classified_failures': []
+            'classifications': []
         },
         {
             'id': 2,
@@ -418,7 +418,7 @@ def test_text_log_errors(client, test_job):
             },
             'metadata': None,
             'matches': [],
-            'classified_failures': []
+            'classifications': []
         }
     ]
 

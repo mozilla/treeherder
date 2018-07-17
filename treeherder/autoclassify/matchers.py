@@ -42,14 +42,14 @@ def precise_matcher(text_log_error):
     )
     qs = (TextLogErrorMatch.objects.filter(**f)
                                    .exclude(qwargs)
-                                   .order_by('-score', '-classified_failure'))
+                                   .order_by('-score', '-classification'))
 
     if not qs:
         return
 
     # chunk through the QuerySet because it could potentially be very large
     # time bound each call to the scoring function to avoid job timeouts
-    # returns an iterable of (score, classified_failure_id) tuples
+    # returns an iterable of (score, classification_id) tuples
     chunks = chunked_qs_reverse(qs, chunk_size=20000)
     return chain.from_iterable(time_boxed(score_matches, chunks, time_budget=500))
 
@@ -154,7 +154,7 @@ def crash_signature_matcher(text_log_error):
     qs = (TextLogErrorMatch.objects.filter(**f)
                                    .exclude(qwargs)
                                    .select_related('text_log_error', 'text_log_error___metadata')
-                                   .order_by('-score', '-classified_failure'))
+                                   .order_by('-score', '-classification'))
 
     size = 20000
     time_budget = 500

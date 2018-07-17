@@ -16,7 +16,7 @@ def score_matches(matches, score_multiplier=(1, 1)):
         dividend, divisor = score_multiplier
         score = match.score * dividend / divisor
 
-        yield (score, match.classified_failure_id)
+        yield (score, match.classification_id)
 
 
 def time_boxed(func, iterable, time_budget, *args):

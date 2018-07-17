@@ -424,7 +424,7 @@ class JobsViewSet(viewsets.ViewSet):
                           .filter(step__job=job)
                           .select_related("_metadata",
                                           "_metadata__failure_line")
-                          .prefetch_related("classified_failures", "matches")
+                          .prefetch_related("classifications", "matches")
                           .order_by('id'))
         return Response(serializers.TextLogErrorSerializer(textlog_errors,
                                                            many=True,
