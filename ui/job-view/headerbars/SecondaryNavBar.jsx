@@ -236,13 +236,19 @@ class SecondaryNavBar extends React.Component {
             {/* Result Status Filter Chicklets */}
             <span className="resultStatusChicklets">
               <span id="filter-chicklets">
-                {this.filterChicklets.map(filterName => (<span key={filterName}>
-                  <span
-                    className={`btn btn-view-nav btn-sm btn-nav-filter ${getBtnClass(filterName)}-filter-chicklet fa ${this.isFilterOn(filterName) ? 'fa-dot-circle-o' : 'fa-circle-thin'}`}
-                    onClick={() => this.toggleResultStatusFilterChicklet(filterName)}
-                    title={filterName}
-                  />
-                </span>))}
+                {this.filterChicklets.map((filterName) => {
+                  const isOn = this.isFilterOn(filterName);
+                  return (<span key={filterName}>
+                    <span
+                      className={`btn btn-view-nav btn-sm btn-nav-filter ${getBtnClass(filterName)}-filter-chicklet fa ${isOn ? 'fa-dot-circle-o' : 'fa-circle-thin'}`}
+                      onClick={() => this.toggleResultStatusFilterChicklet(filterName)}
+                      title={filterName}
+                      role="checkbox"
+                      aria-checked={isOn}
+                      tabIndex={0}
+                    />
+                  </span>);
+                })}
               </span>
             </span>
 
