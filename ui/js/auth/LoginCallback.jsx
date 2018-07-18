@@ -31,7 +31,7 @@ export default class LoginCallback extends React.PureComponent {
     }
 
     try {
-      authResult = await parseHash(window.location.hash);
+      authResult = await parseHash({ hash: window.location.hash });
 
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
