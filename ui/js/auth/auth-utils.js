@@ -41,9 +41,9 @@ export const renew = () => (
 );
 
 // Wrapper around webAuth's parseHash
-export const parseHash = qs => (
+export const parseHash = options => (
   new Promise((resolve, reject) => {
-    webAuth.parseHash(qs, (error, authResult) => {
+    webAuth.parseHash(options, (error, authResult) => {
       if (error) {
         return reject(error);
       }
