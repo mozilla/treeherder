@@ -762,7 +762,7 @@ perf.controller('GraphsCtrl', [
 
             if ($stateParams.series) {
                 $scope.seriesList = [];
-                if (_.isString($stateParams.series)) {
+                if (typeof ($stateParams.series) === 'string') {
                     $stateParams.series = [$stateParams.series];
                 }
                 if ($stateParams.highlightAlerts) {
