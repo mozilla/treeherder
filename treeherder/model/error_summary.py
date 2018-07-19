@@ -39,7 +39,9 @@ def get_error_summary(job):
     if not errors:
         return []
 
+    # cache terms generated from error line to save excessive querying
     term_cache = {}
+
     error_summary = [bug_suggestions_line(err, term_cache) for err in errors]
     cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
 
@@ -57,6 +59,7 @@ def bug_suggestions_line(err, term_cache=None):
     """
     if term_cache is None:
         term_cache = {}
+
     # remove the mozharness prefix
     clean_line = get_mozharness_substring(err.line)
 
