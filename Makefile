@@ -1,8 +1,9 @@
 # Makefile for Sphinx documentation
 
-SPHINXOPTS    = -n -W .
+SPHINXOPTS    = -n -W
 SPHINXBUILD   = sphinx-build
 BUILDDIR      = _build
+SOURCEDIR     = docs
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
@@ -20,9 +21,9 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 html:
-	$(SPHINXBUILD) -b html $(SPHINXOPTS) $(BUILDDIR)
+	$(SPHINXBUILD) -b html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
 livehtml:
-	sphinx-autobuild -b html --poll $(SPHINXOPTS) $(BUILDDIR)
+	sphinx-autobuild -b html --poll $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR) -B -p 8001
