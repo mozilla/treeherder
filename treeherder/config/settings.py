@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import os
 import re
 from datetime import timedelta
 
@@ -9,9 +10,10 @@ from furl import furl
 from kombu import (Exchange,
                    Queue)
 
-from treeherder import path
 from treeherder.config.utils import (connection_should_use_tls,
                                      get_tls_redis_url)
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
 env = environ.Env()
 
@@ -139,7 +141,7 @@ USE_I18N = False
 USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = path("static")
+STATIC_ROOT = os.path.join(PROJECT_DIR, "static")
 STATIC_URL = "/static/"
 
 # Create hashed+gzipped versions of assets during collectstatic,
@@ -459,7 +461,7 @@ REST_FRAMEWORK = {
 
 # Whitenoise
 # Files in this directory will be served by WhiteNoise at the site root.
-WHITENOISE_ROOT = path("..", "dist")
+WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "dist")
 
 
 # TREEHERDER
