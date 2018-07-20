@@ -4,6 +4,7 @@ import re
 from datetime import timedelta
 
 import environ
+from celery.schedules import crontab
 from furl import furl
 from kombu import (Exchange,
                    Queue)
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'treeherder.autoclassify',
     'treeherder.credentials',
     'treeherder.seta',
+    'treeherder.intermittents_commenter',
 ]
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
@@ -291,6 +293,7 @@ CELERY_QUEUES = [
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
+    Queue('intermittents_commenter', Exchange('default'), routing_key='intermittents_commenter'),
 ]
 
 # Celery broker setup
@@ -391,6 +394,23 @@ CELERYBEAT_SCHEDULE = {
             'queue': "seta_analyze_failures"
         }
     },
+    'daily-intermittents-commenter': {
+        # Executes every morning at 7 a.m. UTC
+        'task': 'intermittents-commenter',
+        'schedule': crontab(hour=7),
+        'options': {
+            'queue': 'intermittents_commenter'
+        },
+    },
+    'weekly-intermittents-commenter': {
+        # Executes every sunday morning at 8 a.m. UTC
+        'task': 'intermittents-commenter',
+        'schedule': crontab(hour=8, day_of_week='sunday'),
+        'kwargs': {'weekly_mode': True},
+        'options': {
+            'queue': 'intermittents_commenter'
+        },
+    },
 }
 
 # CORS Headers
@@ -451,7 +471,10 @@ WHITENOISE_ROOT = path("..", "dist")
 # to stage bmo, while suggestions can still be fetched from prod bmo
 BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
-BUGFILER_API_KEY = env("BUGZILLA_API_KEY", default=None)
+BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
+
+# For intermittents commenter
+COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 
 # Log Parsing
 PARSER_MAX_STEP_ERROR_LINES = 100
