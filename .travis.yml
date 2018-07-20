@@ -22,7 +22,7 @@ matrix:
         - flake8 --show-source
         - isort --check-only --diff --quiet
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
-        - make -C docs html
+        - make html
 
     # Job 2: Python 3 linters
     - env: python3-linters

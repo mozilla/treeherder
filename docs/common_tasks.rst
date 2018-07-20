@@ -100,7 +100,7 @@ Building the docs locally
   .. code-block:: bash
 
      > pip install -r requirements/docs.txt
-     > make -C docs livehtml
+     > make livehtml
 
 * Visit http://127.0.0.1:8000 to view the docs.
 * Source changes will result in automatic rebuilds and browser page reload.
