@@ -41,17 +41,16 @@ export default class ReposMenu extends React.Component {
                     role="presentation"
                     className="dropdown-header"
                     title={group.name}
-                  >{group.name} <span
-                    className="fa fa-info-circle"
-                  />
-                  </li>
-                  {group.repos.map(repo => (<li key={repo.name}>
-                    <a
-                      title="Open repo"
-                      className="dropdown-link"
-                      href={this.getRepoUrl(repo.name)}
-                    >{repo.name}</a>
-                  </li>))}
+                  >{group.name} <span className="fa fa-info-circle" /></li>
+                  {!!group.repos && group.repos.map(repo => (
+                    <li key={repo.name}>
+                      <a
+                        title="Open repo"
+                        className="dropdown-link"
+                        href={this.getRepoUrl(repo.name)}
+                      >{repo.name}</a>
+                    </li>
+                  ))}
                 </span>
               ))}
             </ul>
