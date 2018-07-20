@@ -404,8 +404,7 @@ def failure_lines(test_job, elasticsearch):
 def failure_classifications(transactional_db):
     from treeherder.model.models import FailureClassification
     for name in ["not classified", "fixed by commit", "expected fail",
-                 "intermittent", "infra", "intermittent needs filing",
-                 "autoclassified intermittent"]:
+                 "intermittent", "infra", "autoclassified intermittent"]:
         FailureClassification(name=name).save()
 
 
