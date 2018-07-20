@@ -145,6 +145,38 @@ hidden by default.  There are two ways to set a job to be hidden in Treeherder:
   the signature, click the job and then click the ``sig`` link in the Job
   Details Panel.  That will place the signature hash in the filter field.
 
+Connecting to Services Running inside Vagrant
+---------------------------------------------
+
+Treeherder uses various services to function, eg MySQL, Elasticsearch, etc.
+At times it can be useful to connect to them from outside the Vagrant VM.
+
+The Vagrantfile defines how internal ports are mapped to the host OS' ports.
+These allow one to connect to services running inside a Vagrant VM.
+
+In the below example we're mapping VM port 3306 (MySQL's default port) to host port 3308.
+
+  ```ruby
+  config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+  ```
+
+
+```eval_rst
+.. note::
+
+    Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the VM talking to it.
+```
+
+With MySQL exposed at port 3308 you can connect to it from your host OS with the following credentials:
+
+* host: `localhost`
+* port: `3308`
+* user: `root`
+* password: leave blank
+
+
+Other services running inside the VM, such as Elasticsearch, can be accessed in the same way.
+
 
 [client Git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
 [client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
