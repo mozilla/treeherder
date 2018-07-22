@@ -11,7 +11,7 @@
     "yarn": "1.7.0"
   },
   "dependencies": {
-    "@types/angular": "1.6.48",
+    "@types/angular": "1.6.49",
     "@types/prop-types": "15.5.3",
     "@types/react": "16.4.6",
     "@types/react-dom": "16.0.6",
