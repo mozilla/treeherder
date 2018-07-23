@@ -15,14 +15,14 @@ class retryable_task(object):
     """Wrapper around a celery task to add conditional task retrying."""
 
     NON_RETRYABLE_EXCEPTIONS = (
-        TypeError,
-        ValueError,
         IntegrityError,
-        ProgrammingError,
-        UnicodeDecodeError,
         jsonschema.ValidationError,
-        # eg during log decompression
-        zlib.error,
+        KeyError,
+        ProgrammingError,
+        TypeError,
+        UnicodeDecodeError,
+        ValueError,
+        zlib.error,  # eg during log decompression
     )
 
     # For these exceptions, we expect a certain amount of retries
