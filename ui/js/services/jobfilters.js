@@ -233,10 +233,11 @@ treeherder.factory('thJobFilters', [
 
         function _checkFieldFilters(job) {
           return Object.entries(cachedFieldFilters).every(([field, values]) => {
-            if (field in job) {
+            const jobFieldValue = String(_getJobFieldValue(job, field)).toLowerCase();
+
+            if (jobFieldValue) {
               // if a filter is added somehow, but the job object doesn't
               // have that field, then don't filter.  Consider it a pass.
-              const jobFieldValue = String(_getJobFieldValue(job, field)).toLowerCase();
 
               switch (FIELD_CHOICES[field].matchType) {
 
@@ -326,7 +327,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = _.clone($location.search());
             delete locationSearch[QS_RESULT_STATUS];
             delete locationSearch[QS_CLASSIFIED_STATE];
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -382,7 +383,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = thFailureResults.slice();
             locationSearch[QS_CLASSIFIED_STATE] = ['unclassified'];
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -392,7 +393,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = _.clone($location.search());
             locationSearch[QS_RESULT_STATUS] = 'superseded';
             locationSearch[QS_CLASSIFIED_STATE] = DEFAULTS.classifiedState.slice();
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         function getClassifiedStateArray() {

@@ -151,7 +151,6 @@ export default class SecondaryNavBar extends React.Component {
 
   toggleUnclassifiedFailures() {
     this.thJobFilters.toggleUnclassifiedFailures();
-    this.$rootScope.$apply();
   }
 
   clearFilterBox() {
