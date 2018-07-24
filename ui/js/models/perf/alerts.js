@@ -1,7 +1,6 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
 /* eslint-disable func-names, object-shorthand, prefer-arrow-callback, prefer-destructuring, prefer-template */
 import sortBy from 'lodash/sortBy';
-import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
@@ -123,7 +122,7 @@ treeherder.factory('PhAlerts', [
             const getMaximumAlertLength = alertList => Math.max(...alertList.map(alert => alert.title.length));
 
             const formatAlert = function (alert, alertList) {
-                return padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
+                return alert.amount_pct.toFixed(0).padStart(3) + '%  ' +
                 (alert.title.padEnd(getMaximumAlertLength(alertList) + 5)) +
                 displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };
