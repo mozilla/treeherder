@@ -12,36 +12,30 @@ export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check
 export PYTHONWARNINGS='ignore:Overriding __eq__ blocks inheritance of __hash__ in 3.x:DeprecationWarning'
 
 setup_services() {
+    echo '-----> Running apt-get update'
+    sudo apt-get update
+
+    echo '-----> Installing RabbitMQ'
+    sudo apt-get install --no-install-recommends rabbitmq-server
+
     ELASTICSEARCH_VERSION="6.2.4"
     if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
         echo '-----> Installing Elasticsearch'
         curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb"
         sudo dpkg -i --force-confnew /tmp/elasticsearch.deb
-        sudo service elasticsearch restart
+        sudo systemctl restart elasticsearch
     else
-        sudo service elasticsearch start
+        sudo systemctl start elasticsearch
     fi
 
+    echo '-----> Configuring MySQL'
     # Using tmpfs for the MySQL data directory reduces pytest runtime by 30%.
-    echo '-----> Creating RAM disk for MySQL'
-    sudo stop mysql
     sudo mkdir /mnt/ramdisk
     sudo mount -t tmpfs -o size=1024m tmpfs /mnt/ramdisk
     sudo mv /var/lib/mysql /mnt/ramdisk
     sudo ln -s /mnt/ramdisk/mysql /var/lib/mysql
-
-    echo '-----> Installing MySQL'
     sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
-    # Use the upstream APT repo since the latest Ubuntu trusty package is MySQL 5.6.
-    echo 'deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7' | sudo tee /etc/apt/sources.list.d/mysql.list > /dev/null
-    sudo -E apt-get -yqq update
-    sudo -E apt-get -yqq install --no-install-recommends --allow-unauthenticated mysql-server libmysqlclient-dev
-
-    echo '-----> Starting redis-server'
-    sudo service redis-server start
-
-    echo '-----> Starting rabbitmq-server'
-    sudo service rabbitmq-server start
+    sudo systemctl start mysql
 
     echo '-----> Waiting for Elasticsearch to be ready'
     while ! curl "${ELASTICSEARCH_URL}" &> /dev/null; do sleep 1; done
