@@ -172,7 +172,11 @@ export default class WatchedRepo extends React.Component {
 
 WatchedRepo.propTypes = {
   $injector: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
   watchedRepo: PropTypes.string.isRequired,
   unwatchRepo: PropTypes.func.isRequired,
+  repoName: PropTypes.string,
+};
+
+WatchedRepo.defaultProps = {
+  repoName: 'mozilla-inbound',
 };
