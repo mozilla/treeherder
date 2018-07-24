@@ -4,9 +4,6 @@ import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 
 import treeherderModule from './treeherder';
-import thGlobalTopNavPanelTemplate from '../partials/main/thGlobalTopNavPanel.html';
-import thHelpMenuTemplate from '../partials/main/thHelpMenu.html';
-import thInfraMenuTemplate from '../partials/main/thInfraMenu.html';
 import thShortcutTableTemplate from '../partials/main/thShortcutTable.html';
 
 const treeherderApp = angular.module('treeherder.app', [
@@ -18,9 +15,9 @@ const treeherderApp = angular.module('treeherder.app', [
 ]);
 
 treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
-    '$logProvider', '$resourceProvider', 'localStorageServiceProvider',
+    '$logProvider', '$resourceProvider',
     function ($compileProvider, $locationProvider, $routeProvider, $httpProvider, $logProvider,
-             $resourceProvider, localStorageServiceProvider) {
+             $resourceProvider) {
         // Disable debug data & legacy comment/class directive syntax, as recommended by:
         // https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
@@ -41,8 +38,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
         // comment out the next line to enable them
         $logProvider.debugEnabled(false);
 
-        localStorageServiceProvider.setPrefix('treeherder');
-
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.useApplyAsync(true);
@@ -60,9 +55,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
     }]).run(['$templateCache', ($templateCache) => {
         // Templates used by ng-include have to be manually put in the template cache.
         // Those used by directives should instead be imported at point of use.
-        $templateCache.put('partials/main/thGlobalTopNavPanel.html', thGlobalTopNavPanelTemplate);
-        $templateCache.put('partials/main/thHelpMenu.html', thHelpMenuTemplate);
-        $templateCache.put('partials/main/thInfraMenu.html', thInfraMenuTemplate);
         $templateCache.put('partials/main/thShortcutTable.html', thShortcutTableTemplate);
     }]);
 

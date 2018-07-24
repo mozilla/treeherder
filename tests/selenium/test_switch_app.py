@@ -8,4 +8,6 @@ def test_switch_app(base_url, selenium, test_repository):
     page = page.switch_to_perfherder()
     assert page.header.active_app == 'Perfherder'
     page = page.switch_to_treeherder()
+    page.wait.until(lambda _: page.header.active_app)
+    print(page.header.active_app)
     assert page.header.active_app == 'Treeherder'

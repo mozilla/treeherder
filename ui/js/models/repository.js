@@ -12,7 +12,7 @@ treeherder.factory('ThRepositoryModel', [
 
         const repos = {};
         const watchedRepos = [];
-        const orderedRepoGroups = {};
+        const orderedRepoGroups = [];
         const maxWatchedRepos = 3;
 
         // get the repositories (aka trees)
@@ -30,15 +30,14 @@ treeherder.factory('ThRepositoryModel', [
         };
 
         const getOrderedRepoGroups = function () {
-            if (!Object.keys(orderedRepoGroups).length) {
+            if (!orderedRepoGroups.length) {
                 // group repos by 'repository_group.name'
                 if ($rootScope.repos) {
                   const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
                       { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
                   ), {});
-                Object.entries(groups).forEach(([reposAr, gName]) => {
-                    orderedRepoGroups[thRepoGroupOrder[reposAr] || reposAr] = { name: reposAr, repos: gName };
-                });
+
+                  thRepoGroupOrder.forEach(name => orderedRepoGroups.push({ name, repos: groups[name] }));
                 }
             }
             return orderedRepoGroups;

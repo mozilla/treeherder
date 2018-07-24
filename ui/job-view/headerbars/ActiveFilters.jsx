@@ -81,7 +81,7 @@ export default class ActiveFilters extends React.Component {
             <b>Active Filters</b>
           </span>
           {filterBarFilters.map(filter => (
-            <span className="filtersbar-filter" key={filter.key}>
+            <span className="filtersbar-filter" key={`${filter.key}${filter.value}`}>
               <span
                 className="pointable"
                 title={`Clear filter: ${filter.field}`}

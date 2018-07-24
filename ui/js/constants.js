@@ -223,15 +223,14 @@ export const thFavicons = {
   unavailable: treeFavicon,
 };
 
-export const thRepoGroupOrder = {
-  development: 1,
-  'release-stabilization': 2,
-  'project repositories': 3,
-  'comm-repositories': 4,
-  'qa automation tests': 5,
-  try: 6,
-  taskcluster: 7,
-};
+export const thRepoGroupOrder = [
+  'development',
+  'release-stabilization',
+  'project repositories',
+  'comm-repositories',
+  'qa automation tests',
+  'other',
+];
 
 export const thDefaultRepo = 'mozilla-inbound';
 
@@ -280,9 +279,6 @@ export const thEvents = {
   clearSelectedJob: 'clear-selected-job-EVT',
   // fired when a global filter has changed
   globalFilterChanged: 'status-filter-changed-EVT',
-  // after something happened that requires the number
-  // of unclassified jobs by tier to be recalculated
-  recalculateUnclassified: 'recalc-unclassified-EVT',
   groupStateChanged: 'group-state-changed-EVT',
   duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
   showRunnableJobs: 'show-runnable-jobs-EVT',
