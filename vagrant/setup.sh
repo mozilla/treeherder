@@ -4,8 +4,8 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
-if [[ "$(lsb_release -r -s)" != "16.04" ]]; then
-    echo "This machine needs to be switched to the new Ubuntu 16.04 image."
+if [[ "$(lsb_release -r -s)" != "18.04" ]]; then
+    echo "This machine needs to be switched to the new Ubuntu 18.04 image."
     echo "Please run 'vagrant destroy -f && vagrant up --provision' from the host."
     exit 1
 fi
@@ -18,7 +18,7 @@ cd "$SRC_DIR"
 ELASTICSEARCH_VERSION="6.2.4"
 GECKODRIVER_VERSION="0.22.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
-PIP_VERSION="10.0.1"
+PIP_VERSION="18.0"
 # Keep in sync with the version pre-installed on Travis.
 SHELLCHECK_VERSION="0.4.7"
 
@@ -28,10 +28,6 @@ export DEBIAN_FRONTEND=noninteractive
 export PIP_DISABLE_PIP_VERSION_CHECK='True'
 
 echo '-----> Performing cleanup'
-# Remove the old MySQL 5.6 PPA repository, if this is an existing Vagrant instance.
-sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-mysql-5_6-xenial.list
-# Remove memcached remnants in case this instance existed prior to the Redis switch.
-sudo -E apt-get -yqq purge --auto-remove memcached libmemcached-dev
 # Stale pyc files can cause pytest ImportMismatchError exceptions.
 find . -type f -name '*.pyc' -delete
 # Celery sometimes gets stuck and requires that celerybeat-schedule be deleted.
@@ -44,26 +40,28 @@ sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 
 if ! grep -qs 'node_10.x' /etc/apt/sources.list.d/nodesource.list; then
     echo '-----> Adding APT repository for Node.js'
-    curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    echo 'deb https://deb.nodesource.com/node_10.x xenial main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+    sudo curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key -o /etc/apt/trusted.gpg.d/nodesource.asc
+    echo 'deb https://deb.nodesource.com/node_10.x bionic main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/yarn.list ]]; then
     echo '-----> Adding APT repository for Yarn'
-    curl -sSf https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    sudo curl -sSf https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/trusted.gpg.d/yarn.asc
     echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list > /dev/null
 fi
 
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
 sudo -E apt-get -yqq dist-upgrade
-# libgtk-3.0 and libxt-dev are required by Firefox
-# libmysqlclient-dev is required by mysqlclient
+# libdbus-glib-1-2, libgtk-3.0 and libxt6 are required by Firefox
+# gcc and libmysqlclient-dev are required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
+    gcc \
+    libdbus-glib-1-2 \
     libgtk-3.0 \
     libmysqlclient-dev \
-    libxt-dev \
+    libxt6 \
     mysql-server-5.7 \
     nodejs \
     openjdk-8-jre-headless \
@@ -92,7 +90,7 @@ if [[ "$("${PYTHON_DIR}/bin/python" --version 2>&1)" != *"$PYTHON_VERSION" ]]; t
     rm -rf "$PYTHON_DIR"
     mkdir -p "$PYTHON_DIR"
     # Uses the Heroku Python buildpack's binaries for parity with production.
-    curl -sSf "https://lang-python.s3.amazonaws.com/heroku-16/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
+    curl -sSf "https://lang-python.s3.amazonaws.com/heroku-18/runtimes/python-$PYTHON_VERSION.tar.gz" | tar -xz -C "$PYTHON_DIR"
 fi
 
 if [[ "$("${PYTHON_DIR}/bin/pip" --version 2>&1)" != *"$PIP_VERSION"* ]]; then

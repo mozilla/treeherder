@@ -4,7 +4,7 @@
 # Require a recent Vagrant to reduce the chance of issues being caused by the
 # use of legacy versions (Vagrant doesn't automatically update on Windows/OS X,
 # and the ubuntu.com packages are extremely out of date).
-Vagrant.require_version ">= 1.9.0"
+Vagrant.require_version ">= 2.1.5"
 
 Vagrant.configure("2") do |config|
   # webpack-dev-server
@@ -26,20 +26,14 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder ".", "/home/vagrant/treeherder", type: "nfs"
 
-  config.vm.provider "virtualbox" do |vb, override|
-    # The Bento boxes (https://github.com/chef/bento) are recommended over the
-    # Canonical ones, since they more closely follow Vagrant best practices.
-    override.vm.box = "bento/ubuntu-16.04"
-    override.vm.box_version = ">= 201802.02.0"
+  # The Bento boxes (https://github.com/chef/bento) are recommended over the
+  # Canonical ones, since they more closely follow Vagrant best practices.
+  config.vm.box = "bento/ubuntu-18.04"
+  config.vm.box_version = ">= 201808.24.0"
+
+  config.vm.provider "virtualbox" do |vb|
     vb.name = "treeherder"
     vb.memory = "3072"
-  end
-
-  config.vm.provider "hyperv" do |hv, override|
-    override.vm.box = "bento/ubuntu-16.04"
-    override.vm.box_version = ">= 201801.02.0"
-    hv.vmname = "treeherder"
-    hv.memory = "3072"
   end
 
   config.vm.provision "shell", privileged: false, path: "vagrant/setup.sh"
