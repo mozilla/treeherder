@@ -233,49 +233,42 @@ treeherder.factory('thJobFilters', [
         }
 
         function _checkFieldFilters(job) {
+          return Object.entries(cachedFieldFilters).every(([field, values]) => {
+            const jobFieldValue = String(_getJobFieldValue(job, field)).toLowerCase();
 
-            for (const field in cachedFieldFilters) {
-                if (cachedFieldFilters.hasOwnProperty(field)) {
+            if (jobFieldValue) {
+              // if a filter is added somehow, but the job object doesn't
+              // have that field, then don't filter.  Consider it a pass.
 
-                    const values = cachedFieldFilters[field];
-                    let jobFieldValue = _getJobFieldValue(job, field);
+              switch (FIELD_CHOICES[field].matchType) {
 
-                    if (jobFieldValue !== undefined) {
-                        // if a filter is added somehow, but the job object doesn't
-                        // have that field, then don't filter.  Consider it a pass.
-                        jobFieldValue = String(jobFieldValue).toLowerCase();
+                case MATCH_TYPE.substr:
+                  if (!_containsSubstr(values, jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                        switch (FIELD_CHOICES[field].matchType) {
+                case MATCH_TYPE.searchStr:
+                  if (!_containsAllSubstr(values, jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                            case MATCH_TYPE.substr:
-                                if (!_containsSubstr(values, jobFieldValue)) {
-                                    return false;
-                                }
-                                break;
+                case MATCH_TYPE.exactstr:
+                  if (!values.includes(jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                            case MATCH_TYPE.searchStr:
-                                if (!_containsAllSubstr(values, jobFieldValue)) {
-                                    return false;
-                                }
-                                break;
-
-                            case MATCH_TYPE.exactstr:
-                                if (values.indexOf(jobFieldValue) === -1) {
-                                    return false;
-                                }
-                                break;
-
-                            case MATCH_TYPE.choice:
-                                if (values.indexOf(jobFieldValue) === -1) {
-                                    return false;
-                                }
-                                break;
-                        }
-                    }
-                }
+                case MATCH_TYPE.choice:
+                  if (!values.includes(jobFieldValue)) {
+                    return false;
+                  }
+                  break;
+              }
             }
-
             return true;
+          });
         }
 
         function addFilter(field, value) {
