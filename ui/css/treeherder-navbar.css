@@ -145,6 +145,11 @@ secondary-nav-bar {
     padding-right: 5px;
 }
 
+.watched-repo-main-btn:visited,
+.watched-repo-main-btn:link {
+    color: lightgrey;
+}
+
 .watched-repo-info-btn {
     padding-left: 6px;
     padding-right: 9px;
