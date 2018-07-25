@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getAllUrlParams } from '../helpers/location';
+import { uiJobsUrlBase } from '../helpers/url';
 
 function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;
@@ -36,7 +37,7 @@ function PushLoadErrors(props) {
       {!loadingPushes && !isRevision(revision) &&
         <div className="push-body unknown-message-body">
           This is an invalid or unknown revision. Please change it, or click
-          <a href={`/#/jobs?${urlParams.toString()}`}> here</a> to reload the latest revisions from {repoName}.
+          <a href={`${uiJobsUrlBase}?${urlParams.toString()}`}> here</a> to reload the latest revisions from {repoName}.
         </div>
       }
       {!loadingPushes && !revision && currentRepo &&

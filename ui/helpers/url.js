@@ -3,6 +3,8 @@ import { Queue } from 'taskcluster-client-web';
 import thTaskcluster from '../js/services/taskcluster';
 import { getUrlParam, getAllUrlParams } from './location';
 
+export const uiJobsUrlBase = '/#/jobs';
+
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);
   return `?${query.toString()}`;
@@ -81,11 +83,12 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
     params.delete(fieldName);
   }
   params.append(fieldName, jobSearchStr);
-  return `/#/jobs?${params.toString()}`;
+  return `${uiJobsUrlBase}?${params.toString()}`;
 };
 
+// This takes a plain object, rather than a URLSearchParams object.
 export const getJobsUrl = function getJobsUrl(params) {
-  return `/#/jobs${createQueryParams(params)}`;
+  return `${uiJobsUrlBase}${createQueryParams(params)}`;
 };
 
 export const getCompareChooserUrl = function getCompareChooserUrl(params) {
@@ -120,3 +123,5 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
 };
 
 export const deployedRevisionUrl = '/revision.txt';
+
+export const loginCallbackUrl = '/login.html';
