@@ -25,9 +25,6 @@ npm-error.log
 _build/
 dist/
 treeherder/static/
-ui/js/config/local.conf.js
-# frontend test coverage
-coverage/
 
 # Celery
 celerybeat-schedule
