@@ -6,6 +6,8 @@ import $ from 'jquery';
 import _ from 'lodash';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
+import MG from 'metrics-graphics';
+import Popper from 'popper.js';
 
 import perf from '../../perf';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
@@ -88,7 +90,10 @@ perf.controller('GraphsCtrl', [
             });
         }
 
-        function showTooltip(dataPoint) {
+        const tip = $('#graph-tooltip');
+        $scope._tip = new Popper(document.documentElement, tip, { placement: 'top' });
+
+        function showTooltip(dataPoint, pointIndex) {
             if ($scope.showToolTipTimeout) {
                 window.clearTimeout($scope.showToolTipTimeout);
             }
@@ -107,8 +112,8 @@ perf.controller('GraphsCtrl', [
                 var flotIndex = phSeries.flotSeries.idData.indexOf(
                     dataPoint.id);
                 var flotData = {
-                    series: $scope.plot.getData().find(
-                        fs => fs.thSeries.id === dataPoint.signatureId),
+                    series: $scope.seriesList.find(
+                        sl => sl.flotSeries.thSeries.id === dataPoint.signatureId).flotSeries,
                     pointIndex: flotIndex,
                 };
                 // check if there are any points belonging to earlier pushes in this
@@ -181,47 +186,13 @@ perf.controller('GraphsCtrl', [
 
                 // now position it
                 $timeout(function () {
-                    var x = parseInt(flotData.series.xaxis.p2c(t) +
-                        $scope.plot.offset().left);
-                    var y = parseInt(flotData.series.yaxis.p2c(v) +
-                        $scope.plot.offset().top);
-
                     var tip = $('#graph-tooltip');
-                    function getTipPosition(tip, x, y, yoffset) {
-                        return {
-                            left: x - tip.width() / 2,
-                            top: y - tip.height() - yoffset,
-                        };
-                    }
-
-                    tip.stop(true);
-
-                    // first, reposition tooltip (width/height won't be calculated correctly
-                    // in all cases otherwise)
-                    var tipPosition = getTipPosition(tip, x, y, 10);
-                    tip.css({ left: tipPosition.left, top: tipPosition.top });
-
-                    // get new tip position after transform
-                    tipPosition = getTipPosition(tip, x, y, 10);
-                    if (tip.css('visibility') === 'hidden') {
-                        tip.css({
-                            opacity: 0,
-                            visibility: 'visible',
-                            left: tipPosition.left,
-                            top: tipPosition.top + 10,
-                        });
-                        tip.animate({
-                            opacity: 1,
-                            left: tipPosition.left,
-                            top: tipPosition.top,
-                        }, 250);
-                    } else {
-                        tip.css({
-                            opacity: 1,
-                            left: tipPosition.left,
-                            top: tipPosition.top,
-                        });
-                    }
+                    tip.css({
+                        opacity: 1,
+                        visibility: 'visible',
+                    });
+                    $scope._tip.reference = document.querySelector(`#graph .mg-points .path-${pointIndex}`);
+                    $scope._tip.update();
                 });
             }, 250);
         }
@@ -250,131 +221,47 @@ perf.controller('GraphsCtrl', [
         // on window resize, replot the graph
         angular.element($window).bind('resize', () => plotGraph());
 
-        // Highlight the points persisted in the url
-        function highlightDataPoints() {
-            $scope.plot.unhighlight();
-
-            // if we have a highlighted revision(s), highlight all points that
-            // correspond to that
-            $scope.seriesList.forEach(function (series, i) {
-                if (series.visible && series.highlightedPoints &&
-                    series.highlightedPoints.length) {
-                    series.highlightedPoints.forEach(function (highlightedPoint) {
-                        $scope.plot.highlight(i, highlightedPoint);
-                    });
-                }
-            });
-
-            // also highlighted the selected item (if there is one)
-            if ($scope.selectedDataPoint) {
-                var selectedSeriesIndex = $scope.seriesList.findIndex(
-                    s => s.id === $scope.selectedDataPoint.signatureId);
-                var selectedSeries = $scope.seriesList[selectedSeriesIndex];
-                var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
-                    $scope.selectedDataPoint.id);
-                flotDataPoint = flotDataPoint || selectedSeries.flotSeries.resultSetData.indexOf(
-                    $scope.selectedDataPoint.resultSetId);
-                $scope.plot.highlight(selectedSeriesIndex, flotDataPoint);
-            }
-        }
-
-        function plotUnselected() {
-            $scope.zoom = {};
-            $scope.selectedDataPoint = null;
-            hideTooltip();
-            updateDocument();
-            plotGraph();
-        }
-
-        function plotSelected(event, ranges) {
+        function plotSelected(range) {
             deselectDataPoint();
             hideTooltip();
-
-            $.each($scope.plot.getXAxes(), function (_, axis) {
-                var opts = axis.options;
-                opts.min = ranges.xaxis.from;
-                opts.max = ranges.xaxis.to;
-            });
-            $.each($scope.plot.getYAxes(), function (_, axis) {
-                var opts = axis.options;
-                opts.min = ranges.yaxis.from;
-                opts.max = ranges.yaxis.to;
-            });
-            $scope.zoom = { x: [ranges.xaxis.from, ranges.xaxis.to], y: [ranges.yaxis.from, ranges.yaxis.to] };
-
-            $scope.plot.setupGrid();
-            $scope.plot.draw();
+            if (range.x[0] === range.x[1] && range.y[0] === range.y[1]) {
+                $scope.zoom = {};
+                $scope.selectedDataPoint = null;
+            } else {
+                $scope.zoom = { x: $scope.mainPlot.processed.zoom_x, y: $scope.mainPlot.processed.zoom_y };
+            }
             updateDocument();
         }
 
         function plotOverviewGraph() {
-            // We want to show lines for series in the overview plot, if they are visible
-            $scope.seriesList.forEach(function (series) {
-                series.flotSeries.points.show = false;
-                series.flotSeries.lines.show = series.visible;
-            });
-
-            $scope.overviewPlot = $.plot(
-                $('#overview-plot'),
-                $scope.seriesList.map(function (series) {
-                    return series.flotSeries;
+            const overviewPlot = {
+                target: '#overview-plot',
+                data: $scope.seriesList.map((series) => {
+                    if (series.visible) return series.flotSeries.data;
+                    return [];
                 }),
-                {
-                    xaxis: { mode: 'time' },
-                    selection: { mode: 'xy', color: '#97c6e5' },
-                    series: { shadowSize: 0 },
-                    lines: { show: true },
-                    points: { show: false },
-                    legend: { show: false },
-                    grid: {
-                        color: '#cdd6df',
-                        borderWidth: 2,
-                        backgroundColor: '#fff',
-                        hoverable: true,
-                        clickable: true,
-                        autoHighlight: false,
-                    },
-                },
-            );
-            // Reset $scope.seriesList with lines.show = false
-            $scope.seriesList.forEach(function (series) {
-                series.flotSeries.points.show = series.visible;
-                series.flotSeries.lines.show = false;
-            });
-
-            $('#overview-plot').on('plotunselected', plotUnselected);
-
-            $('#overview-plot').on('plotselected', plotSelected);
+                area: false,
+                width: document.getElementById('overview-plot').offsetWidth,
+                height: document.getElementById('overview-plot').offsetHeight,
+                top: 8,
+                bottom: 35,
+                left: 35,
+                right: 10,
+                x_accessor: 0,
+                y_accessor: 1,
+                min_y_from_data: true,
+                colors: $scope.seriesList.map(i => i.color),
+                brush: 'xy',
+                zoom_target: $scope.mainPlot,
+                brushing_selection_changed: (_, range) => plotSelected(range),
+                show_rollover_text: false,
+            };
+            MG.data_graphic(overviewPlot);
         }
 
         function zoomGraph() {
-            // If either x or y exists then there is zoom set in the variable
-            if ($scope.zoom.x) {
-                if ($scope.seriesList.find(series => series.visible)) {
-                    $.each($scope.plot.getXAxes(), function (_, axis) {
-                        var opts = axis.options;
-                        opts.min = $scope.zoom.x[0];
-                        opts.max = $scope.zoom.x[1];
-                    });
-                    $.each($scope.plot.getYAxes(), function (_, axis) {
-                        var opts = axis.options;
-                        opts.min = $scope.zoom.y[0];
-                        opts.max = $scope.zoom.y[1];
-                    });
-                    $scope.plot.setupGrid();
-                    $scope.overviewPlot.setSelection({
-                        xaxis: {
-                            from: $scope.zoom.x[0],
-                            to: $scope.zoom.x[1],
-                        },
-                        yaxis: {
-                            from: $scope.zoom.y[0],
-                            to: $scope.zoom.y[1],
-                        },
-                    }, true);
-                    $scope.overviewPlot.draw();
-                    $scope.plot.draw();
-                }
+            if ($scope.zoom && ($scope.zoom.x || $scope.zoom.y)) {
+                MG.zoom_to_data_domain($scope.mainPlot, $scope.zoom);
             }
         }
 
@@ -446,39 +333,68 @@ perf.controller('GraphsCtrl', [
                 }
             });
             $q.all(highlightPromises).then(function () {
-                // plot the actual graph
-                $scope.plot = $.plot(
-                    $('#graph'),
-                    $scope.seriesList.map(function (series) {
-                        return series.flotSeries;
-                    }),
-                    {
-                        xaxis: { mode: 'time' },
-                        series: { shadowSize: 0 },
-                        selection: { mode: 'xy', color: '#97c6e5' },
-                        lines: { show: false },
-                        points: { show: true },
-                        legend: { show: false },
-                        grid: {
-                            color: '#cdd6df',
-                            borderWidth: 2,
-                            backgroundColor: '#fff',
-                            hoverable: true,
-                            clickable: true,
-                            autoHighlight: false,
-                            markings: markings,
-                        },
+                $scope.mainPlot = {
+                    target: '#graph',
+                    data: _.flatten($scope.seriesList.map((series, seriesIndex) => {
+                        if (series.visible) {
+                            return series.flotSeries.data.map((i, dataIndex) => ({
+                                x: i[0],
+                                y: i[1],
+                                seriesIndex,
+                                dataIndex,
+                                highlight: series.highlightedPoints.includes(dataIndex),
+                            }));
+                        }
+                        return [];
+                    })),
+                    width: document.getElementById('graph').offsetWidth,
+                    height: document.getElementById('graph').offsetHeight,
+                    chart_type: 'point',
+                    x_accessor: 'x',
+                    y_accessor: 'y',
+                    color_accessor: 'seriesIndex',
+                    color_domain: _.range($scope.seriesList.length),
+                    color_range: $scope.seriesList.map(i => i.color),
+                    color_type: 'category',
+                    brush: 'xy',
+                    highlight: d => d.highlight,
+                    click_to_zoom_out: false,
+                    show_rollover_text: false,
+                    mouseover: (d, i) => {
+                        if ($scope.selectedDataPoint) return;
+                        if (d.data.seriesIndex !== $scope.prevSeriesIndex || d.data.dataIndex !== $scope.prevDataIndex) {
+                            const item = {
+                                series: $scope.seriesList[d.data.seriesIndex].flotSeries,
+                                seriesIndex: d.data.seriesIndex,
+                                dataIndex: d.data.dataIndex,
+                            };
+                            const seriesDataPoint = getSeriesDataPoint(item);
+                            $scope.prevSeriesIndex = item.seriesIndex;
+                            $scope.prevDataIndex = item.dataIndex;
+                            showTooltip(seriesDataPoint, i);
+                        }
                     },
-                );
-
+                    click: (d, i) => {
+                        const item = {
+                            series: $scope.seriesList[d.data.seriesIndex].flotSeries,
+                            seriesIndex: d.data.seriesIndex,
+                            dataIndex: d.data.dataIndex,
+                        };
+                        const seriesDataPoint = getSeriesDataPoint(item);
+                        $scope.selectedDataPoint = seriesDataPoint;
+                        $scope.prevSeriesIndex = item.seriesIndex;
+                        $scope.prevDataIndex = item.dataIndex;
+                        showTooltip(seriesDataPoint, i);
+                    },
+                    brushing_selection_changed: (_, range) => {
+                        if (range.x[0] === range.x[1] || range.y[0] === range.y[1]) return;
+                        plotSelected(range);
+                    },
+                };
+                MG.data_graphic($scope.mainPlot);
                 updateSelectedItem(null);
-                highlightDataPoints();
                 plotOverviewGraph();
                 zoomGraph();
-
-                if ($scope.selectedDataPoint) {
-                    showTooltip($scope.selectedDataPoint);
-                }
 
                 function updateSelectedItem() {
                     if (!$scope.selectedDataPoint) {
@@ -486,53 +402,12 @@ perf.controller('GraphsCtrl', [
                     }
                 }
 
-                $('#graph').on('plothover', function (event, pos, item) {
-                    // if examining an item, disable this behaviour
-                    if ($scope.selectedDataPoint) return;
-
-                    $('#graph').css({ cursor: item ? 'pointer' : '' });
-
-                    if (item && item.series.thSeries) {
-                        if (item.seriesIndex !== $scope.prevSeriesIndex ||
-                            item.dataIndex !== $scope.prevDataIndex) {
-                            var seriesDataPoint = getSeriesDataPoint(item);
-                            showTooltip(seriesDataPoint);
-                            $scope.prevSeriesIndex = item.seriesIndex;
-                            $scope.prevDataIndex = item.dataIndex;
-                        }
-                    } else {
-                        hideTooltip();
-                        $scope.prevSeriesIndex = null;
-                        $scope.prevDataIndex = null;
-                    }
-                });
-
-                $('#graph').on('plotclick', function (e, pos, item) {
-                    if (item) {
-                        $scope.selectedDataPoint = getSeriesDataPoint(item);
-                        showTooltip($scope.selectedDataPoint);
-                        updateSelectedItem();
-                    } else {
-                        $scope.selectedDataPoint = null;
-                        hideTooltip();
-                        $scope.$digest();
-                    }
-                    updateDocument();
-                    highlightDataPoints();
-                });
-
-                $('#graph').on('plotselected', function (event, ranges) {
-                    $scope.plot.clearSelection();
-                    plotSelected(event, ranges);
-                    zoomGraph();
-                });
-
                 // Close pop up when user clicks outside of the graph area
                 $('html').click(function () {
                     $scope.closePopup();
                 });
 
-                // Stop propagation when user clicks inside the graph area
+                // // Stop propagation when user clicks inside the graph area
                 $('#graph, #graph-tooltip').click(function (event) {
                     event.stopPropagation();
                 });
@@ -556,6 +431,7 @@ perf.controller('GraphsCtrl', [
         }
 
         function updateDocument() {
+            // TODO:
             $state.transitionTo('graphs', {
                 series: $scope.seriesList.map(series => `${series.projectName},${series.id},${series.visible ? 1 : 0},${series.frameworkId}`),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
@@ -658,7 +534,7 @@ perf.controller('GraphsCtrl', [
                     updateDocumentTitle();
                     $scope.loadingGraphs = false;
                     if ($scope.selectedDataPoint) {
-                        showTooltip($scope.selectedDataPoint);
+                        // showTooltip($scope.selectedDataPoint);
                     }
                 });
             }, function (error) {
@@ -697,9 +573,6 @@ perf.controller('GraphsCtrl', [
             }
             updateDocument();
             plotGraph();
-            if ($scope.selectedDataPoint) {
-                showTooltip($scope.selectedDataPoint);
-            }
         };
 
         $scope.showHideSeries = function () {
@@ -723,7 +596,7 @@ perf.controller('GraphsCtrl', [
         $scope.closePopup = function () {
             $scope.selectedDataPoint = null;
             hideTooltip();
-            highlightDataPoints();
+            // highlightDataPoints();
         };
 
         ThRepositoryModel.load().then(function () {
@@ -787,7 +660,7 @@ perf.controller('GraphsCtrl', [
                         project: partialSeriesArray[0],
                         signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
                         id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
-                        visible: partialSeriesArray[2] !== 0,
+                        visible: partialSeriesArray[2] !== '0',
                         frameworkId: partialSeriesArray[3],
                     };
                     return partialSeriesObject;
@@ -871,6 +744,7 @@ perf.controller('GraphsCtrl', [
                 });
             };
         });
+
     }]);
 
 perf.filter('testNameContainsWords', function () {
