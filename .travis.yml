@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 # The fully visualised "sudo" GCE environments are faster for longer running jobs.
 sudo: required
 # Use the latest Travis images since they are more up to date than the stable release.
