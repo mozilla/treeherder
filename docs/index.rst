@@ -12,10 +12,7 @@ Contents:
    :maxdepth: 2
 
    installation
-   dataload
    pulseload
-   deployment
-   list_of_services
    seta
    common_tasks
    rest_api
