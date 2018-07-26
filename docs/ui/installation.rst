@@ -1,5 +1,5 @@
-Installation
-============
+UI development
+==============
 
 It's possible to work on the UI without setting up the Vagrant VM.
 
@@ -80,7 +80,7 @@ If you would like to view the minified production version of the UI with Vagrant
 Once the build is complete, the minified version of the UI will now be accessible at http://localhost:8000 (NB: port 8000, unlike above).
 
 Validating JavaScript
-=====================
+---------------------
 
 We run our JavaScript code in the frontend through eslint_ to ensure
 that new code has a consistent style and doesn't suffer from common
@@ -95,7 +95,7 @@ To run eslint by itself, you may run the lint task:
      $ yarn lint
 
 Running the unit tests
-======================
+----------------------
 
 The unit tests for the UI are run with Karma_ and Jasmine_. React components are tested with enzyme_. At this time, these tests cannot be run inside of a Vagrant VM. To run the tests:
 
@@ -108,8 +108,6 @@ The unit tests for the UI are run with Karma_ and Jasmine_. React components are
 
 After the tests have finished, you can find a coverage report in the `coverage/` directory.
 
-Watching the test files
------------------------
 While working on the frontend, you may wish to watch JavaScript files and re-run tests
 automatically when files change. To do this, you may run the following command:
 

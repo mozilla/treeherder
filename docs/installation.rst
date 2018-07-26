@@ -5,7 +5,7 @@ Installation
           instance of Treeherder. If you only want to hack on the UI,
           you can just setup a standalone webserver which accesses
           the server backend using node.js, which is much simpler.
-          See the :doc:`UI installation section <ui/installation>`.
+          See the :doc:`UI development section <ui/installation>`.
 
 
 Prerequisites
@@ -74,7 +74,7 @@ Starting a local Treeherder instance
     vagrant ~/treeherder$ yarn start:local
 
   This will build the UI code in the ``dist/`` folder and keep watching for
-  new changes (See the :doc:`UI installation section <ui/installation>` for more ways to work with the UI code).
+  new changes (See the :doc:`UI development section <ui/installation>` for more ways to work with the UI code).
 
 * Visit http://localhost:5000 in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
 
