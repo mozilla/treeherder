@@ -169,9 +169,8 @@ class Commenter(object):
                 # sleep between comment submissions to avoid overwhelming servers
                 time.sleep(1)
 
-        if settings.COMMENTER_API_KEY is None:
-            # confirm number of comments when on stage/dev
-            logger.info('There were {} comments for this {} task.'.format(len(all_bug_changes), 'weekly' if self.weekly_mode else 'daily'))
+        logger.warning('There were {} comments for this {} task.'.format(
+                       len(all_bug_changes), 'weekly' if self.weekly_mode else 'daily'))
 
     def open_file(self, filename, load):
         with open('treeherder/intermittents_commenter/{}'.format(filename), 'r') as myfile:
