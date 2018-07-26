@@ -33,29 +33,14 @@ APIs
   * This API shows job failures that have been annotated with "fixed by commit"
 
 Local set up
-============
-After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and follow these steps:
+------------
+After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and run the following commands in each:
 
-1st tab
--------
-.. code-block:: bash
+* 1st tab: ``./manage.py runserver``
+* 2nd tab: ``yarn start:local``
+* 3rd tab: ``./manage.py initialize_seta``
 
-   ./manage.py runserver
-
-2nd tab
--------
-.. code-block:: bash
-
-   yarn start:local
-
-3rd tab
--------
-.. code-block:: bash
-
-   ./manage.py initialize_seta
-
-Try out the various APIs
-------------------------
+Then try out the various APIs:
 
 * http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot
 * http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster
@@ -65,7 +50,7 @@ Try out the various APIs
   * This one won't work until https://bugzilla.mozilla.org/show_bug.cgi?id=1389123 is fixed
 
 Maintenance
-===========
+-----------
 
 Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority)
 when adding new platforms (e.g. stylo).
@@ -75,7 +60,7 @@ If you want to inspect the priorities for various jobs and platforms you can que
 Use this a starting query: https://sql.telemetry.mozilla.org/queries/14771/source#table
 
 Steps for adjusting jobs
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 To connect to Treeherder you need Heroku permissions. Run this from a treeherder checkout:
 
 .. code-block:: bash
