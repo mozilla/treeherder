@@ -54,7 +54,7 @@ Maintenance
 
 Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority)
 when adding new platforms (e.g. stylo).
-Instead of investing more on accomodating for various scenarios we’ve decided to document how to make changes in the DB when we have to.
+Instead of investing more on accommodating for various scenarios we’ve decided to document how to make changes in the DB when we have to.
 
 If you want to inspect the priorities for various jobs and platforms you can query the JobPriority table from reDash:
 Use this a starting query: https://sql.telemetry.mozilla.org/queries/14771/source#table
@@ -85,7 +85,7 @@ In order to do so we need to:
   update_job_priority_table()
   
 
-If you want to remove the 2 week grace period and make the job low priority (priority=5) do somthing similar to this:
+If you want to remove the 2 week grace period and make the job low priority (priority=5) do something similar to this:
 
 .. code-block:: bash
 
