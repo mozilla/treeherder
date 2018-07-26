@@ -1,5 +1,3 @@
-from graphene_django.filter import DjangoFilterConnectionField
-
 
 def collect_fields(node):
     """
@@ -30,45 +28,3 @@ def optimize(qs, info_dict, field_map):
                   if opt == "prefetch" else qs.select_related(field_name))
 
     return qs
-
-
-class OptimizedFilterConnectionField(DjangoFilterConnectionField):
-    """
-    Override a problem function in DjangoFilterConnectionField
-
-    I have submitted PR: https://github.com/graphql-python/graphene-django/pull/224
-    to address this upstream.
-    """
-
-    @staticmethod
-    def merge_querysets(default_queryset, queryset):
-        # There could be the case where the default queryset (returned from
-        # the filterclass)
-        # and the resolver queryset have some limits on it.
-        # We only would be able to apply one of those, but not both
-        # at the same time.
-
-        # See related PR: https://github.com/graphql-python/graphene-django
-        # /pull/126
-
-        if default_queryset.query.low_mark and queryset.query.low_mark:
-            raise AssertionError(
-                'Received two sliced querysets (low mark) in the connection, '
-                'please slice only in one.'
-            )
-
-        if default_queryset.query.high_mark and queryset.query.high_mark:
-            raise AssertionError(
-                'Received two sliced querysets (high mark) in the connection, '
-                'please slice only in one.'
-            )
-
-        low = default_queryset.query.low_mark or queryset.query.low_mark
-        high = default_queryset.query.high_mark or queryset.query.high_mark
-        default_queryset.query.clear_limits()
-
-        # my changed line for PR 224 upstream:
-        queryset = queryset & default_queryset
-        queryset.query.set_limits(low, high)
-
-        return queryset
