@@ -5,8 +5,7 @@ from graphql.utils.ast_to_dict import ast_to_dict
 
 from treeherder.model import error_summary
 from treeherder.model.models import *
-from treeherder.webapp.graphql.helpers import (OptimizedFilterConnectionField,
-                                               optimize)
+from treeherder.webapp.graphql.helpers import optimize
 from treeherder.webapp.graphql.types import ObjectScalar
 
 
@@ -122,7 +121,7 @@ class PushGraph(DjangoObjectType):
         filter_fields = ('revision', )
         interfaces = (graphene.relay.Node, )
 
-    jobs = OptimizedFilterConnectionField(JobGraph)
+    jobs = DjangoFilterConnectionField(JobGraph)
 
     def resolve_jobs(self, info, **kwargs):
         field_map = {
@@ -142,7 +141,7 @@ class PushGraph(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    all_jobs = OptimizedFilterConnectionField(JobGraph)
+    all_jobs = DjangoFilterConnectionField(JobGraph)
     all_job_details = DjangoFilterConnectionField(JobDetailGraph)
     all_build_platforms = graphene.List(BuildPlatformGraph)
     all_machine_platforms = graphene.List(MachinePlatformGraph)
