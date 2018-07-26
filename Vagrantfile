@@ -7,13 +7,15 @@
 Vagrant.require_version ">= 1.9.0"
 
 Vagrant.configure("2") do |config|
-  # for webpack-devserver access from host
+  # webpack-dev-server
   config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
-  # for web server access from host
+  # Django runserver/gunicorn
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
-  # for DB access from host
+  # Docs dev server
+  config.vm.network "forwarded_port", guest: 8001, host: 8001, host_ip: "127.0.0.1"
+  # MySQL
   config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
-  # for Elasticsearch access from host
+  # Elasticsearch
   config.vm.network "forwarded_port", guest: 9200, host: 9201, host_ip: "127.0.0.1"
 
   if !Vagrant::Util::Platform.windows?
