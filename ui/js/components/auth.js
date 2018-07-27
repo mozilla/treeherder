@@ -4,7 +4,7 @@ import treeherder from '../treeherder';
 import AuthService from '../auth/AuthService';
 import { loggedOutUser } from '../auth/auth-utils';
 import thTaskcluster from '../services/taskcluster';
-import { getApiUrl } from '../../helpers/url';
+import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
 /**
@@ -91,7 +91,7 @@ treeherder.component('login', {
              */
             ctrl.login = function () {
                 // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
-                $window.open('/login.html', '_blank');
+                $window.open(loginCallbackUrl, '_blank');
             };
 
             /**

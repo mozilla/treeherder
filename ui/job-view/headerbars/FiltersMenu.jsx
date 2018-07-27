@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { thAllResultStatuses } from '../../js/constants';
 
 export default class FiltersMenu extends React.Component {

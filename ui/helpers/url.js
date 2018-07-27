@@ -125,3 +125,11 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
 export const deployedRevisionUrl = '/revision.txt';
 
 export const loginCallbackUrl = '/login.html';
+
+export const getRepoUrl = function getRepoUrl(newRepoName) {
+  const params = getAllUrlParams();
+
+  params.delete('selectedJob');
+  params.set('repo', newRepoName);
+  return `${uiJobsUrlBase}?${params.toString()}`;
+};

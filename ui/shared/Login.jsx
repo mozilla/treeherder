@@ -77,6 +77,15 @@ export default class Login extends React.Component {
     setUser(loggedOutUser);
   }
 
+  /**
+   * Opens a new tab to handle authentication, which will get closed
+   * if it's successful.
+   */
+  login() {
+    // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
+    window.open(loginCallbackUrl, '_blank');
+  }
+
   logout() {
     fetch(getApiUrl('/auth/logout/'))
       .then(async (resp) => {
@@ -87,15 +96,6 @@ export default class Login extends React.Component {
           this.thNotify.send(`Logout failed: ${msg}`, 'danger', { sticky: true });
         }
       });
-  }
-
-  /**
-   * Opens a new tab to handle authentication, which will get closed
-   * if it's successful.
-   */
-  login() {
-    // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
-    window.open(loginCallbackUrl, '_blank');
   }
 
   render() {

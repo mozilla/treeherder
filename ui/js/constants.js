@@ -229,6 +229,7 @@ export const thRepoGroupOrder = [
   'project repositories',
   'comm-repositories',
   'qa automation tests',
+  'ci-admin',
   'other',
 ];
 
