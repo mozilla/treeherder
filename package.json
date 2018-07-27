@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "engines": {
     "node": "10.7.0",
-    "yarn": "1.7.0"
+    "yarn": "1.9.2"
   },
   "dependencies": {
     "@types/angular": "1.6.49",
