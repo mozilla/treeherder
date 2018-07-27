@@ -18,7 +18,7 @@ help:
 	@echo "  livehtml   to start the live-reloading web server"
 
 clean:
-	rm -rf $(BUILDDIR)/*
+	rm -rf ./$(BUILDDIR)/
 
 html:
 	$(SPHINXBUILD) -b html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
