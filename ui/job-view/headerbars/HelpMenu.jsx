@@ -59,7 +59,7 @@ export default function HelpMenu() {
         role="menu"
         aria-labelledby="helpLabel"
       >
-        {menuItems.map(item => (<li>
+        {menuItems.map(item => (<li key={item.text}>
           <a href={item.href} target="_blank" rel="noopener noreferrer" className="dropdown-item">
             <span className={`fa ${item.icon} midgray`} />{item.text}
           </a>
