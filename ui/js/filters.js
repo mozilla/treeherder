@@ -1,11 +1,12 @@
 import numeral from 'numeral';
 
 import treeherder from './treeherder';
+import { getJobsUrl } from '../helpers/url';
 
 treeherder.filter('getRevisionUrl', function () {
     return function (revision, projectName) {
         if (revision) {
-            return `/#/jobs?repo=${projectName}&revision=${revision}`;
+            return getJobsUrl({ repo: projectName, revision: revision });
         }
         return '';
     };

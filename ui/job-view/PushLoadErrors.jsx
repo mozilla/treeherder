@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getAllUrlParams } from '../helpers/location';
+import { uiJobsUrlBase } from '../helpers/url';
 
-function PushLoadErrors(props) {
+export default function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;
   const urlParams = getAllUrlParams();
   urlParams.delete('revision');
@@ -33,13 +34,13 @@ function PushLoadErrors(props) {
           </span>
         </div>
       }
-      {!loadingPushes && !isRevision(revision) &&
+      {!loadingPushes && !isRevision(revision) && currentRepo.url &&
         <div className="push-body unknown-message-body">
           This is an invalid or unknown revision. Please change it, or click
-          <a href={`/#/jobs?${urlParams.toString()}`}> here</a> to reload the latest revisions from {repoName}.
+          <a href={`${uiJobsUrlBase}?${urlParams.toString()}`}> here</a> to reload the latest revisions from {repoName}.
         </div>
       }
-      {!loadingPushes && !revision && currentRepo &&
+      {!loadingPushes && !revision && currentRepo && currentRepo.url &&
         <div className="push-body unknown-message-body">
           <span>
             <div><b>No pushes found.</b></div>
@@ -48,7 +49,7 @@ function PushLoadErrors(props) {
           </span>
         </div>
       }
-      {!loadingPushes && !Object.keys(currentRepo).length &&
+      {!loadingPushes && !currentRepo.url &&
         <div className="push-body unknown-message-body">
           <span>
             <div><b>Unknown repository.</b></div>
@@ -66,8 +67,10 @@ function PushLoadErrors(props) {
 PushLoadErrors.propTypes = {
   loadingPushes: PropTypes.bool.isRequired,
   currentRepo: PropTypes.object.isRequired,
-  revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
+  revision: PropTypes.string,
 };
 
-export default PushLoadErrors;
+PushLoadErrors.defaultProps = {
+  revision: null,
+};

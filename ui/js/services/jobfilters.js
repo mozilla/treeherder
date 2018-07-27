@@ -146,7 +146,7 @@ treeherder.factory('thJobFilters', [
             const newFilterParams = getNewFilterParams();
             if (!_.isEqual(cachedFilterParams, newFilterParams)) {
                 cachedFilterParams = newFilterParams;
-                _refreshFilterCaches();
+                refreshFilterCaches();
                 $rootScope.$emit(thEvents.globalFilterChanged);
             }
 
@@ -158,7 +158,7 @@ treeherder.factory('thJobFilters', [
             });
         }
 
-        function _refreshFilterCaches() {
+        function refreshFilterCaches() {
             cachedResultStatusFilters = _getFiltersOrDefaults(RESULT_STATUS);
             cachedClassifiedStateFilters = _getFiltersOrDefaults(CLASSIFIED_STATE);
             cachedFieldFilters = getFieldFiltersObj();
@@ -233,49 +233,42 @@ treeherder.factory('thJobFilters', [
         }
 
         function _checkFieldFilters(job) {
+          return Object.entries(cachedFieldFilters).every(([field, values]) => {
+            const jobFieldValue = String(_getJobFieldValue(job, field)).toLowerCase();
 
-            for (const field in cachedFieldFilters) {
-                if (cachedFieldFilters.hasOwnProperty(field)) {
+            if (jobFieldValue) {
+              // if a filter is added somehow, but the job object doesn't
+              // have that field, then don't filter.  Consider it a pass.
 
-                    const values = cachedFieldFilters[field];
-                    let jobFieldValue = _getJobFieldValue(job, field);
+              switch (FIELD_CHOICES[field].matchType) {
 
-                    if (jobFieldValue !== undefined) {
-                        // if a filter is added somehow, but the job object doesn't
-                        // have that field, then don't filter.  Consider it a pass.
-                        jobFieldValue = String(jobFieldValue).toLowerCase();
+                case MATCH_TYPE.substr:
+                  if (!_containsSubstr(values, jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                        switch (FIELD_CHOICES[field].matchType) {
+                case MATCH_TYPE.searchStr:
+                  if (!_containsAllSubstr(values, jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                            case MATCH_TYPE.substr:
-                                if (!_containsSubstr(values, jobFieldValue)) {
-                                    return false;
-                                }
-                                break;
+                case MATCH_TYPE.exactstr:
+                  if (!values.includes(jobFieldValue)) {
+                    return false;
+                  }
+                  break;
 
-                            case MATCH_TYPE.searchStr:
-                                if (!_containsAllSubstr(values, jobFieldValue)) {
-                                    return false;
-                                }
-                                break;
-
-                            case MATCH_TYPE.exactstr:
-                                if (values.indexOf(jobFieldValue) === -1) {
-                                    return false;
-                                }
-                                break;
-
-                            case MATCH_TYPE.choice:
-                                if (values.indexOf(jobFieldValue) === -1) {
-                                    return false;
-                                }
-                                break;
-                        }
-                    }
-                }
+                case MATCH_TYPE.choice:
+                  if (!values.includes(jobFieldValue)) {
+                    return false;
+                  }
+                  break;
+              }
             }
-
             return true;
+          });
         }
 
         function addFilter(field, value) {
@@ -335,7 +328,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = { ...$location.search() };
             delete locationSearch[QS_RESULT_STATUS];
             delete locationSearch[QS_CLASSIFIED_STATE];
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -368,7 +361,7 @@ treeherder.factory('thJobFilters', [
             if (_matchesDefaults(RESULT_STATUS, rsValues)) {
                 rsValues = null;
             }
-            $location.search(QS_RESULT_STATUS, rsValues);
+            $timeout(() => $location.search(QS_RESULT_STATUS, rsValues));
         }
 
         function toggleClassifiedFilter(classifiedState) {
@@ -384,10 +377,6 @@ treeherder.factory('thJobFilters', [
             }
         }
 
-        function isFilterSetToShow(field, value) {
-            return _getFiltersOrDefaults(field).indexOf(String(value)) !== -1;
-        }
-
         /**
          * Set the non-field filters so that we only view unclassified failures
          */
@@ -395,7 +384,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = { ...$location.search() };
             locationSearch[QS_RESULT_STATUS] = thFailureResults.slice();
             locationSearch[QS_CLASSIFIED_STATE] = ['unclassified'];
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         /**
@@ -405,7 +394,7 @@ treeherder.factory('thJobFilters', [
             const locationSearch = { ...$location.search() };
             locationSearch[QS_RESULT_STATUS] = 'superseded';
             locationSearch[QS_CLASSIFIED_STATE] = DEFAULTS.classifiedState.slice();
-            $location.search(locationSearch);
+            $timeout(() => $location.search(locationSearch));
         }
 
         function getClassifiedStateArray() {
@@ -563,7 +552,7 @@ treeherder.factory('thJobFilters', [
 
         // initialize caches on initial load
         cachedFilterParams = getNewFilterParams();
-        _refreshFilterCaches();
+        refreshFilterCaches();
 
         // returns active filters starting with the prefix
         function getActiveFilters() {
@@ -583,6 +572,9 @@ treeherder.factory('thJobFilters', [
         return {
             // check a job against the filters
             showJob: showJob,
+
+            // refresh the filter caches before an operation
+            refreshFilterCaches: refreshFilterCaches,
 
             // filter changing accessors
             addFilter: addFilter,
@@ -605,7 +597,6 @@ treeherder.factory('thJobFilters', [
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
             isJobUnclassifiedFailure: isJobUnclassifiedFailure,
-            isFilterSetToShow: isFilterSetToShow,
             getFieldChoices: getFieldChoices,
 
             // CONSTANTS

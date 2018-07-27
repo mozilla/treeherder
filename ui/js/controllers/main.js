@@ -4,7 +4,7 @@ import Mousetrap from 'mousetrap';
 
 import treeherderApp from '../treeherder_app';
 import {
-  thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents, thAllResultStatuses,
+  thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents,
 } from '../constants';
 
 treeherderApp.controller('MainCtrl', [
@@ -23,12 +23,6 @@ treeherderApp.controller('MainCtrl', [
                         'danger', { sticky: true });
         }
 
-        // whether a new version of Treeherder was deployed since page load.
-        $rootScope.serverChanged = false;
-
-        // Ensure user is available on initial page load
-        $rootScope.user = {};
-
         // set to the default repo if one not specified
         const repoName = $location.search().repo;
         if (repoName) {
@@ -40,15 +34,8 @@ treeherderApp.controller('MainCtrl', [
         $rootScope.revision = $location.search().revision;
         thClassificationTypes.load();
 
-        // TODO: remove this when the thGlobalTopNavPanel is converted to React.
+        // TODO: Remove this when pinnedJobs is converted to a model or Context
         $rootScope.countPinnedJobs = () => 0;
-
-        // TODO: remove this when SecondaryNavBar has JobView as an ancestor.
-        $scope.updateButtonClick = function () {
-            if (window.confirm('Reload the page to pick up Treeherder updates?')) {
-                window.location.reload(true);
-            }
-        };
 
         const getSingleRevisionTitleString = function () {
             let revisions = [];
@@ -107,61 +94,6 @@ treeherderApp.controller('MainCtrl', [
             }
             return title;
         };
-
-        /*
-         * This updates which tier checkboxes are set according to the filters.
-         * It's made slightly tricky due to the fact that, if you remove all
-         * tier filters, it goes back to the default of showing only Tier 1
-         * and 2, which then changes which boxes are checked.
-         *
-         * Initially I tried to do this with a call to ng-clicked on the
-         * checkbox which called:
-         *     thJobFilters.toggleFilters('tier', [tier], !$scope.isTierShowing(tier));
-         *
-         * However, that didn't update the checkboxes correctly when it went back to the
-         * default of just tier 1 and 2 selected.  This had the a negative reaction
-         * described in #2 from this comment: https://bugzilla.mozilla.org/show_bug.cgi?id=1231774#c5
-         * It has to do with changing the value of a checkbox out from under it
-         * when you've actually clicked that checkbox.
-         *
-         * This new solution uses a simple model scope object and update function
-         * to keep things in sync.
-         */
-
-        $scope.isSingleTierSelected = function () {
-            return Object.values($scope.tiers).filter(value => (value !== false)).length === 1;
-        };
-
-        $scope.isTierShowing = function (tier) {
-            return thJobFilters.isFilterSetToShow('tier', tier);
-        };
-
-        $scope.tiers = {};
-
-        $scope.updateTiers = function () {
-            // If any tier has changed, update the tier menu check boxes and
-            // throw an event.
-            let changed = false;
-            thJobFilters.tiers.forEach(function (tier) {
-                const isShowing = $scope.isTierShowing(tier);
-                if (isShowing !== $scope.tiers[tier]) {
-                    $scope.tiers[tier] = isShowing;
-                    changed = true;
-                }
-
-            });
-            if (changed) {
-                $rootScope.$emit(thEvents.recalculateUnclassified);
-            }
-        };
-
-        // For the Filter menu on the thGlobalTopNavPanel
-        $scope.resultStatuses = thAllResultStatuses.slice();
-        $scope.resultStatuses.splice(thAllResultStatuses.indexOf('runnable'), 1);
-
-        $scope.isFilterOn = field => (
-          [...thJobFilters.getResultStatusArray(), ...thJobFilters.getClassifiedStateArray()].includes(field)
-        );
 
         // Setup key event handling
         const stopOverrides = new Map();
@@ -424,14 +356,6 @@ treeherderApp.controller('MainCtrl', [
             }
         });
 
-        $scope.updateTiers();
-
-        // clicked a checkbox in the tier menu
-        $scope.tierToggled = function (tier) {
-            thJobFilters.toggleFilters('tier', [tier], $scope.tiers[tier]);
-            $rootScope.$emit(thEvents.recalculateUnclassified);
-        };
-
         const getNewReloadTriggerParams = function () {
             const locationSearch = $location.search();
             return ThResultSetStore.reloadOnChangeParameters.reduce(
@@ -471,13 +395,7 @@ treeherderApp.controller('MainCtrl', [
             }
             $rootScope.skipNextPageReload = false;
 
-            // update the tier drop-down menu if a tier setting was changed
-            $scope.updateTiers();
         });
-
-        $scope.pinJobs = function () {
-          $rootScope.$emit(thEvents.pinJobs, ThResultSetStore.getAllShownJobs());
-        };
 
         $scope.onscreenOverlayShowing = false;
 
@@ -486,7 +404,5 @@ treeherderApp.controller('MainCtrl', [
             $scope.onscreenShortcutsShowing = tf;
             $scope.onscreenOverlayShowing = tf;
         };
-
-        $scope.jobFilters = thJobFilters;
     },
 ]);
