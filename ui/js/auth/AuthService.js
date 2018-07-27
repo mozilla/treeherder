@@ -1,6 +1,7 @@
 import { userSessionFromAuthResult, renew, loggedOutUser } from './auth-utils';
 import thTaskcluster from '../services/taskcluster';
 import { getApiUrl } from '../../helpers/url';
+import UserModel from '../../models/user';
 
 export default class AuthService {
   constructor() {
@@ -29,7 +30,7 @@ export default class AuthService {
         );
       }
 
-      resolve(user);
+      resolve(new UserModel(user));
     });
   }
 

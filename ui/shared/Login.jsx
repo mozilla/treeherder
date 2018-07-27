@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import { react2angular } from 'react2angular/index.es2015';
 
+import treeherder from '../js/treeherder';
 import AuthService from '../js/auth/AuthService';
 import { loggedOutUser } from '../js/auth/auth-utils';
 import thTaskcluster from '../js/services/taskcluster';
@@ -137,7 +139,13 @@ export default class Login extends React.Component {
 }
 
 Login.propTypes = {
-  user: PropTypes.object.isRequired,
   setUser: PropTypes.func.isRequired,
   $injector: PropTypes.object.isRequired,
+  user: PropTypes.object,
 };
+
+Login.defaultProps = {
+  user: { isLoggedIn: false },
+};
+
+treeherder.component('login', react2angular(Login, ['user', 'setUser'], ['$injector']));
