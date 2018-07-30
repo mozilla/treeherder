@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
 import Highlighter from 'react-highlight-words';
 
 import intermittentTemplate from '../../../../partials/main/intermittent.html';
@@ -165,7 +164,7 @@ export default class LineOption extends React.Component {
               <Select
                 value={ignoreAlways}
                 clearable={false}
-                className="ignore-option"
+                classNamePrefix="ignore-option"
                 onChange={onIgnoreAlwaysChange}
                 bsSize="small"
                 options={[

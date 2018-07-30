@@ -782,18 +782,20 @@ autoclassify-tab .controls button,
   display: flex;
 }
 
-.classification-option .Select.ignore-option .Select-control {
+.classification-option .ignore-option__control {
   margin: 0 0 0 5px;
   font-size: 11px;
+  line-height: 20px !important;
   height: 20px;
+  min-height: 20px;
   padding: 0 0 0 2px;
   width: 160px;
 }
 
-.classification-option .Select.ignore-option .Select-placeholder,
-.classification-option .Select.ignore-option .Select-value,
-.classification-option .Select.ignore-option .Select-value-label,
-.classification-option .Select.ignore-option .Select-input {
+.classification-option .ignore-option__placeholder,
+.classification-option .ignore-option__value-container,
+.classification-option .ignore-option__indicators,
+.classification-option .ignore-option__input {
   line-height: 20px !important;
   height: 20px;
 }
