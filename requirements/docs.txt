@@ -9,4 +9,7 @@ sphinx-rtd-theme==0.4.1
 # https://github.com/rtfd/recommonmark/issues/92
 # ...and we need the fix for:
 # https://github.com/rtfd/recommonmark/issues/51
-https://github.com/rtfd/recommonmark/archive/master.zip
+# Editable mode is required to force the latest version to be
+# installed, since Read The Docs doesn't use --upgrade and has an
+# older incompatible version of recommonmark pre-installed.
+-e git+git://github.com/rtfd/recommonmark.git#egg=recommonmark
