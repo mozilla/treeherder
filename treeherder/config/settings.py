@@ -399,7 +399,7 @@ CELERYBEAT_SCHEDULE = {
     'daily-intermittents-commenter': {
         # Executes every morning at 7 a.m. UTC
         'task': 'intermittents-commenter',
-        'schedule': crontab(hour=7),
+        'schedule': crontab(minute=0, hour=7),
         'options': {
             'queue': 'intermittents_commenter'
         },
@@ -407,7 +407,7 @@ CELERYBEAT_SCHEDULE = {
     'weekly-intermittents-commenter': {
         # Executes every sunday morning at 8 a.m. UTC
         'task': 'intermittents-commenter',
-        'schedule': crontab(hour=8, day_of_week='sunday'),
+        'schedule': crontab(minute=0, hour=8, day_of_week='sunday'),
         'kwargs': {'weekly_mode': True},
         'options': {
             'queue': 'intermittents_commenter'
