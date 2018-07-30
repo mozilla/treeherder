@@ -80,6 +80,12 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
+        $rootScope.user = { isLoggedIn: false };
+
+        $rootScope.setUser = (user) => {
+          $rootScope.user = user;
+          $rootScope.$apply();
+        };
 
         $rootScope.$on('$stateChangeSuccess', function () {
             if ($state.current.title) {

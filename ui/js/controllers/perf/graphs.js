@@ -917,7 +917,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         var addTestToGraph = function () {
             $scope.selectedSeriesList = $scope.testsToAdd;
             $scope.selectedSeriesList.forEach(function (selectedSeries, i) {
-                series[i] = _.clone(selectedSeries);
+                series[i] = { ...selectedSeries };
                 series[i].projectName = selectedSeries.projectName;
             });
             $uibModalInstance.close(series);
@@ -956,9 +956,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         $scope.selectTest = function () {
             $scope.selectedTestSignatures.forEach(function (signature) {
                 // Add the selected tests to the selected test list
-                $scope.testsToAdd.push(_.clone(
-                    $scope.unselectedTestList.find(test =>
-                        test.signature === signature)));
+                $scope.testsToAdd.push({ ...$scope.unselectedTestList.find(
+                    test => test.signature === signature),
+                });
 
                 // Remove the added tests from the unselected test list
                 _.remove($scope.unselectedTestList, { signature: signature });
@@ -971,14 +971,15 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId,
-                }).then(function (seriesList) {
-                    $scope.testsToAdd = _.clone(seriesList.filter(series =>
+                }).then((seriesList) => {
+                    const filteredSeriesList = seriesList.filter(series =>
                         series.platform !== originalSeries.platform &&
                         series.name === originalSeries.name &&
                         !testsDisplayed.map(test =>
-                          (test.projectName === series.projectName &&
-                           test.signature === series.signature)).some(x => x),
-                    ));
+                            (test.projectName === series.projectName &&
+                            test.signature === series.signature)).some(x => x),
+                    );
+                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here
@@ -1023,11 +1024,12 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId,
                 }).then(function (seriesList) {
-                    $scope.testsToAdd = _.clone(seriesList.filter(series =>
+                    const filteredSeriesList = seriesList.filter(series =>
                         series.platform === originalSeries.platform &&
                         series.testName === originalSeries.testName &&
                         series.name !== originalSeries.name,
-                    ));
+                    );
+                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
                 }).then(function () {
                     // resolve the testsToAdd's length after every thing was done
                     // so we don't need timeout here

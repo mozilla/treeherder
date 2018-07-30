@@ -169,6 +169,9 @@ class Commenter(object):
                 # sleep between comment submissions to avoid overwhelming servers
                 time.sleep(1)
 
+        logger.warning('There were {} comments for this {} task.'.format(
+                       len(all_bug_changes), 'weekly' if self.weekly_mode else 'daily'))
+
     def open_file(self, filename, load):
         with open('treeherder/intermittents_commenter/{}'.format(filename), 'r') as myfile:
             if load:

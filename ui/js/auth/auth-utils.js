@@ -1,12 +1,13 @@
 import { fromNow } from 'taskcluster-client-web';
 import { WebAuth } from 'auth0-js';
+import { loginCallbackUrl } from '../../helpers/url';
 
 export const webAuth = new WebAuth({
   clientID: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',
   domain: 'auth.mozilla.auth0.com',
   responseType: 'id_token token',
   audience: 'login.taskcluster.net',
-  redirectUri: `${location.protocol}//${location.host}/login.html`,
+  redirectUri: `${location.protocol}//${location.host}${loginCallbackUrl}`,
   scope: 'taskcluster-credentials openid profile email',
 });
 

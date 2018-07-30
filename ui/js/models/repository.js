@@ -12,33 +12,28 @@ treeherder.factory('ThRepositoryModel', [
 
         const repos = {};
         const watchedRepos = [];
-        const orderedRepoGroups = {};
+        const orderedRepoGroups = [];
         const maxWatchedRepos = 3;
 
         // get the repositories (aka trees)
         // sample: 'resources/menu.json'
         const getByName = function (name) {
-            if ($rootScope.repos !== undefined) {
-                for (let i = 0; i < $rootScope.repos.length; i++) {
-                    const repo = $rootScope.repos[i];
-                    if (repo.name === name) {
-                        return repo;
-                    }
-                }
-            }
-            return null;
+          const notFound = { name, url: null };
+
+          return $rootScope.repos ?
+            $rootScope.repos.find(r => r.name === name) || notFound :
+            notFound;
         };
 
         const getOrderedRepoGroups = function () {
-            if (!Object.keys(orderedRepoGroups).length) {
+            if (!orderedRepoGroups.length) {
                 // group repos by 'repository_group.name'
                 if ($rootScope.repos) {
                   const groups = $rootScope.repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
                       { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
                   ), {});
-                Object.entries(groups).forEach(([reposAr, gName]) => {
-                    orderedRepoGroups[thRepoGroupOrder[reposAr] || reposAr] = { name: reposAr, repos: gName };
-                });
+
+                  thRepoGroupOrder.forEach(name => orderedRepoGroups.push({ name, repos: groups[name] }));
                 }
             }
             return orderedRepoGroups;

@@ -22,6 +22,9 @@ import './css/treeherder-loading-overlay.css';
 // Bootstrap the Angular modules against which everything will be registered
 import './js/perf';
 
+// React UI
+import './shared/Login';
+
 // Perf JS
 import './js/filters';
 import './js/services/main';
@@ -40,6 +43,5 @@ import './js/controllers/perf/graphs';
 import './js/controllers/perf/alerts';
 import './js/controllers/perf/dashboard';
 import './js/components/perf/compare';
-import './js/components/auth';
 import './js/components/loading';
 import './js/perfapp';

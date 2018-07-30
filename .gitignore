@@ -22,12 +22,9 @@ npm-error.log
 \#*
 
 # Treeherder-specific
+_build/
 dist/
-docs/_build/
 treeherder/static/
-ui/js/config/local.conf.js
-# frontend test coverage
-coverage/
 
 # Celery
 celerybeat-schedule

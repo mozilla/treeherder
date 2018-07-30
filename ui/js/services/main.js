@@ -7,8 +7,8 @@ import { thPlatformMap } from '../constants';
 
 /* Services */
 treeherder.factory('thNotify', [
-    '$timeout', 'localStorageService',
-    function ($timeout, localStorageService) {
+    '$timeout',
+    function ($timeout) {
         // a growl-like notification system
 
         const thNotify = {
@@ -16,7 +16,15 @@ treeherder.factory('thNotify', [
             notifications: [],
 
             // Long-term storage for notifications
-            storedNotifications: (localStorageService.get('notifications') || []),
+            storedNotifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
+
+            // Callback for any updates.  Listening to window for 'storage'
+            // events won't work for this because those events are only fired
+            // for storage events made in OTHER windows/tabs.  Not the current
+            // one.  Default to dummy function.
+            // TODO: We should be able to remove this once this service is
+            // converted to a class for direct usage in ReactJS.
+            changeCallback: () => {},
 
             /*
              * send a message to the notification queue
@@ -43,7 +51,8 @@ treeherder.factory('thNotify', [
                 thNotify.notifications.unshift(notification);
                 thNotify.storedNotifications.unshift(notification);
                 thNotify.storedNotifications.splice(40);
-                localStorageService.set('notifications', thNotify.storedNotifications);
+                localStorage.setItem('notifications', JSON.stringify(thNotify.storedNotifications));
+                thNotify.changeCallback(thNotify.storedNotifications);
 
                 if (!opts.sticky) {
                     if (thNotify.notifications.length > maxNsNotifications) {
@@ -52,22 +61,6 @@ treeherder.factory('thNotify', [
                     }
                     $timeout(thNotify.shift, 4000, true);
                 }
-            },
-
-           /*
-            * send a message to the notification queue without displaying the notification box
-            * @severity can be one of success|info|warning|danger
-            */
-            record: function (message, severity) {
-                const notification = {
-                    message,
-                    severity,
-                    created: Date.now(),
-                };
-                const storedNotifications = thNotify.storedNotifications;
-
-                storedNotifications.unshift(notification);
-                localStorageService.set('notifications', storedNotifications);
             },
 
             /*
@@ -93,7 +86,11 @@ treeherder.factory('thNotify', [
              */
             clear: function () {
                 thNotify.storedNotifications = [];
-                localStorageService.set('notifications', thNotify.storedNotifications);
+                localStorage.setItem('notifications', thNotify.storedNotifications);
+                thNotify.changeCallback(thNotify.storedNotifications);
+            },
+            setChangeCallback: function (cb) {
+              thNotify.changeCallback = cb;
             },
         };
         return thNotify;

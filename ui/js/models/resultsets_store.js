@@ -214,26 +214,15 @@ treeherder.factory('ThResultSetStore', [
                 );
                 _.extend(push, sortAndGroupJobs(push.jobList));
                 mapPlatforms(push);
-                updateUnclassifiedFailureCountForTiers();
-                updateFilteredUnclassifiedFailureCount();
+                recalculateUnclassifiedCounts();
                 $rootScope.$emit(thEvents.applyNewJobs, pushId);
             }
         };
 
-        $rootScope.$on(thEvents.recalculateUnclassified, function () {
-            $timeout(function () {
-                updateUnclassifiedFailureCountForTiers();
-                updateFilteredUnclassifiedFailureCount();
-            }, 0, true);
-        });
         $rootScope.$on(thEvents.jobsClassified, function () {
             $timeout(function () {
-                updateUnclassifiedFailureCountForTiers();
-                updateFilteredUnclassifiedFailureCount();
+                recalculateUnclassifiedCounts();
             }, 0, true);
-        });
-        $rootScope.$on(thEvents.globalFilterChanged, function () {
-            $timeout(updateFilteredUnclassifiedFailureCount, 0, true);
         });
 
         var initRepository = function (repoName) {
@@ -417,29 +406,21 @@ treeherder.factory('ThResultSetStore', [
         };
 
         /**
-         * Go through map of loaded unclassified jobs and check against current
-         * enabled tiers to get this count.
-         */
-        var updateUnclassifiedFailureCountForTiers = function () {
-            repoData.unclassifiedFailureCountForTiers = 0;
-            Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
-                if (thJobFilters.isFilterSetToShow('tier', job.tier)) {
-                    repoData.unclassifiedFailureCountForTiers += 1;
-                }
-            });
-        };
-
-        /**
          * Loops through the map of unlcassified failures and checks if it is
          * within the enabled tiers and if the job should be shown. This essentially
          * gives us the difference in unclassified failures and, of those jobs, the
          * ones that have been filtered out
-         *
-         * @private
          */
-        var updateFilteredUnclassifiedFailureCount = function () {
+        const recalculateUnclassifiedCounts = function () {
+            repoData.unclassifiedFailureCountForTiers = 0;
             repoData.filteredUnclassifiedFailureCount = 0;
+            const tiers = thJobFilters.getFieldFiltersObj().tier;
+
+            thJobFilters.refreshFilterCaches();
             Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
+                if (tiers.includes(String(job.tier))) {
+                    repoData.unclassifiedFailureCountForTiers++;
+                }
                 if (thJobFilters.showJob(job)) {
                     repoData.filteredUnclassifiedFailureCount++;
                 }
@@ -811,7 +792,7 @@ treeherder.factory('ThResultSetStore', [
              */
             repoData.loadingStatus.appending = true;
             var isAppend = (repoData.pushes.length > 0);
-            var pushes;
+            var pushes = { results: [] };
             var loadRepositories = ThRepositoryModel.load({
                 name: repoData.name,
                 watchRepos: true,
@@ -1017,6 +998,7 @@ treeherder.factory('ThResultSetStore', [
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultPushCount: defaultPushCount,
             reloadOnChangeParameters: reloadOnChangeParameters,
+            recalculateUnclassifiedCounts: recalculateUnclassifiedCounts,
 
         };
 

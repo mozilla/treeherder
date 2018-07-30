@@ -145,6 +145,11 @@ secondary-nav-bar {
     padding-right: 5px;
 }
 
+.watched-repo-main-btn:visited,
+.watched-repo-main-btn:link {
+    color: lightgrey;
+}
+
 .watched-repo-info-btn {
     padding-left: 6px;
     padding-right: 9px;
@@ -420,7 +425,6 @@ fieldset[disabled] .btn-view-nav-closed.active {
   overflow-y: scroll;
   padding-left: 20px;
   padding-right: 14px;
-  white-space: nowrap;
 }
 
 #notification-dropdown .dropdown-header {
