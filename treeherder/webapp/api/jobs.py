@@ -17,8 +17,7 @@ from six import iteritems
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (FailureLine,
-                                     Job,
+from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
                                      OptionCollection,
@@ -376,21 +375,6 @@ class JobsViewSet(viewsets.ViewSet):
             return Response("Jobs with id(s): '{0}' were not retriggered.".format(failure),
                             status=HTTP_404_NOT_FOUND)
         return Response({"message": "All jobs successfully retriggered."})
-
-    @detail_route(methods=['get'])
-    def failure_lines(self, request, project, pk=None):
-        """
-        Get a list of test failure lines for the job
-        """
-        try:
-            job = Job.objects.get(repository__name=project, id=pk)
-            queryset = (FailureLine.objects.filter(job_guid=job.guid)
-                                           .prefetch_related("text_log_error_metadata__text_log_error__matches"))
-            failure_lines = [serializers.FailureLineNoStackSerializer(obj).data
-                             for obj in queryset]
-            return Response(failure_lines)
-        except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
     @detail_route(methods=['get'])
     def text_log_steps(self, request, project, pk=None):
