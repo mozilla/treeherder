@@ -11,12 +11,6 @@ import ErrorLine from './ErrorLine';
 import ErrorLineData from './ErrorLineModel';
 
 export default class AutoclassifyTab extends React.Component {
-  static getDerivedStateFromProps(nextProps) {
-    const { user } = nextProps;
-
-    return { canClassify: user.isLoggedIn && user.isStaff };
-  }
-
   constructor(props) {
     super(props);
 
@@ -36,6 +30,12 @@ export default class AutoclassifyTab extends React.Component {
       autoclassifyStatusOnLoad: null,
       canClassify: false,
     };
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    const { user } = nextProps;
+
+    return { canClassify: user.isLoggedIn && user.isStaff };
   }
 
   async componentDidMount() {

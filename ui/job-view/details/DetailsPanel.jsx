@@ -25,14 +25,6 @@ import TabsPanel from './tabs/TabsPanel';
 export const pinboardHeight = 100;
 
 export default class DetailsPanel extends React.Component {
-
-  static getDerivedStateFromProps(props) {
-    if (!props.selectedJob) {
-      return { job: null };
-    }
-    return {};
-  }
-
   constructor(props) {
     super(props);
 
@@ -70,6 +62,13 @@ export default class DetailsPanel extends React.Component {
       pinnedJobs: {},
       pinnedJobBugs: {},
     };
+  }
+
+  static getDerivedStateFromProps(props) {
+    if (!props.selectedJob) {
+      return { job: null };
+    }
+    return {};
   }
 
   componentDidMount() {

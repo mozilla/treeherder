@@ -2,10 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default class TiersMenu extends React.Component {
-  static getShownTiers(jobFilters) {
-    return jobFilters.getFieldFiltersObj().tier || [];
-  }
-
   constructor(props) {
     super(props);
     const { jobFilters } = props;
@@ -25,6 +21,10 @@ export default class TiersMenu extends React.Component {
 
   componentWillUnmount() {
     this.unlistenHistory();
+  }
+
+  static getShownTiers(jobFilters) {
+    return jobFilters.getFieldFiltersObj().tier || [];
   }
 
   toggleTier(tier) {

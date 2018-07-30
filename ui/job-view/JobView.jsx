@@ -26,24 +26,6 @@ const getWindowHeight = function () {
 };
 
 class JobView extends React.Component {
-  static getDerivedStateFromProps(props) {
-    return JobView.getSplitterDimensions(props);
-  }
-
-  static getSplitterDimensions(props) {
-    const { selectedJob } = props;
-    const defaultPushListPct = selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
-    // calculate the height of the details panel to use if it has not been
-    // resized by the user.
-    const defaultDetailsHeight = defaultPushListPct < 100 ?
-      DEFAULT_DETAILS_PCT / 100 * getWindowHeight() : 0;
-
-    return {
-      defaultPushListPct,
-      defaultDetailsHeight,
-    };
-  }
-
   constructor(props) {
     super(props);
 
@@ -67,6 +49,10 @@ class JobView extends React.Component {
       serverChangedDelayed: false,
       serverChanged: false,
     };
+  }
+
+  static getDerivedStateFromProps(props) {
+    return JobView.getSplitterDimensions(props);
   }
 
   componentDidMount() {
@@ -117,6 +103,20 @@ class JobView extends React.Component {
           });
       }, REVISION_POLL_INTERVAL);
     });
+  }
+
+  static getSplitterDimensions(props) {
+    const { selectedJob } = props;
+    const defaultPushListPct = selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
+    // calculate the height of the details panel to use if it has not been
+    // resized by the user.
+    const defaultDetailsHeight = defaultPushListPct < 100 ?
+      DEFAULT_DETAILS_PCT / 100 * getWindowHeight() : 0;
+
+    return {
+      defaultPushListPct,
+      defaultDetailsHeight,
+    };
   }
 
   setUser(user) {

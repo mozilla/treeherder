@@ -14,6 +14,20 @@ import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 
 export default class TabsPanel extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const { $injector } = this.props;
+    this.$rootScope = $injector.get('$rootScope');
+
+    this.state = {
+      showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
+      tabIndex: 0,
+      perfJobDetailSize: 0,
+      jobId: null,
+    };
+  }
+
   static getDerivedStateFromProps(props, state) {
     const { perfJobDetail, selectedJob } = props;
     const { showAutoclassifyTab } = state;
@@ -36,40 +50,6 @@ export default class TabsPanel extends React.Component {
     return {};
   }
 
-  static getTabNames(showPerf, showAutoclassify) {
-    return [
-      'details', 'failure', 'autoclassify', 'annotations', 'similar', 'perf',
-    ].filter(name => (
-      !((name === 'autoclassify' && !showAutoclassify) || (name === 'perf' && !showPerf))
-    ));
-  }
-
-  static getDefaultTabIndex(status, showPerf, showAutoclassify) {
-    let idx = 0;
-    const tabNames = TabsPanel.getTabNames(showPerf, showAutoclassify);
-    const tabIndexes = tabNames.reduce((acc, name) => ({ ...acc, [name]: idx++ }), {});
-
-    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
-    if (['busted', 'testfailed', 'exception'].includes(status)) {
-      tabIndex = showAutoclassify ? tabIndexes.autoclassify : tabIndexes.failure;
-    }
-    return tabIndex;
-  }
-
-  constructor(props) {
-    super(props);
-
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
-    this.state = {
-      showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
-      tabIndex: 0,
-      perfJobDetailSize: 0,
-      jobId: null,
-    };
-  }
-
   componentDidMount() {
     this.selectNextTabUnlisten = this.$rootScope.$on(thEvents.selectNextTab, () => {
       const { tabIndex, showAutoclassifyTab } = this.state;
@@ -84,6 +64,26 @@ export default class TabsPanel extends React.Component {
 
   componentWillUnmount() {
     this.selectNextTabUnlisten();
+  }
+
+  static getDefaultTabIndex(status, showPerf, showAutoclassify) {
+    let idx = 0;
+    const tabNames = TabsPanel.getTabNames(showPerf, showAutoclassify);
+    const tabIndexes = tabNames.reduce((acc, name) => ({ ...acc, [name]: idx++ }), {});
+
+    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
+    if (['busted', 'testfailed', 'exception'].includes(status)) {
+      tabIndex = showAutoclassify ? tabIndexes.autoclassify : tabIndexes.failure;
+    }
+    return tabIndex;
+  }
+
+  static getTabNames(showPerf, showAutoclassify) {
+    return [
+      'details', 'failure', 'autoclassify', 'annotations', 'similar', 'perf',
+    ].filter(name => (
+      !((name === 'autoclassify' && !showAutoclassify) || (name === 'perf' && !showPerf))
+    ));
   }
 
   setTabIndex(tabIndex) {
