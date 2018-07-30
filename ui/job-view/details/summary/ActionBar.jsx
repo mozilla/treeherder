@@ -319,7 +319,7 @@ export default class ActionBar extends React.Component {
               <a
                 title="Launch the Reftest Analyser in a new window"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
                 href={getReftestUrl(jobLogUrl.url)}
               ><span className="fa fa-bar-chart-o" /></a>
             </li>))}
@@ -354,7 +354,7 @@ export default class ActionBar extends React.Component {
                   <li>
                     <a
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       className="dropdown-item"
                       href={getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}
                     >Inspect Task</a>
@@ -362,7 +362,7 @@ export default class ActionBar extends React.Component {
                   <li>
                     <a
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       className="dropdown-item"
                       href={`${getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}/create`}
                     >Edit and Retrigger</a>
@@ -370,7 +370,7 @@ export default class ActionBar extends React.Component {
                   <li>
                     <a
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       className="dropdown-item"
                       href={`https://tools.taskcluster.net/tasks/${selectedJob.taskcluster_metadata.task_id}/interactive`}
                     >Create Interactive Task</a>

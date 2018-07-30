@@ -26,7 +26,7 @@ class BugColumn extends React.Component {
     const { id } = this.props.data;
     return (
       <div>
-        <a className="ml-1" target="_blank" href={getBugUrl(id)}>{id}</a>
+        <a className="ml-1" target="_blank" rel="noopener noreferrer" href={getBugUrl(id)}>{id}</a>
         &nbsp;
         <span className="ml-1 small-text bug-details">
           <Link onClick={this.updateStateData} to={{ pathname: '/bugdetails', search: `?startday=${from}&endday=${to}&tree=${tree}&bug=${id}` }}>

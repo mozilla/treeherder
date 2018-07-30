@@ -215,7 +215,7 @@ export default class SimilarJobsTab extends React.Component {
                   <td>
                     <a
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       href={getSlaveHealthUrl(selectedSimilarJob.machine_name)}
                     >{selectedSimilarJob.machine_name}</a>
                   </td>

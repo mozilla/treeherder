@@ -45,7 +45,7 @@ export function MoreRevisionsLink(props) {
       <a
         href={props.href}
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
       >{'\u2026and more'}<i className="fa fa-external-link-square" /></a>
     </li>
   );

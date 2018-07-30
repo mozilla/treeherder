@@ -31,7 +31,7 @@ export default class JobDetailsTab extends React.PureComponent {
                 title={line.title ? line.title : line.value}
                 href={line.url}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >{line.value}</a>}
               {line.url && line.value.endsWith('raw.log') &&
                 <span> - <a

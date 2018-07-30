@@ -550,7 +550,7 @@ export default class ErrorLine extends React.Component {
             <span> [<a
               title="Open the log viewer in a new window"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               href={logUrl}
               className=""
             >log…</a>]</span>
@@ -560,7 +560,7 @@ export default class ErrorLine extends React.Component {
             <span> [<a
               title="Open the log viewer in a new window"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               href={logUrl}
             >log…</a>]</span>
           </div>}
@@ -571,7 +571,7 @@ export default class ErrorLine extends React.Component {
               <a
                 href={getBugUrl(errorLine.bugNumber)}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >Bug {errorLine.bugNumber} - {errorLine.bugSummary && <span>{errorLine.bugSummary}</span>}</a>
               {!errorLine.bugNumber && <span className="line-option-text">
                 Classifed failure with no bug number

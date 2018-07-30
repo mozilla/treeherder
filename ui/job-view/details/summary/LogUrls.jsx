@@ -62,7 +62,7 @@ export default function LogUrls(props) {
           className="raw-log-icon"
           title="Open the raw log in a new window"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
           href={jobLogUrl.url}
           copy-value={jobLogUrl.url}
         ><span className="fa fa-file-text-o" /></a>

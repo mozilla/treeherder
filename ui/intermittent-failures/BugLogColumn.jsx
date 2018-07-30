@@ -37,7 +37,12 @@ export default class BugLogColumn extends React.Component {
         <span ref={this.updateTarget}>
           {`${original.lines.length} unexpected-fail${original.lines.length > 1 ? 's' : ''}`}
           <br />
-          <a className="small-text" href={getLogViewerUrl(value, original.tree)} target="_blank">
+          <a
+            className="small-text"
+            href={getLogViewerUrl(value, original.tree)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             view details
           </a>
         </span>
