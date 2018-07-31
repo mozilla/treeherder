@@ -70,6 +70,8 @@ class Commenter(object):
             # recommend disabling when more than 150 failures tracked over 21 days
             if alt_bug_stats[bug_id]['total'] >= 150:
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                if bug_info is None:
+                    continue
 
                 if not self.check_whiteboard_status(whiteboard):
                     priority = 3
@@ -79,17 +81,26 @@ class Commenter(object):
                 priority = self.assign_priority(priority, counts)
                 if priority == 2:
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    if bug_info is None:
+                        continue
+
                     change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
                 # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                 if (counts['total'] < 20):
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    if bug_info is None:
+                        continue
+
                     whiteboard = self.check_needswork(whiteboard)
 
                 if bug_id in top_bugs:
                     rank = top_bugs.index(bug_id)+1
             else:
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                if bug_info is None:
+                    continue
+
                 change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
 
             comment = template.render(bug_id=bug_id,
@@ -109,7 +120,7 @@ class Commenter(object):
                               'comment': {'body': comment}
                             }
                            }
-            if whiteboard:
+            if whiteboard != bug_info['whiteboard']:
                 bug_changes['changes']['whiteboard'] = whiteboard
             if change_priority:
                 bug_changes['changes']['priority'] = change_priority
