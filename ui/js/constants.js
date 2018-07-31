@@ -100,6 +100,7 @@ export const thPlatformMap = {
     'android-4-3-armv7-api15': 'Android 4.3 API15+',
     'android-4-3-armv7-api16': 'Android 4.3 API16+',
     'android-em-4-3-armv7-api16': 'Android 4.3 API16+',
+    'android-em-4-3-armv7-api16-ccov': 'Android 4.3 API16+ CCov',
     'android-4-4': 'Android 4.4',
     'android-4-4-armv7-api11': 'Android 4.4 API11+',
     'android-4-4-armv7-api15': 'Android 4.4 API15+',
