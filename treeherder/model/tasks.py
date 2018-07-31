@@ -8,6 +8,7 @@ from django.core.management import call_command
 from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.models import Job
 from treeherder.model.pulse_publisher import load_schemas
+from treeherder.workers.task import retryable_task
 
 # Load schemas for validation of messages published on pulse
 SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))
@@ -47,7 +48,9 @@ def cycle_data():
     call_command('cycle_data')
 
 
-@task(name='publish-job-action')
+# Only retrying up to 3 times, since it's likely the user will repeat the request, and we
+# don't want multiple retriggers occurring N hours later due to the exponential back-off.
+@retryable_task(name='publish-job-action', max_retries=3)
 def publish_job_action(project, action, job_id, requester):
     """
     Generic task to issue pulse notifications when jobs actions occur
