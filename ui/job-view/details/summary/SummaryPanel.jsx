@@ -119,6 +119,7 @@ export default class SummaryPanel extends React.Component {
                     {machineUrl ? <a
                       title="Inspect machine"
                       target="_blank"
+                      rel="noopener noreferrer"
                       href={machineUrl}
                     >{jobMachineName}</a> :
                     <span>{jobMachineName} {machineUrlStatus}</span>}
@@ -130,6 +131,7 @@ export default class SummaryPanel extends React.Component {
                     <a
                       href={getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}
                       target="_blank"
+                      rel="noopener noreferrer"
                     >{selectedJob.taskcluster_metadata.task_id}</a>
                   </li>
                 }
@@ -139,6 +141,7 @@ export default class SummaryPanel extends React.Component {
                     title="Open build directory in a new tab"
                     href={buildUrl}
                     target="_blank"
+                    rel="noopener noreferrer"
                   >{`${selectedJob.build_architecture} ${selectedJob.build_platform} ${selectedJob.build_os || ''}`}</a>
                   <span className={`ml-1${iconCircleClass}`} />
                 </li>
@@ -148,6 +151,7 @@ export default class SummaryPanel extends React.Component {
                     title="Open build directory in a new tab"
                     href={buildDirectoryUrl}
                     target="_blank"
+                    rel="noopener noreferrer"
                   >{selectedJob.job_type_name}</a>
                   <span className={`ml-1${iconCircleClass}`} />
                 </li>

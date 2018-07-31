@@ -432,7 +432,7 @@ export default class PinBoard extends React.Component {
                     title={bug.summary}
                     href={getBugUrl(bug.id)}
                     target="_blank"
-                    rel="noopener"
+                    rel="noopener noreferrer"
                   ><em>{bug.id}</em></a>
                   <span
                     className="btn btn-ltgray btn-xs pinned-job-close-btn"

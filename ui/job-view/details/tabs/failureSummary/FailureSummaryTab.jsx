@@ -104,7 +104,7 @@ export default class FailureSummaryTab extends React.Component {
                  <a
                    title="Open the raw log in a new window"
                    target="_blank"
-                   rel="noopener"
+                   rel="noopener noreferrer"
                    href={jobLog.url}
                  >The raw log</a> is available. This panel will automatically recheck every 5 seconds.</p>
              </li>))}

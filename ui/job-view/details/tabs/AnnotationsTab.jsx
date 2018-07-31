@@ -14,7 +14,7 @@ function RelatedBugSaved(props) {
         className="btn btn-xs annotations-bug related-bugs-link"
         href={getBugUrl(bug_id)}
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
         title={`View bug ${bug_id}`}
       >
         <em>{bug_id}</em>

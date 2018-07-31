@@ -84,7 +84,7 @@ export default class NotificationsMenu extends React.Component {
                   &nbsp;{notification.message}&nbsp;
                   <a
                     target="_blank"
-                    rel="noopener"
+                    rel="noopener noreferrer"
                     href={notification.url}
                   >{notification.linkText}</a>
                 </span>

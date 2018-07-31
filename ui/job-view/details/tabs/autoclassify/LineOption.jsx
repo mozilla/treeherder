@@ -116,7 +116,7 @@ export default class LineOption extends React.Component {
               <a
                 href={getBugUrl(option.bugNumber)}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >{option.bugNumber} -
                 <Highlighter
                   searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
@@ -154,7 +154,7 @@ export default class LineOption extends React.Component {
                 <a
                   href={getBugUrl(option.manualBugNumber)}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                 >[view]</a>}
               </div>}
 

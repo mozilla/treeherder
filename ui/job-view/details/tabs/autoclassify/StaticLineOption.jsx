@@ -37,7 +37,7 @@ export default function StaticLineOption(props) {
         <a
           href={getBugUrl(option.bugNumber)}
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >{option.bugNumber} -
           <Highlighter
             searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
@@ -58,7 +58,7 @@ export default function StaticLineOption(props) {
         {!!manualBugNumber && <a
           href={getBugUrl(option.manualBugNumber)}
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >{manualBugNumber}</a>}
         {!!manualBugNumber && <span>No bug number specified</span>}
       </span>}

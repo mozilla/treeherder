@@ -25,7 +25,7 @@ export default function BugListItem(props) {
         className={`${bugClassName} ml-1`}
         href={bugUrl}
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
         title={title}
       >{bug.id}
         <Highlighter

@@ -9,7 +9,7 @@ export default function ErrorsList(props) {
       <a
         title="Open in Log Viewer"
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
         href={error.logViewerUrl}
       ><span className="ml-1">View log</span></a>
     </li>

@@ -31,7 +31,7 @@ export default class PerformanceTab extends React.PureComponent {
             <a
               href={getCompareChooserUrl({ newProject: repoName, newRevision: revision })}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
             >Compare result against another revision</a>
           </li>
         </ul>

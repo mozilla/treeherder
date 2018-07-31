@@ -28,7 +28,7 @@ export default function ClassificationsPanel(props) {
         {!!bugs.length &&
           <a
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             href={getBugUrl(bugs[0].bug_id)}
             title={`View bug ${bugs[0].bug_id}`}
           ><em> {bugs[0].bug_id}</em></a>}
