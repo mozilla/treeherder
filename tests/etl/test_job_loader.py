@@ -2,8 +2,8 @@ import copy
 
 import pytest
 
-from treeherder.etl.job_loader import (JobLoader,
-                                       MissingPushException)
+from treeherder.etl.exceptions import MissingPushException
+from treeherder.etl.job_loader import JobLoader
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,

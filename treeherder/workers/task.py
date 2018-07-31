@@ -8,7 +8,7 @@ from celery import task
 from django.db.utils import (IntegrityError,
                              ProgrammingError)
 
-from treeherder.etl.job_loader import MissingPushException
+from treeherder.etl.exceptions import MissingPushException
 
 
 class retryable_task(object):

@@ -6,6 +6,7 @@ import newrelic.agent
 import slugid
 
 from treeherder.etl.common import to_timestamp
+from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import job_json_schema
 from treeherder.model.models import (Push,
@@ -303,7 +304,3 @@ class JobLoader(object):
             logger.error("JSON Schema validation error during job ingestion: %s", e)
             return False
         return True
-
-
-class MissingPushException(Exception):
-    pass

@@ -2,7 +2,7 @@ from threading import local
 
 import pytest
 
-from treeherder.etl.job_loader import MissingPushException
+from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.push import store_push_data
 from treeherder.etl.tasks.pulse_tasks import store_pulse_jobs
 from treeherder.model.models import Job
