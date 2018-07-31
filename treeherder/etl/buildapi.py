@@ -10,6 +10,7 @@ from six import iteritems
 from treeherder.client.thclient import TreeherderJobCollection
 from treeherder.etl import (buildbot,
                             common)
+from treeherder.etl.exceptions import CollectionNotStoredException
 from treeherder.etl.jobs import store_job_data
 from treeherder.model.models import (Push,
                                      Repository)
@@ -496,4 +497,4 @@ def store_jobs(job_collections, chunk_size):
                 })
 
     if errors:
-        raise common.CollectionNotStoredException(errors)
+        raise CollectionNotStoredException(errors)
