@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from kombu import (Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
@@ -25,12 +24,7 @@ class PulseConsumer(ConsumerMixin):
         self.connection = connection
         self.consumers = []
         self.queue = None
-        # TODO: use connection.userid here?
-        config = settings.PULSE_DATA_INGESTION_CONFIG
-        if not config:
-            raise ValueError("PULSE_DATA_INGESTION_CONFIG is required for the "
-                             "JobConsumer class.")
-        self.queue_name = "queue/{}/{}".format(config.username, queue_suffix)
+        self.queue_name = "queue/{}/{}".format(connection.userid, queue_suffix)
 
     def get_consumers(self, Consumer, channel):
         return [
