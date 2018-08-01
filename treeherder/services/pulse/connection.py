@@ -1,8 +1,14 @@
-from django.conf import settings
+import environ
 from django.core.exceptions import ImproperlyConfigured
 from kombu import Connection
 
-config = settings.PULSE_DATA_INGESTION_CONFIG
+env = environ.Env()
+
+# Used to specify the PulseGuardian account that will be used to create
+# ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_SOURCES``.
+# See https://pulse.mozilla.org/whats_pulse for more info.
+# Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/?ssl=1"
+config = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
 if not config:
     raise ImproperlyConfigured("PULSE_DATA_INGESTION_CONFIG must be set")
 
