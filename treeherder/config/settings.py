@@ -557,12 +557,3 @@ PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
 # See https://pulse.mozilla.org/whats_pulse for more info.
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/?ssl=1"
 PULSE_DATA_INGESTION_CONFIG = env.url("PULSE_DATA_INGESTION_CONFIG", default="")
-
-# Whether the Queues created for pulse ingestion are durable or not.
-# For local data ingestion, you probably should set this to False
-PULSE_DATA_INGESTION_QUEUES_DURABLE = True
-
-# Whether the Queues created for pulse ingestion auto-delete after connections
-# are closed.
-# For local data ingestion, you probably should set this to True
-PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE = False
