@@ -38,8 +38,8 @@ class PulseConsumer(ConsumerMixin):
                 channel=self.connection.channel(),
                 exchange=exchange,
                 routing_key=routing_key,
-                durable=settings.PULSE_DATA_INGESTION_QUEUES_DURABLE,
-                auto_delete=settings.PULSE_DATA_INGESTION_QUEUES_AUTO_DELETE
+                durable=True,
+                auto_delete=False,
             )
             self.consumers.append(dict(queues=self.queue,
                                        callbacks=[self.on_message]))
