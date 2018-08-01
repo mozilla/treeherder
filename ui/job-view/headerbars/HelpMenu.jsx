@@ -49,6 +49,7 @@ export default function HelpMenu() {
       <button
         id="helpLabel"
         title="Treeherder help"
+        aria-label="Treeherder help"
         data-toggle="dropdown"
         className="btn btn-view-nav nav-help-btn dropdown-toggle"
       >

@@ -247,6 +247,7 @@ export default class SecondaryNavBar extends React.Component {
                       className={`btn btn-view-nav btn-sm btn-nav-filter ${getBtnClass(filterName)}-filter-chicklet fa ${isOn ? 'fa-dot-circle-o' : 'fa-circle-thin'}`}
                       onClick={() => this.toggleResultStatusFilterChicklet(filterName)}
                       title={filterName}
+                      aria-label={filterName}
                       role="checkbox"
                       aria-checked={isOn}
                       tabIndex={0}

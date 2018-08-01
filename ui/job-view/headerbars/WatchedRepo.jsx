@@ -121,6 +121,7 @@ export default class WatchedRepo extends React.Component {
           className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
           type="button"
           title={`${watchedRepo} info`}
+          aria-label={`${watchedRepo} info`}
           data-toggle="dropdown"
         ><span className="fa fa-info-circle" /></button>
         {watchedRepo !== repoName && <button
