@@ -3,8 +3,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
 from kombu import Exchange
 
-from treeherder.etl.pulse_consumer import JobConsumer
-from treeherder.services.pulse import pulse_conn
+from treeherder.services.pulse import (JobConsumer,
+                                       pulse_conn)
 
 
 class Command(BaseCommand):
