@@ -548,9 +548,6 @@ PULSE_PUSH_SOURCES = env.json(
     }],
 )
 
-# Used for making API calls to Pulse Guardian, such as detecting bindings on
-# the current ingestion queue.
-PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
 
 # Used to specify the PulseGuardian account that will be used to create
 # ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_SOURCES``.

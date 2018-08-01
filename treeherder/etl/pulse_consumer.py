@@ -12,6 +12,11 @@ from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
 logger = logging.getLogger(__name__)
 
 
+# Used for making API calls to Pulse Guardian, such as detecting bindings on
+# the current ingestion queue.
+PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
+
+
 class PulseConsumer(ConsumerMixin):
     """
     Consume jobs from Pulse exchanges
@@ -83,8 +88,7 @@ class PulseConsumer(ConsumerMixin):
 
     def get_bindings(self, queue_name):
         """Get list of bindings from the pulse API"""
-        return fetch_json("{}queue/{}/bindings".format(
-            settings.PULSE_GUARDIAN_URL, queue_name))
+        return fetch_json("{}queue/{}/bindings".format(PULSE_GUARDIAN_URL, queue_name))
 
 
 class JobConsumer(PulseConsumer):
