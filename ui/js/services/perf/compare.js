@@ -292,12 +292,11 @@ treeherder.factory('PhCompare', [
 
                 if (resultSets) {
                     if (!timeRange) {
-                        graphsLink += '&timerange=' + _.max(
-                        resultSets.map(resultSet =>
-                            phTimeRanges.map(range => range.value).find(t =>
-                                ((Date.now() / 1000.0) -
-                                      resultSet.push_timestamp) < t),
-                        ));
+                        graphsLink += '&timerange=' + resultSets.map(resultSet =>
+                                phTimeRanges.map(range => range.value).find(t =>
+                                    ((Date.now() / 1000.0) -
+                                        resultSet.push_timestamp) < t),
+                            ).reduce((a, b) => (a > b ? a : b));
                     } else {
                         graphsLink += '&timerange=' + timeRange;
                     }

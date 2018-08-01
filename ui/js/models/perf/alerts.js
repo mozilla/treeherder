@@ -117,8 +117,16 @@ treeherder.factory('PhAlerts', [
 
             const formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
-                (alert.title.padEnd(_.max(alertList, function (alert) { return alert.title.length; }).title.length + 5)) +
-                displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
+                    (alert.title.padEnd(
+                        // fetch the alert with the longest title, and padEnd with 5 more
+                        alertList.reduce((longestTitleAlert, currentAlert) => {
+                            if (longestTitleAlert.title.length > currentAlert.title.length) {
+                                return longestTitleAlert;
+                            }
+                            return currentAlert;
+                        }).title.length + 5)
+                    ) +
+                    displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };
 
             // add summary header if getting text for clipboard only
@@ -206,7 +214,7 @@ treeherder.factory('PhAlerts', [
 
             if (alertsInSummary.length > 1) {
                 title = Math.min.apply(null, alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
-                    _.max(alertsInSummary.map(alert => alert.amount_pct)) + '%';
+                    Math.max.apply(null, alertsInSummary.map(alert => alert.amount_pct)) + '%';
             } else if (alertsInSummary.length === 1) {
                 title = alertsInSummary[0].amount_pct + '%';
             } else {
