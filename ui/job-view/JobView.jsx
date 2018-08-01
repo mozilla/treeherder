@@ -58,7 +58,6 @@ class JobView extends React.Component {
   componentDidMount() {
     this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
-    this.setUser = this.setUser.bind(this);
     this.pinJobs = this.pinJobs.bind(this);
 
     window.addEventListener('resize', this.updateDimensions);
@@ -165,6 +164,12 @@ class JobView extends React.Component {
       user, isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
     } = this.state;
+    // TODO: Move this to the constructor.  We are hitting some issues where
+    // this function is not yet bound, so we are not getting logged in, even
+    // when the user IS logged in.  Placing this here ensures the we can't
+    // render when this function is not bound.
+    // See Bug 1480166
+    this.setUser = this.setUser.bind(this);
     // SplitPane will adjust the CSS height of the top component, but not the
     // bottom component.  So the scrollbars won't work in the DetailsPanel when
     // we resize.  Therefore, we must calculate the new
