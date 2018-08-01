@@ -234,11 +234,13 @@ treeherder.factory('thJobFilters', [
 
         function _checkFieldFilters(job) {
           return Object.entries(cachedFieldFilters).every(([field, values]) => {
-            const jobFieldValue = String(_getJobFieldValue(job, field)).toLowerCase();
+            let jobFieldValue = _getJobFieldValue(job, field);
 
+            // If ``job`` does not have this field, then don't filter.
+            // Consider it a pass.  i.e.: runnable jobs have no ``tier`` field.
             if (jobFieldValue) {
-              // if a filter is added somehow, but the job object doesn't
-              // have that field, then don't filter.  Consider it a pass.
+              // All filter values are stored as lower case strings
+              jobFieldValue = String(jobFieldValue).toLowerCase();
 
               switch (FIELD_CHOICES[field].matchType) {
 
