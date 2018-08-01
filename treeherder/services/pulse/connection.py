@@ -7,7 +7,7 @@ env = environ.Env()
 # ingestion queues for the exchanges specified in ``PULSE_DATA_INGESTION_SOURCES``.
 # See https://pulse.mozilla.org/whats_pulse for more info.
 # Example: "amqp://myuserid:mypassword@pulse.mozilla.org:5672/?ssl=1"
-config = env.url("PULSE_URI")
+config = env.url("PULSE_URL")
 
 
 def build_connection(url):
