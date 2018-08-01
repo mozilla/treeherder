@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
-from kombu import (Connection,
-                   Exchange)
+from kombu import Exchange
 
 from treeherder.etl.pulse_consumer import JobConsumer
+from treeherder.services.pulse import pulse_conn
 
 
 class Command(BaseCommand):
@@ -17,17 +17,13 @@ class Command(BaseCommand):
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        config = settings.PULSE_DATA_INGESTION_CONFIG
-        if not config:
-            raise ImproperlyConfigured("PULSE_DATA_INGESTION_CONFIG must be set")
-
         sources = settings.PULSE_DATA_INGESTION_SOURCES
         if not sources:
             raise ImproperlyConfigured("PULSE_DATA_INGESTION_SOURCES must be set")
 
         new_bindings = []
 
-        with Connection(config.geturl()) as connection:
+        with pulse_conn as connection:
             consumer = JobConsumer(connection, "jobs")
 
             for source in sources:

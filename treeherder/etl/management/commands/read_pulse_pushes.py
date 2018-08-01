@@ -1,35 +1,29 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
-from kombu import (Connection,
-                   Exchange)
+from kombu import Exchange
 
 from treeherder.etl.pulse_consumer import PushConsumer
+from treeherder.services.pulse import pulse_conn
 
 
 class Command(BaseCommand):
-
     """
     Management command to read pushes from a set of pulse exchanges
 
     This adds the pushes to a celery queue called ``store_pulse_resultsets`` which
     does the actual storing of the pushes in the database.
     """
-
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        config = settings.PULSE_DATA_INGESTION_CONFIG
-        if not config:
-            raise ImproperlyConfigured("PULSE_DATA_INGESTION_CONFIG must be set")
-
         sources = settings.PULSE_PUSH_SOURCES
         if not sources:
             raise ImproperlyConfigured("PULSE_DATA_INGESTION_SOURCES must be set")
 
         new_bindings = []
 
-        with Connection(config.geturl()) as connection:
+        with pulse_conn as connection:
             consumer = PushConsumer(connection, "resultsets")
 
             for source in sources:
