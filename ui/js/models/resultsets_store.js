@@ -3,6 +3,7 @@
 // to let/const won't break anything (such as bug 1443667).
 
 import _ from 'lodash';
+import max from 'lodash/max';
 
 import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
@@ -165,10 +166,8 @@ treeherder.factory('ThResultSetStore', [
                         // clock, but it should hopefully prevent us from getting too
                         // far behind in cases where we've stopped receiving job updates
                         // due e.g. to looking at a completed push)
-                        lastJobUpdate = _.max([
-                            new Date(Date.now() - (5 * jobPollInterval)),
-                            lastJobUpdate,
-                        ]);
+                        const lastPollInterval = new Date(Date.now() - (5 * jobPollInterval));
+                        lastJobUpdate = lastJobUpdate > lastPollInterval ? lastJobUpdate : lastPollInterval;
                     }
                     schedulePoll();
                 });
@@ -821,7 +820,7 @@ treeherder.factory('ThResultSetStore', [
                                 .map(jobList => getLastModifiedJobTime(jobList))
                                 .filter(x => x);
                             if (lastModifiedTimes.length) {
-                                var lastModifiedTime = _.max(lastModifiedTimes);
+                                var lastModifiedTime = max(lastModifiedTimes);
                                 // subtract 3 seconds to take in account a possible delay
                                 // between the job requests
                                 lastModifiedTime.setSeconds(lastModifiedTime.getSeconds() - 3);
@@ -854,7 +853,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getLastModifiedJobTime = function (jobList) {
             if (jobList.length > 0) {
-                return _.max(jobList.map(job => new Date(job.last_modified + 'Z')));
+                return max(jobList.map(job => new Date(job.last_modified + 'Z')));
             }
             return undefined;
         };

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import forIn from 'lodash/forIn';
 import chunk from 'lodash/chunk';
 
@@ -292,8 +291,8 @@ treeherder.factory('PhCompare', [
 
                 if (resultSets) {
                     if (!timeRange) {
-                        graphsLink += '&timerange=' + _.max(
-                        resultSets.map(resultSet =>
+                        graphsLink += '&timerange=' + Math.max(
+                        ...resultSets.map(resultSet =>
                             phTimeRanges.map(range => range.value).find(t =>
                                 ((Date.now() / 1000.0) -
                                       resultSet.push_timestamp) < t),
