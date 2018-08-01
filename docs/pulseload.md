@@ -14,7 +14,7 @@ The Simple Case
 If you just want to get the same data that Treeherder gets, then you have 3 steps:
 
   1. Create a user on [Pulse Guardian] if you don't already have one
-  2. Create your ``PULSE_DATA_INGESTION_CONFIG`` string
+  2. Create your ``PULSE_URI`` string
   3. Open a Vagrant terminal to read Pushes
   4. Open a Vagrant terminal to read Jobs
   5. Open a Vagrant terminal to run **Celery**
@@ -34,7 +34,7 @@ If your **Pulse User** was username: ``foo`` and password: ``bar``, your config
 string would be:
 
 ```bash
-PULSE_DATA_INGESTION_CONFIG="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
+PULSE_URI="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
 ```
 
 
@@ -47,7 +47,7 @@ PULSE_DATA_INGESTION_CONFIG="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
 ``ssh`` into Vagrant, then set your config environment variable:
 
 ```bash
-export PULSE_DATA_INGESTION_CONFIG="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
+export PULSE_URI="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
 ```
 
 Next, run the Treeherder management command to read Pushes from the default **Pulse**
@@ -65,7 +65,7 @@ ingested in step 5.
 
 ### 4. Read Jobs
 
-As in step 3, open a Vagrant terminal and export your ``PULSE_DATA_INGESTION_CONFIG``
+As in step 3, open a Vagrant terminal and export your ``PULSE_URI``
 variable.  Then run the following management command:
 
 ```bash
