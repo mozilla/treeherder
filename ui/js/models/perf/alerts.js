@@ -205,7 +205,7 @@ treeherder.factory('PhAlerts', [
             }
 
             if (alertsInSummary.length > 1) {
-                title = _.min(alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
+                title = Math.min.apply(null, alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
                     _.max(alertsInSummary.map(alert => alert.amount_pct)) + '%';
             } else if (alertsInSummary.length === 1) {
                 title = alertsInSummary[0].amount_pct + '%';
