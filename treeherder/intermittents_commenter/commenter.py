@@ -70,6 +70,7 @@ class Commenter(object):
             # recommend disabling when more than 150 failures tracked over 21 days
             if alt_bug_stats[bug_id]['total'] >= 150:
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                # if fetch_bug_details fails (called in check_bug_info), None is returned
                 if bug_info is None:
                     continue
 
@@ -81,6 +82,7 @@ class Commenter(object):
                 priority = self.assign_priority(priority, counts)
                 if priority == 2:
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    # if fetch_bug_details fails (called in check_bug_info), None is returned
                     if bug_info is None:
                         continue
 
@@ -89,6 +91,7 @@ class Commenter(object):
                 # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
                 if (counts['total'] < 20):
                     bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                    # if fetch_bug_details fails (called in check_bug_info), None is returned
                     if bug_info is None:
                         continue
 
@@ -98,6 +101,7 @@ class Commenter(object):
                     rank = top_bugs.index(bug_id)+1
             else:
                 bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
+                # if fetch_bug_details fails (called in check_bug_info), None is returned
                 if bug_info is None:
                     continue
 
