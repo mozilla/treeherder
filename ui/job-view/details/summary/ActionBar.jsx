@@ -271,7 +271,7 @@ export default class ActionBar extends React.Component {
   }
 
   customJobAction() {
-    const { repoName, selectedJob } = this.props;
+    const { repoName, selectedJob, user } = this.props;
 
     this.$uibModal.open({
       template: tcJobActionsTemplate,
@@ -281,6 +281,7 @@ export default class ActionBar extends React.Component {
         job: () => selectedJob,
         repoName: () => repoName,
         resultsetId: () => selectedJob.result_set_id,
+        isLoggedIn: () => user.isLoggedIn,
       },
     });
   }

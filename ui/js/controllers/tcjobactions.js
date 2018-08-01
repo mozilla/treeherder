@@ -7,9 +7,9 @@ import treeherder from '../treeherder';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 
 treeherder.controller('TCJobActionsCtrl', [
-    '$scope', '$uibModalInstance', 'ThResultSetStore',
+    '$scope', '$uibModalInstance', 'ThResultSetStore', 'isLoggedIn',
     'thNotify', 'job', 'repoName', 'resultsetId', 'tcactions',
-    function ($scope, $uibModalInstance, ThResultSetStore,
+    function ($scope, $uibModalInstance, ThResultSetStore, isLoggedIn,
              thNotify,
              job, repoName, resultsetId, tcactions) {
         const ajv = new Ajv({ format: 'full', verbose: true, allErrors: true });
@@ -18,6 +18,7 @@ treeherder.controller('TCJobActionsCtrl', [
         let originalTask;
         let validate;
         $scope.input = {};
+        $scope.isLoggedIn = isLoggedIn;
 
         $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');

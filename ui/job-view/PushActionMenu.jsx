@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { getUrlParam } from '../helpers/location';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
+import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -14,15 +15,7 @@ export default class PushActionMenu extends React.PureComponent {
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
-
-    // customPushActions uses $uibModal which doesn't work well in the
-    // unit tests.  So if we fail to inject here, that's OK.
-    // Bug 1437736
-    try {
-      this.customPushActions = $injector.get('customPushActions');
-    } catch (ex) {
-      this.customPushActions = {};
-    }
+    this.$uibModal = $injector.get('$uibModal');
 
     this.revision = this.props.revision;
     this.pushId = this.props.pushId;
@@ -106,8 +99,24 @@ export default class PushActionMenu extends React.PureComponent {
       });
   }
 
+  customJobAction() {
+    const { repoName, pushId, isLoggedIn } = this.props;
+
+    this.$uibModal.open({
+      template: tcJobActionsTemplate,
+      controller: 'TCJobActionsCtrl',
+      size: 'lg',
+      resolve: {
+        job: () => null,
+        repoName: () => repoName,
+        resultsetId: () => pushId,
+        isLoggedIn: () => isLoggedIn,
+      },
+    });
+  }
+
   render() {
-    const { isLoggedIn, isStaff, repoName, revision, pushId, runnableVisible,
+    const { isLoggedIn, isStaff, repoName, revision, runnableVisible,
             hideRunnableJobsCb, showRunnableJobsCb } = this.props;
     const { topOfRangeUrl, bottomOfRangeUrl } = this.state;
 
@@ -165,7 +174,7 @@ export default class PushActionMenu extends React.PureComponent {
           >Mark with Bugherder</a></li>
           <li
             className="dropdown-item"
-            onClick={() => this.customPushActions.open(repoName, pushId)}
+            onClick={() => this.customJobAction()}
             title="View/Edit/Submit Action tasks for this push"
           >Custom Push Action...</li>
           <li><a
