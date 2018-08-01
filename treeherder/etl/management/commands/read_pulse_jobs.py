@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
-from kombu import Exchange
 
 from treeherder.services.pulse import (JobConsumer,
+                                       get_exchange,
                                        pulse_conn)
 
 
@@ -27,13 +27,7 @@ class Command(BaseCommand):
             consumer = JobConsumer(connection, "jobs")
 
             for source in sources:
-                # When creating this exchange object, it is important that it
-                # be set to ``passive=True``.  This will prevent any attempt by
-                # Kombu to actually create the exchange.
-                exchange = Exchange(source["exchange"], type="topic",
-                                    passive=True)
-                # ensure the exchange exists.  Throw an error if it doesn't
-                exchange(connection).declare()
+                exchange = get_exchange(connection, source["exchange"])
 
                 for project in source["projects"]:
                     for destination in source['destinations']:
