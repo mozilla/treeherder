@@ -25,6 +25,7 @@ class PulseConsumer(ConsumerMixin):
         self.connection = connection
         self.consumers = []
         self.queue = None
+        # TODO: use connection.userid here?
         config = settings.PULSE_DATA_INGESTION_CONFIG
         if not config:
             raise ValueError("PULSE_DATA_INGESTION_CONFIG is required for the "
