@@ -346,7 +346,7 @@ def pulse_consumer(exchange, request):
         exchange
     )
 
-    connection = kombu.Connection(settings.PULSE_URI)
+    connection = kombu.Connection(settings.PULSE_URL)
 
     exchange = kombu.Exchange(
         name=exchange_name,

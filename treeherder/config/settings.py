@@ -494,8 +494,8 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
 # Pulse
-# The pulse uri that is passed to kombu
-PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
+# The pulse url that is passed to kombu
+PULSE_URL = env("PULSE_URL", default="amqps://guest:guest@pulse.mozilla.org/")
 
 # Note we will never publish any pulse messages unless the exchange namespace is
 # set this normally is your pulse username.

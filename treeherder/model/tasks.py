@@ -32,7 +32,7 @@ class LazyPublisher(object):
         if not self.publisher and settings.PULSE_EXCHANGE_NAMESPACE:
             self.publisher = TreeherderPublisher(
                 namespace=settings.PULSE_EXCHANGE_NAMESPACE,
-                uri=settings.PULSE_URI,
+                uri=settings.PULSE_URL,
                 schemas=PULSE_SCHEMAS
             )
 
