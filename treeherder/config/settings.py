@@ -501,32 +501,6 @@ PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
 # set this normally is your pulse username.
 PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
 
-# Specifies the Pulse exchanges Treeherder will ingest data from.  This list
-# will be updated as new applications come online that Treeherder supports.
-# Treeherder will subscribe with routing keys that are all combinations of
-# ``project`` and ``destination`` in the form of:
-#     <destination>.<project>
-# Wildcards such as ``#`` and ``*`` are supported for either field.
-PULSE_DATA_INGESTION_SOURCES = env.json(
-    "PULSE_DATA_INGESTION_SOURCES",
-    default=[
-        {
-            "exchange": "exchange/taskcluster-treeherder/v1/jobs",
-            "projects": [
-                '#'
-                # some specific repos TC can ingest from
-                # 'mozilla-central.#',
-                # 'mozilla-inbound.#'
-            ],
-            "destinations": [
-                '#'
-                # 'production',
-                # 'staging'
-            ]
-        }
-        # ... other CI systems
-    ])
-
 PULSE_PUSH_SOURCES = env.json(
     "PULSE_PUSH_SOURCES",
     default=[{
