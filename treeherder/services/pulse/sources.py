@@ -38,4 +38,29 @@ def get_job_sources():
     return sources
 
 
+def get_push_sources():
+    """
+    Get Push ingestion source locations.
+
+    Specifies the Pulse exchanges Treeherder will ingest data from for Push
+    data.
+    """
+    sources = env.json(
+        "PULSE_PUSH_SOURCES",
+        default=[{
+            "exchange": "exchange/taskcluster-github/v1/push",
+            "routing_keys": ['#'],
+        }, {
+            "exchange": "exchange/taskcluster-github/v1/pull-request",
+            "routing_keys": ['#'],
+        }, {
+            "exchange": "exchange/hgpushes/v1",
+            "routing_keys": ["#"]
+        }],
+    )
+
+    return sources
+
+
 job_sources = get_job_sources()
+push_sources = get_push_sources()
