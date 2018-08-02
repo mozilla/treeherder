@@ -507,17 +507,3 @@ PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
 # Note we will never publish any pulse messages unless the exchange namespace is
 # set this normally is your pulse username.
 PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
-
-PULSE_PUSH_SOURCES = env.json(
-    "PULSE_PUSH_SOURCES",
-    default=[{
-        "exchange": "exchange/taskcluster-github/v1/push",
-        "routing_keys": ['#'],
-    }, {
-        "exchange": "exchange/taskcluster-github/v1/pull-request",
-        "routing_keys": ['#'],
-    }, {
-        "exchange": "exchange/hgpushes/v1",
-        "routing_keys": ["#"]
-    }],
-)
