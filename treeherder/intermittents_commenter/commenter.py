@@ -141,7 +141,8 @@ class Commenter(object):
                 change_priority = '--'
 
             stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
-            if stockwell_text is not None and stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
+            # update whiteboard text unless it already contains WHITEBOARD_NEEDSWORK_OWNER
+            if stockwell_text is None or stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
                 whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_NEEDSWORK_OWNER)
 
         return change_priority, whiteboard
@@ -149,7 +150,8 @@ class Commenter(object):
     def check_needswork(self, whiteboard):
         if whiteboard is not None:
             stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
-            # covers all 'needswork' possibilities, ie 'needswork:owner'
+            # update all [stockwell needswork] bugs (including all 'needswork' possibilities,
+            # ie 'needswork:owner') and update whiteboard to [stockwell unknown]
             if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
                 whiteboard = self.update_whiteboard(whiteboard, '[stockwell unknown]')
 
