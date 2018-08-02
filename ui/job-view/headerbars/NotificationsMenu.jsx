@@ -52,6 +52,7 @@ export default class NotificationsMenu extends React.Component {
         <button
           id="notificationLabel"
           title="Recent notifications"
+          aria-label="Recent notifications"
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn"
         ><span className="fa fa-bell-o lightgray" /></button>

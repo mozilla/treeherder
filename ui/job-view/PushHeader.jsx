@@ -226,6 +226,7 @@ export default class PushHeader extends React.PureComponent {
             <button
               className="btn btn-sm btn-push pin-all-jobs-btn"
               title="Pin all available jobs in this push"
+              aria-label="Pin all available jobs in this push"
               onClick={this.pinAllShownJobs}
             >
               <span
