@@ -281,8 +281,6 @@ CELERY_QUEUES = [
           routing_key='crossreference_error_lines.failures'),
     Queue('log_autoclassify', Exchange('default'), routing_key='autoclassify.normal'),
     Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
-    # Queue for mirroring the failure classification activity to Elasticsearch.
-    Queue('classification_mirroring', Exchange('default'), routing_key='classification_mirroring'),
     Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
@@ -481,11 +479,6 @@ COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 # Log Parsing
 PARSER_MAX_STEP_ERROR_LINES = 100
 FAILURE_LINES_CUTOFF = 35
-
-# Orange Factor
-ORANGEFACTOR_SUBMISSION_URL = "https://brasstacks.mozilla.com/orangefactor/api/saveclassification"
-ORANGEFACTOR_HAWK_ID = "treeherder"
-ORANGEFACTOR_HAWK_KEY = env("ORANGEFACTOR_HAWK_KEY", default=None)
 
 # Perfherder
 # Default minimum regression threshold for perfherder is 2% (otherwise

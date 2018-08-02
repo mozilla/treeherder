@@ -9,5 +9,5 @@ cd "$SRC_DIR"
 source vagrant/env.sh
 
 exec newrelic-admin run-program celery -A treeherder worker -c 1 \
-     -Q classification_mirroring,publish_to_pulse -E \
+     -Q publish_to_pulse -E \
      -l INFO -n hp.%h
