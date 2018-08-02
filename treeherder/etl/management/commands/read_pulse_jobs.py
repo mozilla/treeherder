@@ -1,9 +1,8 @@
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
 
 from treeherder.services.pulse import (JobConsumer,
                                        get_exchange,
+                                       job_sources,
                                        pulse_conn)
 
 
@@ -17,16 +16,12 @@ class Command(BaseCommand):
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        sources = settings.PULSE_DATA_INGESTION_SOURCES
-        if not sources:
-            raise ImproperlyConfigured("PULSE_DATA_INGESTION_SOURCES must be set")
-
         new_bindings = []
 
         with pulse_conn as connection:
             consumer = JobConsumer(connection, "jobs")
 
-            for source in sources:
+            for source in job_sources:
                 exchange = get_exchange(connection, source["exchange"])
 
                 for project in source["projects"]:
