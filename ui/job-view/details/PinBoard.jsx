@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, FormGroup, Input, FormFeedback } from 'reactstrap';
+import { FormGroup, Input, FormFeedback } from 'reactstrap';
 import $ from 'jquery';
 import Mousetrap from 'mousetrap';
 
@@ -448,55 +448,52 @@ export default class PinBoard extends React.Component {
           <div id="pinboard-classification">
             <div className="pinboard-label">classification</div>
             <div id="pinboard-classification-content" className="content">
-              <Form onSubmit={this.completeClassification} className="form">
-                <FormGroup>
-                  <Input
-                    type="select"
-                    name="failureClassificationId"
-                    id="pinboard-classification-select"
-                    className="classification-select"
-                    value={failureClassificationId}
-                    onChange={evt => this.setClassificationId(evt)}
-                  >
-                    {classificationTypes.classificationOptions.map(opt => (
-                      <option value={opt.id} key={opt.id}>{opt.name}</option>
-                    ))}
-                  </Input>
-                </FormGroup>
-                {/* Classification comment */}
-                <div className="classification-comment-container">
-                  <input
-                    id="classification-comment"
-                    type="text"
-                    className="form-control add-classification-input"
-                    onChange={evt => this.setClassificationText(evt)}
-                    onPaste={this.pasteSHA}
-                    placeholder="click to add comment"
-                    value={failureClassificationComment}
-                  />
-                  {/* blur-this */}
-                  {failureClassificationId === 2 && <div>
-                    <FormGroup>
-                      <Input
-                        id="pinboard-revision-select"
-                        className="classification-select"
-                        type="select"
-                        defaultValue={0}
-                        onChange={evt => this.setClassificationText(evt)}
-                      >
-                        <option value="0" disabled>Choose a recent
-                          commit
-                        </option>
-                        {revisionList.slice(0, 20).map(tip => (<option
-                          title={tip.title}
-                          value={tip.revision}
-                          key={tip.revision}
-                        >{tip.revision.slice(0, 12)} {tip.author}</option>))}
-                      </Input>
-                    </FormGroup>
-                  </div>}
-                </div>
-              </Form>
+              <FormGroup>
+                <Input
+                  type="select"
+                  name="failureClassificationId"
+                  id="pinboard-classification-select"
+                  className="classification-select"
+                  value={failureClassificationId}
+                  onChange={evt => this.setClassificationId(evt)}
+                >
+                  {classificationTypes.classificationOptions.map(opt => (
+                    <option value={opt.id} key={opt.id}>{opt.name}</option>
+                  ))}
+                </Input>
+              </FormGroup>
+              {/* Classification comment */}
+              <div className="classification-comment-container">
+                <input
+                  id="classification-comment"
+                  type="text"
+                  className="form-control add-classification-input"
+                  onChange={evt => this.setClassificationText(evt)}
+                  onPaste={this.pasteSHA}
+                  placeholder="click to add comment"
+                  value={failureClassificationComment}
+                />
+                {failureClassificationId === 2 && <div>
+                  <FormGroup>
+                    <Input
+                      id="pinboard-revision-select"
+                      className="classification-select"
+                      type="select"
+                      defaultValue={0}
+                      onChange={evt => this.setClassificationText(evt)}
+                    >
+                      <option value="0" disabled>Choose a recent
+                        commit
+                      </option>
+                      {revisionList.slice(0, 20).map(tip => (<option
+                        title={tip.title}
+                        value={tip.revision}
+                        key={tip.revision}
+                      >{tip.revision.slice(0, 12)} {tip.author}</option>))}
+                    </Input>
+                  </FormGroup>
+                </div>}
+              </div>
             </div>
           </div>
 
