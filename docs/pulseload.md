@@ -95,24 +95,62 @@ See [Running the unminified UI with Vagrant] for more info.
 Advanced Configuration
 ----------------------
 
-### Changing which data to ingest
+### Changing which Data to Ingest
 
-If you don't want all the sources provided by default in ``settings.py``, you
-can specify the exchange(s) to listen to for jobs by modifying
-``PULSE_DATA_INGESTION_SOURCES``.  For instance, you could specify the projects
-as only ``try`` and ``mozilla-central`` by setting:
+``treeherder.services.pulse.sources`` provides default sources for both Jobs and Pushes.
+However you can override these defaults using the standard env methods show below.
 
-```bash
-export PULSE_DATA_INGESTION_SOURCES='[{"exchange": "exchange/taskcluster-treeherder/v1/jobs", "destinations": ["#"], "projects": ["try", "mozilla-central"]}]'
-```
-
-To change which exchanges you listen to for pushes, you would modify
-``PULSE_PUSH_SOURCES``.  For instance, to get only **Gitbub** pushes for Bugzilla,
-you would set:
-
+#### Pushes
+``PULSE_PUSH_SOURCES`` defines a list of dictionaries with exchange and routing key strings.
 ```bash
 export PULSE_PUSH_SOURCES='[{"exchange": "exchange/taskcluster-github/v1/push","routing_keys": ["bugzilla#"]}]'
 ```
+
+#### Jobs
+``PULSE_JOB_EXCHANGES`` defines a list of exchanges to listen to.
+```bash
+export PULSE_JOB_EXCHANGES="exchange/taskcluster-treeherder/v1/jobs,exchange/fxtesteng/jobs"
+```
+
+To change which exchanges you listen to for pushes, you would modify
+``PULSE_PUSH_SOURCES``.  For instance, to get only Gitbub pushes for Bugzilla,
+you would set:
+
+``PULSE_JOB_PROJECTS`` defines a list of projects to listen to.
+```bash
+export PULSE_JOB_PROJECTS="try,mozilla-central"
+```
+
+``PULSE_JOB_DESTINATIONS`` defines a list of destinations to push to.
+```bash
+export PULSE_JOB_DESTINATIONS="#"
+```
+
+The source settings are combined such that all `projects` and `destinations` are applied to **each** `exchange`.
+The example settings above would produce the following settings:
+
+```python
+[{
+    "exchange": "exchange/taskcluster-treeherder/v1/jobs",
+    "projects": [
+        "try",
+        "mozilla-central",
+    ],
+    "destinations": [
+        "#",
+    ],
+}, {
+    "exchange": "exchange/fxtesteng/jobs",
+    "projects": [
+        "try",
+        "mozilla-central",
+    ],
+    "destinations": [
+        "#",
+    ],
+}]
+```
+
 
 ### Advanced Celery options
 
@@ -128,7 +166,7 @@ celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultset
 * The ``store_pulse_resultsets`` queue will ingest all the pushes from the exchanges
   specified in ``PULSE_PUSH_SOURCES``.  This can be Mercurial and Github
 * The ``store_pulse_jobs`` queue will ingest all the jobs from the exchanges
-  specified in ``PULSE_DATA_INGESTION_SOURCES``.
+  specified in ``PULSE_JOB_EXCHANGES``.
 
 ```eval_rst
 .. note:: Any job that comes from **Pulse** that does not have an associated push will be skipped.
