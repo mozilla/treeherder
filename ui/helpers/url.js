@@ -133,3 +133,9 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   params.set('repo', newRepoName);
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
+
+export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
+
+export const hgBaseUrl = 'https://hg.mozilla.org/';
+
+export const dxrBaseUrl = 'https://dxr.mozilla.org/';

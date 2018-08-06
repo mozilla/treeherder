@@ -1,0 +1,233 @@
+import React from 'react';
+import { mount } from 'enzyme';
+import * as fetchMock from 'fetch-mock';
+
+import { hgBaseUrl, bzBaseUrl } from '../../../../ui/helpers/url';
+import { isReftest } from '../../../../ui/helpers/job';
+import BugFiler from '../../../../ui/job-view/details/BugFiler';
+
+describe('BugFiler', function () {
+  const fullLog = 'https://queue.taskcluster.net/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log';
+  const parsedLog = 'http://localhost:5000/logviewer.html#?job_id=89017089&repo=mozilla-inbound';
+  const reftest = '';
+  const selectedJob = {
+    job_group_name: 'Mochitests executed by TaskCluster',
+    job_type_name: 'test-linux64/debug-mochitest-browser-chrome-10',
+  };
+  const suggestions = [
+    { search: 'ShutdownLeaks | process() called before end of test suite' },
+    { search: 'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application terminated with exit code 11' },
+    { search: 'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]' },
+    { search: 'leakcheck | default process: missing output line for total leaks!' },
+    { search: '# TBPL FAILURE #' },
+  ];
+  const successCallback = () => {};
+  const toggle = () => {};
+  const isOpen = true;
+
+  beforeEach(() => {
+    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
+
+    fetchMock.get(
+      `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js`,
+      {
+        aggregate: {
+          bug_component_counts: [[['Firefox', 'Search'], 1]],
+          recommended_bug_component: ['Firefox', 'Search'],
+        },
+        files: {
+          'browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js': {
+            bug_component: ['Firefox', 'Search'],
+          },
+        },
+      },
+    );
+
+    fetchMock.get(
+      `${bzBaseUrl}rest/prod_comp_search/firefox%20::%20search?limit=5`,
+      { products: [
+        { product: 'Firefox' },
+        { component: 'Search', product: 'Firefox' },
+        { product: 'Marketplace' },
+        { component: 'Search', product: 'Marketplace' },
+        { product: 'Firefox for Android' },
+        { component: 'Search Activity', product: 'Firefox for Android' },
+        { product: 'Firefox OS' },
+        { component: 'Gaia::Search', product: 'Firefox OS' },
+        { product: 'Cloud Services' },
+        { component: 'Operations: Storage', product: 'Cloud Services' },
+      ] },
+    );
+  });
+
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
+  const getBugFilerForSummary = (summary) => {
+    const suggestion = {
+      summary,
+      search_terms: ['browser_searchbar_smallpanel_keyboard_navigation.js", "[@ js::GCMarker::eagerlyMarkChildren]'],
+      search: summary,
+    };
+
+    return mount(
+      <BugFiler
+        isOpen={isOpen}
+        toggle={toggle}
+        suggestion={suggestion}
+        suggestions={suggestions}
+        fullLog={fullLog}
+        parsedLog={parsedLog}
+        reftestUrl={isReftest(selectedJob) ? reftest : ''}
+        successCallback={successCallback}
+        jobGroupName={selectedJob.job_group_name}
+      />,
+    );
+  };
+
+  it('parses a crash suggestion', () => {
+    const summary = 'PROCESS-CRASH | browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]';
+    const bugFiler = getBugFilerForSummary(summary);
+    const parsedSummary = bugFiler.state().parsedSummary;
+    expect(parsedSummary[0][0]).toEqual('browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js');
+  });
+
+  it('should parse mochitest-bc summaries', () => {
+    const rawSummary = 'browser/components/sessionstore/test/browser_625016.js | observe1: 1 window in data written to disk - Got 0, expected 1';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('browser/components/sessionstore/test/browser_625016.js');
+    expect(summary[0][1]).toBe('observe1: 1 window in data written to disk - Got 0, expected 1');
+    expect(summary[1]).toBe('browser_625016.js');
+  });
+
+  it('should parse accessibility summaries', () => {
+    const rawSummary = 'chrome://mochitests/content/a11y/accessible/tests/mochitest/states/test_expandable.xul' +
+      ' | uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at ' +
+      'searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('accessible/tests/mochitest/states/test_expandable.xul');
+    expect(summary[0][1]).toBe('uncaught exception - TypeError: this.textbox.popup.oneOffButtons is undefined at ' +
+                                 'searchbar_XBL_Constructor@chrome://browser/content/search/search.xml:95:9');
+    expect(summary[1]).toBe('test_expandable.xul');
+  });
+
+  it('should parse xpcshell summaries', () => {
+    const rawSummary = 'xpcshell-child-process.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('dom/indexedDB/test/unit/test_rename_objectStore_errors.js');
+    expect(summary[0][1]).toBe('application crashed [@ mozalloc_abort(char const*)]');
+    expect(summary[1]).toBe('test_rename_objectStore_errors.js');
+  });
+
+  it('should parse xpcshell unpack summaries', () => {
+    const rawSummary = 'xpcshell-unpack.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('dom/indexedDB/test/unit/test_rename_objectStore_errors.js');
+    expect(summary[0][1]).toBe('application crashed [@ mozalloc_abort(char const*)]');
+    expect(summary[1]).toBe('test_rename_objectStore_errors.js');
+  });
+
+  it('should parse xpcshell dom summaries', () => {
+    const rawSummary = 'xpcshell.ini:dom/indexedDB/test/unit/test_rename_objectStore_errors.js | application crashed [@ mozalloc_abort(char const*)]';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('dom/indexedDB/test/unit/test_rename_objectStore_errors.js');
+    expect(summary[0][1]).toBe('application crashed [@ mozalloc_abort(char const*)]');
+    expect(summary[1]).toBe('test_rename_objectStore_errors.js');
+  });
+
+  it('should parse Windows reftests on C drive summaries', () => {
+    const rawSummary = 'file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/variables/variable-supports-12.html | application timed out after 330 seconds with no output';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('layout/reftests/w3c-css/submitted/variables/variable-supports-12.html');
+    expect(summary[0][1]).toBe('application timed out after 330 seconds with no output');
+    expect(summary[1]).toBe('variable-supports-12.html');
+  });
+
+  it('should parse Linux reftest summaries', () => {
+    const rawSummary = 'file:///home/worker/workspace/build/tests/reftest/tests/image/test/reftest/encoders-lossless/size-7x7.png | application timed out after 330 seconds with no output';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('image/test/reftest/encoders-lossless/size-7x7.png');
+    expect(summary[0][1]).toBe('application timed out after 330 seconds with no output');
+    expect(summary[1]).toBe('size-7x7.png');
+  });
+
+  it('should parse Windows reftests on Z drive summaries', () => {
+    const rawSummary = 'file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full.html == file:///Z:/task_1491428153/build/tests/reftest/tests/layout/reftests/font-face/src-list-local-full-ref.html | image comparison, max difference: 255, number of differing pixels: 5184';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('layout/reftests/font-face/src-list-local-full.html == layout/reftests/font-face/src-list-local-full-ref.html');
+    expect(summary[0][1]).toBe('image comparison, max difference: 255, number of differing pixels: 5184');
+    expect(summary[1]).toBe('src-list-local-full.html');
+  });
+
+  it('should parse android reftests summaries', () => {
+    const rawSummary = 'http://10.0.2.2:8854/tests/layout/reftests/css-display/display-contents-style-inheritance-1.html == http://10.0.2.2:8854/tests/layout/reftests/css-display/display-contents-style-inheritance-1-ref.html | image comparison, max difference: 255, number of differing pixels: 699';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('layout/reftests/css-display/display-contents-style-inheritance-1.html == layout/reftests/css-display/display-contents-style-inheritance-1-ref.html');
+    expect(summary[0][1]).toBe('image comparison, max difference: 255, number of differing pixels: 699');
+    expect(summary[1]).toBe('display-contents-style-inheritance-1.html');
+  });
+
+  it('should parse reftest unexpected pass summaries', () => {
+    const rawSummary = 'REFTEST TEST-UNEXPECTED-PASS | file:///home/worker/workspace/build/tests/reftest/tests/layout/' +
+      'reftests/backgrounds/vector/empty/wide--cover--width.html == file:///home/worker/workspace/' +
+      'build/tests/reftest/tests/layout/reftests/backgrounds/vector/empty/ref-wide-lime.html | image comparison';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('TEST-UNEXPECTED-PASS');
+    expect(summary[0][1]).toBe('layout/reftests/backgrounds/vector/empty/wide--cover--width.html == layout/reftests/backgrounds/vector/empty/ref-wide-lime.html');
+    expect(summary[0][2]).toBe('image comparison');
+    expect(summary[1]).toBe('wide--cover--width.html');
+  });
+
+  it('should parse finding the filename when the `TEST-FOO` is not omitted', () => {
+    const rawSummary = 'TEST-UNEXPECTED-CRASH | /service-workers/service-worker/xhr.https.html | expected OK';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const summary = bugFiler.state().parsedSummary;
+    expect(summary[0][0]).toBe('TEST-UNEXPECTED-CRASH');
+    expect(summary[0][1]).toBe('/service-workers/service-worker/xhr.https.html');
+    expect(summary[0][2]).toBe('expected OK');
+    expect(summary[1]).toBe('xhr.https.html');
+  });
+
+  it('should strip omitted leads from thisFailure', () => {
+    const suggestions = [
+      { bugs: {},
+        search_terms: [],
+        search: 'TEST-UNEXPECTED-FAIL | browser/extensions/pdfjs/test/browser_pdfjs_views.js | Test timed out -' },
+      { bugs: {},
+        search_terms: [],
+        search: 'TEST-UNEXPECTED-FAIL | browser/extensions/pdfjs/test/browser_pdfjs_views.js | Found a tab after previous test timed out: about:blank -' },
+      { bugs: {},
+        search_terms: [],
+        search: 'REFTEST TEST-UNEXPECTED-PASS | flee | floo' },
+    ];
+    const bugFiler = mount(
+      <BugFiler
+        isOpen={isOpen}
+        toggle={toggle}
+        suggestion={suggestions[0]}
+        suggestions={suggestions}
+        fullLog={fullLog}
+        parsedLog={parsedLog}
+        reftestUrl={isReftest(selectedJob) ? reftest : ''}
+        successCallback={successCallback}
+        jobGroupName={selectedJob.job_group_name}
+      />,
+    );
+
+    const thisFailure = bugFiler.state().thisFailure;
+    expect(thisFailure).toBe('browser/extensions/pdfjs/test/browser_pdfjs_views.js | Test timed out -\n' +
+                             'browser/extensions/pdfjs/test/browser_pdfjs_views.js | Found a tab after previous test timed out: about:blank -\n' +
+                             'TEST-UNEXPECTED-PASS | flee | floo');
+  });
+});

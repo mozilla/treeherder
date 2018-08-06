@@ -4,10 +4,12 @@ import { FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 import Highlighter from 'react-highlight-words';
 
-import intermittentTemplate from '../../../../partials/main/intermittent.html';
 import { getSearchWords } from '../../../../helpers/display';
 import { isReftest } from '../../../../helpers/job';
 import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/url';
+import BugFiler from '../../BugFiler';
+import { thEvents } from '../../../../js/constants';
+import { getAllUrlParams } from '../../../../helpers/location';
 
 /**
  * Editable option
@@ -17,55 +19,41 @@ export default class LineOption extends React.Component {
     super(props);
     const { $injector } = props;
 
-    this.$uibModal = $injector.get('$uibModal');
     this.$rootScope = $injector.get('$rootScope');
+    this.thNotify = $injector.get('thNotify');
+
+    this.state = {
+      isBugFilerOpen: false,
+      repoName: getAllUrlParams().repo,
+    };
   }
 
   componentDidMount() {
     this.fileBug = this.fileBug.bind(this);
+    this.toggleBugFiler = this.toggleBugFiler.bind(this);
+    this.bugFilerCallback = this.bugFilerCallback.bind(this);
   }
 
   fileBug() {
-    const { job, errorLine, selectedOption, optionModel, onManualBugNumberChange } = this.props;
-    const repoName = this.$rootScope.repoName;
-    let logUrl = job.logs.filter(x => x.name.endsWith('_json'));
-    logUrl = logUrl[0] ? logUrl[0].url : job.logs[0];
-    const reftestUrl = getReftestUrl(logUrl);
-    const crashSignatures = [];
-    const crashRegex = /application crashed \[@ (.+)\]$/g;
-    const crash = errorLine.data.bug_suggestions.search.match(crashRegex);
-
-    if (crash) {
-      const signature = crash[0].split('application crashed ')[1];
-      if (!crashSignatures.includes(signature)) {
-        crashSignatures.push(signature);
-      }
-    }
-
-    const modalInstance = this.$uibModal.open({
-       template: intermittentTemplate,
-       controller: 'BugFilerCtrl',
-       size: 'lg',
-       openedClass: 'filer-open',
-       resolve: {
-         summary: () => errorLine.data.bug_suggestions.search,
-         search_terms: () => errorLine.data.bug_suggestions.search_terms,
-         fullLog: () => logUrl,
-         parsedLog: () => `${location.origin}/${getLogViewerUrl(job.id, repoName)}`,
-         reftest: () => (isReftest(job) ? `${reftestUrl}&only_show_unexpected=1` : ''),
-         selectedJob: () => job,
-         allFailures: () => [errorLine.data.bug_suggestions.search.split(' | ')],
-         crashSignatures: () => crashSignatures,
-         successCallback: () => (data) => {
-           const bugId = data.success;
-           window.open(getBugUrl(bugId));
-           onManualBugNumberChange(optionModel, `${bugId}`);
-         },
-       },
-     });
+    const { selectedOption, optionModel } = this.props;
 
     selectedOption.id = optionModel.id;
-    modalInstance.opened.then(() => modalInstance.initiate());
+    this.setState({ isBugFilerOpen: true });
+  }
+
+  toggleBugFiler() {
+    this.setState({ isBugFilerOpen: !this.state.isBugFilerOpen });
+  }
+
+  bugFilerCallback(data) {
+    const { addBug, onManualBugNumberChange, optionModel } = this.props;
+    const bugId = data.success;
+
+    addBug({ id: bugId });
+    this.$rootScope.$evalAsync(this.$rootScope.$emit(thEvents.saveClassification));
+    // Open the newly filed bug in a new tab or window for further editing
+    window.open(getBugUrl(bugId));
+    onManualBugNumberChange(optionModel, `${bugId}`);
   }
 
   render() {
@@ -83,7 +71,10 @@ export default class LineOption extends React.Component {
       pinnedJobs,
       addBug,
     } = this.props;
+    const { isBugFilerOpen, repoName } = this.state;
     const option = optionModel;
+    let logUrl = job.logs.filter(x => x.name.endsWith('_json'));
+    logUrl = logUrl[0] ? logUrl[0].url : job.logs[0].url;
 
     return (
       <div className="classification-option">
@@ -182,6 +173,18 @@ export default class LineOption extends React.Component {
             {match.matcher.name} ({match.score})
           </span>))}
         </div>}
+        {isBugFilerOpen && <BugFiler
+          isOpen={isBugFilerOpen}
+          toggle={this.toggleBugFiler}
+          suggestion={errorLine.data.bug_suggestions}
+          suggestions={[errorLine.data.bug_suggestions]}
+          fullLog={logUrl}
+          parsedLog={`${location.origin}/${getLogViewerUrl(job.id, repoName)}`}
+          reftestUrl={isReftest(job) ? `${getReftestUrl(logUrl)}&only_show_unexpected=1` : ''}
+          successCallback={this.bugFilerCallback}
+          jobGroupName={job.job_group_name}
+          notify={this.thNotify}
+        />}
       </div>
     );
   }

@@ -40,6 +40,5 @@ import './js/models/resultsets_store';
 import './js/models/repository';
 import './js/models/perf/series';
 import './js/controllers/main';
-import './js/controllers/bugfiler';
 import './js/controllers/tcjobactions';
 import './js/filters';
