@@ -577,7 +577,7 @@ export default class BugFiler extends React.Component {
                 </div>
 
               </div>
-              {!!crashSignatures.length && <div id="modalCrashSignatureDiv">
+              {!!crashSignatures.length && <div>
                 <label>Signature:</label>
                 <Input
                   type="textarea"
@@ -603,7 +603,7 @@ BugFiler.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   suggestion: PropTypes.object.isRequired,
-  suggestions: PropTypes.array.isRequired, // eslint-disable-line
+  suggestions: PropTypes.array.isRequired,
   fullLog: PropTypes.string.isRequired,
   parsedLog: PropTypes.string.isRequired,
   reftestUrl: PropTypes.string.isRequired,
