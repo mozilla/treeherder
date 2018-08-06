@@ -491,8 +491,9 @@ perf.controller('AlertsCtrl', [
                 if ($scope.alertSummaries === undefined) {
                     $scope.alertSummaries = alertSummaries;
                 } else {
-                    $scope.alertSummaries = _.union($scope.alertSummaries,
-                                                    alertSummaries);
+                    $scope.alertSummaries = [...new Set([
+                        ...$scope.alertSummaries,
+                        ...alertSummaries])];
                 }
                 updateAlertVisibility();
             });

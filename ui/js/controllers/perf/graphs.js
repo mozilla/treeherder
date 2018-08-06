@@ -406,13 +406,11 @@ perf.controller('GraphsCtrl', [
                     });
                 }
                 // highlight the datapoints too
-                series.highlightedPoints = _.union(
-                    series.highlightedPoints,
-                    _.map(
-                        series.flotSeries.resultSetData,
-                        function (seriesResultSetId, index) {
-                            return resultSetId === seriesResultSetId ? index : null;
-                        }).filter(v => v));
+                series.highlightedPoints = [...new Set([
+                    ...series.highlightedPoints,
+                    ...series.flotSeries.resultSetData.map((seriesResultSetId, index) => (
+                        resultSetId === seriesResultSetId ? index : null
+                    )).filter(v => v)])];
             }
 
             if ($scope.highlightAlerts) {
@@ -429,20 +427,20 @@ perf.controller('GraphsCtrl', [
             var highlightPromises = [];
             $scope.highlightedRevisions.forEach((rev) => {
                 if (rev && rev.length === 12) {
-                    highlightPromises = _.union(
-                        highlightPromises, $scope.seriesList.map(function (series) {
+                    highlightPromises = [...new Set([
+                        ...highlightPromises,
+                        ...$scope.seriesList.map((series) => {
                             if (series.visible) {
                                 return ThResultSetModel.getResultSetsFromRevision(
-                                    series.projectName, rev).then(
-                                    function (resultSets) {
+                                    series.projectName, rev).then((resultSets) => {
                                         addHighlightedDatapoint(series, resultSets[0].id);
-                                    }, function () {
+                                    }, () => {
                                             /* ignore cases where no result set exists
                                            for revision */
                                     });
                             }
                             return null;
-                        }));
+                        })])];
                 }
             });
             $q.all(highlightPromises).then(function () {
@@ -1101,8 +1099,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                                 );
                                 // filter out tests which are already displayed or are
                                 // already selected
-                                _.union(testsDisplayed, $scope.testsToAdd).forEach(
-                                    function (test) {
+                                [...new Set([...testsDisplayed, ...$scope.testsToAdd])].forEach((test) => {
                                         _.remove($scope.unselectedTestList, {
                                             projectName: test.projectName,
                                             signature: test.signature });
