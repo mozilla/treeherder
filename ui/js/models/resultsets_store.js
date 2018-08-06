@@ -552,7 +552,8 @@ treeherder.factory('ThResultSetStore', [
                     });
             }
             // retry to fetch the unfetched jobs later
-            _.delay(fetchJobs, 10000, unavailableJobs);
+            setTimeout(fetchJobs, 10000, unavailableJobs);
+
 
         };
 
