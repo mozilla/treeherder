@@ -121,12 +121,7 @@ you would set:
 export PULSE_JOB_PROJECTS="try,mozilla-central"
 ```
 
-``PULSE_JOB_DESTINATIONS`` defines a list of destinations to push to.
-```bash
-export PULSE_JOB_DESTINATIONS="#"
-```
-
-The source settings are combined such that all `projects` and `destinations` are applied to **each** `exchange`.
+The source settings are combined such that all `projects` are applied to **each** `exchange`.
 The example settings above would produce the following settings:
 
 ```python
@@ -136,17 +131,11 @@ The example settings above would produce the following settings:
         "try",
         "mozilla-central",
     ],
-    "destinations": [
-        "#",
-    ],
 }, {
     "exchange": "exchange/fxtesteng/jobs",
     "projects": [
         "try",
         "mozilla-central",
-    ],
-    "destinations": [
-        "#",
     ],
 }]
 ```
