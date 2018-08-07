@@ -25,19 +25,15 @@ class Command(BaseCommand):
                 exchange = get_exchange(connection, source["exchange"])
 
                 for project in source["projects"]:
-                    for destination in source['destinations']:
-                        routing_key = "{}.{}".format(destination, project)
-                        consumer.bind_to(exchange, routing_key)
-                        new_binding_str = consumer.get_binding_str(
-                            exchange.name,
-                            routing_key)
-                        new_bindings.append(new_binding_str)
+                    consumer.bind_to(exchange=exchange, routing_key="#.{}".format(project))
+                    new_binding_str = consumer.get_binding_str(exchange.name, project)
+                    new_bindings.append(new_binding_str)
 
-                        self.stdout.write(
-                            "Pulse queue {} bound to: {}".format(
-                                consumer.queue_name,
-                                new_binding_str
-                            ))
+                    self.stdout.write(
+                        "Pulse queue {} bound to: {}".format(
+                            consumer.queue_name,
+                            new_binding_str
+                        ))
 
             consumer.prune_bindings(new_bindings)
 
