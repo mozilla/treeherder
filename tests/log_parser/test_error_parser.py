@@ -22,6 +22,7 @@ ERROR_TEST_CASES = (
     "[taskcluster-vcs:error] Could not extract archive",
     "[test_linux.sh:error] could not download zip file",
     "14:15:32     INFO -  REFTEST ERROR | file:///Z:/task_1491573689/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/text3/text-justify-inter-character-001.html | application timed out after 330 seconds with no output",
+    "14:09:14     INFO -  PID 5828 | thread '<unnamed>' panicked at 'byte index 340423688 is out of bounds of `localhost:49753`', libcore\str\mod.rs:2094:9",
 )
 
 NON_ERROR_TEST_CASES = (
