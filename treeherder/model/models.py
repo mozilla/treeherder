@@ -621,17 +621,6 @@ class Job(models.Model):
 
         return text_log_error
 
-    def update_autoclassification_bug(self, bug_number):
-        text_log_error = self.get_manual_classification_line()
-
-        if text_log_error is None:
-            return
-
-        classification = (text_log_error.metadata.best_classification if text_log_error.metadata
-                          else None)
-        if classification and classification.bug_number is None:
-            return classification.set_bug(bug_number)
-
 
 class TaskclusterMetadata(models.Model):
     '''
@@ -750,12 +739,36 @@ class BugJobMap(models.Model):
         else:
             return "autoclassifier"
 
-    def save(self, *args, **kwargs):
-        super(BugJobMap, self).save(*args, **kwargs)
+    @classmethod
+    def create(cls, job_id, bug_id, user=None):
+        bug_map = BugJobMap.objects.create(
+            job_id=job_id,
+            bug_id=bug_id,
+            user=user,
+        )
 
-        # if we have a user, then update the autoclassification relations
-        if self.user:
-            self.job.update_autoclassification_bug(self.bug_id)
+        if not user:
+            return bug_map
+
+        # We have a user so this wasn't triggered by auto-classification.
+        # However we need to update the ClassifiedFailure with the bug number
+        # we just used to create the BugJobMap.
+
+        text_log_error = bug_map.job.get_manual_classification_line()
+        if text_log_error is None:
+            return bug_map
+
+        classification = text_log_error.metadata.best_classification if text_log_error.metadata else None
+
+        if classification is None:
+            return bug_map  # no classification to update
+
+        if classification.bug_number:
+            return bug_map  # classification already has a bug number
+
+        classification.set_bug(bug_id)
+
+        return bug_map
 
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.id,
@@ -881,12 +894,11 @@ class JobNote(models.Model):
                           .exclude(bug_number=0)
                           .values_list('bug_number', flat=True))
 
-        for bug_number in bug_numbers:
-            BugJobMap.objects.get_or_create(job=job,
-                                            bug_id=bug_number,
-                                            defaults={
-                                                'user': user
-                                            })
+        existing_maps = set(BugJobMap.objects.filter(bug_id__in=bug_numbers)
+                                             .values_list('bug_id'))
+
+        for bug_number in (bug_numbers - existing_maps):
+            BugJobMap.objects.create(job_id=job.id, bug_id=bug_number, user=user)
 
         # if user is not specified, then this is an autoclassified job note and
         # we should mark it as such

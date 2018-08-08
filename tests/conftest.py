@@ -683,7 +683,8 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
                                          Option)
     jobs = Job.objects.all()
     bug_id = bugs[0].id
-    BugJobMap.objects.create(job=jobs[0], bug_id=bug_id)
+    job_id = jobs[0].id
+    BugJobMap.create(job_id=job_id, bug_id=bug_id)
     query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(
         test_repository.name)
 

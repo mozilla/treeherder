@@ -119,9 +119,11 @@ def test_autoclassified_after_manual_classification(test_user,
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
     bug = bugs.first()
 
-    BugJobMap.objects.create(job=test_job_2,
-                             bug_id=bug.id,
-                             user=test_user)
+    BugJobMap.create(
+        job_id=test_job_2.id,
+        bug_id=bug.id,
+        user=test_user
+    )
     JobNote.objects.create(job=test_job_2,
                            failure_classification_id=4,
                            user=test_user,
