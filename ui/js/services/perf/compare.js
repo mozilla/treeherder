@@ -244,37 +244,35 @@ treeherder.factory('PhCompare', [
                             // will be compared later to another group. Ends up with an object
                             // with description (name/platform) and values.
                             // The values are later processed at getCounterMap as the data arguments.
-                            for (const signatureHash in seriesData) {
-                                if (seriesData[signatureHash]) {
-                                    const signature = seriesList.find(series =>
-                                        series.signature === signatureHash);
-                                    if (signature) {
-                                        // helper method to either return the push
-                                        // index (if getting per-push results) or
-                                        // just the main results map object otherwise
-                                        const _getResultMapEntry = (datum) => {
-                                            if (params.push_id) {
-                                                if (!resultsMap[datum.push_id]) {
-                                                    resultsMap[datum.push_id] = {};
-                                                }
-                                                return resultsMap[datum.push_id];
+                            _.forIn(seriesData, (data, signatureHash) => {
+                                const signature = seriesList.find(series =>
+                                    series.signature === signatureHash);
+                                if (signature) {
+                                    // helper method to either return the push
+                                    // index (if getting per-push results) or
+                                    // just the main results map object otherwise
+                                    const _getResultMapEntry = (datum) => {
+                                        if (params.push_id) {
+                                            if (!resultsMap[datum.push_id]) {
+                                                resultsMap[datum.push_id] = {};
                                             }
-                                            return resultsMap;
-                                        };
-                                        seriesData[signatureHash].forEach((datum) => {
-                                            const entry = _getResultMapEntry(datum);
-                                            if (!entry[signatureHash]) {
-                                                entry[signatureHash] = {
-                                                    ...signature,
-                                                    values: [datum.value],
-                                                };
-                                            } else {
-                                                entry[signatureHash].values.push(datum.value);
-                                            }
-                                        });
-                                    }
+                                            return resultsMap[datum.push_id];
+                                        }
+                                        return resultsMap;
+                                    };
+                                    data.forEach((datum) => {
+                                        const entry = _getResultMapEntry(datum);
+                                        if (!entry[signatureHash]) {
+                                            entry[signatureHash] = {
+                                                ...signature,
+                                                values: [datum.value],
+                                            };
+                                        } else {
+                                            entry[signatureHash].values.push(datum.value);
+                                        }
+                                    });
                                 }
-                            }
+                            });
                         }),
                 )).then(() => resultsMap);
             },

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
@@ -103,21 +104,19 @@ perf.controller('dashCtrl', [
                     }
 
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
-                        for (const signature in seriesData) {
-                            if (seriesData[signature]) {
-                                const series = seriesChunk.find(series =>
-                                    series.signature === signature);
-                                const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
-                                resultsMap[type][signature] = {
-                                    platform: series.platform,
-                                    name: series.testName,
-                                    lowerIsBetter: series.lowerIsBetter,
-                                    hasSubTests: series.hasSubtests,
-                                    option: series.options.indexOf('opt') >= 0 ? 'opt' : 'pgo',
-                                    values: seriesData[signature].map(data => data.value),
-                                };
-                            }
-                        }
+                        _.forIn(seriesData, function (data, signature) {
+                            const series = seriesChunk.find(series =>
+                                series.signature === signature);
+                            const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
+                            resultsMap[type][signature] = {
+                                platform: series.platform,
+                                name: series.testName,
+                                lowerIsBetter: series.lowerIsBetter,
+                                hasSubTests: series.hasSubtests,
+                                option: series.options.indexOf('opt') >= 0 ? 'opt' : 'pgo',
+                                values: data.map(data => data.value),
+                            };
+                        });
                     });
                 })).then(function () {
                     $scope.dataLoading = false;
@@ -307,20 +306,18 @@ perf.controller('dashSubtestCtrl', [
                         params.interval = $scope.selectedTimeRange.value;
                     }
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then((seriesData) => {
-                        for (const signature in seriesData) {
-                            if (seriesData[signature]) {
-                                const series = seriesList.find(series =>
-                                    series.signature === signature);
-                                const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
-                                resultsMap[type][signature] = {
-                                    platform: series.platform,
-                                    suite: series.suite,
-                                    name: PhSeries.getTestName(series),
-                                    lowerIsBetter: series.lowerIsBetter,
-                                    values: seriesData[signature].map(d => d.value),
-                                };
-                            }
-                        }
+                        _.forIn(seriesData, function (data, signature) {
+                            const series = seriesList.find(series =>
+                                series.signature === signature);
+                            const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
+                            resultsMap[type][signature] = {
+                                platform: series.platform,
+                                suite: series.suite,
+                                name: PhSeries.getTestName(series),
+                                lowerIsBetter: series.lowerIsBetter,
+                                values: data.map(d => d.value),
+                            };
+                        });
                     });
                 })).then(function () {
                     $scope.dataLoading = false;
