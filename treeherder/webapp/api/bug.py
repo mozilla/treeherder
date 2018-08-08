@@ -11,20 +11,19 @@ from .serializers import BugJobMapSerializer
 class BugJobMapViewSet(viewsets.ViewSet):
 
     def create(self, request, project):
-        """
-        Add a new relation between a job and a bug
-        """
-        job_id, bug_id = map(int, (request.data['job_id'],
-                                   request.data['bug_id']))
+        """Add a new relation between a job and a bug."""
+        job_id = int(request.data['job_id'])
+        bug_id = int(request.data['bug_id'])
 
-        _, created = BugJobMap.objects.get_or_create(
-            job_id=job_id, bug_id=bug_id, defaults={
-                'user': request.user
-            })
-        if created:
-            return Response({
-                "message": "Bug job map skipped: mapping already exists"
-            }, 200)
+        bug_map = BugJobMap.objects.filter(job_id=job_id, bug_id=bug_id).first()
+        if bug_map:
+            return Response({"message": "Bug job map skipped: mapping already exists"}, 200)
+
+        BugJobMap.create(
+            job_id=job_id,
+            bug_id=bug_id,
+            user=request.user,
+        )
 
         return Response({"message": "Bug job map saved"})
 
