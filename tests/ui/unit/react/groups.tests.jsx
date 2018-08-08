@@ -29,7 +29,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
     expect(jobGroup.html()).toEqual(
       '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
@@ -47,7 +49,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
     jobGroup.setState({ expanded: true });
     jobGroup.setState({ expanded: false });
@@ -67,7 +71,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
     jobGroup.setState({ expanded: true });
     expect(jobGroup.html()).toEqual(
@@ -89,7 +95,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
 
     $rootScope.$emit(thEvents.groupStateChanged, 'expanded');
@@ -112,7 +120,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
 
     expect(jobGroup.html()).toEqual(
@@ -133,7 +143,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
 
     jobGroup.setState({ showDuplicateJobs: true });
@@ -156,7 +168,9 @@ describe('JobGroup component', () => {
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}
-      />
+        filterPlatformCb={() => {}}
+        platform={<span>windows</span>}
+      />,
     );
 
     $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
