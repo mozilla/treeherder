@@ -393,7 +393,7 @@ export default class BugFiler extends React.Component {
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
           <ModalHeader toggle={toggle}>Intermittent Bug Filer</ModalHeader>
           <ModalBody>
-            <form>
+            <form className="d-flex flex-column">
               <div className="d-inline-flex">
                 <Input
                   name="modalProductFinderSearch"
@@ -517,12 +517,13 @@ export default class BugFiler extends React.Component {
                   <a target="_blank" rel="noopener noreferrer" href={reftestUrl}>Include Reftest Viewer Link</a>
                 </label></div>}
               </div>
-              <div>
+              <div className="d-flex flex-column">
                 <label>Comment:</label>
                 <Input
                   onChange={evt => this.setState({ comment: evt.target.value })}
                   type="textarea"
-                  className="h-100"
+                  className="flex-grow-1"
+                  rows={5}
                 />
               </div>
               <div className="d-inline-flex mt-2 ml-5">
