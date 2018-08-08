@@ -26,8 +26,6 @@ describe('BugFiler', () => {
   const isOpen = true;
 
   beforeEach(() => {
-    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
-
     fetchMock.get(
       `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js`,
       {
@@ -82,6 +80,7 @@ describe('BugFiler', () => {
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
+        notify={{}}
       />,
     );
   };
@@ -222,6 +221,7 @@ describe('BugFiler', () => {
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
+        notify={{}}
       />,
     );
 
