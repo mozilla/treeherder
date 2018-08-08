@@ -1,12 +1,13 @@
-import { getProjectUrl } from "../../../../ui/helpers/url";
 
-describe('ThResultSetStore', function(){
+import { getProjectUrl } from '../../../../ui/helpers/url';
 
-    var $httpBackend,
-        rootScope,
-        model,
-        repoModel,
-        foregroundRepo = "mozilla-inbound";
+describe('ThResultSetStore', function () {
+
+    let $httpBackend;
+    let rootScope;
+    let model;
+    let repoModel;
+    const foregroundRepo = 'mozilla-inbound';
 
     beforeEach(angular.mock.module('treeherder'));
 
@@ -36,7 +37,7 @@ describe('ThResultSetStore', function(){
         );
 
         $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', foregroundRepo)).respond(
-            getJSONFixture('push_list.json')
+            getJSONFixture('push_list.json'),
         );
 
 
@@ -76,11 +77,11 @@ describe('ThResultSetStore', function(){
     /*
         Tests ThResultSetStore
      */
-    it('should have 2 resultset', function() {
+    it('should have 2 resultset', () => {
         expect(model.getPushArray().length).toBe(2);
     });
 
-    it('should have id of 1 in foreground (current) repo', function() {
+    it('should have id of 1 in foreground (current) repo', () => {
         expect(model.getPushArray()[0].id).toBe(1);
     });
 });

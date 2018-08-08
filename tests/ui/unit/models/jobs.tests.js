@@ -1,7 +1,7 @@
 import * as fetchMock from 'fetch-mock';
 
 import JobModel from '../../../../ui/models/job';
-import { getProjectUrl } from "../../../../ui/helpers/url";
+import { getProjectUrl } from '../../../../ui/helpers/url';
 
 describe('JobModel', () => {
   const repoName = 'mozilla-inbound';
@@ -14,18 +14,18 @@ describe('JobModel', () => {
     fetchMock.restore();
   });
 
-  describe("getList", () => {
+  describe('getList', () => {
     beforeEach(() => {
       fetchMock.get(getProjectUrl('/jobs/'), getJSONFixture('job_list/job_1.json'));
     });
 
-    it("should return a promise", () => {
+    it('should return a promise', () => {
       const result = JobModel.getList('mozilla-inbound');
       expect(result.then).toBeDefined();
     });
   });
 
-  describe("pagination", () => {
+  describe('pagination', () => {
     beforeEach(() => {
       fetchMock.get(getProjectUrl('/jobs/?count=2'), getJSONFixture('job_list/pagination/page_1.json'));
       fetchMock.get(getProjectUrl('/jobs/?count=2&offset=2'), getJSONFixture('job_list/pagination/page_2.json'));
