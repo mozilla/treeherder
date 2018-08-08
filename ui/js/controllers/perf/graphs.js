@@ -944,7 +944,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 }
 
                 // unconditionally remove it from the current list
-                $scope.testsToAdd = $scope.testsToAdd.filter(t => t.id !== test.id);
+                _.remove($scope.testsToAdd, test);
             });
             // resort unselected test list
             $scope.unselectedTestList = _.sortBy($scope.unselectedTestList,
@@ -959,7 +959,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 });
 
                 // Remove the added tests from the unselected test list
-                $scope.unselectedTestList = $scope.unselectedTestList.filter(t => t.signature !== signature);
+                _.remove($scope.unselectedTestList, { signature: signature });
             });
         };
 
@@ -1100,8 +1100,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                                 // filter out tests which are already displayed or are
                                 // already selected
                                 [...new Set([...testsDisplayed, ...$scope.testsToAdd])].forEach((test) => {
-                                        $scope.unselectedTestList = $scope.unselectedTestList
-                                            .filter(t => !(t.projectName === test.projectName && t.signature === test.signature));
+                                        _.remove($scope.unselectedTestList, {
+                                            projectName: test.projectName,
+                                            signature: test.signature });
                                     });
                                 $scope.loadingTestData = false;
                                 $scope.$apply();
