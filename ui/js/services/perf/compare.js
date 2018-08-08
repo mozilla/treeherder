@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import forIn from 'lodash/forIn';
 import chunk from 'lodash/chunk';
 
 import treeherder from '../../treeherder';
@@ -244,7 +245,7 @@ treeherder.factory('PhCompare', [
                             // will be compared later to another group. Ends up with an object
                             // with description (name/platform) and values.
                             // The values are later processed at getCounterMap as the data arguments.
-                            _.forIn(seriesData, (data, signatureHash) => {
+                            forIn(seriesData, (data, signatureHash) => {
                                 const signature = seriesList.find(series =>
                                     series.signature === signatureHash);
                                 if (signature) {

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import forIn from 'lodash/forIn';
 import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
@@ -104,7 +104,7 @@ perf.controller('dashCtrl', [
                     }
 
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
-                        _.forIn(seriesData, function (data, signature) {
+                        forIn(seriesData, function (data, signature) {
                             const series = seriesChunk.find(series =>
                                 series.signature === signature);
                             const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
@@ -306,7 +306,7 @@ perf.controller('dashSubtestCtrl', [
                         params.interval = $scope.selectedTimeRange.value;
                     }
                     return PhSeries.getSeriesData($scope.selectedRepo.name, params).then((seriesData) => {
-                        _.forIn(seriesData, function (data, signature) {
+                        forIn(seriesData, function (data, signature) {
                             const series = seriesList.find(series =>
                                 series.signature === signature);
                             const type = (series.options.indexOf($scope.variantDataOpt) >= 0) ? 'variant' : 'base';
