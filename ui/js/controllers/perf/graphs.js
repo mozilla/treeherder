@@ -4,6 +4,7 @@
 
 import $ from 'jquery';
 import _ from 'lodash';
+import remove from 'lodash/remove';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
@@ -944,7 +945,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 }
 
                 // unconditionally remove it from the current list
-                _.remove($scope.testsToAdd, test);
+                remove($scope.testsToAdd, test);
             });
             // resort unselected test list
             $scope.unselectedTestList = _.sortBy($scope.unselectedTestList,
@@ -959,7 +960,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 });
 
                 // Remove the added tests from the unselected test list
-                _.remove($scope.unselectedTestList, { signature: signature });
+                remove($scope.unselectedTestList, { signature: signature });
             });
         };
 
@@ -1100,7 +1101,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                                 // filter out tests which are already displayed or are
                                 // already selected
                                 [...new Set([...testsDisplayed, ...$scope.testsToAdd])].forEach((test) => {
-                                        _.remove($scope.unselectedTestList, {
+                                        remove($scope.unselectedTestList, {
                                             projectName: test.projectName,
                                             signature: test.signature });
                                     });
