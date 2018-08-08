@@ -68,21 +68,22 @@ class Commenter(object):
             rank = None
 
             if self.weekly_mode:
-                priority = self.assign_priority(priority, counts)
+                priority = self.assign_priority(counts)
                 if priority == 2:
                     bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
                     # if fetch_bug_details fails, None is returned
 
                     if bug_info:
-                        change_priority, change_whiteboard = self.check_needswork_owner(change_priority, bug_info)
+                        change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
 
                 # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
+                # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
                 if (counts['total'] < 20):
                     bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
                     # if fetch_bug_details fails, None is returned
 
                     if bug_info:
-                        change_whiteboard = self.check_needswork(change_whiteboard or bug_info['whiteboard'])
+                        change_whiteboard = self.check_needswork(bug_info['whiteboard'])
 
                 if bug_id in top_bugs:
                     rank = top_bugs.index(bug_id)+1
@@ -90,9 +91,10 @@ class Commenter(object):
                 bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
                 # if fetch_bug_details fails, None is returned
                 if bug_info:
-                    change_priority, change_whiteboard = self.check_needswork_owner(change_priority, bug_info)
+                    change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
 
-            # recommend disabling when more than 150 failures tracked over 21 days
+            # recommend disabling when more than 150 failures tracked over 21 days and
+            # takes precedence over any prevous change_whiteboard assignments
             if alt_bug_stats[bug_id]['total'] >= 150:
                 bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
                 # if fetch_bug_details fails, None is returned
@@ -129,7 +131,7 @@ class Commenter(object):
 
         return all_bug_changes
 
-    def check_needswork_owner(self, change_priority, bug_info):
+    def check_needswork_owner(self, bug_info):
         change_priority = None
         change_whiteboard = None
 
@@ -155,10 +157,11 @@ class Commenter(object):
 
         return None
 
-    def assign_priority(self, priority, counts):
-        if priority == 0 and counts['total'] >= 75:
+    def assign_priority(self, counts):
+        priority = 0
+        if counts['total'] >= 75:
             priority = 1
-        elif priority == 0 and counts['total'] >= 30:
+        elif counts['total'] >= 30:
             priority = 2
 
         return priority
