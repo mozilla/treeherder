@@ -1,6 +1,6 @@
 import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
 
-const thTaskcluster = (() => {
+const taskcluster = (() => {
   let credentialAgent = null;
 
   // Create an OIDC credential agent if it doesn't exist.
@@ -33,7 +33,7 @@ const thTaskcluster = (() => {
         credentialAgent = null;
       }
     },
-    refreshTimestamps: function (task) {
+    refreshTimestamps: (task) => {
       // Take a taskcluster task and make all of the timestamps
       // new again. This is pretty much lifted verbatim from
       // mozilla_ci_tools which was used by pulse_actions.
@@ -55,4 +55,4 @@ const thTaskcluster = (() => {
   };
 })();
 
-export default thTaskcluster;
+export default taskcluster;

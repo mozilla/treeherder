@@ -16,7 +16,6 @@ export default class PushActionMenu extends React.PureComponent {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.$uibModal = $injector.get('$uibModal');
-    this.tcactions = $injector.get('tcactions');
 
     this.revision = this.props.revision;
     this.pushId = this.props.pushId;
@@ -184,7 +183,6 @@ export default class PushActionMenu extends React.PureComponent {
           job={null}
           pushId={pushId}
           isLoggedIn={isLoggedIn}
-          tcactions={this.tcactions}
           notify={this.thNotify}
           toggle={this.toggleCustomJobActions}
         />}

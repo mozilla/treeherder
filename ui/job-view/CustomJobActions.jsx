@@ -10,10 +10,13 @@ import {
 } from 'reactstrap';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
+import TaskclusterModel from '../models/taskcluster';
 
 export default class CustomJobActions extends React.Component {
   constructor(props) {
     super(props);
+
+    this.taskclusterModel = new TaskclusterModel(props.notify);
 
     this.state = {
       ajv: new Ajv({ format: 'full', verbose: true, allErrors: true }),
@@ -30,7 +33,7 @@ export default class CustomJobActions extends React.Component {
   }
 
   componentDidMount() {
-    const { pushModel, pushId, tcactions, job } = this.props;
+    const { pushModel, pushId, job } = this.props;
 
     this.updateSelectedAction = this.updateSelectedAction.bind(this);
     this.onChangeAction = this.onChangeAction.bind(this);
@@ -38,7 +41,7 @@ export default class CustomJobActions extends React.Component {
     this.triggerAction = this.triggerAction.bind(this);
 
     pushModel.getGeckoDecisionTaskId(pushId).then((decisionTaskId) => {
-      tcactions.load(decisionTaskId, job).then((results) => {
+      this.taskclusterModel.load(decisionTaskId, job).then((results) => {
         const { originalTask, originalTaskId, staticActionVariables, actions } = results;
         const actionOptions = actions.map(action => ({ value: action, label: action.title }));
 
@@ -86,7 +89,7 @@ export default class CustomJobActions extends React.Component {
       ajv, validate, payload, decisionTaskId, originalTaskId, originalTask,
       selectedActionOption, staticActionVariables,
     } = this.state;
-    const { notify, tcactions } = this.props;
+    const { notify } = this.props;
     const action = selectedActionOption.value;
 
     let input = null;
@@ -106,7 +109,7 @@ export default class CustomJobActions extends React.Component {
       }
     }
 
-    tcactions.submit({
+    this.taskclusterModel.submit({
        action,
        actionTaskId: slugid(),
        decisionTaskId,
@@ -228,7 +231,6 @@ CustomJobActions.propTypes = {
   pushModel: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  tcactions: PropTypes.object.isRequired,
   notify: PropTypes.object.isRequired,
   toggle: PropTypes.func.isRequired,
   job: PropTypes.object,

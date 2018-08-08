@@ -28,10 +28,8 @@ import './shared/Login';
 // Perf JS
 import './js/filters';
 import './js/services/main';
-import './js/services/taskcluster';
 import './js/models/repository';
 import './js/models/resultset';
-import './js/services/tcactions';
 import './js/models/perf/series';
 import './js/models/perf/issue_tracker';
 import './js/models/perf/performance_framework';
