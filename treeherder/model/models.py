@@ -592,27 +592,36 @@ class Job(models.Model):
 
     def get_manual_classification_line(self):
         """
-        Return the TextLogError from a job if it can be manually classified as a side effect
-        of the overall job being classified.
-        Otherwise return None.
+        If this Job has a single TextLogError line, return that TextLogError.
+
+        Some Jobs only have one related [via TextLogStep] TextLogError.  This
+        method checks if this Job is one of those (returning None if not) by:
+        * checking the number of related TextLogErrors
+        * counting the number of search results for the single TextLogError
+        * checking there is a related FailureLine
+        * checking the related FailureLine is in a given state
+
+        If all these checks pass the TextLogError is returned, any failure returns None.
         """
         try:
             text_log_error = TextLogError.objects.get(step__job=self)
         except (TextLogError.DoesNotExist, TextLogError.MultipleObjectsReturned):
             return None
 
-        # Only propagate the classification if there is exactly one unstructured failure
-        # line for the job
-        from treeherder.model.error_summary import get_filtered_error_lines
-        if len(get_filtered_error_lines(self)) != 1:
+        # Can this TextLogError be converted into a single "useful search"?
+        # FIXME: what is the significance of only one search result here?
+        from treeherder.model.error_summary import get_filtered_error_lines as get_search_results
+        search_results = get_search_results(self)
+        if len(search_results) != 1:
             return None
 
-        # Check that we have a related FailureLine and it's in a state we
-        # expect for auto-classification.
+        # Check that we have a related FailureLine
         failure_line = text_log_error.get_failure_line()
         if failure_line is None:
             return None
 
+        # Check our FailureLine is in a state we expect for
+        # auto-classification.
         if not (failure_line.action == "test_result" and
                 failure_line.test and
                 failure_line.status and
@@ -791,8 +800,12 @@ class JobNote(models.Model):
         """
         Updates the failure type of this Note's Job.
 
-        Set the linked Job's failure type to that of the previous Note or set
-        to Not Classified if this is the last note.
+        Set the linked Job's failure type to that of the most recent JobNote or
+        set to Not Classified if there are no JobNotes.
+
+        This is called when JobNotes are created (via .save()) and deleted (via
+        .delete()) and is used to resolved the FailureClassification which has
+        been denormalised onto Job.
         """
         # update the job classification
         note = JobNote.objects.filter(job=self.job).order_by('-created').first()
