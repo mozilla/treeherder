@@ -33,7 +33,6 @@ import './js/services/buildapi';
 import './js/services/taskcluster';
 import './js/services/classifications';
 import './js/services/jobfilters';
-import './js/services/pinboard';
 import './js/services/tcactions';
 import './js/models/resultset';
 import './js/models/resultsets_store';
