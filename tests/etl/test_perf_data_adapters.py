@@ -204,7 +204,7 @@ def test_load_generic_data(test_repository,
     store_performance_artifact(perf_job, submit_datum)
     assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
-    framework = PerformanceFramework.objects.all()[0]
+    framework = PerformanceFramework.objects.first()
     assert framework_name == framework.name
 
     perf_datum = datum['blob']
@@ -481,5 +481,5 @@ def test_last_updated(test_repository, test_issue_tracker,
                               generic_reference_data,
                               reverse_push_range=True)
     assert PerformanceSignature.objects.count() == 1
-    signature = PerformanceSignature.objects.all()[0]
+    signature = PerformanceSignature.objects.first()
     assert signature.last_updated == max(Push.objects.values_list('time', flat=True))

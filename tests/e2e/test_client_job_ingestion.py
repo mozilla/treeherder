@@ -465,7 +465,7 @@ def test_post_job_with_buildapi_artifact(test_repository, failure_classification
     assert Job.objects.count() == 1
     assert JobDetail.objects.count() == 1
 
-    buildbot_request_id_detail = JobDetail.objects.all()[0]
+    buildbot_request_id_detail = JobDetail.objects.first()
     assert buildbot_request_id_detail.title == 'buildbot_request_id'
     assert buildbot_request_id_detail.value == str(1234)
     assert buildbot_request_id_detail.url is None
