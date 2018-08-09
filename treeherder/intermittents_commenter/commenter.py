@@ -63,41 +63,45 @@ class Commenter(object):
         for bug_id, counts in iteritems(bug_stats):
             change_priority = None
             bug_info = None
-            whiteboard = None
+            change_whiteboard = None
             priority = 0
             rank = None
 
-            # recommend disabling when more than 150 failures tracked over 21 days
-            if alt_bug_stats[bug_id]['total'] >= 150:
-                bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
-                # if fetch_bug_details fails (called in check_bug_info), None is returned
-
-                if whiteboard is not None and not self.check_whiteboard_status(whiteboard):
-                    priority = 3
-                    whiteboard = self.update_whiteboard(whiteboard, '[stockwell disable-recommended]')
-
             if self.weekly_mode:
-                priority = self.assign_priority(priority, counts)
+                priority = self.assign_priority(counts)
                 if priority == 2:
-                    bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
-                    # if fetch_bug_details fails (called in check_bug_info), None is returned
-                    if bug_info is not None:
-                        change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
+                    bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
+                    # if fetch_bug_details fails, None is returned
+
+                    if bug_info:
+                        change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
 
                 # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
+                # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
                 if (counts['total'] < 20):
-                    bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
-                    # if fetch_bug_details fails (called in check_bug_info), None is returned
-                    if whiteboard is not None:
-                        whiteboard = self.check_needswork(whiteboard)
+                    bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
+                    # if fetch_bug_details fails, None is returned
+
+                    if bug_info:
+                        change_whiteboard = self.check_needswork(bug_info['whiteboard'])
 
                 if bug_id in top_bugs:
                     rank = top_bugs.index(bug_id)+1
             else:
-                bug_info, whiteboard = self.check_bug_info(bug_info, bug_id)
-                # if fetch_bug_details fails (called in check_bug_info), None is returned
-                if bug_info is not None:
-                    change_priority, whiteboard = self.check_needswork_owner(change_priority, bug_info, whiteboard)
+                bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
+                # if fetch_bug_details fails, None is returned
+                if bug_info:
+                    change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
+
+            # recommend disabling when more than 150 failures tracked over 21 days and
+            # takes precedence over any prevous change_whiteboard assignments
+            if alt_bug_stats[bug_id]['total'] >= 150:
+                bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
+                # if fetch_bug_details fails, None is returned
+
+                if bug_info and not self.check_whiteboard_status(bug_info['whiteboard']):
+                    priority = 3
+                    change_whiteboard = self.update_whiteboard(bug_info['whiteboard'], '[stockwell disable-recommended]')
 
             comment = template.render(bug_id=bug_id,
                                       total=counts['total'],
@@ -117,8 +121,9 @@ class Commenter(object):
                             }
                            }
 
-            if bug_info is not None and whiteboard != bug_info['whiteboard']:
-                bug_changes['changes']['whiteboard'] = whiteboard
+            if change_whiteboard:
+                bug_changes['changes']['whiteboard'] = change_whiteboard
+
             if change_priority:
                 bug_changes['changes']['priority'] = change_priority
 
@@ -126,46 +131,40 @@ class Commenter(object):
 
         return all_bug_changes
 
-    def check_needswork_owner(self, change_priority, bug_info, whiteboard):
+    def check_needswork_owner(self, bug_info):
+        change_priority = None
+        change_whiteboard = None
+
         if (([bug_info['product'], bug_info['component']] in COMPONENTS) and
-            not self.check_whiteboard_status(whiteboard)):
+            not self.check_whiteboard_status(bug_info['whiteboard'])):
 
             if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
                 change_priority = '--'
 
-            stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+            stockwell_text = re.search(r'\[stockwell (.+?)\]', bug_info['whiteboard'])
             # update whiteboard text unless it already contains WHITEBOARD_NEEDSWORK_OWNER
             if stockwell_text is None or stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
-                whiteboard = self.update_whiteboard(whiteboard, WHITEBOARD_NEEDSWORK_OWNER)
+                change_whiteboard = self.update_whiteboard(bug_info['whiteboard'], WHITEBOARD_NEEDSWORK_OWNER)
 
-        return change_priority, whiteboard
+        return change_priority, change_whiteboard
 
     def check_needswork(self, whiteboard):
-        if whiteboard is not None:
-            stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
-            # update all [stockwell needswork] bugs (including all 'needswork' possibilities,
-            # ie 'needswork:owner') and update whiteboard to [stockwell unknown]
-            if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
-                whiteboard = self.update_whiteboard(whiteboard, '[stockwell unknown]')
+        stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+        # update all [stockwell needswork] bugs (including all 'needswork' possibilities,
+        # ie 'needswork:owner') and update whiteboard to [stockwell unknown]
+        if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
+            return self.update_whiteboard(whiteboard, '[stockwell unknown]')
 
-        return whiteboard
+        return None
 
-    def assign_priority(self, priority, counts):
-        if priority == 0 and counts['total'] >= 75:
+    def assign_priority(self, counts):
+        priority = 0
+        if counts['total'] >= 75:
             priority = 1
-        elif priority == 0 and counts['total'] >= 30:
+        elif counts['total'] >= 30:
             priority = 2
 
         return priority
-
-    def check_bug_info(self, bug_info, bug_id):
-        """Check for previously fetched bug metadata."""
-        if not bug_info:
-            bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id)
-            if bug_info is None:
-                return None, None
-
-        return bug_info, bug_info['whiteboard']
 
     def print_or_submit_changes(self, all_bug_changes):
         for bug in all_bug_changes:
