@@ -689,7 +689,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 
     return {
         'tree': test_repository.name,
-        'option': Option.objects.all()[0],
+        'option': Option.objects.first(),
         'bug_id': bug_id,
         'job': jobs[0],
         'jobs': jobs,

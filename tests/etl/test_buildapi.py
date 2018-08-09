@@ -185,7 +185,7 @@ def test_ingest_running_job_fields(push_stored,
     etl_process.run()
 
     assert Job.objects.count() == 1
-    assert time.mktime(Job.objects.all()[0].start_time.timetuple()) > 0
+    assert time.mktime(Job.objects.first().start_time.timetuple()) > 0
 
 
 def test_ingest_builds4h_jobs_1_missing_push(push_stored,
