@@ -200,9 +200,9 @@ django-redis==4.9.0 \
 # Required by django-redis
 redis==2.10.6 --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb
 
-elasticsearch==6.3.0 \
-    --hash=sha256:24c93ba3bb078328c70137c31d9bfcfa152f61c3df64823b99b25307123611df \
-    --hash=sha256:80ff7a1a56920535a9987da333c7e385b2ded27595b6de33860707dab758efbe
+elasticsearch==6.3.1 \
+    --hash=sha256:7546cc08e3899716e12fe67d12d7cfe9a64647014d1134b014c3c392b63cad42 \
+    --hash=sha256:aada5cfdc4a543c47098eb3aca6663848ef5d04b4324935ced441debc11ec98b
 
 # required by requests and elasticsearch
 urllib3==1.22 \
