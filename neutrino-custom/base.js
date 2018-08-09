@@ -14,7 +14,6 @@ const DIST = path.join(CWD, 'dist');
 const INDEX_TEMPLATE = path.join(UI, 'index.html');
 const PERF_TEMPLATE = path.join(UI, 'perf.html');
 const LOGVIEWER_TEMPLATE = path.join(UI, 'logviewer.html');
-const USERGUIDE_TEMPLATE = path.join(UI, 'userguide.html');
 
 const HTML_MINIFY_OPTIONS = {
     useShortDoctype: true,
@@ -83,7 +82,7 @@ module.exports = neutrino => {
         .end();
     neutrino.config
         .entry('userguide')
-        .add(path.join(UI, 'entry-userguide.js'))
+        .add(path.join(UI, 'userguide', 'index.jsx'))
         .end();
     neutrino.config
         .entry('testview')
@@ -172,13 +171,17 @@ module.exports = neutrino => {
     neutrino.config
         .plugin('html-userguide')
         .use(HtmlPlugin, {
-            inject: 'body',
+            inject: false,
+            template: htmlTemplate,
             filename: 'userguide.html',
-            template: USERGUIDE_TEMPLATE,
+            favicon: 'ui/img/tree_open.png',
             chunks: ['userguide', 'vendor', 'manifest'],
-            minify: HTML_MINIFY_OPTIONS
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: 'Treeherder User Guide'
         });
-
 
     neutrino.config
         .plugin('html-login')
