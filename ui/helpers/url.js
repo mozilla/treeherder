@@ -130,6 +130,9 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   const params = getAllUrlParams();
 
   params.delete('selectedJob');
+  params.delete('fromchange');
+  params.delete('tochange');
+  params.delete('revision');
   params.set('repo', newRepoName);
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
