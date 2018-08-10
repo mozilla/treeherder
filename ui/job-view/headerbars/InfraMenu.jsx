@@ -64,7 +64,7 @@ export default function InfraMenu() {
             href="https://tools.taskcluster.net/diagnostics"
             target="_blank"
             rel="noopener noreferrer"
-          >TaskCluster</a>
+          >Taskcluster</a>
         </li>
       </ul>
     </span>

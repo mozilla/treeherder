@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { getUrlParam } from '../helpers/location';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
-import tcJobActionsTemplate from '../partials/main/tcjobactions.html';
+import CustomJobActions from './CustomJobActions';
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -21,19 +21,21 @@ export default class PushActionMenu extends React.PureComponent {
     this.pushId = this.props.pushId;
     this.repoName = this.props.repoName;
 
-    this.triggerMissingJobs = this.triggerMissingJobs.bind(this);
-    this.triggerAllTalosJobs = this.triggerAllTalosJobs.bind(this);
-
     // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
     this.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
 
     this.state = {
       topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
       bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+      customJobActionsShowing: false,
     };
   }
 
   componentDidMount() {
+    this.triggerMissingJobs = this.triggerMissingJobs.bind(this);
+    this.triggerAllTalosJobs = this.triggerAllTalosJobs.bind(this);
+    this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
+
     this.unlistenGlobalFilterChanged = this.$rootScope.$on(
       thEvents.globalFilterChanged, () => {
         this.setState({
@@ -99,26 +101,16 @@ export default class PushActionMenu extends React.PureComponent {
       });
   }
 
-  customJobAction() {
-    const { repoName, pushId, isLoggedIn } = this.props;
+  toggleCustomJobActions() {
+    const { customJobActionsShowing } = this.state;
 
-    this.$uibModal.open({
-      template: tcJobActionsTemplate,
-      controller: 'TCJobActionsCtrl',
-      size: 'lg',
-      resolve: {
-        job: () => null,
-        repoName: () => repoName,
-        resultsetId: () => pushId,
-        isLoggedIn: () => isLoggedIn,
-      },
-    });
+    this.setState({ customJobActionsShowing: !customJobActionsShowing });
   }
 
   render() {
     const { isLoggedIn, isStaff, repoName, revision, runnableVisible,
-            hideRunnableJobsCb, showRunnableJobsCb } = this.props;
-    const { topOfRangeUrl, bottomOfRangeUrl } = this.state;
+            hideRunnableJobsCb, showRunnableJobsCb, pushId } = this.props;
+    const { topOfRangeUrl, bottomOfRangeUrl, customJobActionsShowing } = this.state;
 
     return (
       <span className="btn-group dropdown" dropdown="true">
@@ -174,7 +166,7 @@ export default class PushActionMenu extends React.PureComponent {
           >Mark with Bugherder</a></li>
           <li
             className="dropdown-item"
-            onClick={() => this.customJobAction()}
+            onClick={this.toggleCustomJobActions}
             title="View/Edit/Submit Action tasks for this push"
           >Custom Push Action...</li>
           <li><a
@@ -186,6 +178,14 @@ export default class PushActionMenu extends React.PureComponent {
             href={bottomOfRangeUrl}
           >Set as bottom of range</a></li>
         </ul>
+        {customJobActionsShowing && <CustomJobActions
+          pushModel={this.ThResultSetStore}
+          job={null}
+          pushId={pushId}
+          isLoggedIn={isLoggedIn}
+          notify={this.thNotify}
+          toggle={this.toggleCustomJobActions}
+        />}
       </span>
     );
   }

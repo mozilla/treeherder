@@ -1,6 +1,6 @@
 import { Queue } from 'taskcluster-client-web';
 
-import thTaskcluster from '../js/services/taskcluster';
+import taskcluster from './taskcluster';
 import { getUrlParam, getAllUrlParams } from './location';
 
 export const uiJobsUrlBase = '/#/jobs';
@@ -37,7 +37,7 @@ export const getReftestUrl = function getReftestUrl(logUrl) {
 };
 
 export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
-  const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
+  const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
   const { status } = await queue.status(taskId);
   const { provisionerId, workerType } = status;
   const { workerGroup, workerId } = status.runs[status.runs.length - 1];

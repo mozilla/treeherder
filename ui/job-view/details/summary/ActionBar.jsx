@@ -4,15 +4,15 @@ import { Queue, slugid } from 'taskcluster-client-web';
 import $ from 'jquery';
 import jsyaml from 'js-yaml';
 
-import thTaskcluster from '../../../js/services/taskcluster';
-import tcJobActionsTemplate from '../../../partials/main/tcjobactions.html';
 import { thEvents } from '../../../js/constants';
 import { formatModelError, formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest } from '../../../helpers/job';
+import taskcluster from '../../../helpers/taskcluster';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobDetailModel from '../../../models/jobDetail';
 import JobModel from '../../../models/job';
-
+import TaskclusterModel from '../../../models/taskcluster';
+import CustomJobActions from '../../CustomJobActions';
 import LogUrls from './LogUrls';
 
 export default class ActionBar extends React.Component {
@@ -24,11 +24,16 @@ export default class ActionBar extends React.Component {
     this.thNotify = $injector.get('thNotify');
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.tcactions = $injector.get('tcactions');
     this.$interpolate = $injector.get('$interpolate');
     this.$uibModal = $injector.get('$uibModal');
     this.$rootScope = $injector.get('$rootScope');
     this.$timeout = $injector.get('$timeout');
+
+    this.taskclusterModel = new TaskclusterModel(this.thNotify);
+
+    this.state = {
+      customJobActionsShowing: false,
+    };
   }
 
   componentDidMount() {
@@ -53,7 +58,7 @@ export default class ActionBar extends React.Component {
         this.retriggerJob([job]);
     });
 
-    this.customJobAction = this.customJobAction.bind(this);
+    this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
   }
 
   componentWillUnmount() {
@@ -127,13 +132,13 @@ export default class ActionBar extends React.Component {
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
       this.ThResultSetStore.getGeckoDecisionTaskId(
         selectedJob.result_set_id).then(decisionTaskId => (
-          this.tcactions.load(decisionTaskId, selectedJob).then((results) => {
+          this.taskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
             const actionTaskId = slugid();
             if (results) {
               const backfilltask = results.actions.find(result => result.name === 'backfill');
               // We'll fall back to actions.yaml if this isn't true
               if (backfilltask) {
-                return this.tcactions.submit({
+                return this.taskclusterModel.submit({
                   action: backfilltask,
                   actionTaskId,
                   decisionTaskId,
@@ -159,7 +164,7 @@ export default class ActionBar extends React.Component {
             }
 
             // Otherwise we'll figure things out with actions.yml
-            const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
+            const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
 
             // buildUrl is documented at
             // https://github.com/taskcluster/taskcluster-client-web#construct-urls
@@ -180,7 +185,7 @@ export default class ActionBar extends React.Component {
                 action_args: `--project=${repoName}' --job=${selectedJob.id}`,
               });
 
-              const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+              const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
               queue.createTask(actionTaskId, task).then(function () {
                 this.$timeout(() => this.thNotify.send(
                   `Request sent to backfill job via actions.yml (${actionTaskId})`,
@@ -270,24 +275,15 @@ export default class ActionBar extends React.Component {
     this.cancelJobs([this.props.selectedJob]);
   }
 
-  customJobAction() {
-    const { repoName, selectedJob, user } = this.props;
+  toggleCustomJobActions() {
+    const { customJobActionsShowing } = this.state;
 
-    this.$uibModal.open({
-      template: tcJobActionsTemplate,
-      controller: 'TCJobActionsCtrl',
-      size: 'lg',
-      resolve: {
-        job: () => selectedJob,
-        repoName: () => repoName,
-        resultsetId: () => selectedJob.result_set_id,
-        isLoggedIn: () => user.isLoggedIn,
-      },
-    });
+    this.setState({ customJobActionsShowing: !customJobActionsShowing });
   }
 
   render() {
     const { selectedJob, logViewerUrl, logViewerFullUrl, jobLogUrls, user, pinJob } = this.props;
+    const { customJobActionsShowing } = this.state;
 
     return (
       <div id="job-details-actionbar">
@@ -378,7 +374,7 @@ export default class ActionBar extends React.Component {
                   </li>
                   <li>
                     <a
-                      onClick={this.customJobAction}
+                      onClick={this.toggleCustomJobActions}
                       className="dropdown-item"
                     >Custom Action...</a>
                   </li>
@@ -387,6 +383,14 @@ export default class ActionBar extends React.Component {
             </li>
           </ul>
         </nav>
+        {customJobActionsShowing && <CustomJobActions
+          pushModel={this.ThResultSetStore}
+          job={selectedJob}
+          pushId={selectedJob.result_set_id}
+          isLoggedIn={user.isLoggedIn}
+          notify={this.thNotify}
+          toggle={this.toggleCustomJobActions}
+        />}
       </div>
     );
   }

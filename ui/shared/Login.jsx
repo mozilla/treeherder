@@ -6,7 +6,7 @@ import { react2angular } from 'react2angular/index.es2015';
 import treeherder from '../js/treeherder';
 import AuthService from '../js/auth/AuthService';
 import { loggedOutUser } from '../js/auth/auth-utils';
-import thTaskcluster from '../js/services/taskcluster';
+import taskcluster from '../helpers/taskcluster';
 import { getApiUrl, loginCallbackUrl } from '../helpers/url';
 import UserModel from '../models/user';
 
@@ -43,7 +43,7 @@ export default class Login extends React.Component {
         }
       } else if (e.key === 'userSession') {
         // used when a different tab updates userSession,
-        thTaskcluster.updateAgent();
+        taskcluster.updateAgent();
       }
     });
 
@@ -75,7 +75,7 @@ export default class Login extends React.Component {
 
     this.authService.logout();
     // logging out will not trigger a storage event since localStorage is being set by the same window
-    thTaskcluster.updateAgent();
+    taskcluster.updateAgent();
     setUser(loggedOutUser);
   }
 

@@ -4,17 +4,17 @@ import jsyaml from 'js-yaml';
 import { Queue, slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
-import thTaskcluster from '../services/taskcluster';
+import taskcluster from '../../helpers/taskcluster';
 import { getProjectUrl, getServiceUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
+import TaskclusterModel from '../../models/taskcluster';
 
 treeherder.factory('ThResultSetModel', ['$http', '$location',
-    '$q', '$interpolate', 'tcactions',
-    function ($http, $location, $q, $interpolate,
-        tcactions) {
+    '$q', '$interpolate', 'thNotify',
+    function ($http, $location, $q, $interpolate, thNotify) {
 
         const MAX_RESULTSET_FETCH_SIZE = 100;
-
+        const taskclusterModel = new TaskclusterModel(thNotify);
         const convertDates = function (locationParams) {
             // support date ranges.  we must convert the strings to a timezone
             // appropriate timestamp
@@ -191,7 +191,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerMissingJobs: function (decisionTaskId) {
-                return tcactions.load(decisionTaskId).then((results) => {
+                return taskclusterModel.load(decisionTaskId).then((results) => {
                     const actionTaskId = slugid();
 
                     // In this case we have actions.json tasks
@@ -200,7 +200,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                             action.name === 'run-missing-tests');
                         // We'll fall back to actions.yaml if this isn't true
                         if (missingtask) {
-                            return tcactions.submit({
+                            return taskclusterModel.submit({
                                 action: missingtask,
                                 actionTaskId,
                                 decisionTaskId,
@@ -215,7 +215,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerAllTalosJobs: function (times, decisionTaskId) {
-                return tcactions.load(decisionTaskId).then((results) => {
+                return taskclusterModel.load(decisionTaskId).then((results) => {
                     const actionTaskId = slugid();
 
                     // In this case we have actions.json tasks
@@ -224,7 +224,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                             action.name === 'run-all-talos');
                         // We'll fall back to actions.yaml if this isn't true
                         if (talostask) {
-                            return tcactions.submit({
+                            return taskclusterModel.submit({
                                 action: talostask,
                                 actionTaskId,
                                 decisionTaskId,
@@ -239,7 +239,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     // Otherwise we'll figure things out with actions.yml
-                    const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
+                    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
                     const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                     return $http.get(url).then(function (resp) {
                         let action = resp.data;
@@ -248,7 +248,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                             action: 'add-talos',
                             action_args: '--decision-task-id=' + decisionTaskId + ' --times=' + times,
                         });
-                        const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                        const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                         return queue.createTask(actionTaskId, task).then(function () {
                             return `Request sent to trigger all talos jobs ${times} time(s) via actions.yml (${actionTaskId})`;
                         });
@@ -257,7 +257,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerNewJobs: function (buildernames, decisionTaskId) {
-                const queue = new Queue({ credentialAgent: thTaskcluster.getAgent() });
+                const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
                 const url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,
@@ -292,7 +292,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                         return;
                     }
 
-                    return tcactions.load(decisionTaskId).then((results) => {
+                    return taskclusterModel.load(decisionTaskId).then((results) => {
                         const actionTaskId = slugid();
                         // In this case we have actions.json tasks
                         if (results) {
@@ -300,7 +300,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                                 action.name === 'add-new-jobs');
                             // We'll fall back to actions.yaml if this isn't true
                             if (addjobstask) {
-                                return tcactions.submit({
+                                return taskclusterModel.submit({
                                     action: addjobstask,
                                     actionTaskId,
                                     decisionTaskId,
@@ -322,7 +322,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                                 action: 'add-tasks',
                                 action_args: `--decision-id=${decisionTaskId} --task-labels=${taskLabels}`,
                             });
-                            const task = thTaskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+                            const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
                             return queue.createTask(actionTaskId, task).then(() => `Request sent to trigger new jobs via actions.yml (${actionTaskId})`);
                         });
                     });

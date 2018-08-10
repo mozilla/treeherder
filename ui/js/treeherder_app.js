@@ -1,5 +1,4 @@
 import angular from 'angular';
-import hcMarked from 'angular-marked';
 import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 
@@ -10,8 +9,6 @@ const treeherderApp = angular.module('treeherder.app', [
   treeherderModule.name,
   uiBootstrap,
   ngRoute,
-  // Remove when `ui/partials/main/tcjobactions.html` converted to React.
-  hcMarked,
 ]);
 
 treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
