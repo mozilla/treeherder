@@ -460,6 +460,8 @@ REST_FRAMEWORK = {
 # Whitenoise
 # Files in this directory will be served by WhiteNoise at the site root.
 WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "dist")
+# Serve index.html for URLs ending in a trailing slash.
+WHITENOISE_INDEX_FILE = True
 
 
 # TREEHERDER
