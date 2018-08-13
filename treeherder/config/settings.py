@@ -395,17 +395,17 @@ CELERYBEAT_SCHEDULE = {
         }
     },
     'daily-intermittents-commenter': {
-        # Executes every morning at 7 a.m. UTC except sunday
+        # Executes every morning at 7 a.m. UTC except monday
         'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='monday-saturday'),
+        'schedule': crontab(minute=0, hour=7, day_of_week='tuesday-sunday'),
         'options': {
             'queue': 'intermittents_commenter'
         },
     },
     'weekly-intermittents-commenter': {
-        # Executes every sunday morning at 7 a.m. UTC
+        # Executes every monday morning at 7 a.m. UTC
         'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='sunday'),
+        'schedule': crontab(minute=0, hour=7, day_of_week='monday'),
         'kwargs': {'weekly_mode': True},
         'options': {
             'queue': 'intermittents_commenter'
