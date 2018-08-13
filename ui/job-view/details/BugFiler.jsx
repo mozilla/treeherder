@@ -6,6 +6,7 @@ import {
 } from 'reactstrap';
 
 import {
+  bugzillaBugsApi,
   bzBaseUrl,
   dxrBaseUrl,
   getApiUrl,
@@ -304,10 +305,10 @@ export default class BugFiler extends React.Component {
 
     const descriptionStrings = [...checkedLogLinks, comment].join('\n\n');
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
-
     let severity = 'normal';
     const priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
+
     if (crashSignature.length > 0) {
       keywords.push('crash');
       severity = 'critical';
@@ -317,7 +318,7 @@ export default class BugFiler extends React.Component {
     // submit the new bug.  Only request the versions because some products
     // take quite a long time to fetch the full object
     try {
-      const productResp = await fetch(`${bzBaseUrl}rest/product/${product}?include_fields=versions`);
+      const productResp = await fetch(bugzillaBugsApi(`product/${product}`, { include_fields: 'versions' }));
       const productData = await productResp.json();
       if (productResp.ok) {
         const productObject = productData.products[0];
