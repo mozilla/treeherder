@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { thEvents } from '../../js/constants';
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
+import { getRepoUrl } from '../../helpers/url';
 
 const statusInfoMap = {
     open: {
@@ -90,14 +91,6 @@ export default class WatchedRepo extends React.Component {
     this.unlistenRepositoriesLoaded();
   }
 
-  getRepoUrl() {
-    const { repoName, watchedRepo } = this.props;
-    const selectedJob = this.$location.search().selectedJob;
-    const url = this.$location.absUrl().replace(`&selectedJob=${selectedJob}`, '');
-
-    return url.replace(`repo=${repoName}`, `repo=${watchedRepo}`);
-  }
-
   render() {
     const { watchedRepo, repoName, unwatchRepo } = this.props;
     const { status, messageOfTheDay, reason, statusInfo, pushLog } = this.state;
@@ -105,7 +98,7 @@ export default class WatchedRepo extends React.Component {
     const { btnClass, icon, color } = statusInfo;
     const pulseIcon = statusInfo.pulseIcon || '';
     const treeStatusName = TreeStatusModel.getTreeStatusName(watchedRepo);
-    const changeRepoUrl = this.getRepoUrl();
+    const changeRepoUrl = getRepoUrl(watchedRepo);
 
     return (
       <span className="btn-group">
