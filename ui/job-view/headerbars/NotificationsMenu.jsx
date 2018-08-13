@@ -81,7 +81,7 @@ export default class NotificationsMenu extends React.Component {
               >
                 <span title={`${notification.message} ${notification.linkText}`}>
                   <span className={this.getSeverityClass(notification.severity)} />&nbsp;
-                  <small className="text-muted">{toShortDateStr(notification.created)}</small>
+                  <small className="text-muted">{toShortDateStr(notification.created / 1000)}</small>
                   &nbsp;{notification.message}&nbsp;
                   <a
                     target="_blank"
