@@ -78,7 +78,7 @@ class BugDetailsView extends React.Component {
 
     if (bug !== bugId) {
       updateBugDetails(bug, '', 'BUG_DETAILS');
-      fetchData(bugzillaBugsApi('rest/bug', { include_fields: 'summary,id', id: bug }), 'BUGZILLA_BUG_DETAILS');
+      fetchData(bugzillaBugsApi('bug', { include_fields: 'summary,id', id: bug }), 'BUGZILLA_BUG_DETAILS');
     }
   }
 

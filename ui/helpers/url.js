@@ -26,14 +26,8 @@ export const getApiUrl = function getApiUrl(uri) {
   return getServiceUrl(`/api${uri}`);
 };
 
-// bugs can be one bug or a comma separated (no spaces) string of bugs
-export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
-  const query = createQueryParams(params);
-  return `${bzBaseUrl}${api}${query}`;
-};
-
 export const getBugUrl = function getBugUrl(bug_id) {
-  return bugzillaBugsApi('show_bug.cgi', { id: bug_id });
+  return `${bzBaseUrl}show_bug.cgi?id=${bug_id}`;
 };
 
 export const getSlaveHealthUrl = function getSlaveHealthUrl(machine_name) {
@@ -126,6 +120,12 @@ export const parseQueryParams = function parseQueryParams(search) {
 export const createApiUrl = function createApiUrl(api, params) {
   const query = createQueryParams(params);
   return `/api/${api}${query}`;
+};
+
+// bugs can be one bug or a comma separated (no spaces) string of bugs
+export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
+  const query = createQueryParams(params);
+  return `${bzBaseUrl}rest/${api}${query}`;
 };
 
 export const deployedRevisionUrl = '/revision.txt';
