@@ -462,6 +462,9 @@ REST_FRAMEWORK = {
 WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "dist")
 # Serve index.html for URLs ending in a trailing slash.
 WHITENOISE_INDEX_FILE = True
+# Only output the hashed filename version of static files and not the originals.
+# Halves the time spent performing Brotli/gzip compression during deploys.
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
 
 # TREEHERDER
