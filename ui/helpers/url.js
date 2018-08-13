@@ -5,6 +5,12 @@ import { getUrlParam, getAllUrlParams } from './location';
 
 export const uiJobsUrlBase = '/#/jobs';
 
+export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
+
+export const hgBaseUrl = 'https://hg.mozilla.org/';
+
+export const dxrBaseUrl = 'https://dxr.mozilla.org/';
+
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);
   return `?${query.toString()}`;
@@ -20,8 +26,14 @@ export const getApiUrl = function getApiUrl(uri) {
   return getServiceUrl(`/api${uri}`);
 };
 
+// bugs can be one bug or a comma separated (no spaces) string of bugs
+export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
+  const query = createQueryParams(params);
+  return `${bzBaseUrl}${api}${query}`;
+};
+
 export const getBugUrl = function getBugUrl(bug_id) {
-  return `https://bugzilla.mozilla.org/show_bug.cgi?id=${bug_id}`;
+  return bugzillaBugsApi('show_bug.cgi', { id: bug_id });
 };
 
 export const getSlaveHealthUrl = function getSlaveHealthUrl(machine_name) {
@@ -116,12 +128,6 @@ export const createApiUrl = function createApiUrl(api, params) {
   return `/api/${api}${query}`;
 };
 
-// bugs can be one bug or a comma separated (no spaces) string of bugs
-export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
-  const query = createQueryParams(params);
-  return `https://bugzilla.mozilla.org/${api}${query}`;
-};
-
 export const deployedRevisionUrl = '/revision.txt';
 
 export const loginCallbackUrl = '/login.html';
@@ -133,9 +139,3 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   params.set('repo', newRepoName);
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
-
-export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
-
-export const hgBaseUrl = 'https://hg.mozilla.org/';
-
-export const dxrBaseUrl = 'https://dxr.mozilla.org/';

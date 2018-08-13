@@ -186,7 +186,7 @@ logViewerApp.controller('LogviewerCtrl', [
 
                 // Test to expose the reftest button in the logviewer actionbar
                 if ($scope.rawLogURL && job.job_group_name && isReftest(job)) {
-                    $scope.reftestUrl = `${getReftestUrl($scope.rawLogURL)}&only_show_unexpected=1`;
+                    $scope.reftestUrl = getReftestUrl($scope.rawLogURL);
                 }
 
                 // get the revision and linkify it
