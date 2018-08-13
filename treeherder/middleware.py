@@ -43,14 +43,14 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
             url += self.INDEX_NAME
         return super(CustomWhiteNoise, self).find_file(url)
 
-    def is_immutable_file(self, path, url):
+    def immutable_file_test(self, path, url):
         """Support webpack bundle filenames when setting long max-age headers."""
         if self.IMMUTABLE_FILE_RE.search(url):
             return True
         # Otherwise fall back to the default method, so we catch filenames in the
         # style output by GzipManifestStaticFilesStorage during collectstatic. eg:
         #   bootstrap.min.abda843684d0.js
-        return super(CustomWhiteNoise, self).is_immutable_file(path, url)
+        return super(CustomWhiteNoise, self).immutable_file_test(path, url)
 
 
 class NewRelicMiddleware(MiddlewareMixin):
