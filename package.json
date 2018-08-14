@@ -30,7 +30,7 @@
     "deepmerge": "1.5.2",
     "eslint": "3.19.0",
     "eslint-config-airbnb": "15.1.0",
-    "eslint-plugin-import": "2.12.0",
+    "eslint-plugin-import": "2.14.0",
     "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "7.10.0",
     "font-awesome": "4.7.0",
