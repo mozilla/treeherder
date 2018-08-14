@@ -22,9 +22,7 @@ class LazyPublisher(object):
         """
         # Create publisher, if username and password is present
         if not self.publisher:
-            self.publisher = TreeherderPublisher(
-                namespace=settings.PULSE_EXCHANGE_NAMESPACE,
-            )
+            self.publisher = TreeherderPublisher()
 
         return self.publisher
 
@@ -63,6 +61,7 @@ def publish_job_action(project, action, job_id, requester):
 
     job = Job.objects.get(id=job_id)
     publisher.job_action(
+        settings.PULSE_EXCHANGE_NAMESPACE,
         version=1,
         build_system_type=job.signature.build_system_type,
         project=project,

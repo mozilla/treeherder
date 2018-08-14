@@ -36,7 +36,7 @@ class TreeherderPublisher(object):
     def _generate_publish(self):
 
         # Create publication method for the exchange
-        def publish(**message_kwargs):
+        def publish(namespace, **message_kwargs):
             # create a connection to Pulse
             # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
             connection = Connection(settings.PULSE_URI)
@@ -46,7 +46,7 @@ class TreeherderPublisher(object):
             producer = Producer(
                 channel=connection,
                 exchange=Exchange(
-                    name="exchange/{}/v1/job-actions".format(self.namespace),
+                    name="exchange/{}/v1/job-actions".format(namespace),
                     type='topic',
                     durable=True,
                     delivery_mode='persistent'
@@ -75,14 +75,9 @@ class TreeherderPublisher(object):
 
         return publish
 
-    def __init__(self, namespace):
+    def __init__(self):
         """
         Create publisher, requires a connection_string and a mapping from
         JSON schema uris to JSON schemas.
-
-        :param str: Namespace used when publishing on pulse.
         """
-        # Set attributes
-        self.namespace = namespace
-
         self.job_action = self._generate_publish()
