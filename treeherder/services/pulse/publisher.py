@@ -37,44 +37,6 @@ def load_schemas():
     return schemas
 
 
-class Exchange(object):
-
-    """
-        Exchange declaration that can be used as property on a subclass of
-        PulsePublisher.
-    """
-
-    def __init__(self, exchange, title, description, routing_keys, schema):
-        """
-          Create exchange instance
-        """
-        self.exchange = exchange
-        self.title = title
-        self.description = description
-        self.routing_keys = routing_keys
-        self.schema = schema
-
-    def message(self, message):
-        """ Construct message """
-        return message
-
-    def routing(self, **keys):
-        """ Construct routing key """
-        return '.'.join([key.build(**keys) for key in self.routing_keys])
-
-    def reference(self, name):
-        """ Construct reference entry with given name """
-        return {
-            'type': 'topic-exchange',
-            'exchange': self.exchange,
-            'name': toCamelCase(name),
-            'title': self.title,
-            'description': self.description,
-            'routingKey': [key.reference() for key in self.routing_keys],
-            'schema': self.schema
-        }
-
-
 class Key(object):
 
     """ Routing key entry """
@@ -108,36 +70,56 @@ class Key(object):
         }
 
 
+class JobAction(object):
+    exchange = "job-actions"
+    title = "Actions issued by jobs"
+    description = """
+        There are a number of actions which can be done to a job
+        (retrigger/cancel) they are published on this exchange
+    """
+    routing_keys = [
+        Key(
+            name="build_system_type",
+            summary="Build system which created job (i.e. buildbot)"
+        ),
+        Key(
+            name="project",
+            summary="Project (i.e. try) which this job belongs to"
+        ),
+        Key(
+            name="action",
+            summary="Type of action issued (i.e. cancel)"
+        )
+    ]
+    schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
+
+    def message(self, message):
+        """ Construct message """
+        return message
+
+    def routing(self, **keys):
+        """ Construct routing key """
+        return '.'.join([key.build(**keys) for key in self.routing_keys])
+
+    def reference(self, name):
+        """ Construct reference entry with given name """
+        return {
+            'type': 'topic-exchange',
+            'exchange': self.exchange,
+            'name': toCamelCase(name),
+            'title': self.title,
+            'description': self.description,
+            'routingKey': [key.reference() for key in self.routing_keys],
+            'schema': self.schema
+        }
+
+
 class TreeherderPublisher(object):
     title = "TreeHerder Exchanges"
     description = """
         Exchanges for services that wants to know what shows up on TreeHerder.
     """
     exchange_prefix = "v1/"
-
-    job_action = Exchange(
-        exchange="job-actions",
-        title="Actions issued by jobs",
-        description="""
-            There are a number of actions which can be done to a job
-            (retrigger/cancel) they are published on this exchange
-        """,
-        routing_keys=[
-            Key(
-                name="build_system_type",
-                summary="Build system which created job (i.e. buildbot)"
-            ),
-            Key(
-                name="project",
-                summary="Project (i.e. try) which this job belongs to"
-            ),
-            Key(
-                name="action",
-                summary="Type of action issued (i.e. cancel)"
-            )
-        ],
-        schema="https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
-    )
 
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
@@ -184,14 +166,10 @@ class TreeherderPublisher(object):
         # Set attributes
         self.schemas = load_schemas()
         self.namespace = namespace
-        self.exchanges = []
         self.connection = kombu.Connection(uri)
 
         # Find exchanges
-        for name in dir(self):
-            exchange = getattr(self, name)
-            if isinstance(exchange, Exchange):
-                self.exchanges += ((name, exchange),)
+        self.exchanges = [("job_action", JobAction())]
 
         # Wrap exchanges in functions
         for name, exchange in self.exchanges:
