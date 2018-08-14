@@ -104,9 +104,5 @@ class TreeherderPublisher(object):
         self.namespace = namespace
         self.connection = kombu.Connection(uri)
 
-        # Find exchanges
-        self.exchanges = [("job_action", JobAction())]
-
         # Wrap exchanges in functions
-        for name, exchange in self.exchanges:
-            setattr(self, name, self._generate_publish(name, exchange))
+        self.job_action = self._generate_publish("job_action", JobAction())
