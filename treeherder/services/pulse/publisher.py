@@ -30,30 +30,6 @@ def load_schemas():
     return schemas
 
 
-class Key(object):
-
-    """ Routing key entry """
-
-    def __init__(self, name, summary, required=True, multiple_words=False):
-        self.name = name
-        self.summary = summary
-        self.required = required
-        self.multiple_words = multiple_words
-
-    def build(self, **keys):
-        """ Build routing key entry """
-        key = keys.get(self.name)
-        # Ensure the key is present if required
-        if self.required and key is None:
-            raise ValueError("Key %s is required" % self.name)
-        key = key or '_'
-        # Check if has multiple words
-        if '.' in key and not self.multiple_words:
-            raise ValueError("Key %s cannot contain dots" % self.name)
-        # Return constructed key
-        return key
-
-
 class JobAction(object):
     exchange = "job-actions"
     title = "Actions issued by jobs"
@@ -61,20 +37,6 @@ class JobAction(object):
         There are a number of actions which can be done to a job
         (retrigger/cancel) they are published on this exchange
     """
-    routing_keys = [
-        Key(
-            name="build_system_type",
-            summary="Build system which created job (i.e. buildbot)"
-        ),
-        Key(
-            name="project",
-            summary="Project (i.e. try) which this job belongs to"
-        ),
-        Key(
-            name="action",
-            summary="Type of action issued (i.e. cancel)"
-        )
-    ]
     schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
 
     def message(self, message):
@@ -83,7 +45,11 @@ class JobAction(object):
 
     def routing(self, **keys):
         """ Construct routing key """
-        return '.'.join([key.build(**keys) for key in self.routing_keys])
+        return "{}.{}.{}.".format(
+            keys["build_system_type"],
+            keys["project"],
+            keys["action"],
+        )
 
 
 class TreeherderPublisher(object):
