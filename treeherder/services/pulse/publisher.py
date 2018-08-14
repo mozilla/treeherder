@@ -1,3 +1,4 @@
+import glob
 import json
 import logging
 import os
@@ -18,17 +19,13 @@ def toCamelCase(input):
 
 def load_schemas():
     """ Load JSON schemas from folder """
-    folder = os.path.join(settings.PROJECT_DIR, '..', 'schemas')
     schemas = {}
 
-    # List files in folder
-    for filename in os.listdir(folder):
-        # Skip non-json files
-        if not filename.endswith('.json'):
-            continue
-
+    # List json files in folder
+    folder = os.path.join(settings.PROJECT_DIR, '..', 'schemas')
+    for filename in glob.iglob("{}/*.json".format(folder)):
         # Read file and insert into schemas
-        with open(os.path.join(folder, filename)) as f:
+        with open(filename) as f:
             data = json.load(f)
 
             if 'id' not in data:
