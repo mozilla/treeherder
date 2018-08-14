@@ -4,8 +4,10 @@ import logging
 import os
 
 import jsonschema
-import kombu
 from django.conf import settings
+from kombu import (Connection,
+                   Exchange,
+                   Producer)
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +35,9 @@ def load_schemas():
 class TreeherderPublisher(object):
     def _generate_publish(self):
         # Create producer
-        producer = kombu.Producer(
+        producer = Producer(
             channel=self.connection,
-            exchange=kombu.Exchange(
+            exchange=Exchange(
                 name="exchange/{}/v1/job-actions".format(self.namespace),
                 type='topic',
                 durable=True,
@@ -80,6 +82,6 @@ class TreeherderPublisher(object):
         """
         # Set attributes
         self.namespace = namespace
-        self.connection = kombu.Connection(uri)
+        self.connection = Connection(uri)
 
         self.job_action = self._generate_publish()
