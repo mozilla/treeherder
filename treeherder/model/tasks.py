@@ -1,5 +1,3 @@
-import os
-
 import newrelic.agent
 from celery import task
 from django.conf import settings
@@ -7,13 +5,7 @@ from django.core.management import call_command
 
 from treeherder.model.models import Job
 from treeherder.services.pulse import TreeherderPublisher
-from treeherder.services.pulse.publisher import load_schemas
 from treeherder.workers.task import retryable_task
-
-# Load schemas for validation of messages published on pulse
-SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))
-SCHEMA_FOLDER = os.path.join(SOURCE_FOLDER, '..', '..', 'schemas')
-PULSE_SCHEMAS = load_schemas(SCHEMA_FOLDER)
 
 
 class LazyPublisher(object):
@@ -33,7 +25,6 @@ class LazyPublisher(object):
             self.publisher = TreeherderPublisher(
                 namespace=settings.PULSE_EXCHANGE_NAMESPACE,
                 uri=settings.PULSE_URI,
-                schemas=PULSE_SCHEMAS
             )
 
         return self.publisher

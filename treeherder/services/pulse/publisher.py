@@ -5,6 +5,7 @@ import re
 
 import jsonschema
 import kombu
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,9 @@ def toCamelCase(input):
     return re.sub(r'_(.)', replace, input)
 
 
-def load_schemas(folder):
+def load_schemas():
     """ Load JSON schemas from folder """
+    folder = os.path.join(settings.PROJECT_DIR, '..', 'schemas')
     schemas = {}
 
     # List files in folder
@@ -174,18 +176,16 @@ class TreeherderPublisher(object):
 
         return publish
 
-    def __init__(self, namespace, uri, schemas):
+    def __init__(self, namespace, uri):
         """
         Create publisher, requires a connection_string and a mapping from
         JSON schema uris to JSON schemas.
 
         :param str: Namespace used when publishing on pulse.
         :param str: URI for pulse.
-        :param list: list of available schemas.
         """
-
         # Set attributes
-        self.schemas = schemas
+        self.schemas = load_schemas()
         self.namespace = namespace
         self.exchanges = []
         self.connection = kombu.Connection(uri)
