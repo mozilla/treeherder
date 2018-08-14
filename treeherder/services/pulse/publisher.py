@@ -146,8 +146,3 @@ class TreeherderPublisher(object):
         # Wrap exchanges in functions
         for name, exchange in self.exchanges:
             setattr(self, name, self._generate_publish(name, exchange))
-
-    def error(self, error, exchange, routing_key, message):
-        logger.error(
-            'Error publishing message to {0}'
-        ).format(exchange)
