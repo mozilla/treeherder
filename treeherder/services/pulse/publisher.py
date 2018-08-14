@@ -109,17 +109,36 @@ class Key(object):
         }
 
 
-class PulsePublisher(object):
+class TreeherderPublisher(object):
+    title = "TreeHerder Exchanges"
+    description = """
+        Exchanges for services that wants to know what shows up on TreeHerder.
     """
-    Base class for pulse publishers.
+    exchange_prefix = "v1/"
 
-    All subclasses of this class must define the properties:
-      * title
-      * description
-      * exchange_prefix
-
-    Additional properties of type `Exchange` will be declared as exchanges.
-    """
+    job_action = Exchange(
+        exchange="job-actions",
+        title="Actions issued by jobs",
+        description="""
+            There are a number of actions which can be done to a job
+            (retrigger/cancel) they are published on this exchange
+        """,
+        routing_keys=[
+            Key(
+                name="build_system_type",
+                summary="Build system which created job (i.e. buildbot)"
+            ),
+            Key(
+                name="project",
+                summary="Project (i.e. try) which this job belongs to"
+            ),
+            Key(
+                name="action",
+                summary="Type of action issued (i.e. cancel)"
+            )
+        ],
+        schema="https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
+    )
 
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
@@ -164,15 +183,6 @@ class PulsePublisher(object):
         :param str: URI for pulse.
         :param list: list of available schemas.
         """
-        # Validate properties
-        if not hasattr(self, 'title'):
-            raise AttributeError("Title is required")
-
-        if not hasattr(self, 'description'):
-            raise AttributeError("description is required")
-
-        if not hasattr(self, 'exchange_prefix'):
-            raise AttributeError("exchange_prefix is required")
 
         # Set attributes
         self.schemas = schemas
@@ -207,35 +217,3 @@ class PulsePublisher(object):
             ),
             'entries': [ex.reference(name) for name, ex in self.exchanges]
         }
-
-
-class TreeherderPublisher(PulsePublisher):
-    title = "TreeHerder Exchanges"
-    description = """
-        Exchanges for services that wants to know what shows up on TreeHerder.
-    """
-    exchange_prefix = "v1/"
-
-    job_action = Exchange(
-        exchange="job-actions",
-        title="Actions issued by jobs",
-        description="""
-            There are a number of actions which can be done to a job
-            (retrigger/cancel) they are published on this exchange
-        """,
-        routing_keys=[
-            Key(
-                name="build_system_type",
-                summary="Build system which created job (i.e. buildbot)"
-            ),
-            Key(
-                name="project",
-                summary="Project (i.e. try) which this job belongs to"
-            ),
-            Key(
-                name="action",
-                summary="Type of action issued (i.e. cancel)"
-            )
-        ],
-        schema="https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
-    )
