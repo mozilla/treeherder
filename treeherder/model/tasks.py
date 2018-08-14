@@ -21,7 +21,7 @@ class LazyPublisher(object):
         Attempt to get the publisher.
         """
         # Create publisher, if username and password is present
-        if not self.publisher and settings.PULSE_EXCHANGE_NAMESPACE:
+        if not self.publisher:
             self.publisher = TreeherderPublisher(
                 namespace=settings.PULSE_EXCHANGE_NAMESPACE,
                 uri=settings.PULSE_URI,
@@ -57,9 +57,10 @@ def publish_job_action(project, action, job_id, requester):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
     newrelic.agent.add_custom_parameter("requester", requester)
 
-    publisher = pulse_connection.get_publisher()
-    if not publisher:
+    if not settings.PULSE_EXCHANGE_NAMESPACE:
         return
+
+    publisher = pulse_connection.get_publisher()
 
     job = Job.objects.get(id=job_id)
     publisher.job_action(
