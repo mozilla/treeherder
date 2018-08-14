@@ -36,7 +36,6 @@ class JobAction(object):
         There are a number of actions which can be done to a job
         (retrigger/cancel) they are published on this exchange
     """
-    schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
 
 
 class TreeherderPublisher(object):
@@ -64,7 +63,10 @@ class TreeherderPublisher(object):
 
         # Create publication method for the exchange
         def publish(**kwargs):
-            jsonschema.validate(kwargs, self.schemas[exchange.schema])
+            # validate kwargs against the job action schema
+            schemas = load_schemas()
+            schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
+            jsonschema.validate(kwargs, schemas[schema])
 
             # build the routing key from the message's kwargs
             routing_key = "{}.{}.{}.".format(
