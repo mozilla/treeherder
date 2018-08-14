@@ -38,18 +38,6 @@ class JobAction(object):
     """
     schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
 
-    def message(self, message):
-        """ Construct message """
-        return message
-
-    def routing(self, **keys):
-        """ Construct routing key """
-        return "{}.{}.{}.".format(
-            keys["build_system_type"],
-            keys["project"],
-            keys["action"],
-        )
-
 
 class TreeherderPublisher(object):
     title = "TreeHerder Exchanges"
@@ -76,11 +64,18 @@ class TreeherderPublisher(object):
 
         # Create publication method for the exchange
         def publish(**kwargs):
-            message = exchange.message(kwargs)
-            jsonschema.validate(message, self.schemas[exchange.schema])
+            jsonschema.validate(kwargs, self.schemas[exchange.schema])
+
+            # build the routing key from the message's kwargs
+            routing_key = "{}.{}.{}.".format(
+                kwargs["build_system_type"],
+                kwargs["project"],
+                kwargs["action"],
+            )
+
             publish_message(
-                body=json.dumps(message),
-                routing_key=exchange.routing(**kwargs),
+                body=json.dumps(kwargs),
+                routing_key=routing_key,
                 content_type='application/json'
             )
 
@@ -95,7 +90,6 @@ class TreeherderPublisher(object):
         :param str: URI for pulse.
         """
         # Set attributes
-        self.schemas = load_schemas()
         self.namespace = namespace
         self.connection = kombu.Connection(uri)
 
