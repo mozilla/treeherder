@@ -31,7 +31,6 @@ def load_schemas():
 
 
 class JobAction(object):
-    exchange = "job-actions"
     title = "Actions issued by jobs"
     description = """
         There are a number of actions which can be done to a job
@@ -60,14 +59,10 @@ class TreeherderPublisher(object):
 
     def _generate_publish(self, exchange):
         # Create producer for the exchange
-        exchange_path = "exchange/%s/v1/%s" % (
-            self.namespace,
-            exchange.exchange
-        )
         producer = kombu.Producer(
             channel=self.connection,
             exchange=kombu.Exchange(
-                name=exchange_path,
+                name="exchange/{}/v1/job-actions".format(self.namespace),
                 type='topic',
                 durable=True,
                 delivery_mode='persistent'
