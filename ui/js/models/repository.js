@@ -14,6 +14,7 @@ treeherder.factory('ThRepositoryModel', [
         const watchedRepos = [];
         const orderedRepoGroups = [];
         const maxWatchedRepos = 3;
+        let currentRepoTreeStatusCb = () => {};
 
         // get the repositories (aka trees)
         // sample: 'resources/menu.json'
@@ -57,9 +58,16 @@ treeherder.factory('ThRepositoryModel', [
 
             repoNames.forEach((repoName) => {
               TreeStatusModel.get(repoName).then((data) => {
+                if (repoName === $rootScope.currentRepo.name) {
+                  currentRepoTreeStatusCb(data.result.status);
+                }
                 repos[repoName].treeStatus = data.result;
               });
             });
+        };
+
+        const addCurrentRepoTreeStatusCb = function (cb) {
+          currentRepoTreeStatusCb = cb;
         };
 
         const addRepoAsUnwatched = function (repo) {
@@ -292,6 +300,8 @@ treeherder.factory('ThRepositoryModel', [
             unwatchRepo: unwatchRepo,
 
             toggleWatched: toggleWatched,
+
+            addCurrentRepoTreeStatusCb: addCurrentRepoTreeStatusCb,
 
         };
     }]);

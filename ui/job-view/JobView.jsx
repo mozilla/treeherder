@@ -5,7 +5,7 @@ import SplitPane from 'react-split-pane';
 import { createBrowserHistory } from 'history';
 
 import treeherder from '../js/treeherder';
-import { thEvents } from '../js/constants';
+import { thEvents, thFavicons } from '../js/constants';
 import { deployedRevisionUrl } from '../helpers/url';
 import DetailsPanel from './details/DetailsPanel';
 import ActiveFilters from './headerbars/ActiveFilters';
@@ -59,6 +59,8 @@ class JobView extends React.Component {
     this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
     this.pinJobs = this.pinJobs.bind(this);
+    this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
+    this.ThRepositoryModel.addCurrentRepoTreeStatusCb(this.setCurrentRepoTreeStatus);
 
     window.addEventListener('resize', this.updateDimensions);
 
@@ -120,6 +122,10 @@ class JobView extends React.Component {
 
   setUser(user) {
     this.setState({ user });
+  }
+
+  setCurrentRepoTreeStatus(status) {
+    document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
   }
 
   fetchDeployedRevision() {
