@@ -51,21 +51,21 @@ class TreeherderPublisher(object):
         )
 
         # Create publication method for the exchange
-        def publish(**kwargs):
+        def publish(**message_kwargs):
             # validate kwargs against the job action schema
             schemas = load_schemas()
             schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
-            jsonschema.validate(kwargs, schemas[schema])
+            jsonschema.validate(message_kwargs, schemas[schema])
 
             # build the routing key from the message's kwargs
             routing_key = "{}.{}.{}.".format(
-                kwargs["build_system_type"],
-                kwargs["project"],
-                kwargs["action"],
+                message_kwargs["build_system_type"],
+                message_kwargs["project"],
+                message_kwargs["action"],
             )
 
             publish_message(
-                body=json.dumps(kwargs),
+                body=json.dumps(message_kwargs),
                 routing_key=routing_key,
                 content_type='application/json'
             )
