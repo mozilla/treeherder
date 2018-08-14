@@ -5,9 +5,9 @@ from celery import task
 from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.models import Job
-from treeherder.model.pulse_publisher import load_schemas
+from treeherder.services.pulse import TreeherderPublisher
+from treeherder.services.pulse.publisher import load_schemas
 from treeherder.workers.task import retryable_task
 
 # Load schemas for validation of messages published on pulse
