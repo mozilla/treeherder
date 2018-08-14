@@ -4,30 +4,8 @@ from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.models import Job
-from treeherder.services.pulse import TreeherderPublisher
+from treeherder.services.pulse import publish_job_action as pulse_publish_job_action
 from treeherder.workers.task import retryable_task
-
-
-class LazyPublisher(object):
-    """
-    Singleton for lazily connecting to the pulse publisher.
-    """
-
-    def __init__(self):
-        self.publisher = None
-
-    def get_publisher(self):
-        """
-        Attempt to get the publisher.
-        """
-        # Create publisher, if username and password is present
-        if not self.publisher:
-            self.publisher = TreeherderPublisher()
-
-        return self.publisher
-
-
-pulse_connection = LazyPublisher()
 
 
 # Run a maximum of 1 per hour
@@ -57,10 +35,8 @@ def publish_job_action(project, action, job_id, requester):
     if not settings.PULSE_EXCHANGE_NAMESPACE:
         return
 
-    publisher = pulse_connection.get_publisher()
-
     job = Job.objects.get(id=job_id)
-    publisher.job_action(
+    pulse_publish_job_action(
         settings.PULSE_EXCHANGE_NAMESPACE,
         version=1,
         build_system_type=job.signature.build_system_type,

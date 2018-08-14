@@ -32,52 +32,39 @@ def load_schemas():
     return schemas
 
 
-class TreeherderPublisher(object):
-    def _generate_publish(self):
+def publish_job_action(namespace, **message_kwargs):
+    # create a connection to Pulse
+    # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
+    connection = Connection(settings.PULSE_URI)
 
-        # Create publication method for the exchange
-        def publish(namespace, **message_kwargs):
-            # create a connection to Pulse
-            # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
-            connection = Connection(settings.PULSE_URI)
+    # build up a Producer object from which we can construct the
+    # publish_message function
+    producer = Producer(
+        channel=connection,
+        exchange=Exchange(
+            name="exchange/{}/v1/job-actions".format(namespace),
+            type='topic',
+            durable=True,
+            delivery_mode='persistent'
+        ),
+        auto_declare=True
+    )
+    publish_message = connection.ensure(producer, producer.publish, max_retries=3)
 
-            # build up a Producer object from which we can construct the
-            # publish_message function
-            producer = Producer(
-                channel=connection,
-                exchange=Exchange(
-                    name="exchange/{}/v1/job-actions".format(namespace),
-                    type='topic',
-                    durable=True,
-                    delivery_mode='persistent'
-                ),
-                auto_declare=True
-            )
-            publish_message = connection.ensure(producer, producer.publish, max_retries=3)
+    # validate kwargs against the job action schema
+    schemas = load_schemas()
+    schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
+    jsonschema.validate(message_kwargs, schemas[schema])
 
-            # validate kwargs against the job action schema
-            schemas = load_schemas()
-            schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
-            jsonschema.validate(message_kwargs, schemas[schema])
+    # build the routing key from the message's kwargs
+    routing_key = "{}.{}.{}.".format(
+        message_kwargs["build_system_type"],
+        message_kwargs["project"],
+        message_kwargs["action"],
+    )
 
-            # build the routing key from the message's kwargs
-            routing_key = "{}.{}.{}.".format(
-                message_kwargs["build_system_type"],
-                message_kwargs["project"],
-                message_kwargs["action"],
-            )
-
-            publish_message(
-                body=json.dumps(message_kwargs),
-                routing_key=routing_key,
-                content_type='application/json'
-            )
-
-        return publish
-
-    def __init__(self):
-        """
-        Create publisher, requires a connection_string and a mapping from
-        JSON schema uris to JSON schemas.
-        """
-        self.job_action = self._generate_publish()
+    publish_message(
+        body=json.dumps(message_kwargs),
+        routing_key=routing_key,
+        content_type='application/json'
+    )
