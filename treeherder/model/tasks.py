@@ -1,6 +1,5 @@
 import newrelic.agent
 from celery import task
-from django.conf import settings
 from django.core.management import call_command
 
 from treeherder.model.models import Job
@@ -32,12 +31,8 @@ def publish_job_action(project, action, job_id, requester):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
     newrelic.agent.add_custom_parameter("requester", requester)
 
-    if not settings.PULSE_EXCHANGE_NAMESPACE:
-        return
-
     job = Job.objects.get(id=job_id)
     pulse_publish_job_action(
-        settings.PULSE_EXCHANGE_NAMESPACE,
         version=1,
         build_system_type=job.signature.build_system_type,
         project=project,

@@ -509,7 +509,3 @@ PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
 
 # The pulse url that is passed to kombu
 PULSE_URL = env("PULSE_URL", default="amqps://guest:guest@pulse.mozilla.org/")
-
-# Note we will never publish any pulse messages unless the exchange namespace is
-# set this normally is your pulse username.
-PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)
