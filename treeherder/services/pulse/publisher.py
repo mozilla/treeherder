@@ -91,13 +91,11 @@ class TreeherderPublisher(object):
     description = """
         Exchanges for services that wants to know what shows up on TreeHerder.
     """
-    exchange_prefix = "v1/"
 
     def _generate_publish(self, name, exchange):
         # Create producer for the exchange
-        exchange_path = "exchange/%s/%s%s" % (
+        exchange_path = "exchange/%s/v1/%s" % (
             self.namespace,
-            self.exchange_prefix,
             exchange.exchange
         )
         producer = kombu.Producer(
