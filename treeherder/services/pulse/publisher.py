@@ -58,7 +58,7 @@ class TreeherderPublisher(object):
         Exchanges for services that wants to know what shows up on TreeHerder.
     """
 
-    def _generate_publish(self, name, exchange):
+    def _generate_publish(self, exchange):
         # Create producer for the exchange
         exchange_path = "exchange/%s/v1/%s" % (
             self.namespace,
@@ -105,4 +105,4 @@ class TreeherderPublisher(object):
         self.connection = kombu.Connection(uri)
 
         # Wrap exchanges in functions
-        self.job_action = self._generate_publish("job_action", JobAction())
+        self.job_action = self._generate_publish(JobAction())
