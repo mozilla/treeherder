@@ -34,26 +34,27 @@ def load_schemas():
 
 class TreeherderPublisher(object):
     def _generate_publish(self):
-        # create a connection to Pulse
-        # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
-        connection = Connection(settings.PULSE_URI)
-
-        # build up a Producer object from which we can construct the
-        # publish_message function
-        producer = Producer(
-            channel=connection,
-            exchange=Exchange(
-                name="exchange/{}/v1/job-actions".format(self.namespace),
-                type='topic',
-                durable=True,
-                delivery_mode='persistent'
-            ),
-            auto_declare=True
-        )
-        publish_message = connection.ensure(producer, producer.publish, max_retries=3)
 
         # Create publication method for the exchange
         def publish(**message_kwargs):
+            # create a connection to Pulse
+            # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
+            connection = Connection(settings.PULSE_URI)
+
+            # build up a Producer object from which we can construct the
+            # publish_message function
+            producer = Producer(
+                channel=connection,
+                exchange=Exchange(
+                    name="exchange/{}/v1/job-actions".format(self.namespace),
+                    type='topic',
+                    durable=True,
+                    delivery_mode='persistent'
+                ),
+                auto_declare=True
+            )
+            publish_message = connection.ensure(producer, producer.publish, max_retries=3)
+
             # validate kwargs against the job action schema
             schemas = load_schemas()
             schema = "https://treeherder.mozilla.org/schemas/v1/job-action-message.json#"
