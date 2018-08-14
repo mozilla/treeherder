@@ -1,6 +1,5 @@
 import treeherder from '../../treeherder';
 import thNotificationsBoxTemplate from '../../../partials/main/thNotificationsBox.html';
-import { thFavicons } from '../../constants';
 
 // Directive blurThis which removes focus from a specific element
 treeherder.directive('blurThis', ['$timeout', function ($timeout) {
@@ -83,23 +82,6 @@ treeherder.directive('thNotificationBox', [
                 scope.notifier = thNotify;
                 scope.alert_class_prefix = 'alert-';
             },
-        };
-    }]);
-
-treeherder.directive('thFaviconLink', [
-    '$sce', 'ThRepositoryModel',
-    function ($sce, ThRepositoryModel) {
-        return {
-            restrict: 'E',
-            link: function (scope) {
-                scope.currentTreeStatus = ThRepositoryModel.getCurrentTreeStatus;
-                scope.$watch('currentTreeStatus()', function (newVal) {
-                    if (newVal) {
-                        scope.favicon = $sce.trustAsResourceUrl(thFavicons[ThRepositoryModel.getCurrentTreeStatus()]);
-                    }
-                });
-            },
-            template: '<link id="favicon" type="image/png" rel="shortcut icon" href="{{favicon}}" />',
         };
     }]);
 
