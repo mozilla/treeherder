@@ -2,19 +2,12 @@ import glob
 import json
 import logging
 import os
-import re
 
 import jsonschema
 import kombu
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
-
-
-def toCamelCase(input):
-    def replace(match):
-        return match.group(1).upper()
-    return re.sub(r'_(.)', replace, input)
 
 
 def load_schemas():
@@ -60,15 +53,6 @@ class Key(object):
         # Return constructed key
         return key
 
-    def reference(self):
-        """ Construct reference entry for this routing key entry """
-        return {
-            'name': toCamelCase(self.name),
-            'summary': self.summary,
-            'multipleWords': self.multiple_words,
-            'required': self.required
-        }
-
 
 class JobAction(object):
     exchange = "job-actions"
@@ -100,18 +84,6 @@ class JobAction(object):
     def routing(self, **keys):
         """ Construct routing key """
         return '.'.join([key.build(**keys) for key in self.routing_keys])
-
-    def reference(self, name):
-        """ Construct reference entry with given name """
-        return {
-            'type': 'topic-exchange',
-            'exchange': self.exchange,
-            'name': toCamelCase(name),
-            'title': self.title,
-            'description': self.description,
-            'routingKey': [key.reference() for key in self.routing_keys],
-            'schema': self.schema
-        }
 
 
 class TreeherderPublisher(object):
@@ -179,16 +151,3 @@ class TreeherderPublisher(object):
         logger.error(
             'Error publishing message to {0}'
         ).format(exchange)
-
-    def reference(self):
-        """ Construct reference for this publisher"""
-        return {
-            'version': '0.2.0',
-            'title': self.title,
-            'description': self.description,
-            'exchangePrefix': "exchange/%s/%s" % (
-                self.namespace,
-                self.exchange_prefix
-            ),
-            'entries': [ex.reference(name) for name, ex in self.exchanges]
-        }
