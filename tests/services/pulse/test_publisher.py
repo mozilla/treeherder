@@ -1,11 +1,8 @@
-from django.conf import settings
-
 from treeherder.services.pulse import publish_job_action
 
 
 def test_publish_job_action(pulse_action_consumer):
     publish_job_action(
-        settings.PULSE_EXCHANGE_NAMESPACE,
         version=1,
         build_system_type="test build system",
         project="a project",

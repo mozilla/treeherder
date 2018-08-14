@@ -341,10 +341,7 @@ def activate_responses(request):
 
 
 def pulse_consumer(exchange, request):
-    exchange_name = 'exchange/{}/v1/{}'.format(
-        settings.PULSE_EXCHANGE_NAMESPACE,
-        exchange
-    )
+    exchange_name = 'exchange/treeherder/v1/{}'.format(exchange)
 
     connection = kombu.Connection(settings.PULSE_URL)
 

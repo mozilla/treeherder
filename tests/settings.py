@@ -12,7 +12,6 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 # Reconfigure pulse to operate on default vhost of rabbitmq
 PULSE_URI = BROKER_URL
 PULSE_URL = BROKER_URL
-PULSE_EXCHANGE_NAMESPACE = 'test'
 
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"

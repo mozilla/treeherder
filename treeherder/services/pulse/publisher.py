@@ -32,7 +32,7 @@ def load_schemas():
     return schemas
 
 
-def publish_job_action(namespace, **message_kwargs):
+def publish_job_action(**message_kwargs):
     # create a connection to Pulse
     # TODO: use pulse_conn once we've combined PULSE_URI and PULSE_URL
     connection = Connection(settings.PULSE_URI)
@@ -42,7 +42,7 @@ def publish_job_action(namespace, **message_kwargs):
     producer = Producer(
         channel=connection,
         exchange=Exchange(
-            name="exchange/{}/v1/job-actions".format(namespace),
+            name="exchange/treeherder/v1/job-actions",
             type='topic',
             durable=True,
             delivery_mode='persistent'
