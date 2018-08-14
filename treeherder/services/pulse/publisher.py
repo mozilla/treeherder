@@ -30,22 +30,9 @@ def load_schemas():
     return schemas
 
 
-class JobAction(object):
-    title = "Actions issued by jobs"
-    description = """
-        There are a number of actions which can be done to a job
-        (retrigger/cancel) they are published on this exchange
-    """
-
-
 class TreeherderPublisher(object):
-    title = "TreeHerder Exchanges"
-    description = """
-        Exchanges for services that wants to know what shows up on TreeHerder.
-    """
-
-    def _generate_publish(self, exchange):
-        # Create producer for the exchange
+    def _generate_publish(self):
+        # Create producer
         producer = kombu.Producer(
             channel=self.connection,
             exchange=kombu.Exchange(
@@ -95,5 +82,4 @@ class TreeherderPublisher(object):
         self.namespace = namespace
         self.connection = kombu.Connection(uri)
 
-        # Wrap exchanges in functions
-        self.job_action = self._generate_publish(JobAction())
+        self.job_action = self._generate_publish()
