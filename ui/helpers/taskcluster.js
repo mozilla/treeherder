@@ -30,7 +30,7 @@ const taskcluster = (() => {
     getQueue: () => (
       new Queue({
         credentialAgent: tcAgent(),
-        tcRootUrl,
+        rootUrl: tcRootUrl,
       })
     ),
     updateAgent: () => {
