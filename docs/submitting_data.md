@@ -79,20 +79,27 @@ Submit a [Treeherder bug] with the following information:
 ```python
 {
     "exchange": "exchange/my-pulse-user/v1/jobs",
+    "destinations": [
+        'treeherder'
+    ],
     "projects": [
         'mozilla-inbound._'
     ],
 },
 ```
 
-Treeherder will bind to the exchange looking for all combinations of it and the
-``projects``.  For example with the above config, we will only load jobs from
-the ``mozilla-inbound._`` project.
+Treeherder will bind to the exchange looking for all combinations of routing
+keys from ``destinations`` and ``projects`` listed above.  For example with
+the above config, we will only load jobs with routing keys of
+``treeherder.mozilla-inbound._``
 
-If you want all jobs from your exchange to be loaded, you can use the ``#``
-wildcard like so:
+If you want all jobs from your exchange to be loaded, you could simplify the
+config by having values:
 
 ```python
+"destinations": [
+    '#'
+],
 "projects": [
     '#'
 ],
@@ -100,7 +107,7 @@ wildcard like so:
 
 If you want one config to go to Treeherder Staging and a different one to go
 to Production, please specify that in the bug.  You could use the same exchange
-with different project settings, or two separate exchanges.  The choice is
+with different routing key settings, or two separate exchanges.  The choice is
 yours.
 
 
