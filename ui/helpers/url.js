@@ -1,5 +1,3 @@
-import { Queue } from 'taskcluster-client-web';
-
 import taskcluster from './taskcluster';
 import { getUrlParam, getAllUrlParams } from './location';
 
@@ -10,6 +8,12 @@ export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 export const hgBaseUrl = 'https://hg.mozilla.org/';
 
 export const dxrBaseUrl = 'https://dxr.mozilla.org/';
+
+export const tcRootUrl = 'https://taskcluster.net';
+
+export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
+  return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
+};
 
 export const createQueryParams = function createQueryParams(params) {
   const query = new URLSearchParams(params);
@@ -43,7 +47,7 @@ export const getReftestUrl = function getReftestUrl(logUrl) {
 };
 
 export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
-  const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+  const queue = taskcluster.getQueue();
   const { status } = await queue.status(taskId);
   const { provisionerId, workerType } = status;
   const { workerGroup, workerId } = status.runs[status.runs.length - 1];

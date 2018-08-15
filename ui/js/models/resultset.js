@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import angular from 'angular';
 import jsyaml from 'js-yaml';
-import { Queue, slugid } from 'taskcluster-client-web';
+import { slugid } from 'taskcluster-client-web';
 
 import treeherder from '../treeherder';
 import taskcluster from '../../helpers/taskcluster';
@@ -239,7 +239,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
                     }
 
                     // Otherwise we'll figure things out with actions.yml
-                    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+                    const queue = taskcluster.getQueue();
                     const url = queue.buildUrl(queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
                     return $http.get(url).then(function (resp) {
                         let action = resp.data;
@@ -257,7 +257,7 @@ treeherder.factory('ThResultSetModel', ['$http', '$location',
             },
 
             triggerNewJobs: function (buildernames, decisionTaskId) {
-                const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+                const queue = taskcluster.getQueue();
                 const url = queue.buildUrl(
                     queue.getLatestArtifact,
                     decisionTaskId,

@@ -1,4 +1,5 @@
-import { OIDCCredentialAgent, fromNow } from 'taskcluster-client-web';
+import { OIDCCredentialAgent, fromNow, Queue } from 'taskcluster-client-web';
+import { tcRootUrl, getUserSessionUrl } from './url';
 
 const taskcluster = (() => {
   let credentialAgent = null;
@@ -10,11 +11,13 @@ const taskcluster = (() => {
     }
 
     const userSession = localStorage.getItem('userSession');
+    const oidcProvider = 'mozilla-auth0';
 
     if (userSession) {
       credentialAgent = new OIDCCredentialAgent({
         accessToken: JSON.parse(userSession).accessToken,
-        oidcProvider: 'mozilla-auth0',
+        oidcProvider,
+        url: getUserSessionUrl(oidcProvider),
       });
     }
 
@@ -24,6 +27,12 @@ const taskcluster = (() => {
   return {
     getAgent: tcAgent,
     // When the access token is refreshed, simply update it on the credential agent
+    getQueue: () => (
+      new Queue({
+        credentialAgent: tcAgent(),
+        tcRootUrl,
+      })
+    ),
     updateAgent: () => {
       const userSession = localStorage.getItem('userSession');
 

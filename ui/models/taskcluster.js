@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import jsone from 'json-e';
-import { Queue, Auth, Hooks } from 'taskcluster-client-web';
+import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster from '../helpers/taskcluster';
@@ -28,7 +28,7 @@ export default class TaskclusterModel {
       taskId: taskId || null,
       input,
     }, staticActionVariables);
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
 
     if (action.kind === 'task') {
       context.task = task;
@@ -75,7 +75,7 @@ export default class TaskclusterModel {
       return;
     }
 
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
