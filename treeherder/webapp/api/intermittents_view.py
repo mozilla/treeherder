@@ -14,11 +14,10 @@ from treeherder.model.models import (BugJobMap,
 from treeherder.webapp.api.pagination import CustomPagePagination
 from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
-                                               FailuresSerializer,
-                                               QueryParamsSerializer)
+                                               FailuresQueryParamsSerializer,
+                                               FailuresSerializer)
 from treeherder.webapp.api.utils import (get_end_of_day,
-                                         get_repository,
-                                         validate_bug)
+                                         get_repository)
 
 
 class Failures(generics.ListAPIView):
@@ -29,7 +28,7 @@ class Failures(generics.ListAPIView):
     queryset = None
 
     def list(self, request):
-        query_params = QueryParamsSerializer(data=request.query_params)
+        query_params = FailuresQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors,
                             status=HTTP_400_BAD_REQUEST)
@@ -56,8 +55,8 @@ class FailuresByBug(generics.ListAPIView):
     queryset = None
 
     def list(self, request):
-        query_params = QueryParamsSerializer(data=request.query_params,
-                                             context='requireBug')
+        query_params = FailuresQueryParamsSerializer(data=request.query_params,
+                                                     context='requireBug')
         if not query_params.is_valid():
             return Response(data=query_params.errors,
                             status=HTTP_400_BAD_REQUEST)
@@ -65,7 +64,7 @@ class FailuresByBug(generics.ListAPIView):
         startday = query_params.validated_data['startday']
         endday = get_end_of_day(query_params.validated_data['endday'])
         repo = list(get_repository(query_params.validated_data['tree']))
-        bug_id = validate_bug(query_params.validated_data['bug'])
+        bug_id = query_params.validated_data['bug']
 
         self.queryset = (BugJobMap.failures.default(repo, startday, endday)
                                   .by_bug(bug_id)
@@ -117,7 +116,7 @@ class FailureCount(generics.ListAPIView):
     queryset = None
 
     def list(self, request):
-        query_params = QueryParamsSerializer(data=request.query_params)
+        query_params = FailuresQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
             return Response(data=query_params.errors,
                             status=HTTP_400_BAD_REQUEST)
@@ -125,8 +124,7 @@ class FailureCount(generics.ListAPIView):
         startday = query_params.validated_data['startday']
         endday = get_end_of_day(query_params.validated_data['endday'])
         repo = list(get_repository(query_params.validated_data['tree']))
-        bug_id = (validate_bug(query_params.validated_data['bug'])
-                  if query_params.validated_data['bug'] else None)
+        bug_id = query_params.validated_data['bug']
 
         push_query = (Push.objects.filter(repository_id__in=repo, time__range=(startday, endday))
                                   .annotate(date=TruncDate('time'))

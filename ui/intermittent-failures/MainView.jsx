@@ -11,7 +11,7 @@ import { updateQueryParams, mergeData, calculateMetrics, prettyDate, checkQueryP
 import GraphsContainer from './GraphsContainer';
 import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/url';
 import ErrorMessages from './ErrorMessages';
-import { name } from './constants';
+import { stateName } from './constants';
 
 class MainView extends React.Component {
   constructor(props) {
@@ -52,7 +52,7 @@ class MainView extends React.Component {
 
       if (Object.keys(graphs).length === 0) {
         // only fetch graph data on initial page load
-        fetchData(createApiUrl(graphsEndpoint, params), name.mainViewGraphs);
+        fetchData(createApiUrl(graphsEndpoint, params), stateName.mainViewGraphs);
       }
     } else {
       // if some query strings are missing when url is pasted into address bar,
@@ -68,10 +68,10 @@ class MainView extends React.Component {
     const { startday, endday, tree } = params;
     const { updateTree, updateDates, fetchData, fetchFullBugData } = this.props;
 
-    updateDates(startday, endday, name.mainView);
-    updateTree(tree, name.mainView);
-    fetchData(createApiUrl(graphsEndpoint, params), name.mainViewGraphs);
-    fetchFullBugData(createApiUrl(bugsEndpoint, params), name.mainView);
+    updateDates(startday, endday, stateName.mainView);
+    updateTree(tree, stateName.mainView);
+    fetchData(createApiUrl(graphsEndpoint, params), stateName.mainViewGraphs);
+    fetchFullBugData(createApiUrl(bugsEndpoint, params), stateName.mainView);
   }
 
   render() {
@@ -121,8 +121,8 @@ class MainView extends React.Component {
     return (
       <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
         <Navigation
-          name={name.mainView}
-          graphName={name.mainViewGraphs}
+          name={stateName.mainView}
+          graphName={stateName.mainViewGraphs}
           tableApi={bugsEndpoint}
           params={params}
           graphApi={graphsEndpoint}
@@ -151,9 +151,9 @@ class MainView extends React.Component {
               <GraphsContainer
                 graphOneData={graphOneData}
                 graphTwoData={graphTwoData}
-                name={name.mainView}
+                name={stateName.mainView}
                 params={params}
-                graphName={name.mainViewGraphs}
+                graphName={stateName.mainViewGraphs}
                 tableApi={bugsEndpoint}
                 graphApi={graphsEndpoint}
                 tree={tree}
@@ -163,7 +163,7 @@ class MainView extends React.Component {
             <GenericTable
               bugs={bugsData}
               columns={columns}
-              name={name.mainView}
+              name={stateName.mainView}
               tableApi={bugsEndpoint}
               params={params}
               totalPages={bugs.total_pages}
@@ -207,7 +207,7 @@ MainView.propTypes = {
     bugs: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.number,
-        status: PropTypes.string,
+        failureStatus: PropTypes.string,
         summary: PropTypes.string,
         whiteboard: PropTypes.string,
       }),
@@ -245,9 +245,9 @@ const mapStateToProps = state => ({
   bugs: state.bugsData.data,
   graphs: state.bugsGraphData.data,
   tableFailureMessage: state.bugsData.message,
-  tableFailureStatus: state.bugsData.status,
+  tableFailureStatus: state.bugsData.failureStatus,
   graphsFailureMessage: state.bugsGraphData.message,
-  graphsFailureStatus: state.bugsGraphData.status,
+  graphsFailureStatus: state.bugsGraphData.failureStatus,
   from: state.dates.from,
   to: state.dates.to,
   tree: state.mainTree.tree,

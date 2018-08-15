@@ -112,7 +112,7 @@ export const processErrorMessage = function processErrorMessage(errorMessage, st
       if (prettyErrorMessages[key]) {
         messages.push(prettyErrorMessages[key]);
       } else {
-        messages.push(key !== 'detail' ? `${key}: ${value}` : value);
+        messages.push(`${key}: ${value}`);
       }
     }
   }

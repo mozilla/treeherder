@@ -1,10 +1,12 @@
 import re
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from treeherder.model import models
-from treeherder.webapp.api.utils import to_timestamp
+from treeherder.webapp.api.utils import (REPO_GROUPS,
+                                         to_timestamp)
 
 
 class NoOpSerializer(serializers.Serializer):
@@ -308,7 +310,7 @@ class FailureCountSerializer(serializers.ModelSerializer):
         fields = ('date', 'test_runs', 'failure_count')
 
 
-class QueryParamsSerializer(serializers.Serializer):
+class FailuresQueryParamsSerializer(serializers.Serializer):
     startday = serializers.DateTimeField(format='%Y-%m-%d', input_formats=['%Y-%m-%d'])
     endday = serializers.DateTimeField(format='%Y-%m-%d', input_formats=['%Y-%m-%d'])
     tree = serializers.CharField()
@@ -317,4 +319,22 @@ class QueryParamsSerializer(serializers.Serializer):
     def validate_bug(self, bug):
         if bug is None and self.context == 'requireBug':
             raise serializers.ValidationError('This field is required.')
+
+        elif bug:
+            try:
+                models.Bugscache.objects.get(id=bug)
+
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError('{} does not exist.'.format(bug))
+
         return bug
+
+    def validate_tree(self, tree):
+        if tree != 'all' and tree not in REPO_GROUPS:
+            try:
+                models.Repository.objects.get(name=tree)
+
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError('{} does not exist.'.format(tree))
+
+        return tree

@@ -16,7 +16,7 @@ import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams
   getJobsUrl } from '../helpers/url';
 import BugLogColumn from './BugLogColumn';
 import ErrorMessages from './ErrorMessages';
-import { name } from './constants';
+import { stateName } from './constants';
 
 class BugDetailsView extends React.Component {
   constructor(props) {
@@ -59,7 +59,7 @@ class BugDetailsView extends React.Component {
       updateQueryParams('/bugdetails', queryString, history, location);
       this.updateData(params);
     } else {
-      fetchData(createApiUrl(graphsEndpoint, { startday: from, endday: to, tree, bug: bugId }), name.detailsViewGraphs);
+      fetchData(createApiUrl(graphsEndpoint, { startday: from, endday: to, tree, bug: bugId }), stateName.detailsViewGraphs);
     }
   }
 
@@ -67,15 +67,15 @@ class BugDetailsView extends React.Component {
     const { startday, endday, tree, bug } = params;
     const { updateTree, updateDates, fetchData, bugId, fetchFullBugDetails, updateBugDetails, summary } = this.props;
 
-    updateDates(startday, endday, name.detailsView);
-    updateTree(tree, name.detailsView);
-    fetchData(createApiUrl(graphsEndpoint, params), name.detailsViewGraphs);
+    updateDates(startday, endday, stateName.detailsView);
+    updateTree(tree, stateName.detailsView);
+    fetchData(createApiUrl(graphsEndpoint, params), stateName.detailsViewGraphs);
 
     if (bug !== bugId) {
-      updateBugDetails(bug, summary, name.detailsView);
-      fetchFullBugDetails(createApiUrl(bugDetailsEndpoint, params), name.detailsView, bug);
+      updateBugDetails(bug, summary, stateName.detailsView);
+      fetchFullBugDetails(createApiUrl(bugDetailsEndpoint, params), stateName.detailsView, bug);
     } else {
-      fetchData(createApiUrl(bugDetailsEndpoint, params), name.detailsView);
+      fetchData(createApiUrl(bugDetailsEndpoint, params), stateName.detailsView);
     }
   }
 
@@ -137,7 +137,7 @@ class BugDetailsView extends React.Component {
           tableApi={bugDetailsEndpoint}
           graphApi={graphsEndpoint}
           bugId={bugId}
-          name={name.detailsView}
+          name={stateName.detailsView}
           graphName="BUG_DETAILS_GRAPHS"
           tree={tree}
         />
@@ -172,7 +172,7 @@ class BugDetailsView extends React.Component {
               <GraphsContainer
                 graphOneData={graphOneData}
                 graphTwoData={graphTwoData}
-                name={name.detailsView}
+                name={stateName.detailsView}
                 tree={tree}
                 graphName="BUG_DETAILS_GRAPHS"
                 tableApi={bugDetailsEndpoint}
@@ -186,7 +186,7 @@ class BugDetailsView extends React.Component {
               <GenericTable
                 bugs={bugDetails.results}
                 columns={columns}
-                name={name.detailsView}
+                name={stateName.detailsView}
                 tableApi={bugDetailsEndpoint}
                 totalPages={bugDetails.total_pages}
                 params={params}
@@ -282,8 +282,8 @@ const mapStateToProps = state => ({
   graphs: state.bugDetailsGraphData.data,
   tableFailureMessage: state.bugDetailsData.message,
   graphFailureMessage: state.bugDetailsGraphData.message,
-  tableFailureStatus: state.bugDetailsData.status,
-  graphFailureStatus: state.bugDetailsGraphData.status,
+  tableFailureStatus: state.bugDetailsData.failureStatus,
+  graphFailureStatus: state.bugDetailsGraphData.failureStatus,
   from: state.bugDetailsDates.from,
   to: state.bugDetailsDates.to,
   tree: state.bugDetailsTree.tree,

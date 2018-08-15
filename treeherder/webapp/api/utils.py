@@ -3,11 +3,8 @@ from datetime import (datetime,
                       timedelta)
 
 import django_filters
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.exceptions import NotFound
 
-from treeherder.model.models import (Bugscache,
-                                     Repository)
+from treeherder.model.models import Repository
 
 REPO_GROUPS = {
     'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
@@ -55,22 +52,6 @@ def get_repository(name):
     if name in REPO_GROUPS:
         param = REPO_GROUPS[name]
     else:
-        try:
-            Repository.objects.get(name=name)
-
-        except ObjectDoesNotExist:
-            raise NotFound('The {} repository does not exist.'.format(name))
-
         param = [name]
 
     return queryset.filter(name__in=param)
-
-
-def validate_bug(bug_id):
-    try:
-        Bugscache.objects.get(id=bug_id)
-
-    except ObjectDoesNotExist:
-        raise NotFound('Bug #{} does not exist.'.format(bug_id))
-
-    return bug_id

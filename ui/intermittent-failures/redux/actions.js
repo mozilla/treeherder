@@ -1,10 +1,10 @@
 import { formatBugs } from '../helpers';
 import { bugzillaBugsApi } from '../../helpers/url';
 
-const fetchBugDataFailure = (name, error, status) => ({
+const fetchBugDataFailure = (name, error, failureStatus) => ({
   type: `FETCH_${name}_FAILURE`,
   message: error,
-  status,
+  failureStatus,
 });
 
 export const updateSelectedBugDetails = (bugId, summary, name) => ({
@@ -36,7 +36,7 @@ export const fetchBugData = (url, name) => (dispatch) => {
 export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
   dispatch(fetchBugData(url, name),
   ).then(() => {
-    if (!getState().bugsData.status) {
+    if (!getState().bugsData.failureStatus) {
       const { results } = getState().bugsData.data;
       const bugs_list = formatBugs(results);
       return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
@@ -50,7 +50,7 @@ export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
 export const fetchBugsThenBugDetails = (url, name, bug) => (dispatch, getState) => (
   dispatch(fetchBugData(url, name),
   ).then(() => {
-    if (!getState().bugDetailsData.status) {
+    if (!getState().bugDetailsData.failureStatus) {
       return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
         include_fields: 'summary',
         id: bug,
