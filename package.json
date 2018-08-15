@@ -11,10 +11,10 @@
     "yarn": "1.9.4"
   },
   "dependencies": {
-    "@types/angular": "1.6.49",
-    "@types/prop-types": "15.5.5",
-    "@types/react": "16.4.9",
-    "@types/react-dom": "16.0.7",
+    "@types/angular": "*",
+    "@types/prop-types": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
     "ajv": "6.5.2",
     "angular": "1.7.2",
     "angular-clipboard": "1.6.2",
