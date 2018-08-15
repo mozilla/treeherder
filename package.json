@@ -13,7 +13,7 @@
   "dependencies": {
     "@types/angular": "1.6.49",
     "@types/prop-types": "15.5.5",
-    "@types/react": "16.4.9",
+    "@types/react": "16.4.10",
     "@types/react-dom": "16.0.7",
     "ajv": "6.5.2",
     "angular": "1.7.2",
