@@ -98,23 +98,24 @@ Advanced Configuration
 ### Changing which Data to Ingest
 
 ``treeherder.services.pulse.sources`` provides default sources for both Jobs and Pushes.
-However you can override these defaults using the standard env methods show below.
 
 #### Pushes
-``PULSE_PUSH_SOURCES`` defines a list of dictionaries with exchange and routing key strings.
-```bash
-export PULSE_PUSH_SOURCES='[{"exchange": "exchange/taskcluster-github/v1/push","routing_keys": ["bugzilla#"]}]'
+``push_sources`` defines a list of exchanges with routing keys.
+It's rare you'll need to change this so it's not configurable via the environment.
+However if you wanted to, say, only get pushes to GitHub you would edit the list to look like this:
+```python
+push_sources = [
+    "exchange/taskcluster-github/v1/push.#",
+]
 ```
 
 #### Jobs
+Job Exchanges and Projects can be configured in the environment like so:
+
 ``PULSE_JOB_EXCHANGES`` defines a list of exchanges to listen to.
 ```bash
 export PULSE_JOB_EXCHANGES="exchange/taskcluster-treeherder/v1/jobs,exchange/fxtesteng/jobs"
 ```
-
-To change which exchanges you listen to for pushes, you would modify
-``PULSE_PUSH_SOURCES``.  For instance, to get only Gitbub pushes for Bugzilla,
-you would set:
 
 ``PULSE_JOB_PROJECTS`` defines a list of projects to listen to.
 ```bash
@@ -153,7 +154,7 @@ celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultset
 
 * The ``pushlog`` queue loads up to the last 10 Mercurial pushes that exist.
 * The ``store_pulse_resultsets`` queue will ingest all the pushes from the exchanges
-  specified in ``PULSE_PUSH_SOURCES``.  This can be Mercurial and Github
+  specified in ``push_sources``.  This can be Mercurial and Github
 * The ``store_pulse_jobs`` queue will ingest all the jobs from the exchanges
   specified in ``PULSE_JOB_EXCHANGES``.
 

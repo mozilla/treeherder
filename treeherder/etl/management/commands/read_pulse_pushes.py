@@ -22,9 +22,10 @@ class Command(BaseCommand):
             consumer = PushConsumer(connection, "resultsets")
 
             for source in push_sources:
-                exchange = get_exchange(connection, source["exchange"])
+                exchange, _, routing_keys = source.partition('.')
+                exchange = get_exchange(connection, exchange)
 
-                for routing_key in source["routing_keys"]:
+                for routing_key in routing_keys.split(','):
                     consumer.bind_to(exchange, routing_key)
                     new_binding_str = consumer.get_binding_str(
                         exchange.name,
