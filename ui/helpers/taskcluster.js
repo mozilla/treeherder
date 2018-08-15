@@ -18,6 +18,7 @@ const taskcluster = (() => {
         accessToken: JSON.parse(userSession).accessToken,
         oidcProvider,
         url: getUserSessionUrl(oidcProvider),
+        rootUrl: tcRootUrl,
       });
     }
 

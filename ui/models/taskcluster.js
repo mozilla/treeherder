@@ -46,7 +46,7 @@ export default class TaskclusterModel {
     if (action.kind === 'hook') {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
-      const auth = new Auth();
+      const auth = new Auth({ rootUrl: tcRootUrl });
       const hooks = new Hooks({
         credentialAgent: taskcluster.getAgent(),
         rootUrl: tcRootUrl,
