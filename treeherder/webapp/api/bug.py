@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
@@ -15,17 +16,17 @@ class BugJobMapViewSet(viewsets.ViewSet):
         job_id = int(request.data['job_id'])
         bug_id = int(request.data['bug_id'])
 
-        bug_map = BugJobMap.objects.filter(job_id=job_id, bug_id=bug_id).first()
-        if bug_map:
-            return Response({"message": "Bug job map skipped: mapping already exists"}, 200)
+        try:
+            BugJobMap.create(
+                job_id=job_id,
+                bug_id=bug_id,
+                user=request.user,
+            )
+            message = "Bug job map saved"
+        except IntegrityError:
+            message = "Bug job map skipped: mapping already exists"
 
-        BugJobMap.create(
-            job_id=job_id,
-            bug_id=bug_id,
-            user=request.user,
-        )
-
-        return Response({"message": "Bug job map saved"})
+        return Response({"message": message})
 
     def destroy(self, request, project, pk=None):
         """
