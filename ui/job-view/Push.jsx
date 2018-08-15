@@ -120,7 +120,7 @@ export default class Push extends React.Component {
   render() {
     const { push, isLoggedIn, isStaff, $injector, repoName } = this.props;
     const { watched, runnableVisible } = this.state;
-    const { currentRepo, urlBasePath } = this.$rootScope;
+    const { currentRepo } = this.$rootScope;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
     return (
@@ -135,7 +135,6 @@ export default class Push extends React.Component {
           isLoggedIn={isLoggedIn}
           isStaff={isStaff}
           repoName={repoName}
-          urlBasePath={urlBasePath}
           $injector={$injector}
           runnableVisible={runnableVisible}
           showRunnableJobsCb={this.showRunnableJobs}
