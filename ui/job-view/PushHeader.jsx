@@ -5,6 +5,7 @@ import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/display';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
+import { getJobsUrl } from '../helpers/url';
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -54,7 +55,7 @@ export default class PushHeader extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    const { $injector, pushTimestamp, urlBasePath, repoName, revision, author } = this.props;
+    const { $injector, pushTimestamp, repoName, revision, author } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
     this.thJobFilters = $injector.get('thJobFilters');
@@ -64,8 +65,8 @@ export default class PushHeader extends React.PureComponent {
     this.ThResultSetModel = $injector.get('ThResultSetModel');
 
     this.pushDateStr = toDateStr(pushTimestamp);
-    this.revisionPushFilterUrl = `${urlBasePath}?repo=${repoName}&revision=${revision}`;
-    this.authorPushFilterUrl = `${urlBasePath}?repo=${repoName}&author=${encodeURIComponent(author)}`;
+    this.revisionPushFilterUrl = getJobsUrl({ repo: repoName, revision });
+    this.authorPushFilterUrl = getJobsUrl({ repo: repoName, author });
 
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
     this.triggerNewJobs = this.triggerNewJobs.bind(this);
@@ -290,7 +291,6 @@ PushHeader.propTypes = {
   watchState: PropTypes.string,
   isLoggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
-  urlBasePath: PropTypes.string,
 };
 
 PushHeader.defaultProps = {
@@ -298,5 +298,4 @@ PushHeader.defaultProps = {
   watchState: 'none',
   isLoggedIn: false,
   isStaff: false,
-  urlBasePath: '',
 };

@@ -377,9 +377,6 @@ treeherderApp.controller('MainCtrl', [
             // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
 
-            // used to avoid bad urls when the app redirects internally
-            $rootScope.urlBasePath = $location.absUrl().split('?')[0];
-
             const newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
             // set initially, then don't reload the page.
