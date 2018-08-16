@@ -20,6 +20,7 @@ export const userSessionFromAuthResult = (authResult) => {
     fullName: authResult.idTokenPayload.nickname,
     picture: authResult.idTokenPayload.picture,
     oidcSubject: authResult.idTokenPayload.sub,
+    url: authResult.url,
     // expiresAt is used by the django backend to expire the user session
     expiresAt,
     // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling

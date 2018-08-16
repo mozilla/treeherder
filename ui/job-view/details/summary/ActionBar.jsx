@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Queue, slugid } from 'taskcluster-client-web';
+import { slugid } from 'taskcluster-client-web';
 import $ from 'jquery';
 import jsyaml from 'js-yaml';
 
@@ -164,7 +164,7 @@ export default class ActionBar extends React.Component {
             }
 
             // Otherwise we'll figure things out with actions.yml
-            const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+            const queue = taskcluster.getQueue();
 
             // buildUrl is documented at
             // https://github.com/taskcluster/taskcluster-client-web#construct-urls

@@ -72,7 +72,7 @@
     "redux": "4.0.0",
     "redux-debounce": "1.0.1",
     "redux-thunk": "2.3.0",
-    "taskcluster-client-web": "7.0.0",
+    "taskcluster-client-web": "8.0.4",
     "taskcluster-lib-scopes": "10.0.1"
   },
   "devDependencies": {

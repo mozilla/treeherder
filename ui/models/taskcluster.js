@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import jsone from 'json-e';
-import { Queue, Auth, Hooks } from 'taskcluster-client-web';
+import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster from '../helpers/taskcluster';
+import { tcRootUrl } from '../helpers/url';
 
 export default class TaskclusterModel {
   constructor(notify) {
@@ -28,7 +29,7 @@ export default class TaskclusterModel {
       taskId: taskId || null,
       input,
     }, staticActionVariables);
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
 
     if (action.kind === 'task') {
       context.task = task;
@@ -45,8 +46,11 @@ export default class TaskclusterModel {
     if (action.kind === 'hook') {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
-      const auth = new Auth();
-      const hooks = new Hooks({ credentialAgent: taskcluster.getAgent() });
+      const auth = new Auth({ rootUrl: tcRootUrl });
+      const hooks = new Hooks({
+        credentialAgent: taskcluster.getAgent(),
+        rootUrl: tcRootUrl,
+      });
       const decisionTask = await queue.task(decisionTaskId);
       const expansion = await auth.expandScopes({
                                                   scopes: decisionTask.scopes,
@@ -75,7 +79,7 @@ export default class TaskclusterModel {
       return;
     }
 
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
