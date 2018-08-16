@@ -168,8 +168,10 @@ treeherder.factory('ThResultSetStore', [
                         // clock, but it should hopefully prevent us from getting too
                         // far behind in cases where we've stopped receiving job updates
                         // due e.g. to looking at a completed push)
-                        const lastPollInterval = new Date(Date.now() - (5 * jobPollInterval));
-                        lastJobUpdate = lastJobUpdate > lastPollInterval ? lastJobUpdate : lastPollInterval;
+                        lastJobUpdate = _.max([
+                            new Date(Date.now() - (5 * jobPollInterval)),
+                            lastJobUpdate,
+                        ]);
                     }
                     schedulePoll();
                 });
@@ -826,7 +828,7 @@ treeherder.factory('ThResultSetStore', [
                                 .map(jobList => getLastModifiedJobTime(jobList))
                                 .filter(x => x);
                             if (lastModifiedTimes.length) {
-                                var lastModifiedTime = lastModifiedTimes.reduce((a, b) => (a > b ? a : b));
+                                var lastModifiedTime = _.max(lastModifiedTimes);
                                 // subtract 3 seconds to take in account a possible delay
                                 // between the job requests
                                 lastModifiedTime.setSeconds(lastModifiedTime.getSeconds() - 3);
@@ -859,8 +861,7 @@ treeherder.factory('ThResultSetStore', [
 
         var getLastModifiedJobTime = function (jobList) {
             if (jobList.length > 0) {
-                // Math.max returns the numeric value, and removes the Date object
-                return jobList.map(job => new Date(job.last_modified + 'Z')).reduce((a, b) => (a > b ? a : b));
+                return _.max(jobList.map(job => new Date(job.last_modified + 'Z')));
             }
             return undefined;
         };
