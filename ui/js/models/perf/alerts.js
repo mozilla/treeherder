@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import max from 'lodash/max';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
@@ -117,7 +118,7 @@ treeherder.factory('PhAlerts', [
 
             const formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
-                (alert.title.padEnd(_.max(alertList, function (alert) { return alert.title.length; }).title.length + 5)) +
+                (alert.title.padEnd(max(alertList, function (alert) { return alert.title.length; }).title.length + 5)) +
                 displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };
 
@@ -205,8 +206,8 @@ treeherder.factory('PhAlerts', [
             }
 
             if (alertsInSummary.length > 1) {
-                title = Math.min.apply(null, alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
-                    _.max(alertsInSummary.map(alert => alert.amount_pct)) + '%';
+                title = Math.min(...alertsInSummary.map(alert => alert.amount_pct)) + ' - ' +
+                    Math.max(...alertsInSummary.map(alert => alert.amount_pct)) + '%';
             } else if (alertsInSummary.length === 1) {
                 title = alertsInSummary[0].amount_pct + '%';
             } else {
