@@ -112,34 +112,24 @@ push_sources = [
 #### Jobs
 Job Exchanges and Projects can be configured in the environment like so:
 
-``PULSE_JOB_EXCHANGES`` defines a list of exchanges to listen to.
+``PULSE_JOB_SOURCES`` defines a list of exchanges with projects.
 ```bash
-export PULSE_JOB_EXCHANGES="exchange/taskcluster-treeherder/v1/jobs,exchange/fxtesteng/jobs"
+export PULSE_JOB_SOURCES="exchange/taskcluster-treeherder/v1/jobs.mozilla-central:mozilla-inbound,exchange/fxtesteng/jobs.#",
 ```
 
-``PULSE_JOB_PROJECTS`` defines a list of projects to listen to.
-```bash
-export PULSE_JOB_PROJECTS="try,mozilla-central"
-```
+In this example we've defined two exchanges:
 
-The source settings are combined such that all `projects` are applied to **each** `exchange`.
-The example settings above would produce the following settings:
+* ``exchange/taskcluster-treeherder/v1/jobs``
+* ``exchange/fxtesteng/jobs``
 
-```python
-[{
-    "exchange": "exchange/taskcluster-treeherder/v1/jobs",
-    "projects": [
-        "try",
-        "mozilla-central",
-    ],
-}, {
-    "exchange": "exchange/fxtesteng/jobs",
-    "projects": [
-        "try",
-        "mozilla-central",
-    ],
-}]
-```
+The taskcluster-treeherder exchange defines two projects:
+
+* ``mozilla-central``
+* ``mozilla-inbound``
+
+The ``fxtesteng`` exchange defines a wildcard (``#``) for its project.
+
+When Jobs are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending ``#.`` to each project key.
 
 
 ### Advanced Celery options
