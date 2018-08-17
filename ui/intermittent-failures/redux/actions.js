@@ -13,10 +13,19 @@ export const updateSelectedBugDetails = (bugId, summary, name) => ({
   summary,
 });
 
+export const processingRequest = name => ({
+  type: `REQUESTING_${name}_DATA`,
+});
+
+export const hasError = name => ({
+  type: `${name}_ERROR`,
+});
+
 export const fetchBugData = (url, name) => (dispatch) => {
   // reset when fetching data after a previous failure
   let status = null;
   dispatch(fetchBugDataFailure(name, {}, null));
+  dispatch(processingRequest(name));
   return fetch(url)
     .then((response) => {
       status = response.status;
@@ -34,8 +43,8 @@ export const fetchBugData = (url, name) => (dispatch) => {
 };
 
 export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
-  dispatch(fetchBugData(url, name),
-  ).then(() => {
+  dispatch(fetchBugData(url, name))
+  .then(() => {
     if (!getState().bugsData.failureStatus) {
       const { results } = getState().bugsData.data;
       const bugs_list = formatBugs(results);
@@ -43,23 +52,6 @@ export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
         include_fields: 'id,status,summary,whiteboard',
         id: bugs_list,
       }), `BUGZILLA_${name}`));
-    }
-  })
-);
-
-export const fetchBugsThenBugDetails = (url, name, bug) => (dispatch, getState) => (
-  dispatch(fetchBugData(url, name),
-  ).then(() => {
-    if (!getState().bugDetailsData.failureStatus) {
-      return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
-        include_fields: 'summary',
-        id: bug,
-      }), `BUGZILLA_${name}`))
-      .then((response) => {
-        const summary = response.data.bugs.length < 1 ? '' : response.data.bugs[0].summary;
-        dispatch(
-          updateSelectedBugDetails(bug, summary, name));
-      });
     }
   })
 );

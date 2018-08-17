@@ -2,22 +2,30 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Container, Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
+import Icon from 'react-fontawesome';
 
 import Navigation from './Navigation';
 import GenericTable from './GenericTable';
 import { fetchBugData, updateTreeName, updateDateRange, fetchBugsThenBugzilla } from './redux/actions';
 import BugColumn from './BugColumn';
-import { updateQueryParams, mergeData, calculateMetrics, prettyDate, checkQueryParams } from './helpers';
+import { updateQueryParams, mergeData, calculateMetrics, prettyDate, validateQueryParams } from './helpers';
 import GraphsContainer from './GraphsContainer';
 import { bugsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl } from '../helpers/url';
 import ErrorMessages from './ErrorMessages';
 import { stateName } from './constants';
+import ErrorBoundary from './ErrorBoundary';
 
 class MainView extends React.Component {
   constructor(props) {
     super(props);
     this.updateData = this.updateData.bind(this);
     this.setQueryParams = this.setQueryParams.bind(this);
+    this.checkQueryValidation = this.checkQueryValidation.bind(this);
+
+    this.state = {
+                    errorMessages: [],
+                    initialParamsSet: null,
+                  };
   }
 
   componentDidMount() {
@@ -29,54 +37,77 @@ class MainView extends React.Component {
 
     // update all data if the user edits dates or tree via the query params
     if (location.search !== this.props.location.search) {
-      this.updateData(parseQueryParams(location.search));
+      this.checkQueryValidation(parseQueryParams(location.search), this.state.initialParamsSet);
     }
-    // update query params if dates or tree are updated via the UI
+    // update query params if dates or tree are updated
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
       const queryString = createQueryParams({ startday: from, endday: to, tree });
-
-      updateQueryParams('/main', queryString, history, this.props.location);
+      if (queryString !== location.search) {
+        updateQueryParams('/main', queryString, history, this.props.location);
+      }
     }
   }
 
   setQueryParams() {
     const { from, to, tree, location, history, graphs, fetchData } = this.props;
-
     // if the query params are not specified, set params based on default props
     // otherwise update data based on the params
     if (location.search === '') {
       const params = { startday: from, endday: to, tree };
       const queryString = createQueryParams(params);
 
+      this.setState({ initialParamsSet: true });
       updateQueryParams('/main', queryString, history, location);
 
       if (Object.keys(graphs).length === 0) {
-        // only fetch graph data on initial page load
+        // only fetch graph data on initial page load; table component fetches
+        // data when being mounted
         fetchData(createApiUrl(graphsEndpoint, params), stateName.mainViewGraphs);
       }
     } else {
-      // if some query strings are missing when url is pasted into address bar,
-      // set default values, update url and update all data
-      const params = checkQueryParams(parseQueryParams(location.search));
-      const queryString = createQueryParams(params);
-      updateQueryParams('/main', queryString, history, location);
-      this.updateData(params);
+      // show an error message if query strings are missing when url is pasted into
+      // address bar, otherwise fetch data
+      this.checkQueryValidation(parseQueryParams(location.search));
     }
   }
 
-  updateData(params) {
+  checkQueryValidation(params, urlChanged = false) {
+    const messages = validateQueryParams(params);
+    const { errorMessages, initialParamsSet } = this.state;
+
+    if (messages.length > 0) {
+      this.setState({ errorMessages: messages });
+    } else {
+      if (errorMessages.length > 0) {
+        this.setState({ errorMessages: [] });
+      }
+      if (!initialParamsSet) {
+        this.setState({ initialParamsSet: true });
+      }
+
+      this.updateData(params, urlChanged);
+    }
+  }
+
+  updateData(params, urlChanged) {
     const { startday, endday, tree } = params;
     const { updateTree, updateDates, fetchData, fetchFullBugData } = this.props;
 
     updateDates(startday, endday, stateName.mainView);
     updateTree(tree, stateName.mainView);
     fetchData(createApiUrl(graphsEndpoint, params), stateName.mainViewGraphs);
-    fetchFullBugData(createApiUrl(bugsEndpoint, params), stateName.mainView);
+
+    // the table library fetches data directly when its component mounts and in response
+    // to a user selecting pagesize or page; this condition will prevent duplicate requests
+    // when this component mounts and when the table mounts.
+    if (urlChanged) {
+      fetchFullBugData(createApiUrl(bugsEndpoint, params), stateName.mainView);
+    }
   }
 
   render() {
     const { bugs, tableFailureMessage, graphFailureMessage, from, to, tree, bugzillaData, graphs,
-      tableFailureStatus, graphFailureStatus } = this.props;
+      tableFailureStatus, graphFailureStatus, isFetchingBugs, isFetchingGraphs } = this.props;
     const columns = [
       {
         Header: 'Bug',
@@ -117,6 +148,7 @@ class MainView extends React.Component {
       ({ graphOneData, graphTwoData, totalFailures, totalRuns } = calculateMetrics(graphs));
     }
     const params = { startday: from, endday: to, tree };
+    const { errorMessages, initialParamsSet } = this.state;
 
     return (
       <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
@@ -128,38 +160,53 @@ class MainView extends React.Component {
           graphApi={graphsEndpoint}
           tree={tree}
         />
-
-        {tableFailureStatus || graphFailureStatus ?
+        {(isFetchingGraphs || isFetchingBugs) &&
+          !(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
+          <div className="loading">
+            <Icon
+              spin
+              name="cog"
+              size="4x"
+            />
+          </div>}
+        {(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
           <ErrorMessages
-            failureMessage={!tableFailureMessage ? graphFailureMessage : tableFailureMessage}
+            failureMessage={tableFailureStatus ? tableFailureMessage : graphFailureMessage}
             failureStatus={tableFailureStatus || graphFailureStatus}
-          /> :
-          <React.Fragment>
-            <Row>
-              <Col xs="12" className="mx-auto pt-3"><h1>Intermittent Test Failures</h1></Col>
-            </Row>
-            <Row>
-              <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs="12" className="mx-auto"><p className="text-secondary">{totalFailures} bugs in {totalRuns} pushes</p>
-              </Col>
-            </Row>
+            errorMessages={errorMessages}
+          />}
+        <Row>
+          <Col xs="12" className="mx-auto pt-3"><h1>Intermittent Test Failures</h1></Col>
+        </Row>
+        <Row>
+          <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs="12" className="mx-auto"><p className="text-secondary">{totalFailures} bugs in {totalRuns} pushes</p>
+          </Col>
+        </Row>
 
-            {graphOneData && graphTwoData &&
-              <GraphsContainer
-                graphOneData={graphOneData}
-                graphTwoData={graphTwoData}
-                name={stateName.mainView}
-                params={params}
-                graphName={stateName.mainViewGraphs}
-                tableApi={bugsEndpoint}
-                graphApi={graphsEndpoint}
-                tree={tree}
-              />}
+        <ErrorBoundary
+          stateName={stateName.mainViewGraphs}
+        >
+          {graphOneData && graphTwoData &&
+          <GraphsContainer
+            graphOneData={graphOneData}
+            graphTwoData={graphTwoData}
+            name={stateName.mainView}
+            params={params}
+            graphName={stateName.mainViewGraphs}
+            tableApi={bugsEndpoint}
+            graphApi={graphsEndpoint}
+            tree={tree}
+          />}
+        </ErrorBoundary>
 
-            {bugsData &&
+        <ErrorBoundary
+          stateName={stateName.mainView}
+        >
+          {initialParamsSet &&
             <GenericTable
               bugs={bugsData}
               columns={columns}
@@ -168,9 +215,8 @@ class MainView extends React.Component {
               params={params}
               totalPages={bugs.total_pages}
               trStyling
-              updateTable={this.updateTable}
             />}
-          </React.Fragment>}
+        </ErrorBoundary>
       </Container>);
   }
 }
@@ -228,6 +274,8 @@ MainView.propTypes = {
   graphFailureMessage: PropTypes.object,
   tableFailureStatus: PropTypes.number,
   graphFailureStatus: PropTypes.number,
+  isFetchingBugs: PropTypes.bool,
+  isFetchingGraphs: PropTypes.bool,
 };
 
 MainView.defaultProps = {
@@ -239,15 +287,19 @@ MainView.defaultProps = {
   updateTree: null,
   updateDates: null,
   fetchFullBugData: null,
+  isFetchingBugs: null,
+  isFetchingGraphs: null,
 };
 
 const mapStateToProps = state => ({
   bugs: state.bugsData.data,
   graphs: state.bugsGraphData.data,
+  isFetchingBugs: state.bugsData.isFetching,
+  isFetchingGraphs: state.bugsGraphData.isFetching,
   tableFailureMessage: state.bugsData.message,
   tableFailureStatus: state.bugsData.failureStatus,
-  graphsFailureMessage: state.bugsGraphData.message,
-  graphsFailureStatus: state.bugsGraphData.failureStatus,
+  graphFailureMessage: state.bugsGraphData.message,
+  graphFailureStatus: state.bugsGraphData.failureStatus,
   from: state.dates.from,
   to: state.dates.to,
   tree: state.mainTree.tree,

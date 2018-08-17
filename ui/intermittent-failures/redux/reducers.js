@@ -2,18 +2,30 @@ import moment from 'moment';
 
 import { setDateRange } from '../helpers';
 
-export const fetchData = (name = '') => (state = { data: {}, message: {}, failureStatus: null }, action) => {
+export const fetchData = (name = '') => (state = { data: {}, message: {}, failureStatus: null, isFetching: true }, action) => {
   switch (action.type) {
+    case `REQUESTING_${name}_DATA`:
+      return {
+        ...state,
+        isFetching: true,
+      };
     case `FETCH_${name}_SUCCESS`:
       return {
         ...state,
         data: action.data,
+        isFetching: false,
       };
     case `FETCH_${name}_FAILURE`:
       return {
         ...state,
         message: action.message,
         failureStatus: action.failureStatus,
+        isFetching: false,
+      };
+    case `${name}_ERROR`:
+      return {
+        ...state,
+        isFetching: false,
       };
     default:
       return state;

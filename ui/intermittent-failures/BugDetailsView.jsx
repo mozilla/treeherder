@@ -6,17 +6,16 @@ import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 
 import Navigation from './Navigation';
-import { fetchBugData, updateDateRange, updateTreeName, updateSelectedBugDetails,
-  fetchBugsThenBugDetails } from './redux/actions';
+import { fetchBugData, updateDateRange, updateTreeName, updateSelectedBugDetails } from './redux/actions';
 import GenericTable from './GenericTable';
 import GraphsContainer from './GraphsContainer';
-import { updateQueryParams, calculateMetrics, prettyDate, checkQueryParams,
-  processErrorMessage } from './helpers';
+import { updateQueryParams, calculateMetrics, prettyDate, validateQueryParams } from './helpers';
 import { bugDetailsEndpoint, graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl,
-  getJobsUrl } from '../helpers/url';
+  getJobsUrl, bugzillaBugsApi } from '../helpers/url';
 import BugLogColumn from './BugLogColumn';
 import ErrorMessages from './ErrorMessages';
 import { stateName } from './constants';
+import ErrorBoundary from './ErrorBoundary';
 
 class BugDetailsView extends React.Component {
   constructor(props) {
@@ -24,6 +23,12 @@ class BugDetailsView extends React.Component {
 
     this.updateData = this.updateData.bind(this);
     this.setQueryParams = this.setQueryParams.bind(this);
+    this.checkQueryValidation = this.checkQueryValidation.bind(this);
+
+    this.state = {
+                  errorMessages: [],
+                  initialParamsSet: null,
+                };
   }
 
   componentDidMount() {
@@ -31,57 +36,84 @@ class BugDetailsView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { history, from, to, tree, location, bugId } = nextProps;
+    const { history, from, to, tree, location, summary, bugId, bugzillaData,
+      updateBugDetails } = nextProps;
 
     if (location.search !== this.props.location.search) {
-      this.updateData(parseQueryParams(location.search));
+      this.checkQueryValidation(parseQueryParams(location.search), this.state.initialParamsSet);
     }
 
-    // update query params in the address bar if dates or tree are updated via the UI
+    // update query params in the address bar if dates or tree are updated
     if (from !== this.props.from || to !== this.props.to || tree !== this.props.tree) {
       const queryString = createQueryParams({ startday: from, endday: to, tree, bug: bugId });
+      if (queryString !== location.search) {
+        updateQueryParams('/bugdetails', queryString, history, this.props.location);
+      }
+    }
 
-      updateQueryParams('/bugdetails', queryString, history, this.props.location);
+    if (bugzillaData.bugs && bugzillaData.bugs.length > 0 && bugzillaData.bugs[0].summary !== summary) {
+      updateBugDetails(bugzillaData.bugs[0].id, bugzillaData.bugs[0].summary, stateName.detailsView);
     }
 
   }
 
   setQueryParams() {
-    const { from, to, tree, location, bugId, fetchData, history } = this.props;
+    const { from, to, tree, location, bugId, fetchData } = this.props;
 
-    // data for bug details is provided by MainView, so if the default props are undefined
-    // or query strings are missing (user pastes url into address bar), set default values,
-    // update url with new query params and update all data
+    // props for bug details is provided by MainView, so if they are missing
+    // (user pastes url into address bar) we need to check query strings
     if (!from || !to || !tree || !bugId) {
-      const params = checkQueryParams(parseQueryParams(location.search));
-      const queryString = createQueryParams(params);
-
-      updateQueryParams('/bugdetails', queryString, history, location);
-      this.updateData(params);
+      this.checkQueryValidation(parseQueryParams(location.search));
     } else {
+      this.setState({ initialParamsSet: true });
       fetchData(createApiUrl(graphsEndpoint, { startday: from, endday: to, tree, bug: bugId }), stateName.detailsViewGraphs);
     }
   }
 
-  updateData(params) {
+  checkQueryValidation(params, urlChanged = false) {
+    const messages = validateQueryParams(params, true);
+    const { errorMessages, initialParamsSet } = this.state;
+
+    if (messages.length > 0) {
+      this.setState({ errorMessages: messages });
+    } else {
+      if (errorMessages.length > 0) {
+        this.setState({ errorMessages: [] });
+      }
+      if (!initialParamsSet) {
+        this.setState({ initialParamsSet: true });
+      }
+
+      this.updateData(params, urlChanged);
+    }
+  }
+
+  updateData(params, urlChanged = false) {
     const { startday, endday, tree, bug } = params;
-    const { updateTree, updateDates, fetchData, bugId, fetchFullBugDetails, updateBugDetails, summary } = this.props;
+    const { updateTree, updateDates, fetchData, bugId, updateBugDetails, summary } = this.props;
 
     updateDates(startday, endday, stateName.detailsView);
     updateTree(tree, stateName.detailsView);
-    fetchData(createApiUrl(graphsEndpoint, params), stateName.detailsViewGraphs);
+
+    if (bug) {
+      fetchData(createApiUrl(graphsEndpoint, params), stateName.detailsViewGraphs);
+    }
 
     if (bug !== bugId) {
       updateBugDetails(bug, summary, stateName.detailsView);
-      fetchFullBugDetails(createApiUrl(bugDetailsEndpoint, params), stateName.detailsView, bug);
-    } else {
+      fetchData(bugzillaBugsApi('rest/bug', { include_fields: 'summary,id', id: bug }), 'BUGZILLA_BUG_DETAILS');
+    }
+    // the table library fetches data directly when its component mounts and in response
+    // to a user selecting pagesize or page; this condition will prevent duplicate requests
+    // when this component mounts and when the table mounts.
+    if (urlChanged) {
       fetchData(createApiUrl(bugDetailsEndpoint, params), stateName.detailsView);
     }
   }
 
   render() {
     const { graphs, tableFailureMessage, graphFailureMessage, from, to, bugDetails, tree, bugId, summary,
-    graphFailureStatus, tableFailureStatus } = this.props;
+    graphFailureStatus, tableFailureStatus, isFetchingGraphs, isFetchingBugs } = this.props;
     const columns = [
       {
         Header: 'Push Time',
@@ -122,6 +154,7 @@ class BugDetailsView extends React.Component {
       },
     ];
     const params = { startday: from, endday: to, tree, bug: bugId };
+    const { errorMessages, initialParamsSet } = this.state;
 
     let graphOneData = null;
     let graphTwoData = null;
@@ -141,58 +174,76 @@ class BugDetailsView extends React.Component {
           graphName="BUG_DETAILS_GRAPHS"
           tree={tree}
         />
-        {tableFailureStatus || graphFailureStatus ?
+        {(isFetchingGraphs || isFetchingBugs) &&
+          !(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
+          <div className="loading">
+            <Icon
+              spin
+              name="cog"
+              size="4x"
+            />
+          </div>}
+        {(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
           <ErrorMessages
-            failureMessage={!tableFailureMessage ? graphFailureMessage : tableFailureMessage}
+            failureMessage={tableFailureStatus ? tableFailureMessage : graphFailureMessage}
             failureStatus={tableFailureStatus || graphFailureStatus}
-          /> :
-          <React.Fragment>
-            <Row>
-              <Col xs="12"><span className="pull-left"><Link to="/"><Icon name="arrow-left" className="pr-1" />
-                back</Link></span>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs="12" className="mx-auto"><h1>{`Details for Bug ${!bugId ? '' : bugId}`}</h1></Col>
-            </Row>
-            <Row>
-              <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
-              </Col>
-            </Row>
-            {summary &&
-            <Row>
-              <Col xs="4" className="mx-auto"><p className="text-secondary text-center">{summary}</p></Col>
-            </Row>}
-            {bugDetails &&
-            <Row>
-              <Col xs="12" className="mx-auto"><p className="text-secondary">{bugDetails.count} total failures</p></Col>
-            </Row>}
+            errorMessages={errorMessages}
+          />}
+        <Row>
+          <Col xs="12"><span className="pull-left"><Link to="/"><Icon name="arrow-left" className="pr-1" />
+            back</Link></span>
+          </Col>
+        </Row>
+        {errorMessages.length === 0 && bugDetails.results &&
+        <React.Fragment>
+          <Row>
+            <Col xs="12" className="mx-auto"><h1>Details for Bug {!bugId ? '' : bugId}</h1></Col>
+          </Row>
+          <Row>
+            <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
+            </Col>
+          </Row>
+        </React.Fragment>}
+        {summary && bugDetails.results &&
+        <Row>
+          <Col xs="4" className="mx-auto"><p className="text-secondary text-center">{summary}</p></Col>
+        </Row>}
+        {bugDetails && bugDetails.count &&
+        <Row>
+          <Col xs="12" className="mx-auto"><p className="text-secondary">{bugDetails.count} total failures</p></Col>
+        </Row>}
 
-            {!graphFailureStatus && graphOneData && graphTwoData ?
-              <GraphsContainer
-                graphOneData={graphOneData}
-                graphTwoData={graphTwoData}
-                name={stateName.detailsView}
-                tree={tree}
-                graphName="BUG_DETAILS_GRAPHS"
-                tableApi={bugDetailsEndpoint}
-                params={params}
-                graphApi={graphsEndpoint}
-                bugId={bugId}
-                dateOptions
-              /> : <p>{processErrorMessage(graphFailureMessage, graphFailureStatus)}</p>}
+        <ErrorBoundary
+          stateName={stateName.detailsViewGraphs}
+        >
+          {graphOneData && graphTwoData &&
+            <GraphsContainer
+              graphOneData={graphOneData}
+              graphTwoData={graphTwoData}
+              name={stateName.detailsView}
+              tree={tree}
+              graphName={stateName.detailsViewGraphs}
+              tableApi={bugDetailsEndpoint}
+              params={params}
+              graphApi={graphsEndpoint}
+              bugId={bugId}
+              dateOptions
+            />}
+        </ErrorBoundary>
 
-            {!tableFailureStatus && bugId ?
-              <GenericTable
-                bugs={bugDetails.results}
-                columns={columns}
-                name={stateName.detailsView}
-                tableApi={bugDetailsEndpoint}
-                totalPages={bugDetails.total_pages}
-                params={params}
-                bugId={bugId}
-              /> : <p>{processErrorMessage(tableFailureMessage, tableFailureStatus)}</p>}
-          </React.Fragment>}
+        <ErrorBoundary
+          stateName={stateName.detailsView}
+        >
+          {bugId && initialParamsSet &&
+          <GenericTable
+            bugs={bugDetails.results}
+            columns={columns}
+            name={stateName.detailsView}
+            tableApi={bugDetailsEndpoint}
+            totalPages={bugDetails.total_pages}
+            params={params}
+          />}
+        </ErrorBoundary>
       </Container>);
   }
 }
@@ -259,7 +310,8 @@ BugDetailsView.propTypes = {
   graphFailureMessage: PropTypes.object,
   tableFailureStatus: PropTypes.number,
   graphFailureStatus: PropTypes.number,
-  fetchFullBugDetails: PropTypes.func,
+  isFetchingBugs: PropTypes.bool,
+  isFetchingGraphs: PropTypes.bool,
 };
 
 BugDetailsView.defaultProps = {
@@ -274,12 +326,15 @@ BugDetailsView.defaultProps = {
   bugDetails: null,
   bugId: null,
   summary: null,
-  fetchFullBugDetails: null,
+  isFetchingBugs: null,
+  isFetchingGraphs: null,
 };
 
 const mapStateToProps = state => ({
   bugDetails: state.bugDetailsData.data,
   graphs: state.bugDetailsGraphData.data,
+  isFetchingBugs: state.bugDetailsData.isFetching,
+  isFetchingGraphs: state.bugDetailsGraphData.isFetching,
   tableFailureMessage: state.bugDetailsData.message,
   graphFailureMessage: state.bugDetailsGraphData.message,
   tableFailureStatus: state.bugDetailsData.failureStatus,
@@ -297,7 +352,6 @@ const mapDispatchToProps = dispatch => ({
   updateDates: (from, to, name) => dispatch(updateDateRange(from, to, name)),
   updateTree: (tree, name) => dispatch(updateTreeName(tree, name)),
   updateBugDetails: (bugId, summary, name) => dispatch(updateSelectedBugDetails(bugId, summary, name)),
-  fetchFullBugDetails: (url, name, bug) => dispatch(fetchBugsThenBugDetails(url, name, bug)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BugDetailsView);
