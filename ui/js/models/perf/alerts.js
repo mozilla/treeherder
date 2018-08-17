@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import max from 'lodash/max';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
@@ -116,9 +115,11 @@ treeherder.factory('PhAlerts', [
                 'amount_pct',
             ).reverse();
 
+            const getMaximumAlertLength = alertList => Math.max(...alertList.map(alert => alert.title.length));
+
             const formatAlert = function (alert, alertList) {
                 return _.padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
-                (alert.title.padEnd(max(alertList, function (alert) { return alert.title.length; }).title.length + 5)) +
+                (alert.title.padEnd(getMaximumAlertLength(alertList) + 5)) +
                 displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };
 
