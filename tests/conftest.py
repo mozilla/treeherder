@@ -340,10 +340,19 @@ def activate_responses(request):
     request.addfinalizer(fin)
 
 
-def pulse_consumer(exchange, request):
-    exchange_name = 'exchange/treeherder/v1/{}'.format(exchange)
+@pytest.fixture
+def pulse_connection():
+    """
+    Build a Pulse connection with the Kombu library
 
-    connection = kombu.Connection(settings.PULSE_URL)
+    This is a non-lazy mirror of our Pulse service's build_connection as
+    explained in: https://bugzilla.mozilla.org/show_bug.cgi?id=1484196
+    """
+    return kombu.Connection(settings.BROKER_URL)
+
+
+def pulse_consumer(connection, exchange, request):
+    exchange_name = 'exchange/treeherder/v1/{}'.format(exchange)
 
     exchange = kombu.Exchange(
         name=exchange_name,
@@ -370,8 +379,8 @@ def pulse_consumer(exchange, request):
 
 
 @pytest.fixture
-def pulse_action_consumer(request):
-    return pulse_consumer('job-actions', request)
+def pulse_action_consumer(pulse_connection, request):
+    return pulse_consumer(pulse_connection, 'job-actions', request)
 
 
 @pytest.fixture

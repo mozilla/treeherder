@@ -506,6 +506,3 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 # More details here: https://bugzilla.mozilla.org/show_bug.cgi?id=1281821
 # TODO: remove this in favour of settings.PULSE_URL
 PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
-
-# The pulse url that is passed to kombu
-PULSE_URL = env("PULSE_URL", default="amqps://guest:guest@pulse.mozilla.org/")
