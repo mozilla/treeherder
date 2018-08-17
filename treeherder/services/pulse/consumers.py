@@ -8,6 +8,8 @@ from treeherder.etl.common import fetch_json
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
                                               store_pulse_resultsets)
 
+from .exchange import get_exchange
+
 logger = logging.getLogger(__name__)
 
 
@@ -113,3 +115,38 @@ class PushConsumer(PulseConsumer):
             routing_key='store_pulse_resultsets'
         )
         message.ack()
+
+
+def bind_to(consumer, exchange, routing_key):
+    # bind the given consumer to the current exchange with a routing key
+    consumer.bind_to(exchange=exchange, routing_key=routing_key)
+
+    # get the binding key for this consumer
+    binding = consumer.get_binding_str(exchange.name, routing_key)
+    logger.info("Pulse queue {} bound to: {}".format(consumer.queue_name, binding))
+
+    return binding
+
+
+def prepare_consumer(connection, consumer_cls, sources, build_routing_key=None):
+    consumer = consumer_cls(connection)
+    bindings = []
+    for source in sources:
+        # split source string into exchange and routing key sections
+        exchange, _, routing_keys = source.partition('.')
+
+        # built an exchange object with our connection and exchange name
+        exchange = get_exchange(connection, exchange)
+
+        # split the routing keys up using the delimiter
+        for routing_key in routing_keys.split(':'):
+            if build_routing_key is not None:  # build routing key
+                routing_key = build_routing_key(routing_key)
+
+            binding = bind_to(consumer, exchange, routing_key)
+            bindings.append(binding)
+
+    # prune stale queues using the binding strings
+    consumer.prune_bindings(bindings)
+
+    return consumer

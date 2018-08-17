@@ -20,6 +20,7 @@ from treeherder.model.models import (Commit,
                                      JobNote,
                                      Push,
                                      TextLogErrorMetadata)
+from treeherder.services.pulse.exchange import get_exchange
 
 
 def pytest_addoption(parser):
@@ -381,6 +382,13 @@ def pulse_consumer(connection, exchange, request):
 @pytest.fixture
 def pulse_action_consumer(pulse_connection, request):
     return pulse_consumer(pulse_connection, 'job-actions', request)
+
+
+@pytest.fixture
+def pulse_exchange(pulse_connection, request):
+    def build_exchange(name, create_exchange):
+        return get_exchange(pulse_connection, name, create=create_exchange)
+    return build_exchange
 
 
 @pytest.fixture
