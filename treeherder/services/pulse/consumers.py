@@ -20,11 +20,12 @@ class PulseConsumer(ConsumerMixin):
     """
     Consume jobs from Pulse exchanges
     """
-    def __init__(self, connection, queue_suffix):
+
+    def __init__(self, connection):
         self.connection = connection
         self.consumers = []
         self.queue = None
-        self.queue_name = "queue/{}/{}".format(connection.userid, queue_suffix)
+        self.queue_name = "queue/{}/{}".format(connection.userid, self.queue_suffix)
 
     def get_consumers(self, Consumer, channel):
         return [
@@ -87,6 +88,7 @@ class PulseConsumer(ConsumerMixin):
 
 
 class JobConsumer(PulseConsumer):
+    queue_suffix = "jobs"
 
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
@@ -100,6 +102,7 @@ class JobConsumer(PulseConsumer):
 
 
 class PushConsumer(PulseConsumer):
+    queue_suffix = "resultsets"
 
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
