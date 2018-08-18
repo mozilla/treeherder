@@ -15,7 +15,7 @@
     "@types/prop-types": "*",
     "@types/react": "*",
     "@types/react-dom": "*",
-    "ajv": "6.5.2",
+    "ajv": "6.5.3",
     "angular": "1.7.3",
     "angular-clipboard": "1.6.2",
     "angular-local-storage": "0.7.1",
