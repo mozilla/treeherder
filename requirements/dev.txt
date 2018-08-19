@@ -71,6 +71,10 @@ scandir==1.9.0; python_version < '3.5' \
     --hash=sha256:a5e232a0bf188362fa00123cc0bb842d363a292de7126126df5527b6a369586a \
     --hash=sha256:44975e209c4827fc18a3486f257154d34ec6eaec0f90fef0cca1caa482db7064
 
+# Required by pytest-django
+pathlib==1.0.1; python_version < '3.4' \
+    --hash=sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f
+
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
 pbr==4.2.0 \
