@@ -2,7 +2,7 @@
 # since doc generation does not need all of the requirements in common.txt.
 # This file is used by Read the Docs, Travis and when building locally.
 
-Sphinx==1.7.6
+Sphinx==1.7.7
 sphinx-autobuild==0.7.1
 sphinx-rtd-theme==0.4.1
 # Installing from GitHub since the version on PyPI is 2 years old:
