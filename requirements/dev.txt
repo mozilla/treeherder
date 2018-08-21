@@ -71,10 +71,6 @@ scandir==1.9.0; python_version < '3.5' \
     --hash=sha256:a5e232a0bf188362fa00123cc0bb842d363a292de7126126df5527b6a369586a \
     --hash=sha256:44975e209c4827fc18a3486f257154d34ec6eaec0f90fef0cca1caa482db7064
 
-# Required by pytest-django
-pathlib==1.0.1; python_version < '3.4' \
-    --hash=sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f
-
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
 pbr==4.2.0 \
@@ -96,9 +92,9 @@ pyflakes==1.6.0 \
     --hash=sha256:08bd6a50edf8cffa9fa09a463063c425ecaaf10d1eb0335a7e8b1401aef89e6f \
     --hash=sha256:8d616a382f243dbf19b54743f280b80198be0bca3a5396f1d2e1fca6223e8805
 
-pytest-django==3.4.1 \
-    --hash=sha256:37e9bcfc2e21b0d1ddbc505c716a8a6073f9037756fe124df2bc58ccc625544b \
-    --hash=sha256:85f840e319d7b4271d6f1a3d95c0fb900c7183f7a4414e0cceed75f92bf3bc75
+pytest-django==3.4.2 \
+    --hash=sha256:59683def396923b78d7e191a7086a48193f8d5db869ace79acb38f906522bc7b \
+    --hash=sha256:2d2e0a618d91c280d463e90bcbea9b4e417609157f611a79685b1c561c4c0836
 
 # Required by pytest-selenium
 selenium==3.14.0 \
