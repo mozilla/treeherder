@@ -34,7 +34,6 @@ import './js/services/classifications';
 import './js/services/jobfilters';
 import './js/models/resultset';
 import './js/models/resultsets_store';
-import './js/models/repository';
 import './js/models/perf/series';
 import './js/controllers/main';
 import './js/filters';

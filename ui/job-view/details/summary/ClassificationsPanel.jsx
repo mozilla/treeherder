@@ -6,14 +6,12 @@ import RevisionLinkify from '../../../shared/RevisionLinkify';
 
 export default function ClassificationsPanel(props) {
   const {
-    $injector, repoName, classification, job, bugs,
+    $injector, classification, job, bugs, currentRepo,
   } = props;
 
-  const ThRepositoryModel = $injector.get('ThRepositoryModel');
   const dateFilter = $injector.get('dateFilter');
   const classificationTypes = $injector.get('thClassificationTypes');
 
-  const repo = ThRepositoryModel.getRepo(repoName);
   const failureId = classification.failure_classification_id;
   const iconClass = `${(failureId === 7 ? 'fa-star-o' : 'fa fa-star')} star-${job.result}`;
   const classificationName = classificationTypes.classifications[failureId];
@@ -34,7 +32,7 @@ export default function ClassificationsPanel(props) {
           ><em> {bugs[0].bug_id}</em></a>}
       </li>
       {classification.text.length > 0 &&
-      <li><em><RevisionLinkify repo={repo}>{classification.text}</RevisionLinkify></em></li>
+      <li><em><RevisionLinkify repo={currentRepo}>{classification.text}</RevisionLinkify></em></li>
       }
       <li className="revision-comment">
         {dateFilter(classification.created, 'EEE MMM d, H:mm:ss')}
@@ -48,7 +46,7 @@ export default function ClassificationsPanel(props) {
 
 ClassificationsPanel.propTypes = {
   $injector: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   classification: PropTypes.object.isRequired,
   job: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,

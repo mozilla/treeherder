@@ -3,6 +3,7 @@ import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
 import { thDefaultRepo, phBlockers, phTimeRanges } from '../../constants';
+import RepositoryModel from '../../../models/repository';
 
 const phDashboardValues = {
     /*
@@ -26,10 +27,10 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
+    'ThResultSetModel', 'PhSeries', 'PhCompare',
     'defaultTimeRange',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
+                      ThResultSetModel, PhSeries, PhCompare,
                       defaultTimeRange) {
 
         $scope.dataLoading = true;
@@ -206,8 +207,8 @@ perf.controller('dashCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function () {
-            $scope.projects = $rootScope.repos;
+        RepositoryModel.getList().then((repos) => {
+            $scope.projects = repos;
             $scope.selectedRepo = $scope.projects.find(project =>
                 project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
             );
@@ -238,10 +239,10 @@ perf.controller('dashCtrl', [
 
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
+    'ThResultSetModel', 'PhSeries', 'PhCompare',
     'defaultTimeRange',
     function ($state, $stateParams, $scope, $rootScope, $q,
-             ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
+             ThResultSetModel, PhSeries, PhCompare,
              defaultTimeRange) {
 
         const baseSignature = $stateParams.baseSignature;
@@ -382,8 +383,8 @@ perf.controller('dashSubtestCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function () {
-            $scope.projects = $rootScope.repos;
+        RepositoryModel.getList().then((repos) => {
+            $scope.projects = repos;
             $scope.selectedRepo = $scope.projects.find(project =>
                 project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
             );

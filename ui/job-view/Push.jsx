@@ -118,9 +118,8 @@ export default class Push extends React.Component {
   }
 
   render() {
-    const { push, isLoggedIn, isStaff, $injector, repoName } = this.props;
+    const { push, isLoggedIn, isStaff, $injector, repoName, currentRepo } = this.props;
     const { watched, runnableVisible } = this.state;
-    const { currentRepo } = this.$rootScope;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
     return (
@@ -165,14 +164,14 @@ export default class Push extends React.Component {
 
 Push.propTypes = {
   push: PropTypes.object.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
+  repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool,
   isStaff: PropTypes.bool,
-  repoName: PropTypes.string,
 };
 
 Push.defaultProps = {
   isLoggedIn: false,
   isStaff: false,
-  repoName: 'mozilla-inbound',
 };

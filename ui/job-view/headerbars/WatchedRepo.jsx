@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thEvents } from '../../js/constants';
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
 import { getRepoUrl } from '../../helpers/url';
@@ -44,15 +43,9 @@ export default class WatchedRepo extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector, watchedRepo } = this.props;
-    this.$location = $injector.get('$location');
+    const { $injector } = this.props;
     this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
-    this.ThRepositoryModel = $injector.get('ThRepositoryModel');
-
-    const pushLog = this.ThRepositoryModel.getRepo(watchedRepo) ?
-      this.ThRepositoryModel.getRepo(watchedRepo).pushlogURL :
-      '';
 
     this.state = {
       status: 'not retrieved yet',
@@ -64,19 +57,31 @@ export default class WatchedRepo extends React.Component {
         color: 'tree-unavailable',
         btnClass: 'btn-view-nav',
       },
-      pushLog,
     };
   }
 
   componentDidMount() {
-    const { watchedRepo } = this.props;
+    this.updateTreeStatus = this.updateTreeStatus.bind(this);
 
-    this.unlistenRepositoriesLoaded = this.$rootScope.$on(thEvents.repositoriesLoaded, () => {
-      this.setState({ pushLog: this.ThRepositoryModel.getRepo(watchedRepo).pushlogURL });
-    });
+    this.updateTreeStatus();
+    // update the TreeStatus every 2 minutes
+    this.treeStatusIntervalId = setInterval(this.updateTreeStatus, 2 * 60 * 1000);
+  }
 
-    TreeStatusModel.get(watchedRepo).then((data) => {
+  componentWillUnmount() {
+    clearInterval(this.treeStatusIntervalId);
+  }
+
+  updateTreeStatus() {
+    const { repo, repoName, setCurrentRepoTreeStatus } = this.props;
+    const watchedRepoName = repo.name;
+
+    TreeStatusModel.get(watchedRepoName).then((data) => {
       const treeStatus = data.result;
+
+      if (watchedRepoName === repoName) {
+        setCurrentRepoTreeStatus(treeStatus.status);
+      }
 
       this.setState({
         status: treeStatus.status,
@@ -87,13 +92,10 @@ export default class WatchedRepo extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    this.unlistenRepositoriesLoaded();
-  }
-
   render() {
-    const { watchedRepo, repoName, unwatchRepo } = this.props;
-    const { status, messageOfTheDay, reason, statusInfo, pushLog } = this.state;
+    const { repoName, unwatchRepo, repo } = this.props;
+    const { status, messageOfTheDay, reason, statusInfo } = this.state;
+    const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
     const { btnClass, icon, color } = statusInfo;
     const pulseIcon = statusInfo.pulseIcon || '';
@@ -152,7 +154,7 @@ export default class WatchedRepo extends React.Component {
           </li>
           <li className="watched-repo-dropdown-item">
             <a
-              href={pushLog}
+              href={repo.pushLogUrl}
               className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
@@ -167,6 +169,7 @@ export default class WatchedRepo extends React.Component {
 WatchedRepo.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
-  watchedRepo: PropTypes.string.isRequired,
   unwatchRepo: PropTypes.func.isRequired,
+  repo: PropTypes.object.isRequired,
+  setCurrentRepoTreeStatus: PropTypes.func.isRequired,
 };

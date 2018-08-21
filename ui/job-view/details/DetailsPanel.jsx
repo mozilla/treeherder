@@ -451,12 +451,12 @@ export default class DetailsPanel extends React.Component {
         {!!job && <div id="details-panel-content">
           <SummaryPanel
             repoName={repoName}
+            currentRepo={currentRepo}
             selectedJob={job}
             jobLogUrls={jobLogUrls}
             logParseStatus={logParseStatus}
             jobDetailLoading={jobDetailLoading}
             latestClassification={classifications.length ? classifications[0] : null}
-            isTryRepo={currentRepo.is_try_repo}
             logViewerUrl={logViewerUrl}
             logViewerFullUrl={logViewerFullUrl}
             pinJob={this.pinJob}

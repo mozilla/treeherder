@@ -5,15 +5,13 @@ import { getProjectUrl } from '../../../../ui/helpers/url';
 describe('ThResultSetStore', function () {
 
     let $httpBackend;
-    let rootScope;
     let model;
-    let repoModel;
-    const foregroundRepo = 'mozilla-inbound';
+    const repoName = 'mozilla-inbound';
 
     beforeEach(angular.mock.module('treeherder'));
 
-    beforeEach(inject(function ($injector, $rootScope, $controller,
-                                ThResultSetStore, ThRepositoryModel) {
+    beforeEach(inject(function ($injector, $controller,
+                                ThResultSetStore) {
 
         $httpBackend = $injector.get('$httpBackend');
         jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
@@ -30,17 +28,17 @@ describe('ThResultSetStore', function () {
           },
         );
 
-        $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', foregroundRepo)).respond(
+        $httpBackend.whenGET(getProjectUrl('/resultset/?count=10&full=true', repoName)).respond(
             getJSONFixture('push_list.json'),
         );
 
         fetchMock.get(
-          getProjectUrl('/jobs/?return_type=list&result_set_id=1&count=2000', foregroundRepo),
+          getProjectUrl('/jobs/?return_type=list&result_set_id=1&count=2000', repoName),
           getJSONFixture('job_list/job_1.json'),
         );
 
         fetchMock.get(
-          getProjectUrl('/jobs/?return_type=list&result_set_id=2&count=2000', foregroundRepo),
+          getProjectUrl('/jobs/?return_type=list&result_set_id=2&count=2000', repoName),
           getJSONFixture('job_list/job_2.json'),
         );
 
@@ -48,14 +46,8 @@ describe('ThResultSetStore', function () {
           getJSONFixture('repositories.json'),
         );
 
-        rootScope = $rootScope.$new();
-        rootScope.repoName = foregroundRepo;
-
-        repoModel = ThRepositoryModel;
-        repoModel.load(rootScope.repoName);
-
         model = ThResultSetStore;
-        model.initRepository(rootScope.repoName);
+        model.initRepository(repoName);
         model.fetchPushes(10);
 
         $httpBackend.flush();

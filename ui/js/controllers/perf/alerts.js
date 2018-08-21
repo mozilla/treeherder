@@ -14,6 +14,7 @@ import {
   phAlertStatusMap,
 } from '../../constants';
 import OptionCollectionModel from '../../../models/optionCollection';
+import RepositoryModel from '../../../models/repository';
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -187,12 +188,11 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'ThRepositoryModel', 'ThResultSetModel',
+    'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
     'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
-                        ThRepositoryModel,
                         ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs, PhIssueTracker,
                         dateFilter, clipboard) {
@@ -471,9 +471,9 @@ perf.controller('AlertsCtrl', [
                             repo: summary.repository,
                             fromchange: summary.prevResultSetMetadata.revision,
                             tochange: summary.resultSetMetadata.revision });
-                        summary.pushlogURL = repo.getPushLogHref({
-                            from: summary.prevResultSetMetadata.revision,
-                            to: summary.resultSetMetadata.revision,
+                        summary.pushlogURL = repo.getPushLogRangeHref({
+                            fromchange: summary.prevResultSetMetadata.revision,
+                            tochange: summary.resultSetMetadata.revision,
                         });
                     }
 
@@ -578,7 +578,8 @@ perf.controller('AlertsCtrl', [
             }
         };
 
-        ThRepositoryModel.load().then(function () {
+        RepositoryModel.getList().then((repos) => {
+            $rootScope.repos = repos;
             $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {

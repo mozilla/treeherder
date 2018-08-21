@@ -9,14 +9,14 @@ import {
   phTimeRanges,
   phCompareBaseLineDefaultTimeRange,
 } from '../../constants';
+import RepositoryModel from '../../../models/repository';
 
 perf.controller('CompareChooserCtrl', [
-    '$state', '$stateParams', '$scope', '$q', 'ThRepositoryModel', 'ThResultSetModel',
+    '$state', '$stateParams', '$scope', '$q', 'ThResultSetModel',
     'localStorageService',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
-                                ThRepositoryModel, ThResultSetModel,
-                                localStorageService) {
-        ThRepositoryModel.get_list().then(({ data: projects }) => {
+                                ThResultSetModel, localStorageService) {
+        RepositoryModel.getList().then((projects) => {
             $scope.projects = projects;
             $scope.originalTipList = [];
             $scope.newTipList = [];
@@ -124,11 +124,10 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    'ThRepositoryModel',
     'ThResultSetModel', '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
     'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
-                                ThRepositoryModel, ThResultSetModel, $httpParamSerializer,
+                                ThResultSetModel, $httpParamSerializer,
                                 $q, PhFramework, PhSeries,
                                 PhCompare) {
         function displayResults(rawResultsMap, newRawResultsMap) {
@@ -414,13 +413,13 @@ perf.controller('CompareResultsCtrl', [
         };
         $scope.dataLoading = true;
 
-        const loadRepositories = ThRepositoryModel.load();
+        const loadRepositories = RepositoryModel.getList();
         const loadFrameworks = PhFramework.getFrameworkList().then(
             function (frameworks) {
                 $scope.frameworks = frameworks;
             });
 
-        $q.all([loadRepositories, loadFrameworks]).then(function () {
+        $q.all([loadRepositories, loadFrameworks]).then(function ([repos]) {
             $scope.errors = [];
             // validation works only for revision to revision comparison
             if ($stateParams.originalRevision) {
@@ -449,10 +448,10 @@ perf.controller('CompareResultsCtrl', [
                                            parseInt($stateParams.showOnlyNoise)),
             };
 
-            $scope.originalProject = ThRepositoryModel.getRepo(
-                $stateParams.originalProject);
-            $scope.newProject = ThRepositoryModel.getRepo(
-                $stateParams.newProject);
+            $scope.originalProject = RepositoryModel.getRepo(
+                $stateParams.originalProject, repos);
+            $scope.newProject = RepositoryModel.getRepo(
+                $stateParams.newProject, repos);
             $scope.newRevision = $stateParams.newRevision;
 
             // always need to verify the new revision, only sometimes the original
@@ -492,11 +491,10 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    'ThRepositoryModel',
     'ThResultSetModel', '$q', 'PhSeries',
     'PhCompare', '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope,
-                                       ThRepositoryModel, ThResultSetModel,
+                                       ThResultSetModel,
                                        $q, PhSeries,
                                        PhCompare,
                                        $httpParamSerializer) {
@@ -631,8 +629,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
         $scope.dataLoading = true;
 
-        ThRepositoryModel.load().then(function () {
-
+        RepositoryModel.getList().then((repos) => {
             $scope.errors = [];
             if ($stateParams.originalRevision) {
                 $scope.errors = PhCompare.validateInput($stateParams.originalProject,
@@ -648,10 +645,10 @@ perf.controller('CompareSubtestResultsCtrl', [
                 }
             }
 
-            $scope.originalProject = ThRepositoryModel.getRepo(
-                $stateParams.originalProject);
-            $scope.newProject = ThRepositoryModel.getRepo(
-                $stateParams.newProject);
+            $scope.originalProject = RepositoryModel.getRepo(
+                $stateParams.originalProject, repos);
+            $scope.newProject = RepositoryModel.getRepo(
+                $stateParams.newProject, repos);
             $scope.newRevision = $stateParams.newRevision;
             $scope.originalSignature = $stateParams.originalSignature;
             $scope.newSignature = $stateParams.newSignature;
@@ -889,16 +886,16 @@ perf.controller('CompareSubtestResultsCtrl', [
         });
     }]);
 
-perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q', 'ThRepositoryModel',
+perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q',
     'PhSeries', 'ThResultSetModel',
-    function CompareSubtestDistributionCtrl($scope, $stateParams, $q, ThRepositoryModel,
+    function CompareSubtestDistributionCtrl($scope, $stateParams, $q,
         PhSeries, ThResultSetModel) {
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
         $scope.newSubtestSignature = $stateParams.newSubtestSignature;
         $scope.dataLoading = true;
-        const loadRepositories = ThRepositoryModel.load();
+        const loadRepositories = RepositoryModel.getList();
         const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
             const replicateData = {};
             return ThResultSetModel.getResultSetsFromRevision(project, revision).then(
@@ -958,11 +955,11 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 });
         };
 
-        $q.all([loadRepositories]).then(() => {
-            $scope.originalProject = ThRepositoryModel.getRepo(
-                $stateParams.originalProject);
-            $scope.newProject = ThRepositoryModel.getRepo(
-                $stateParams.newProject);
+        $q.all([loadRepositories]).then((repos) => {
+            $scope.originalProject = RepositoryModel.getRepo(
+                $stateParams.originalProject, repos);
+            $scope.newProject = RepositoryModel.getRepo(
+                $stateParams.newProject, repos);
             PhSeries.getSeriesList($scope.originalProject.name, { signature: $scope.originalSubtestSignature }).then(
                 (seriesData) => {
                     $scope.testSuite = seriesData[0].suite;

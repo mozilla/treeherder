@@ -9,12 +9,12 @@ import {
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
-    'ThRepositoryModel', '$document',
+    '$document',
     'thClassificationTypes', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
     function MainController(
         $scope, $rootScope, $location, $timeout,
-        ThRepositoryModel, $document,
+        $document,
         thClassificationTypes, $window,
         thJobFilters, ThResultSetStore, thNotify) {
 

@@ -7,7 +7,7 @@
         <link id="favicon" type="image/png" rel="shortcut icon" href="img/tree_open.png">
     </head>
     <body ng-controller="MainCtrl">
-        <div id="global-container">
+        <div id="global-container" class="d-flex flex-column h-100">
             <div id="onscreen-overlay" ng-if="onscreenOverlayShowing"
                  ng-click="setOnscreenShortcutsShowing(false)">
                <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing"
@@ -19,8 +19,6 @@
             </div>
             <job-view
               revision="revision"
-              current-repo="currentRepo"
-              repo-name="repoName"
               selected-job="selectedJob"
             />
         </div>

@@ -12,13 +12,10 @@ import RunnableJobModel from '../../models/runnableJob';
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval',
-    'ThResultSetModel',
-    'thNotify',
-    'thJobFilters', 'ThRepositoryModel', '$timeout',
+    'ThResultSetModel', 'thNotify', 'thJobFilters', '$timeout',
     function (
         $rootScope, $q, $location, $interval, ThResultSetModel,
-        thNotify, thJobFilters, ThRepositoryModel,
-        $timeout) {
+        thNotify, thJobFilters, $timeout) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array (keeping only indexes)
         var platformArray = Object.keys(thPlatformMap);
@@ -794,10 +791,6 @@ treeherder.factory('ThResultSetStore', [
             repoData.loadingStatus.appending = true;
             var isAppend = (repoData.pushes.length > 0);
             var pushes = { results: [] };
-            var loadRepositories = ThRepositoryModel.load({
-                name: repoData.name,
-                watchRepos: true,
-            });
             var loadResultsets = ThResultSetModel.getResultSets(repoData.name,
                                                                 repoData.rsMapOldestTimestamp,
                                                                 count,
@@ -805,7 +798,7 @@ treeherder.factory('ThResultSetStore', [
                                                                 keepFilters)
                     .then((data) => { pushes = data.data; });
 
-            return $q.all([loadRepositories, loadResultsets])
+            return $q.all([loadResultsets])
                 .then(() => appendPushes(pushes),
                      () => {
                          thNotify.send('Error retrieving push data!', 'danger', { sticky: true });
