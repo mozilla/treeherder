@@ -278,6 +278,7 @@ export default class PushList extends React.Component {
           <Push
             push={push}
             isLoggedIn={isLoggedIn || false}
+            currentRepo={currentRepo}
             isStaff={isStaff}
             repoName={repoName}
             $injector={$injector}

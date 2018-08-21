@@ -12,6 +12,8 @@ import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import PushList from './PushList';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
+import RepositoryModel from '../models/repository';
+import { getUrlParam } from '../helpers/location';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -32,13 +34,13 @@ class JobView extends React.Component {
     const { $injector } = this.props;
     this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
-    this.ThRepositoryModel = $injector.get('ThRepositoryModel');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.thNotify = $injector.get('thNotify');
 
     this.history = createBrowserHistory();
 
     this.state = {
+      repoName: getUrlParam('repo'),
       user: { isLoggedIn: false },
       isFieldFilterVisible: false,
       filterBarFilters: [
@@ -48,6 +50,8 @@ class JobView extends React.Component {
       pushListPct: props.selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
       serverChangedDelayed: false,
       serverChanged: false,
+      repos: [],
+      currentRepo: new RepositoryModel({ is_try_repo: true }),
     };
   }
 
@@ -56,11 +60,19 @@ class JobView extends React.Component {
   }
 
   componentDidMount() {
+    const { repoName } = this.state;
+
     this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
     this.pinJobs = this.pinJobs.bind(this);
     this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
-    this.ThRepositoryModel.addCurrentRepoTreeStatusCb(this.setCurrentRepoTreeStatus);
+
+    RepositoryModel.getList().then((repos) => {
+      const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
+      // To support the title string of the tab when a single revision is showing.
+      this.$rootScope.currentRepo = currentRepo;
+      this.setState({ currentRepo, repos });
+    });
 
     window.addEventListener('resize', this.updateDimensions);
 
@@ -163,13 +175,13 @@ class JobView extends React.Component {
   }
 
   render() {
-    const {
-      repoName, revision, currentRepo, selectedJob, $injector,
-    } = this.props;
+    const { revision, selectedJob, $injector } = this.props;
     const {
       user, isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
+      currentRepo, repoName, repos,
     } = this.state;
+
     // TODO: Move this to the constructor.  We are hitting some issues where
     // this function is not yet bound, so we are not getting logged in, even
     // when the user IS logged in.  Placing this here ensures the we can't
@@ -189,16 +201,17 @@ class JobView extends React.Component {
       getWindowHeight() * (1 - latestSplitPct / 100);
 
     return (
-      <React.Fragment>
+      <div className="d-flex flex-column h-100">
         <PrimaryNavBar
           jobFilters={this.thJobFilters}
-          groupedRepos={this.ThRepositoryModel.getOrderedRepoGroups()}
+          repos={repos}
           updateButtonClick={this.updateButtonClick}
           pinJobs={this.pinJobs}
           serverChanged={serverChanged}
           history={this.history}
           setUser={this.setUser}
           user={user}
+          setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
           $injector={$injector}
         />
         <SplitPane
@@ -238,27 +251,24 @@ class JobView extends React.Component {
             $injector={$injector}
           />
         </SplitPane>
-      </React.Fragment>
+      </div>
     );
   }
 }
 
 JobView.propTypes = {
   $injector: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,
-  currentRepo: PropTypes.object,
   selectedJob: PropTypes.object,
 };
 
 // Some of these props are not ready by the time this renders.
 JobView.defaultProps = {
   revision: null,
-  currentRepo: {},
   selectedJob: null,
 };
 
 treeherder.component('jobView', react2angular(
   JobView,
-  ['repoName', 'revision', 'currentRepo', 'selectedJob'],
+  ['revision', 'selectedJob'],
   ['$injector']));

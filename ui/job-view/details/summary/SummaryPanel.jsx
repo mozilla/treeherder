@@ -50,8 +50,8 @@ export default class SummaryPanel extends React.Component {
   render() {
     const {
       repoName, selectedJob, latestClassification, bugs, jobLogUrls,
-      jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl, isTryRepo, logParseStatus,
-      pinJob, $injector, user,
+      jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl,
+      logParseStatus, pinJob, $injector, user, currentRepo,
     } = this.props;
     const { machineUrl, machineUrlStatus } = this.state;
 
@@ -73,7 +73,7 @@ export default class SummaryPanel extends React.Component {
           repoName={repoName}
           selectedJob={selectedJob}
           logParseStatus={logParseStatus}
-          isTryRepo={isTryRepo}
+          isTryRepo={currentRepo.is_try_repo}
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
           jobLogUrls={jobLogUrls}
@@ -97,7 +97,7 @@ export default class SummaryPanel extends React.Component {
                   job={selectedJob}
                   classification={latestClassification}
                   bugs={bugs}
-                  repoName={repoName}
+                  currentRepo={currentRepo}
                   $injector={$injector}
                 />}
               <StatusPanel selectedJob={selectedJob} />
@@ -192,13 +192,13 @@ SummaryPanel.propTypes = {
   bugs: PropTypes.array.isRequired,
   $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
   latestClassification: PropTypes.object,
   jobLogUrls: PropTypes.array,
   jobDetailLoading: PropTypes.bool,
   buildUrl: PropTypes.string,
   logParseStatus: PropTypes.string,
-  isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
 };
@@ -210,7 +210,6 @@ SummaryPanel.defaultProps = {
   jobDetailLoading: false,
   buildUrl: null,
   logParseStatus: 'pending',
-  isTryRepo: true,
   logViewerUrl: null,
   logViewerFullUrl: null,
 };

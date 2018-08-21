@@ -22,8 +22,8 @@ export default class PrimaryNavBar extends React.Component {
 
   render() {
     const {
-      user, setUser, jobFilters, groupedRepos, pinJobs,
-      updateButtonClick, serverChanged, history, $injector,
+      user, setUser, jobFilters, repos, pinJobs,
+      updateButtonClick, serverChanged, history, $injector, setCurrentRepoTreeStatus,
     } = this.props;
 
     return (
@@ -35,7 +35,7 @@ export default class PrimaryNavBar extends React.Component {
               <span className="navbar-right">
                 <NotificationsMenu $injector={$injector} />
                 <InfraMenu />
-                <ReposMenu groupedRepos={groupedRepos} />
+                <ReposMenu repos={repos} />
                 <TiersMenu
                   jobFilters={jobFilters}
                   recalculateUnclassified={this.ThResultSetStore.recalculateUnclassifiedCounts}
@@ -60,6 +60,8 @@ export default class PrimaryNavBar extends React.Component {
               $injector={$injector}
               history={history}
               recalculateUnclassified={this.ThResultSetStore.recalculateUnclassifiedCounts}
+              repos={repos}
+              setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
             />
           </nav>
         </div>
@@ -72,10 +74,11 @@ PrimaryNavBar.propTypes = {
   $injector: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   jobFilters: PropTypes.object.isRequired,
-  groupedRepos: PropTypes.array.isRequired,
+  repos: PropTypes.array.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
   pinJobs: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
   setUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  setCurrentRepoTreeStatus: PropTypes.func.isRequired,
 };

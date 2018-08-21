@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import RepositoryModel from '../../../../ui/models/repository';
 import { Revision, Initials } from '../../../../ui/job-view/Revision';
 import {
   RevisionList,
@@ -12,7 +13,7 @@ describe('Revision list component', () => {
 
   beforeEach(() => {
 
-    const repo = {
+    const repo = new RepositoryModel({
       id: 2,
       repository_group: {
         name: 'development',
@@ -27,9 +28,7 @@ describe('Revision list component', () => {
       active_status: 'active',
       performance_alerts_enabled: true,
       pushlogURL: 'https://hg.mozilla.org/integration/mozilla-inbound/pushloghtml',
-    };
-    // Mock these simple functions so we don't have to call ThRepositoryModel.load() first to use them
-    repo.getPushLogHref = revision => `${repo.pushlogURL}?changeset=${revision}`;
+    });
 
         const push = {
             id: 151371,
@@ -62,7 +61,6 @@ describe('Revision list component', () => {
             push,
             repo,
         };
-    repo.getRevisionHref = () => `${repo.url}/rev/${push.revision}`;
   });
 
   it('renders the correct number of revisions in a list', () => {
@@ -93,7 +91,7 @@ describe('Revision item component', () => {
   let mockData;
 
   beforeEach(() => {
-    const repo = {
+    const repo = new RepositoryModel({
       id: 2,
       repository_group: {
         name: 'development',
@@ -108,7 +106,7 @@ describe('Revision item component', () => {
       active_status: 'active',
       performance_alerts_enabled: true,
       pushlogURL: 'https://hg.mozilla.org/integration/mozilla-inbound/pushloghtml',
-    };
+    });
     const revision = {
       result_set_id: 151371,
       repository_id: 2,
@@ -116,9 +114,6 @@ describe('Revision item component', () => {
       author: 'André Bargull <andre.bargull@gmail.com>',
       comments: 'Bug 1319926 - Part 2: Collect telemetry about deprecated String generics methods. r=jandem',
     };
-    // Mock these simple functions so we don't have to call ThRepositoryModel.load() first to use them
-    repo.getRevisionHref = () => `${repo.url}/rev/${revision.revision}`;
-    repo.getPushLogHref = revision => `${repo.pushlogURL}?changeset=${revision}`;
 
     mockData = {
       revision,
@@ -133,7 +128,7 @@ describe('Revision item component', () => {
         revision={mockData.revision}
       />);
     const link = wrapper.find('a').first();
-    expect(link.props().href).toEqual(mockData.repo.getRevisionHref());
+    expect(link.props().href).toEqual(mockData.repo.getRevisionHref(mockData.revision.revision));
     expect(link.props().title).toEqual(`Open revision ${mockData.revision.revision} on ${mockData.repo.url}`);
   });
 
