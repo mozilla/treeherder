@@ -212,11 +212,6 @@ LOGGING = {
             'level': 'DEBUG' if DEBUG else 'WARNING',
             'propagate': not DEBUG,
         },
-        'perfherder': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True
-        },
         'kombu': {
             'handlers': ['console'],
             'level': 'WARNING',

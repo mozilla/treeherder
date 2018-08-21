@@ -1,7 +1,6 @@
 from __future__ import division
 
 import datetime
-import logging
 import time
 from collections import defaultdict
 
@@ -32,8 +31,6 @@ from .performance_serializers import (IssueTrackerSerializer,
                                       PerformanceAlertSummarySerializer,
                                       PerformanceBugTemplateSerializer,
                                       PerformanceFrameworkSerializer)
-
-logger = logging.getLogger(__name__)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -301,18 +298,14 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     pagination_class = AlertPagination
 
     def update(self, request, *args, **kwargs):
-        data = request.data  # comment
+        new_push_id = request.data.get('push_id')
+        new_prev_push_id = request.data.get('prev_push_id')
 
-        new_push_id = data.get('push_id')
-        new_prev_push_id = data.get('prev_push_id')
         if new_push_id is None and new_prev_push_id is None:
-            logger.warning('Updating if-branch...')
-            data['classifier'] = request.user.username
+            request.data['classifier'] = request.user.username
             return super(PerformanceAlertViewSet, self).update(request, *args, **kwargs)
         else:
-            logger.warning('Nudging if-branch...')
             alert = PerformanceAlert.objects.get(pk=kwargs['pk'])
-            logger.warning('alert {0} with id={1.id}'.format(str(alert), alert))
             if all([new_push_id, new_prev_push_id]) and alert.summary.push.id != new_push_id:
                 return self.nudge(alert, new_push_id, new_prev_push_id)
 
@@ -347,7 +340,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         return Response({"alert_id": alert.id})
 
     def calculate_alert_properties(self, alert_summary, series_signature):
-        logger.warning('Calculating alert properties...')
         prev_range = series_signature.max_back_window
         if not prev_range:
             prev_range = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
@@ -355,8 +347,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         if not new_range:
             new_range = settings.PERFHERDER_ALERTS_FORE_WINDOW
 
-        logger.warning('towards AlertSummary(id={0.id}, prev_push_id={0.prev_push.id}, push_id={0.push_id}, prev_push.time={0.prev_push.time})'
-                       .format(alert_summary))
         prev_data = PerformanceDatum.objects.filter(
             signature=series_signature,
             push_timestamp__lte=alert_summary.prev_push.time).order_by(
@@ -369,21 +359,17 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 'push_timestamp')
         new_values = new_data.values_list('value', flat=True)[:new_range]
 
-        logger.warning('prev_data: {0}'.format(prev_data))
-        logger.warning('new_data: {0}'.format(new_data))
-
         if not prev_data or not new_data:
             raise InsufficientAlertCreationData
 
-        prev_value = sum(prev_values)/len(prev_values)
-        new_value = sum(new_values)/len(new_values)
+        prev_value = sum(prev_values) / len(prev_values)
+        new_value = sum(new_values) / len(new_values)
 
         return get_alert_properties(prev_value, new_value,
                                     series_signature.lower_is_better)
 
     @transaction.atomic
     def nudge(self, alert, new_push_id, new_prev_push_id):
-        logger.warning('Nudging alert...')
         alert_summary, new_summary = PerformanceAlertSummary.objects.get_or_create(
             push_id=new_push_id,
             prev_push_id=new_prev_push_id,
@@ -393,17 +379,14 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 'last_updated': datetime.datetime.now()
             })
         old_summary = alert.summary
-        logger.warning('alert_summary={0}, new_summary={1}'.format(str(alert_summary), new_summary))
 
         conflicting_alert = alert_summary.alerts.filter(
                 series_signature=alert.series_signature).first()
 
         if (not new_summary) and conflicting_alert:
             # discard nudged alert to use similar one instead
-            logger.warning('Discard nudged alert to use similar one instead')
             alert.delete()
         else:
-            logger.warning('Modifying existing alert...')
             alert.summary = alert_summary
 
             # update deltas as well
@@ -418,7 +401,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
         if old_summary.alerts.count() == 0:
             old_summary.delete()
-            logger.warning('Deleted old summary')
         return Response({'alert_summary_id': alert_summary.id})
 
 

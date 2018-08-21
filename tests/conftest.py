@@ -542,7 +542,7 @@ def test_perf_signature(test_repository, test_perf_framework):
 def test_perf_signature_2(test_perf_signature):
     from treeherder.perf.models import PerformanceSignature
 
-    signature = PerformanceSignature.objects.create(
+    return PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=(20*'t2'),
         framework=test_perf_signature.framework,
@@ -554,7 +554,6 @@ def test_perf_signature_2(test_perf_signature):
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.datetime.now()
     )
-    return signature
 
 
 @pytest.fixture
@@ -568,16 +567,9 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
-    jobs = (Job.objects
-            .filter(pk__in=range(7, 11))
-            .order_by('push__time')
-            .all())
-    del_jobs = (Job.objects
-                .filter(pk__in=range(1, 7))
-                .order_by('push__time')
-                .all())
+    perf_jobs = Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
 
-    for index, job in enumerate(jobs, start=1):
+    for index, job in enumerate(perf_jobs, start=1):
         job.push_id = index
         job.save()
 
@@ -592,17 +584,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         perf_datum.push.time = normalized_time(index)
         perf_datum.push.save()
 
-    for job in del_jobs:
-        job.delete()
-
-    perf_data = PerformanceDatum.objects.order_by('id').all()
-
-    # TODO: delete this!
-    for perf_datum in perf_data:
-        print('==PerfData(id={0.id}, push_id={0.push_id}, push_timestamp={0.push_timestamp}, push.time={0.push.time})'
-              .format(perf_datum))
-
-    return perf_data
+    return PerformanceDatum.objects.order_by('id').all()
 
 
 @pytest.fixture

@@ -365,27 +365,14 @@ treeherder.factory('PhAlerts', [
             },
             findPushIdNeighbours: (dataPoint, resultSetData, direction) => {
                 const pushId = dataPoint.resultSetId;
-                let pushIdIndexOf;
-                let relativePos;
-
-                // retriggers duplicate pushes
-                if (direction === 'left') {
-                    pushIdIndexOf = 'indexOf';
-                    relativePos = -1;
-                } else {
-                    pushIdIndexOf = 'lastIndexOf';
-                    relativePos = 1;
-                }
-
-                const pushIdIndex = resultSetData[pushIdIndexOf](pushId);
+                const pushIdIndex = (direction === 'left') ? resultSetData.indexOf(pushId) : resultSetData.lastIndexOf(pushId);
+                const relativePos = (direction === 'left') ? -1 : 1;
                 return {
                     push_id: resultSetData[pushIdIndex + relativePos],
                     prev_push_id: resultSetData[pushIdIndex + (relativePos - 1)],
                 };
             },
             nudgeAlert: (dataPoint, towardsDataPoint) => {
-                console.log('nudgeAlert(dataPoint, towardsDataPoint):'); // eslint-disable-line no-console
-                console.log(JSON.stringify(dataPoint)); // eslint-disable-line no-console
                 const alertId = dataPoint.alert.id;
                 return $http.put(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
             },
