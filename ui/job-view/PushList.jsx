@@ -151,11 +151,11 @@ export default class PushList extends React.Component {
             { sticky: true, linkText: 'Load push', url });
 
         });
-      }, function () {
+      }).catch((error) => {
         // the job wasn't found in the db.  Either never existed,
         // or was expired and deleted.
-        this.thNotify.send(
-          `Unable to find job with id ${selectedJobId}`,
+        this.$location.search('selectedJob', null);
+        this.thNotify.send(`Selected Job - ${error}`,
           'danger',
           { sticky: true });
       });
