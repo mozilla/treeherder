@@ -76,7 +76,14 @@ export default class JobModel {
   static get(repoName, pk, signal) {
     // a static method to retrieve a single instance of JobModel
     return fetch(`${uri}${pk}/`, { signal })
-      .then(response => response.json().then(data => new JobModel(data)));
+      .then(async (response) => {
+        if (response.ok) {
+          const job = await response.json();
+          return new JobModel(job);
+        }
+        const text = await response.text();
+        throw Error(`Loading job with id ${pk} : ${text}`);
+      });
   }
 
   static getSimilarJobs(repoName, pk, options, config) {

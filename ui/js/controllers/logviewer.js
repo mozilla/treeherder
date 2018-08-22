@@ -199,10 +199,10 @@ logViewerApp.controller('LogviewerCtrl', [
                 JobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
                     $scope.job_details = jobDetails;
                 });
-            }, () => {
+            }).catch((error) => {
                 $scope.loading = false;
                 $scope.jobExists = false;
-                thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
+                thNotify.send(`${error}`, 'danger', { sticky: true });
             });
         };
 
