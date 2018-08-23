@@ -45,32 +45,34 @@ export default class JobModel {
     const jobUri = config.uri || uri;
 
     return fetch(`${jobUri}${options ? createQueryParams(options) : ''}`)
-      .then(response => response.json().then(async (data) => {
-        let item_list;
-        let next_pages_jobs = [];
-        // if the number of elements returned equals the page size, fetch the next pages
-        if (fetch_all && (data.results.length === data.meta.count)) {
-          const current_offset = parseInt(data.meta.offset);
-          const page_size = parseInt(data.meta.count);
-          const new_options = {
-            ...options,
-            offset: page_size + current_offset,
-            count: page_size,
-          };
-          next_pages_jobs = await JobModel.getList(repoName, new_options, config);
+      .then(async (resp) => {
+        if (resp.ok) {
+          const data = await resp.json();
+          let itemList;
+          let nextPagesJobs = [];
+
+          // if the number of elements returned equals the page size, fetch the next pages
+          if (fetch_all && (data.results.length === data.meta.count)) {
+            const count = parseInt(data.meta.count);
+            const offset = parseInt(data.meta.offset) + count;
+            const newOptions = { ...options, offset, count };
+
+            nextPagesJobs = await JobModel.getList(repoName, newOptions, config);
+          }
+          if ('job_property_names' in data) {
+            // the results came as list of fields
+            // we need to convert them to objects
+            itemList = data.results.map(elem => new JobModel(
+              data.job_property_names.reduce((prev, prop, i) => ({ ...prev, [prop]: elem[i] }), {}),
+            ));
+          } else {
+            itemList = data.results.map(job_obj => new JobModel(job_obj));
+          }
+          return [...itemList, ...nextPagesJobs];
         }
-        if ('job_property_names' in data) {
-          // the results came as list of fields
-          // we need to convert them to objects
-          item_list = data.results.map(elem => new JobModel(data.job_property_names.reduce((prev, prop, i) =>
-                                                             ({ ...prev, [prop]: elem[i] }), {})));
-        } else {
-          item_list = data.results.map(job_obj => new JobModel(job_obj));
-        }
-        // next_pages_jobs is wrapped in a $q.when call because it could be
-        // either a promise or a value
-        return [...item_list, ...next_pages_jobs];
-      }));
+        const text = await resp.text();
+        throw Error(text);
+      });
   }
 
   static get(repoName, pk, signal) {
