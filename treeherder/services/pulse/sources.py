@@ -14,26 +14,16 @@ projects = env.list("PULSE_JOB_PROJECTS", default=[
     # "mozilla-central.#",
     # "mozilla-inbound.#",
 ])
-destinations = env.list("PULSE_JOB_DESTINATIONS", default=[
-    "#",
-    # "production",
-    # "staging",
-    # "tc-treeherder",
-])
 
 
-# Get Job ingestion source locations.
-
-# Specifies the Pulse exchanges Treeherder will ingest data from for Job data.
-# This list will be updated as new applications come online that Treeherder
-# supports. Treeherder will subscribe with routing keys that are all
-# combinations of ``project`` and ``destination`` in the form of:
-# <destination>.<project> Wildcards such as ``#`` and ``*`` are supported for
-# either field.
+# Specifies the Pulse exchanges Treeherder will ingest data from for Jobs. This
+# list will be updated as new applications come online that Treeherder
+# supports.  Treeherder will subscribe with routing keys that are the project
+# names.  Wildcards such as ``#`` and ``*`` are supported for the project
+# field.
 job_sources = [{
     "exchange": exchange,
     "projects": projects,
-    "destinations": destinations,
 } for exchange in exchanges]
 
 
