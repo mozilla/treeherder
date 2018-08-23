@@ -287,15 +287,13 @@ PushHeader.propTypes = {
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
-  isLoggedIn: PropTypes.bool,
-  isStaff: PropTypes.bool,
 };
 
 PushHeader.defaultProps = {
   jobCounts: null,
   watchState: 'none',
-  isLoggedIn: false,
-  isStaff: false,
 };

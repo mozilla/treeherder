@@ -41,7 +41,7 @@ class JobView extends React.Component {
 
     this.state = {
       repoName: getUrlParam('repo'),
-      user: { isLoggedIn: false },
+      user: { isLoggedIn: false, isStaff: false },
       isFieldFilterVisible: false,
       filterBarFilters: [
        ...this.thJobFilters.getNonFieldFiltersArray(),

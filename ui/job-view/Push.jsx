@@ -167,11 +167,6 @@ Push.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
-  isLoggedIn: PropTypes.bool,
-  isStaff: PropTypes.bool,
-};
-
-Push.defaultProps = {
-  isLoggedIn: false,
-  isStaff: false,
+  isLoggedIn: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool.isRequired,
 };
