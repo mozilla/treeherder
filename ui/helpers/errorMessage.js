@@ -34,10 +34,11 @@ Helper method for constructing an error message from Taskcluster.
 export const formatTaskclusterError = function formatTaskclusterError(e) {
   const TC_ERROR_PREFIX = 'Taskcluster: ';
   const err = e.body || e;
+  const errorMessage = err.message || err.toString();
 
-  if (err.message.indexOf('----') !== -1) {
-      return `${TC_ERROR_PREFIX}${err.message.split('----')[0]}`;
+  if (errorMessage.indexOf('----') !== -1) {
+      return `${TC_ERROR_PREFIX}${errorMessage.split('----')[0]}`;
   }
 
-  return `${TC_ERROR_PREFIX}${err.message}`;
+  return `${TC_ERROR_PREFIX}${errorMessage}`;
 };

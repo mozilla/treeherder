@@ -32,7 +32,6 @@ import './js/services/main';
 import './js/services/buildapi';
 import './js/services/classifications';
 import './js/services/jobfilters';
-import './js/models/resultset';
 import './js/models/resultsets_store';
 import './js/models/perf/series';
 import './js/controllers/main';

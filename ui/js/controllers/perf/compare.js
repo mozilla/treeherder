@@ -9,13 +9,14 @@ import {
   phTimeRanges,
   phCompareBaseLineDefaultTimeRange,
 } from '../../constants';
+import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 
 perf.controller('CompareChooserCtrl', [
-    '$state', '$stateParams', '$scope', '$q', 'ThResultSetModel',
+    '$state', '$stateParams', '$scope', '$q',
     'localStorageService',
     function CompareChooserCtrl($state, $stateParams, $scope, $q,
-                                ThResultSetModel, localStorageService) {
+                                localStorageService) {
         RepositoryModel.getList().then((projects) => {
             $scope.projects = projects;
             $scope.originalTipList = [];
@@ -45,14 +46,16 @@ perf.controller('CompareChooserCtrl', [
                 // due to we push the revision data into list,
                 // so we need clear the data before we push new data into it.
                 list.splice(0, list.length);
-                ThResultSetModel.getResultSets(projectName).then(function (response) {
-                    const resultsets = response.data.results;
-                    resultsets.forEach(function (revisionSet) {
+                PushModel.getList({ repo: projectName }).then(async (response) => {
+                    const { results } = await response.json();
+
+                    results.forEach(function (revisionSet) {
                         list.push({
                             revision: revisionSet.revision,
                             author: revisionSet.author,
                         });
                     });
+                    $scope.$apply();
                 });
             };
 
@@ -76,24 +79,30 @@ perf.controller('CompareChooserCtrl', [
             $scope.runCompare = function () {
                 const revisionPromises = [];
                 if ($scope.revisionComparison) {
-                    revisionPromises.push(ThResultSetModel.getResultSetsFromRevision($scope.originalProject.name, $scope.originalRevision).then(
-                        function () {
+                    revisionPromises.push(PushModel.getList({
+                        repo: $scope.originalProject.name,
+                        revision: $scope.originalRevision,
+                    }).then((resp) => {
+                        if (resp.ok) {
                             $scope.originalRevisionError = undefined;
-                        },
-                        function (error) {
-                            $scope.originalRevisionError = error;
-                        },
-                    ));
+                        } else {
+                            $scope.originalRevisionError = resp.statusText;
+                        }
+                        $scope.$apply();
+                    }));
                 }
 
-                revisionPromises.push(ThResultSetModel.getResultSetsFromRevision($scope.newProject.name, $scope.newRevision).then(
-                    function () {
+                revisionPromises.push(PushModel.getList({
+                  repo: $scope.newProject.name,
+                  revision: $scope.newRevision,
+                }).then((resp) => {
+                    if (resp.ok) {
                         $scope.newRevisionError = undefined;
-                    },
-                    function (error) {
-                        $scope.newRevisionError = error;
-                    },
-                ));
+                    } else {
+                        $scope.newRevisionError = resp.statusText;
+                    }
+                    $scope.$apply();
+                }));
 
                 $q.all(revisionPromises).then(function () {
                     localStorageService.set('originalProject', $scope.originalProject.name, 'sessionStorage');
@@ -124,10 +133,10 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    'ThResultSetModel', '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
+    '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
     'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
-                                ThResultSetModel, $httpParamSerializer,
+                                $httpParamSerializer,
                                 $q, PhFramework, PhSeries,
                                 PhCompare) {
         function displayResults(rawResultsMap, newRawResultsMap) {
@@ -263,9 +272,9 @@ perf.controller('CompareResultsCtrl', [
             $scope.testList = Object.keys($scope.compareResults).sort().concat([noiseMetricTestName]);
             $scope.titles[noiseMetricTestName] = noiseMetricTestName;
 
-            // call digest explicitly so we don't have to worry about when promises
+            // call $apply explicitly so we don't have to worry about when promises
             // get resolved (see bug 1470600)
-            $scope.$digest();
+            $scope.$apply();
         }
 
         function load() {
@@ -359,25 +368,35 @@ perf.controller('CompareResultsCtrl', [
                                                        { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
                         $scope.dataLoading = false;
-                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
+                        const newResult = resultMaps[$scope.newResultSet.id];
+                        if (newResult) {
+                          displayResults(originalResultsMap, newResult);
+                        }
+                        $scope.$apply();
                     });
                 });
             }
         }
         // TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
-            return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
-                function (resultSets) {
-                    const resultSet = resultSets[0];
-                    // TODO: this is a bit hacky to pass in 'original' as a text string
-                    if (rsid === 'original') {
-                        $scope.originalResultSet = resultSet;
+
+            return PushModel.getList({ repo: project.name, revision })
+                .then(async (resp) => {
+                    if (resp.ok) {
+                        const { results } = await resp.json();
+                        const resultSet = results[0];
+                        // TODO: this is a bit hacky to pass in 'original' as a text string
+                        if (rsid === 'original') {
+                            $scope.originalResultSet = resultSet;
+                        } else {
+                            $scope.newResultSet = resultSet;
+                        }
                     } else {
-                        $scope.newResultSet = resultSet;
+                      const error = await resp.text();
+                      $scope.errors.push(error);
                     }
-                },
-                function (error) {
-                    $scope.errors.push(error);
+                }).catch((error) => {
+                  $scope.errors.push(error);
                 });
         }
 
@@ -491,24 +510,25 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    'ThResultSetModel', '$q', 'PhSeries',
+    '$q', 'PhSeries',
     'PhCompare', '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope,
-                                       ThResultSetModel,
                                        $q, PhSeries,
                                        PhCompare,
                                        $httpParamSerializer) {
          // TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
-            return ThResultSetModel.getResultSetsFromRevision(project.name, revision).then(
-               function (resultSets) {
-                   const resultSet = resultSets[0];
+            return PushModel.getList({ repo: project.name, revision })
+                .then(async (resp) => {
+                   const { results } = await resp.json();
+                   const resultSet = results[0];
                     // TODO: this is a bit hacky to pass in 'original' as a text string
                    if (rsid === 'original') {
                        $scope.originalResultSet = resultSet;
                    } else {
                        $scope.newResultSet = resultSet;
                    }
+                   $scope.$apply();
                },
                 function (error) {
                     $scope.errors.push(error);
@@ -622,9 +642,9 @@ perf.controller('CompareSubtestResultsCtrl', [
             }
             $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTestName;
 
-            // call digest explicitly so we don't have to worry about when promises
+            // call $apply explicitly so we don't have to worry about when promises
             // get resolved (see bug 1470600)
-            $scope.$digest();
+            $scope.$apply();
         }
 
         $scope.dataLoading = true;
@@ -887,9 +907,9 @@ perf.controller('CompareSubtestResultsCtrl', [
     }]);
 
 perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q',
-    'PhSeries', 'ThResultSetModel',
+    'PhSeries',
     function CompareSubtestDistributionCtrl($scope, $stateParams, $q,
-        PhSeries, ThResultSetModel) {
+        PhSeries) {
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
@@ -898,9 +918,11 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
         const loadRepositories = RepositoryModel.getList();
         const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
             const replicateData = {};
-            return ThResultSetModel.getResultSetsFromRevision(project, revision).then(
-                (revisionData) => {
-                    replicateData.resultSet = revisionData[0];
+
+            return PushModel.getList({ repo: project, revision })
+                .then(async (resp) => {
+                    const { results } = await resp.json();
+                    replicateData.resultSet = results[0];
                     return PhSeries.getSeriesData(project, {
                         signatures: subtestSignature,
                         push_id: replicateData.resultSet.id,
@@ -955,7 +977,8 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 });
         };
 
-        $q.all([loadRepositories]).then((repos) => {
+        $q.all([loadRepositories]).then((results) => {
+            const repos = results[0];
             $scope.originalProject = RepositoryModel.getRepo(
                 $stateParams.originalProject, repos);
             $scope.newProject = RepositoryModel.getRepo(
@@ -982,6 +1005,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                     $scope.newReplicateError = result.replicateDataError;
                     window.document.title = `${$scope.platform}: ${$scope.testName}`;
                     $scope.dataLoading = false;
+                    $scope.$apply();
                 });
         });
     },

@@ -13,7 +13,7 @@ import UpdateAvailable from './headerbars/UpdateAvailable';
 import PushList from './PushList';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import RepositoryModel from '../models/repository';
-import { getUrlParam } from '../helpers/location';
+import { getRepo } from '../helpers/location';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -40,7 +40,7 @@ class JobView extends React.Component {
     this.history = createBrowserHistory();
 
     this.state = {
-      repoName: getUrlParam('repo'),
+      repoName: getRepo(),
       user: { isLoggedIn: false, isStaff: false },
       isFieldFilterVisible: false,
       filterBarFilters: [
@@ -56,7 +56,10 @@ class JobView extends React.Component {
   }
 
   static getDerivedStateFromProps(props) {
-    return JobView.getSplitterDimensions(props);
+    return {
+      ...JobView.getSplitterDimensions(props),
+      repoName: getRepo(),
+    };
   }
 
   componentDidMount() {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { thEvents } from '../../js/constants';
 import { getBtnClass } from '../../helpers/job';
-import { getUrlParam } from '../../helpers/location';
+import { getRepo, getUrlParam } from '../../helpers/location';
 import WatchedRepo from './WatchedRepo';
 import RepositoryModel from '../../models/repository';
 
@@ -25,7 +25,6 @@ export default class SecondaryNavBar extends React.Component {
       this.thJobFilters.filterGroups.nonfailures,
       'in progress'].reduce((acc, val) => acc.concat(val), []);
     const searchStr = this.thJobFilters.getFieldFiltersObj().searchStr;
-    this.repoName = getUrlParam('repo');
 
     this.state = {
       groupsExpanded: getUrlParam('group_state') === 'expanded',
@@ -35,7 +34,12 @@ export default class SecondaryNavBar extends React.Component {
       watchedRepoNames: [],
       allUnclassifiedFailureCount: 0,
       filteredUnclassifiedFailureCount: 0,
+      repoName: getRepo(),
     };
+  }
+
+  static getDerivedStateFromProps() {
+    return { repoName: getRepo() };
   }
 
   componentDidMount() {
@@ -165,12 +169,14 @@ export default class SecondaryNavBar extends React.Component {
   }
 
   loadWatchedRepos() {
+    const { repoName } = this.state;
+
     try {
       const storedWatched = JSON.parse(localStorage.getItem(WATCHED_REPOS_STORAGE_KEY)) || [];
       // Ensure the current repo is first in the list
       const watchedRepoNames = [
-        this.repoName,
-        ...storedWatched.filter(value => (value !== this.repoName)),
+        repoName,
+        ...storedWatched.filter(value => (value !== repoName)),
       ].slice(0, MAX_WATCHED_REPOS);
 
       // Re-save the list, in case it has now changed
@@ -197,7 +203,7 @@ export default class SecondaryNavBar extends React.Component {
     } = this.props;
     const {
       watchedRepoNames, groupsExpanded, showDuplicateJobs, searchQueryStr,
-      allUnclassifiedFailureCount, filteredUnclassifiedFailureCount,
+      allUnclassifiedFailureCount, filteredUnclassifiedFailureCount, repoName,
     } = this.state;
     // This array needs to be RepositoryModel objects, not strings.
     // If ``repos`` is not yet populated, then leave as empty array.
@@ -217,7 +223,7 @@ export default class SecondaryNavBar extends React.Component {
               <WatchedRepo
                 key={watchedRepo.name}
                 repo={watchedRepo}
-                repoName={this.repoName}
+                repoName={repoName}
                 $injector={$injector}
                 unwatchRepo={this.unwatchRepo}
                 setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}

@@ -7,21 +7,13 @@ import taskcluster from '../helpers/taskcluster';
 import { tcRootUrl } from '../helpers/url';
 
 export default class TaskclusterModel {
-  constructor(notify) {
-    this.notify = notify;
-  }
-
-  taskInContext(tagSetList, taskTags) {
+  static taskInContext(tagSetList, taskTags) {
     return tagSetList.some(tagSet => Object.keys(tagSet)
       .every(tag => taskTags[tag] && taskTags[tag] === tagSet[tag]),
     );
   }
 
-  render(template, context) {
-    return jsone(template, context);
-  }
-
-  async submit({ action, actionTaskId, decisionTaskId, taskId,
+  static async submit({ action, actionTaskId, decisionTaskId, taskId,
                  task, input, staticActionVariables,
                }) {
     const context = _.defaults({}, {
@@ -73,10 +65,9 @@ export default class TaskclusterModel {
     }
   }
 
-  async load(decisionTaskID, job) {
+  static async load(decisionTaskID, job) {
     if (!decisionTaskID) {
-      this.notify.send('No decision task, can\'t find taskcluster actions', 'danger', { sticky: true });
-      return;
+      throw Error('No decision task, can\'t find taskcluster actions');
     }
 
     const queue = taskcluster.getQueue();
@@ -116,8 +107,7 @@ export default class TaskclusterModel {
         return null;
       }
       if (jsonData.version !== 1) {
-        this.notify.send('Wrong version of actions.json, can\'t continue', 'danger', { sticky: true });
-        return;
+        throw Error('Wrong version of actions.json, can\'t continue');
       }
 
       // The filter in the value of the actions key is an implementation

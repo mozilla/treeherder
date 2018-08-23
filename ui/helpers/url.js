@@ -1,5 +1,5 @@
 import taskcluster from './taskcluster';
-import { getUrlParam, getAllUrlParams } from './location';
+import { getAllUrlParams, getRepo } from './location';
 
 export const uiJobsUrlBase = '/#/jobs';
 
@@ -76,7 +76,7 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
 // URL.  If not there, then try m-i and hope for the best.  The caller may
 // not actually need a repo if they're trying to get a job by ``id``.
 export const getProjectUrl = function getProjectUrl(uri, repoName) {
-  const repo = repoName || getUrlParam('repo') || 'mozilla-inbound';
+  const repo = repoName || getRepo();
 
   return getApiUrl(`/project/${repo}${uri}`);
 };
@@ -113,11 +113,10 @@ export const graphsEndpoint = 'failurecount/';
 
 export const parseQueryParams = function parseQueryParams(search) {
   const params = new URLSearchParams(search);
-  const obj = {};
-  for (const [key, value] of params.entries()) {
-    obj[key] = value;
-  }
-  return obj;
+
+  return [...params.entries()].reduce((acc, [key, value]) => (
+    { ...acc, [key]: value }
+  ), {});
 };
 
 // TODO: Combine this with getApiUrl().
