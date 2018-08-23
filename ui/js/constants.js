@@ -384,3 +384,5 @@ export const phAlertStatusMap = {
 export const phCompareBaseLineDefaultTimeRange = 86400 * 2;
 
 export const thBugSuggestionLimit = 20;
+
+export const thMaxPushFetchSize = 100;

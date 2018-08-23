@@ -16,8 +16,6 @@ export default class CustomJobActions extends React.Component {
   constructor(props) {
     super(props);
 
-    this.taskclusterModel = new TaskclusterModel(props.notify);
-
     this.state = {
       ajv: new Ajv({ format: 'full', verbose: true, allErrors: true }),
       decisionTaskId: null,
@@ -41,7 +39,7 @@ export default class CustomJobActions extends React.Component {
     this.triggerAction = this.triggerAction.bind(this);
 
     pushModel.getGeckoDecisionTaskId(pushId).then((decisionTaskId) => {
-      this.taskclusterModel.load(decisionTaskId, job).then((results) => {
+      TaskclusterModel.load(decisionTaskId, job).then((results) => {
         const { originalTask, originalTaskId, staticActionVariables, actions } = results;
         const actionOptions = actions.map(action => ({ value: action, label: action.title }));
 
@@ -109,7 +107,7 @@ export default class CustomJobActions extends React.Component {
       }
     }
 
-    this.taskclusterModel.submit({
+    TaskclusterModel.submit({
        action,
        actionTaskId: slugid(),
        decisionTaskId,

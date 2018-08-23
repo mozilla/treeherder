@@ -17,15 +17,14 @@ import {
   phDefaultFramework,
   thPerformanceBranches,
 } from '../../constants';
+import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
     '$window', '$q', '$timeout', 'PhSeries', 'PhAlerts',
-    'ThResultSetModel',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
-        $uibModal, $window, $q, $timeout, PhSeries,
-        PhAlerts, ThResultSetModel) {
+        $uibModal, $window, $q, $timeout, PhSeries, PhAlerts) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
@@ -166,16 +165,17 @@ perf.controller('GraphsCtrl', [
                     resultSetId: prevResultSetId,
                     scopeKey: 'prevRevision',
                 }].forEach((resultRevision) => {
-                    ThResultSetModel.getRevisions(
-                        phSeries.projectName, resultRevision.resultSetId,
-                    ).then(function (revisions) {
-                        $scope.tooltipContent[resultRevision.scopeKey] = revisions[0];
+                    PushModel.get(resultRevision.resultSetId, { repo: phSeries.projectName })
+                      .then(async (resp) => {
+                        const push = await resp.json();
+                        $scope.tooltipContent[resultRevision.scopeKey] = push.revision;
                         if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
                             $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogRangeHref({
                                 fromchange: $scope.tooltipContent.prevRevision,
                                 tochange: $scope.tooltipContent.revision,
                             });
                         }
+                        $scope.$apply();
                     }, function () {
                         $scope.tooltipContent.revisionInfoAvailable = false;
                     });
@@ -433,13 +433,19 @@ perf.controller('GraphsCtrl', [
                         ...highlightPromises,
                         ...$scope.seriesList.map((series) => {
                             if (series.visible) {
-                                return ThResultSetModel.getResultSetsFromRevision(
-                                    series.projectName, rev).then((resultSets) => {
-                                        addHighlightedDatapoint(series, resultSets[0].id);
-                                    }, () => {
-                                            /* ignore cases where no result set exists
-                                           for revision */
-                                    });
+                                return PushModel.getList({
+                                    repo: series.projectName,
+                                    revision: rev,
+                                }).then(async (resp) => {
+                                    if (resp.ok) {
+                                      const { results } = await resp.json();
+
+                                      addHighlightedDatapoint(series, results[0].id);
+                                      $scope.$apply();
+                                    }
+                                    // ignore cases where no push exists
+                                    // for revision
+                                });
                             }
                             return null;
                         })])];

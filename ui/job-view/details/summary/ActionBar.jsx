@@ -29,8 +29,6 @@ export default class ActionBar extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.$timeout = $injector.get('$timeout');
 
-    this.taskclusterModel = new TaskclusterModel(this.thNotify);
-
     this.state = {
       customJobActionsShowing: false,
     };
@@ -132,13 +130,13 @@ export default class ActionBar extends React.Component {
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
       this.ThResultSetStore.getGeckoDecisionTaskId(
         selectedJob.result_set_id).then(decisionTaskId => (
-          this.taskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
+          TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
             const actionTaskId = slugid();
             if (results) {
               const backfilltask = results.actions.find(result => result.name === 'backfill');
               // We'll fall back to actions.yaml if this isn't true
               if (backfilltask) {
-                return this.taskclusterModel.submit({
+                return TaskclusterModel.submit({
                   action: backfilltask,
                   actionTaskId,
                   decisionTaskId,

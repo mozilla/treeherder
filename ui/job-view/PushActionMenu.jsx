@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getUrlParam } from '../helpers/location';
-import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
+import { formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
 import CustomJobActions from './CustomJobActions';
+import PushModel from '../models/push';
 
 export default class PushActionMenu extends React.PureComponent {
 
@@ -14,7 +15,6 @@ export default class PushActionMenu extends React.PureComponent {
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.$uibModal = $injector.get('$uibModal');
 
     this.revision = this.props.revision;
@@ -63,16 +63,14 @@ export default class PushActionMenu extends React.PureComponent {
 
     this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
-        this.ThResultSetModel.triggerMissingJobs(decisionTaskID)
+        PushModel.triggerMissingJobs(decisionTaskID)
           .then((msg) => {
             this.thNotify.send(msg, 'success');
-          }, (e) => {
-            this.thNotify.send(
-              formatModelError(e, "The action 'trigger missing jobs' failed"),
-              'danger',
-              { sticky: true },
-            );
+          }).catch((e) => {
+            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
           });
+      }).catch((e) => {
+        this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
 
@@ -88,16 +86,14 @@ export default class PushActionMenu extends React.PureComponent {
 
     this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
-        this.ThResultSetModel.triggerAllTalosJobs(times, decisionTaskID)
+        PushModel.triggerAllTalosJobs(times, decisionTaskID)
           .then((msg) => {
             this.thNotify.send(msg, 'success');
-          }, (e) => {
-            this.thNotify.send(
-              formatTaskclusterError(e),
-              'danger',
-              { sticky: true },
-            );
+          }).catch((e) => {
+            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
           });
+      }).catch((e) => {
+        this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
 
