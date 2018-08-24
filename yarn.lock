@@ -6323,9 +6323,9 @@ react-fontawesome@1.6.1:
   dependencies:
     prop-types "^15.5.6"
 
-react-highlight-words@0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/react-highlight-words/-/react-highlight-words-0.12.0.tgz#d631fe717412571a47c97c8abcb9c41742ccb648"
+react-highlight-words@0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/react-highlight-words/-/react-highlight-words-0.14.0.tgz#a1a40ff0a49ce78e7feb375a4e0a5fd1ca9c9609"
   dependencies:
     highlight-words-core "^1.2.0"
     memoize-one "^4.0.0"
