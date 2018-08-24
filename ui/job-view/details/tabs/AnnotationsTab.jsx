@@ -60,12 +60,12 @@ RelatedBug.propTypes = {
 };
 
 function TableRow(props) {
-  const { deleteClassification, classification, classificationTypes, dateFilter } = props;
+  const { deleteClassification, classification, classificationMap, dateFilter } = props;
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
   const failureId = classification.failure_classification_id;
   const iconClass = failureId === 7 ? 'fa-star-o' : 'fa fa-star';
-  const classificationName = classificationTypes.classifications[failureId];
+  const classificationName = classificationMap[failureId];
 
   return (
     <tr>
@@ -96,13 +96,13 @@ function TableRow(props) {
 TableRow.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
   classification: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
+  classificationMap: PropTypes.object.isRequired,
   dateFilter: PropTypes.func.isRequired,
 };
 
 function AnnotationsTable(props) {
   const {
-    classifications, deleteClassification, classificationTypes, dateFilter,
+    classifications, deleteClassification, classificationMap, dateFilter,
   } = props;
 
   return (
@@ -122,7 +122,7 @@ function AnnotationsTable(props) {
             dateFilter={dateFilter}
             classification={classification}
             deleteClassification={deleteClassification}
-            classificationTypes={classificationTypes}
+            classificationMap={classificationMap}
           />))
         }
       </tbody>
@@ -133,7 +133,7 @@ function AnnotationsTable(props) {
 AnnotationsTable.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
   classifications: PropTypes.array.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
+  classificationMap: PropTypes.object.isRequired,
   dateFilter: PropTypes.func.isRequired,
 };
 
@@ -209,7 +209,7 @@ export default class AnnotationsTab extends React.Component {
 
   render() {
     const {
-      $injector, classifications, classificationTypes,
+      $injector, classifications, classificationMap,
       bugs,
     } = this.props;
     const dateFilter = $injector.get('$filter')('date');
@@ -223,7 +223,7 @@ export default class AnnotationsTab extends React.Component {
                 classifications={classifications}
                 dateFilter={dateFilter}
                 deleteClassification={this.deleteClassification}
-                classificationTypes={classificationTypes}
+                classificationMap={classificationMap}
               /> :
               <p>This job has not been classified</p>
             }
@@ -244,7 +244,7 @@ export default class AnnotationsTab extends React.Component {
 
 AnnotationsTab.propTypes = {
   $injector: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
+  classificationMap: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   classifications: PropTypes.array.isRequired,
   selectedJob: PropTypes.object,

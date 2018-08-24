@@ -14,6 +14,7 @@ import PushList from './PushList';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import RepositoryModel from '../models/repository';
 import { getRepo } from '../helpers/location';
+import ClassificationTypeModel from '../models/classificationType';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -52,6 +53,8 @@ class JobView extends React.Component {
       serverChanged: false,
       repos: [],
       currentRepo: new RepositoryModel({ is_try_repo: true }),
+      classificationTypes: [],
+      classificationMap: {},
     };
   }
 
@@ -76,6 +79,14 @@ class JobView extends React.Component {
       this.$rootScope.currentRepo = currentRepo;
       this.setState({ currentRepo, repos });
     });
+
+    ClassificationTypeModel.getList().then((classificationTypes) => {
+      this.setState({
+        classificationTypes,
+        classificationMap: ClassificationTypeModel.getMap(classificationTypes),
+      });
+    });
+
 
     window.addEventListener('resize', this.updateDimensions);
 
@@ -182,7 +193,7 @@ class JobView extends React.Component {
     const {
       user, isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
-      currentRepo, repoName, repos,
+      currentRepo, repoName, repos, classificationTypes, classificationMap,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -225,6 +236,7 @@ class JobView extends React.Component {
           <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
             {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
               $injector={$injector}
+              classificationTypes={classificationTypes}
               filterBarFilters={filterBarFilters}
               history={this.history}
               isFieldFilterVisible={isFieldFilterVisible}
@@ -251,6 +263,8 @@ class JobView extends React.Component {
             repoName={repoName}
             selectedJob={selectedJob}
             user={user}
+            classificationTypes={classificationTypes}
+            classificationMap={classificationMap}
             $injector={$injector}
           />
         </SplitPane>

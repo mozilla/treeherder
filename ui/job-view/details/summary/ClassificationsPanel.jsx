@@ -6,15 +6,14 @@ import RevisionLinkify from '../../../shared/RevisionLinkify';
 
 export default function ClassificationsPanel(props) {
   const {
-    $injector, classification, job, bugs, currentRepo,
+    $injector, classification, job, bugs, currentRepo, classificationMap,
   } = props;
 
   const dateFilter = $injector.get('dateFilter');
-  const classificationTypes = $injector.get('thClassificationTypes');
 
   const failureId = classification.failure_classification_id;
   const iconClass = `${(failureId === 7 ? 'fa-star-o' : 'fa fa-star')} star-${job.result}`;
-  const classificationName = classificationTypes.classifications[failureId];
+  const classificationName = classificationMap[failureId];
 
   return (
     <React.Fragment>
@@ -48,6 +47,7 @@ ClassificationsPanel.propTypes = {
   $injector: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classification: PropTypes.object.isRequired,
+  classificationMap: PropTypes.object.isRequired,
   job: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
 };
