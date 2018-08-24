@@ -26,15 +26,79 @@ import { thFailureResults, thDefaultFilterResultStatuses, thEvents } from '../co
  * specified (including defaults).  But if a field has multiple values, then it
  * must match only ONE of those values.
  */
+// used with field-filters to determine how to match the value against the
+// job field.
+const MATCH_TYPE = {
+  exactstr: 'exactstr',
+  substr: 'substr', // returns true if any values match the substring
+  searchStr: 'searchStr', // returns true only if ALL the values match the substring
+  choice: 'choice',
+};
+
+// choices available for the field filters
+export const FIELD_CHOICES = {
+  ref_data_name: {
+    name: 'buildername/jobname',
+    matchType: MATCH_TYPE.substr,
+  },
+  build_system_type: {
+    name: 'build system',
+    matchType: MATCH_TYPE.substr,
+  },
+  job_type_name: {
+    name: 'job name',
+    matchType: MATCH_TYPE.substr,
+  },
+  job_type_symbol: {
+    name: 'job symbol',
+    matchType: MATCH_TYPE.exactstr,
+  },
+  job_group_name: {
+    name: 'group name',
+    matchType: MATCH_TYPE.substr,
+  },
+  job_group_symbol: {
+    name: 'group symbol',
+    matchType: MATCH_TYPE.exactstr,
+  },
+  machine_name: {
+    name: 'machine name',
+    matchType: MATCH_TYPE.substr,
+  },
+  platform: {
+    name: 'platform',
+    matchType: MATCH_TYPE.substr,
+  },
+  tier: {
+    name: 'tier',
+    matchType: MATCH_TYPE.exactstr,
+  },
+  failure_classification_id: {
+    name: 'failure classification',
+    matchType: MATCH_TYPE.choice,
+  },
+  // text search across multiple fields
+  searchStr: {
+    name: 'search string',
+    matchType: MATCH_TYPE.searchStr,
+  },
+};
+
+export const getFieldChoices = function getFieldChoices() {
+  const choices = { ...FIELD_CHOICES };
+
+  delete choices.searchStr;
+  return choices;
+};
+
+
 treeherder.factory('thJobFilters', [
     '$rootScope', '$location',
     '$timeout',
-    'thClassificationTypes',
     'thPlatformName',
     function (
         $rootScope, $location,
         $timeout,
-        thClassificationTypes,
         thPlatformName) {
 
         // prefix for all filter query string params
@@ -63,65 +127,6 @@ treeherder.factory('thJobFilters', [
         const UNCLASSIFIED_IDS = [1, 7];
 
         const TIERS = ['1', '2', '3'];
-
-        // used with field-filters to determine how to match the value against the
-        // job field.
-        const MATCH_TYPE = {
-            exactstr: 'exactstr',
-            substr: 'substr', // returns true if any values match the substring
-            searchStr: 'searchStr', // returns true only if ALL the values match the substring
-            choice: 'choice',
-        };
-
-        // choices available for the field filters
-        const FIELD_CHOICES = {
-            ref_data_name: {
-                name: 'buildername/jobname',
-                matchType: MATCH_TYPE.substr,
-            },
-            build_system_type: {
-                name: 'build system',
-                matchType: MATCH_TYPE.substr,
-            },
-            job_type_name: {
-                name: 'job name',
-                matchType: MATCH_TYPE.substr,
-            },
-            job_type_symbol: {
-                name: 'job symbol',
-                matchType: MATCH_TYPE.exactstr,
-            },
-            job_group_name: {
-                name: 'group name',
-                matchType: MATCH_TYPE.substr,
-            },
-            job_group_symbol: {
-                name: 'group symbol',
-                matchType: MATCH_TYPE.exactstr,
-            },
-            machine_name: {
-                name: 'machine name',
-                matchType: MATCH_TYPE.substr,
-            },
-            platform: {
-                name: 'platform',
-                matchType: MATCH_TYPE.substr,
-            },
-            tier: {
-                name: 'tier',
-                matchType: MATCH_TYPE.exactstr,
-            },
-            failure_classification_id: {
-                name: 'failure classification',
-                matchType: MATCH_TYPE.choice,
-                choices: thClassificationTypes.classifications,
-            },
-            // text search across multiple fields
-            searchStr: {
-                name: 'search string',
-                matchType: MATCH_TYPE.searchStr,
-            },
-        };
 
         const FILTER_GROUPS = {
           failures: thFailureResults.slice(),
@@ -435,12 +440,6 @@ treeherder.factory('thJobFilters', [
             ), []);
         }
 
-        function getFieldChoices() {
-            const choices = { ...FIELD_CHOICES };
-            delete choices.searchStr;
-            return choices;
-        }
-
         function getResultStatusArray() {
             const arr = _toArray($location.search()[QS_RESULT_STATUS]) ||
                 DEFAULTS.resultStatus;
@@ -599,7 +598,6 @@ treeherder.factory('thJobFilters', [
             getFieldFiltersObj: getFieldFiltersObj,
             getResultStatusArray: getResultStatusArray,
             isJobUnclassifiedFailure: isJobUnclassifiedFailure,
-            getFieldChoices: getFieldChoices,
 
             // CONSTANTS
             filterGroups: FILTER_GROUPS,

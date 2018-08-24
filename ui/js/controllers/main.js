@@ -9,13 +9,11 @@ import {
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
-    '$document',
-    'thClassificationTypes', '$window',
+    '$document', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
     function MainController(
         $scope, $rootScope, $location, $timeout,
-        $document,
-        thClassificationTypes, $window,
+        $document, $window,
         thJobFilters, ThResultSetStore, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
@@ -32,7 +30,6 @@ treeherderApp.controller('MainCtrl', [
             $location.search('repo', $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
-        thClassificationTypes.load();
 
         // TODO: Remove this when pinnedJobs is converted to a model or Context
         $rootScope.countPinnedJobs = () => 0;

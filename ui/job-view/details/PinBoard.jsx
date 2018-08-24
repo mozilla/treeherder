@@ -457,7 +457,7 @@ export default class PinBoard extends React.Component {
                   value={failureClassificationId}
                   onChange={evt => this.setClassificationId(evt)}
                 >
-                  {classificationTypes.classificationOptions.map(opt => (
+                  {classificationTypes.map(opt => (
                     <option value={opt.id} key={opt.id}>{opt.name}</option>
                   ))}
                 </Input>
@@ -549,7 +549,7 @@ export default class PinBoard extends React.Component {
 
 PinBoard.propTypes = {
   $injector: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.object.isRequired,
+  classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.object.isRequired,

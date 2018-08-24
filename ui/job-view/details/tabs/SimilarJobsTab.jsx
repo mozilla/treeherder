@@ -16,7 +16,6 @@ export default class SimilarJobsTab extends React.Component {
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.thClassificationTypes = $injector.get('thClassificationTypes');
 
     this.pageSize = 20;
 
@@ -103,13 +102,13 @@ export default class SimilarJobsTab extends React.Component {
   }
 
   showJobInfo(job) {
-    const { repoName } = this.props;
+    const { repoName, classificationMap } = this.props;
 
     JobModel.get(repoName, job.id)
       .then((nextJob) => {
         nextJob.result_status = getStatus(nextJob);
         nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
-        nextJob.failure_classification = this.thClassificationTypes.classifications[
+        nextJob.failure_classification = classificationMap[
           nextJob.failure_classification_id];
 
         // retrieve the list of error lines
@@ -287,4 +286,5 @@ export default class SimilarJobsTab extends React.Component {
 SimilarJobsTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  classificationMap: PropTypes.object.isRequired,
 };
