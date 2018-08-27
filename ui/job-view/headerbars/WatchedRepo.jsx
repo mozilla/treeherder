@@ -44,7 +44,6 @@ export default class WatchedRepo extends React.Component {
     super(props);
 
     const { $injector } = this.props;
-    this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {

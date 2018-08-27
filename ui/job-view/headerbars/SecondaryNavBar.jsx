@@ -3,13 +3,19 @@ import PropTypes from 'prop-types';
 
 import { thEvents } from '../../js/constants';
 import { getBtnClass } from '../../helpers/job';
+import { thFilterGroups } from '../../helpers/filter';
 import { getRepo, getUrlParam } from '../../helpers/location';
-import WatchedRepo from './WatchedRepo';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import WatchedRepo from './WatchedRepo';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
+
+const getSearchStrFromUrl = function getSearchStrFromUrl() {
+  const searchStr = getUrlParam('searchStr');
+  return searchStr ? searchStr.replace(/,/g, ' ') : '';
+};
 
 export default class SecondaryNavBar extends React.Component {
   constructor(props) {
@@ -17,30 +23,23 @@ export default class SecondaryNavBar extends React.Component {
 
     const { $injector } = this.props;
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
 
     this.filterChicklets = [
       'failures',
-      this.thJobFilters.filterGroups.nonfailures,
+      thFilterGroups.nonfailures,
       'in progress'].reduce((acc, val) => acc.concat(val), []);
-    const searchStr = this.thJobFilters.getFieldFiltersObj().searchStr;
 
     this.state = {
       groupsExpanded: getUrlParam('group_state') === 'expanded',
       showDuplicateJobs: getUrlParam('duplicate_jobs') === 'visible',
-      resultStatusFilters: this.thJobFilters.getResultStatusArray(),
-      searchQueryStr: searchStr ? searchStr.join(' ') : '',
+      searchQueryStr: getSearchStrFromUrl(),
       watchedRepoNames: [],
       allUnclassifiedFailureCount: 0,
       filteredUnclassifiedFailureCount: 0,
       repoName: getRepo(),
     };
-  }
-
-  static getDerivedStateFromProps() {
-    return { repoName: getRepo() };
   }
 
   componentDidMount() {
@@ -53,12 +52,11 @@ export default class SecondaryNavBar extends React.Component {
     this.unwatchRepo = this.unwatchRepo.bind(this);
 
     this.unlistenHistory = history.listen(() => {
-      this.updateToggleFilters();
       this.ThResultSetStore.recalculateUnclassifiedCounts();
       this.setState({
-        searchQueryStr: this.getSearchStr(),
         allUnclassifiedFailureCount: this.ThResultSetStore.getAllUnclassifiedFailureCount(),
         filteredUnclassifiedFailureCount: this.ThResultSetStore.getFilteredUnclassifiedFailureCount(),
+        searchQueryStr: getSearchStrFromUrl(),
       });
     });
     this.unlistenJobsLoaded = this.$rootScope.$on(thEvents.jobsLoaded, () => (
@@ -75,34 +73,32 @@ export default class SecondaryNavBar extends React.Component {
     this.unlistenJobsLoaded();
   }
 
-  getSearchStr() {
-    const searchStr = this.thJobFilters.getFieldFiltersObj().searchStr;
-    return searchStr ? searchStr.join(' ') : '';
-  }
-
   setSearchStr(ev) {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
   search(ev) {
+    const { filterModel } = this.props;
     const value = ev.target.value;
-    const filterVal = value === '' ? null : value;
 
-    if (ev.keyCode === 13) { // User hit enter
-      this.thJobFilters.replaceFilter('searchStr', filterVal);
+    if (ev.key === 'Enter') {
+      if (value && value.length) {
+        filterModel.replaceFilter('searchStr', value.split(' '));
+      } else {
+        filterModel.removeFilter('searchStr');
+      }
       ev.target.blur();
-      this.$rootScope.$apply();
     }
   }
 
   isFilterOn(filter) {
-    const { resultStatusFilters } = this.state;
-    const filterGroups = this.thJobFilters.filterGroups;
+    const { filterModel } = this.props;
+    const { resultStatus } = filterModel.urlParams;
 
-    if (filter in filterGroups) {
-      return filterGroups[filter].some(val => resultStatusFilters.includes(val));
+    if (filter in thFilterGroups) {
+      return thFilterGroups[filter].some(val => resultStatus.includes(val));
     }
-    return resultStatusFilters.includes(filter);
+    return resultStatus.includes(filter);
   }
 
   /**
@@ -110,28 +106,16 @@ export default class SecondaryNavBar extends React.Component {
    * on the nav bar
    */
   toggleResultStatusFilterChicklet(filter) {
-    const filterGroups = this.thJobFilters.filterGroups;
-    const filterValues = filter in filterGroups ?
-      filterGroups[filter] : // this is a filter grouping, so toggle all on/off
+    const { filterModel } = this.props;
+    const filterValues = filter in thFilterGroups ?
+      thFilterGroups[filter] : // this is a filter grouping, so toggle all on/off
       [filter];
 
-    this.thJobFilters.toggleResultStatuses(filterValues);
-    this.$rootScope.$apply();
-    this.setState({ resultStatusFilters: this.thJobFilters.getResultStatusArray() });
+    filterModel.toggleResultStatuses(filterValues);
   }
 
   toggleFieldFilterVisible() {
       this.$rootScope.$emit(thEvents.toggleFieldFilterVisible);
-  }
-
-  updateToggleFilters() {
-    const classifiedState = this.thJobFilters.getClassifiedStateArray();
-
-    this.setState({
-      resultStatusFilters: this.thJobFilters.getResultStatusArray(),
-      classifiedFilter: classifiedState.includes('classified'),
-      unClassifiedFilter: classifiedState.includes('unclassified'),
-    });
   }
 
   toggleShowDuplicateJobs() {
@@ -141,7 +125,6 @@ export default class SecondaryNavBar extends React.Component {
     this.setState({ showDuplicateJobs: !showDuplicateJobs });
     this.$location.search('duplicate_jobs', newShowDuplicateJobs);
     this.$rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
-    this.$rootScope.$apply();
   }
 
   toggleGroupState() {
@@ -151,16 +134,18 @@ export default class SecondaryNavBar extends React.Component {
     this.setState({ groupsExpanded: !groupsExpanded });
     this.$location.search('group_state', newGroupState);
     this.$rootScope.$emit(thEvents.groupStateChanged, newGroupState);
-    this.$rootScope.$apply();
   }
 
   toggleUnclassifiedFailures() {
-    this.thJobFilters.toggleUnclassifiedFailures();
+    const { filterModel } = this.props;
+
+    filterModel.toggleUnclassifiedFailures();
   }
 
   clearFilterBox() {
-    this.setState({ searchQueryStr: '' });
-    this.thJobFilters.removeFilter('searchStr');
+    const { filterModel } = this.props;
+
+    filterModel.removeFilter('searchStr');
   }
 
   unwatchRepo(name) {
@@ -348,6 +333,7 @@ SecondaryNavBar.propTypes = {
   $injector: PropTypes.object.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
+  filterModel: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,

@@ -50,6 +50,9 @@ export default class JobGroup extends React.Component {
   }
 
   componentWillMount() {
+    // TODO: Move this state up to PushList and pass groupState and duplicates
+    // as props.  In PushList, it will listen for history changes to set
+    // the values.
     this.duplicateJobsVisibilityChangedUnlisten = this.$rootScope.$on(
       thEvents.duplicateJobsVisibilityChanged,
       () => {
@@ -125,7 +128,7 @@ export default class JobGroup extends React.Component {
 
   render() {
     const {
-      $injector, repoName, filterPlatformCb, platform,
+      $injector, repoName, filterPlatformCb, platform, filterModel,
       group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs },
     } = this.props;
     const { expanded, showDuplicateJobs } = this.state;
@@ -151,6 +154,7 @@ export default class JobGroup extends React.Component {
               {buttons.map(job => (
                 <JobButton
                   job={job}
+                  filterModel={filterModel}
                   $injector={$injector}
                   visible={job.visible}
                   status={getStatus(job)}
@@ -183,6 +187,7 @@ export default class JobGroup extends React.Component {
 JobGroup.propTypes = {
   group: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,

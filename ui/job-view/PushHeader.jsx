@@ -8,6 +8,12 @@ import { thEvents } from '../js/constants';
 import { getJobsUrl } from '../helpers/url';
 import PushModel from '../models/push';
 
+// url params we don't want added from the current querystring to the revision
+// and author links.
+const SKIPPED_LINK_PARAMS = [
+  'revision', 'fromchange', 'tochange', 'nojobs', 'startdate', 'enddate', 'author',
+];
+
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
   const authorEmail = authorMatch ? authorMatch[1] : props.author;
@@ -53,20 +59,16 @@ PushCounts.propTypes = {
 };
 
 export default class PushHeader extends React.PureComponent {
-
   constructor(props) {
     super(props);
-    const { $injector, pushTimestamp, repoName, revision, author } = this.props;
+    const { $injector, pushTimestamp } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thJobFilters = $injector.get('thJobFilters');
     this.thNotify = $injector.get('thNotify');
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushDateStr = toDateStr(pushTimestamp);
-    this.revisionPushFilterUrl = getJobsUrl({ repo: repoName, revision });
-    this.authorPushFilterUrl = getJobsUrl({ repo: repoName, author });
 
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
@@ -74,7 +76,6 @@ export default class PushHeader extends React.PureComponent {
     this.state = {
       showConfirmCancelAll: false,
       runnableJobsSelected: false,
-      filterParams: this.getFilterParams(),
     };
   }
 
@@ -88,29 +89,19 @@ export default class PushHeader extends React.PureComponent {
         }
       },
     );
-    this.globalFilterChangedUnlisten = this.$rootScope.$on(
-      thEvents.globalFilterChanged, () => {
-        this.setState({ filterParams: this.getFilterParams() });
-      },
-    );
   }
 
   componentWillUnmount() {
     this.toggleRunnableJobUnlisten();
-    this.globalFilterChangedUnlisten();
   }
 
-  getFilterParams() {
-    return Object.entries(this.thJobFilters.getActiveFilters())
-      .reduce(function getFilterParamsStrings(acc, [key, value]) {
-        if (Array.isArray(value)) {
-          acc += value.reduce((valuesStr, valueItem) => valuesStr + `&${key}=${valueItem}`, '');
-        } else {
-          acc += `&${key}=${value}`;
-        }
-        return acc;
-      },
-        '');
+  getLinkParams() {
+    const { filterModel } = this.props;
+
+    return Object.entries(filterModel.getUrlParamsWithoutDefaults())
+      .reduce((acc, [field, values]) => (
+        SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values }
+      ), {});
   }
 
   triggerNewJobs() {
@@ -171,11 +162,14 @@ export default class PushHeader extends React.PureComponent {
             revision, runnableVisible, $injector, watchState,
             showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState,
             notificationSupported } = this.props;
-    const { filterParams } = this.state;
     const cancelJobsTitle = isLoggedIn ?
       'Cancel all jobs' :
       'Must be logged in to cancel jobs';
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
+    const linkParams = this.getLinkParams();
+    const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
+    const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
+
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
@@ -189,11 +183,11 @@ export default class PushHeader extends React.PureComponent {
             <span className="push-title-left">
               <span>
                 <a
-                  href={`${this.revisionPushFilterUrl}${filterParams}`}
+                  href={revisionPushFilterUrl}
                   title="View only this push"
                 >{this.pushDateStr} <span className="fa fa-external-link icon-superscript" />
                 </a> - </span>
-              <Author author={author} url={this.authorPushFilterUrl} />
+              <Author author={author} url={authorPushFilterUrl} />
             </span>
           </span>
           <PushCounts
@@ -288,6 +282,7 @@ PushHeader.propTypes = {
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,

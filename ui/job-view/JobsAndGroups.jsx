@@ -6,7 +6,7 @@ import { getStatus } from '../helpers/job';
 
 export default class JobsAndGroups extends React.Component {
   render() {
-    const { $injector, groups, repoName, platform, filterPlatformCb } = this.props;
+    const { $injector, groups, repoName, platform, filterPlatformCb, filterModel } = this.props;
 
     return (
       <td className="job-row" data-job-clear-on-click>
@@ -17,6 +17,7 @@ export default class JobsAndGroups extends React.Component {
                 group={group}
                 repoName={repoName}
                 $injector={$injector}
+                filterModel={filterModel}
                 filterPlatformCb={filterPlatformCb}
                 platform={platform}
                 key={group.mapKey}
@@ -28,6 +29,7 @@ export default class JobsAndGroups extends React.Component {
               <JobButton
                 job={job}
                 $injector={$injector}
+                filterModel={filterModel}
                 repoName={repoName}
                 visible={job.visible}
                 status={getStatus(job)}
@@ -48,6 +50,7 @@ JobsAndGroups.propTypes = {
   groups: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
 };

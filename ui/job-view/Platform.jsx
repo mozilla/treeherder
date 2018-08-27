@@ -16,7 +16,7 @@ PlatformName.propTypes = {
 };
 
 export default function Platform(props) {
-  const { platform, $injector, repoName, filterPlatformCb } = props;
+  const { platform, $injector, repoName, filterPlatformCb, filterModel } = props;
   const { title, groups, id } = platform;
 
   return (
@@ -28,6 +28,7 @@ export default function Platform(props) {
         $injector={$injector}
         filterPlatformCb={filterPlatformCb}
         platform={platform}
+        filterModel={filterModel}
       />
     </tr>
   );
@@ -37,5 +38,6 @@ Platform.propTypes = {
   platform: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
 };

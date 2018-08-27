@@ -9,7 +9,6 @@ export default class JobButtonComponent extends React.Component {
     const { $injector } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.state = {
@@ -61,14 +60,14 @@ export default class JobButtonComponent extends React.Component {
   }
 
   setSelected(isSelected) {
-    const { job, platform, filterPlatformCb } = this.props;
+    const { job, platform, filterPlatformCb, filterModel } = this.props;
     // if a job was just classified, and we are in unclassified only mode,
     // then the job no longer meets the filter criteria.  However, if it
     // is still selected, then it should stay visible so that next/previous
     // navigation still works.  Then, as soon as the selection changes, it
     // it will disappear.  So visible must be contingent on the filters AND
     // whether it is still selected.
-    job.visible = this.thJobFilters.showJob(job);
+    job.visible = filterModel.showJob(job);
     this.setState({ isSelected });
     // filterPlatformCb will keep a job and platform visible if it contains
     // the selected job, so we must pass in if this job is selected or not.
@@ -130,6 +129,7 @@ export default class JobButtonComponent extends React.Component {
 JobButtonComponent.propTypes = {
   job: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,

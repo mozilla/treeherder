@@ -11,14 +11,15 @@ import treeherder from '../treeherder';
 import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import PushModel from '../../models/push';
+import { isUnclassifiedFailure } from '../../helpers/job';
 import { getQueryString } from '../../helpers/location';
 import { parseQueryParams } from '../../helpers/url';
 
 treeherder.factory('ThResultSetStore', [
     '$rootScope', '$q', '$location', '$interval',
-    'thNotify', 'thJobFilters', '$timeout',
+    'thNotify', '$timeout',
     function (
-        $rootScope, $q, $location, $interval, thNotify, thJobFilters, $timeout) {
+        $rootScope, $q, $location, $interval, thNotify, $timeout) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array (keeping only indexes)
         var platformArray = Object.keys(thPlatformMap);
@@ -278,7 +279,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var getPlatformKey = function (name, option) {
-            var key = name;
+            var key = thPlatformMap[name] || name;
             if (option !== undefined) {
                 key += option;
             }
@@ -388,7 +389,7 @@ treeherder.factory('ThResultSetStore', [
         };
 
         var updateUnclassifiedFailureMap = function (job) {
-            if (thJobFilters.isJobUnclassifiedFailure(job)) {
+            if (isUnclassifiedFailure(job)) {
                 // store a job here instead of just ``true`` so that when we
                 // go back and evaluate each one to see if it matches a tier,
                 // we can.  This also allows us to check other values of the job
@@ -408,14 +409,13 @@ treeherder.factory('ThResultSetStore', [
         const recalculateUnclassifiedCounts = function () {
             repoData.unclassifiedFailureCountForTiers = 0;
             repoData.filteredUnclassifiedFailureCount = 0;
-            const tiers = thJobFilters.getFieldFiltersObj().tier;
+            const tiers = $rootScope.filterModel.urlParams.tier || [];
 
-            thJobFilters.refreshFilterCaches();
             Object.values(repoData.unclassifiedFailureMap).forEach((job) => {
                 if (tiers.includes(String(job.tier))) {
                     repoData.unclassifiedFailureCountForTiers++;
                 }
-                if (thJobFilters.showJob(job)) {
+                if ($rootScope.filterModel.showJob(job)) {
                     repoData.filteredUnclassifiedFailureCount++;
                 }
             });

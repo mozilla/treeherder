@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getFieldChoices } from '../../js/services/jobfilters';
+import { getFieldChoices } from '../../helpers/filter';
 
 export default class ActiveFilters extends React.Component {
   constructor(props) {
     super(props);
-
-    const { $injector } = this.props;
-    this.thJobFilters = $injector.get('thJobFilters');
 
     this.state = {
       newFilterField: '',
@@ -49,16 +46,17 @@ export default class ActiveFilters extends React.Component {
   getFilterValue(field, value) {
     const { fieldChoices } = this.state;
     const choice = fieldChoices[field];
-    const choiceValue = choice.choices[value];
+    const choiceValue = choice.choices.find(c => String(c.id) === value);
 
     return choice.matchType === 'choice' && choiceValue ? choiceValue.name : value;
   }
 
   addNewFieldFilter() {
+    const { filterModel } = this.props;
     const { newFilterField, newFilterValue } = this.state;
 
     if (newFilterField && newFilterValue) {
-      this.thJobFilters.addFilter(newFilterField, newFilterValue);
+      filterModel.addFilter(newFilterField, newFilterValue);
       this.clearNewFieldFilter();
     }
   }
@@ -75,7 +73,7 @@ export default class ActiveFilters extends React.Component {
   }
 
   render() {
-    const { filterBarFilters, isFieldFilterVisible } = this.props;
+    const { isFieldFilterVisible, filterModel, filterBarFilters } = this.props;
     const {
       newFilterField, newFilterMatchType, newFilterValue, newFilterChoices,
       fieldChoices,
@@ -87,29 +85,32 @@ export default class ActiveFilters extends React.Component {
           <span
             className="pointable"
             title="Clear all of these filters"
-            onClick={this.thJobFilters.clearAllFilters}
+            onClick={filterModel.clearNonStatusFilters}
           ><i className="fa fa-times-circle" /> </span>
           <span className="active-filters-title">
             <b>Active Filters</b>
           </span>
           {filterBarFilters.map(filter => (
-            <span className="filtersbar-filter" key={`${filter.key}${filter.value}`}>
-              <span
-                className="pointable"
-                title={`Clear filter: ${filter.field}`}
-                onClick={() => this.thJobFilters.removeFilter(filter.key, filter.value)}
-              >
-                <i className="fa fa-times-circle" />&nbsp;
+            filter.value.map(filterValue => (
+              <span className="filtersbar-filter" key={`${filter.field}${filterValue}`}>
+                <span
+                  className="pointable"
+                  title={`Clear filter: ${filter.field}`}
+                  onClick={() => filterModel.removeFilter(filter.field, filterValue)}
+                >
+                  <i className="fa fa-times-circle" />&nbsp;
+                </span>
+                <span title={`Filter by ${filter.field}: ${filterValue}`}>
+                  <b>{filter.field}:</b>
+                  {filter.field === 'failure_classification_id' && (
+                    <span> {this.getFilterValue(filter.field, filterValue)}</span>
+                  )}
+                  {filter.field === 'author' && <span> {filterValue.split('@')[0].substr(0, 20)}</span>}
+                  {filter.field !== 'author' && filter.field !== 'failure_classification_id' && <span> {filterValue.substr(0, 12)}</span>}
+                </span>
               </span>
-              <span title={`Filter by ${filter.field}: ${filter.value}`}>
-                <b>{filter.field}:</b>
-                {filter.field === 'failure_classification_id' && (
-                  <span> {this.getFilterValue(filter.field, filter.value)}</span>
-                )}
-                {filter.field === 'author' && <span> {filter.value.split('@')[0].substr(0, 20)}</span>}
-                {filter.field !== 'author' && filter.field !== 'failure_classification_id' && <span> {filter.value.substr(0, 12)}</span>}
-              </span>
-            </span>))}
+            ))
+          ))}
           </div>}
         {isFieldFilterVisible && <div>
           <form className="form-inline">
@@ -147,7 +148,7 @@ export default class ActiveFilters extends React.Component {
               >
                 <option value="" disabled>select value</option>
                 {Object.entries(newFilterChoices).map(([fci, fci_obj]) => (
-                  <option value={fci} key={fci}>{fci_obj.name}</option>
+                  <option value={fci_obj.id} key={fci}>{fci_obj.name}</option>
                 )) }
               </select>}
               <button
@@ -169,7 +170,7 @@ export default class ActiveFilters extends React.Component {
 }
 
 ActiveFilters.propTypes = {
-  $injector: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   filterBarFilters: PropTypes.array.isRequired,
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
