@@ -46,48 +46,52 @@ export default class Push extends React.Component {
     const { watched, last_job_counts } = this.state;
     const { repoName, push: { revision, id: pushId } } = this.props;
 
-    if (Notification.permission !== 'granted' || watched === 'none') {
-      return;
-    }
-
-    const nextCounts = nextProps.push.job_counts;
-    if (last_job_counts) {
-      const nextUncompleted = nextCounts.pending + nextCounts.running;
-      const lastUncompleted = last_job_counts.pending + last_job_counts.running;
-
-      const nextCompleted = nextCounts.completed;
-      const lastCompleted = last_job_counts.completed;
-
-      let message;
-      if (lastUncompleted > 0 && nextUncompleted === 0) {
-        message = 'Push completed';
-        this.setState({ watched: 'none' });
-      } else if (watched === 'job' && lastCompleted < nextCompleted) {
-        const completeCount = nextCompleted - lastCompleted;
-        message = completeCount + ' jobs completed';
+    try {
+      if (Notification.permission !== 'granted' || watched === 'none') {
+        return;
       }
 
-      if (message) {
-        const notification = new Notification(message, {
-          body: `${repoName} rev ${revision.substring(0, 12)}`,
-          tag: pushId,
-        });
+      const nextCounts = nextProps.push.job_counts;
+      if (last_job_counts) {
+        const nextUncompleted = nextCounts.pending + nextCounts.running;
+        const lastUncompleted = last_job_counts.pending + last_job_counts.running;
 
-        notification.onerror = (event) => {
-          this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
-        };
+        const nextCompleted = nextCounts.completed;
+        const lastCompleted = last_job_counts.completed;
 
-        notification.onclick = (event) => {
-          if (this.container) {
-            this.container.scrollIntoView();
-            event.target.close();
-          }
-        };
+        let message;
+        if (lastUncompleted > 0 && nextUncompleted === 0) {
+          message = 'Push completed';
+          this.setState({ watched: 'none' });
+        } else if (watched === 'job' && lastCompleted < nextCompleted) {
+          const completeCount = nextCompleted - lastCompleted;
+          message = completeCount + ' jobs completed';
+        }
+
+        if (message) {
+          const notification = new Notification(message, {
+            body: `${repoName} rev ${revision.substring(0, 12)}`,
+            tag: pushId,
+          });
+
+          notification.onerror = (event) => {
+            this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
+          };
+
+          notification.onclick = (event) => {
+            if (this.container) {
+              this.container.scrollIntoView();
+              event.target.close();
+            }
+          };
+        }
       }
-    }
 
-    if (nextCounts) {
-      this.setState({ last_job_counts: Object.assign({}, nextCounts) });
+      if (nextCounts) {
+        this.setState({ last_job_counts: Object.assign({}, nextCounts) });
+      }
+    } catch (e) {
+      // notifications not supported, skipping...
     }
   }
 
@@ -103,18 +107,22 @@ export default class Push extends React.Component {
   }
 
   async cycleWatchState() {
-    let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
+    try {
+      let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
 
-    if (next !== 'none' && Notification.permission !== 'granted') {
-      const result = await Notification.requestPermission();
+      if (next !== 'none' && Notification.permission !== 'granted') {
+        const result = await Notification.requestPermission();
 
-      if (result === 'denied') {
-        this.thNotify.send('Notification permission denied', 'danger');
+        if (result === 'denied') {
+          this.thNotify.send('Notification permission denied', 'danger');
 
-        next = 'none';
+          next = 'none';
+        }
       }
+      this.setState({ watched: next });
+    } catch (e) {
+      // notifications not supported, skipping...
     }
-    this.setState({ watched: next });
   }
 
   render() {

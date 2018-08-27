@@ -175,7 +175,7 @@ export default class PushHeader extends React.PureComponent {
       'Cancel all jobs' :
       'Must be logged in to cancel jobs';
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
-
+    const notificationsSupported = 'Notification' in window;
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
@@ -204,12 +204,13 @@ export default class PushHeader extends React.PureComponent {
           />
           <span className="push-buttons">
             {counts.pending + counts.running > 0 &&
-            <button
-              className="btn btn-sm btn-push watch-commit-btn"
-              title="Get Desktop Notifications for this Push"
-              data-watch-state={watchState}
-              onClick={() => cycleWatchState()}
-            >{watchStateLabel}</button>}
+              <button
+                className="btn btn-sm btn-push watch-commit-btn"
+                disabled={!notificationsSupported}
+                title={notificationsSupported ? 'Get Desktop Notifications for this Push' : 'Desktop notifications not supported in this browser'}
+                data-watch-state={watchState}
+                onClick={() => cycleWatchState()}
+              >{watchStateLabel}</button>}
             <a
               className="btn btn-sm btn-push test-view-btn"
               href={`/testview.html?repo=${repoName}&revision=${revision}`}
