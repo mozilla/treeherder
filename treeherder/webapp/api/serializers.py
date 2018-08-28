@@ -325,7 +325,8 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
                 models.Bugscache.objects.get(id=bug)
 
             except ObjectDoesNotExist:
-                raise serializers.ValidationError('{} does not exist.'.format(bug))
+                raise serializers.ValidationError(
+                      '{} does not exist or is not an intermittent failure.'.format(bug))
 
         return bug
 
