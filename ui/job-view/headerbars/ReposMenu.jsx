@@ -2,9 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getRepoUrl } from '../../helpers/url';
+import { thRepoGroupOrder } from '../../js/constants';
 
 export default function ReposMenu(props) {
-  const { groupedRepos } = props;
+  const { repos } = props;
+  const groups = repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
+    { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
+  ), {});
+  const groupedRepos = thRepoGroupOrder.map(name => ({ name, repos: groups[name] }));
 
   return (
     <span>
@@ -53,5 +58,5 @@ export default function ReposMenu(props) {
 
 
 ReposMenu.propTypes = {
-  groupedRepos: PropTypes.array.isRequired,
+  repos: PropTypes.array.isRequired,
 };

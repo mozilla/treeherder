@@ -3,6 +3,8 @@ import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
 import { thDefaultRepo, phBlockers, phTimeRanges } from '../../constants';
+import PushModel from '../../../models/push';
+import RepositoryModel from '../../../models/repository';
 
 const phDashboardValues = {
     /*
@@ -26,12 +28,9 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'defaultTimeRange',
+    'PhSeries', 'PhCompare', 'defaultTimeRange',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
-                      ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-                      defaultTimeRange) {
-
+                      PhSeries, PhCompare, defaultTimeRange) {
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
@@ -69,14 +68,17 @@ perf.controller('dashCtrl', [
             let getSeriesList;
             let resultSetId;
             if ($scope.revision) {
-                getSeriesList = ThResultSetModel.getResultSetsFromRevision(
-                    $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
-                        resultSetId = resultSets[0].id;
-                        return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            push_id: resultSetId, subtests: 0 });
-                    }, function () {
-                        $scope.revisionNotFound = true;
-                    });
+                getSeriesList = PushModel.getList({
+                    repo: $scope.selectedRepo.name,
+                    revision: $scope.revision,
+                }).then(async (resp) => {
+                    const { results } = resp.json();
+                    resultSetId = results[0].id;
+                    return PhSeries.getSeriesList($scope.selectedRepo.name, {
+                        push_id: resultSetId, subtests: 0 });
+                }, function () {
+                    $scope.revisionNotFound = true;
+                });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
@@ -206,8 +208,8 @@ perf.controller('dashCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function () {
-            $scope.projects = $rootScope.repos;
+        RepositoryModel.getList().then((repos) => {
+            $scope.projects = repos;
             $scope.selectedRepo = $scope.projects.find(project =>
                 project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
             );
@@ -238,11 +240,9 @@ perf.controller('dashCtrl', [
 
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q',
-    'ThRepositoryModel', 'ThResultSetModel', 'PhSeries', 'PhCompare',
-    'defaultTimeRange',
+    'PhSeries', 'PhCompare', 'defaultTimeRange',
     function ($state, $stateParams, $scope, $rootScope, $q,
-             ThRepositoryModel, ThResultSetModel, PhSeries, PhCompare,
-             defaultTimeRange) {
+             PhSeries, PhCompare, defaultTimeRange) {
 
         const baseSignature = $stateParams.baseSignature;
         const variantSignature = $stateParams.variantSignature;
@@ -274,14 +274,17 @@ perf.controller('dashSubtestCtrl', [
             let getSeriesList;
             let resultSetId;
             if ($scope.revision) {
-                getSeriesList = ThResultSetModel.getResultSetsFromRevision(
-                    $scope.selectedRepo.name, $scope.revision).then(function (resultSets) {
-                        resultSetId = resultSets[0].id;
-                        return PhSeries.getSeriesList($scope.selectedRepo.name, {
-                            parent_signature: [baseSignature, variantSignature],
-                            framework: $scope.framework,
-                        });
+                getSeriesList = PushModel.getList({
+                    repo: $scope.selectedRepo.name,
+                    revision: $scope.revision,
+                }).then(async (resp) => {
+                    const { results } = await resp.json();
+                    resultSetId = results[0].id;
+                    return PhSeries.getSeriesList($scope.selectedRepo.name, {
+                        parent_signature: [baseSignature, variantSignature],
+                        framework: $scope.framework,
                     });
+                });
             } else {
                 getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
                     parent_signature: [baseSignature, variantSignature],
@@ -382,8 +385,8 @@ perf.controller('dashSubtestCtrl', [
             });
         }
 
-        ThRepositoryModel.load().then(function () {
-            $scope.projects = $rootScope.repos;
+        RepositoryModel.getList().then((repos) => {
+            $scope.projects = repos;
             $scope.selectedRepo = $scope.projects.find(project =>
                 project.name === ($stateParams.repo ? $stateParams.repo : thDefaultRepo),
             );

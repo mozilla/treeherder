@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { getFieldChoices } from '../../js/services/jobfilters';
+
 export default class ActiveFilters extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
     this.thJobFilters = $injector.get('thJobFilters');
-    this.fieldChoices = this.thJobFilters.getFieldChoices();
 
     this.state = {
       newFilterField: '',
@@ -15,6 +16,14 @@ export default class ActiveFilters extends React.Component {
       newFilterValue: '',
       newFilterChoices: [],
     };
+  }
+
+  static getDerivedStateFromProps(props) {
+    const { classificationTypes } = props;
+    const fieldChoices = getFieldChoices();
+
+    fieldChoices.failure_classification_id.choices = classificationTypes;
+    return { fieldChoices };
   }
 
   componentDidMount() {
@@ -25,10 +34,11 @@ export default class ActiveFilters extends React.Component {
   }
 
   setNewFilterField(field) {
+    const { fieldChoices } = this.state;
     this.setState({
       newFilterField: field,
-      newFilterMatchType: this.fieldChoices[field].matchType,
-      newFilterChoices: this.fieldChoices[field].choices,
+      newFilterMatchType: fieldChoices[field].matchType,
+      newFilterChoices: fieldChoices[field].choices,
     });
   }
 
@@ -37,7 +47,8 @@ export default class ActiveFilters extends React.Component {
   }
 
   getFilterValue(field, value) {
-    const choice = this.fieldChoices[field];
+    const { fieldChoices } = this.state;
+    const choice = fieldChoices[field];
     const choiceValue = choice.choices[value];
 
     return choice.matchType === 'choice' && choiceValue ? choiceValue.name : value;
@@ -67,6 +78,7 @@ export default class ActiveFilters extends React.Component {
     const { filterBarFilters, isFieldFilterVisible } = this.props;
     const {
       newFilterField, newFilterMatchType, newFilterValue, newFilterChoices,
+      fieldChoices,
     } = this.state;
 
     return (
@@ -112,7 +124,7 @@ export default class ActiveFilters extends React.Component {
                 required
               >
                 <option value="" disabled>select filter field</option>
-                {Object.entries(this.fieldChoices).map(([field, obj]) => (
+                {Object.entries(fieldChoices).map(([field, obj]) => (
                   obj.name !== 'tier' ? <option value={field} key={field}>{obj.name}</option> : null
                 ))}
               </select>
@@ -161,4 +173,5 @@ ActiveFilters.propTypes = {
   filterBarFilters: PropTypes.array.isRequired,
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
+  classificationTypes: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
 };

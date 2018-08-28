@@ -6,10 +6,13 @@
     ":unpublishSafe"
   ],
   "ignoreDeps": [
+    "@types/angular",
+    "@types/prop-types",
+    "@types/react",
+    "@types/react-dom",
     "deepmerge",
     "eslint",
     "eslint-config-airbnb",
-    "eslint-plugin-import",
     "eslint-plugin-jsx-a11y",
     "html-loader",
     "karma",

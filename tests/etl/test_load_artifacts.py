@@ -36,7 +36,7 @@ def test_load_long_job_details(test_job):
 
     assert JobDetail.objects.count() == 1
 
-    jd = JobDetail.objects.all()[0]
+    jd = JobDetail.objects.first()
     assert jd.title == long_title[:max_length("title")]
     assert jd.value == long_value[:max_length("value")]
     assert jd.url == long_url[:max_length("url")]

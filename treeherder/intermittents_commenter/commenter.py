@@ -176,7 +176,7 @@ class Commenter(object):
             else:
                 self.submit_bug_changes(bug['changes'], bug['bug_id'])
                 # sleep between comment submissions to avoid overwhelming servers
-                time.sleep(1)
+                time.sleep(0.5)
 
         logger.warning('There were {} comments for this {} task.'.format(
                        len(all_bug_changes), 'weekly' if self.weekly_mode else 'daily'))

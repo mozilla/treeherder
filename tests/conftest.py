@@ -341,10 +341,7 @@ def activate_responses(request):
 
 
 def pulse_consumer(exchange, request):
-    exchange_name = 'exchange/{}/v1/{}'.format(
-        settings.PULSE_EXCHANGE_NAMESPACE,
-        exchange
-    )
+    exchange_name = 'exchange/treeherder/v1/{}'.format(exchange)
 
     connection = kombu.Connection(settings.PULSE_URL)
 
@@ -689,7 +686,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 
     return {
         'tree': test_repository.name,
-        'option': Option.objects.all()[0],
+        'option': Option.objects.first(),
         'bug_id': bug_id,
         'job': jobs[0],
         'jobs': jobs,

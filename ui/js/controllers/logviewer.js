@@ -4,14 +4,15 @@ import { isReftest } from '../../helpers/job';
 import { thDateFormat } from '../constants';
 import JobDetailModel from '../../models/jobDetail';
 import JobModel from '../../models/job';
+import PushModel from '../../models/push';
 import TextLogStepModel from '../../models/textLogStep';
 
 logViewerApp.controller('LogviewerCtrl', [
     '$location', '$window', '$document', '$rootScope', '$scope',
-    '$timeout', 'thNotify', 'dateFilter', 'ThResultSetModel',
+    '$timeout', 'thNotify', 'dateFilter',
     function Logviewer(
         $location, $window, $document, $rootScope, $scope,
-        $timeout, thNotify, dateFilter, ThResultSetModel) {
+        $timeout, thNotify, dateFilter) {
 
         const query_string = $location.search();
         $scope.css = '';
@@ -158,7 +159,7 @@ logViewerApp.controller('LogviewerCtrl', [
         $scope.init = () => {
             $scope.logProperties = [];
 
-            JobModel.get($scope.repoName, $scope.job_id).then((job) => {
+            JobModel.get($scope.repoName, $scope.job_id).then(async (job) => {
                 // set the title of the browser window/tab
                 $scope.logViewerTitle = job.getTitle();
 
@@ -186,23 +187,23 @@ logViewerApp.controller('LogviewerCtrl', [
 
                 // Test to expose the reftest button in the logviewer actionbar
                 if ($scope.rawLogURL && job.job_group_name && isReftest(job)) {
-                    $scope.reftestUrl = `${getReftestUrl($scope.rawLogURL)}&only_show_unexpected=1`;
+                    $scope.reftestUrl = getReftestUrl($scope.rawLogURL);
                 }
 
                 // get the revision and linkify it
-                ThResultSetModel.getResultSet($scope.repoName, job.result_set_id).then((data) => {
-                    const revision = data.data.revision;
+                PushModel.get(job.result_set_id).then(async (resp) => {
+                    const push = await resp.json();
+                    const revision = push.revision;
 
                     $scope.logProperties.push({ label: 'Revision', value: revision });
                 });
 
-                JobDetailModel.getJobDetails({ job_guid: job.job_guid }).then((jobDetails) => {
-                    $scope.job_details = jobDetails;
-                });
-            }, () => {
+                $scope.job_details = await JobDetailModel.getJobDetails({ job_guid: job.job_guid });
+                $scope.$apply();
+            }).catch((error) => {
                 $scope.loading = false;
                 $scope.jobExists = false;
-                thNotify.send('The job does not exist or has expired', 'danger', { sticky: true });
+                thNotify.send(`${error}`, 'danger', { sticky: true });
             });
         };
 

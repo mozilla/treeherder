@@ -32,7 +32,6 @@ export default class DetailsPanel extends React.Component {
 
     this.PhSeries = $injector.get('PhSeries');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.thClassificationTypes = $injector.get('thClassificationTypes');
     this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
@@ -268,9 +267,7 @@ export default class DetailsPanel extends React.Component {
 
       const logViewerUrl = getLogViewerUrl(job.id, repoName);
       const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
-      const reftestUrl = jobLogUrls.length ?
-        `${getReftestUrl(jobLogUrls[0].url)}&only_show_unexpected=1` :
-        '';
+      const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
       const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
 
       let perfJobDetail = [];
@@ -420,7 +417,8 @@ export default class DetailsPanel extends React.Component {
 
   render() {
     const {
-      repoName, $injector, user, currentRepo, resizedHeight,
+      repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
+      classificationTypes,
     } = this.props;
     const {
       job, isPinBoardVisible, jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
@@ -439,7 +437,7 @@ export default class DetailsPanel extends React.Component {
           isVisible={isPinBoardVisible}
           selectedJob={job}
           isLoggedIn={user.isLoggedIn || false}
-          classificationTypes={this.thClassificationTypes}
+          classificationTypes={classificationTypes}
           revisionList={this.getRevisionTips()}
           pinnedJobs={pinnedJobs}
           pinnedJobBugs={pinnedJobBugs}
@@ -453,12 +451,13 @@ export default class DetailsPanel extends React.Component {
         {!!job && <div id="details-panel-content">
           <SummaryPanel
             repoName={repoName}
+            currentRepo={currentRepo}
             selectedJob={job}
+            classificationMap={classificationMap}
             jobLogUrls={jobLogUrls}
             logParseStatus={logParseStatus}
             jobDetailLoading={jobDetailLoading}
             latestClassification={classifications.length ? classifications[0] : null}
-            isTryRepo={currentRepo.is_try_repo}
             logViewerUrl={logViewerUrl}
             logViewerFullUrl={logViewerFullUrl}
             pinJob={this.pinJob}
@@ -478,7 +477,7 @@ export default class DetailsPanel extends React.Component {
             bugSuggestionsLoading={bugSuggestionsLoading}
             logParseStatus={logParseStatus}
             classifications={classifications}
-            classificationTypes={this.thClassificationTypes}
+            classificationMap={classificationMap}
             jobLogUrls={jobLogUrls}
             isPinBoardVisible={isPinBoardVisible}
             pinnedJobs={pinnedJobs}
@@ -504,6 +503,8 @@ DetailsPanel.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   resizedHeight: PropTypes.number.isRequired,
+  classificationTypes: PropTypes.array.isRequired,
+  classificationMap: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
 };
 

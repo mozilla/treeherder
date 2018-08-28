@@ -201,7 +201,7 @@ def test_alert_summary_post(client, test_repository, test_issue_tracker,
     assert resp.status_code == 200
 
     assert PerformanceAlertSummary.objects.count() == 1
-    alert_summary = PerformanceAlertSummary.objects.all()[0]
+    alert_summary = PerformanceAlertSummary.objects.first()
     assert alert_summary.repository == test_repository
     assert alert_summary.framework == test_perf_signature.framework
     assert alert_summary.prev_push_id == post_blob['prev_push_id']

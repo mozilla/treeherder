@@ -202,7 +202,7 @@ def test_alerts_post(client, test_repository, test_perf_signature,
     assert resp.status_code == 200
     assert PerformanceAlert.objects.count() == 1
 
-    alert = PerformanceAlert.objects.all()[0]
+    alert = PerformanceAlert.objects.first()
     assert alert.status == PerformanceAlert.UNTRIAGED
     assert alert.manually_created
     assert alert.amount_pct == 100

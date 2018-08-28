@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { thMaxPushFetchSize } from '../../../js/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
 import { getBtnClass, getStatus } from '../../../helpers/job';
 import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
+import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
 
 export default class SimilarJobsTab extends React.Component {
@@ -13,9 +15,7 @@ export default class SimilarJobsTab extends React.Component {
 
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.ThResultSetModel = $injector.get('ThResultSetModel');
     this.thNotify = $injector.get('thNotify');
-    this.thClassificationTypes = $injector.get('thClassificationTypes');
 
     this.pageSize = 20;
 
@@ -69,21 +69,27 @@ export default class SimilarJobsTab extends React.Component {
       // create an array of unique push ids
       const pushIds = [...new Set(newSimilarJobs.map(job => job.result_set_id))];
       // get pushes and revisions for the given ids
-      const pushListResp = await this.ThResultSetModel.getResultSetList(repoName, pushIds, true);
-      const pushList = pushListResp.data;
-      // decorate the list of jobs with their result sets
-      const pushes = pushList.results.reduce((acc, push) => (
-        { ...acc, [push.id]: push }
-      ), {});
-      newSimilarJobs.forEach((simJob) => {
-        simJob.result_set = pushes[simJob.result_set_id];
-        simJob.revisionResultsetFilterUrl = getJobsUrl({ repo: repoName, revision: simJob.result_set.revisions[0].revision });
-        simJob.authorResultsetFilterUrl = getJobsUrl({ repo: repoName, author: simJob.result_set.author });
-      });
-      this.setState({ similarJobs: [...similarJobs, ...newSimilarJobs] });
-      // on the first page show the first element info by default
-      if (!selectedSimilarJob && newSimilarJobs.length > 0) {
-        this.showJobInfo(newSimilarJobs[0]);
+      let pushList = { results: [] };
+      const resp = await PushModel.getList({ id__in: pushIds.join(','), count: thMaxPushFetchSize });
+
+      if (resp.ok) {
+        pushList = await resp.json();
+        // decorate the list of jobs with their result sets
+        const pushes = pushList.results.reduce((acc, push) => (
+          { ...acc, [push.id]: push }
+        ), {});
+        newSimilarJobs.forEach((simJob) => {
+          simJob.result_set = pushes[simJob.result_set_id];
+          simJob.revisionResultsetFilterUrl = getJobsUrl({ repo: repoName, revision: simJob.result_set.revisions[0].revision });
+          simJob.authorResultsetFilterUrl = getJobsUrl({ repo: repoName, author: simJob.result_set.author });
+        });
+        this.setState({ similarJobs: [...similarJobs, ...newSimilarJobs] });
+        // on the first page show the first element info by default
+        if (!selectedSimilarJob && newSimilarJobs.length > 0) {
+          this.showJobInfo(newSimilarJobs[0]);
+        }
+      } else {
+        this.thNotify.send(`Error fetching similar jobs push data: ${resp.message}`, 'danger', { sticky: true });
       }
     }
     this.setState({ isLoading: false });
@@ -96,13 +102,13 @@ export default class SimilarJobsTab extends React.Component {
   }
 
   showJobInfo(job) {
-    const { repoName } = this.props;
+    const { repoName, classificationMap } = this.props;
 
     JobModel.get(repoName, job.id)
       .then((nextJob) => {
         nextJob.result_status = getStatus(nextJob);
         nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
-        nextJob.failure_classification = this.thClassificationTypes.classifications[
+        nextJob.failure_classification = classificationMap[
           nextJob.failure_classification_id];
 
         // retrieve the list of error lines
@@ -280,4 +286,5 @@ export default class SimilarJobsTab extends React.Component {
 SimilarJobsTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  classificationMap: PropTypes.object.isRequired,
 };

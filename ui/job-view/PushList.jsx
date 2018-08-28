@@ -12,6 +12,7 @@ import {
 import PushLoadErrors from './PushLoadErrors';
 import { thEvents } from '../js/constants';
 import JobModel from '../models/job';
+import PushModel from '../models/push';
 
 export default class PushList extends React.Component {
 
@@ -25,11 +26,9 @@ export default class PushList extends React.Component {
     this.thNotify = $injector.get('thNotify');
     this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.ThResultSetModel = $injector.get('ThResultSetModel');
 
     this.ThResultSetStore.initRepository(repoName);
 
-    this.getNextPushes = this.getNextPushes.bind(this);
     this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
     this.closeJob = this.closeJob.bind(this);
 
@@ -40,13 +39,12 @@ export default class PushList extends React.Component {
     };
 
     // get our first set of resultsets
-    this.ThResultSetStore.fetchPushes(
-        this.ThResultSetStore.defaultPushCount,
-        true,
-    );
+    this.ThResultSetStore.fetchPushes(this.ThResultSetStore.defaultPushCount);
   }
 
   componentWillMount() {
+    this.getNextPushes = this.getNextPushes.bind(this);
+
     this.pushesLoadedUnlisten = this.$rootScope.$on(thEvents.pushesLoaded, () => {
       const pushList = this.ThResultSetStore.getPushArray();
       this.$timeout(() => {
@@ -107,7 +105,7 @@ export default class PushList extends React.Component {
     this.jobsClassifiedUnlisten();
   }
 
-  getNextPushes(count, keepFilters) {
+  getNextPushes(count) {
     this.setState({ loadingPushes: true });
     const revision = this.$location.search().revision;
     if (revision) {
@@ -115,7 +113,7 @@ export default class PushList extends React.Component {
       this.$location.search('revision', null);
       this.$location.search('tochange', revision);
     }
-    this.ThResultSetStore.fetchPushes(count, keepFilters)
+    this.ThResultSetStore.fetchPushes(count)
       .then(this.updateUrlFromchange);
 
   }
@@ -140,22 +138,25 @@ export default class PushList extends React.Component {
       // If the ``selectedJob`` was not mapped, then we need to notify
       // the user it's not in the range of the current result set list.
       JobModel.get(repoName, selectedJobId).then((job) => {
-        this.ThResultSetModel.getResultSet(repoName, job.result_set_id).then((push) => {
-          this.$location.search('selectedJob', null);
-          const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
+        PushModel.get(job.result_set_id).then(async (resp) => {
+          if (resp.ok) {
+            const push = await resp.json();
+            this.$location.search('selectedJob', null);
+            const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
 
-          // the job exists, but isn't in any loaded push.
-          // provide a message and link to load the right push
-          this.thNotify.send(`Selected job id: ${selectedJobId} not within current push range.`,
-            'danger',
-            { sticky: true, linkText: 'Load push', url });
-
+            // the job exists, but isn't in any loaded push.
+            // provide a message and link to load the right push
+            this.thNotify.send(
+              `Selected job id: ${selectedJobId} not within current push range.`,
+              'danger',
+              { sticky: true, linkText: 'Load push', url });
+          }
         });
-      }, function () {
+      }).catch((error) => {
         // the job wasn't found in the db.  Either never existed,
         // or was expired and deleted.
-        this.thNotify.send(
-          `Unable to find job with id ${selectedJobId}`,
+        this.$location.search('selectedJob', null);
+        this.thNotify.send(`Selected Job - ${error}`,
           'danger',
           { sticky: true });
       });
@@ -278,6 +279,7 @@ export default class PushList extends React.Component {
           <Push
             push={push}
             isLoggedIn={isLoggedIn || false}
+            currentRepo={currentRepo}
             isStaff={isStaff}
             repoName={repoName}
             $injector={$injector}
@@ -304,7 +306,7 @@ export default class PushList extends React.Component {
             {[10, 20, 50].map(count => (
               <div
                 className="btn btn-light-bordered"
-                onClick={() => (this.getNextPushes(count, true))}
+                onClick={() => (this.getNextPushes(count))}
                 key={count}
               >{count}</div>
             ))}

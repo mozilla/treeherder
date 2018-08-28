@@ -1,45 +1,10 @@
-import os
-
 import newrelic.agent
 from celery import task
-from django.conf import settings
 from django.core.management import call_command
 
-from treeherder.model.exchanges import TreeherderPublisher
 from treeherder.model.models import Job
-from treeherder.model.pulse_publisher import load_schemas
+from treeherder.services.pulse import publish_job_action as pulse_publish_job_action
 from treeherder.workers.task import retryable_task
-
-# Load schemas for validation of messages published on pulse
-SOURCE_FOLDER = os.path.dirname(os.path.realpath(__file__))
-SCHEMA_FOLDER = os.path.join(SOURCE_FOLDER, '..', '..', 'schemas')
-PULSE_SCHEMAS = load_schemas(SCHEMA_FOLDER)
-
-
-class LazyPublisher(object):
-    """
-    Singleton for lazily connecting to the pulse publisher.
-    """
-
-    def __init__(self):
-        self.publisher = None
-
-    def get_publisher(self):
-        """
-        Attempt to get the publisher.
-        """
-        # Create publisher, if username and password is present
-        if not self.publisher and settings.PULSE_EXCHANGE_NAMESPACE:
-            self.publisher = TreeherderPublisher(
-                namespace=settings.PULSE_EXCHANGE_NAMESPACE,
-                uri=settings.PULSE_URI,
-                schemas=PULSE_SCHEMAS
-            )
-
-        return self.publisher
-
-
-pulse_connection = LazyPublisher()
 
 
 # Run a maximum of 1 per hour
@@ -66,12 +31,8 @@ def publish_job_action(project, action, job_id, requester):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
     newrelic.agent.add_custom_parameter("requester", requester)
 
-    publisher = pulse_connection.get_publisher()
-    if not publisher:
-        return
-
     job = Job.objects.get(id=job_id)
-    publisher.job_action(
+    pulse_publish_job_action(
         version=1,
         build_system_type=job.signature.build_system_type,
         project=project,

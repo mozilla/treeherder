@@ -5,6 +5,8 @@ import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../helpers/display';
 import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
 import { thEvents } from '../js/constants';
+import { getJobsUrl } from '../helpers/url';
+import PushModel from '../models/push';
 
 function Author(props) {
   const authorMatch = props.author.match(/\<(.*?)\>+/);
@@ -54,21 +56,19 @@ export default class PushHeader extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    const { $injector, pushTimestamp, urlBasePath, repoName, revision, author } = this.props;
+    const { $injector, pushTimestamp, repoName, revision, author } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
     this.thJobFilters = $injector.get('thJobFilters');
     this.thNotify = $injector.get('thNotify');
     this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.ThResultSetModel = $injector.get('ThResultSetModel');
 
     this.pushDateStr = toDateStr(pushTimestamp);
-    this.revisionPushFilterUrl = `${urlBasePath}?repo=${repoName}&revision=${revision}`;
-    this.authorPushFilterUrl = `${urlBasePath}?repo=${repoName}&author=${encodeURIComponent(author)}`;
+    this.revisionPushFilterUrl = getJobsUrl({ repo: repoName, revision });
+    this.authorPushFilterUrl = getJobsUrl({ repo: repoName, author });
 
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
-    this.triggerNewJobs = this.triggerNewJobs.bind(this);
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
 
     this.state = {
@@ -79,6 +79,8 @@ export default class PushHeader extends React.PureComponent {
   }
 
   componentWillMount() {
+    this.triggerNewJobs = this.triggerNewJobs.bind(this);
+
     this.toggleRunnableJobUnlisten = this.$rootScope.$on(
       thEvents.selectRunnableJob, (ev, runnableJobs, pushId) => {
         if (this.props.pushId === pushId) {
@@ -120,16 +122,19 @@ export default class PushHeader extends React.PureComponent {
     }
     if (isLoggedIn) {
       const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(pushId);
-      this.ThResultSetStore.getGeckoDecisionTaskId(pushId).then((decisionTaskID) => {
-        this.ThResultSetModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
-          this.thNotify.send(result, 'success');
-          this.ThResultSetStore.deleteRunnableJobs(pushId);
-          this.props.hideRunnableJobsCb();
-          this.setState({ runnableJobsSelected: false });
-        }, (e) => {
+      this.ThResultSetStore.getGeckoDecisionTaskId(pushId)
+        .then((decisionTaskID) => {
+          PushModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
+            this.thNotify.send(result, 'success');
+            this.ThResultSetStore.deleteRunnableJobs(pushId);
+            this.props.hideRunnableJobsCb();
+            this.setState({ runnableJobsSelected: false });
+          }).catch((e) => {
+            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+          });
+        }).catch((e) => {
           this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
         });
-      });
     } else {
       this.thNotify.send('Must be logged in to trigger a job', 'danger');
     }
@@ -141,7 +146,7 @@ export default class PushHeader extends React.PureComponent {
     this.setState({ showConfirmCancelAll: false });
     if (!isLoggedIn) return;
 
-    this.ThResultSetModel.cancelAll(pushId).then(() => (
+    PushModel.cancelAll(pushId).then(() => (
         this.thBuildApi.cancelAll(repoName, revision)
     )).catch((e) => {
       this.thNotify.send(
@@ -286,17 +291,13 @@ PushHeader.propTypes = {
   showRunnableJobsCb: PropTypes.func.isRequired,
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
-  isLoggedIn: PropTypes.bool,
-  isStaff: PropTypes.bool,
-  urlBasePath: PropTypes.string,
 };
 
 PushHeader.defaultProps = {
   jobCounts: null,
   watchState: 'none',
-  isLoggedIn: false,
-  isStaff: false,
-  urlBasePath: '',
 };

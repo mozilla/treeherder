@@ -37,16 +37,7 @@ a {
   cursor: pointer;
 }
 
-#global-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 job-view {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
   height: calc(100% - 63px);
 }
 

@@ -1,26 +1,19 @@
 import _ from 'lodash';
 import jsone from 'json-e';
-import { Queue, Auth, Hooks } from 'taskcluster-client-web';
+import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster from '../helpers/taskcluster';
+import { tcRootUrl } from '../helpers/url';
 
 export default class TaskclusterModel {
-  constructor(notify) {
-    this.notify = notify;
-  }
-
-  taskInContext(tagSetList, taskTags) {
+  static taskInContext(tagSetList, taskTags) {
     return tagSetList.some(tagSet => Object.keys(tagSet)
       .every(tag => taskTags[tag] && taskTags[tag] === tagSet[tag]),
     );
   }
 
-  render(template, context) {
-    return jsone(template, context);
-  }
-
-  async submit({ action, actionTaskId, decisionTaskId, taskId,
+  static async submit({ action, actionTaskId, decisionTaskId, taskId,
                  task, input, staticActionVariables,
                }) {
     const context = _.defaults({}, {
@@ -28,7 +21,7 @@ export default class TaskclusterModel {
       taskId: taskId || null,
       input,
     }, staticActionVariables);
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
 
     if (action.kind === 'task') {
       context.task = task;
@@ -45,8 +38,11 @@ export default class TaskclusterModel {
     if (action.kind === 'hook') {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
-      const auth = new Auth();
-      const hooks = new Hooks({ credentialAgent: taskcluster.getAgent() });
+      const auth = new Auth({ rootUrl: tcRootUrl });
+      const hooks = new Hooks({
+        credentialAgent: taskcluster.getAgent(),
+        rootUrl: tcRootUrl,
+      });
       const decisionTask = await queue.task(decisionTaskId);
       const expansion = await auth.expandScopes({
                                                   scopes: decisionTask.scopes,
@@ -69,13 +65,12 @@ export default class TaskclusterModel {
     }
   }
 
-  async load(decisionTaskID, job) {
+  static async load(decisionTaskID, job) {
     if (!decisionTaskID) {
-      this.notify.send('No decision task, can\'t find taskcluster actions', 'danger', { sticky: true });
-      return;
+      throw Error('No decision task, can\'t find taskcluster actions');
     }
 
-    const queue = new Queue({ credentialAgent: taskcluster.getAgent() });
+    const queue = taskcluster.getQueue();
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
@@ -112,8 +107,7 @@ export default class TaskclusterModel {
         return null;
       }
       if (jsonData.version !== 1) {
-        this.notify.send('Wrong version of actions.json, can\'t continue', 'danger', { sticky: true });
-        return;
+        throw Error('Wrong version of actions.json, can\'t continue');
       }
 
       // The filter in the value of the actions key is an implementation

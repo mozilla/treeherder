@@ -9,13 +9,11 @@ import {
 
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
-    'ThRepositoryModel', '$document',
-    'thClassificationTypes', '$window',
+    '$document', '$window',
     'thJobFilters', 'ThResultSetStore', 'thNotify',
     function MainController(
         $scope, $rootScope, $location, $timeout,
-        ThRepositoryModel, $document,
-        thClassificationTypes, $window,
+        $document, $window,
         thJobFilters, ThResultSetStore, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
@@ -32,7 +30,6 @@ treeherderApp.controller('MainCtrl', [
             $location.search('repo', $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
-        thClassificationTypes.load();
 
         // TODO: Remove this when pinnedJobs is converted to a model or Context
         $rootScope.countPinnedJobs = () => 0;
@@ -376,9 +373,6 @@ treeherderApp.controller('MainCtrl', [
 
             // used to test for display of watched-repo-navbar
             $rootScope.locationPath = $location.path().replace('/', '');
-
-            // used to avoid bad urls when the app redirects internally
-            $rootScope.urlBasePath = $location.absUrl().split('?')[0];
 
             const newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was

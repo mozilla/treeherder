@@ -395,17 +395,17 @@ CELERYBEAT_SCHEDULE = {
         }
     },
     'daily-intermittents-commenter': {
-        # Executes every morning at 7 a.m. UTC except sunday
+        # Executes every morning at 7 a.m. UTC except monday
         'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='monday-saturday'),
+        'schedule': crontab(minute=0, hour=7, day_of_week='tuesday-sunday'),
         'options': {
             'queue': 'intermittents_commenter'
         },
     },
     'weekly-intermittents-commenter': {
-        # Executes every sunday morning at 7 a.m. UTC
+        # Executes every monday morning at 7 a.m. UTC
         'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='sunday'),
+        'schedule': crontab(minute=0, hour=7, day_of_week='monday'),
         'kwargs': {'weekly_mode': True},
         'options': {
             'queue': 'intermittents_commenter'
@@ -460,6 +460,11 @@ REST_FRAMEWORK = {
 # Whitenoise
 # Files in this directory will be served by WhiteNoise at the site root.
 WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "dist")
+# Serve index.html for URLs ending in a trailing slash.
+WHITENOISE_INDEX_FILE = True
+# Only output the hashed filename version of static files and not the originals.
+# Halves the time spent performing Brotli/gzip compression during deploys.
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
 
 # TREEHERDER
@@ -504,7 +509,3 @@ PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")
 
 # The pulse url that is passed to kombu
 PULSE_URL = env("PULSE_URL", default="amqps://guest:guest@pulse.mozilla.org/")
-
-# Note we will never publish any pulse messages unless the exchange namespace is
-# set this normally is your pulse username.
-PULSE_EXCHANGE_NAMESPACE = env("PULSE_EXCHANGE_NAMESPACE", default=None)

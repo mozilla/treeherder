@@ -180,7 +180,7 @@ export default class LineOption extends React.Component {
           suggestions={[errorLine.data.bug_suggestions]}
           fullLog={logUrl}
           parsedLog={`${location.origin}/${getLogViewerUrl(job.id, repoName)}`}
-          reftestUrl={isReftest(job) ? `${getReftestUrl(logUrl)}&only_show_unexpected=1` : ''}
+          reftestUrl={isReftest(job) ? getReftestUrl(logUrl) : ''}
           successCallback={this.bugFilerCallback}
           jobGroupName={job.job_group_name}
           notify={this.thNotify}

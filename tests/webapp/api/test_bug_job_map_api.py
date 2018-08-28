@@ -43,7 +43,7 @@ def test_create_bug_job_map(client, test_job, mock_message_broker,
         assert BugJobMap.objects.count() == 0
     else:
         assert BugJobMap.objects.count() == 1
-        bug_job_map = BugJobMap.objects.all()[0]
+        bug_job_map = BugJobMap.objects.first()
 
         assert bug_job_map.job_id == submit_obj['job_id']
         assert bug_job_map.bug_id == submit_obj['bug_id']
@@ -83,7 +83,7 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository,
     """
     test retrieving a list of bug_job_map
     """
-    job = Job.objects.all()[0]
+    job = Job.objects.first()
     bug = bugs[0]
     expected = list()
 
@@ -116,7 +116,7 @@ def test_bug_job_map_delete(client, eleven_jobs_stored, test_repository,
     """
     test deleting a bug_job_map object
     """
-    job = Job.objects.all()[0]
+    job = Job.objects.first()
     bug = bugs[0]
 
     BugJobMap.objects.create(job=job,

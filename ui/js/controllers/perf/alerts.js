@@ -14,6 +14,8 @@ import {
   phAlertStatusMap,
 } from '../../constants';
 import OptionCollectionModel from '../../../models/optionCollection';
+import PushModel from '../../../models/push';
+import RepositoryModel from '../../../models/repository';
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
@@ -187,13 +189,10 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'ThRepositoryModel', 'ThResultSetModel',
     'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
     'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
                         $uibModal,
-                        ThRepositoryModel,
-                        ThResultSetModel,
                         PhFramework, PhAlerts, PhBugs, PhIssueTracker,
                         dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
@@ -436,28 +435,27 @@ perf.controller('AlertsCtrl', [
             });
 
             $q.all(Object.keys(resultSetToSummaryMap).map(repo =>
-              ThResultSetModel.getResultSetList(
-                    repo, Object.keys(resultSetToSummaryMap[repo]), true).then(
-                        (response) => {
-                            response.data.results.forEach((resultSet) => {
-                                resultSet.dateStr = dateFilter(
-                                    resultSet.push_timestamp * 1000, thDateFormat);
-                                // want at least 14 days worth of results for relative comparisons
-                                const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
-                                resultSet.timeRange = Math.max(timeRange,
-                                    phTimeRanges.map(timeRange => timeRange.value).find(
-                                    t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t));
-                                resultSetToSummaryMap[repo][resultSet.id].forEach(
-                                          (summary) => {
-                                              if (summary.push_id === resultSet.id) {
-                                                  summary.resultSetMetadata = resultSet;
-                                              } else if (summary.prev_push_id === resultSet.id) {
-                                                  summary.prevResultSetMetadata = resultSet;
-                                              }
-                                          });
-                            });
-
-                        }),
+              PushModel.getList({ repo, id__in: Object.keys(resultSetToSummaryMap[repo]).join(',') })
+                  .then(async (response) => {
+                      const { results } = await response.json();
+                      results.forEach((resultSet) => {
+                          resultSet.dateStr = dateFilter(
+                              resultSet.push_timestamp * 1000, thDateFormat);
+                          // want at least 14 days worth of results for relative comparisons
+                          const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
+                          resultSet.timeRange = Math.max(timeRange,
+                              phTimeRanges.map(timeRange => timeRange.value).find(
+                              t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t));
+                          resultSetToSummaryMap[repo][resultSet.id].forEach(
+                                    (summary) => {
+                                        if (summary.push_id === resultSet.id) {
+                                            summary.resultSetMetadata = resultSet;
+                                        } else if (summary.prev_push_id === resultSet.id) {
+                                            summary.prevResultSetMetadata = resultSet;
+                                        }
+                                    });
+                      });
+                  }),
             )).then(() => {
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
@@ -471,9 +469,9 @@ perf.controller('AlertsCtrl', [
                             repo: summary.repository,
                             fromchange: summary.prevResultSetMetadata.revision,
                             tochange: summary.resultSetMetadata.revision });
-                        summary.pushlogURL = repo.getPushLogHref({
-                            from: summary.prevResultSetMetadata.revision,
-                            to: summary.resultSetMetadata.revision,
+                        summary.pushlogURL = repo.getPushLogRangeHref({
+                            fromchange: summary.prevResultSetMetadata.revision,
+                            tochange: summary.resultSetMetadata.revision,
                         });
                     }
 
@@ -578,7 +576,8 @@ perf.controller('AlertsCtrl', [
             }
         };
 
-        ThRepositoryModel.load().then(function () {
+        RepositoryModel.getList().then((repos) => {
+            $rootScope.repos = repos;
             $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
