@@ -57,6 +57,8 @@ export default class WatchedRepo extends React.Component {
         color: 'tree-unavailable',
         btnClass: 'btn-view-nav',
       },
+      hasBoundaryError: false,
+      boundaryError: '',
     };
   }
 
@@ -66,6 +68,13 @@ export default class WatchedRepo extends React.Component {
     this.updateTreeStatus();
     // update the TreeStatus every 2 minutes
     this.treeStatusIntervalId = setInterval(this.updateTreeStatus, 2 * 60 * 1000);
+  }
+
+  componentDidCatch(error) {
+    this.setState({
+      hasBoundaryError: true,
+      boundaryError: error,
+    });
   }
 
   componentWillUnmount() {
@@ -94,7 +103,10 @@ export default class WatchedRepo extends React.Component {
 
   render() {
     const { repoName, unwatchRepo, repo } = this.props;
-    const { status, messageOfTheDay, reason, statusInfo } = this.state;
+    const {
+      status, messageOfTheDay, reason, statusInfo, hasBoundaryError,
+      boundaryError,
+    } = this.state;
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
     const { btnClass, icon, color } = statusInfo;
@@ -102,66 +114,74 @@ export default class WatchedRepo extends React.Component {
     const treeStatusName = TreeStatusModel.getTreeStatusName(watchedRepo);
     const changeRepoUrl = getRepoUrl(watchedRepo);
 
-    return (
-      <span className="btn-group">
-        <a
-          href={changeRepoUrl}
-          className={`watched-repo-main-btn btn btn-sm ${btnClass} ${activeClass}`}
-          type="button"
-          title={status}
-        >
-          <i className={`fa ${icon} ${pulseIcon} ${color}`} /> {watchedRepo}
-        </a>
-        <button
-          className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
-          type="button"
-          title={`${watchedRepo} info`}
-          aria-label={`${watchedRepo} info`}
-          data-toggle="dropdown"
-        ><span className="fa fa-info-circle" /></button>
-        {watchedRepo !== repoName && <button
-          className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
-          onClick={() => unwatchRepo(watchedRepo)}
-          title={`Unwatch ${watchedRepo}`}
-        ><span className="fa fa-times" /></button>}
+    if (!hasBoundaryError) {
+      return (
+        <span className="btn-group">
+          <a
+            href={changeRepoUrl}
+            className={`watched-repo-main-btn btn btn-sm ${btnClass} ${activeClass}`}
+            type="button"
+            title={status}
+          >
+            <i className={`fa ${icon} ${pulseIcon} ${color}`} /> {watchedRepo}
+          </a>
+          <button
+            className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
+            type="button"
+            title={`${watchedRepo} info`}
+            aria-label={`${watchedRepo} info`}
+            data-toggle="dropdown"
+          ><span className="fa fa-info-circle" /></button>
+          {watchedRepo !== repoName && <button
+            className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
+            onClick={() => unwatchRepo(watchedRepo)}
+            title={`Unwatch ${watchedRepo}`}
+          ><span className="fa fa-times" /></button>}
 
-        <ul className="dropdown-menu" role="menu">
-          {status === 'unsupported' && <React.Fragment>
+          <ul className="dropdown-menu" role="menu">
+            {status === 'unsupported' && <React.Fragment>
+              <li className="watched-repo-dropdown-item">
+                <span>{watchedRepo} is not listed on <a
+                  href="https://mozilla-releng.net/treestatus"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Tree Status</a></span>
+              </li>
+              <li className="dropdown-divider" />
+            </React.Fragment>}
+            {!!reason && <li className="watched-repo-dropdown-item">
+              <span><BugLinkify>{reason}</BugLinkify></span>
+            </li>}
+            {!!reason && !!messageOfTheDay && <li className="dropdown-divider" />}
+            {!!messageOfTheDay && <li className="watched-repo-dropdown-item">
+              <span><BugLinkify>{messageOfTheDay}</BugLinkify></span>
+            </li>}
+            {(!!reason || !!messageOfTheDay) && <li className="dropdown-divider" />}
             <li className="watched-repo-dropdown-item">
-              <span>{watchedRepo} is not listed on <a
-                href="https://mozilla-releng.net/treestatus"
+              <a
+                href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
+                className="dropdown-item"
                 target="_blank"
                 rel="noopener noreferrer"
-              >Tree Status</a></span>
+              >Tree Status</a>
             </li>
-            <li className="dropdown-divider" />
-          </React.Fragment>}
-          {!!reason && <li className="watched-repo-dropdown-item">
-            <span><BugLinkify>{reason}</BugLinkify></span>
-          </li>}
-          {!!reason && !!messageOfTheDay && <li className="dropdown-divider" />}
-          {!!messageOfTheDay && <li className="watched-repo-dropdown-item">
-            <span><BugLinkify>{messageOfTheDay}</BugLinkify></span>
-          </li>}
-          {(!!reason || !!messageOfTheDay) && <li className="dropdown-divider" />}
-          <li className="watched-repo-dropdown-item">
-            <a
-              href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
-              className="dropdown-item"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Tree Status</a>
-          </li>
-          <li className="watched-repo-dropdown-item">
-            <a
-              href={repo.pushLogUrl}
-              className="dropdown-item"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Pushlog</a>
-          </li>
-        </ul>
-      </span>
+            <li className="watched-repo-dropdown-item">
+              <a
+                href={repo.pushLogUrl}
+                className="dropdown-item"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Pushlog</a>
+            </li>
+          </ul>
+        </span>
+      );
+    }
+    return (
+      <span
+        className="btn-view-nav pl-1 pr-1 border-right"
+        title={boundaryError.toString()}
+      >Error getting {watchedRepo} info</span>
     );
   }
 }

@@ -6,7 +6,6 @@ import { getBtnClass } from '../../helpers/job';
 import { getRepo, getUrlParam } from '../../helpers/location';
 import WatchedRepo from './WatchedRepo';
 import RepositoryModel from '../../models/repository';
-import WatchedRepoErrorBoundary from './WatchedRepoErrorBoundary';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -221,16 +220,14 @@ export default class SecondaryNavBar extends React.Component {
         <span className="justify-content-between w-100 d-flex flex-wrap">
           <span className="d-flex push-left watched-repos">
             {watchedRepos.map(watchedRepo => (
-              <WatchedRepoErrorBoundary key={watchedRepo.name} repoName={watchedRepo.name}>
-                <WatchedRepo
-                  key={watchedRepo.name}
-                  repo={watchedRepo}
-                  repoName={repoName}
-                  $injector={$injector}
-                  unwatchRepo={this.unwatchRepo}
-                  setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
-                />
-              </WatchedRepoErrorBoundary>
+              <WatchedRepo
+                key={watchedRepo.name}
+                repo={watchedRepo}
+                repoName={repoName}
+                $injector={$injector}
+                unwatchRepo={this.unwatchRepo}
+                setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
+              />
             ))}
           </span>
           <form role="search" className="form-inline flex-row">
