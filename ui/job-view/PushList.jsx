@@ -13,7 +13,6 @@ import PushLoadErrors from './PushLoadErrors';
 import { thEvents } from '../js/constants';
 import JobModel from '../models/job';
 import PushModel from '../models/push';
-import PushErrorBoundary from './PushErrorBoundary';
 
 export default class PushList extends React.Component {
 
@@ -37,6 +36,7 @@ export default class PushList extends React.Component {
       pushList: [],
       loadingPushes: true,
       jobsReady: false,
+      notificationSupported: 'Notification' in window,
     };
 
     // get our first set of resultsets
@@ -270,23 +270,23 @@ export default class PushList extends React.Component {
 
   render() {
     const { $injector, user, repoName, revision, currentRepo } = this.props;
-    const { pushList, loadingPushes, jobsReady } = this.state;
+    const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn, isStaff } = user;
 
     return (
       <div>
         {jobsReady && <span className="hidden ready" />}
         {repoName && pushList.map(push => (
-          <PushErrorBoundary revision={push.revision} key={push.id}>
-            <Push
-              push={push}
-              isLoggedIn={isLoggedIn || false}
-              currentRepo={currentRepo}
-              isStaff={isStaff}
-              repoName={repoName}
-              $injector={$injector}
-            />
-          </PushErrorBoundary>
+          <Push
+            push={push}
+            isLoggedIn={isLoggedIn || false}
+            currentRepo={currentRepo}
+            isStaff={isStaff}
+            repoName={repoName}
+            $injector={$injector}
+            key={push.id}
+            notificationSupported={notificationSupported}
+          />
         ))}
         {loadingPushes &&
           <div

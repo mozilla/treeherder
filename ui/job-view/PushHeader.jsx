@@ -169,13 +169,13 @@ export default class PushHeader extends React.PureComponent {
   render() {
     const { repoName, isLoggedIn, pushId, isStaff, jobCounts, author,
             revision, runnableVisible, $injector, watchState,
-            showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState } = this.props;
+            showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState,
+            notificationSupported } = this.props;
     const { filterParams } = this.state;
     const cancelJobsTitle = isLoggedIn ?
       'Cancel all jobs' :
       'Must be logged in to cancel jobs';
     const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
-    const notificationsSupported = 'Notification' in window;
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
@@ -206,8 +206,8 @@ export default class PushHeader extends React.PureComponent {
             {counts.pending + counts.running > 0 &&
               <button
                 className="btn btn-sm btn-push watch-commit-btn"
-                disabled={!notificationsSupported}
-                title={notificationsSupported ? 'Get Desktop Notifications for this Push' : 'Desktop notifications not supported in this browser'}
+                disabled={!notificationSupported}
+                title={notificationSupported ? 'Get Desktop Notifications for this Push' : 'Desktop notifications not supported in this browser'}
                 data-watch-state={watchState}
                 onClick={() => cycleWatchState()}
               >{watchStateLabel}</button>}
@@ -294,6 +294,7 @@ PushHeader.propTypes = {
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isStaff: PropTypes.bool.isRequired,
+  notificationSupported: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
 };

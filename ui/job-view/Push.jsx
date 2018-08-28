@@ -31,6 +31,8 @@ export default class Push extends React.Component {
       // props.push isn't actually immutable due to the way it hooks up to angular, therefore we
       // need to keep the previous value in the state.
       last_job_counts: job_counts ? { ...job_counts } : null,
+      hasBoundaryError: false,
+      boundaryError: '',
     };
   }
   componentDidMount() {
@@ -38,60 +40,65 @@ export default class Push extends React.Component {
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.showUpdateNotifications(nextProps);
+  }
+
+  componentDidCatch(error) {
+    this.setState({
+      hasBoundaryError: true,
+      boundaryError: error,
+    });
   }
 
   showUpdateNotifications(nextProps) {
     const { watched, last_job_counts } = this.state;
-    const { repoName, push: { revision, id: pushId } } = this.props;
+    const {
+      repoName, notificationSupported, push: { revision, id: pushId },
+    } = this.props;
 
-    try {
-      if (Notification.permission !== 'granted' || watched === 'none') {
-        return;
+    if (!notificationSupported || Notification.permission !== 'granted' || watched === 'none') {
+      return;
+    }
+
+    const nextCounts = nextProps.push.job_counts;
+    if (last_job_counts) {
+      const nextUncompleted = nextCounts.pending + nextCounts.running;
+      const lastUncompleted = last_job_counts.pending + last_job_counts.running;
+
+      const nextCompleted = nextCounts.completed;
+      const lastCompleted = last_job_counts.completed;
+
+      let message;
+      if (lastUncompleted > 0 && nextUncompleted === 0) {
+        message = 'Push completed';
+        this.setState({ watched: 'none' });
+      } else if (watched === 'job' && lastCompleted < nextCompleted) {
+        const completeCount = nextCompleted - lastCompleted;
+        message = completeCount + ' jobs completed';
       }
 
-      const nextCounts = nextProps.push.job_counts;
-      if (last_job_counts) {
-        const nextUncompleted = nextCounts.pending + nextCounts.running;
-        const lastUncompleted = last_job_counts.pending + last_job_counts.running;
+      if (message) {
+        const notification = new Notification(message, {
+          body: `${repoName} rev ${revision.substring(0, 12)}`,
+          tag: pushId,
+        });
 
-        const nextCompleted = nextCounts.completed;
-        const lastCompleted = last_job_counts.completed;
+        notification.onerror = (event) => {
+          this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
+        };
 
-        let message;
-        if (lastUncompleted > 0 && nextUncompleted === 0) {
-          message = 'Push completed';
-          this.setState({ watched: 'none' });
-        } else if (watched === 'job' && lastCompleted < nextCompleted) {
-          const completeCount = nextCompleted - lastCompleted;
-          message = completeCount + ' jobs completed';
-        }
-
-        if (message) {
-          const notification = new Notification(message, {
-            body: `${repoName} rev ${revision.substring(0, 12)}`,
-            tag: pushId,
-          });
-
-          notification.onerror = (event) => {
-            this.thNotify.send(`${event.target.title}: ${event.target.body}`, 'danger');
-          };
-
-          notification.onclick = (event) => {
-            if (this.container) {
-              this.container.scrollIntoView();
-              event.target.close();
-            }
-          };
-        }
+        notification.onclick = (event) => {
+          if (this.container) {
+            this.container.scrollIntoView();
+            event.target.close();
+          }
+        };
       }
+    }
 
-      if (nextCounts) {
-        this.setState({ last_job_counts: Object.assign({}, nextCounts) });
-      }
-    } catch (e) {
-      // notifications not supported, skipping...
+    if (nextCounts) {
+      this.setState({ last_job_counts: Object.assign({}, nextCounts) });
     }
   }
 
@@ -107,29 +114,40 @@ export default class Push extends React.Component {
   }
 
   async cycleWatchState() {
-    try {
-      let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
-
-      if (next !== 'none' && Notification.permission !== 'granted') {
-        const result = await Notification.requestPermission();
-
-        if (result === 'denied') {
-          this.thNotify.send('Notification permission denied', 'danger');
-
-          next = 'none';
-        }
-      }
-      this.setState({ watched: next });
-    } catch (e) {
-      // notifications not supported, skipping...
+    if (!this.props.notificationSupported) {
+      return;
     }
+
+    let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
+
+    if (next !== 'none' && Notification.permission !== 'granted') {
+      const result = await Notification.requestPermission();
+
+      if (result === 'denied') {
+        this.thNotify.send('Notification permission denied', 'danger');
+
+        next = 'none';
+      }
+    }
+    this.setState({ watched: next });
   }
 
   render() {
-    const { push, isLoggedIn, isStaff, $injector, repoName, currentRepo } = this.props;
-    const { watched, runnableVisible } = this.state;
+    const {
+      push, isLoggedIn, isStaff, $injector, repoName, currentRepo,
+      notificationSupported,
+    } = this.props;
+    const { watched, runnableVisible, hasBoundaryError, boundaryError } = this.state;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
+    if (hasBoundaryError) {
+      return (
+        <div className="border-bottom border-top ml-1">
+          <div>Error displaying push with revision: {revision}</div>
+          <div>{boundaryError.toString()}</div>
+        </div>
+      );
+    }
     return (
       <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>
         <PushHeader
@@ -147,6 +165,7 @@ export default class Push extends React.Component {
           showRunnableJobsCb={this.showRunnableJobs}
           hideRunnableJobsCb={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
+          notificationSupported={notificationSupported}
         />
         <div className="push-body-divider" />
         <div className="row push clearfix">
@@ -177,4 +196,5 @@ Push.propTypes = {
   repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isStaff: PropTypes.bool.isRequired,
+  notificationSupported: PropTypes.bool.isRequired,
 };
