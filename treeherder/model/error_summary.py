@@ -210,7 +210,7 @@ def is_helpful_search_term(search_term):
     return len(search_term) > 4 and search_term not in blacklist
 
 
-def get_filtered_error_lines(job):
+def get_useful_search_results(job):
     """
     Filter error_summary dicts if their search term is deemed "helpful"
     """
