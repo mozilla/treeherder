@@ -38,10 +38,8 @@ def to_timestamp(datetime_obj):
 
 
 def get_end_of_day(date):
-    """Turn a date string into a datetime in order to
-       add a 23:59:59.999 timestamp (default is 00:00:00)"""
-    new_date = datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1, microseconds=-1)
-    return new_date.strftime('%Y-%m-%d %H:%M:%S.%f')
+    """Add a 23:59:59.999 timestamp (default is 00:00:00)"""
+    return date + timedelta(days=1, microseconds=-1)
 
 
 def get_repository(name):
