@@ -57,6 +57,8 @@ export default class WatchedRepo extends React.Component {
         color: 'tree-unavailable',
         btnClass: 'btn-view-nav',
       },
+      hasBoundaryError: false,
+      boundaryError: '',
     };
   }
 
@@ -66,6 +68,13 @@ export default class WatchedRepo extends React.Component {
     this.updateTreeStatus();
     // update the TreeStatus every 2 minutes
     this.treeStatusIntervalId = setInterval(this.updateTreeStatus, 2 * 60 * 1000);
+  }
+
+  componentDidCatch(error) {
+    this.setState({
+      hasBoundaryError: true,
+      boundaryError: error,
+    });
   }
 
   componentWillUnmount() {
@@ -94,7 +103,10 @@ export default class WatchedRepo extends React.Component {
 
   render() {
     const { repoName, unwatchRepo, repo } = this.props;
-    const { status, messageOfTheDay, reason, statusInfo } = this.state;
+    const {
+      status, messageOfTheDay, reason, statusInfo, hasBoundaryError,
+      boundaryError,
+    } = this.state;
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
     const { btnClass, icon, color } = statusInfo;
@@ -102,6 +114,14 @@ export default class WatchedRepo extends React.Component {
     const treeStatusName = TreeStatusModel.getTreeStatusName(watchedRepo);
     const changeRepoUrl = getRepoUrl(watchedRepo);
 
+    if (hasBoundaryError) {
+      return (
+        <span
+          className="btn-view-nav pl-1 pr-1 border-right"
+          title={boundaryError.toString()}
+        >Error getting {watchedRepo} info</span>
+      );
+    }
     return (
       <span className="btn-group">
         <a

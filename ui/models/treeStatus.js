@@ -11,7 +11,7 @@ export default class TreeStatusModel {
 
   static get(repoName) {
     return fetch(`${uri}${TreeStatusModel.getTreeStatusName(repoName)}`)
-      .then((resp) => {
+      .then(async (resp) => {
         if (resp.ok) {
           return resp.json();
         } else if (resp.status === 404) {
@@ -24,14 +24,14 @@ export default class TreeStatusModel {
             },
           });
         }
-        throw new Error(resp.statusText);
+        throw new Error(await resp.text());
       })
       .catch(reason => (
         Promise.resolve({
           result: {
             status: 'error',
             message_of_the_day: 'Unable to connect to the https://mozilla-releng.net/treestatus API',
-            reason,
+            reason: reason.toString(),
             tree: repoName,
           },
         })
