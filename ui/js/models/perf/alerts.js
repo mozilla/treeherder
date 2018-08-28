@@ -346,6 +346,7 @@ treeherder.factory('PhAlerts', [
                         });
                     });
             },
+            // TODO: rename data to dataPoint
             createAlert: function (data) {
                 return $http.post(getApiUrl('/performance/alertsummary/'), {
                     repository_id: data.project.id,
@@ -361,6 +362,19 @@ treeherder.factory('PhAlerts', [
                         return newAlertSummaryId;
                     });
                 });
+            },
+            findPushIdNeighbours: (dataPoint, resultSetData, direction) => {
+                const pushId = dataPoint.resultSetId;
+                const pushIdIndex = (direction === 'left') ? resultSetData.indexOf(pushId) : resultSetData.lastIndexOf(pushId);
+                const relativePos = (direction === 'left') ? -1 : 1;
+                return {
+                    push_id: resultSetData[pushIdIndex + relativePos],
+                    prev_push_id: resultSetData[pushIdIndex + (relativePos - 1)],
+                };
+            },
+            nudgeAlert: (dataPoint, towardsDataPoint) => {
+                const alertId = dataPoint.alert.id;
+                return $http.put(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
             },
         };
     }]);

@@ -17,7 +17,7 @@ from treeherder.perfalert.perfalert import (RevisionDatum,
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
     AlertProperties = namedtuple('AlertProperties',
-                                 'pct_change delta is_regression')
+                                 'pct_change delta is_regression prev_value new_value')
     if prev_value != 0:
         pct_change = (100.0 * abs(new_value -
                                   prev_value) /
@@ -30,7 +30,7 @@ def get_alert_properties(prev_value, new_value, lower_is_better):
     is_regression = ((delta > 0 and lower_is_better) or
                      (delta < 0 and not lower_is_better))
 
-    return AlertProperties(pct_change, delta, is_regression)
+    return AlertProperties(pct_change, delta, is_regression, prev_value, new_value)
 
 
 def generate_new_alerts_in_series(signature):

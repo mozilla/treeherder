@@ -556,6 +556,60 @@ def test_perf_signature(test_repository, test_perf_framework):
 
 
 @pytest.fixture
+def test_perf_signature_2(test_perf_signature):
+    from treeherder.perf.models import PerformanceSignature
+
+    return PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20*'t2'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite='mysuite2',
+        test='mytest2',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.datetime.now()
+    )
+
+
+@pytest.fixture
+def test_perf_data(test_perf_signature, eleven_jobs_stored):
+    from treeherder.model.models import Job
+    from treeherder.perf.models import PerformanceDatum
+
+    def normalized_time(hour):
+        return datetime.datetime(2018, 7, 3, hour)
+
+    # for making things easier, ids for jobs
+    # and push should be the same;
+    # also, we only need a subset of jobs
+    perf_jobs = Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
+
+    for index, job in enumerate(perf_jobs, start=1):
+        job.push_id = index
+        job.save()
+
+        perf_datum = PerformanceDatum.objects.create(
+            value=10,
+            push_timestamp=normalized_time(index),
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=test_perf_signature
+        )
+        perf_datum.push.time = normalized_time(index)
+        perf_datum.push.save()
+
+    return PerformanceDatum.objects.order_by('id').all()
+
+
+@pytest.fixture
+def mock_autoclassify_jobs_true(monkeypatch):
+    monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
+
+
+@pytest.fixture
 def mock_bugzilla_api_request(monkeypatch):
     """Mock fetch_json() used by Bugzilla ETL to return a local sample file."""
     import treeherder.etl.bugzilla
@@ -620,11 +674,37 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
 
 
 @pytest.fixture
+def test_perf_alert_summary_2(test_perf_alert_summary):
+    from treeherder.perf.models import PerformanceAlertSummary
+    return PerformanceAlertSummary.objects.create(
+        repository=test_perf_alert_summary.repository,
+        framework=test_perf_alert_summary.framework,
+        prev_push_id=test_perf_alert_summary.prev_push_id+1,
+        push_id=test_perf_alert_summary.push_id+1,
+        manually_created=False,
+        last_updated=datetime.datetime.now())
+
+
+@pytest.fixture
 def test_perf_alert(test_perf_signature, test_perf_alert_summary):
     from treeherder.perf.models import PerformanceAlert
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary,
         series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
+
+
+@pytest.fixture
+def test_perf_alert_2(test_perf_alert, test_perf_signature_2, test_perf_alert_summary_2):
+    from treeherder.perf.models import PerformanceAlert
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature_2,
         is_regression=True,
         amount_pct=0.5,
         amount_abs=50.0,

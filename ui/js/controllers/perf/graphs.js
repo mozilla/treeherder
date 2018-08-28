@@ -31,6 +31,7 @@ perf.controller('GraphsCtrl', [
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
+        $scope.nudgingAlert = false;
 
         $scope.timeranges = phTimeRanges;
 
@@ -57,6 +58,21 @@ perf.controller('GraphsCtrl', [
                     plotGraph();
                 });
             });
+        };
+
+        $scope.nudgeAlert = (dataPoint, direction) => {
+            $scope.nudgingAlert = true;
+
+            const resultSetData = dataPoint.series.flotSeries.resultSetData;
+            const towardsDataPoint = PhAlerts.findPushIdNeighbours(dataPoint, resultSetData, direction);
+
+            PhAlerts.nudgeAlert(dataPoint, towardsDataPoint).then(() => {
+                $scope.nudgingAlert = false;
+            }, (error) => {
+                $scope.nudgingAlert = false;
+                alertHttpError(error);
+            });
+
         };
 
         function getSeriesDataPoint(flotItem) {
@@ -667,15 +683,17 @@ perf.controller('GraphsCtrl', [
                         showTooltip($scope.selectedDataPoint);
                     }
                 });
-            }, function (error) {
-                if (error.statusText) {
-                    error = 'HTTP Error: ' + error.statusText;
-                }
-                // we could probably do better than print this
-                // rather useless error, but at least this gives
-                // a hint on what the problem is
-                alert('Error loading performance data\n\n' + error);
-            });
+            }, alertHttpError);
+        }
+
+        function alertHttpError(error) {
+            if (error.statusText) {
+                error = 'HTTP Error: ' + error.statusText;
+            }
+            // we could probably do better than print this
+            // rather useless error, but at least this gives
+            // a hint on what the problem is
+            alert('Error loading performance data\n\n' + error);
         }
 
         $scope.removeSeries = function (projectName, signature) {

@@ -1,5 +1,4 @@
 import copy
-import datetime
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -37,18 +36,6 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'classifier_email'
     ])
     assert resp.json()['results'][0]['related_summary_id'] is None
-
-
-@pytest.fixture
-def test_perf_alert_summary_2(test_perf_alert_summary):
-    return PerformanceAlertSummary.objects.create(
-        id=2,
-        repository=test_perf_alert_summary.repository,
-        prev_push_id=2,
-        push_id=3,
-        last_updated=datetime.datetime.now(),
-        framework=test_perf_alert_summary.framework,
-        manually_created=False)
 
 
 def test_alerts_put(client, push_stored, test_repository,
@@ -228,3 +215,262 @@ def test_alerts_post_insufficient_data(client,
                            new_post_blob)
         assert resp.status_code == 400
         assert PerformanceAlert.objects.count() == 0
+
+
+@pytest.mark.parametrize("perf_datum_id, towards_push_ids",
+                         [(3, {'prev_push_id': 1, 'push_id': 2}),
+                          (2, {'prev_push_id': 2, 'push_id': 3})])
+def test_nudge_alert_to_changeset_without_alert_summary(client,
+                                                        test_sheriff,
+                                                        test_perf_alert,
+                                                        test_perf_data,
+                                                        perf_datum_id,
+                                                        towards_push_ids):
+    client.force_authenticate(user=test_sheriff)
+    link_alert_summary_in_perf_data(test_perf_data, test_perf_alert,
+                                    perf_datum_id)
+
+    old_alert_summary_id = test_perf_alert.summary.id
+
+    resp = client.put(reverse('performance-alerts-list') + '1/', towards_push_ids)
+
+    assert resp.status_code == 200
+
+    test_perf_alert.refresh_from_db()
+    new_alert_summary = test_perf_alert.summary
+
+    assert new_alert_summary.id != old_alert_summary_id
+    assert 'alert_summary_id' in resp.json()
+    assert resp.json()['alert_summary_id'] == new_alert_summary.id
+
+    # new summary has correct push ids
+    assert new_alert_summary.prev_push_id == towards_push_ids["prev_push_id"]
+    assert new_alert_summary.push_id == towards_push_ids["push_id"]
+
+    # old alert summary gets deleted
+    assert not PerformanceAlertSummary.objects.filter(pk=old_alert_summary_id).exists()
+
+
+@pytest.mark.parametrize("perf_datum_ids, alert_id_to_move, towards_push_ids",
+                         [((2, 3), 2, {'push_id': 2, 'prev_push_id': 1}),
+                          (None, 1, {'push_id': 3, 'prev_push_id': 2})])
+def test_nudge_alert_to_changeset_with_an_alert_summary(client,
+                                                        test_sheriff,
+                                                        test_perf_alert,
+                                                        test_perf_alert_2,
+                                                        test_perf_alert_summary,
+                                                        test_perf_alert_summary_2,
+                                                        test_perf_data,
+                                                        perf_datum_ids,
+                                                        alert_id_to_move,
+                                                        towards_push_ids):
+    """
+    push_ids: 1 [2 summary_2+alert] -nudge-> [3 summary+alert_2] 4
+                                    <-nudge-
+    """
+    client.force_authenticate(user=test_sheriff)
+
+    alert_to_move, starting_summary = test_perf_alert, test_perf_alert_summary_2
+    if perf_datum_ids:
+        link_alert_summary_in_perf_data(test_perf_data, test_perf_alert,
+                                        perf_datum_ids[0])
+        link_alert_summary_in_perf_data(test_perf_data, test_perf_alert_2,
+                                        perf_datum_ids[1])
+        associate_perf_data_to_alert(test_perf_data, test_perf_alert_2)
+        alert_to_move, starting_summary = test_perf_alert_2, test_perf_alert_summary
+    old_alert_summary_id = alert_to_move.summary.id
+
+    resp = client.put(reverse('performance-alerts-list') + str(alert_id_to_move) + '/', towards_push_ids)
+
+    assert resp.status_code == 200
+
+    test_perf_alert.refresh_from_db()
+    test_perf_alert_2.refresh_from_db()
+    starting_summary.refresh_from_db()
+
+    assert alert_to_move.summary.id != old_alert_summary_id
+    assert 'alert_summary_id' in resp.json()
+    assert resp.json()['alert_summary_id'] == alert_to_move.summary.id
+
+    # old alert summary gets deleted
+    assert not PerformanceAlertSummary.objects.filter(pk=old_alert_summary_id).exists()
+
+    # prev alert_summary gets properly updated
+    assert alert_to_move.summary.id == starting_summary.id
+    assert alert_to_move.summary.alerts.count() == 2
+
+
+def test_nudge_left_alert_from_alert_summary_with_more_alerts(client,
+                                                              test_sheriff,
+                                                              test_perf_alert,
+                                                              test_perf_alert_2,
+                                                              test_perf_alert_summary,
+                                                              test_perf_alert_summary_2,
+                                                              test_perf_data):
+    associate_perf_data_to_alert(test_perf_data, test_perf_alert_2)
+
+    client.force_authenticate(user=test_sheriff)
+
+    old_alert_summary_id = test_perf_alert_2.summary.id
+    test_perf_alert.summary = test_perf_alert_summary_2
+    test_perf_alert.save()
+
+    resp = client.put(reverse('performance-alerts-list') + '2/', {
+        'push_id': 2,
+        'prev_push_id': 1
+    })
+
+    assert resp.status_code == 200
+
+    test_perf_alert.refresh_from_db()
+    test_perf_alert_2.refresh_from_db()
+    test_perf_alert_summary_2.refresh_from_db()
+
+    assert test_perf_alert_2.summary.id != old_alert_summary_id
+    assert 'alert_summary_id' in resp.json()
+    assert resp.json()['alert_summary_id'] == test_perf_alert_2.summary.id
+
+    # old alert summary still there
+    old_alert_summary = PerformanceAlertSummary.objects.filter(pk=old_alert_summary_id).first()
+    assert old_alert_summary is not None
+    # with other alert
+    assert test_perf_alert in old_alert_summary.alerts.all()
+
+    # prev alert_summary gets properly updated
+    assert test_perf_alert_summary_2.alerts.count() == 1
+
+
+def test_nudge_right_alert_from_alert_summary_with_more_alerts(client,
+                                                               test_sheriff,
+                                                               test_perf_alert,
+                                                               test_perf_alert_2,
+                                                               test_perf_alert_summary,
+                                                               test_perf_alert_summary_2,
+                                                               test_perf_data):
+    """
+    | push 2          |          | push 3          |
+    | --------------- |          | --------------- |
+    | | summary     | |          | | summary_2   | |
+    | | prev_push=1 | |          | | prev_push=2 | |
+    | | ----------- | |          | | ----------- | |
+    | | alert       |-|--nudge---|>|_____________| |
+    | |_alert_2_____| |          |                 |
+    |_________________|          |_________________|
+    """
+
+    client.force_authenticate(user=test_sheriff)
+
+    old_alert_summary_id = test_perf_alert.summary.id
+    test_perf_alert_2.summary = test_perf_alert_summary
+    test_perf_alert_2.save()
+
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'push_id': 3,
+        'prev_push_id': 2
+    })
+
+    assert resp.status_code == 200
+
+    test_perf_alert.refresh_from_db()
+    test_perf_alert_2.refresh_from_db()
+    test_perf_alert_summary.refresh_from_db()
+    test_perf_alert_summary_2.refresh_from_db()
+
+    assert test_perf_alert.summary.id != old_alert_summary_id
+    assert 'alert_summary_id' in resp.json()
+    assert resp.json()['alert_summary_id'] == test_perf_alert.summary.id
+
+    # old alert summary still there
+    assert PerformanceAlertSummary.objects.filter(pk=old_alert_summary_id).count() == 1
+    # with other alert
+    assert test_perf_alert_2 in PerformanceAlert.objects.filter(summary_id=old_alert_summary_id).all()
+
+    # prev alert_summary gets properly updated
+    assert test_perf_alert_summary.alerts.count() == 1
+
+
+def test_nudge_raises_exception_when_no_perf_data(client,
+                                                  test_sheriff,
+                                                  test_perf_alert,
+                                                  test_perf_alert_summary):
+    client.force_authenticate(user=test_sheriff)
+    initial_summary_count = PerformanceAlertSummary.objects.all().count()
+    initial_alert_count = PerformanceAlert.objects.all().count()
+
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'push_id': 3,
+        'prev_push_id': 2
+    })
+
+    assert resp.status_code == 400
+    assert PerformanceAlertSummary.objects.all().count() == initial_summary_count
+    assert PerformanceAlert.objects.all().count() == initial_alert_count
+
+
+def test_nudge_recalculates_alert_properties(client,
+                                             test_sheriff,
+                                             test_perf_alert,
+                                             test_perf_alert_summary,
+                                             test_perf_data):
+
+    def _get_alert_properties(test_perf_alert):
+        prop_names = ['amount_pct', 'amount_abs', 'prev_value', 'new_value', 't_value']
+        return [getattr(test_perf_alert, prop_name) for prop_name in prop_names]
+
+    client.force_authenticate(user=test_sheriff)
+
+    # let's update the performance data
+    # so that recalculation produces new results
+    for index, perf_datum in enumerate(test_perf_data):
+        perf_datum.value = index * 10
+        perf_datum.save()
+
+    resp = client.put(reverse('performance-alerts-list') + '1/', {
+        'push_id': 3,
+        'prev_push_id': 2
+    })
+    assert resp.status_code == 200
+    test_perf_alert.refresh_from_db()
+
+    new_alert_properties = _get_alert_properties(test_perf_alert)
+    assert new_alert_properties == [400.0, 20.0, 5.0, 25.0, 20.0]
+
+
+# utils
+def link_alert_summary_in_perf_data(test_perf_data, test_perf_alert,
+                                    perf_datum_id):
+    assert perf_datum_id > 0
+
+    perf_datum = filter(lambda tpd: tpd.id == perf_datum_id, test_perf_data)[0]
+    prev_perf_datum = filter(lambda tpd: tpd.id == perf_datum_id-1, test_perf_data)[0]
+
+    # adjust relations
+    alert_summary = test_perf_alert.summary
+    alert_summary.repository = perf_datum.repository
+    alert_summary.push = perf_datum.push
+    alert_summary.prev_push = prev_perf_datum.push
+    alert_summary.save()
+
+
+def associate_perf_data_to_alert(test_perf_data, test_perf_alert):
+    series_signature = test_perf_alert.series_signature
+
+    for perf_datum in test_perf_data:
+        perf_datum.signature = series_signature
+        perf_datum.save()
+
+
+def dump_vars(alert_summaries, perf_data, alerts=None):
+    from pprint import pprint
+
+    def dump_alert(alert):
+        pprint('Alert(id={0.id}, summary_id={0.summary_id}, push_id={0.summary.push_id}, prev_push_id={0.summary.prev_push_id})'.format(alert))
+    for summary in alert_summaries:
+        pprint('AlertSummary(id={0.id}, push_id={0.push_id}, prev_push_id={0.prev_push_id}) has following alerts: '.format(summary))
+        for alert in summary.alerts.all():
+            dump_alert(alert)
+    if alerts is not None:
+        for alert in alerts:
+            dump_alert(alert)
+    for perf_datum in perf_data:
+        pprint('PerfData(id={0.push_id}, push_timestamp={0.push_timestamp})'.format(perf_datum))
