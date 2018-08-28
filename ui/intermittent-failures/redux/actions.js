@@ -48,7 +48,7 @@ export const fetchBugsThenBugzilla = (url, name) => (dispatch, getState) => (
     if (!getState().bugsData.failureStatus) {
       const { results } = getState().bugsData.data;
       const bugs_list = formatBugs(results);
-      return dispatch(fetchBugData(bugzillaBugsApi('rest/bug', {
+      return dispatch(fetchBugData(bugzillaBugsApi('bug', {
         include_fields: 'id,status,summary,whiteboard',
         id: bugs_list,
       }), `BUGZILLA_${name}`));

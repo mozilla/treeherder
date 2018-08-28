@@ -34,11 +34,10 @@ ErrorBoundary.propTypes = {
     PropTypes.shape({}),
     PropTypes.bool,
   ]),
-  errorFound: PropTypes.func,
+  errorFound: PropTypes.func.isRequired,
 };
 
 ErrorBoundary.defaultProps = {
-  errorFound: null,
   children: null,
 };
 

@@ -101,7 +101,7 @@ class BugDetailsView extends React.Component {
 
     if (bug !== bugId) {
       updateBugDetails(bug, summary, stateName.detailsView);
-      fetchData(bugzillaBugsApi('rest/bug', { include_fields: 'summary,id', id: bug }), 'BUGZILLA_BUG_DETAILS');
+      fetchData(bugzillaBugsApi('bug', { include_fields: 'summary,id', id: bug }), 'BUGZILLA_BUG_DETAILS');
     }
     // the table library fetches data directly when its component mounts and in response
     // to a user selecting pagesize or page; this condition will prevent duplicate requests
@@ -194,7 +194,7 @@ class BugDetailsView extends React.Component {
             back</Link></span>
           </Col>
         </Row>
-        {errorMessages.length === 0 && bugDetails.results &&
+        {errorMessages.length === 0 &&
         <React.Fragment>
           <Row>
             <Col xs="12" className="mx-auto"><h1>Details for Bug {!bugId ? '' : bugId}</h1></Col>
@@ -203,15 +203,15 @@ class BugDetailsView extends React.Component {
             <Col xs="12" className="mx-auto"><p className="subheader">{`${prettyDate(from)} to ${prettyDate(to)} UTC`}</p>
             </Col>
           </Row>
+          {summary &&
+          <Row>
+            <Col xs="4" className="mx-auto"><p className="text-secondary text-center">{summary}</p></Col>
+          </Row>}
+          {bugDetails && bugDetails.count &&
+          <Row>
+            <Col xs="12" className="mx-auto"><p className="text-secondary">{bugDetails.count} total failures</p></Col>
+          </Row>}
         </React.Fragment>}
-        {summary && bugDetails.results &&
-        <Row>
-          <Col xs="4" className="mx-auto"><p className="text-secondary text-center">{summary}</p></Col>
-        </Row>}
-        {bugDetails && bugDetails.count &&
-        <Row>
-          <Col xs="12" className="mx-auto"><p className="text-secondary">{bugDetails.count} total failures</p></Col>
-        </Row>}
 
         <ErrorBoundary
           stateName={stateName.detailsViewGraphs}
