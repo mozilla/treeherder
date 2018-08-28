@@ -547,9 +547,9 @@ class Job(models.Model):
         if classified_error_count == 0:
             return False
 
-        from treeherder.model.error_summary import get_filtered_error_lines
+        from treeherder.model.error_summary import get_useful_search_results
 
-        return classified_error_count == len(get_filtered_error_lines(self))
+        return classified_error_count == len(get_useful_search_results(self))
 
     def is_fully_verified(self):
         """
@@ -610,8 +610,8 @@ class Job(models.Model):
 
         # Can this TextLogError be converted into a single "useful search"?
         # FIXME: what is the significance of only one search result here?
-        from treeherder.model.error_summary import get_filtered_error_lines as get_search_results
-        search_results = get_search_results(self)
+        from treeherder.model.error_summary import get_useful_search_results
+        search_results = get_useful_search_results(self)
         if len(search_results) != 1:
             return None
 
@@ -997,11 +997,11 @@ class FailureLine(models.Model):
         if not components:
             return []
 
-        from treeherder.model.error_summary import get_filtered_error_lines
+        from treeherder.model.error_summary import get_useful_search_results
         job = Job.objects.get(guid=self.job_guid)
         rv = []
         ids_seen = set()
-        for item in get_filtered_error_lines(job):
+        for item in get_useful_search_results(job):
             if all(component in item["search"] for component in components):
                 for suggestion in itertools.chain(item["bugs"]["open_recent"],
                                                   item["bugs"]["all_others"]):
