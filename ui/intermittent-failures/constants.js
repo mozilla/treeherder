@@ -44,12 +44,15 @@ export const treeOptions = [
   'comm-releases',
 ];
 
+// we only want bug_ui and tree_ui to be used for UI validation, because
+// if there is a valid type used but its a non-existent repo or bug_id
+// we want to see that message from the api response
 export const prettyErrorMessages = {
   startday: 'startday is required and must be in YYYY-MM-DD format.',
   endday: 'endday is required and must be in YYYY-MM-DD format.',
-  // bug: 'bug is required and must be a valid integer.',
-  // tree: 'tree is required and must be a valid repository.',
-  default: 'Something went wrong. Please try again later.',
+  bug_ui: 'bug is required and must be a valid integer.',
+  tree_ui: 'tree is required and must be a valid repository or repository group.',
+  default: 'Something went wrong.',
   status503: 'There was a problem retrieving the data. Please try again in a minute.',
 };
 

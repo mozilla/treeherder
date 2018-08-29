@@ -65,11 +65,9 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
 };
 
 export const updateQueryParams = function updateHistoryWithQueryParams(view, queryParams, history, location) {
-  if (queryParams !== history.location.search) {
     history.replace({ pathname: view, search: queryParams });
     // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
     location.search = queryParams;
-  }
 };
 
 export const sortData = function sortData(data, sortBy, desc) {
@@ -86,18 +84,6 @@ export const sortData = function sortData(data, sortBy, desc) {
     return 0;
   });
   return data;
-};
-
-export const checkQueryParams = function checkQueryParams(obj) {
-  if (!obj.tree) {
-    obj.tree = 'trunk';
-  }
-  if (!obj.startday || !obj.endday) {
-    const { from, to } = setDateRange(moment().utc(), 7);
-    obj.startday = from;
-    obj.endday = to;
-  }
-  return obj;
 };
 
 export const processErrorMessage = function processErrorMessage(errorMessage, status) {
@@ -117,4 +103,23 @@ export const processErrorMessage = function processErrorMessage(errorMessage, st
     }
   }
   return messages || [prettyErrorMessages.default];
+};
+
+export const validateQueryParams = function validateQueryParams(params, bugRequired = false) {
+  const messages = [];
+  const dateFormat = /\d{4}[-]\d{2}[-]\d{2}/;
+
+  if (!params.tree) {
+    messages.push(prettyErrorMessages.tree_ui);
+  }
+  if (!params.startday || params.startday.search(dateFormat) === -1) {
+    messages.push(prettyErrorMessages.startday);
+  }
+  if (!params.endday || params.endday.search(dateFormat) === -1) {
+    messages.push(prettyErrorMessages.endday);
+  }
+  if (bugRequired && (!params.bug || isNaN(params.bug))) {
+    messages.push(prettyErrorMessages.bug_ui);
+  }
+  return messages;
 };
