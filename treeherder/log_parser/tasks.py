@@ -1,6 +1,7 @@
 import logging
 
 import newrelic.agent
+from celery.exceptions import SoftTimeLimitExceeded
 
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.log_parser.crossreference import crossreference_job
@@ -31,8 +32,11 @@ def parse_logs(job_id, job_log_ids, priority):
         "builds-4h": parse_unstructured_log
     }
 
+    # We don't want to stop parsing logs for most Exceptions however we still
+    # need to know one occurred so we can skip further steps and reraise to
+    # trigger the retry decorator.
+    first_exception = None
     completed_names = set()
-    exceptions = []
     for job_log in job_logs:
         newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
         logger.debug("parser_task for %s", job_log.id)
@@ -49,12 +53,23 @@ def parse_logs(job_id, job_log_ids, priority):
         try:
             parser(job_log)
         except Exception as e:
-            exceptions.append(e)
+            if isinstance(e, SoftTimeLimitExceeded):
+                # stop parsing further logs but raise so NewRelic and
+                # Papertrail will still show output
+                raise
+
+            if first_exception is None:
+                first_exception = e
+
+            # track the exception on NewRelic but don't stop parsing future
+            # log lines.
+            newrelic.agent.record_exception()
         else:
             completed_names.add(job_log.name)
 
-    if exceptions:
-        raise exceptions[0]
+    # Raise so we trigger the retry decorator.
+    if first_exception:
+        raise first_exception
 
     if ("errorsummary_json" in completed_names and
         ("buildbot_text" in completed_names or
