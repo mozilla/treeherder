@@ -54,13 +54,15 @@ def parse_logs(job_id, job_log_ids, priority):
     exceptions = []
     for job_log in job_logs:
         parser = parser_tasks.get(job_log.name)
-        if parser:
-            try:
-                parser(job_log)
-            except Exception as e:
-                exceptions.append(e)
-            else:
-                completed_names.add(job_log.name)
+        if not parser:
+            continue
+
+        try:
+            parser(job_log)
+        except Exception as e:
+            exceptions.append(e)
+        else:
+            completed_names.add(job_log.name)
 
     if exceptions:
         raise exceptions[0]
