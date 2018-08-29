@@ -14,25 +14,6 @@ from . import failureline
 logger = logging.getLogger(__name__)
 
 
-def if_not_parsed(f):
-    """Decorator that ensures that log parsing task has not already run
-    """
-    def inner(job_log):
-        newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
-
-        logger.debug("parser_task for %s", job_log.id)
-        if job_log.status == JobLog.PARSED:
-            logger.info("%s log already parsed", job_log.id)
-            return True
-
-        return f(job_log)
-
-    inner.__name__ = f.__name__
-    inner.__doc__ = f.__doc__
-
-    return inner
-
-
 @retryable_task(name='log-parser', max_retries=10)
 def parse_logs(job_id, job_log_ids, priority):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
@@ -53,6 +34,14 @@ def parse_logs(job_id, job_log_ids, priority):
     completed_names = set()
     exceptions = []
     for job_log in job_logs:
+        newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
+        logger.debug("parser_task for %s", job_log.id)
+
+        # Don't parse jobs which have already been parsed.
+        if job_log.status == JobLog.PARSED:
+            logger.info("%s log already parsed", job_log.id)
+            continue
+
         parser = parser_tasks.get(job_log.name)
         if not parser:
             continue
@@ -85,7 +74,6 @@ def parse_logs(job_id, job_log_ids, priority):
     job.save()
 
 
-@if_not_parsed
 def parse_unstructured_log(job_log):
     """
     Call ArtifactBuilderCollection on the given job.
@@ -94,7 +82,6 @@ def parse_unstructured_log(job_log):
     post_log_artifacts(job_log)
 
 
-@if_not_parsed
 def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
