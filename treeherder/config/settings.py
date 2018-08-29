@@ -263,6 +263,7 @@ AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z
 # Celery
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
+    Queue('check-confirming-perf-alerts', Exchange('default'), routing_key='check-confirming-perf-alerts'),
     # queue for failed jobs/logs
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
     Queue('log_parser_fail', Exchange('default'), routing_key='log_parser.failures'),
@@ -315,6 +316,14 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
 CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
 
 CELERYBEAT_SCHEDULE = {
+    'check-confirming-perf-alerts-every-5-minutes': {
+        'task': 'check-confirming-perf-alerts',
+        'schedule': timedelta(minutes=5),
+        'relative': True,
+        'options': {
+            'queue': 'check-confirming-perf-alerts'
+        }
+    },
     # this is just a failsafe in case the Pulse ingestion misses something
     'fetch-push-logs-every-5-minutes': {
         'task': 'fetch-push-logs',
