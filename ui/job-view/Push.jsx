@@ -31,6 +31,8 @@ export default class Push extends React.Component {
       // props.push isn't actually immutable due to the way it hooks up to angular, therefore we
       // need to keep the previous value in the state.
       last_job_counts: job_counts ? { ...job_counts } : null,
+      hasBoundaryError: false,
+      boundaryError: '',
     };
   }
   componentDidMount() {
@@ -38,15 +40,24 @@ export default class Push extends React.Component {
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.showUpdateNotifications(nextProps);
+  }
+
+  componentDidCatch(error) {
+    this.setState({
+      hasBoundaryError: true,
+      boundaryError: error,
+    });
   }
 
   showUpdateNotifications(nextProps) {
     const { watched, last_job_counts } = this.state;
-    const { repoName, push: { revision, id: pushId } } = this.props;
+    const {
+      repoName, notificationSupported, push: { revision, id: pushId },
+    } = this.props;
 
-    if (Notification.permission !== 'granted' || watched === 'none') {
+    if (!notificationSupported || Notification.permission !== 'granted' || watched === 'none') {
       return;
     }
 
@@ -103,6 +114,10 @@ export default class Push extends React.Component {
   }
 
   async cycleWatchState() {
+    if (!this.props.notificationSupported) {
+      return;
+    }
+
     let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
 
     if (next !== 'none' && Notification.permission !== 'granted') {
@@ -118,10 +133,21 @@ export default class Push extends React.Component {
   }
 
   render() {
-    const { push, isLoggedIn, isStaff, $injector, repoName, currentRepo } = this.props;
-    const { watched, runnableVisible } = this.state;
+    const {
+      push, isLoggedIn, isStaff, $injector, repoName, currentRepo,
+      notificationSupported,
+    } = this.props;
+    const { watched, runnableVisible, hasBoundaryError, boundaryError } = this.state;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
+    if (hasBoundaryError) {
+      return (
+        <div className="border-bottom border-top ml-1">
+          <div>Error displaying push with revision: {revision}</div>
+          <div>{boundaryError.toString()}</div>
+        </div>
+      );
+    }
     return (
       <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>
         <PushHeader
@@ -139,6 +165,7 @@ export default class Push extends React.Component {
           showRunnableJobsCb={this.showRunnableJobs}
           hideRunnableJobsCb={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
+          notificationSupported={notificationSupported}
         />
         <div className="push-body-divider" />
         <div className="row push clearfix">
@@ -169,4 +196,5 @@ Push.propTypes = {
   repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isStaff: PropTypes.bool.isRequired,
+  notificationSupported: PropTypes.bool.isRequired,
 };

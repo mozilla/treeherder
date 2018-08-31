@@ -36,6 +36,7 @@ export default class PushList extends React.Component {
       pushList: [],
       loadingPushes: true,
       jobsReady: false,
+      notificationSupported: 'Notification' in window,
     };
 
     // get our first set of resultsets
@@ -269,7 +270,7 @@ export default class PushList extends React.Component {
 
   render() {
     const { $injector, user, repoName, revision, currentRepo } = this.props;
-    const { pushList, loadingPushes, jobsReady } = this.state;
+    const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn, isStaff } = user;
 
     return (
@@ -284,6 +285,7 @@ export default class PushList extends React.Component {
             repoName={repoName}
             $injector={$injector}
             key={push.id}
+            notificationSupported={notificationSupported}
           />
         ))}
         {loadingPushes &&
