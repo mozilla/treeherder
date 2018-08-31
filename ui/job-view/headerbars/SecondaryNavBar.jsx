@@ -6,6 +6,7 @@ import { getBtnClass } from '../../helpers/job';
 import { getRepo, getUrlParam } from '../../helpers/location';
 import WatchedRepo from './WatchedRepo';
 import RepositoryModel from '../../models/repository';
+import ErrorBoundary from '../../shared/ErrorBoundary';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -220,14 +221,19 @@ export default class SecondaryNavBar extends React.Component {
         <span className="justify-content-between w-100 d-flex flex-wrap">
           <span className="d-flex push-left watched-repos">
             {watchedRepos.map(watchedRepo => (
-              <WatchedRepo
+              <ErrorBoundary
+                errorClasses="pl-1 pr-1 btn-view-nav border-right"
+                message={`Error watching ${watchedRepo.name}: `}
                 key={watchedRepo.name}
-                repo={watchedRepo}
-                repoName={repoName}
-                $injector={$injector}
-                unwatchRepo={this.unwatchRepo}
-                setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
-              />
+              >
+                <WatchedRepo
+                  repo={watchedRepo}
+                  repoName={repoName}
+                  $injector={$injector}
+                  unwatchRepo={this.unwatchRepo}
+                  setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
+                />
+              </ErrorBoundary>
             ))}
           </span>
           <form role="search" className="form-inline flex-row">
