@@ -263,7 +263,7 @@ AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z
 # Celery
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
-    Queue('check-confirming-perf-alerts', Exchange('default'), routing_key='check-confirming-perf-alerts'),
+    Queue('confirming_perf_alerts', Exchange('default'), routing_key='confirming_perf_alerts'),
     # queue for failed jobs/logs
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
     Queue('log_parser_fail', Exchange('default'), routing_key='log_parser.failures'),
@@ -321,7 +321,7 @@ CELERYBEAT_SCHEDULE = {
         'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {
-            'queue': 'check-confirming-perf-alerts'
+            'queue': 'confirming_perf_alerts'
         }
     },
     # this is just a failsafe in case the Pulse ingestion misses something
