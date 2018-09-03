@@ -422,6 +422,11 @@ PARSER_MAX_STEP_ERROR_LINES = 100
 FAILURE_LINES_CUTOFF = 35
 
 # Perfherder
+# Left & right time range of push history on which to check if a
+# 'confirming' alert can be marked as 'confirmed'.
+# e.g. for 24 hours, a push history of 48 hours will be fetched.
+PERFHERDER_CONFIRMING_INTERVAL = timedelta(hours=24)
+
 # Default minimum regression threshold for perfherder is 2% (otherwise
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2

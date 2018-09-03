@@ -7,12 +7,61 @@ from collections import namedtuple
 from django.conf import settings
 from django.db import transaction
 
+from treeherder.model.models import (Job,
+                                     Push)
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
 from treeherder.perfalert.perfalert import (RevisionDatum,
                                             detect_changes)
+
+
+def check_confirming_perf_alerts_status():
+    confirming_interval = settings.PERFHERDER_CONFIRMING_INTERVAL
+
+    def traceback_producer_job_type(perf_alert):
+        push = perf_alert.summary.push
+        signature = perf_alert.series_signature
+
+        associated_perf_datum = PerformanceDatum.objects.filter(push=push, signature=signature).first()
+        return associated_perf_datum.job.job_type if associated_perf_datum else None
+
+    def extract_pushes_to_check(many_nearby_pushes, alert_push, push_range=2):
+        many_nearby_pushes = list(many_nearby_pushes)
+
+        alert_push_idx = None
+        for index, push in enumerate(many_nearby_pushes):
+            if alert_push.id == push.id:
+                alert_push_idx = index
+                break
+
+        from_push = alert_push_idx - push_range
+        from_push = from_push if from_push > 0 else 0
+        to_push = alert_push_idx + push_range
+
+        return list(many_nearby_pushes[from_push:to_push])
+
+    confirming_alerts = PerformanceAlert.objects.filter(status=PerformanceAlert.CONFIRMING)
+    for alert in confirming_alerts:
+        alert_push = alert.summary.push
+        alert_repository = alert.series_signature.repository
+        _from, _to = alert_push.time-confirming_interval, alert_push.time+confirming_interval
+
+        job_type = traceback_producer_job_type(alert)
+        if job_type is None:
+            raise LookupError('Could not find job type for perf alert with id {}'.format(alert.id))
+
+        many_nonempty_nearby_pushes = Push.objects.filter(
+            time__gte=_from, time__lte=_to, repository=alert_repository,
+            jobs__performancedatum__isnull=False, jobs__job_type=job_type,
+        ).order_by('time')
+        pushes_to_check = extract_pushes_to_check(many_nonempty_nearby_pushes, alert_push)
+
+        if not Job.objects.filter(
+                push__in=pushes_to_check, job_type=job_type, state='pending').exists():
+            alert.status = PerformanceAlert.CONFIRMED
+            alert.save()
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
