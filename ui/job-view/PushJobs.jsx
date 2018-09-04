@@ -1,16 +1,48 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import { thPlatformMap, thSimplePlatforms, thEvents } from '../js/constants';
-import { getPushTableId, getPlatformRowId } from '../helpers/aggregateId';
-import Platform from './Platform';
+import { getPlatformRowId, getPushTableId } from '../helpers/aggregateId';
 import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/job';
 import { getUrlParam } from '../helpers/location';
 import { getLogViewerUrl } from '../helpers/url';
 import JobModel from '../models/job';
+import Platform from './Platform';
 
 export default class PushJobs extends React.Component {
+  static getDerivedStateFromProps(nextProps, state) {
+    const { filterModel, push } = nextProps;
+    const { platforms } = state;
+    const selectedJobId = parseInt(getUrlParam('selectedJob'));
+
+    if (!platforms.length) return null;
+
+    const newPlatforms = platforms.reduce((acc, platform) => (
+      [...acc, PushJobs.filterPlatform(platform, selectedJobId, push, filterModel)]
+    ), []);
+
+    return { platforms: newPlatforms };
+  }
+
+  static filterPlatform(platform, selectedJobId, push, filterModel) {
+    platform.visible = false;
+    platform.groups.forEach((group) => {
+      group.visible = false;
+      group.jobs.forEach((job) => {
+        job.visible = filterModel.showJob(job) || job.id === selectedJobId;
+        if (job.state === 'runnable') {
+          job.visible = job.visible && push.isRunnableVisible;
+        }
+        job.selected = selectedJobId ? job.id === selectedJobId : false;
+        if (job.visible) {
+          platform.visible = true;
+          group.visible = true;
+        }
+      });
+    });
+    return platform;
+  }
+
   constructor(props) {
     super(props);
     const { $injector, push, repoName } = this.props;
@@ -18,7 +50,6 @@ export default class PushJobs extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
     this.$location = $injector.get('$location');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
-    this.thJobFilters = $injector.get('thJobFilters');
 
     this.pushId = push.id;
     this.aggregateId = getPushTableId(
@@ -32,13 +63,9 @@ export default class PushJobs extends React.Component {
     this.filterPlatformCallback = this.filterPlatformCallback.bind(this);
 
     this.state = {
-      platforms: {},
+      platforms: [],
       isRunnableVisible: false,
     };
-  }
-
-  componentWillMount() {
-    this.applyNewJobs();
   }
 
   componentDidMount() {
@@ -47,18 +74,6 @@ export default class PushJobs extends React.Component {
         if (appliedpushId === this.pushId) {
           this.applyNewJobs();
         }
-      },
-    );
-
-    this.globalFilterChangedUnlisten = this.$rootScope.$on(
-      thEvents.globalFilterChanged, () => {
-        this.filterJobs();
-      },
-    );
-
-    this.groupStateChangedUnlisten = this.$rootScope.$on(
-      thEvents.groupStateChanged, () => {
-        this.filterJobs();
       },
     );
 
@@ -85,8 +100,6 @@ export default class PushJobs extends React.Component {
 
   componentWillUnmount() {
     this.applyNewJobsUnlisten();
-    this.globalFilterChangedUnlisten();
-    this.groupStateChangedUnlisten();
     this.showRunnableJobsUnlisten();
     this.deleteRunnableJobsUnlisten();
   }
@@ -112,6 +125,7 @@ export default class PushJobs extends React.Component {
     }
   }
 
+  // TODO: Remove when we convert restultsets_store
   getIdForPlatform(platform) {
     return getPlatformRowId(
       this.props.repoName,
@@ -126,16 +140,6 @@ export default class PushJobs extends React.Component {
     return jobMap[`${jobId}`].job_obj;
   }
 
-  filterJobs() {
-    const selectedJobId = parseInt(getUrlParam('selectedJob'));
-
-    if (_.isEmpty(this.state.platforms)) return;
-    const platforms = Object.values(this.state.platforms).reduce((acc, platform) => ({
-      ...acc, [platform.id]: this.filterPlatform(platform, selectedJobId),
-    }), {});
-    this.setState({ platforms });
-  }
-
   selectJob(job, el) {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
@@ -145,7 +149,7 @@ export default class PushJobs extends React.Component {
   }
 
   applyNewJobs() {
-    const { push } = this.props;
+    const { push, filterModel } = this.props;
     const selectedJobId = parseInt(getUrlParam('selectedJob'));
 
     if (!push.platforms) {
@@ -155,13 +159,14 @@ export default class PushJobs extends React.Component {
     const rsPlatforms = push.platforms;
     const platforms = rsPlatforms.reduce((acc, platform) => {
       const thisPlatform = { ...platform };
+      // TODO: don't need this ID once we re-work resultsets_store
       thisPlatform.id = this.getIdForPlatform(platform);
       thisPlatform.name = thPlatformMap[platform.name] || platform.name;
       const suffix = (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? '' : ` ${platform.option}`;
       thisPlatform.title = `${thisPlatform.name}${suffix}`;
       thisPlatform.visible = true;
-      return { ...acc, [thisPlatform.id]: this.filterPlatform(thisPlatform, selectedJobId) };
-    }, {});
+      return [...acc, PushJobs.filterPlatform(thisPlatform, selectedJobId, push, filterModel)];
+    }, []);
     this.setState({ platforms });
   }
 
@@ -187,46 +192,33 @@ export default class PushJobs extends React.Component {
     findJobInstance(job.id, false).toggleRunnableSelected();
   }
 
-  filterPlatform(platform, selectedJobId) {
-    platform.visible = false;
-    platform.groups.forEach((group) => {
-      group.visible = false;
-      group.jobs.forEach((job) => {
-        job.visible = this.thJobFilters.showJob(job) || job.id === selectedJobId;
-        if (job.state === 'runnable') {
-          job.visible = job.visible && this.props.push.isRunnableVisible;
-        }
-        job.selected = this.$rootScope.selectedJob ? job.id === this.$rootScope.selectedJob.id : false;
-        if (job.visible) {
-          platform.visible = true;
-          group.visible = true;
-        }
-      });
-    });
-    return platform;
-  }
-
   filterPlatformCallback(platform, selectedJobId) {
-    this.filterPlatform(platform, selectedJobId);
-    if (Object.keys(this.state.platforms).length) {
-      this.setState({ platforms: { ...this.state.platforms } });
+    const { push, filterModel } = this.props;
+    const { platforms } = this.state;
+
+    // This actually filters the platform in-place.  So we just need to
+    // trigger a re-render by giving it a new ``platforms`` object instance.
+    PushJobs.filterPlatform(platform, selectedJobId, push, filterModel);
+    if (platforms.length) {
+      this.setState({ platforms: [...platforms] });
     }
   }
 
   render() {
-    const platforms = this.state.platforms || {};
-    const { $injector, repoName } = this.props;
+    const platforms = this.state.platforms || [];
+    const { $injector, repoName, filterModel } = this.props;
 
     return (
       <table id={this.aggregateId} className="table-hover" data-job-clear-on-click>
         <tbody onMouseDown={this.onMouseDown}>
-          {platforms ? Object.keys(platforms).map(id => (
-          platforms[id].visible &&
+          {platforms ? platforms.map(platform => (
+          platform.visible &&
           <Platform
-            platform={platforms[id]}
+            platform={platform}
             repoName={repoName}
             $injector={$injector}
-            key={id}
+            key={platform.id}
+            filterModel={filterModel}
             filterPlatformCb={this.filterPlatformCallback}
           />
         )) : <tr>
@@ -241,5 +233,6 @@ export default class PushJobs extends React.Component {
 PushJobs.propTypes = {
   push: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
+  filterModel: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
 };

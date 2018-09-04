@@ -25,7 +25,6 @@ export default class PushList extends React.Component {
     this.$location = $injector.get('$location');
     this.$timeout = $injector.get('$timeout');
     this.thNotify = $injector.get('thNotify');
-    this.thJobFilters = $injector.get('thJobFilters');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.ThResultSetStore.initRepository(repoName);
@@ -92,7 +91,7 @@ export default class PushList extends React.Component {
         Object.values(jobs).forEach((job) => {
           findJobInstance(job.id).props.job.failure_classification_id = job.failure_classification_id;
         });
-        this.$rootScope.$emit(thEvents.globalFilterChanged);
+        this.setState({ pushList: [...this.state.pushList] });
       },
     );
   }
@@ -270,7 +269,7 @@ export default class PushList extends React.Component {
   }
 
   render() {
-    const { $injector, user, repoName, revision, currentRepo } = this.props;
+    const { $injector, user, repoName, revision, currentRepo, filterModel } = this.props;
     const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn, isStaff } = user;
 
@@ -289,6 +288,7 @@ export default class PushList extends React.Component {
               currentRepo={currentRepo}
               isStaff={isStaff}
               repoName={repoName}
+              filterModel={filterModel}
               $injector={$injector}
               notificationSupported={notificationSupported}
             />
@@ -329,6 +329,7 @@ PushList.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
+  filterModel: PropTypes.object.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };

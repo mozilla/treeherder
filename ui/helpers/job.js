@@ -1,6 +1,9 @@
 import $ from 'jquery';
 
-import { thPlatformMap } from '../js/constants';
+import {
+  thFailureResults,
+  thPlatformMap,
+} from '../js/constants';
 import { toDateStr } from './display';
 import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
 
@@ -17,6 +20,9 @@ const btnClasses = {
   failures: 'btn-red',
   'in progress': 'btn-dkgray',
 };
+
+// failure classification ids that should be shown in "unclassified" mode
+export const thUnclassifiedIds = [1, 7];
 
 // The result will be unknown unless the state is complete, so much check both.
 // TODO: We should consider storing either pending or running in the result,
@@ -51,6 +57,15 @@ export const getJobBtnClass = function getJobBtnClass(job) {
 export const isReftest = function isReftest(job) {
   return [job.job_group_name, job.job_type_name]
     .some(name => name.toLowerCase().includes('reftest'));
+};
+
+export const isClassified = function isClassified(job) {
+  return !thUnclassifiedIds.includes(job.failure_classification_id);
+};
+
+export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
+  return (thFailureResults.includes(job.result) &&
+    !isClassified(job));
 };
 
 // Fetch the React instance of an object from a DOM element.
@@ -133,7 +148,7 @@ export const getSearchStr = function getSearchStr(job) {
     (job.job_group_name === 'unknown') ? undefined : job.job_group_name,
     job.job_type_name,
     `${symbolInfo}(${job.job_type_symbol})`,
-  ].filter(item => typeof item !== 'undefined').join(' ');
+  ].filter(item => typeof item !== 'undefined').join(' ').toLowerCase();
 };
 
 export const getHoverText = function getHoverText(job) {

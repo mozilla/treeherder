@@ -1,6 +1,9 @@
 import treeFavicon from '../img/tree_open.png';
 import closedTreeFavicon from '../img/tree_closed.png';
 
+// TODO: This file is a handy catch-all, but we could likely move some of these
+// to a specific helper or into the classes that use them.
+
 export const thPlatformMap = {
     linux32: 'Linux',
     'linux32-devedition': 'Linux DevEdition',
@@ -188,18 +191,6 @@ export const thAllResultStatuses = [
   'retry',
   'usercancel',
   'superseded',
-  'running',
-  'pending',
-  'runnable',
-];
-
-export const thDefaultFilterResultStatuses = [
-  'testfailed',
-  'busted',
-  'exception',
-  'success',
-  'retry',
-  'usercancel',
   'running',
   'pending',
   'runnable',

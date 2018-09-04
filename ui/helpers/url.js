@@ -87,12 +87,8 @@ export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   const params = getAllUrlParams();
-  const fieldName = 'filter-searchStr';
+  params.set('searchStr', jobSearchStr.split(' '));
 
-  if (params.get(fieldName)) {
-    params.delete(fieldName);
-  }
-  params.append(fieldName, jobSearchStr);
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
 

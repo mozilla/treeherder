@@ -10,11 +10,11 @@ import {
 treeherderApp.controller('MainCtrl', [
     '$scope', '$rootScope', '$location', '$timeout',
     '$document', '$window',
-    'thJobFilters', 'ThResultSetStore', 'thNotify',
+    'ThResultSetStore', 'thNotify',
     function MainController(
         $scope, $rootScope, $location, $timeout,
         $document, $window,
-        thJobFilters, ThResultSetStore, thNotify) {
+        ThResultSetStore, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
           thNotify.send('Firefox ESR52 is not supported. Please update to ESR60 or ideally release/beta/nightly.',
@@ -30,6 +30,7 @@ treeherderApp.controller('MainCtrl', [
             $location.search('repo', $rootScope.repoName);
         }
         $rootScope.revision = $location.search().revision;
+        $rootScope.filterModel = null;
 
         // TODO: Remove this when pinnedJobs is converted to a model or Context
         $rootScope.countPinnedJobs = () => 0;
@@ -191,12 +192,12 @@ treeherderApp.controller('MainCtrl', [
             ['ctrl+shift+f', (ev) => {
                 // Prevent shortcut key overflow during focus
                 ev.preventDefault();
-                $scope.$evalAsync(thJobFilters.removeFilter('searchStr'));
+                $scope.$evalAsync($rootScope.filterModel.removeFilter('searchStr'));
             }],
 
             // Shortcut: toggle display in-progress jobs (pending/running)
             ['i', () => {
-                $scope.$evalAsync(thJobFilters.toggleInProgress());
+                $scope.$evalAsync($rootScope.filterModel.toggleInProgress());
             }],
 
             // Shortcut: ignore selected in the autoclasify panel
@@ -266,7 +267,7 @@ treeherderApp.controller('MainCtrl', [
 
             // Shortcut: display only unclassified failures
             ['u', () => {
-                $scope.$evalAsync(thJobFilters.toggleUnclassifiedFailures);
+                $scope.$evalAsync($rootScope.filterModel.toggleUnclassifiedFailures);
             }],
 
             // Shortcut: clear the pinboard

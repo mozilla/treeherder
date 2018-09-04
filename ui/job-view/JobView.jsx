@@ -2,23 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
-import { createBrowserHistory } from 'history';
+import createHashHistory from 'history/createHashHistory';
 
 import treeherder from '../js/treeherder';
 import { thEvents, thFavicons } from '../js/constants';
+import { matchesDefaults } from '../helpers/filter';
 import { deployedRevisionUrl } from '../helpers/url';
+import { getRepo } from '../helpers/location';
+import ClassificationTypeModel from '../models/classificationType';
+import FilterModel from '../models/filter';
+import RepositoryModel from '../models/repository';
 import DetailsPanel from './details/DetailsPanel';
+import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import PushList from './PushList';
-import PrimaryNavBar from './headerbars/PrimaryNavBar';
-import RepositoryModel from '../models/repository';
-import { getRepo } from '../helpers/location';
-import ClassificationTypeModel from '../models/classificationType';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
+const HIDDEN_URL_PARAMS = [
+  'repo', 'classifiedState', 'resultStatus', 'selectedJob', 'searchStr',
+];
 
 const getWindowHeight = function () {
   const windowHeight = window.innerHeight;
@@ -33,21 +38,21 @@ class JobView extends React.Component {
     super(props);
 
     const { $injector } = this.props;
-    this.thJobFilters = $injector.get('thJobFilters');
     this.$rootScope = $injector.get('$rootScope');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.thNotify = $injector.get('thNotify');
 
-    this.history = createBrowserHistory();
+    this.history = createHashHistory({ basename: '/jobs' });
+    const filterModel = new FilterModel(this.history);
+    this.$rootScope.filterModel = filterModel;
+    // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
+    filterModel.push();
 
     this.state = {
       repoName: getRepo(),
       user: { isLoggedIn: false, isStaff: false },
+      filterModel,
       isFieldFilterVisible: false,
-      filterBarFilters: [
-       ...this.thJobFilters.getNonFieldFiltersArray(),
-       ...this.thJobFilters.getFieldFiltersArray(),
-      ],
       pushListPct: props.selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
       serverChangedDelayed: false,
       serverChanged: false,
@@ -87,7 +92,6 @@ class JobView extends React.Component {
       });
     });
 
-
     window.addEventListener('resize', this.updateDimensions);
 
     this.$rootScope.$on(thEvents.toggleFieldFilterVisible, () => {
@@ -95,11 +99,13 @@ class JobView extends React.Component {
     });
 
     this.history.listen(() => {
+      const filterModel = new FilterModel(this.history);
+
+      this.$rootScope.filterModel = filterModel;
+      this.ThResultSetStore.recalculateUnclassifiedCounts();
+
       this.setState({
-        filterBarFilters: [
-         ...this.thJobFilters.getNonFieldFiltersArray(),
-         ...this.thJobFilters.getFieldFiltersArray(),
-        ],
+        filterModel,
         serverChanged: false,
       });
     });
@@ -191,9 +197,10 @@ class JobView extends React.Component {
   render() {
     const { revision, selectedJob, $injector } = this.props;
     const {
-      user, isFieldFilterVisible, filterBarFilters, serverChangedDelayed,
+      user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
+      filterModel,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -213,15 +220,19 @@ class JobView extends React.Component {
     const detailsHeight = latestSplitPct === undefined || !selectedJob ?
       defaultDetailsHeight :
       getWindowHeight() * (1 - latestSplitPct / 100);
+    const filterBarFilters = Object.entries(filterModel.urlParams).reduce((acc, [field, value]) => (
+      HIDDEN_URL_PARAMS.includes(field) || matchesDefaults(field, value) ?
+        acc : [...acc, { field, value }]
+    ), []);
 
     return (
       <div className="d-flex flex-column h-100">
         <PrimaryNavBar
-          jobFilters={this.thJobFilters}
           repos={repos}
           updateButtonClick={this.updateButtonClick}
           pinJobs={this.pinJobs}
           serverChanged={serverChanged}
+          filterModel={filterModel}
           history={this.history}
           setUser={this.setUser}
           user={user}
@@ -237,8 +248,8 @@ class JobView extends React.Component {
             {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
               $injector={$injector}
               classificationTypes={classificationTypes}
+              filterModel={filterModel}
               filterBarFilters={filterBarFilters}
-              history={this.history}
               isFieldFilterVisible={isFieldFilterVisible}
               toggleFieldFilterVisible={this.toggleFieldFilterVisible}
             />}
@@ -252,6 +263,7 @@ class JobView extends React.Component {
                   repoName={repoName}
                   revision={revision}
                   currentRepo={currentRepo}
+                  filterModel={filterModel}
                   $injector={$injector}
                 />
               </span>

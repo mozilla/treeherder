@@ -1,8 +1,6 @@
 import _ from 'lodash';
 
 import treeherder from '../treeherder';
-import { thPlatformMap } from '../constants';
-
 
 /* Services */
 treeherder.factory('thNotify', [
@@ -95,11 +93,3 @@ treeherder.factory('thNotify', [
         return thNotify;
 
     }]);
-
-treeherder.factory('thPlatformName', () => (name) => {
-    let platformName = thPlatformMap[name];
-    if (platformName === undefined) {
-        platformName = name;
-    }
-    return platformName;
-});
