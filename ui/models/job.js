@@ -1,6 +1,5 @@
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
-import { create } from '../helpers/http';
 
 const uri = getProjectUrl('/jobs/');
 
@@ -94,13 +93,5 @@ export default class JobModel {
     // the job list endpoint, so let's reuse the getList method logic.
     config.uri = `${uri}${pk}/similar_jobs/`;
     return JobModel.getList(repoName, options, config);
-  }
-
-  static retrigger(repoName, jobIds) {
-    return create(`${uri}retrigger/`, { job_id_list: jobIds });
-  }
-
-  static cancel(repoName, jobIds) {
-    return create(`${uri}cancel/`, { job_id_list: jobIds });
   }
 }
