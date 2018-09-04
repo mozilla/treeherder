@@ -258,10 +258,28 @@ aniso8601==3.0.0 \
 enum34==1.1.6; python_version < '3' \
     --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
 
-python-jose==2.0.2 \
-    --hash=sha256:3b35cdb0e55a88581ff6d3f12de753aa459e940b50fe7ca5aa25149bc94cb37b
+python-jose[pycryptodome]==3.0.1 \
+    --hash=sha256:29701d998fe560e52f17246c3213a882a4a39da7e42c7015bcc1f7823ceaff1c \
+    --hash=sha256:ed7387f0f9af2ea0ddc441d83a6eb47a5909bd0c8a72ac3250e75afec2cc1371
 
 # Used by python-jose
+rsa==3.4.2 \
+    --hash=sha256:25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5 \
+    --hash=sha256:43f682fea81c452c98d09fc316aae12de6d30c4b5c84226642cf8f8fd1c93abd
+pyasn1==0.4.4 \
+    --hash=sha256:0ad0fe0593dde1e599cac0bf65bb1a4ec663032f0bc68ee44850db4251e8c501 \
+    --hash=sha256:13794d835643ee970b2c059dbfe4eb5d751e16c693c8baee61c526abd209e5c7 \
+    --hash=sha256:49a8ed515f26913049113820b462f698e6ed26df62c389dafb6fa3685ddca8de \
+    --hash=sha256:74ac8521a0480f228549be20bea555ae35678f0e754c2fbc6f1576b0959bec43 \
+    --hash=sha256:89399ca8ecd4524f974e926d4ef9e7a787903e01f0a9cdff3131ad1361792fe5 \
+    --hash=sha256:8f291e0338d519a1a0d07f0b9d03c9265f6be26eb32fdd21af6d3259d14ea49c \
+    --hash=sha256:b9d3abc5031e61927c82d4d96c1cec1e55676c1a991623cfed28faea73cdd7ca \
+    --hash=sha256:d3bbd726c1a760d4ca596a4d450c380b81737612fe0182f5bb3caebc17461fd9 \
+    --hash=sha256:dea873d6c907c1cf1341fd88742a61efce33227d7743cb37564ab7d7e77dd9fd \
+    --hash=sha256:ded5eea5cb88bc1ce9aa074b5a3092f95ce4741887e317e9b49c7ece75d7ea0e \
+    --hash=sha256:e8b69ea2200d42201cbedd486eedb8980f320d4534f83ce2fb468e96aa5545d0 \
+    --hash=sha256:edad117649643230493aeb4955456ce19ab4b12e94489dde6f7094cdb5a3c87e \
+    --hash=sha256:f58f2a3d12fd754aa123e9fa74fb7345333000a035f3921dbdaa08597aa53137
 pycryptodome==3.6.6 \
     --hash=sha256:7bd1c4671b3a2c8d647731e9c34115efa928ff12d0ef1bef68f0f7af984bc239 \
     --hash=sha256:6b8a3753e31b058d48bdd26c50c049a04f35f0f05c0d866c63fc90fc9b8dc5d7 \
@@ -297,6 +315,7 @@ ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c
 future==0.16.0 \
     --hash=sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb
+
 furl==1.2.1 \
     --hash=sha256:17654103b8d0cbe42798592db099c728165ac12057d49fe2e69de967d87bf29b
 orderedmultidict==1.0 \
