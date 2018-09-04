@@ -54,6 +54,7 @@ export default class ActionBar extends React.Component {
     });
 
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
+    this.createInteractiveTask = this.createInteractiveTask.bind(this);
   }
 
   componentWillUnmount() {
@@ -246,6 +247,54 @@ export default class ActionBar extends React.Component {
     return title;
   }
 
+  async createInteractiveTask() {
+    const { user, selectedJob, repoName } = this.props;
+    const jobId = selectedJob.id;
+
+    if (!user.isLoggedIn) {
+      return this.$timeout(this.thNotify.send('Must be logged in to create an interactive task', 'danger'));
+    }
+
+    const job = await JobModel.get(repoName, jobId);
+    const actionTaskId = slugid();
+    const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+    const results = await TaskclusterModel.load(decisionTaskId, job);
+
+    if (results) {
+      const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
+
+      if (interactiveTask) {
+        try {
+          await TaskclusterModel.submit({
+            action: interactiveTask,
+            actionTaskId,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            task: results.originalTask,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+          });
+
+          Object.assign(window.open(), {
+            opener: null,
+            location: `https://tools.taskcluster.net/tasks/${actionTaskId}/connect`,
+            target: '_blank',
+          });
+        } catch (e) {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          this.$timeout(() => this.thNotify.send(
+            formatTaskclusterError(e),
+            'danger',
+            { sticky: true }),
+          );
+        } finally {
+          this.$rootScope.$apply();
+        }
+      }
+    }
+  }
+
   cancelJobs(jobs) {
     const { user, repoName } = this.props;
     const jobIdsToCancel = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
@@ -384,10 +433,8 @@ export default class ActionBar extends React.Component {
                   </li>
                   <li>
                     <a
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="dropdown-item"
-                      href={`https://tools.taskcluster.net/tasks/${selectedJob.taskcluster_metadata.task_id}/interactive`}
+                      onClick={this.createInteractiveTask}
                     >Create Interactive Task</a>
                   </li>
                   <li>
