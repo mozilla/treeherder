@@ -83,14 +83,16 @@ class PerformanceSignature(models.Model):
 
     class Meta:
         db_table = 'performance_signature'
-        # make sure there is only one signature per repository with a
-        # particular set of properties
-        unique_together = ('repository', 'framework', 'platform',
-                           'option_collection', 'suite', 'test',
-                           'last_updated', 'extra_options')
-        # make sure there is only one signature of any hash per
-        # repository (same hash in different repositories is allowed)
-        unique_together = ('repository', 'framework', 'signature_hash')
+
+        unique_together = (
+            # ensure there is only one signature per repository with a
+            # particular set of properties
+            ('repository', 'framework', 'platform', 'option_collection',
+             'suite', 'test', 'last_updated', 'extra_options'),
+            # ensure there is only one signature of any hash per
+            # repository (same hash in different repositories is allowed)
+            ('repository', 'framework', 'signature_hash'),
+        )
 
     def __str__(self):
         name = self.suite
