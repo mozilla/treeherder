@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
+import { slugid } from 'taskcluster-client-web';
 import $ from 'jquery';
 import Mousetrap from 'mousetrap';
 
 import { thEvents } from '../../js/constants';
-import { formatModelError } from '../../helpers/errorMessage';
+import { formatModelError, formatTaskclusterError } from '../../helpers/errorMessage';
 import { getJobBtnClass, getHoverText } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
+import TaskclusterModel from '../../models/taskcluster';
 
 export default class PinBoard extends React.Component {
   constructor(props) {
@@ -178,21 +180,55 @@ export default class PinBoard extends React.Component {
   }
 
   retriggerAllPinnedJobs() {
-    // pushing pinned jobs to a list.
     const jobIds = Object.keys(this.props.pinnedJobs);
-    const plurality = jobIds.length > 1 ? 's' : '';
 
-    JobModel.retrigger(this.$rootScope.repoName, jobIds)
-      .then((resp) => {
-        if (resp.ok) {
-          this.thNotify.send(
-            `Retrigger request sent for ${jobIds.length} pinned job${plurality}`,
-            'success');
-        } else {
-          throw new Error(formatModelError(resp, `Unable to send retrigger${plurality}`));
+    if (!this.props.isLoggedIn) {
+      return this.$timeout(this.thNotify.send('Must be logged in to retrigger jobs', 'danger'));
+    }
+
+    try {
+      jobIds.forEach(async (id) => {
+        const actionTaskId = slugid();
+        const job = await JobModel.get(this.$rootScope.repoName, id);
+        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+
+        if (results) {
+          const retriggerTask = results.actions.find(result => result.name === 'retrigger');
+
+          if (retriggerTask) {
+            try {
+              await TaskclusterModel.submit({
+                action: retriggerTask,
+                actionTaskId,
+                decisionTaskId,
+                taskId: results.originalTaskId,
+                task: results.originalTask,
+                input: {},
+                staticActionVariables: results.staticActionVariables,
+              });
+
+              this.$timeout(() => this.thNotify.send(
+                `Request sent to retrigger job via actions.json (${actionTaskId})`,
+                'success'),
+              );
+            } catch (e) {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              this.$timeout(() => this.thNotify.send(
+                formatTaskclusterError(e),
+                'danger',
+                { sticky: true }),
+              );
+            }
+          }
         }
-      })
-      .catch(error => this.thNotify.send(error, 'danger'));
+      });
+    } catch (e) {
+      this.thNotify.send('Unable to retrigger all jobs', 'danger', { sticky: true });
+    } finally {
+      this.$rootScope.$apply();
+    }
   }
 
   cancelAllPinnedJobsTitle() {
@@ -214,7 +250,50 @@ export default class PinBoard extends React.Component {
 
   async cancelAllPinnedJobs() {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
-      await JobModel.cancel(this.$rootScope.repoName, Object.keys(this.props.pinnedJobs));
+      const jobIds = Object.keys(this.props.pinnedJobs);
+
+      try {
+        jobIds.forEach(async (id) => {
+          const job = await JobModel.get(this.$rootScope.repoName, id);
+          const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+          const results = await TaskclusterModel.load(decisionTaskId, job);
+
+          if (results) {
+            const cancelTask = results.actions.find(result => result.name === 'cancel');
+
+            if (cancelTask) {
+              try {
+                await TaskclusterModel.submit({
+                  action: cancelTask,
+                  decisionTaskId,
+                  taskId: results.originalTaskId,
+                  task: results.originalTask,
+                  input: {},
+                  staticActionVariables: results.staticActionVariables,
+                });
+
+                this.$timeout(() => this.thNotify.send(
+                  `Request sent to cancel job via actions.json (${job.taskcluster_metadata})`,
+                  'success'),
+                );
+              } catch (e) {
+                // The full message is too large to fit in a Treeherder
+                // notification box.
+                this.$timeout(() => this.thNotify.send(
+                  formatTaskclusterError(e),
+                  'danger',
+                  { sticky: true }),
+                );
+              }
+            }
+          }
+        });
+      } catch (e) {
+        this.thNotify.send('Unable to cancel all jobs', 'danger', { sticky: true });
+      } finally {
+        this.$rootScope.$apply();
+      }
+
       this.unPinAll();
     }
   }
