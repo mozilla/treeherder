@@ -5,11 +5,10 @@ import $ from 'jquery';
 import jsyaml from 'js-yaml';
 
 import { thEvents } from '../../../js/constants';
-import { formatModelError, formatTaskclusterError } from '../../../helpers/errorMessage';
+import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest } from '../../../helpers/job';
 import taskcluster from '../../../helpers/taskcluster';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
-import JobDetailModel from '../../../models/jobDetail';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
@@ -70,41 +69,60 @@ export default class ActionBar extends React.Component {
   retriggerJob(jobs) {
     const { user, repoName } = this.props;
 
-    if (user.isLoggedIn) {
-        // Spin the retrigger button when retriggers happen
-        $('#retrigger-btn > span').removeClass('action-bar-spin');
-        window.requestAnimationFrame(function () {
-            window.requestAnimationFrame(function () {
-                $('#retrigger-btn > span').addClass('action-bar-spin');
-            });
-        });
+    if (!user.isLoggedIn) {
+      return this.$timeout(this.thNotify.send('Must be logged in to retrigger a job', 'danger'));
+    }
 
-        const job_id_list = jobs.map(job => job.id);
-        // The logic here is somewhat complicated because we need to support
-        // two use cases the first is the case where we notify a system other
-        // then buildbot that a retrigger has been requested (eg mozilla-taskcluster).
-        // The second is when we have the buildapi id and need to send a request
-        // to the self serve api (which does not listen over pulse!).
-        JobModel.retrigger(repoName, job_id_list).then(() => (
-            JobDetailModel.getJobDetails({
-                title: 'buildbot_request_id',
-                repository: repoName,
-                job_id__in: job_id_list.join(',') })
-            .then((data) => {
-                const requestIdList = data.map(datum => datum.value);
-                requestIdList.forEach((requestId) => {
-                    this.thBuildApi.retriggerJob(repoName, requestId);
-                });
-            })
-        ).then(() => {
-            this.thNotify.send('Retrigger request sent', 'success');
-        }, (e) => {
-            // Generic error eg. the user doesn't have LDAP access
-            this.thNotify.send(
-                formatModelError(e, 'Unable to send retrigger'), 'danger');
-        }));
-    } else {
-        this.thNotify.send('Must be logged in to retrigger a job', 'danger');
+    // Spin the retrigger button when retriggers happen
+    $('#retrigger-btn > span').removeClass('action-bar-spin');
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        $('#retrigger-btn > span').addClass('action-bar-spin');
+      });
+    });
+
+    try {
+      jobs.forEach(async ({ id }) => {
+        const job = await JobModel.get(repoName, id);
+        const actionTaskId = slugid();
+        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+
+        if (results) {
+          const retriggerTask = results.actions.find(result => result.name === 'retrigger');
+
+          if (retriggerTask) {
+            try {
+              await TaskclusterModel.submit({
+                action: retriggerTask,
+                actionTaskId,
+                decisionTaskId,
+                taskId: results.originalTaskId,
+                task: results.originalTask,
+                input: {},
+                staticActionVariables: results.staticActionVariables,
+              });
+
+              this.$timeout(() => this.thNotify.send(
+                `Request sent to retrigger job via actions.json (${actionTaskId})`,
+                'success'),
+              );
+            } catch (e) {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              this.$timeout(() => this.thNotify.send(
+                formatTaskclusterError(e),
+                'danger',
+                { sticky: true }),
+              );
+            }
+          }
+        }
+      });
+    } catch (e) {
+      this.thNotify.send('Unable to retrigger this job type!', 'danger', { sticky: true });
+    } finally {
+      this.$rootScope.$apply();
     }
   }
 
@@ -161,7 +179,7 @@ export default class ActionBar extends React.Component {
             // buildUrl is documented at
             // https://github.com/taskcluster/taskcluster-client-web#construct-urls
             // It is necessary here because getLatestArtifact assumes it is getting back
-            // JSON as a reponse due to how the client library is constructed. Since this
+            // JSON as a response due to how the client library is constructed. Since this
             // result is yml, we'll fetch it manually using $http and can use the url
             // returned by this method.
             const url = queue.buildUrl(
@@ -229,33 +247,54 @@ export default class ActionBar extends React.Component {
   }
 
   cancelJobs(jobs) {
-    const { repoName } = this.props;
-    const jobIdsToCancel = jobs.filter(job => (job.state === 'pending' ||
-      job.state === 'running')).map(
-      job => job.id);
-    // get buildbot ids of any buildbot jobs we want to cancel
-    // first
-    JobDetailModel.getJobDetails({
-      job_id__in: jobIdsToCancel,
-      title: 'buildbot_request_id',
-    }).then(buildbotRequestIdDetails => (
-      JobModel.cancel(repoName, jobIdsToCancel).then(
-        () => {
-          buildbotRequestIdDetails.forEach(
-            (buildbotRequestIdDetail) => {
-              const requestId = parseInt(buildbotRequestIdDetail.value);
-              this.thBuildApi.cancelJob(repoName, requestId);
-            });
-        })
-    )).then(() => {
-      this.thNotify.send('Cancel request sent', 'success');
-    }).catch(function (e) {
-      this.thNotify.send(
-        formatModelError(e, 'Unable to cancel job'),
-        'danger',
-        { sticky: true },
-      );
-    });
+    const { user, repoName } = this.props;
+    const jobIdsToCancel = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
+
+    if (!user.isLoggedIn) {
+      return this.$timeout(this.thNotify.send('Must be logged in to retrigger a job', 'danger'));
+    }
+
+    try {
+      jobIdsToCancel.forEach(async ({ id }) => {
+        const job = await JobModel.get(repoName, id);
+        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+
+        if (results) {
+          const cancelTask = results.actions.find(result => result.name === 'cancel');
+
+          if (cancelTask) {
+            try {
+              await TaskclusterModel.submit({
+                action: cancelTask,
+                decisionTaskId,
+                taskId: results.originalTaskId,
+                task: results.originalTask,
+                input: {},
+                staticActionVariables: results.staticActionVariables,
+              });
+
+              this.$timeout(() => this.thNotify.send(
+                'Request sent to cancel job via actions.json',
+                'success'),
+              );
+            } catch (e) {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              this.$timeout(() => this.thNotify.send(
+                formatTaskclusterError(e),
+                'danger',
+                { sticky: true }),
+              );
+            }
+          }
+        }
+      });
+    } catch (e) {
+      this.thNotify.send('Unable to cancel this job type!', 'danger', { sticky: true });
+    } finally {
+      this.$rootScope.$apply();
+    }
   }
 
   cancelJob() {
@@ -342,14 +381,6 @@ export default class ActionBar extends React.Component {
                       className="dropdown-item"
                       href={getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}
                     >Inspect Task</a>
-                  </li>
-                  <li>
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="dropdown-item"
-                      href={`${getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}/create`}
-                    >Edit and Retrigger</a>
                   </li>
                   <li>
                     <a
