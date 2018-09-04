@@ -6378,11 +6378,11 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-day-picker@7.1.10:
-  version "7.1.10"
-  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.1.10.tgz#c763b1acb141ce960e25654b7033c2207f0fc1c3"
+react-day-picker@7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.2.2.tgz#6731af37c83e191f38431a2a6f32f8345066f7ce"
   dependencies:
-    prop-types "^15.6.1"
+    prop-types "^15.6.2"
 
 react-deep-force-update@^2.1.1:
   version "2.1.3"
