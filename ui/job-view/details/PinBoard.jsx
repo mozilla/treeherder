@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
-import { slugid } from 'taskcluster-client-web';
 import $ from 'jquery';
 import Mousetrap from 'mousetrap';
 
@@ -186,9 +185,13 @@ export default class PinBoard extends React.Component {
       return this.$timeout(this.thNotify.send('Must be logged in to retrigger jobs', 'danger'));
     }
 
+    this.$timeout(() => this.thNotify.send(
+      'Request sent to retrigger all pinned jobs via actions.json',
+      'success'),
+    );
+
     try {
       jobIds.forEach(async (id) => {
-        const actionTaskId = slugid();
         const job = await JobModel.get(this.$rootScope.repoName, id);
         const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
         const results = await TaskclusterModel.load(decisionTaskId, job);
@@ -200,18 +203,11 @@ export default class PinBoard extends React.Component {
             try {
               await TaskclusterModel.submit({
                 action: retriggerTask,
-                actionTaskId,
                 decisionTaskId,
                 taskId: results.originalTaskId,
-                task: results.originalTask,
                 input: {},
                 staticActionVariables: results.staticActionVariables,
               });
-
-              this.$timeout(() => this.thNotify.send(
-                `Request sent to retrigger job via actions.json (${actionTaskId})`,
-                'success'),
-              );
             } catch (e) {
               // The full message is too large to fit in a Treeherder
               // notification box.
@@ -252,6 +248,11 @@ export default class PinBoard extends React.Component {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
+      this.$timeout(() => this.thNotify.send(
+        'Request sent to cancel all pinned jobs via actions.json',
+        'success'),
+      );
+
       try {
         jobIds.forEach(async (id) => {
           const job = await JobModel.get(this.$rootScope.repoName, id);
@@ -267,15 +268,9 @@ export default class PinBoard extends React.Component {
                   action: cancelTask,
                   decisionTaskId,
                   taskId: results.originalTaskId,
-                  task: results.originalTask,
                   input: {},
                   staticActionVariables: results.staticActionVariables,
                 });
-
-                this.$timeout(() => this.thNotify.send(
-                  `Request sent to cancel job via actions.json (${job.taskcluster_metadata})`,
-                  'success'),
-                );
               } catch (e) {
                 // The full message is too large to fit in a Treeherder
                 // notification box.
