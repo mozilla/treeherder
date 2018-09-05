@@ -15,3 +15,14 @@ export const getUrlParam = function getUrlParam(name) {
 export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
+
+export const setUrlParam = function setUrlParam(field, value, hashPrefix = '/jobs') {
+  const params = getAllUrlParams();
+  if (value) {
+    params.set(field, value);
+  } else {
+    params.delete(field);
+  }
+
+  location.hash = `#${hashPrefix}?${params.toString()}`;
+};

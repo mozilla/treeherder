@@ -16,7 +16,7 @@ export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
 };
 
 export const createQueryParams = function createQueryParams(params) {
-  const query = new URLSearchParams(params);
+  const query = params instanceof URLSearchParams ? params : new URLSearchParams(params);
   return `?${query.toString()}`;
 };
 

@@ -12,14 +12,17 @@ import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import PushModel from '../../models/push';
 import { isUnclassifiedFailure } from '../../helpers/job';
-import { getQueryString } from '../../helpers/location';
+import {
+  getAllUrlParams,
+  getQueryString,
+} from '../../helpers/location';
 import { parseQueryParams } from '../../helpers/url';
 
 treeherder.factory('ThResultSetStore', [
-    '$rootScope', '$q', '$location', '$interval',
+    '$rootScope', '$q', '$interval',
     'thNotify', '$timeout',
     function (
-        $rootScope, $q, $location, $interval, thNotify, $timeout) {
+        $rootScope, $q, $interval, thNotify, $timeout) {
 
         // indexOf doesn't work on objects so we need to map thPlatformMap to an array (keeping only indexes)
         var platformArray = Object.keys(thPlatformMap);
@@ -67,7 +70,7 @@ treeherder.factory('ThResultSetStore', [
 
             // these params will be passed in each time we poll to remain
             // within the constraints of the URL params
-            const locationSearch = $location.search();
+            const locationSearch = parseQueryParams(getQueryString());
             var rsPollingParams = rsPollingKeys.reduce(
                 (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
 
@@ -808,7 +811,7 @@ treeherder.factory('ThResultSetStore', [
               // if ``nojobs`` is on the query string, then don't load jobs.
               // this allows someone to more quickly load ranges of revisions
               // when they don't care about the specific jobs and results.
-              if ($location.search().nojobs) {
+              if (getAllUrlParams().has('nojobs')) {
                   return;
               }
               const jobsPromiseList = pushes.results.map(push => PushModel.getJobs(push.id));

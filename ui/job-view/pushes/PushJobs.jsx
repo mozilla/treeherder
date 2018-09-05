@@ -48,7 +48,6 @@ export default class PushJobs extends React.Component {
     const { $injector, push, repoName } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.$location = $injector.get('$location');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushId = push.id;

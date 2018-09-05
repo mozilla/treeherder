@@ -13,8 +13,7 @@ import {
 import { getAllUrlParams } from '../helpers/location';
 
 export default class FilterModel {
-  constructor(history) {
-    this.history = history;
+  constructor() {
     this.urlParams = FilterModel.getUrlParamsWithDefaults();
 
     this.addFilter = this.addFilter.bind(this);
@@ -86,11 +85,11 @@ export default class FilterModel {
   }
 
   /**
-   * Push all the url params to history.  Components listening to history
+   * Push all the url params to the url.  Components listening for hashchange
    * will get updates.
    */
   push() {
-    this.history.push(`/?${this.getFilterQueryString()}`);
+    location.hash = `#/jobs?${this.getFilterQueryString()}`;
   }
 
   setOnlySuperseded() {

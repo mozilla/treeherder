@@ -13,7 +13,7 @@ import SecondaryNavBar from './SecondaryNavBar';
 
 export default function PrimaryNavBar(props) {
   const {
-    user, setUser, repos, pinJobs, history, updateButtonClick, serverChanged,
+    user, setUser, repos, pinJobs, updateButtonClick, serverChanged,
     filterModel, $injector, setCurrentRepoTreeStatus,
   } = props;
 
@@ -47,7 +47,6 @@ export default function PrimaryNavBar(props) {
             serverChanged={serverChanged}
             $injector={$injector}
             filterModel={filterModel}
-            history={history}
             repos={repos}
             setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
           />
@@ -60,7 +59,6 @@ export default function PrimaryNavBar(props) {
 PrimaryNavBar.propTypes = {
   $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
   pinJobs: PropTypes.func.isRequired,

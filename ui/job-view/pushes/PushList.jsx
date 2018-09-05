@@ -14,6 +14,7 @@ import { thEvents } from '../../js/constants';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import { getUrlParam, setUrlParam } from '../../helpers/location';
 
 export default class PushList extends React.Component {
 
@@ -22,7 +23,6 @@ export default class PushList extends React.Component {
     const { $injector, repoName } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.$location = $injector.get('$location');
     this.$timeout = $injector.get('$timeout');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
@@ -57,7 +57,7 @@ export default class PushList extends React.Component {
       const pushList = [...this.ThResultSetStore.getPushArray()];
 
       if (!this.state.jobsReady) {
-        const selectedJobId = parseInt(this.$location.search().selectedJob);
+        const selectedJobId = parseInt(getUrlParam('selectedJob'));
         if (selectedJobId) {
           this.setSelectedJobFromQueryString(selectedJobId);
         }
@@ -69,8 +69,9 @@ export default class PushList extends React.Component {
     });
 
     this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (ev, job) => {
-      this.$location.search('selectedJob', job.id);
       const { repoName } = this.props;
+
+      setUrlParam('selectedJob', job.id);
       if (repoName) {
         this.ThResultSetStore.setSelectedJob(job);
       }
@@ -108,11 +109,11 @@ export default class PushList extends React.Component {
 
   getNextPushes(count) {
     this.setState({ loadingPushes: true });
-    const revision = this.$location.search().revision;
+    const revision = getUrlParam('revision');
     if (revision) {
       this.$rootScope.skipNextPageReload = true;
-      this.$location.search('revision', null);
-      this.$location.search('tochange', revision);
+      setUrlParam('revision', null);
+      setUrlParam('tochange', revision);
     }
     this.ThResultSetStore.fetchPushes(count)
       .then(this.updateUrlFromchange);
@@ -142,7 +143,7 @@ export default class PushList extends React.Component {
         PushModel.get(job.result_set_id).then(async (resp) => {
           if (resp.ok) {
             const push = await resp.json();
-            this.$location.search('selectedJob', null);
+            setUrlParam('selectedJob', null);
             const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
 
             // the job exists, but isn't in any loaded push.
@@ -156,7 +157,7 @@ export default class PushList extends React.Component {
       }).catch((error) => {
         // the job wasn't found in the db.  Either never existed,
         // or was expired and deleted.
-        this.$location.search('selectedJob', null);
+        setUrlParam('selectedJob', null);
         this.thNotify.send(`Selected Job - ${error}`,
           'danger',
           { sticky: true });
@@ -169,9 +170,10 @@ export default class PushList extends React.Component {
     // push state in the URL.
     const rsArray = this.ThResultSetStore.getPushArray();
     const updatedLastRevision = rsArray[rsArray.length - 1].revision;
-    if (this.$location.search().fromchange !== updatedLastRevision) {
+
+    if (getUrlParam('fromchange') !== updatedLastRevision) {
       this.$rootScope.skipNextPageReload = true;
-      this.$location.search('fromchange', updatedLastRevision);
+      setUrlParam('fromchange', updatedLastRevision);
     }
   }
 
