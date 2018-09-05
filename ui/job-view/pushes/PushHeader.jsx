@@ -6,8 +6,6 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { thEvents } from '../../js/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
-import JobModel from '../../models/job';
-import TaskclusterModel from '../../models/taskcluster';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -131,49 +129,21 @@ export default class PushHeader extends React.PureComponent {
     }
   }
 
-  cancelAllJobs() {
+  async cancelAllJobs() {
     if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone!. Are you sure?')) {
       const { push, isLoggedIn } = this.props;
-      const jobsCanCancel = push.jobList.filter(({ state }) => state === 'running' || state === 'pending');
 
       if (!isLoggedIn) return;
 
-      this.thNotify.send(
-        'Request sent to cancel all jobs via actions.json',
-        'success');
+      const result = await ((await PushModel.cancelAll(push.id)));
 
-      try {
-        jobsCanCancel.forEach(async (id) => {
-          const job = await JobModel.get(this.$rootScope.repoName, id);
-          const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-          const results = await TaskclusterModel.load(decisionTaskId, job);
-
-          if (results) {
-            const cancelTask = results.actions.find(result => result.name === 'cancel');
-
-            if (cancelTask) {
-              try {
-                await TaskclusterModel.submit({
-                  action: cancelTask,
-                  decisionTaskId,
-                  taskId: results.originalTaskId,
-                  input: {},
-                  staticActionVariables: results.staticActionVariables,
-                });
-              } catch (e) {
-                // The full message is too large to fit in a Treeherder
-                // notification box.
-                this.thNotify.send(
-                  formatTaskclusterError(e),
-                  'danger',
-                  { sticky: true });
-              }
-            }
-          }
-        });
-      } catch (e) {
-        this.thNotify.send('Failed to cancel all jobs', 'danger', { sticky: true });
+      if (!result.ok) {
+        return this.thNotify.send('Failed to cancel all jobs', 'danger', { sticky: true });
       }
+
+      this.thNotify.send(
+        `Request sent to cancel all jobs in push ${push.id}`,
+        'success');
     }
   }
 
