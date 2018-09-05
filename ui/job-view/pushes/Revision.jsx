@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { parseAuthor } from '../helpers/revision';
-import BugLinkify from '../shared/BugLinkify';
+import { parseAuthor } from '../../helpers/revision';
+import BugLinkify from '../../shared/BugLinkify';
 
 export function Initials(props) {
   const str = props.author || '';

@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
-import { getPushTableId } from '../helpers/aggregateId';
-import { thEvents } from '../js/constants';
+import { getPushTableId } from '../../helpers/aggregateId';
+import { thEvents } from '../../js/constants';
 
 const watchCycleStates = [
   'none',

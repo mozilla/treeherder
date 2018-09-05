@@ -8,12 +8,12 @@ import {
   findSelectedInstance,
   findJobInstance,
   scrollToElement,
-} from '../helpers/job';
+} from '../../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
-import { thEvents } from '../js/constants';
-import JobModel from '../models/job';
-import PushModel from '../models/push';
-import ErrorBoundary from '../shared/ErrorBoundary';
+import { thEvents } from '../../js/constants';
+import JobModel from '../../models/job';
+import PushModel from '../../models/push';
+import ErrorBoundary from '../../shared/ErrorBoundary';
 
 export default class PushList extends React.Component {
 

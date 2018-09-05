@@ -16,7 +16,7 @@ import DetailsPanel from './details/DetailsPanel';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
-import PushList from './PushList';
+import PushList from './pushes/PushList';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
