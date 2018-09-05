@@ -85,7 +85,6 @@ export default class ActionBar extends React.Component {
     try {
       jobs.forEach(async ({ id }) => {
         const job = await JobModel.get(repoName, id);
-        const actionTaskId = slugid();
         const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
         const results = await TaskclusterModel.load(decisionTaskId, job);
 
@@ -96,16 +95,14 @@ export default class ActionBar extends React.Component {
             try {
               await TaskclusterModel.submit({
                 action: retriggerTask,
-                actionTaskId,
                 decisionTaskId,
                 taskId: results.originalTaskId,
-                task: results.originalTask,
                 input: {},
                 staticActionVariables: results.staticActionVariables,
               });
 
               this.$timeout(() => this.thNotify.send(
-                `Request sent to retrigger job via actions.json (${actionTaskId})`,
+                'Request sent to retrigger job via actions.json',
                 'success'),
               );
             } catch (e) {
@@ -146,17 +143,15 @@ export default class ActionBar extends React.Component {
       this.ThResultSetStore.getGeckoDecisionTaskId(
         selectedJob.result_set_id).then(decisionTaskId => (
           TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
-            const actionTaskId = slugid();
             if (results) {
               const backfilltask = results.actions.find(result => result.name === 'backfill');
+
               // We'll fall back to actions.yaml if this isn't true
               if (backfilltask) {
                 return TaskclusterModel.submit({
                   action: backfilltask,
-                  actionTaskId,
                   decisionTaskId,
                   taskId: results.originalTaskId,
-                  task: results.originalTask,
                   input: {},
                   staticActionVariables: results.staticActionVariables,
                 }).then(() => {
@@ -176,6 +171,7 @@ export default class ActionBar extends React.Component {
 
             // Otherwise we'll figure things out with actions.yml
             const queue = taskcluster.getQueue();
+            const actionTaskId = slugid();
 
             // buildUrl is documented at
             // https://github.com/taskcluster/taskcluster-client-web#construct-urls
@@ -256,7 +252,6 @@ export default class ActionBar extends React.Component {
     }
 
     const job = await JobModel.get(repoName, jobId);
-    const actionTaskId = slugid();
     const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
     const results = await TaskclusterModel.load(decisionTaskId, job);
 
@@ -267,19 +262,19 @@ export default class ActionBar extends React.Component {
         try {
           await TaskclusterModel.submit({
             action: interactiveTask,
-            actionTaskId,
             decisionTaskId,
             taskId: results.originalTaskId,
-            task: results.originalTask,
-            input: {},
+            input: {
+              notify: job.who,
+            },
             staticActionVariables: results.staticActionVariables,
           });
 
-          Object.assign(window.open(), {
-            opener: null,
-            location: `https://tools.taskcluster.net/tasks/${actionTaskId}/connect`,
-            target: '_blank',
-          });
+          this.$timeout(() => this.thNotify.send(
+            `Request sent to create an interactive job via actions.json.
+            You will soon receive an email containing a link to interact with the task.`,
+            'success'),
+          );
         } catch (e) {
           // The full message is too large to fit in a Treeherder
           // notification box.
@@ -300,11 +295,11 @@ export default class ActionBar extends React.Component {
     const jobIdsToCancel = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
 
     if (!user.isLoggedIn) {
-      return this.$timeout(this.thNotify.send('Must be logged in to retrigger a job', 'danger'));
+      return this.$timeout(this.thNotify.send('Must be logged in to cancel a job', 'danger'));
     }
 
     try {
-      jobIdsToCancel.forEach(async ({ id }) => {
+      jobIdsToCancel.forEach(async (id) => {
         const job = await JobModel.get(repoName, id);
         const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
         const results = await TaskclusterModel.load(decisionTaskId, job);
@@ -318,7 +313,6 @@ export default class ActionBar extends React.Component {
                 action: cancelTask,
                 decisionTaskId,
                 taskId: results.originalTaskId,
-                task: results.originalTask,
                 input: {},
                 staticActionVariables: results.staticActionVariables,
               });
