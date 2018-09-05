@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getUrlParam } from '../helpers/location';
-import { formatTaskclusterError } from '../helpers/errorMessage';
-import { thEvents } from '../js/constants';
-import CustomJobActions from './CustomJobActions';
-import PushModel from '../models/push';
+import { getUrlParam } from '../../helpers/location';
+import { formatTaskclusterError } from '../../helpers/errorMessage';
+import { thEvents } from '../../js/constants';
+import CustomJobActions from '../CustomJobActions';
+import PushModel from '../../models/push';
 
 export default class PushActionMenu extends React.PureComponent {
 

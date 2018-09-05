@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thPlatformMap, thSimplePlatforms, thEvents } from '../js/constants';
-import { getPlatformRowId, getPushTableId } from '../helpers/aggregateId';
-import { findInstance, findSelectedInstance, findJobInstance } from '../helpers/job';
-import { getUrlParam } from '../helpers/location';
-import { getLogViewerUrl } from '../helpers/url';
-import JobModel from '../models/job';
+import { thPlatformMap, thSimplePlatforms, thEvents } from '../../js/constants';
+import { getPlatformRowId, getPushTableId } from '../../helpers/aggregateId';
+import { findInstance, findSelectedInstance, findJobInstance } from '../../helpers/job';
+import { getUrlParam } from '../../helpers/location';
+import { getLogViewerUrl } from '../../helpers/url';
+import JobModel from '../../models/job';
 import Platform from './Platform';
 
 export default class PushJobs extends React.Component {

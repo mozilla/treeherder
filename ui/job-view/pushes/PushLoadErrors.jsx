@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getAllUrlParams } from '../helpers/location';
-import { uiJobsUrlBase } from '../helpers/url';
+import { getAllUrlParams } from '../../helpers/location';
+import { uiJobsUrlBase } from '../../helpers/url';
 
 export default function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;

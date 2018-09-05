@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import createHashHistory from 'history/createHashHistory';
 
-import JobGroup from '../../../../ui/job-view/JobGroup';
+import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
 import { thEvents } from '../../../../ui/js/constants';
 import FilterModel from '../../../../ui/models/filter';
 

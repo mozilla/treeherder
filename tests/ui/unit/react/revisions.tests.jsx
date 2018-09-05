@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import RepositoryModel from '../../../../ui/models/repository';
-import { Revision, Initials } from '../../../../ui/job-view/Revision';
+import { Revision, Initials } from '../../../../ui/job-view/pushes/Revision';
 import {
   RevisionList,
   MoreRevisionsLink,
-} from '../../../../ui/job-view/RevisionList';
+} from '../../../../ui/job-view/pushes/RevisionList';
 
 describe('Revision list component', () => {
   let mockData;

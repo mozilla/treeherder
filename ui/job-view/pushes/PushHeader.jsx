@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
-import { toDateStr } from '../helpers/display';
-import { formatModelError, formatTaskclusterError } from '../helpers/errorMessage';
-import { thEvents } from '../js/constants';
-import { getJobsUrl } from '../helpers/url';
-import PushModel from '../models/push';
+import { toDateStr } from '../../helpers/display';
+import { formatModelError, formatTaskclusterError } from '../../helpers/errorMessage';
+import { thEvents } from '../../js/constants';
+import { getJobsUrl } from '../../helpers/url';
+import PushModel from '../../models/push';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
