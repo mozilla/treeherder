@@ -1,17 +1,18 @@
 import treeherder from '../../treeherder';
 import logviewerTemplate from '../../../partials/logviewer/logviewer.html';
+import { getUrlParam } from '../../../helpers/location';
 
 treeherder.component('thLogViewer', {
     template: logviewerTemplate,
-    controller: ['$sce', '$location', '$element', '$scope', '$rootScope',
-        ($sce, $location, $element, $scope, $rootScope) => {
+    controller: ['$sce', '$element', '$scope', '$rootScope',
+        ($sce, $element, $scope, $rootScope) => {
             const unifiedLogviewerUrl = 'https://taskcluster.github.io/unified-logviewer/';
             const logParams = () => {
-                const q = $location.search();
+                const lineNumber = getUrlParam('lineNumber');
                 const params = { lineHeight: 13 };
 
-                if (q.lineNumber) {
-                    const lines = q.lineNumber.toString().split('-');
+                if (lineNumber) {
+                    const lines = lineNumber.toString().split('-');
 
                     params.lineNumber = lines[0] - $rootScope.logOffset;
                     params.highlightStart = lines[0];

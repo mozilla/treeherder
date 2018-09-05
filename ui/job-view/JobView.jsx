@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
-import createHashHistory from 'history/createHashHistory';
 
 import treeherder from '../js/treeherder';
 import { thEvents, thFavicons } from '../js/constants';
@@ -42,8 +41,7 @@ class JobView extends React.Component {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.thNotify = $injector.get('thNotify');
 
-    this.history = createHashHistory({ basename: '/jobs' });
-    const filterModel = new FilterModel(this.history);
+    const filterModel = new FilterModel();
     this.$rootScope.filterModel = filterModel;
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
@@ -77,6 +75,7 @@ class JobView extends React.Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.pinJobs = this.pinJobs.bind(this);
     this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
+    this.handleUrlChanges = this.handleUrlChanges.bind(this);
 
     RepositoryModel.getList().then((repos) => {
       const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
@@ -92,22 +91,11 @@ class JobView extends React.Component {
       });
     });
 
-    window.addEventListener('resize', this.updateDimensions);
+    window.addEventListener('resize', this.updateDimensions, false);
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
 
     this.$rootScope.$on(thEvents.toggleFieldFilterVisible, () => {
       this.toggleFieldFilterVisible();
-    });
-
-    this.history.listen(() => {
-      const filterModel = new FilterModel(this.history);
-
-      this.$rootScope.filterModel = filterModel;
-      this.ThResultSetStore.recalculateUnclassifiedCounts();
-
-      this.setState({
-        filterModel,
-        serverChanged: false,
-      });
     });
 
     // Get the current Treeherder revision and poll to notify on updates.
@@ -138,6 +126,11 @@ class JobView extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions, false);
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
+  }
+
   static getSplitterDimensions(props) {
     const { selectedJob } = props;
     const defaultPushListPct = selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
@@ -158,6 +151,16 @@ class JobView extends React.Component {
 
   setCurrentRepoTreeStatus(status) {
     document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
+  }
+
+  handleUrlChanges() {
+    const filterModel = new FilterModel();
+
+    this.$rootScope.filterModel = filterModel;
+    this.setState({
+      filterModel,
+      serverChanged: false,
+    });
   }
 
   fetchDeployedRevision() {
@@ -233,7 +236,6 @@ class JobView extends React.Component {
           pinJobs={this.pinJobs}
           serverChanged={serverChanged}
           filterModel={filterModel}
-          history={this.history}
           setUser={this.setUser}
           user={user}
           setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}

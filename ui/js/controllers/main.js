@@ -6,13 +6,15 @@ import treeherderApp from '../treeherder_app';
 import {
   thTitleSuffixLimit, thDefaultRepo, thJobNavSelectors, thEvents,
 } from '../constants';
+import { getQueryString, getUrlParam } from '../../helpers/location';
+import { parseQueryParams } from '../../helpers/url';
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', '$location', '$timeout',
+    '$scope', '$rootScope', '$timeout',
     '$document', '$window',
     'ThResultSetStore', 'thNotify',
     function MainController(
-        $scope, $rootScope, $location, $timeout,
+        $scope, $rootScope, $timeout,
         $document, $window,
         ThResultSetStore, thNotify) {
 
@@ -22,14 +24,12 @@ treeherderApp.controller('MainCtrl', [
         }
 
         // set to the default repo if one not specified
-        const repoName = $location.search().repo;
+        const repoName = getUrlParam('repo');
         if (repoName) {
             $rootScope.repoName = repoName;
         } else {
             $rootScope.repoName = thDefaultRepo;
-            $location.search('repo', $rootScope.repoName);
         }
-        $rootScope.revision = $location.search().revision;
         $rootScope.filterModel = null;
 
         // TODO: Remove this when pinnedJobs is converted to a model or Context
@@ -78,12 +78,12 @@ treeherderApp.controller('MainCtrl', [
 
         $rootScope.getWindowTitle = function () {
             const ufc = ThResultSetStore.getAllUnclassifiedFailureCount();
-            const params = $location.search();
+            const revision = getUrlParam('revision');
 
             // repoName is undefined for the first few title update attempts, show something sensible
             let title = '[' + ufc + '] ' + ($rootScope.repoName ? $rootScope.repoName : 'Treeherder');
 
-            if (params.revision) {
+            if (revision) {
                 const desc = getSingleRevisionTitleString();
                 const revtitle = desc[0] ? ': ' + desc[0] : '';
                 const percentage = desc[1] ? desc[1] + '% - ' : '';
@@ -355,7 +355,7 @@ treeherderApp.controller('MainCtrl', [
         });
 
         const getNewReloadTriggerParams = function () {
-            const locationSearch = $location.search();
+            const locationSearch = parseQueryParams(getQueryString());
             return ThResultSetStore.reloadOnChangeParameters.reduce(
                 (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
         };
@@ -371,10 +371,6 @@ treeherderApp.controller('MainCtrl', [
         // is being changed by code in a specific situation as opposed to when
         // the user manually edits the URL location bar.
         $rootScope.$on('$locationChangeSuccess', function () {
-
-            // used to test for display of watched-repo-navbar
-            $rootScope.locationPath = $location.path().replace('/', '');
-
             const newReloadTriggerParams = getNewReloadTriggerParams();
             // if we are just setting the repo to the default because none was
             // set initially, then don't reload the page.

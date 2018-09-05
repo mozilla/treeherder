@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import createHashHistory from 'history/createHashHistory';
 
 import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
 import { thEvents } from '../../../../ui/js/constants';
@@ -12,8 +11,7 @@ describe('JobGroup component', () => {
   let countGroup;
   let dupGroup;
   const repoName = 'mozilla-inbound';
-  const history = createHashHistory();
-  const filterModel = new FilterModel(history);
+  const filterModel = new FilterModel();
 
 
   beforeEach(angular.mock.module('treeherder'));

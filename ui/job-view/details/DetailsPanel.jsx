@@ -21,6 +21,7 @@ import TextLogStepModel from '../../models/textLogStep';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
+import { setUrlParam } from '../../helpers/location';
 
 export const pinboardHeight = 100;
 
@@ -34,8 +35,6 @@ export default class DetailsPanel extends React.Component {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
-    this.$location = $injector.get('$location');
-    this.$timeout = $injector.get('$timeout');
 
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
@@ -312,7 +311,7 @@ export default class DetailsPanel extends React.Component {
   closeJob() {
     this.$rootScope.selectedJob = null;
     this.ThResultSetStore.setSelectedJob();
-    this.$location.search('selectedJob', null);
+    setUrlParam('selectedJob', null);
     if (this.selectJobController) {
       this.selectJobController.abort();
     }

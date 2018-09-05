@@ -6,25 +6,31 @@ import JobDetailModel from '../../models/jobDetail';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import TextLogStepModel from '../../models/textLogStep';
+import {
+  getAllUrlParams,
+  getUrlParam,
+  setUrlParam,
+} from '../../helpers/location';
 
 logViewerApp.controller('LogviewerCtrl', [
-    '$location', '$window', '$document', '$rootScope', '$scope',
+    '$window', '$document', '$rootScope', '$scope',
     '$timeout', 'thNotify', 'dateFilter',
     function Logviewer(
-        $location, $window, $document, $rootScope, $scope,
+        $window, $document, $rootScope, $scope,
         $timeout, thNotify, dateFilter) {
 
-        const query_string = $location.search();
+        const query_string = getAllUrlParams();
         $scope.css = '';
-        $rootScope.urlBasePath = $location.absUrl().split('logviewer')[0];
         $rootScope.logOffset = 7;
 
-        if (query_string.repo !== '') {
-            $rootScope.repoName = query_string.repo;
+        const repo = query_string.get('repo');
+        if (repo !== '') {
+            $rootScope.repoName = repo;
         }
 
         if (query_string.job_id !== '') {
-            $scope.job_id = query_string.job_id;
+          const jobId = query_string.get('job_id');
+          $scope.job_id = jobId;
         }
 
         $scope.loading = false;
@@ -64,11 +70,11 @@ logViewerApp.controller('LogviewerCtrl', [
             const { lineNumber, highlightStart, highlightEnd } = data;
 
             if (highlightStart !== highlightEnd) {
-                $location.search('lineNumber', `${highlightStart}-${highlightEnd}`).replace();
+                setUrlParam('lineNumber', `${highlightStart}-${highlightEnd}`, '');
             } else if (highlightStart) {
-                $location.search('lineNumber', highlightStart).replace();
+                setUrlParam('lineNumber', highlightStart, '');
             } else {
-                $location.search('lineNumber', lineNumber).replace();
+                setUrlParam('lineNumber', lineNumber, '');
             }
         }
 
@@ -214,7 +220,7 @@ logViewerApp.controller('LogviewerCtrl', [
             TextLogStepModel.get($scope.job_id).then((textLogSteps) => {
                 let shouldPost = true;
                 const allErrors = (textLogSteps.map(s => s.errors)).reduce((a, b) => [...a, ...b], []);
-                const q = $location.search();
+                const lineNumber = getUrlParam('lineNumber');
                 $scope.steps = textLogSteps;
 
                 // add an ordering to each step
@@ -224,11 +230,11 @@ logViewerApp.controller('LogviewerCtrl', [
                 if (allErrors.length) {
                     $scope.css += errorLinesCss(allErrors);
 
-                    if (!q.lineNumber) {
+                    if (!lineNumber) {
                         $scope.logPostMessage({ lineNumber: allErrors[0].line_number + 1, customStyle: $scope.css });
                         shouldPost = false;
                     }
-                } else if (!q.lineNumber) {
+                } else if (!lineNumber) {
                     for (let i = 0; i < $scope.steps.length; i++) {
                         const step = $scope.steps[i];
 
