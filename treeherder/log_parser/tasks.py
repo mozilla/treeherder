@@ -75,7 +75,7 @@ def parse_logs(job_id, job_log_ids, priority):
         ("buildbot_text" in completed_names or
          "builds-4h" in completed_names)):
 
-        success = crossreference_error_lines(job)
+        success = crossreference_job(job)
 
         if success:
             logger.debug("Scheduling autoclassify for job %i", job_id)
@@ -102,11 +102,3 @@ def store_failure_lines(job_log):
     errorsummary file."""
     logger.debug('Running store_failure_lines for job %s', job_log.job.id)
     failureline.store_failure_lines(job_log)
-
-
-def crossreference_error_lines(job):
-    """Match structured (FailureLine) and unstructured (TextLogError) lines
-    for a job."""
-    logger.debug("Crossreference %s: started", job.id)
-    success = crossreference_job(job)
-    return success
