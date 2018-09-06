@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def test_graphql_options(client, eleven_jobs_stored, test_repository):

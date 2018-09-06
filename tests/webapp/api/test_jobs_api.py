@@ -4,7 +4,7 @@ import datetime
 
 import pytest
 from dateutil import parser
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import (Job,

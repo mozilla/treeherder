@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from six import iteritems
 
 from tests.test_utils import create_generic_job

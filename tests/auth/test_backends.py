@@ -4,7 +4,7 @@ from importlib import import_module
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from treeherder.auth.backends import (AuthBackend,
                                       AuthenticationFailed)
