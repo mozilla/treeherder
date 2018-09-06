@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from tests.autoclassify.utils import (create_failure_lines,
                                       create_text_log_errors,

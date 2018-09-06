@@ -3,7 +3,7 @@ import datetime
 import json
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (FailureClassification,

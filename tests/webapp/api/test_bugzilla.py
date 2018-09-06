@@ -5,7 +5,7 @@ from __future__ import print_function
 import json
 
 import responses
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from tests.test_utils import create_generic_job
 from treeherder.model.models import JobLog
