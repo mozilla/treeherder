@@ -20,6 +20,7 @@ from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from six import iteritems
 
 from ..services.elasticsearch import (bulk,
                                       index)
@@ -1057,6 +1058,28 @@ class FailureLine(models.Model):
             'created': self.created,
             'modified': self.modified,
         }
+
+    def to_mozlog_format(self):
+        """Convert a FailureLine into a mozlog formatted dictionary."""
+        data = {
+            "action": self.action,
+            "line_number": self.line,
+            "test": self.test,
+            "subtest": self.subtest,
+            "status": self.status,
+            "expected": self.expected,
+            "message": self.message,
+            "signature": self.signature,
+            "level": self.level,
+            "stack": self.stack,
+            "stackwalk_stdout": self.stackwalk_stdout,
+            "stackwalk_stderr": self.stackwalk_stderr,
+        }
+
+        # Remove empty values
+        data = {k: v for k, v in iteritems(data) if v}
+
+        return data
 
 
 class Group(models.Model):

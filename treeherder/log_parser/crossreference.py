@@ -108,22 +108,6 @@ class ErrorSummaryMatchConvertor(object):
         except AttributeError:
             return None, None
 
-        msg = f(as_dict(failure_line)).split("\n", 1)[0]
+        msg = f(failure_line.to_mozlog_format()).split("\n", 1)[0]
 
         return msg, lambda x: x.endswith(msg.strip())
-
-
-def as_dict(failure_line):
-    """Convert a FailureLine into a dict in the format expected as input to
-    mozlog formatters.
-
-    :param failure_line: The FailureLine to convert."""
-    rv = {"action": failure_line.action,
-          "line_number": failure_line.line}
-    for key in ["test", "subtest", "status", "expected", "message", "signature", "level",
-                "stack", "stackwalk_stdout", "stackwalk_stderr"]:
-        value = getattr(failure_line, key)
-        if value is not None:
-            rv[key] = value
-
-    return rv
