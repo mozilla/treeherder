@@ -187,7 +187,7 @@ requests-hawk==1.0.0 --hash=sha256:c2626ab31ebef0c81b97781c44c2275bfcc6d8e8520fc
 
 django-filter==1.1.0 \
     --hash=sha256:ea204242ea83790e1512c9d0d8255002a652a6f4986e93cee664f28955ba0c22 \
-    --hash=sha256:ec0ef1ba23ef95b1620f5d481334413700fb33f45cd76d56a63f4b0b1d76976a
+    --hash=sha256:ec0ef1ba23ef95b1620f5d481334413700fb33f45cd76d56a63f4b0b1d76976a  # pyup: <2 # Bug 1489212
 
 djangorestframework-filters==0.10.2 \
     --hash=sha256:6d72c304d543b0e5597defe89ba581517455e86ac84efd17526eda27118236e8 \
