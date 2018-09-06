@@ -20,6 +20,7 @@ def crossreference_job(job):
 
     :job: - Job for which to perform the crossreferencing
     """
+    logger.debug("Crossreference %s: started", job.id)
 
     if job.autoclassify_status >= Job.CROSSREFERENCED:
         logger.info("Job %i already crossreferenced", job.id)
