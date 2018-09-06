@@ -206,10 +206,6 @@ angular-mocks@1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.3.tgz#6568d50e64e81180273f9ec6a062ea255159f6ac"
 
-angular-resource@1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/angular-resource/-/angular-resource-1.7.3.tgz#0b378d203cc15a8f2807ab1b2279a262d6bfff80"
-
 angular-route@1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.7.3.tgz#245c7ea7d18514c1d08201588092db7df210e7c6"
