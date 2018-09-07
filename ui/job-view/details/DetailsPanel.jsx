@@ -368,7 +368,6 @@ export default class DetailsPanel extends React.Component {
 
     if (!spaceRemaining) {
       this.thNotify.send(thPinboardCountError, 'danger', { sticky: true });
-      this.$rootScope.$apply();
       return;
     }
 
@@ -381,7 +380,6 @@ export default class DetailsPanel extends React.Component {
       }
       if (showError) {
         this.thNotify.send(thPinboardCountError, 'danger', { sticky: true });
-        this.$rootScope.$apply();
       }
     });
   }

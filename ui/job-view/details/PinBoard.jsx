@@ -19,7 +19,6 @@ export default class PinBoard extends React.Component {
 
     const { $injector } = this.props;
     this.thNotify = $injector.get('thNotify');
-    this.$timeout = $injector.get('$timeout');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$rootScope = $injector.get('$rootScope');
 
@@ -81,15 +80,15 @@ export default class PinBoard extends React.Component {
       // just forgot to hit enter. Returns false if invalid
       errorFree = this.saveEnteredBugNumber();
       if (!errorFree) {
-        this.$timeout(this.thNotify.send('Please enter a valid bug number', 'danger'));
+        this.thNotify.send('Please enter a valid bug number', 'danger');
       }
     }
     if (!this.canSaveClassifications() && isLoggedIn) {
-      this.$timeout(this.thNotify.send('Please classify this failure before saving', 'danger'));
+      this.thNotify.send('Please classify this failure before saving', 'danger');
       errorFree = false;
     }
     if (!isLoggedIn) {
-      this.$timeout(this.thNotify.send('Must be logged in to save job classifications', 'danger'));
+      this.thNotify.send('Must be logged in to save job classifications', 'danger');
       errorFree = false;
     }
     if (errorFree) {
@@ -193,8 +192,7 @@ export default class PinBoard extends React.Component {
           throw new Error(formatModelError(resp, `Unable to send retrigger${plurality}`));
         }
       })
-      .catch(error => this.$timeout(this.thNotify.send(error, 'danger')))
-      .finally(() => this.$rootScope.$apply());
+      .catch(error => this.thNotify.send(error, 'danger'));
   }
 
   cancelAllPinnedJobsTitle() {
