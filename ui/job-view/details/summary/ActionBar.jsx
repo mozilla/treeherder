@@ -27,7 +27,6 @@ export default class ActionBar extends React.Component {
     this.$interpolate = $injector.get('$interpolate');
     this.$uibModal = $injector.get('$uibModal');
     this.$rootScope = $injector.get('$rootScope');
-    this.$timeout = $injector.get('$timeout');
 
     this.state = {
       customJobActionsShowing: false,
@@ -49,7 +48,6 @@ export default class ActionBar extends React.Component {
         case 'parsed':
           $('.logviewer-btn')[0].click();
       }
-      this.$rootScope.$apply();
     });
 
     this.jobRetriggerUnlisten = this.$rootScope.$on(thEvents.jobRetrigger, (event, job) => {
@@ -99,14 +97,14 @@ export default class ActionBar extends React.Component {
                 });
             })
         ).then(() => {
-            this.$timeout(this.thNotify.send('Retrigger request sent', 'success'));
+            this.thNotify.send('Retrigger request sent', 'success');
         }, (e) => {
             // Generic error eg. the user doesn't have LDAP access
-            this.$timeout(this.thNotify.send(
-                formatModelError(e, 'Unable to send retrigger'), 'danger'));
+            this.thNotify.send(
+                formatModelError(e, 'Unable to send retrigger'), 'danger');
         }));
     } else {
-        this.$timeout(this.thNotify.send('Must be logged in to retrigger a job', 'danger'));
+        this.thNotify.send('Must be logged in to retrigger a job', 'danger');
     }
   }
 
@@ -118,12 +116,10 @@ export default class ActionBar extends React.Component {
     }
     if (!user.isLoggedIn) {
       this.thNotify.send('Must be logged in to backfill a job', 'danger');
-      this.$rootScope.$apply();
       return;
     }
     if (!selectedJob.id) {
       this.thNotify.send('Job not yet loaded for backfill', 'warning');
-      this.$rootScope.$apply();
       return;
     }
 
@@ -145,18 +141,16 @@ export default class ActionBar extends React.Component {
                   input: {},
                   staticActionVariables: results.staticActionVariables,
                 }).then(() => {
-                  this.$timeout(() => this.thNotify.send(
+                  this.thNotify.send(
                     `Request sent to backfill job via actions.json (${actionTaskId})`,
-                    'success'),
-                  );
+                    'success');
                 }, (e) => {
                   // The full message is too large to fit in a Treeherder
                   // notification box.
-                  this.$timeout(() => this.thNotify.send(
+                  this.thNotify.send(
                     formatTaskclusterError(e),
                     'danger',
-                    { sticky: true }),
-                  );
+                    { sticky: true });
                 });
               }
             }
@@ -185,25 +179,22 @@ export default class ActionBar extends React.Component {
 
               const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
               queue.createTask(actionTaskId, task).then(function () {
-                this.$timeout(() => this.thNotify.send(
+                this.thNotify.send(
                   `Request sent to backfill job via actions.yml (${actionTaskId})`,
-                  'success'),
-                );
+                  'success');
               }, (e) => {
                 // The full message is too large to fit in a Treeherder
                 // notification box.
-                this.$timeout(() => this.thNotify.send(
+                this.thNotify.send(
                   formatTaskclusterError(e),
                   'danger',
-                  { sticky: true }),
-                );
+                  { sticky: true });
               });
             });
           })
       ));
     } else {
       this.thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
-      this.$rootScope.$apply();
     }
   }
 
@@ -258,14 +249,12 @@ export default class ActionBar extends React.Component {
         })
     )).then(() => {
       this.thNotify.send('Cancel request sent', 'success');
-      this.$rootScope.$apply();
     }).catch(function (e) {
       this.thNotify.send(
         formatModelError(e, 'Unable to cancel job'),
         'danger',
         { sticky: true },
       );
-      this.$rootScope.$apply();
     });
   }
 

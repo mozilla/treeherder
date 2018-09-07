@@ -23,7 +23,6 @@ export default class PushList extends React.Component {
     const { $injector, repoName } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.$timeout = $injector.get('$timeout');
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
@@ -48,9 +47,7 @@ export default class PushList extends React.Component {
 
     this.pushesLoadedUnlisten = this.$rootScope.$on(thEvents.pushesLoaded, () => {
       const pushList = this.ThResultSetStore.getPushArray();
-      this.$timeout(() => {
-        this.setState({ pushList, loadingPushes: false });
-      }, 0);
+      this.setState({ pushList, loadingPushes: false });
     });
 
     this.jobsLoadedUnlisten = this.$rootScope.$on(thEvents.jobsLoaded, () => {
@@ -62,10 +59,7 @@ export default class PushList extends React.Component {
           this.setSelectedJobFromQueryString(selectedJobId);
         }
       }
-
-      this.$timeout(() => {
-        this.setState({ pushList, jobsReady: true });
-      }, 0);
+      this.setState({ pushList, jobsReady: true });
     });
 
     this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (ev, job) => {
@@ -239,10 +233,8 @@ export default class PushList extends React.Component {
   }
 
   noMoreUnclassifiedFailures() {
-    this.$timeout(() => {
-      this.thNotify.send('No unclassified failures to select.');
-      this.$rootScope.$emit(thEvents.clearSelectedJob);
-    });
+    this.thNotify.send('No unclassified failures to select.');
+    this.$rootScope.$emit(thEvents.clearSelectedJob);
   }
 
   selectJob(job, jobEl) {
