@@ -55,7 +55,7 @@ setup_python_env() {
 }
 
 setup_docs() {
-    pip install -r requirements/docs.txt
+    pip install -U -r requirements/docs.txt
 }
 
 setup_geckodriver() {
