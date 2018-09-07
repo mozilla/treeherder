@@ -55,19 +55,6 @@ treeherder.factory('ThResultSetStore', [
         var rsPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
         const rsFetchKeys = [...rsPollingKeys, 'fromchange', 'startdate'];
 
-        // changes to the url for any of these fields should reload the page
-        // because it changes the query to the db
-        var reloadOnChangeParameters = [
-            'repo',
-            'revision',
-            'author',
-            'fromchange',
-            'tochange',
-            'startdate',
-            'enddate',
-            'nojobs',
-        ];
-
         var registerPushPollers = function () {
 
             // these params will be passed in each time we poll to remain
@@ -1005,7 +992,6 @@ treeherder.factory('ThResultSetStore', [
             setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultPushCount: defaultPushCount,
-            reloadOnChangeParameters: reloadOnChangeParameters,
             recalculateUnclassifiedCounts: recalculateUnclassifiedCounts,
 
         };
