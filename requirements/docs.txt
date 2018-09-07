@@ -13,4 +13,4 @@ sphinx-rtd-theme==0.4.1
 # installed, since Read The Docs doesn't use --upgrade and has an
 # older incompatible version of recommonmark pre-installed.
 -e git+git://github.com/rtfd/recommonmark.git#egg=recommonmark
-commonmark==0.7.5
+commonmark==0.8.1
