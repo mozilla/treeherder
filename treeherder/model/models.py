@@ -720,6 +720,9 @@ class FailuresQuerySet(models.QuerySet):
     def by_bug(self, bug_id):
         return self.filter(bug_id=int(bug_id))
 
+    def by_date(self, startday, endday):
+        return self.select_related('push', 'job').filter(job__push__time__range=(startday, endday))
+
 
 class BugJobMap(models.Model):
     '''

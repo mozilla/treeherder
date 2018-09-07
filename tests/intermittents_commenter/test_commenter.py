@@ -1,7 +1,7 @@
 import responses
+from django.conf import settings
 
 from treeherder.intermittents_commenter.commenter import Commenter
-from treeherder.intermittents_commenter.constants import TRIAGE_PARAMS
 
 
 @responses.activate
@@ -12,15 +12,18 @@ def test_intermittents_commenter(bug_data):
     alt_endday = endday
 
     process = Commenter(weekly_mode=True, dry_run=True)
-    url = process.create_url(bug_data['bug_id']) + '?include_fields={}'.format(TRIAGE_PARAMS['include_fields'])
+    params = {'include_fields': 'product%2C+component%2C+priority%2C+whiteboard%2C+id'}
+    url = '{}/rest/bug?id={}&include_fields={}'.format(settings.BZ_API_URL, bug_data['bug_id'],
+                                                       params['include_fields'])
 
     content = {
         "bugs": [
             {
-                "component": "General",
-                "priority": "P3",
-                "product": "Testing",
-                "whiteboard": "[stockwell infra] [see summary at comment 92]"
+                u"component": u"General",
+                u"priority": u"P3",
+                u"product": u"Testing",
+                u"whiteboard": u"[stockwell infra] [see summary at comment 92]",
+                u"id": bug_data['bug_id']
             }
         ],
         "faults": []
@@ -33,8 +36,9 @@ def test_intermittents_commenter(bug_data):
                     match_querystring=True,
                     status=200))
 
-    resp = process.fetch_bug_details(TRIAGE_PARAMS, bug_data['bug_id'])
-    assert resp == content['bugs'][0]
+    resp = process.fetch_bug_details(bug_data['bug_id'])
+    assert responses.calls[0].request.url == url
+    assert resp == content['bugs']
 
     comment_params = process.generate_bug_changes(startday, endday, alt_startday, alt_endday)
 
