@@ -4,6 +4,7 @@
 
 import _ from 'lodash';
 import max from 'lodash/max';
+import pick from 'lodash/pick';
 
 import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
@@ -52,6 +53,7 @@ treeherder.factory('ThResultSetStore', [
         // Keys that, if present on the url, must be passed into the push
         // polling endpoint
         var rsPollingKeys = ['tochange', 'enddate', 'revision', 'author'];
+        const rsFetchKeys = [...rsPollingKeys, 'fromchange', 'startdate'];
 
         // changes to the url for any of these fields should reload the page
         // because it changes the query to the db
@@ -794,9 +796,17 @@ treeherder.factory('ThResultSetStore', [
              */
             repoData.loadingStatus.appending = true;
             const isAppend = (repoData.pushes.length > 0);
-            const options = { ...parseQueryParams(getQueryString()), count };
+            // Only pass supported query string params to this endpoint.
+            const options = {
+              ...pick(parseQueryParams(getQueryString()), rsFetchKeys),
+              count,
+            };
 
             if (repoData.rsMapOldestTimestamp) {
+              // If we have an oldestTimestamp, then this isn't our first fetch,
+              // we're fetching more pushes.  We don't want to limit this fetch
+              // by the current ``fromchange`` value.
+              delete options.fromchange;
               options.push_timestamp__lte = repoData.rsMapOldestTimestamp;
             }
             return PushModel.getList(options).then(async (resp) => {

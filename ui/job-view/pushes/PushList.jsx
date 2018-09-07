@@ -10,11 +10,16 @@ import {
   scrollToElement,
 } from '../../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
-import { thEvents } from '../../js/constants';
+import { thEvents, thMaxPushFetchSize } from '../../js/constants';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { getUrlParam, setUrlParam } from '../../helpers/location';
+import {
+  getAllUrlParams,
+  getUrlParam,
+  setLocation,
+  setUrlParam,
+} from '../../helpers/location';
 
 export default class PushList extends React.Component {
 
@@ -40,7 +45,11 @@ export default class PushList extends React.Component {
     };
 
     // get our first set of resultsets
-    this.ThResultSetStore.fetchPushes(this.ThResultSetStore.defaultPushCount);
+    const fromchange = getUrlParam('fromchange');
+    // If we have a ``fromchange`` url param.  We don't want to limit ourselves
+    // to the default of 10 pushes on the first load.
+    this.ThResultSetStore.fetchPushes(
+      fromchange ? thMaxPushFetchSize : this.ThResultSetStore.defaultPushCount);
   }
 
   componentWillMount() {
@@ -108,12 +117,14 @@ export default class PushList extends React.Component {
   }
 
   getNextPushes(count) {
-    this.setState({ loadingPushes: true });
     const revision = getUrlParam('revision');
+    this.setState({ loadingPushes: true });
     if (revision) {
       this.$rootScope.skipNextPageReload = true;
-      setUrlParam('revision', null);
-      setUrlParam('tochange', revision);
+      const params = getAllUrlParams();
+      params.delete('revision');
+      params.set('tochange', revision);
+      setLocation(params);
     }
     this.ThResultSetStore.fetchPushes(count)
       .then(this.updateUrlFromchange);
