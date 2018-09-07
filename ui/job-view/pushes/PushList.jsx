@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 
 import Push from './Push';
 import {
@@ -10,16 +11,19 @@ import {
   scrollToElement,
 } from '../../helpers/job';
 import PushLoadErrors from './PushLoadErrors';
-import { thEvents, thMaxPushFetchSize } from '../../js/constants';
+import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import {
   getAllUrlParams,
+  getQueryString,
   getUrlParam,
   setLocation,
   setUrlParam,
 } from '../../helpers/location';
+import { parseQueryParams } from '../../helpers/url';
+import { reloadOnChangeParameters } from '../../helpers/filter';
 
 export default class PushList extends React.Component {
 
@@ -34,14 +38,16 @@ export default class PushList extends React.Component {
 
     this.ThResultSetStore.initRepository(repoName);
 
-    this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
     this.closeJob = this.closeJob.bind(this);
+
+    this.skipNextPageReload = false;
 
     this.state = {
       pushList: [],
       loadingPushes: true,
       jobsReady: false,
       notificationSupported: 'Notification' in window,
+      cachedReloadTriggerParams: this.getNewReloadTriggerParams(),
     };
 
     // get our first set of resultsets
@@ -54,6 +60,8 @@ export default class PushList extends React.Component {
 
   componentWillMount() {
     this.getNextPushes = this.getNextPushes.bind(this);
+    this.handleUrlChanges = this.handleUrlChanges.bind(this);
+    this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
 
     this.pushesLoadedUnlisten = this.$rootScope.$on(thEvents.pushesLoaded, () => {
       const pushList = this.ThResultSetStore.getPushArray();
@@ -104,6 +112,7 @@ export default class PushList extends React.Component {
         this.setState({ pushList: [...this.state.pushList] });
       },
     );
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   componentWillUnmount() {
@@ -114,13 +123,14 @@ export default class PushList extends React.Component {
     this.changeSelectionUnlisten();
     this.jobsLoadedUnlisten();
     this.jobsClassifiedUnlisten();
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   getNextPushes(count) {
     const revision = getUrlParam('revision');
     this.setState({ loadingPushes: true });
     if (revision) {
-      this.$rootScope.skipNextPageReload = true;
+      this.skipNextPageReload = true;
       const params = getAllUrlParams();
       params.delete('revision');
       params.set('tochange', revision);
@@ -176,6 +186,40 @@ export default class PushList extends React.Component {
     }
   }
 
+  getNewReloadTriggerParams() {
+    const params = parseQueryParams(getQueryString());
+
+    return reloadOnChangeParameters.reduce(
+      (acc, prop) => (params[prop] ? { ...acc, [prop]: params[prop] } : acc), {});
+  }
+
+  // reload the page if certain params were changed in the URL.  For
+  // others, such as filtering, just re-filter without reload.
+
+  // the param ``skipNextPageReload`` will cause a single run through
+  // this code to skip the page reloading even on a param that would
+  // otherwise trigger a page reload.  This is useful for a param that
+  // is being changed by code in a specific situation as opposed to when
+  // the user manually edits the URL location bar.
+  handleUrlChanges() {
+    const { cachedReloadTriggerParams } = this.state;
+    const newReloadTriggerParams = this.getNewReloadTriggerParams();
+    // if we are just setting the repo to the default because none was
+    // set initially, then don't reload the page.
+    const defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
+      !cachedReloadTriggerParams.repo;
+
+    if (!defaulting && cachedReloadTriggerParams &&
+      !isEqual(newReloadTriggerParams, cachedReloadTriggerParams) &&
+      !this.skipNextPageReload) {
+      location.reload();
+    } else {
+      this.setState({ cachedReloadTriggerParams: newReloadTriggerParams });
+    }
+
+    this.skipNextPageReload = false;
+  }
+
   updateUrlFromchange() {
     // since we fetched more pushes, we need to persist the
     // push state in the URL.
@@ -183,7 +227,7 @@ export default class PushList extends React.Component {
     const updatedLastRevision = rsArray[rsArray.length - 1].revision;
 
     if (getUrlParam('fromchange') !== updatedLastRevision) {
-      this.$rootScope.skipNextPageReload = true;
+      this.skipNextPageReload = true;
       setUrlParam('fromchange', updatedLastRevision);
     }
   }

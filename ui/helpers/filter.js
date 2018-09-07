@@ -37,6 +37,19 @@ export const thDefaultFilterResultStatuses = [
   'runnable',
 ];
 
+// changes to the url for any of these fields should reload the page
+// because it changes the query to the db
+export const reloadOnChangeParameters = [
+  'repo',
+  'revision',
+  'author',
+  'fromchange',
+  'tochange',
+  'startdate',
+  'enddate',
+  'nojobs',
+];
+
 // default filter values, when a filter is not specified in the query string
 export const thFilterDefaults = {
   resultStatus: thDefaultFilterResultStatuses,
