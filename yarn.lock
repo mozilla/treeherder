@@ -6379,9 +6379,9 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-day-picker@7.2.2:
-  version "7.2.2"
-  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.2.2.tgz#6731af37c83e191f38431a2a6f32f8345066f7ce"
+react-day-picker@7.2.3:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.2.3.tgz#51722dc66ae3478af2dfdb754350db6a1c521332"
   dependencies:
     prop-types "^15.6.2"
 
