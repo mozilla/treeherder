@@ -19,7 +19,6 @@
     "angular": "1.7.3",
     "angular-clipboard": "1.6.2",
     "angular-local-storage": "0.7.1",
-    "angular-resource": "1.7.3",
     "angular-route": "1.7.3",
     "angular-sanitize": "1.7.3",
     "angular-ui-router": "0.4.3",

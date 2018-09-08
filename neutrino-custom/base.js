@@ -35,7 +35,6 @@ module.exports = neutrino => {
         const jsDeps = [
             'angular',
             'angular-local-storage',
-            'angular-resource',
             'angular-route',
             'angular-sanitize',
             'angular-ui-router',

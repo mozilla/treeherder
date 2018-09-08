@@ -12,9 +12,7 @@ const treeherderApp = angular.module('treeherder.app', [
 ]);
 
 treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider', '$httpProvider',
-    '$logProvider', '$resourceProvider',
-    function ($compileProvider, $locationProvider, $routeProvider, $httpProvider, $logProvider,
-             $resourceProvider) {
+    function ($compileProvider, $locationProvider, $routeProvider, $httpProvider) {
         // Disable debug data & legacy comment/class directive syntax, as recommended by:
         // https://docs.angularjs.org/guide/production
         $compileProvider.debugInfoEnabled(false);
@@ -24,16 +22,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
         // Revert to the legacy Angular <=1.5 URL hash prefix to save breaking existing links:
         // https://docs.angularjs.org/guide/migration#commit-aa077e8
         $locationProvider.hashPrefix('');
-
-        // Don't strip trailing slashes from calculated URLs
-        $resourceProvider.defaults.stripTrailingSlashes = false;
-
-        // All queries should be cancellable by default (why is this configurable??)
-        $resourceProvider.defaults.cancellable = true;
-
-        // enable or disable debug messages using $log.
-        // comment out the next line to enable them
-        $logProvider.debugEnabled(false);
 
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
