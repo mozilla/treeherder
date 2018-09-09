@@ -6509,9 +6509,9 @@ react-select@2.0.0:
     react-input-autosize "^2.2.1"
     react-transition-group "^2.2.1"
 
-react-split-pane@0.1.82:
-  version "0.1.82"
-  resolved "https://registry.yarnpkg.com/react-split-pane/-/react-split-pane-0.1.82.tgz#42fbb9fd4823f05e037de0dab3cd6cf9bf0cf4ea"
+react-split-pane@0.1.83:
+  version "0.1.83"
+  resolved "https://registry.yarnpkg.com/react-split-pane/-/react-split-pane-0.1.83.tgz#70a299f4fdc07d36d4defe6915769a734079bc35"
   dependencies:
     inline-style-prefixer "^3.0.6"
     prop-types "^15.5.10"
