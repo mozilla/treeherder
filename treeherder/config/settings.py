@@ -338,38 +338,6 @@ CELERYBEAT_SCHEDULE = {
             "queue": "pushlog"
         }
     },
-    'fetch-buildapi-pending-every-minute': {
-        'task': 'fetch-buildapi-pending',
-        'schedule': timedelta(minutes=1),
-        'relative': True,
-        'options': {
-            "queue": "buildapi_pending"
-        }
-    },
-    'fetch-buildapi-running-every-minute': {
-        'task': 'fetch-buildapi-running',
-        'schedule': timedelta(minutes=1),
-        'relative': True,
-        'options': {
-            "queue": "buildapi_running"
-        }
-    },
-    'fetch-buildapi-build4h-every-3-minute': {
-        'task': 'fetch-buildapi-build4h',
-        'schedule': timedelta(minutes=3),
-        'relative': True,
-        'options': {
-            "queue": "buildapi_4hr"
-        }
-    },
-    'fetch-runnablejobs-every-day': {
-        'task': 'fetch-runnablejobs',
-        'schedule': timedelta(hours=4),
-        'relative': True,
-        'options': {
-            'queue': "fetch_runnablejobs"
-        }
-    },
     'cycle-data-every-day': {
         'task': 'cycle-data',
         'schedule': timedelta(days=1),
