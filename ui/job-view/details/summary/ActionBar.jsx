@@ -71,7 +71,7 @@ export default class ActionBar extends React.Component {
     const { user, repoName } = this.props;
 
     if (!user.isLoggedIn) {
-      return this.$timeout(this.thNotify.send('Must be logged in to retrigger a job', 'danger'));
+      return this.thNotify.send('Must be logged in to retrigger a job', 'danger');
     }
 
     // Spin the retrigger button when retriggers happen
@@ -101,26 +101,22 @@ export default class ActionBar extends React.Component {
                 staticActionVariables: results.staticActionVariables,
               });
 
-              this.$timeout(() => this.thNotify.send(
+              this.thNotify.send(
                 'Request sent to retrigger job via actions.json',
-                'success'),
-              );
+                'success');
             } catch (e) {
               // The full message is too large to fit in a Treeherder
               // notification box.
-              this.$timeout(() => this.thNotify.send(
+              this.thNotify.send(
                 formatTaskclusterError(e),
                 'danger',
-                { sticky: true }),
-              );
+                { sticky: true });
             }
           }
         }
       });
     } catch (e) {
       this.thNotify.send('Unable to retrigger this job type!', 'danger', { sticky: true });
-    } finally {
-      this.$rootScope.$apply();
     }
   }
 
@@ -132,10 +128,12 @@ export default class ActionBar extends React.Component {
     }
     if (!user.isLoggedIn) {
       this.thNotify.send('Must be logged in to backfill a job', 'danger');
+
       return;
     }
     if (!selectedJob.id) {
       this.thNotify.send('Job not yet loaded for backfill', 'warning');
+
       return;
     }
 
@@ -156,7 +154,7 @@ export default class ActionBar extends React.Component {
                   staticActionVariables: results.staticActionVariables,
                 }).then(() => {
                   this.thNotify.send(
-                    `Request sent to backfill job via actions.json (${actionTaskId})`,
+                    `Request sent to backfill job ${selectedJob.id} via actions.json`,
                     'success');
                 }, (e) => {
                   // The full message is too large to fit in a Treeherder
@@ -195,7 +193,7 @@ export default class ActionBar extends React.Component {
               const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
               queue.createTask(actionTaskId, task).then(function () {
                 this.thNotify.send(
-                  `Request sent to backfill job via actions.yml (${actionTaskId})`,
+                  `Request sent to backfill job ${selectedJob.id} via actions.yml`,
                   'success');
               }, (e) => {
                 // The full message is too large to fit in a Treeherder
@@ -248,7 +246,7 @@ export default class ActionBar extends React.Component {
     const jobId = selectedJob.id;
 
     if (!user.isLoggedIn) {
-      return this.$timeout(this.thNotify.send('Must be logged in to create an interactive task', 'danger'));
+      return this.thNotify.send('Must be logged in to create an interactive task', 'danger');
     }
 
     const job = await JobModel.get(repoName, jobId);
@@ -270,21 +268,17 @@ export default class ActionBar extends React.Component {
             staticActionVariables: results.staticActionVariables,
           });
 
-          this.$timeout(() => this.thNotify.send(
+          this.thNotify.send(
             `Request sent to create an interactive job via actions.json.
             You will soon receive an email containing a link to interact with the task.`,
-            'success'),
-          );
+            'success');
         } catch (e) {
           // The full message is too large to fit in a Treeherder
           // notification box.
-          this.$timeout(() => this.thNotify.send(
+          this.thNotify.send(
             formatTaskclusterError(e),
             'danger',
-            { sticky: true }),
-          );
-        } finally {
-          this.$rootScope.$apply();
+            { sticky: true });
         }
       }
     }
@@ -295,7 +289,7 @@ export default class ActionBar extends React.Component {
     const jobIdsToCancel = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
 
     if (!user.isLoggedIn) {
-      return this.$timeout(this.thNotify.send('Must be logged in to cancel a job', 'danger'));
+      return this.thNotify.send('Must be logged in to cancel a job', 'danger');
     }
 
     try {
@@ -317,26 +311,22 @@ export default class ActionBar extends React.Component {
                 staticActionVariables: results.staticActionVariables,
               });
 
-              this.$timeout(() => this.thNotify.send(
+              this.thNotify.send(
                 'Request sent to cancel job via actions.json',
-                'success'),
-              );
+                'success');
             } catch (e) {
               // The full message is too large to fit in a Treeherder
               // notification box.
-              this.$timeout(() => this.thNotify.send(
+              this.thNotify.send(
                 formatTaskclusterError(e),
                 'danger',
-                { sticky: true }),
-              );
+                { sticky: true });
             }
           }
         }
       });
     } catch (e) {
       this.thNotify.send('Unable to cancel this job type!', 'danger', { sticky: true });
-    } finally {
-      this.$rootScope.$apply();
     }
   }
 

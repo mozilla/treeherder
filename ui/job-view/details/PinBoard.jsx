@@ -182,13 +182,12 @@ export default class PinBoard extends React.Component {
     const jobIds = Object.keys(this.props.pinnedJobs);
 
     if (!this.props.isLoggedIn) {
-      return this.$timeout(this.thNotify.send('Must be logged in to retrigger jobs', 'danger'));
+      return this.thNotify.send('Must be logged in to retrigger jobs', 'danger');
     }
 
-    this.$timeout(() => this.thNotify.send(
+    this.thNotify.send(
       'Request sent to retrigger all pinned jobs via actions.json',
-      'success'),
-    );
+      'success');
 
     try {
       jobIds.forEach(async (id) => {
@@ -211,19 +210,16 @@ export default class PinBoard extends React.Component {
             } catch (e) {
               // The full message is too large to fit in a Treeherder
               // notification box.
-              this.$timeout(() => this.thNotify.send(
+              this.thNotify.send(
                 formatTaskclusterError(e),
                 'danger',
-                { sticky: true }),
-              );
+                { sticky: true });
             }
           }
         }
       });
     } catch (e) {
       this.thNotify.send('Unable to retrigger all jobs', 'danger', { sticky: true });
-    } finally {
-      this.$rootScope.$apply();
     }
   }
 
@@ -248,10 +244,9 @@ export default class PinBoard extends React.Component {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
-      this.$timeout(() => this.thNotify.send(
+      this.thNotify.send(
         'Request sent to cancel all pinned jobs via actions.json',
-        'success'),
-      );
+        'success');
 
       try {
         jobIds.forEach(async (id) => {
@@ -274,19 +269,16 @@ export default class PinBoard extends React.Component {
               } catch (e) {
                 // The full message is too large to fit in a Treeherder
                 // notification box.
-                this.$timeout(() => this.thNotify.send(
+                this.thNotify.send(
                   formatTaskclusterError(e),
                   'danger',
-                  { sticky: true }),
-                );
+                  { sticky: true });
               }
             }
           }
         });
       } catch (e) {
         this.thNotify.send('Unable to cancel all jobs', 'danger', { sticky: true });
-      } finally {
-        this.$rootScope.$apply();
       }
 
       this.unPinAll();
