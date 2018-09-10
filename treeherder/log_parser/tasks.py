@@ -58,6 +58,12 @@ def parse_logs(job_id, job_log_ids, priority):
                 # Papertrail will still show output
                 raise
 
+            if isinstance(e, SystemExit):
+                # stop parsing further logs because the process was told to
+                # exit, this is commonly because the Heroku Dynos were
+                # restarted.
+                raise
+
             if first_exception is None:
                 first_exception = e
 
