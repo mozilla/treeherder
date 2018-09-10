@@ -32,6 +32,6 @@ most deterministic [wrapping mode](https://github.com/timothycrosley/isort#multi
 to reduce the line length guess-work when adding imports, even though it's not the most concise.
 
 UI
---------------
+--
 
-We use the [Airbnb](https://github.com/airbnb/javascript) style guide for Javascript and validate it with eslint (see Validating Javascript in the [UI development section](ui/installation.md#validating-javaScript). For CSS, we use Bootstrap and [reactstrap](https://reactstrap.github.io/). We use Bootstrap's utility classes as much as possible before adding custom CSS to a style sheet. Any custom style that can be made reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.
+We use the [Airbnb](https://github.com/airbnb/javascript) style guide for Javascript and validate it with ESlint (see Validating Javascript in the [UI development section](ui/installation.md#validating-javaScript). For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as much as possible before adding custom CSS to a style sheet. Any custom style that can be made reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.
