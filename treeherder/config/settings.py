@@ -287,8 +287,6 @@ CELERY_QUEUES = [
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
     Queue('fetch_runnablejobs', Exchange('default'), routing_key='fetch_runnablejobs'),
-    Queue('cycle_data', Exchange('default'), routing_key='cycle_data'),
-    Queue('fetch_bugs', Exchange('default'), routing_key='fetch_bugs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
@@ -336,22 +334,6 @@ CELERYBEAT_SCHEDULE = {
         'relative': True,
         'options': {
             "queue": "pushlog"
-        }
-    },
-    'cycle-data-every-day': {
-        'task': 'cycle-data',
-        'schedule': timedelta(days=1),
-        'relative': True,
-        'options': {
-            'queue': 'cycle_data'
-        }
-    },
-    'fetch-bugs-every-hour': {
-        'task': 'fetch-bugs',
-        'schedule': timedelta(hours=1),
-        'relative': True,
-        'options': {
-            'queue': 'fetch_bugs'
         }
     },
     'seta-analyze-failures': {

@@ -1,16 +1,8 @@
 import newrelic.agent
-from celery import task
-from django.core.management import call_command
 
 from treeherder.model.models import Job
 from treeherder.services.pulse import publish_job_action as pulse_publish_job_action
 from treeherder.workers.task import retryable_task
-
-
-# Run a maximum of 1 per hour
-@task(name='cycle-data', rate_limit='1/h', soft_time_limit=180*60, time_limit=181*60)
-def cycle_data():
-    call_command('cycle_data')
 
 
 # Only retrying up to 3 times, since it's likely the user will repeat the request, and we
