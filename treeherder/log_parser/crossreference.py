@@ -50,21 +50,21 @@ def _crossreference(job):
         return False
 
     match_iter = structured_iterator(list(failure_lines.all()))
-    failure_line, _, fn = next(match_iter)
+    failure_line, repr_str = next(match_iter)
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
     for error in list(text_log_errors.all()):
-        if fn and fn(error.line.strip()):
+        if repr_str and error.line.strip().endswith(repr_str):
             logger.debug("Matched '%s'", error.line)
             TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
                                                        failure_line=failure_line)
-            failure_line, _, fn = next(match_iter)
+            failure_line, repr_str = next(match_iter)
         else:
             logger.debug("Failed to match '%s'", error.line)
 
     # We should have exhausted all structured lines
-    for failure_line, repr_str, _ in match_iter:
+    for failure_line, repr_str in match_iter:
         # We can have a line without a pattern at the end if the log is truncated
         if failure_line is None:
             break
@@ -82,11 +82,12 @@ def structured_iterator(failure_lines):
     """
     to_fn = ErrorSummaryMatchConvertor()
     for failure_line in failure_lines:
-        repr_str, fn = to_fn(failure_line)
-        if fn:
-            yield failure_line, repr_str, fn
+        repr_str = to_fn(failure_line)
+        if repr_str:
+            yield failure_line, repr_str
+
     while True:
-        yield None, None, None
+        yield None, None
 
 
 class ErrorSummaryMatchConvertor(object):
@@ -99,15 +100,15 @@ class ErrorSummaryMatchConvertor(object):
         if failure_line.action == "test_result":
             action = "test_status" if failure_line.subtest is not None else "test_end"
         elif failure_line.action == "truncated":
-            return None, None
+            return
         else:
             action = failure_line.action
 
         try:
             f = getattr(self._formatter, action)
         except AttributeError:
-            return None, None
+            return
 
         msg = f(failure_line.to_mozlog_format()).split("\n", 1)[0]
 
-        return msg, lambda x: x.endswith(msg.strip())
+        return msg.strip()
