@@ -37,7 +37,7 @@ const menuItems = [
     text: 'Source',
   },
   {
-    href: 'https://whatsdeployed.io/?owner=mozilla&amp;repo=treeherder&amp;name[]=Stage&amp;url[]=https://treeherder.allizom.org/revision.txt&amp;name[]=Prod&amp;url[]=https://treeherder.mozilla.org/revision.txt',
+    href: 'https://whatsdeployed.io/?owner=mozilla&repo=treeherder&name[]=Stage&url[]=https://treeherder.allizom.org/revision.txt&name[]=Prod&url[]=https://treeherder.mozilla.org/revision.txt',
     icon: 'fa-question',
     text: 'What\'s Deployed?',
   },
