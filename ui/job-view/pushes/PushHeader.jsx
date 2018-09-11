@@ -135,7 +135,7 @@ export default class PushHeader extends React.PureComponent {
 
       if (!isLoggedIn) return;
 
-      const result = await ((await PushModel.cancelAll(push.id)));
+      const result = await (await PushModel.cancelAll(push.id));
 
       if (!result.ok) {
         return this.thNotify.send('Failed to cancel all jobs', 'danger', { sticky: true });
