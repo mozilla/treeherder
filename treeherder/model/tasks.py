@@ -1,6 +1,4 @@
 import newrelic.agent
-from celery import task
-from django.core.management import call_command
 
 from treeherder.model.models import Job
 from treeherder.services.pulse import publish_job_action as pulse_publish_job_action
