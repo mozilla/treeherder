@@ -3,6 +3,7 @@ from functools import partial
 
 from django.db import (IntegrityError,
                        transaction)
+from first import first
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
@@ -99,10 +100,16 @@ def failure_line_summary(formatter, failure_line):
         action = failure_line.action
 
     try:
-        f = getattr(formatter, action)
+        mozlog_func = getattr(formatter, action)
     except AttributeError:
+        logger.warning('Unknown mozlog function "%s"', action)
         return
 
-    msg = f(failure_line.to_mozlog_format()).split("\n", 1)[0]
+    formatted_log = mozlog_func(failure_line.to_mozlog_format())
+    split_log = first(formatted_log.split("\n", 1))
 
-    return msg.strip()
+    if not split_log:
+        logger.debug('Failed to split log', formatted_log)
+        return
+
+    return split_log.strip()
