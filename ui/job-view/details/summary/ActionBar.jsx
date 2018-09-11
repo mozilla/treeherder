@@ -50,7 +50,7 @@ export default class ActionBar extends React.Component {
     });
 
     this.jobRetriggerUnlisten = this.$rootScope.$on(thEvents.jobRetrigger, (event, job) => {
-        this.retriggerJob([job]);
+      this.retriggerJob([job]);
     });
 
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
@@ -69,6 +69,7 @@ export default class ActionBar extends React.Component {
 
   retriggerJob(jobs) {
     const { user, repoName } = this.props;
+    const jobIds = jobs.map(({ id }) => id);
 
     if (!user.isLoggedIn) {
       return this.thNotify.send('Must be logged in to retrigger a job', 'danger');
@@ -82,42 +83,7 @@ export default class ActionBar extends React.Component {
       });
     });
 
-    try {
-      jobs.forEach(async ({ id }) => {
-        const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-        const results = await TaskclusterModel.load(decisionTaskId, job);
-
-        if (results) {
-          const retriggerTask = results.actions.find(result => result.name === 'retrigger');
-
-          if (retriggerTask) {
-            try {
-              await TaskclusterModel.submit({
-                action: retriggerTask,
-                decisionTaskId,
-                taskId: results.originalTaskId,
-                input: {},
-                staticActionVariables: results.staticActionVariables,
-              });
-
-              this.thNotify.send(
-                'Request sent to retrigger job via actions.json',
-                'success');
-            } catch (e) {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true });
-            }
-          }
-        }
-      });
-    } catch (e) {
-      this.thNotify.send('Unable to retrigger this job type!', 'danger', { sticky: true });
-    }
+    JobModel.retrigger(jobIds, repoName, this.ThResultSetStore, this.thNotify, true);
   }
 
   backfillJob() {
@@ -140,60 +106,21 @@ export default class ActionBar extends React.Component {
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
       this.ThResultSetStore.getGeckoDecisionTaskId(
         selectedJob.result_set_id).then(decisionTaskId => (
-          TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
-            if (results) {
-              const backfilltask = results.actions.find(result => result.name === 'backfill');
+        TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
+          if (results) {
+            const backfilltask = results.actions.find(result => result.name === 'backfill');
 
-              // We'll fall back to actions.yaml if this isn't true
-              if (backfilltask) {
-                return TaskclusterModel.submit({
-                  action: backfilltask,
-                  decisionTaskId,
-                  taskId: results.originalTaskId,
-                  input: {},
-                  staticActionVariables: results.staticActionVariables,
-                }).then(() => {
-                  this.thNotify.send(
-                    `Request sent to backfill job ${selectedJob.id} via actions.json`,
-                    'success');
-                }, (e) => {
-                  // The full message is too large to fit in a Treeherder
-                  // notification box.
-                  this.thNotify.send(
-                    formatTaskclusterError(e),
-                    'danger',
-                    { sticky: true });
-                });
-              }
-            }
-
-            // Otherwise we'll figure things out with actions.yml
-            const queue = taskcluster.getQueue();
-            const actionTaskId = slugid();
-
-            // buildUrl is documented at
-            // https://github.com/taskcluster/taskcluster-client-web#construct-urls
-            // It is necessary here because getLatestArtifact assumes it is getting back
-            // JSON as a response due to how the client library is constructed. Since this
-            // result is yml, we'll fetch it manually using $http and can use the url
-            // returned by this method.
-            const url = queue.buildUrl(
-              queue.getLatestArtifact,
-              decisionTaskId,
-              'public/action.yml',
-            );
-            fetch(url).then((resp) => {
-              let action = resp.data;
-              const template = this.$interpolate(action);
-              action = template({
-                action: 'backfill',
-                action_args: `--project=${repoName}' --job=${selectedJob.id}`,
-              });
-
-              const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-              queue.createTask(actionTaskId, task).then(function () {
+            // We'll fall back to actions.yaml if this isn't true
+            if (backfilltask) {
+              return TaskclusterModel.submit({
+                action: backfilltask,
+                decisionTaskId,
+                taskId: results.originalTaskId,
+                input: {},
+                staticActionVariables: results.staticActionVariables,
+              }).then(() => {
                 this.thNotify.send(
-                  `Request sent to backfill job ${selectedJob.id} via actions.yml`,
+                  'Request sent to backfill job via actions.json',
                   'success');
               }, (e) => {
                 // The full message is too large to fit in a Treeherder
@@ -203,8 +130,47 @@ export default class ActionBar extends React.Component {
                   'danger',
                   { sticky: true });
               });
+            }
+          }
+
+          // Otherwise we'll figure things out with actions.yml
+          const queue = taskcluster.getQueue();
+          const actionTaskId = slugid();
+
+          // buildUrl is documented at
+          // https://github.com/taskcluster/taskcluster-client-web#construct-urls
+          // It is necessary here because getLatestArtifact assumes it is getting back
+          // JSON as a response due to how the client library is constructed. Since this
+          // result is yml, we'll fetch it manually using $http and can use the url
+          // returned by this method.
+          const url = queue.buildUrl(
+            queue.getLatestArtifact,
+            decisionTaskId,
+            'public/action.yml',
+          );
+          fetch(url).then((resp) => {
+            let action = resp.data;
+            const template = this.$interpolate(action);
+            action = template({
+              action: 'backfill',
+              action_args: `--project=${repoName}' --job=${selectedJob.id}`,
             });
-          })
+
+            const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
+            queue.createTask(actionTaskId, task).then(function () {
+              this.thNotify.send(
+                'Request sent to backfill job via actions.yml',
+                'success');
+            }, (e) => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              this.thNotify.send(
+                formatTaskclusterError(e),
+                'danger',
+                { sticky: true });
+            });
+          });
+        })
       ));
     } else {
       this.thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
@@ -286,48 +252,13 @@ export default class ActionBar extends React.Component {
 
   cancelJobs(jobs) {
     const { user, repoName } = this.props;
-    const jobIdsToCancel = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
+    const jobIds = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
 
     if (!user.isLoggedIn) {
       return this.thNotify.send('Must be logged in to cancel a job', 'danger');
     }
 
-    try {
-      jobIdsToCancel.forEach(async (id) => {
-        const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-        const results = await TaskclusterModel.load(decisionTaskId, job);
-
-        if (results) {
-          const cancelTask = results.actions.find(result => result.name === 'cancel');
-
-          if (cancelTask) {
-            try {
-              await TaskclusterModel.submit({
-                action: cancelTask,
-                decisionTaskId,
-                taskId: results.originalTaskId,
-                input: {},
-                staticActionVariables: results.staticActionVariables,
-              });
-
-              this.thNotify.send(
-                'Request sent to cancel job via actions.json',
-                'success');
-            } catch (e) {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true });
-            }
-          }
-        }
-      });
-    } catch (e) {
-      this.thNotify.send('Unable to cancel this job type!', 'danger', { sticky: true });
-    }
+    JobModel.cancel(jobIds, repoName, this.ThResultSetStore, this.thNotify, true);
   }
 
   cancelJob() {

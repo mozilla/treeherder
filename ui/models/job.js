@@ -1,5 +1,7 @@
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { formatTaskclusterError } from '../helpers/errorMessage';
+import TaskclusterModel from './taskcluster';
 
 const uri = getProjectUrl('/jobs/');
 
@@ -93,5 +95,85 @@ export default class JobModel {
     // the job list endpoint, so let's reuse the getList method logic.
     config.uri = `${uri}${pk}/similar_jobs/`;
     return JobModel.getList(repoName, options, config);
+  }
+
+  static retrigger(jobIds, repoName, ThResultSetStore, thNotify, notifyAfterEachRetrigger = false) {
+    try {
+      jobIds.forEach(async (id) => {
+        const job = await JobModel.get(repoName, id);
+        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+        const retriggerTask = results && results.actions.find(result => result.name === 'retrigger');
+
+        if (retriggerTask) {
+          try {
+            await TaskclusterModel.submit({
+              action: retriggerTask,
+              decisionTaskId,
+              taskId: results.originalTaskId,
+              input: {},
+              staticActionVariables: results.staticActionVariables,
+            });
+
+            if (notifyAfterEachRetrigger) {
+              thNotify.send(
+                'Request sent to retrigger job via actions.json',
+                'success');
+            }
+          } catch (e) {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            thNotify.send(
+              formatTaskclusterError(e),
+              'danger',
+              { sticky: true });
+          }
+        }
+      });
+    } catch (e) {
+      const message = jobIds.length > 1 ? 'Unable to retrigger all jobs' : 'Unable to retrigger this job type';
+
+      thNotify.send(message, 'danger', { sticky: true });
+    }
+  }
+
+  static cancel(jobIds, repoName, ThResultSetStore, thNotify, notifyAfterEachCancel = false) {
+    try {
+      jobIds.forEach(async (id) => {
+        const job = await JobModel.get(repoName, id);
+        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+        const cancelTask = results && results.actions.find(result => result.name === 'cancel');
+
+        if (cancelTask) {
+          try {
+            await TaskclusterModel.submit({
+              action: cancelTask,
+              decisionTaskId,
+              taskId: results.originalTaskId,
+              input: {},
+              staticActionVariables: results.staticActionVariables,
+            });
+
+            if (notifyAfterEachCancel) {
+              thNotify.send(
+                'Request sent to cancel job via actions.json',
+                'success');
+            }
+          } catch (e) {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            thNotify.send(
+              formatTaskclusterError(e),
+              'danger',
+              { sticky: true });
+          }
+        }
+      });
+    } catch (e) {
+      const message = jobIds.length > 1 ? 'Unable to cancel all jobs' : 'Unable to cancel this job type';
+
+      thNotify.send(message, 'danger', { sticky: true });
+    }
   }
 }

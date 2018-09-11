@@ -5,14 +5,13 @@ import $ from 'jquery';
 import Mousetrap from 'mousetrap';
 
 import { thEvents } from '../../js/constants';
-import { formatModelError, formatTaskclusterError } from '../../helpers/errorMessage';
+import { formatModelError } from '../../helpers/errorMessage';
 import { getJobBtnClass, getHoverText } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
-import TaskclusterModel from '../../models/taskcluster';
 
 export default class PinBoard extends React.Component {
   constructor(props) {
@@ -178,51 +177,6 @@ export default class PinBoard extends React.Component {
     }
   }
 
-  retriggerAllPinnedJobs() {
-    const jobIds = Object.keys(this.props.pinnedJobs);
-
-    if (!this.props.isLoggedIn) {
-      return this.thNotify.send('Must be logged in to retrigger jobs', 'danger');
-    }
-
-    this.thNotify.send(
-      'Request sent to retrigger all pinned jobs via actions.json',
-      'success');
-
-    try {
-      jobIds.forEach(async (id) => {
-        const job = await JobModel.get(this.$rootScope.repoName, id);
-        const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-        const results = await TaskclusterModel.load(decisionTaskId, job);
-
-        if (results) {
-          const retriggerTask = results.actions.find(result => result.name === 'retrigger');
-
-          if (retriggerTask) {
-            try {
-              await TaskclusterModel.submit({
-                action: retriggerTask,
-                decisionTaskId,
-                taskId: results.originalTaskId,
-                input: {},
-                staticActionVariables: results.staticActionVariables,
-              });
-            } catch (e) {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true });
-            }
-          }
-        }
-      });
-    } catch (e) {
-      this.thNotify.send('Unable to retrigger all jobs', 'danger', { sticky: true });
-    }
-  }
-
   cancelAllPinnedJobsTitle() {
     if (!this.props.isLoggedIn) {
       return 'Not logged in';
@@ -240,7 +194,7 @@ export default class PinBoard extends React.Component {
     return this.props.isLoggedIn && cancellableJobs.length > 0;
   }
 
-  async cancelAllPinnedJobs() {
+  cancelAllPinnedJobs() {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
@@ -248,38 +202,12 @@ export default class PinBoard extends React.Component {
         'Request sent to cancel all pinned jobs via actions.json',
         'success');
 
-      try {
-        jobIds.forEach(async (id) => {
-          const job = await JobModel.get(this.$rootScope.repoName, id);
-          const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-          const results = await TaskclusterModel.load(decisionTaskId, job);
-
-          if (results) {
-            const cancelTask = results.actions.find(result => result.name === 'cancel');
-
-            if (cancelTask) {
-              try {
-                await TaskclusterModel.submit({
-                  action: cancelTask,
-                  decisionTaskId,
-                  taskId: results.originalTaskId,
-                  input: {},
-                  staticActionVariables: results.staticActionVariables,
-                });
-              } catch (e) {
-                // The full message is too large to fit in a Treeherder
-                // notification box.
-                this.thNotify.send(
-                  formatTaskclusterError(e),
-                  'danger',
-                  { sticky: true });
-              }
-            }
-          }
-        });
-      } catch (e) {
-        this.thNotify.send('Unable to cancel all jobs', 'danger', { sticky: true });
-      }
+      JobModel.cancel(
+        jobIds,
+        this.$rootScope.repoName,
+        this.ThResultSetStore,
+        this.thNotify,
+      );
 
       this.unPinAll();
     }
@@ -417,6 +345,19 @@ export default class PinBoard extends React.Component {
   viewJob(job) {
     this.$rootScope.selectedJob = job;
     this.$rootScope.$emit(thEvents.jobClick, job);
+  }
+
+  retriggerAllPinnedJobs() {
+    this.thNotify.send(
+      'Request sent to retrigger all pinned jobs via actions.json',
+      'success');
+
+    JobModel.retrigger(
+      Object.keys(this.props.pinnedJobs),
+      this.$rootScope.repoName,
+      this.ThResultSetStore,
+      this.thNotify,
+    );
   }
 
   render() {
