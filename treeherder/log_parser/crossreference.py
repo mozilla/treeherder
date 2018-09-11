@@ -41,20 +41,17 @@ def crossreference_job(job):
 @transaction.atomic
 def _crossreference(job):
     failure_lines = FailureLine.objects.filter(job_guid=job.guid)
+    text_log_errors = TextLogError.objects.filter(step__job=job).order_by('line_number')
 
-    text_log_errors = TextLogError.objects.filter(
-        step__job=job).order_by('line_number')
-
-    # If we don't have both failure lines and text log errors this will never succeed
-    if not (failure_lines.exists() and text_log_errors.exists()):
+    if not failure_lines and text_log_errors:
         return False
 
-    match_iter = structured_iterator(list(failure_lines.all()))
+    match_iter = structured_iterator(failure_lines)
     failure_line, repr_str = next(match_iter)
 
     # For each error in the text log, try to match the next unmatched
     # structured log line
-    for error in list(text_log_errors.all()):
+    for error in text_log_errors:
         if repr_str and error.line.strip().endswith(repr_str):
             logger.debug("Matched '%s'", error.line)
             TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
