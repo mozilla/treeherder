@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 
 from django.db import (IntegrityError,
                        transaction)
@@ -72,14 +73,10 @@ def _crossreference(job):
 
 
 def structured_iterator(failure_lines):
-    """Map failure_lines to a (failure_line, regexp) iterator where the
-    regexp will match an unstructured line corresponding to that structured line.
-
-    :param failure_lines: Iterator of FailureLine objects
-    """
-    to_fn = ErrorSummaryMatchConvertor()
+    """Create FailureLine, Tbpl-formatted-string tuples."""
+    summary = partial(failure_line_summary, TbplFormatter())
     for failure_line in failure_lines:
-        repr_str = to_fn(failure_line)
+        repr_str = summary(failure_line)
         if repr_str:
             yield failure_line, repr_str
 
@@ -87,25 +84,25 @@ def structured_iterator(failure_lines):
         yield None, None
 
 
-class ErrorSummaryMatchConvertor(object):
-    def __init__(self):
-        """Stateful function for generating a regexp that matches TBPL formatted output
-        corresponding to a specific FailureLine"""
-        self._formatter = TbplFormatter()
+def failure_line_summary(formatter, failure_line):
+    """
+    Create a mozlog formatted error summary string from the given failure_line.
 
-    def __call__(self, failure_line):
-        if failure_line.action == "test_result":
-            action = "test_status" if failure_line.subtest is not None else "test_end"
-        elif failure_line.action == "truncated":
-            return
-        else:
-            action = failure_line.action
+    Create a string which can be compared to a TextLogError.line string to see
+    if they match.
+    """
+    if failure_line.action == "test_result":
+        action = "test_status" if failure_line.subtest is not None else "test_end"
+    elif failure_line.action == "truncated":
+        return
+    else:
+        action = failure_line.action
 
-        try:
-            f = getattr(self._formatter, action)
-        except AttributeError:
-            return
+    try:
+        f = getattr(formatter, action)
+    except AttributeError:
+        return
 
-        msg = f(failure_line.to_mozlog_format()).split("\n", 1)[0]
+    msg = f(failure_line.to_mozlog_format()).split("\n", 1)[0]
 
-        return msg.strip()
+    return msg.strip()
