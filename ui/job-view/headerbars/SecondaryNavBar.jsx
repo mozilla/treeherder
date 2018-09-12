@@ -155,7 +155,7 @@ export default class SecondaryNavBar extends React.Component {
   unwatchRepo(name) {
     const { watchedRepoNames } = this.state;
 
-    this.setState({ watchedRepoNames: watchedRepoNames.filter(repo => repo.name !== name) });
+    this.saveWatchedRepos(watchedRepoNames.filter(repo => repo !== name));
   }
 
   loadWatchedRepos() {
@@ -171,7 +171,6 @@ export default class SecondaryNavBar extends React.Component {
 
       // Re-save the list, in case it has now changed
       this.saveWatchedRepos(watchedRepoNames);
-      this.setState({ watchedRepoNames });
     } catch (e) {
       // localStorage is disabled/not supported.
       return [];
@@ -179,6 +178,7 @@ export default class SecondaryNavBar extends React.Component {
   }
 
   saveWatchedRepos(repos) {
+    this.setState({ watchedRepoNames: repos });
     try {
       localStorage.setItem(WATCHED_REPOS_STORAGE_KEY, JSON.stringify(repos));
     } catch (e) {
