@@ -64,7 +64,6 @@ export default class PushHeader extends React.PureComponent {
 
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushDateStr = toDateStr(pushTimestamp);

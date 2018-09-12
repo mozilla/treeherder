@@ -21,7 +21,6 @@ export default class ActionBar extends React.Component {
     const { $injector } = this.props;
 
     this.thNotify = $injector.get('thNotify');
-    this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$interpolate = $injector.get('$interpolate');
     this.$uibModal = $injector.get('$uibModal');

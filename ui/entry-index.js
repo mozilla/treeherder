@@ -29,7 +29,6 @@ import './job-view/JobView';
 // Treeherder JS
 import './js/directives/treeherder/main';
 import './js/services/main';
-import './js/services/buildapi';
 import './js/models/resultsets_store';
 import './js/models/perf/series';
 import './js/controllers/main';
