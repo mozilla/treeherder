@@ -189,9 +189,9 @@ django-filter==1.1.0 \
     --hash=sha256:ea204242ea83790e1512c9d0d8255002a652a6f4986e93cee664f28955ba0c22 \
     --hash=sha256:ec0ef1ba23ef95b1620f5d481334413700fb33f45cd76d56a63f4b0b1d76976a  # pyup: <2 # Bug 1489212
 
-djangorestframework-filters==0.10.2 \
-    --hash=sha256:6d72c304d543b0e5597defe89ba581517455e86ac84efd17526eda27118236e8 \
-    --hash=sha256:1f51945b46f476b8184518e2881febcf3772b606b73ce022a4b7e7ff3763895d
+djangorestframework-filters==0.10.2.post0 \
+    --hash=sha256:4097ebb90d50d6c79fb8f9b20bc2481374a69bda7528b50e99c324536f4baad9 \
+    --hash=sha256:00afb9b405179ded02eadf769ee6cfbbbf098e103e4cc9bca853d5713704a316
 
 django-redis==4.9.0 \
     --hash=sha256:a90343c33a816073b735f0bed878eaeec4f83b75fcc0dce2432189b8ea130424 \
