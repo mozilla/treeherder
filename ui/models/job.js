@@ -1,6 +1,7 @@
 import { thPlatformMap } from '../js/constants';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
-import { create } from '../helpers/http';
+import { formatTaskclusterError } from '../helpers/errorMessage';
+import TaskclusterModel from './taskcluster';
 
 const uri = getProjectUrl('/jobs/');
 
@@ -96,11 +97,87 @@ export default class JobModel {
     return JobModel.getList(repoName, options, config);
   }
 
-  static retrigger(repoName, jobIds) {
-    return create(`${uri}retrigger/`, { job_id_list: jobIds });
+  static async retrigger(jobIds, repoName, ThResultSetStore, thNotify) {
+    const isManyJobs = jobIds.length > 1;
+
+    try {
+      if (isManyJobs) {
+        thNotify.send(
+          'Attempting to retrigger all jobs via actions.json',
+          'info');
+      }
+
+      /* eslint-disable no-await-in-loop */
+      for (const id of jobIds) {
+        const job = await JobModel.get(repoName, id);
+        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+        const retriggerTask = results && results.actions.find(result => result.name === 'retrigger');
+
+        try {
+          await TaskclusterModel.submit({
+            action: retriggerTask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+          });
+        } catch (e) {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          thNotify.send(
+            formatTaskclusterError(e),
+            'danger',
+            { sticky: true });
+        }
+      }
+      /* eslint-enable no-await-in-loop */
+
+      thNotify.send(`Request sent to retrigger ${isManyJobs ? 'all jobs' : 'job'} via action.json`, 'success');
+    } catch (e) {
+      thNotify.send(`Unable to retrigger ${isManyJobs ? 'all jobs' : 'job'}`, 'danger', { sticky: true });
+    }
   }
 
-  static cancel(repoName, jobIds) {
-    return create(`${uri}cancel/`, { job_id_list: jobIds });
+  static async cancel(jobIds, repoName, ThResultSetStore, thNotify) {
+    const isManyJobs = jobIds.length > 1;
+
+    try {
+      if (isManyJobs) {
+        thNotify.send(
+          'Attempting to cancel all jobs via actions.json',
+          'info');
+      }
+
+      /* eslint-disable no-await-in-loop */
+      for (const id of jobIds) {
+        const job = await JobModel.get(repoName, id);
+        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const results = await TaskclusterModel.load(decisionTaskId, job);
+        const cancelTask = results && results.actions.find(result => result.name === 'cancel');
+
+        try {
+          await TaskclusterModel.submit({
+            action: cancelTask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+          });
+        } catch (e) {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          thNotify.send(
+            formatTaskclusterError(e),
+            'danger',
+            { sticky: true });
+        }
+      }
+      /* eslint-enable no-await-in-loop */
+
+      thNotify.send(`Request sent to cancel ${isManyJobs ? 'all jobs' : 'job'} via action.json`, 'success');
+    } catch (e) {
+      thNotify.send(`Unable to cancel ${isManyJobs ? 'all jobs' : 'job'}`, 'danger', { sticky: true });
+    }
   }
 }

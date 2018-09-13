@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert } from 'reactstrap';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../../helpers/display';
-import { formatModelError, formatTaskclusterError } from '../../helpers/errorMessage';
+import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { thEvents } from '../../js/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
+import JobModel from '../../models/job';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -65,7 +65,6 @@ export default class PushHeader extends React.PureComponent {
 
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.thBuildApi = $injector.get('thBuildApi');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushDateStr = toDateStr(pushTimestamp);
@@ -74,7 +73,6 @@ export default class PushHeader extends React.PureComponent {
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
 
     this.state = {
-      showConfirmCancelAll: false,
       runnableJobsSelected: false,
     };
   }
@@ -132,20 +130,21 @@ export default class PushHeader extends React.PureComponent {
   }
 
   cancelAllJobs() {
-    const { repoName, revision, isLoggedIn, pushId } = this.props;
+    if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
+      const { push, isLoggedIn } = this.props;
+      const jobsCanCancel = push.jobList
+        .filter(({ state }) => state === 'running' || state === 'pending')
+        .map(({ id }) => id);
 
-    this.setState({ showConfirmCancelAll: false });
-    if (!isLoggedIn) return;
+      if (!isLoggedIn) return;
 
-    PushModel.cancelAll(pushId).then(() => (
-        this.thBuildApi.cancelAll(repoName, revision)
-    )).catch((e) => {
-      this.thNotify.send(
-          formatModelError(e, 'Failed to cancel all jobs'),
-          'danger',
-          { sticky: true },
-        );
-    });
+      JobModel.cancel(
+        jobsCanCancel,
+        this.$rootScope.repoName,
+        this.ThResultSetStore,
+        this.thNotify,
+      );
+    }
   }
 
   pinAllShownJobs() {
@@ -216,7 +215,7 @@ export default class PushHeader extends React.PureComponent {
               <button
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
-                onClick={() => this.setState({ showConfirmCancelAll: true })}
+                onClick={this.cancelAllJobs}
               >
                 <span
                   className="fa fa-times-circle cancel-job-icon dim-quarter"
@@ -250,32 +249,16 @@ export default class PushHeader extends React.PureComponent {
               $injector={$injector}
               showRunnableJobsCb={showRunnableJobsCb}
               hideRunnableJobsCb={hideRunnableJobsCb}
-
             />
           </span>
         </div>
-        {this.state.showConfirmCancelAll &&
-          <div
-            className="cancel-all-jobs-confirm animate-show"
-            key="cancelConfirm"
-          >
-            <Alert color="danger" toggle={() => this.setState({ showConfirmCancelAll: false })}>
-              <span className="fa fa-exclamation-triangle" />
-              <span> This action will cancel all pending and running jobs for this push. <i>It cannot be undone!</i>
-              </span>
-              <button
-                onClick={this.cancelAllJobs}
-                className="btn btn-xs btn-danger cancel-all-jobs-confirm-btn"
-              >Confirm</button>
-            </Alert>
-          </div>
-        }
       </div>
     );
   }
 }
 
 PushHeader.propTypes = {
+  push: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,

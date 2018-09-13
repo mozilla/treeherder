@@ -4,7 +4,6 @@ import templateSettings from 'lodash/templateSettings';
 import jsyaml from 'js-yaml';
 
 import { thMaxPushFetchSize } from '../js/constants';
-import { create } from '../helpers/http';
 import { getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
@@ -81,10 +80,6 @@ export default class PushModel {
       params.last_modified__gt = lastModified.toISOString().replace('Z', '');
     }
     return JobModel.getList(repo, params, { fetch_all: true });
-  }
-
-  static cancelAll(pushId) {
-    return create(`${getProjectUrl(uri_base)}${pushId}/cancel_all/`);
   }
 
   static triggerMissingJobs(decisionTaskId) {

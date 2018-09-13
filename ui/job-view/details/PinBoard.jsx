@@ -177,24 +177,6 @@ export default class PinBoard extends React.Component {
     }
   }
 
-  retriggerAllPinnedJobs() {
-    // pushing pinned jobs to a list.
-    const jobIds = Object.keys(this.props.pinnedJobs);
-    const plurality = jobIds.length > 1 ? 's' : '';
-
-    JobModel.retrigger(this.$rootScope.repoName, jobIds)
-      .then((resp) => {
-        if (resp.ok) {
-          this.thNotify.send(
-            `Retrigger request sent for ${jobIds.length} pinned job${plurality}`,
-            'success');
-        } else {
-          throw new Error(formatModelError(resp, `Unable to send retrigger${plurality}`));
-        }
-      })
-      .catch(error => this.thNotify.send(error, 'danger'));
-  }
-
   cancelAllPinnedJobsTitle() {
     if (!this.props.isLoggedIn) {
       return 'Not logged in';
@@ -212,9 +194,17 @@ export default class PinBoard extends React.Component {
     return this.props.isLoggedIn && cancellableJobs.length > 0;
   }
 
-  async cancelAllPinnedJobs() {
+  cancelAllPinnedJobs() {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
-      await JobModel.cancel(this.$rootScope.repoName, Object.keys(this.props.pinnedJobs));
+      const jobIds = Object.keys(this.props.pinnedJobs);
+
+      JobModel.cancel(
+        jobIds,
+        this.$rootScope.repoName,
+        this.ThResultSetStore,
+        this.thNotify,
+      );
+
       this.unPinAll();
     }
   }
@@ -351,6 +341,15 @@ export default class PinBoard extends React.Component {
   viewJob(job) {
     this.$rootScope.selectedJob = job;
     this.$rootScope.$emit(thEvents.jobClick, job);
+  }
+
+  retriggerAllPinnedJobs() {
+    JobModel.retrigger(
+      Object.keys(this.props.pinnedJobs),
+      this.$rootScope.repoName,
+      this.ThResultSetStore,
+      this.thNotify,
+    );
   }
 
   render() {

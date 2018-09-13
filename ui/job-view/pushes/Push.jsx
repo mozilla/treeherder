@@ -145,9 +145,11 @@ export default class Push extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>
         <PushHeader
+          push={push}
           pushId={id}
           pushTimestamp={push_timestamp}
           author={author}
