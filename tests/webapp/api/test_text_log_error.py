@@ -6,6 +6,7 @@ from tests.autoclassify.utils import (create_failure_lines,
 from treeherder.model.models import (BugJobMap,
                                      Bugscache,
                                      ClassifiedFailure,
+                                     FailureClassification,
                                      FailureLine,
                                      Job,
                                      JobNote,
@@ -183,8 +184,11 @@ def test_update_error_line_mark_job_with_auto_note(client,
 
     client.force_authenticate(user=test_user)
 
+    INTERMITTENT = FailureClassification.objects.get(name="intermittent")
+    AUTOCLASSIFIED_INTERMITTENT = FailureClassification.objects.get(name="autoclassified intermittent")
+
     JobNote.objects.create(job=test_job,
-                           failure_classification_id=7,
+                           failure_classification=AUTOCLASSIFIED_INTERMITTENT,
                            text="note")
 
     for text_log_error in text_log_errors:
@@ -200,11 +204,11 @@ def test_update_error_line_mark_job_with_auto_note(client,
     notes = JobNote.objects.filter(job=test_job).order_by('-created')
     assert notes.count() == 2
 
-    assert notes[0].failure_classification.id == 4
+    assert notes[0].failure_classification_id == INTERMITTENT.id
     assert notes[0].user == test_user
     assert notes[0].text == ''
 
-    assert notes[1].failure_classification.id == 7
+    assert notes[1].failure_classification_id == AUTOCLASSIFIED_INTERMITTENT.id
     assert not notes[1].user
     assert notes[1].text == "note"
 
