@@ -1,13 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { slugid } from 'taskcluster-client-web';
 import $ from 'jquery';
-import jsyaml from 'js-yaml';
 
 import { thEvents } from '../../../js/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest } from '../../../helpers/job';
-import taskcluster from '../../../helpers/taskcluster';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -86,7 +83,7 @@ export default class ActionBar extends React.Component {
   }
 
   backfillJob() {
-    const { user, selectedJob, repoName } = this.props;
+    const { user, selectedJob } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -131,44 +128,6 @@ export default class ActionBar extends React.Component {
               });
             }
           }
-
-          // Otherwise we'll figure things out with actions.yml
-          const queue = taskcluster.getQueue();
-          const actionTaskId = slugid();
-
-          // buildUrl is documented at
-          // https://github.com/taskcluster/taskcluster-client-web#construct-urls
-          // It is necessary here because getLatestArtifact assumes it is getting back
-          // JSON as a response due to how the client library is constructed. Since this
-          // result is yml, we'll fetch it manually using $http and can use the url
-          // returned by this method.
-          const url = queue.buildUrl(
-            queue.getLatestArtifact,
-            decisionTaskId,
-            'public/action.yml',
-          );
-          fetch(url).then((resp) => {
-            let action = resp.data;
-            const template = this.$interpolate(action);
-            action = template({
-              action: 'backfill',
-              action_args: `--project=${repoName}' --job=${selectedJob.id}`,
-            });
-
-            const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-            queue.createTask(actionTaskId, task).then(function () {
-              this.thNotify.send(
-                'Request sent to backfill job via actions.yml',
-                'success');
-            }, (e) => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true });
-            });
-          });
         })
       ));
     } else {
