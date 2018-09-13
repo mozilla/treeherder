@@ -6,6 +6,7 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { thEvents } from '../../js/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
+import JobModel from '../../models/job';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -128,21 +129,25 @@ export default class PushHeader extends React.PureComponent {
     }
   }
 
-  async cancelAllJobs() {
-    if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone!. Are you sure?')) {
+  cancelAllJobs() {
+    if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
       const { push, isLoggedIn } = this.props;
+      const jobsCanCancel = push.jobList
+        .filter(({ state }) => state === 'running' || state === 'pending')
+        .map(({ id }) => id);
 
       if (!isLoggedIn) return;
 
-      const result = await (await PushModel.cancelAll(push.id));
-
-      if (!result.ok) {
-        return this.thNotify.send('Failed to cancel all jobs', 'danger', { sticky: true });
-      }
-
       this.thNotify.send(
-        `Request sent to cancel all jobs in push ${push.id}`,
+        'Request sent to cancel all jobs via actions.json',
         'success');
+
+      JobModel.cancel(
+        jobsCanCancel,
+        this.$rootScope.repoName,
+        this.ThResultSetStore,
+        this.thNotify,
+      );
     }
   }
 
