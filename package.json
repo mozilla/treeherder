@@ -45,7 +45,7 @@
     "js-yaml": "3.12.0",
     "json-e": "2.7.0",
     "json-schema-defaults": "0.4.0",
-    "lodash": "4.17.10",
+    "lodash": "4.17.11",
     "metrics-graphics": "2.15.6",
     "moment": "2.22.2",
     "mousetrap": "1.6.2",
