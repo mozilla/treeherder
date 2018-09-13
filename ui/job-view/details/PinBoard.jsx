@@ -198,10 +198,6 @@ export default class PinBoard extends React.Component {
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
-      this.thNotify.send(
-        'Request sent to cancel all pinned jobs via actions.json',
-        'success');
-
       JobModel.cancel(
         jobIds,
         this.$rootScope.repoName,
@@ -348,10 +344,6 @@ export default class PinBoard extends React.Component {
   }
 
   retriggerAllPinnedJobs() {
-    this.thNotify.send(
-      'Request sent to retrigger all pinned jobs via actions.json',
-      'success');
-
     JobModel.retrigger(
       Object.keys(this.props.pinnedJobs),
       this.$rootScope.repoName,

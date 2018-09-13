@@ -138,10 +138,6 @@ export default class PushHeader extends React.PureComponent {
 
       if (!isLoggedIn) return;
 
-      this.thNotify.send(
-        'Request sent to cancel all jobs via actions.json',
-        'success');
-
       JobModel.cancel(
         jobsCanCancel,
         this.$rootScope.repoName,
