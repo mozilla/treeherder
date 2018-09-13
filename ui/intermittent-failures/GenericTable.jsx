@@ -79,6 +79,7 @@ class GenericTable extends React.Component {
         columns={columns}
         className="-striped"
         getTrProps={trStyling ? this.bugRowStyling : () => ({})}
+        showPaginationTop
       />
     );
   }
