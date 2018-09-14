@@ -98,7 +98,6 @@ export default class PinBoard extends React.Component {
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
         this.$rootScope.$emit(thEvents.jobsClassified, { jobs: [...jobs] });
         this.unPinAll();
-        this.completeClassification();
         this.setState({
           failureClassificationId: 4,
           failureClassificationComment: '',
@@ -111,7 +110,7 @@ export default class PinBoard extends React.Component {
       // want to accept keyboard input after this change for some
       // reason which I don't understand. Chrome (any platform)
       // or Firefox on Mac works fine though.
-      document.activeElement.blur();
+      document.getElementById('keyboard-shortcuts').focus();
     }
   }
 
@@ -283,7 +282,7 @@ export default class PinBoard extends React.Component {
     this.setState({
       enteringBugNumber: tf,
     }, () => {
-      $('#related-bug-input').focus();
+      document.getElementById('related-bug-input').focus();
     });
 
     // document.off('click', this.handleRelatedBugDocumentClick);
@@ -303,10 +302,6 @@ export default class PinBoard extends React.Component {
         $(document).on('click', this.handleRelatedBugDocumentClick);
       }, 0);
     }
-  }
-
-  completeClassification() {
-    this.$rootScope.$broadcast('blur-this', 'classification-comment');
   }
 
   isNumber(text) {

@@ -16,6 +16,7 @@ import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import PushList from './pushes/PushList';
+import KeyboardShortcuts from './KeyboardShortcuts';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -229,7 +230,11 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <div className="d-flex flex-column h-100">
+      <KeyboardShortcuts
+        filterModel={filterModel}
+        selectedJob={selectedJob}
+        $injector={$injector}
+      >
         <PrimaryNavBar
           repos={repos}
           updateButtonClick={this.updateButtonClick}
@@ -282,7 +287,7 @@ class JobView extends React.Component {
             $injector={$injector}
           />
         </SplitPane>
-      </div>
+      </KeyboardShortcuts>
     );
   }
 }

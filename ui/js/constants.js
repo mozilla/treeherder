@@ -276,7 +276,6 @@ export const thEvents = {
   duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
   showRunnableJobs: 'show-runnable-jobs-EVT',
   deleteRunnableJobs: 'delete-runnable-jobs-EVT',
-  toggleUnclassifiedFailures: 'toggle-unclassified-failures-EVT',
   changeSelection: 'next-previous-job-EVT',
   addRelatedBug: 'add-related-bug-EVT',
   saveClassification: 'save-classification-EVT',
