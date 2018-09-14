@@ -22,6 +22,7 @@ export default class FilterModel {
     this.setOnlySuperseded = this.setOnlySuperseded.bind(this);
     this.clearNonStatusFilters = this.clearNonStatusFilters.bind(this);
     this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(this);
+    this.toggleInProgress = this.toggleInProgress.bind(this);
   }
 
   static getUrlParamsWithDefaults() {

@@ -1,19 +1,6 @@
 import treeherder from '../../treeherder';
 import thNotificationsBoxTemplate from '../../../partials/main/thNotificationsBox.html';
 
-// Directive blurThis which removes focus from a specific element
-treeherder.directive('blurThis', ['$timeout', function ($timeout) {
-    return function (scope, elem, attr) {
-        scope.$on('blur-this', function (event, id) {
-            if (attr.id === id) {
-                $timeout(function () {
-                    elem[0].blur();
-                }, 0);
-            }
-        });
-    };
-}]);
-
 // Allow copy to system clipboard during hover
 treeherder.directive('copyValue', [
     function () {

@@ -91,7 +91,7 @@ export default class SecondaryNavBar extends React.Component {
       } else {
         filterModel.removeFilter('searchStr');
       }
-      ev.target.blur();
+      ev.target.parentElement.focus();
     }
   }
 
@@ -206,6 +206,7 @@ export default class SecondaryNavBar extends React.Component {
       <div
         id="watched-repo-navbar"
         className="th-context-navbar navbar-dark watched-repo-navbar"
+        tabIndex={-1}
       >
         <span className="justify-content-between w-100 d-flex flex-wrap">
           <span className="d-flex push-left watched-repos">
@@ -307,6 +308,7 @@ export default class SecondaryNavBar extends React.Component {
             <span
               id="quick-filter-parent"
               className="form-group form-inline"
+              tabIndex={-1}
             >
               <input
                 id="quick-filter"
