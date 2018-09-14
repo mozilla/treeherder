@@ -31,7 +31,7 @@ export default class FilterModel {
     // Also remove usage of the 'filter-' prefix.
     const groupedValues = [...getAllUrlParams().entries()].reduce((acc, [urlField, urlValue]) => {
       const field = urlField.replace(deprecated_thFilterPrefix, '');
-      const value = urlValue.toLowerCase().split(/,| /);
+      const value = field === 'author' ? [urlValue] : urlValue.toLowerCase().split(/,| /);
 
       return field in acc ?
         { ...acc, [field]: [...acc[field], ...value] } :

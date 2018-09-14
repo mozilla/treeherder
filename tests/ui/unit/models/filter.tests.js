@@ -78,5 +78,18 @@ describe('FilterModel', () => {
         searchStr: ['linux', 'x64', 'debug', 'build-linux64-base-toolchains/debug', '(bb)'],
       });
     });
+
+    it('should preserve the case in email addresses', () => {
+      location.hash = '?repo=mozilla-inbound&author=VYV03354@nifty.ne.jp';
+      const urlParams = FilterModel.getUrlParamsWithDefaults();
+
+      expect(urlParams).toEqual({
+        repo: ['mozilla-inbound'],
+        resultStatus: ['testfailed', 'busted', 'exception', 'success', 'retry', 'usercancel', 'running', 'pending', 'runnable'],
+        classifiedState: ['classified', 'unclassified'],
+        tier: ['1', '2'],
+        author: ['VYV03354@nifty.ne.jp'],
+      });
+    });
   });
 });
