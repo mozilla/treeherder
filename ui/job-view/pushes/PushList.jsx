@@ -329,7 +329,7 @@ export default class PushList extends React.Component {
   render() {
     const { $injector, user, repoName, revision, currentRepo, filterModel } = this.props;
     const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
-    const { isLoggedIn, isStaff } = user;
+    const { isLoggedIn } = user;
 
     return (
       <div>
@@ -344,7 +344,6 @@ export default class PushList extends React.Component {
               push={push}
               isLoggedIn={isLoggedIn || false}
               currentRepo={currentRepo}
-              isStaff={isStaff}
               repoName={repoName}
               filterModel={filterModel}
               $injector={$injector}

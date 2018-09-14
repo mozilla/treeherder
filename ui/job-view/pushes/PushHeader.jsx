@@ -157,7 +157,7 @@ export default class PushHeader extends React.PureComponent {
   }
 
   render() {
-    const { repoName, isLoggedIn, pushId, isStaff, jobCounts, author,
+    const { repoName, isLoggedIn, pushId, jobCounts, author,
             revision, runnableVisible, $injector, watchState,
             showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState,
             notificationSupported } = this.props;
@@ -241,7 +241,6 @@ export default class PushHeader extends React.PureComponent {
             }
             <PushActionMenu
               isLoggedIn={isLoggedIn}
-              isStaff={isStaff || false}
               runnableVisible={runnableVisible}
               revision={revision}
               repoName={repoName}
@@ -271,7 +270,6 @@ PushHeader.propTypes = {
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  isStaff: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
