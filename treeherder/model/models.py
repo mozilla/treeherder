@@ -22,6 +22,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from six import iteritems
 
+from treeherder.webapp.api.utils import REPO_GROUPS
+
 from ..services.elasticsearch import (bulk,
                                       index)
 from ..utils.queryset import chunked_qs
@@ -31,6 +33,23 @@ logger = logging.getLogger(__name__)
 # MySQL Full Text Search operators, based on:
 # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
 mysql_fts_operators_re = re.compile(r'[-+@<>()~*"]')
+
+
+class FailuresQuerySet(models.QuerySet):
+    def by_bug(self, bug_id):
+        return self.filter(bug_id=int(bug_id))
+
+    def by_date(self, startday, endday):
+        return self.select_related('push', 'job').filter(job__push__time__range=(startday, endday))
+
+    def by_repo(self, name, bugjobmap=True):
+        if name in REPO_GROUPS:
+            repo = REPO_GROUPS[name]
+            return self.filter(job__repository_id__in=repo) if bugjobmap else self.filter(repository_id__in=repo)
+        elif name == 'all':
+            return self
+        else:
+            return self.filter(job__repository__name=name) if bugjobmap else self.filter(repository__name=name)
 
 
 @python_2_unicode_compatible
@@ -116,6 +135,9 @@ class Push(models.Model):
     revision = models.CharField(max_length=40)
     author = models.CharField(max_length=150)
     time = models.DateTimeField(db_index=True)
+
+    failures = FailuresQuerySet.as_manager()
+    objects = models.Manager()
 
     class Meta:
         db_table = 'push'
@@ -449,6 +471,7 @@ class Job(models.Model):
     """
     This class represents a build or test job in Treeherder
     """
+    failures = FailuresQuerySet.as_manager()
     objects = JobManager()
 
     id = models.BigAutoField(primary_key=True)
@@ -710,18 +733,6 @@ class JobLog(models.Model):
     def update_status(self, status):
         self.status = status
         self.save(update_fields=['status'])
-
-
-class FailuresQuerySet(models.QuerySet):
-    def default(self, repo, startday, endday):
-        return self.select_related('push', 'job').filter(
-               job__repository_id__in=repo, job__push__time__range=(startday, endday))
-
-    def by_bug(self, bug_id):
-        return self.filter(bug_id=int(bug_id))
-
-    def by_date(self, startday, endday):
-        return self.select_related('push', 'job').filter(job__push__time__range=(startday, endday))
 
 
 class BugJobMap(models.Model):
