@@ -373,6 +373,7 @@ class ErrorParser(ParserBase):
         r"|.*\.js: line \d+, col \d+, Error -"
         r"|^\[taskcluster\] Error:"
         r"|^\[[\w._-]+:(?:error|exception)\]"
+        r"|thread '.*' panicked"
     ))
 
     RE_ERR_SEARCH = re.compile((
