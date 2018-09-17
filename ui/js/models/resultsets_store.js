@@ -792,8 +792,10 @@ treeherder.factory('ThResultSetStore', [
             if (repoData.rsMapOldestTimestamp) {
               // If we have an oldestTimestamp, then this isn't our first fetch,
               // we're fetching more pushes.  We don't want to limit this fetch
-              // by the current ``fromchange`` value.
+              // by the current ``fromchange`` or ``tochange`` value.  Deleting
+              // these params here do not affect the params on the location bar.
               delete options.fromchange;
+              delete options.tochange;
               options.push_timestamp__lte = repoData.rsMapOldestTimestamp;
             }
             return PushModel.getList(options).then(async (resp) => {
