@@ -4,9 +4,10 @@ import Highlighter from 'react-highlight-words';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
+import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 
-export default function BugListItem(props) {
+function BugListItem(props) {
   const {
     bug, suggestion, bugClassName, title, selectedJob, addBug,
   } = props;
@@ -53,3 +54,5 @@ BugListItem.defaultProps = {
   bugClassName: '',
   title: null,
 };
+
+export default withPinnedJobs(BugListItem);

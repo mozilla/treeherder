@@ -9,8 +9,9 @@ import TextLogErrorsModel from '../../../../models/textLogErrors';
 import AutoclassifyToolbar from './AutoclassifyToolbar';
 import ErrorLine from './ErrorLine';
 import ErrorLineData from './ErrorLineModel';
+import { withPinnedJobs } from '../../../context/PinnedJobs';
 
-export default class AutoclassifyTab extends React.Component {
+class AutoclassifyTab extends React.Component {
   constructor(props) {
     super(props);
 
@@ -459,7 +460,7 @@ export default class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { job, autoclassifyStatus, user, $injector, addBug, pinnedJobs } = this.props;
+    const { job, autoclassifyStatus, user, $injector } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -507,8 +508,6 @@ export default class AutoclassifyTab extends React.Component {
                 errorLine={errorLine}
                 prevErrorLine={errorLines[idx - 1]}
                 canClassify={canClassify}
-                addBug={addBug}
-                pinnedJobs={pinnedJobs}
                 $injector={$injector}
                 isSelected={selectedLineIds.has(errorLine.id)}
                 isEditable={editableLineIds.has(errorLine.id)}
@@ -530,8 +529,6 @@ AutoclassifyTab.propTypes = {
   job: PropTypes.object.isRequired,
   hasLogs: PropTypes.bool.isRequired,
   pinJob: PropTypes.func.isRequired,
-  addBug: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
   autoclassifyStatus: PropTypes.string,
   logsParsed: PropTypes.bool,
   logParseStatus: PropTypes.string,
@@ -542,3 +539,5 @@ AutoclassifyTab.defaultProps = {
   logsParsed: false,
   logParseStatus: 'pending',
 };
+
+export default withPinnedJobs(AutoclassifyTab);

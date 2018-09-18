@@ -7,6 +7,7 @@ import { thEvents } from '../../js/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
+import { withPinnedJobs } from '../context/PinnedJobs';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -58,7 +59,7 @@ PushCounts.propTypes = {
   completed: PropTypes.number.isRequired,
 };
 
-export default class PushHeader extends React.PureComponent {
+class PushHeader extends React.PureComponent {
   constructor(props) {
     super(props);
     const { $injector, pushTimestamp } = this.props;
@@ -68,9 +69,6 @@ export default class PushHeader extends React.PureComponent {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushDateStr = toDateStr(pushTimestamp);
-
-    this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
-    this.cancelAllJobs = this.cancelAllJobs.bind(this);
 
     this.state = {
       runnableJobsSelected: false,
@@ -87,6 +85,11 @@ export default class PushHeader extends React.PureComponent {
         }
       },
     );
+  }
+
+  componentDidMount() {
+    this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
+    this.cancelAllJobs = this.cancelAllJobs.bind(this);
   }
 
   componentWillUnmount() {
@@ -148,12 +151,10 @@ export default class PushHeader extends React.PureComponent {
   }
 
   pinAllShownJobs() {
+    const { pinJobs } = this.props;
     const shownJobs = this.ThResultSetStore.getAllShownJobs(this.props.pushId);
-    this.$rootScope.$emit(thEvents.pinJobs, shownJobs);
 
-    if (!this.$rootScope.selectedJob) {
-      this.$rootScope.$emit(thEvents.jobClick, shownJobs[0]);
-    }
+    pinJobs(shownJobs);
   }
 
   render() {
@@ -270,6 +271,7 @@ PushHeader.propTypes = {
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
+  pinJobs: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
@@ -279,3 +281,5 @@ PushHeader.defaultProps = {
   jobCounts: null,
   watchState: 'none',
 };
+
+export default withPinnedJobs(PushHeader);
