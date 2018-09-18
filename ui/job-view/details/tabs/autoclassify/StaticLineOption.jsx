@@ -4,11 +4,12 @@ import Highlighter from 'react-highlight-words';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
+import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 /**
  * Non-editable best option
  */
-export default function StaticLineOption(props) {
+function StaticLineOption(props) {
   const {
     job, canClassify, errorLine, option, numOptions, setEditable, ignoreAlways,
     manualBugNumber, pinnedJobs, addBug,
@@ -91,3 +92,5 @@ StaticLineOption.propTypes = {
 StaticLineOption.defaultProps = {
   manualBugNumber: undefined,
 };
+
+export default withPinnedJobs(StaticLineOption);

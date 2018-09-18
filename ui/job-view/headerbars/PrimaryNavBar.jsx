@@ -13,8 +13,8 @@ import SecondaryNavBar from './SecondaryNavBar';
 
 export default function PrimaryNavBar(props) {
   const {
-    user, setUser, repos, pinJobs, updateButtonClick, serverChanged,
-    filterModel, $injector, setCurrentRepoTreeStatus,
+    user, setUser, repos, updateButtonClick, serverChanged,
+    filterModel, $injector, setCurrentRepoTreeStatus, resultSetStore,
   } = props;
 
   return (
@@ -31,8 +31,8 @@ export default function PrimaryNavBar(props) {
                 filterModel={filterModel}
               />
               <FiltersMenu
-                pinJobs={pinJobs}
                 filterModel={filterModel}
+                resultSetStore={resultSetStore}
               />
               <HelpMenu />
               <Login
@@ -61,9 +61,9 @@ PrimaryNavBar.propTypes = {
   filterModel: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
-  pinJobs: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
   setUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
+  resultSetStore: PropTypes.object.isRequired,
 };

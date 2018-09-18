@@ -22,9 +22,6 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.repoName = thDefaultRepo;
         }
 
-        // TODO: Remove this when pinnedJobs is converted to a model or Context
-        $rootScope.countPinnedJobs = () => 0;
-
         const getSingleRevisionTitleString = function () {
             let revisions = [];
             let percentComplete;
