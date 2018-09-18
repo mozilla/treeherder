@@ -10,8 +10,9 @@ import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
+import { withPinnedJobs } from '../context/PinnedJobs';
 
-export default class PinBoard extends React.Component {
+class PinBoard extends React.Component {
   constructor(props) {
     super(props);
 
@@ -37,18 +38,12 @@ export default class PinBoard extends React.Component {
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
     this.pasteSHA = this.pasteSHA.bind(this);
 
-    this.addRelatedBugUnlisten = this.$rootScope.$on(thEvents.addRelatedBug, (event, job) => {
-      this.props.pinJob(job);
-      this.toggleEnterBugNumber(true);
-    });
-
     this.saveClassificationUnlisten = this.$rootScope.$on(thEvents.saveClassification, () => {
       this.save();
     });
   }
 
   componentWillUnmount() {
-    this.addRelatedBugUnlisten();
     this.saveClassificationUnlisten();
   }
 
@@ -347,7 +342,7 @@ export default class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJob, revisionList, isLoggedIn, isVisible, classificationTypes,
+      selectedJob, revisionList, isLoggedIn, isPinBoardVisible, classificationTypes,
       pinnedJobs, pinnedJobBugs, removeBug, unPinJob,
     } = this.props;
     const {
@@ -359,7 +354,7 @@ export default class PinBoard extends React.Component {
     return (
       <div
         id="pinboard-panel"
-        className={isVisible ? '' : 'hidden'}
+        className={isPinBoardVisible ? '' : 'hidden'}
       >
         <div id="pinboard-contents">
           <div id="pinned-job-list">
@@ -389,6 +384,7 @@ export default class PinBoard extends React.Component {
           <div id="pinboard-related-bugs">
             <div className="content">
               <span
+                id="add-related-bug-button"
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 className="pointable"
                 title="Add a related bug"
@@ -541,13 +537,12 @@ PinBoard.propTypes = {
   $injector: PropTypes.object.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  isVisible: PropTypes.bool.isRequired,
+  isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
   pinnedJobBugs: PropTypes.object.isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
-  pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
@@ -559,3 +554,5 @@ PinBoard.defaultProps = {
   email: null,
   revisionList: [],
 };
+
+export default withPinnedJobs(PinBoard);
