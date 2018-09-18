@@ -188,8 +188,7 @@ export default class SecondaryNavBar extends React.Component {
 
   render() {
     const {
-      updateButtonClick, serverChanged, $injector, setCurrentRepoTreeStatus,
-      repos,
+      updateButtonClick, serverChanged, setCurrentRepoTreeStatus, repos,
     } = this.props;
     const {
       watchedRepoNames, groupsExpanded, showDuplicateJobs, searchQueryStr,
@@ -219,7 +218,6 @@ export default class SecondaryNavBar extends React.Component {
                 <WatchedRepo
                   repo={watchedRepo}
                   repoName={repoName}
-                  $injector={$injector}
                   unwatchRepo={this.unwatchRepo}
                   setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
                 />

@@ -6,10 +6,6 @@ import { getUrlParam } from '../../helpers/location';
 export default class JobButtonComponent extends React.Component {
   constructor(props) {
     super(props);
-    const { $injector } = this.props;
-
-    this.$rootScope = $injector.get('$rootScope');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.state = {
       isSelected: false,
@@ -128,7 +124,6 @@ export default class JobButtonComponent extends React.Component {
 
 JobButtonComponent.propTypes = {
   job: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,

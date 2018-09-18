@@ -105,6 +105,7 @@ export default class PushJobs extends React.Component {
 
   onMouseDown(ev) {
     const jobElem = ev.target.attributes.getNamedItem('data-job-id');
+
     if (jobElem) {
       const jobId = jobElem.value;
       const job = this.getJobFromId(jobId);
