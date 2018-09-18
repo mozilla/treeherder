@@ -3,18 +3,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
-import Push from './Push';
+import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
+import { reloadOnChangeParameters } from '../../helpers/filter';
 import {
   findInstance,
   findSelectedInstance,
   findJobInstance,
   scrollToElement,
 } from '../../helpers/job';
-import PushLoadErrors from './PushLoadErrors';
-import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
-import ErrorBoundary from '../../shared/ErrorBoundary';
 import {
   getAllUrlParams,
   getQueryString,
@@ -23,10 +21,11 @@ import {
   setUrlParam,
 } from '../../helpers/location';
 import { parseQueryParams } from '../../helpers/url';
-import { reloadOnChangeParameters } from '../../helpers/filter';
+import ErrorBoundary from '../../shared/ErrorBoundary';
+import Push from './Push';
+import PushLoadErrors from './PushLoadErrors';
 
 export default class PushList extends React.Component {
-
   constructor(props) {
     super(props);
     const { $injector, repoName } = this.props;

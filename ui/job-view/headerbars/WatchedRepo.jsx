@@ -43,9 +43,6 @@ export default class WatchedRepo extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       status: 'not retrieved yet',
       reason: '',
@@ -186,7 +183,6 @@ export default class WatchedRepo extends React.Component {
 }
 
 WatchedRepo.propTypes = {
-  $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   unwatchRepo: PropTypes.func.isRequired,
   repo: PropTypes.object.isRequired,
