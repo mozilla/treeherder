@@ -240,10 +240,6 @@ export const thJobNavSelectors = {
   },
 };
 
-export const thPinboardCountError = 'Max pinboard size of 500 reached.';
-
-export const thPinboardMaxSize = 500;
-
 export const thPerformanceBranches = ['autoland', 'mozilla-inbound'];
 
 /**
@@ -254,12 +250,6 @@ export const thEvents = {
   jobClick: 'job-click-EVT',
   // fired with a selected job on 't'
   selectNextTab: 'select-next-tab-EVT',
-  // fired with a selected job on spacebar
-  jobPin: 'job-pin-EVT',
-  // fired with a selected job on ctrl/cmd-click
-  toggleJobPin: 'job-togglepin-EVT',
-  // fired with api call to increment the pinned jobs
-  pulsePinCount: 'pulse-pin-count-EVT',
   // fired with a selected job on 'r'
   jobRetrigger: 'job-retrigger-EVT',
   // fired when jobs are classified locally
@@ -277,11 +267,8 @@ export const thEvents = {
   showRunnableJobs: 'show-runnable-jobs-EVT',
   deleteRunnableJobs: 'delete-runnable-jobs-EVT',
   changeSelection: 'next-previous-job-EVT',
-  addRelatedBug: 'add-related-bug-EVT',
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
-  clearPinboard: 'clear-pinboard-EVT',
-  pinJobs: 'pin-jobs-EVT',
   selectJob: 'select-job-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
   openLogviewer: 'open-logviewer-EVT',

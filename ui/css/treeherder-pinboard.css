@@ -13,7 +13,7 @@
   font-size: 12px;
 }
 
-.pin-count-group {
+#pin-count-group {
   display: inline-block;
   position: relative;
   top: -14px;
