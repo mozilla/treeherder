@@ -301,8 +301,8 @@ perf.controller('CompareResultsCtrl', [
                                                    originalSeriesList,
                                                    { push_id: resultSetIds });
                 }).then((resultMaps) => {
-                    const originalResultsMap = resultMaps[$scope.originalResultSet.id];
-                    const newResultsMap = resultMaps[$scope.newResultSet.id];
+                    const originalResultsMap = resultMaps[$scope.originalResultSet.id] || {};
+                    const newResultsMap = resultMaps[$scope.newResultSet.id] || {};
 
                     // Optimization - we collected all data in a single pass
                     if (newResultsMap) {
@@ -329,7 +329,7 @@ perf.controller('CompareResultsCtrl', [
                                                        { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
                         $scope.dataLoading = false;
-                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id]);
+                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id] || {});
                     });
                 });
             } else {
