@@ -1,7 +1,5 @@
 WHITEBOARD_NEEDSWORK_OWNER = '[stockwell needswork:owner]'
 
-TRIAGE_PARAMS = {'include_fields': 'product, component, priority, whiteboard'}
-
 COMPONENTS = [
     ['Core', 'Canvas: 2D'],
     ['Core', 'Canvas: WebGL'],

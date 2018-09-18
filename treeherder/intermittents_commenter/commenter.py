@@ -17,11 +17,9 @@ from requests.exceptions import RequestException
 from six import iteritems
 
 from treeherder.intermittents_commenter.constants import (COMPONENTS,
-                                                          TRIAGE_PARAMS,
                                                           WHITEBOARD_NEEDSWORK_OWNER)
 from treeherder.model.models import (BugJobMap,
                                      Push)
-from treeherder.webapp.api.utils import get_repository
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +47,12 @@ class Commenter(object):
            the appropriate threshold) and potentially an updated whiteboard
            or priority status."""
 
-        bug_stats = self.get_bug_stats(startday, endday)
-        alt_bug_stats = self.get_bug_stats(alt_startday, alt_endday)
+        bug_stats, bug_ids = self.get_bug_stats(startday, endday)
+        alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
         test_run_count = self.get_test_runs(startday, endday)
+
+        # if fetch_bug_details fails, None is returned
+        bug_info = self.fetch_all_bug_details(bug_ids)
 
         all_bug_changes = []
         template = Template(self.open_file('comment.template', False))
@@ -62,46 +63,29 @@ class Commenter(object):
 
         for bug_id, counts in iteritems(bug_stats):
             change_priority = None
-            bug_info = None
             change_whiteboard = None
             priority = 0
-            rank = None
+            rank = top_bugs.index(bug_id)+1 if self.weekly_mode and bug_id in top_bugs else None
 
-            if self.weekly_mode:
-                priority = self.assign_priority(counts)
-                if priority == 2:
-                    bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
-                    # if fetch_bug_details fails, None is returned
+            if bug_info and bug_id in bug_info:
+                if self.weekly_mode:
+                    priority = self.assign_priority(counts)
+                    if priority == 2:
+                        change_priority, change_whiteboard = self.check_needswork_owner(bug_info[bug_id])
 
-                    if bug_info:
-                        change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
+                    # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
+                    # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
+                    if (counts['total'] < 20):
+                        change_whiteboard = self.check_needswork(bug_info[bug_id]['whiteboard'])
 
-                # change [stockwell needswork] to [stockwell unknown] when failures drop below 20 failures/week
-                # if this block is true, it implies a priority of 0 (mutually exclusive to previous block)
-                if (counts['total'] < 20):
-                    bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
-                    # if fetch_bug_details fails, None is returned
+                else:
+                    change_priority, change_whiteboard = self.check_needswork_owner(bug_info[bug_id])
 
-                    if bug_info:
-                        change_whiteboard = self.check_needswork(bug_info['whiteboard'])
-
-                if bug_id in top_bugs:
-                    rank = top_bugs.index(bug_id)+1
-            else:
-                bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
-                # if fetch_bug_details fails, None is returned
-                if bug_info:
-                    change_priority, change_whiteboard = self.check_needswork_owner(bug_info)
-
-            # recommend disabling when more than 150 failures tracked over 21 days and
-            # takes precedence over any prevous change_whiteboard assignments
-            if alt_bug_stats[bug_id]['total'] >= 150:
-                bug_info = self.fetch_bug_details(TRIAGE_PARAMS, bug_id) if not bug_info else bug_info
-                # if fetch_bug_details fails, None is returned
-
-                if bug_info and not self.check_whiteboard_status(bug_info['whiteboard']):
+                # recommend disabling when more than 150 failures tracked over 21 days and
+                # takes precedence over any prevous change_whiteboard assignments
+                if (bug_id in alt_date_bug_totals and not self.check_whiteboard_status(bug_info[bug_id]['whiteboard'])):
                     priority = 3
-                    change_whiteboard = self.update_whiteboard(bug_info['whiteboard'], '[stockwell disable-recommended]')
+                    change_whiteboard = self.update_whiteboard(bug_info[bug_id]['whiteboard'], '[stockwell disable-recommended]')
 
             comment = template.render(bug_id=bug_id,
                                       total=counts['total'],
@@ -229,32 +213,30 @@ class Commenter(object):
         }
         return session
 
-    def create_url(self, bug_id):
-        return settings.BZ_API_URL + '/rest/bug/' + str(bug_id)
-
-    def fetch_bug_details(self, params, bug_id):
+    def fetch_bug_details(self, bug_ids):
         """Fetches bug metadata from bugzilla and returns an encoded
            dict if successful, otherwise returns None."""
 
+        params = {'include_fields': 'product, component, priority, whiteboard, id'}
+        params['id'] = bug_ids
         try:
-            response = self.session.get(self.create_url(bug_id), headers=self.session.headers, params=params,
-                                        timeout=30)
+            response = self.session.get(settings.BZ_API_URL + '/rest/bug', headers=self.session.headers,
+                                        params=params, timeout=30)
             response.raise_for_status()
         except RequestException as e:
-            logger.warning('error fetching bugzilla metadata for bug {} due to {}'.format(bug_id, e))
+            logger.warning('error fetching bugzilla metadata for bugs due to {}'.format(e))
             return None
 
-        # slow down: bmo server may refuse service if too many requests made too frequently
-        time.sleep(0.5)
         data = response.json()
         if 'bugs' not in data:
             return None
 
-        return {key.encode('UTF8'): value.encode('UTF8') for key, value in iteritems(data['bugs'][0])}
+        return data['bugs']
 
     def submit_bug_changes(self, changes, bug_id):
+        url = '{}/rest/bug/{}'.format(settings.BZ_API_URL, str(bug_id))
         try:
-            response = self.session.put(self.create_url(bug_id), headers=self.session.headers, json=changes,
+            response = self.session.put(url, headers=self.session.headers, json=changes,
                                         timeout=30)
             response.raise_for_status()
         except RequestException as e:
@@ -264,9 +246,7 @@ class Commenter(object):
         """Returns an aggregate of pushes for specified date range and
            repository."""
 
-        test_runs = (Push.objects.filter(repository_id__in=get_repository('all'),
-                                         time__range=(startday, endday))
-                                 .aggregate(Count('author')))
+        test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count('author'))
         return test_runs['author__count']
 
     def get_bug_stats(self, startday, endday):
@@ -291,7 +271,14 @@ class Commenter(object):
         """
         # Min required failures per bug in order to post a comment
         threshold = 1 if self.weekly_mode else 15
-        bugs = (BugJobMap.failures.default(get_repository('all'), startday, endday)
+        bug_ids = (BugJobMap.failures.by_date(startday, endday)
+                                     .values('bug_id')
+                                     .annotate(total=Count('bug_id'))
+                                     .filter(total__gte=threshold)
+                                     .values_list('bug_id', flat=True))
+
+        bugs = (BugJobMap.failures.by_date(startday, endday)
+                                  .filter(bug_id__in=bug_ids)
                                   .values('job__repository__name', 'job__machine_platform__platform',
                                           'bug_id'))
 
@@ -310,4 +297,32 @@ class Commenter(object):
                 bug_map[bug_id]['per_platform'] = Counter([platform])
                 bug_map[bug_id]['per_repository'] = Counter([repo])
 
-        return {key: value for key, value in iteritems(bug_map) if value['total'] >= threshold}
+        return bug_map, bug_ids
+
+    def get_alt_date_bug_totals(self, startday, endday, bug_ids):
+        """use previously fetched bug_ids to check for total failures
+           exceeding 150 in 21 days"""
+        bugs = (BugJobMap.failures.by_date(startday, endday)
+                                  .filter(bug_id__in=bug_ids)
+                                  .values('bug_id')
+                                  .annotate(total=Count('id'))
+                                  .values('bug_id', 'total'))
+
+        return {bug['bug_id']: bug['total'] for bug in bugs if bug['total'] >= 150}
+
+    def fetch_all_bug_details(self, bug_ids):
+        """batch requests for bugzilla data in groups of 1200 (which is the safe
+           limit for not hitting the max url length)"""
+        min = 0
+        max = 1200
+        bugs_list = []
+        bug_ids_length = len(bug_ids)
+
+        while bug_ids_length >= min:
+            data = self.fetch_bug_details(bug_ids[min:max])
+            if data:
+                bugs_list += data
+            min = max
+            max = max + 1200
+
+        return {bug['id']: bug for bug in bugs_list} if len(bugs_list) else None
