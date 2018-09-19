@@ -11,8 +11,8 @@ from treeherder.model.models import (BugJobMap,
     (True, False),
     (False, False),
     (False, True)])
-def test_create_bug_job_map(client, test_job, mock_message_broker,
-                            test_user, test_no_auth, test_duplicate_handling, bugs):
+def test_create_bug_job_map(client, test_job, test_user, bugs,
+                            test_no_auth, test_duplicate_handling):
     """
     test creating a single note via endpoint
     """

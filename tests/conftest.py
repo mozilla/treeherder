@@ -215,43 +215,6 @@ def push_stored(test_repository, sample_push):
 
 
 @pytest.fixture
-def mock_message_broker(monkeypatch):
-    monkeypatch.setattr(settings, 'BROKER_URL', 'memory://')
-
-
-@pytest.fixture
-def push_with_three_jobs(sample_data, sample_push, test_repository):
-    """
-    Stores a number of jobs in the same push.
-    """
-    num_jobs = 3
-    push = sample_push[0]
-    jobs = copy.deepcopy(sample_data.job_data[0:num_jobs])
-
-    # Only store data for the first push....
-    store_push_data(test_repository, [push])
-
-    blobs = []
-    for blob in jobs:
-        # Modify job structure to sync with the push sample data
-        if 'sources' in blob:
-            del blob['sources']
-
-        # Skip log references since they do not work correctly in pending state.
-        if 'log_references' in blob['job']:
-            del blob['job']['log_references']
-
-        blob['revision'] = push['revision']
-        blob['job']['state'] = 'pending'
-        blobs.append(blob)
-
-    # Store and process the jobs so they are present in the tables.
-    store_job_data(test_repository, blobs)
-    return Push.objects.get(repository=test_repository,
-                            revision=push['revision'])
-
-
-@pytest.fixture
 def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser):
     store_push_data(test_repository, sample_push)
 
@@ -350,38 +313,6 @@ def pulse_connection():
     explained in: https://bugzilla.mozilla.org/show_bug.cgi?id=1484196
     """
     return kombu.Connection(settings.BROKER_URL)
-
-
-def pulse_consumer(connection, exchange, request):
-    exchange_name = 'exchange/treeherder/v1/{}'.format(exchange)
-
-    exchange = kombu.Exchange(
-        name=exchange_name,
-        type='topic'
-    )
-
-    queue = kombu.Queue(
-        no_ack=True,
-        exchange=exchange,  # Exchange name
-        routing_key='#',  # Bind to all messages
-        auto_delete=True,  # Delete after each test
-        exclusive=False)  # Disallow multiple consumers
-
-    simpleQueue = connection.SimpleQueue(
-        name=queue,
-        channel=connection,
-        no_ack=True)
-
-    def fin():
-        connection.release()
-
-    request.addfinalizer(fin)
-    return simpleQueue
-
-
-@pytest.fixture
-def pulse_action_consumer(pulse_connection, request):
-    return pulse_consumer(pulse_connection, 'job-actions', request)
 
 
 @pytest.fixture

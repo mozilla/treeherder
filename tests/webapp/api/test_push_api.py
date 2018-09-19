@@ -7,7 +7,6 @@ from django.urls import reverse
 
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (FailureClassification,
-                                     Job,
                                      JobNote,
                                      Push)
 from treeherder.webapp.api import utils
@@ -409,36 +408,6 @@ def test_push_detail_bad_project(client, test_repository):
                 kwargs={"project": "foo", "pk": bad_pk}),
     )
     assert resp.status_code == 404
-
-
-def test_push_cancel_all(client, failure_classifications,
-                         push_with_three_jobs, pulse_action_consumer,
-                         test_repository, test_user):
-    """
-    Issue cancellation of a push with three unfinished jobs.
-    """
-    client.force_authenticate(user=test_user)
-
-    # Ensure all jobs are pending..
-    for job in Job.objects.all():
-        assert job.state == 'pending'
-
-    url = reverse("push-cancel-all",
-                  kwargs={"project": test_repository.name, "pk": push_with_three_jobs.id})
-    resp = client.post(url)
-    assert resp.status_code == 200
-
-    # Ensure all jobs are cancelled..
-    for job in Job.objects.all():
-        assert job.state == 'completed'
-        assert job.result == 'usercancel'
-
-    for _ in range(0, 3):
-        message = pulse_action_consumer.get(block=True, timeout=2)
-        content = message.payload
-
-        assert content['action'] == 'cancel'
-        assert content['project'] == test_repository.name
 
 
 def test_push_status(client, test_job, test_user):
