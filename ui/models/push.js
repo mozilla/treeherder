@@ -1,7 +1,4 @@
 import { slugid } from 'taskcluster-client-web';
-import template from 'lodash/template';
-import templateSettings from 'lodash/templateSettings';
-import jsyaml from 'js-yaml';
 
 import { thMaxPushFetchSize } from '../js/constants';
 import { getUrlParam } from '../helpers/location';
@@ -85,53 +82,36 @@ export default class PushModel {
   static triggerMissingJobs(decisionTaskId) {
     return TaskclusterModel.load(decisionTaskId).then((results) => {
       const actionTaskId = slugid();
+      const missingTestsTask = results.actions.find(action => action.name === 'run-missing-tests');
 
-      // In this case we have actions.json tasks
-      if (results) {
-        const missingtask = results.actions.find(
-          action => action.name === 'run-missing-tests');
-
-        // We'll fall back to actions.yaml if this isn't true
-        if (missingtask) {
-          return TaskclusterModel.submit({
-            action: missingtask,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: {},
-            staticActionVariables: results.staticActionVariables,
-          }).then(() => `Request sent to trigger missing jobs via actions.json (${actionTaskId})`);
-        }
-      }
+      return TaskclusterModel.submit({
+        action: missingTestsTask,
+        actionTaskId,
+        decisionTaskId,
+        taskId: null,
+        task: null,
+        input: {},
+        staticActionVariables: results.staticActionVariables,
+      }).then(() => `Request sent to trigger missing jobs via actions.json (${actionTaskId})`);
     });
   }
 
   static triggerAllTalosJobs(times, decisionTaskId) {
     return TaskclusterModel.load(decisionTaskId).then((results) => {
       const actionTaskId = slugid();
+      const allTalosTask = results.actions.find(action => action.name === 'run-all-talos');
 
-      // In this case we have actions.json tasks
-      if (results) {
-        const talostask = results.actions.find(
-          action => action.name === 'run-all-talos');
-
-        if (talostask) {
-          return TaskclusterModel.submit({
-            action: talostask,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: { times },
-            staticActionVariables: results.staticActionVariables,
-          }).then(() => (
-            `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`
-          ));
-        }
-      } else {
-        throw Error('Trigger All Talos Jobs no longer supported for this repository.');
-      }
+      return TaskclusterModel.submit({
+        action: allTalosTask,
+        actionTaskId,
+        decisionTaskId,
+        taskId: null,
+        task: null,
+        input: { times },
+        staticActionVariables: results.staticActionVariables,
+      }).then(() => (
+        `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`
+      ));
     });
   }
 
@@ -166,38 +146,17 @@ export default class PushModel {
       }
       return TaskclusterModel.load(decisionTaskId).then((results) => {
         const actionTaskId = slugid();
-        // In this case we have actions.json tasks
-        if (results) {
-          const addjobstask = results.actions.find(action => action.name === 'add-new-jobs');
-          // We'll fall back to actions.yaml if this isn't true
-          if (addjobstask) {
-            return TaskclusterModel.submit({
-              action: addjobstask,
-              actionTaskId,
-              decisionTaskId,
-              taskId: null,
-              task: null,
-              input: { tasks: tclabels },
-              staticActionVariables: results.staticActionVariables,
-            }).then(() => `Request sent to trigger new jobs via actions.json (${actionTaskId})`);
-          }
-        }
+        const addNewJobsTask = results.actions.find(action => action.name === 'add-new-jobs');
 
-        // Otherwise we'll figure things out with actions.yml
-        // TODO: Remove when esr52 is EOL.
-        const url = queue.buildUrl(
-          queue.getLatestArtifact, decisionTaskId, 'public/action.yml');
-
-        return fetch(url).then(resp => resp.text().then((actionTemplate) => {
-          templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-          const compiled = template(actionTemplate);
-          const taskLabels = tclabels.join(',');
-          const action = compiled({ decision_task_id: decisionTaskId, task_labels: taskLabels });
-          const task = taskcluster.refreshTimestamps(jsyaml.safeLoad(action));
-
-          return queue.createTask(actionTaskId, task)
-            .then(() => `Request sent to trigger new jobs via actions.yml (${actionTaskId})`);
-        }));
+        return TaskclusterModel.submit({
+          action: addNewJobsTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: { tasks: tclabels },
+          staticActionVariables: results.staticActionVariables,
+        }).then(() => `Request sent to trigger new jobs via actions.json (${actionTaskId})`);
       });
     }));
   }

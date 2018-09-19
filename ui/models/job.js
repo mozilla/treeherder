@@ -112,7 +112,7 @@ export default class JobModel {
         const job = await JobModel.get(repoName, id);
         const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
         const results = await TaskclusterModel.load(decisionTaskId, job);
-        const retriggerTask = results && results.actions.find(result => result.name === 'retrigger');
+        const retriggerTask = results.actions.find(result => result.name === 'retrigger');
 
         try {
           await TaskclusterModel.submit({
@@ -154,7 +154,7 @@ export default class JobModel {
         const job = await JobModel.get(repoName, id);
         const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
         const results = await TaskclusterModel.load(decisionTaskId, job);
-        const cancelTask = results && results.actions.find(result => result.name === 'cancel');
+        const cancelTask = results.actions.find(result => result.name === 'cancel');
 
         try {
           await TaskclusterModel.submit({

@@ -81,16 +81,8 @@ export default class TaskclusterModel {
 
     let originalTaskId;
     let originalTaskPromise = Promise.resolve(null);
-    if (job) {
-      if (job.taskcluster_metadata) {
-        originalTaskId = job.taskcluster_metadata.task_id;
-      } else {
-        // This is a bbb job in this case. We'll try our best.
-        const match = job.reason.match(/Created by BBB for task (.{22})/);
-        if (match) {
-          originalTaskId = match[1];
-        }
-      }
+    if (job && job.taskcluster_metadata) {
+      originalTaskId = job.taskcluster_metadata.task_id;
       originalTaskPromise = fetch(`https://queue.taskcluster.net/v1/task/${originalTaskId}`)
         .then(async response => response.json());
     }
@@ -102,12 +94,11 @@ export default class TaskclusterModel {
       const jsonData = await response.json();
 
       if (!jsonData) {
-        // This is a push with no actions.json so we should
-        // allow an implementer to fall back to actions.yaml
-        return null;
+        throw Error('Unable to load actions.json');
       }
+
       if (jsonData.version !== 1) {
-        throw Error('Wrong version of actions.json, can\'t continue');
+        throw Error('Wrong version of actions.json, unable to continue');
       }
 
       // The filter in the value of the actions key is an implementation

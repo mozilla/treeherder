@@ -105,28 +105,26 @@ export default class ActionBar extends React.Component {
       this.ThResultSetStore.getGeckoDecisionTaskId(
         selectedJob.result_set_id).then(decisionTaskId => (
         TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
-          if (results) {
-            const backfilltask = results.actions.find(result => result.name === 'backfill');
+          const backfilltask = results.actions.find(result => result.name === 'backfill');
 
-            return TaskclusterModel.submit({
-              action: backfilltask,
-              decisionTaskId,
-              taskId: results.originalTaskId,
-              input: {},
-              staticActionVariables: results.staticActionVariables,
-            }).then(() => {
-              this.thNotify.send(
-                'Request sent to backfill job via actions.json',
-                'success');
-            }, (e) => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              this.thNotify.send(
-                formatTaskclusterError(e),
-                'danger',
-                { sticky: true });
-            });
-          }
+          return TaskclusterModel.submit({
+            action: backfilltask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+          }).then(() => {
+            this.thNotify.send(
+              'Request sent to backfill job via actions.json',
+              'success');
+          }, (e) => {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            this.thNotify.send(
+              formatTaskclusterError(e),
+              'danger',
+              { sticky: true });
+          });
         })
       ));
     } else {
@@ -175,33 +173,30 @@ export default class ActionBar extends React.Component {
     const job = await JobModel.get(repoName, jobId);
     const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
     const results = await TaskclusterModel.load(decisionTaskId, job);
+    const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
 
-    if (results) {
-      const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
+    try {
+      await TaskclusterModel.submit({
+        action: interactiveTask,
+        decisionTaskId,
+        taskId: results.originalTaskId,
+        input: {
+          notify: job.who,
+        },
+        staticActionVariables: results.staticActionVariables,
+      });
 
-      try {
-        await TaskclusterModel.submit({
-          action: interactiveTask,
-          decisionTaskId,
-          taskId: results.originalTaskId,
-          input: {
-            notify: job.who,
-          },
-          staticActionVariables: results.staticActionVariables,
-        });
-
-        this.thNotify.send(
-          `Request sent to create an interactive job via actions.json.
-            You will soon receive an email containing a link to interact with the task.`,
-          'success');
-      } catch (e) {
-        // The full message is too large to fit in a Treeherder
-        // notification box.
-        this.thNotify.send(
-          formatTaskclusterError(e),
-          'danger',
-          { sticky: true });
-      }
+      this.thNotify.send(
+        `Request sent to create an interactive job via actions.json.
+          You will soon receive an email containing a link to interact with the task.`,
+        'success');
+    } catch (e) {
+      // The full message is too large to fit in a Treeherder
+      // notification box.
+      this.thNotify.send(
+        formatTaskclusterError(e),
+        'danger',
+        { sticky: true });
     }
   }
 
