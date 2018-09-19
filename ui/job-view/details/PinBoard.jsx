@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
-import $ from 'jquery';
-import Mousetrap from 'mousetrap';
 
 import { thEvents } from '../../js/constants';
 import { formatModelError } from '../../helpers/errorMessage';
@@ -34,6 +32,7 @@ export default class PinBoard extends React.Component {
     this.bugNumberKeyPress = this.bugNumberKeyPress.bind(this);
     this.save = this.save.bind(this);
     this.handleRelatedBugDocumentClick = this.handleRelatedBugDocumentClick.bind(this);
+    this.handleRelatedBugEscape = this.handleRelatedBugEscape.bind(this);
     this.unPinAll = this.unPinAll.bind(this);
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
     this.pasteSHA = this.pasteSHA.bind(this);
@@ -271,10 +270,15 @@ export default class PinBoard extends React.Component {
   }
 
   handleRelatedBugDocumentClick(event) {
-    if (!$(event.target).hasClass('add-related-bugs-input')) {
+    if (!event.target.classList.contains('add-related-bugs-input')) {
       this.saveEnteredBugNumber();
+      document.removeEventListener('click', this.handleRelatedBugDocumentClick);
+    }
+  }
 
-      $(document).off('click', this.handleRelatedBugDocumentClick);
+  handleRelatedBugEscape(event) {
+    if (event.key === 'Escape') {
+      this.toggleEnterBugNumber(false);
     }
   }
 
@@ -282,26 +286,20 @@ export default class PinBoard extends React.Component {
     this.setState({
       enteringBugNumber: tf,
     }, () => {
-      document.getElementById('related-bug-input').focus();
+      if (tf) {
+        document.getElementById('related-bug-input').focus();
+        // Bind escape to canceling the bug entry.
+        document.addEventListener('keydown', this.handleRelatedBugEscape);
+        // Install a click handler on the document so that clicking
+        // outside of the input field will close it. A blur handler
+        // can't be used because it would have timing issues with the
+        // click handler on the + icon.
+        document.addEventListener('click', this.handleRelatedBugDocumentClick);
+      } else {
+        document.removeEventListener('keydown', this.handleRelatedBugEscape);
+        document.removeEventListener('click', this.handleRelatedBugDocumentClick);
+      }
     });
-
-    // document.off('click', this.handleRelatedBugDocumentClick);
-    if (tf) {
-      // Rebind escape to canceling the bug entry, pressing escape
-      // again will close the pinBoard as usual.
-      Mousetrap.bind('escape', () => {
-        const cancel = this.toggleEnterBugNumber.bind(this, false);
-        cancel();
-      });
-
-      // Install a click handler on the document so that clicking
-      // outside of the input field will close it. A blur handler
-      // can't be used because it would have timing issues with the
-      // click handler on the + icon.
-      window.setTimeout(() => {
-        $(document).on('click', this.handleRelatedBugDocumentClick);
-      }, 0);
-    }
   }
 
   isNumber(text) {
