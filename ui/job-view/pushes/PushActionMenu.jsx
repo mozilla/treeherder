@@ -104,7 +104,7 @@ export default class PushActionMenu extends React.PureComponent {
   }
 
   render() {
-    const { isLoggedIn, isStaff, repoName, revision, runnableVisible,
+    const { isLoggedIn, repoName, revision, runnableVisible,
             hideRunnableJobsCb, showRunnableJobsCb, pushId } = this.props;
     const { topOfRangeUrl, bottomOfRangeUrl, customJobActionsShowing } = this.state;
 
@@ -141,18 +141,18 @@ export default class PushActionMenu extends React.PureComponent {
             className="dropdown-item"
             href={`https://secure.pub.build.mozilla.org/buildapi/self-serve/${repoName}/rev/${revision}`}
           >BuildAPI</a></li>
-          {isStaff && this.triggerMissingRepos.includes(repoName) &&
+          {this.triggerMissingRepos.includes(repoName) &&
             <li
-              className="dropdown-item"
+              title={isLoggedIn ? 'Trigger all jobs that were optimized away' : 'Must be logged in'}
+              className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
               onClick={() => this.triggerMissingJobs(revision)}
             >Trigger missing jobs</li>
           }
-          {isStaff &&
-            <li
-              className="dropdown-item"
-              onClick={() => this.triggerAllTalosJobs(revision)}
-            >Trigger all Talos jobs</li>
-          }
+          <li
+            title={isLoggedIn ? 'Trigger all talos performance tests' : 'Must be logged in'}
+            className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
+            onClick={() => this.triggerAllTalosJobs(revision)}
+          >Trigger all Talos jobs</li>
           <li><a
             target="_blank"
             rel="noopener noreferrer"
@@ -189,7 +189,6 @@ export default class PushActionMenu extends React.PureComponent {
 
 PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
-  isStaff: PropTypes.bool.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,

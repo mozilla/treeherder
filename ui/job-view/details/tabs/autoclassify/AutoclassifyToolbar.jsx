@@ -10,7 +10,7 @@ export default class AutoclassifyToolbar extends React.Component {
       return 'Must be logged in';
     }
     if (!user.isStaff) {
-      return 'Insufficeint permissions';
+      return 'Insufficient permissions';
     }
     if (condition) {
       return activeTitle;

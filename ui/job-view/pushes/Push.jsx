@@ -131,7 +131,7 @@ export default class Push extends React.Component {
 
   render() {
     const {
-      push, isLoggedIn, isStaff, $injector, repoName, currentRepo,
+      push, isLoggedIn, $injector, repoName, currentRepo,
       filterModel, notificationSupported,
     } = this.props;
     const { watched, runnableVisible, hasBoundaryError, boundaryError } = this.state;
@@ -157,7 +157,6 @@ export default class Push extends React.Component {
           jobCounts={job_counts}
           watchState={watched}
           isLoggedIn={isLoggedIn}
-          isStaff={isStaff}
           repoName={repoName}
           filterModel={filterModel}
           $injector={$injector}
@@ -197,6 +196,5 @@ Push.propTypes = {
   filterModel: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
-  isStaff: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
 };
