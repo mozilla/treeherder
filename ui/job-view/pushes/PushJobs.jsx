@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { thPlatformMap, thSimplePlatforms, thEvents } from '../../js/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { withSelectedJob } from '../context/SelectedJob';
 import { getPlatformRowId, getPushTableId } from '../../helpers/aggregateId';
 import { findInstance, findSelectedInstance, findJobInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
@@ -105,7 +106,7 @@ class PushJobs extends React.Component {
   }
 
   onMouseDown(ev) {
-    const { togglePinJob } = this.props;
+    const { selectedJob, togglePinJob } = this.props;
     const jobElem = ev.target.attributes.getNamedItem('data-job-id');
 
     if (jobElem) {
@@ -114,8 +115,7 @@ class PushJobs extends React.Component {
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(jobId);
       } else if (ev.metaKey || ev.ctrlKey) { // Pin job
-        if (!this.$rootScope.selectedJob) {
-          this.ThResultSetStore.setSelectedJob(job);
+        if (!selectedJob) {
           this.selectJob(job, ev.target);
         }
         togglePinJob(job);
@@ -143,11 +143,14 @@ class PushJobs extends React.Component {
   }
 
   selectJob(job, el) {
-    const selected = findSelectedInstance();
-    if (selected) selected.setSelected(false);
+    const { setSelectedJob, selectedJob } = this.props;
+    if (selectedJob) {
+      const selected = findSelectedInstance();
+      if (selected) selected.setSelected(false);
+    }
     const jobInstance = findInstance(el);
     jobInstance.setSelected(true);
-    this.$rootScope.$emit(thEvents.jobClick, job);
+    setSelectedJob(job);
   }
 
   applyNewJobs() {
@@ -208,7 +211,7 @@ class PushJobs extends React.Component {
 
   render() {
     const platforms = this.state.platforms || [];
-    const { $injector, repoName, filterModel } = this.props;
+    const { $injector, repoName, filterModel, pushGroupState } = this.props;
 
     return (
       <table id={this.aggregateId} className="table-hover" data-job-clear-on-click>
@@ -221,6 +224,7 @@ class PushJobs extends React.Component {
             $injector={$injector}
             key={platform.id}
             filterModel={filterModel}
+            pushGroupState={pushGroupState}
             filterPlatformCb={this.filterPlatformCallback}
           />
         )) : <tr>
@@ -238,6 +242,13 @@ PushJobs.propTypes = {
   filterModel: PropTypes.object.isRequired,
   togglePinJob: PropTypes.func.isRequired,
   $injector: PropTypes.object.isRequired,
+  setSelectedJob: PropTypes.func.isRequired,
+  pushGroupState: PropTypes.string.isRequired,
+  selectedJob: PropTypes.object,
 };
 
-export default withPinnedJobs(PushJobs);
+PushJobs.defaultProps = {
+  selectedJob: null,
+};
+
+export default withSelectedJob(withPinnedJobs(PushJobs));

@@ -1,19 +1,10 @@
-import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
 import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { reloadOnChangeParameters } from '../../helpers/filter';
-import {
-  findInstance,
-  findSelectedInstance,
-  findJobInstance,
-  scrollToElement,
-} from '../../helpers/job';
-import JobModel from '../../models/job';
-import PushModel from '../../models/push';
+import { findJobInstance } from '../../helpers/job';
 import {
   getAllUrlParams,
   getQueryString,
@@ -26,7 +17,7 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
 
-class PushList extends React.Component {
+export default class PushList extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, repoName } = this.props;
@@ -36,8 +27,6 @@ class PushList extends React.Component {
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.ThResultSetStore.initRepository(repoName);
-
-    this.closeJob = this.closeJob.bind(this);
 
     this.skipNextPageReload = false;
 
@@ -70,33 +59,8 @@ class PushList extends React.Component {
     this.jobsLoadedUnlisten = this.$rootScope.$on(thEvents.jobsLoaded, () => {
       const pushList = [...this.ThResultSetStore.getPushArray()];
 
-      if (!this.state.jobsReady) {
-        const selectedJobId = parseInt(getUrlParam('selectedJob'));
-        if (selectedJobId) {
-          this.setSelectedJobFromQueryString(selectedJobId);
-        }
-      }
       this.setState({ pushList, jobsReady: true });
     });
-
-    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (ev, job) => {
-      const { repoName } = this.props;
-
-      setUrlParam('selectedJob', job.id);
-      if (repoName) {
-        this.ThResultSetStore.setSelectedJob(job);
-      }
-    });
-
-    this.clearSelectedJobUnlisten = this.$rootScope.$on(thEvents.clearSelectedJob, (ev, target) => {
-      this.closeJob(target);
-    });
-
-    this.changeSelectionUnlisten = this.$rootScope.$on(
-      thEvents.changeSelection, (ev, direction, jobNavSelector) => {
-        this.changeSelectedJob(ev, direction, jobNavSelector);
-      },
-    );
 
     this.jobsClassifiedUnlisten = this.$rootScope.$on(
       thEvents.jobsClassified, (ev, { jobs }) => {
@@ -112,9 +76,6 @@ class PushList extends React.Component {
   componentWillUnmount() {
     this.pushesLoadedUnlisten();
     this.jobsLoadedUnlisten();
-    this.jobClickUnlisten();
-    this.clearSelectedJobUnlisten();
-    this.changeSelectionUnlisten();
     this.jobsLoadedUnlisten();
     this.jobsClassifiedUnlisten();
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
@@ -142,51 +103,6 @@ class PushList extends React.Component {
       setUrlParam('startdate', null);
     }
     this.ThResultSetStore.fetchPushes(count).then(this.updateUrlFromchange);
-  }
-
-  /**
-   * If the URL has a query string param of ``selectedJob`` then select
-   * that job on load.
-   *
-   * If that job isn't in any of the loaded pushes, then throw
-   * an error and provide a link to load it with the right push.
-   */
-  setSelectedJobFromQueryString(selectedJobId) {
-    const { repoName } = this.props;
-    const { urlBasePath } = this.$rootScope;
-    const jobMap = this.ThResultSetStore.getJobMap();
-    const selectedJobEl = jobMap[`${selectedJobId}`];
-
-    // select the job in question
-    if (selectedJobEl) {
-      this.$rootScope.$emit(thEvents.jobClick, selectedJobEl.job_obj);
-    } else {
-      // If the ``selectedJob`` was not mapped, then we need to notify
-      // the user it's not in the range of the current result set list.
-      JobModel.get(repoName, selectedJobId).then((job) => {
-        PushModel.get(job.result_set_id).then(async (resp) => {
-          if (resp.ok) {
-            const push = await resp.json();
-            setUrlParam('selectedJob', null);
-            const url = `${urlBasePath}?repo=${repoName}&revision=${push.data.revision}&selectedJob=${selectedJobId}`;
-
-            // the job exists, but isn't in any loaded push.
-            // provide a message and link to load the right push
-            this.thNotify.send(
-              `Selected job id: ${selectedJobId} not within current push range.`,
-              'danger',
-              { sticky: true, linkText: 'Load push', url });
-          }
-        });
-      }).catch((error) => {
-        // the job wasn't found in the db.  Either never existed,
-        // or was expired and deleted.
-        setUrlParam('selectedJob', null);
-        this.thNotify.send(`Selected Job - ${error}`,
-          'danger',
-          { sticky: true });
-      });
-    }
   }
 
   getNewReloadTriggerParams() {
@@ -235,102 +151,10 @@ class PushList extends React.Component {
     }
   }
 
-  changeSelectedJob(ev, direction, jobNavSelector) {
-    const jobMap = this.ThResultSetStore.getJobMap();
-    // Get the appropriate next index based on the direction and current job
-    // selection (if any).  Must wrap end to end.
-    const getIndex = direction === 'next' ?
-      (idx, jobs) => (idx + 1 > jobs.length - 1 ? 0 : idx + 1) :
-      (idx, jobs) => (idx - 1 < 0 ? jobs.length - 1 : idx - 1);
-
-    // TODO: Move from using jquery here to using the ReactJS state tree (bug 1434679)
-    // to find the next/prev component to select so that setState can be called
-    // on the component directly.
-    //
-    // Filter the list of possible jobs down to ONLY ones in the .th-view-content
-    // div (excluding pinBoard) and then to the specific selector passed
-    // in.  And then to only VISIBLE (not filtered away) jobs.  The exception
-    // is for the .selected-job.  If that's not visible, we still want to
-    // include it, because it is the anchor from which we find
-    // the next/previous job.
-    //
-    // The .selected-job can be invisible, for instance, when filtered to
-    // unclassified failures only, and you then classify the selected job.
-    // It's still selected, but no longer visible.
-    const jobs = $('.th-view-content')
-      .find(jobNavSelector.selector)
-      .filter(':visible, .selected-job');
-
-    if (jobs.length) {
-      const selectedEl = jobs.filter('.selected-job').first();
-      const selIdx = jobs.index(selectedEl);
-      const idx = getIndex(selIdx, jobs);
-      const jobEl = $(jobs[idx]);
-
-      let selected;
-      if (selectedEl.length) {
-        selected = findInstance(selectedEl[0]);
-        selected.setSelected(false);
-      }
-
-      const nextSelected = findInstance(jobEl[0]);
-
-      if (nextSelected && nextSelected !== selected) {
-        nextSelected.setSelected(true);
-        const jobId = jobEl.attr('data-job-id');
-
-        if (jobMap && jobMap[jobId] && selIdx !== idx) {
-          this.selectJob(jobMap[jobId].job_obj, jobEl);
-          return;
-        }
-      } else {
-        this.noMoreUnclassifiedFailures();
-      }
-    } else {
-      this.noMoreUnclassifiedFailures();
-    }
-    // if there was no new job selected, then ensure that we clear any job that
-    // was previously selected.
-    if ($('.selected-job').css('display') === 'none') {
-      this.$rootScope.$emit(thEvents.clearSelectedJob);
-    }
-  }
-
-  noMoreUnclassifiedFailures() {
-    this.thNotify.send('No unclassified failures to select.');
-    this.$rootScope.$emit(thEvents.clearSelectedJob);
-  }
-
-  selectJob(job, jobEl) {
-    // Delay switching jobs right away, in case the user is switching rapidly between jobs
-    scrollToElement(jobEl);
-    if (this.jobChangedTimeout) {
-      window.clearTimeout(this.jobChangedTimeout);
-    }
-    this.jobChangedTimeout = window.setTimeout(() => {
-      this.$rootScope.$emit(thEvents.jobClick, job);
-    }, 200);
-  }
-
-  // Clear the selectedJob
-  closeJob() {
-    const { pinnedJobs } = this.props;
-
-    // TODO: Should block clearing the selected job if there are pinned jobs
-    // But can't get the pinned jobs at this time.  When we're completely on React,
-    // or at least have a shared parent between PushList and DetailsPanel, we can share
-    // a PinBoardModel or Context so they both have access.
-    if (!Object.keys(pinnedJobs).length) {
-      const selected = findSelectedInstance();
-
-      if (selected) {
-        selected.setSelected(false);
-      }
-    }
-  }
-
   render() {
-    const { $injector, user, repoName, revision, currentRepo, filterModel } = this.props;
+    const {
+      $injector, user, repoName, revision, currentRepo, filterModel,
+    } = this.props;
     const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn } = user;
 
@@ -390,7 +214,6 @@ PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };
@@ -399,5 +222,3 @@ PushList.defaultProps = {
   revision: null,
   currentRepo: {},
 };
-
-export default withPinnedJobs(PushList);

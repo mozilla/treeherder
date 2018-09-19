@@ -9,6 +9,7 @@ import TextLogErrorsModel from '../../../../models/textLogErrors';
 import AutoclassifyToolbar from './AutoclassifyToolbar';
 import ErrorLine from './ErrorLine';
 import ErrorLineData from './ErrorLineModel';
+import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 class AutoclassifyTab extends React.Component {
@@ -40,17 +41,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, () => {
-      this.setState({
-        loadStatus: 'loading',
-        errorLines: [],
-        selectedLineIds: new Set(),
-        editableLineIds: new Set(),
-        inputByLine: new Map(),
-        autoclassifyStatusOnLoad: null,
-      });
-    });
-
     this.autoclassifyChangeSelectionUnlisten = this.$rootScope.$on(thEvents.autoclassifyChangeSelection,
       (ev, direction, clear) => this.onChangeSelection(direction, clear));
 
@@ -104,20 +94,19 @@ class AutoclassifyTab extends React.Component {
       this.fetchErrorMatchers();
     }
     // Load the data here
-    if (this.props.job.id) {
+    if (this.props.selectedJob.id) {
       this.fetchErrorData();
     }
   }
 
   componentDidUpdate(prevProps) {
     // Load the data here
-    if (this.props.job.id !== prevProps.job.id) {
+    if (this.props.selectedJob.id !== prevProps.selectedJob.id) {
       this.fetchErrorData();
     }
   }
 
   componentWillUnmount() {
-    this.jobClickUnlisten();
     this.autoclassifyChangeSelectionUnlisten();
     this.autoclassifySaveAllUnlisten();
     this.autoclassifySaveUnlisten();
@@ -161,7 +150,7 @@ class AutoclassifyTab extends React.Component {
    */
   onPin() {
     // TODO: consider whether this should add bugs or mark all lines as ignored
-    this.props.pinJob(this.props.job);
+    this.props.pinJob(this.props.selectedJob);
   }
 
   onToggleEditable() {
@@ -173,14 +162,14 @@ class AutoclassifyTab extends React.Component {
   }
 
   onOpenLogViewer() {
-    const { job } = this.props;
+    const { selectedJob } = this.props;
     const { selectedLineIds, errorLines } = this.state;
     let lineNumber = null;
 
     if (selectedLineIds.size) {
       lineNumber = errorLines.find(line => selectedLineIds.has(line.id)).data.line_number + 1;
     }
-    window.open(getLogViewerUrl(job.id, this.$rootScope.repoName, lineNumber));
+    window.open(getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, lineNumber));
   }
 
   /**
@@ -284,10 +273,10 @@ class AutoclassifyTab extends React.Component {
    * Emit an event indicating that the job has been fully classified
    */
   signalFullyClassified() {
-    const { job } = this.props;
+    const { selectedJob } = this.props;
 
     // Emit this event to get the main UI to update
-    this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [job.id]: job } });
+    this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [selectedJob.id]: selectedJob } });
   }
 
   async fetchErrorMatchers() {
@@ -302,29 +291,38 @@ class AutoclassifyTab extends React.Component {
    * Get TextLogerror data from the API
    */
   async fetchErrorData() {
-    const { job } = this.props;
+    const { selectedJob } = this.props;
 
-    if (job.id) {
-      const errorLineResp = await fetch(getProjectJobUrl('/text_log_errors/', job.id));
-      const errorLineData = await errorLineResp.json();
-      const errorLines = errorLineData.map(line => new ErrorLineData(line))
-        .sort((a, b) => a.data.id - b.data.id);
+    this.setState({
+        loadStatus: 'loading',
+        errorLines: [],
+        selectedLineIds: new Set(),
+        editableLineIds: new Set(),
+        inputByLine: new Map(),
+        autoclassifyStatusOnLoad: null,
+      }, async () => {
+        if (selectedJob.id) {
+          const errorLineResp = await fetch(getProjectJobUrl('/text_log_errors/', selectedJob.id));
+          const errorLineData = await errorLineResp.json();
+          const errorLines = errorLineData.map(line => new ErrorLineData(line))
+            .sort((a, b) => a.data.id - b.data.id);
 
-      if (errorLines.length) {
-        const selected = errorLines.find(line => !line.verified);
-        this.setState({
-          selectedLineIds: new Set([selected ? selected.id : null]),
-          editableLines: errorLines.reduce((pending, line) => (
-            !line.verified ? { ...pending, [line.id]: line } : pending
-          ), {}),
-        });
-      }
+          if (errorLines.length) {
+            const selected = errorLines.find(line => !line.verified);
+            this.setState({
+              selectedLineIds: new Set([selected ? selected.id : null]),
+              editableLines: errorLines.reduce((pending, line) => (
+                !line.verified ? { ...pending, [line.id]: line } : pending
+              ), {}),
+            });
+          }
 
-      this.setState({
-        errorLines,
-        loadStatus: 'ready',
+          this.setState({
+            errorLines,
+            loadStatus: 'ready',
+          });
+        }
       });
-    }
   }
 
 
@@ -400,11 +398,11 @@ class AutoclassifyTab extends React.Component {
    * Update the panel for a new job selection
    */
   jobChanged() {
-    const { autoclassifyStatus, hasLogs, logsParsed, logParseStatus, job } = this.props;
+    const { autoclassifyStatus, hasLogs, logsParsed, logParseStatus, selectedJob } = this.props;
     const { loadStatus, autoclassifyStatusOnLoad } = this.state;
 
     let newLoadStatus = 'loading';
-    if (job.state === 'pending' || job.state === 'running') {
+    if (selectedJob.state === 'pending' || selectedJob.state === 'running') {
       newLoadStatus = 'job_pending';
     } else if (!logsParsed || autoclassifyStatus === 'pending') {
       newLoadStatus = 'pending';
@@ -460,7 +458,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { job, autoclassifyStatus, user, $injector } = this.props;
+    const { autoclassifyStatus, user, $injector } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -503,7 +501,6 @@ class AutoclassifyTab extends React.Component {
           <ul className="list-unstyled">
             {errorLines.map((errorLine, idx) => (<li key={errorLine.id}>
               <ErrorLine
-                job={job}
                 errorMatchers={errorMatchers}
                 errorLine={errorLine}
                 prevErrorLine={errorLines[idx - 1]}
@@ -526,7 +523,7 @@ class AutoclassifyTab extends React.Component {
 AutoclassifyTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  job: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
   hasLogs: PropTypes.bool.isRequired,
   pinJob: PropTypes.func.isRequired,
   autoclassifyStatus: PropTypes.string,
@@ -540,4 +537,4 @@ AutoclassifyTab.defaultProps = {
   logParseStatus: 'pending',
 };
 
-export default withPinnedJobs(AutoclassifyTab);
+export default withSelectedJob(withPinnedJobs(AutoclassifyTab));

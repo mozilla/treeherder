@@ -5,17 +5,18 @@ import SplitPane from 'react-split-pane';
 
 import treeherder from '../js/treeherder';
 import { thEvents, thFavicons } from '../js/constants';
+import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
 import { matchesDefaults } from '../helpers/filter';
+import { getAllUrlParams, getRepo } from '../helpers/location';
 import { deployedRevisionUrl } from '../helpers/url';
-import { getRepo } from '../helpers/location';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
-import DetailsPanel from './details/DetailsPanel';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
+import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 
@@ -47,25 +48,28 @@ class JobView extends React.Component {
     this.$rootScope.filterModel = filterModel;
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
+    const hasSelectedJob = getAllUrlParams().has('selectedJob');
 
     this.state = {
       repoName: getRepo(),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
-      pushListPct: props.selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
+      pushListPct: hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
       serverChangedDelayed: false,
       serverChanged: false,
       repos: [],
       currentRepo: new RepositoryModel({ is_try_repo: true }),
       classificationTypes: [],
       classificationMap: {},
+      hasSelectedJob,
+      jobsLoaded: false,
     };
   }
 
-  static getDerivedStateFromProps(props) {
+  static getDerivedStateFromProps(props, state) {
     return {
-      ...JobView.getSplitterDimensions(props),
+      ...JobView.getSplitterDimensions(state.hasSelectedJob),
       repoName: getRepo(),
     };
   }
@@ -77,7 +81,6 @@ class JobView extends React.Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
     this.handleUrlChanges = this.handleUrlChanges.bind(this);
-    this.selectFirstJob = this.selectFirstJob.bind(this);
 
     RepositoryModel.getList().then((repos) => {
       const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
@@ -98,6 +101,10 @@ class JobView extends React.Component {
 
     this.toggleFieldFilterVisibleUnlisten = this.$rootScope.$on(thEvents.toggleFieldFilterVisible, () => {
       this.toggleFieldFilterVisible();
+    });
+
+    this.jobsLoadedUnlisten = this.$rootScope.$on(thEvents.jobsLoaded, () => {
+      this.setState({ jobsLoaded: true });
     });
 
     // Get the current Treeherder revision and poll to notify on updates.
@@ -129,14 +136,14 @@ class JobView extends React.Component {
   }
 
   componentWillUnmount() {
+    this.jobsLoadedUnlisten();
     this.toggleFieldFilterVisibleUnlisten();
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
-  static getSplitterDimensions(props) {
-    const { selectedJob } = props;
-    const defaultPushListPct = selectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
+  static getSplitterDimensions(hasSelectedJob) {
+    const defaultPushListPct = hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
     // calculate the height of the details panel to use if it has not been
     // resized by the user.
     const defaultDetailsHeight = defaultPushListPct < 100 ?
@@ -163,6 +170,7 @@ class JobView extends React.Component {
     this.setState({
       filterModel,
       serverChanged: false,
+      hasSelectedJob: getAllUrlParams().has('selectedJob'),
     });
   }
 
@@ -181,7 +189,7 @@ class JobView extends React.Component {
   }
 
   updateDimensions() {
-    this.setState(JobView.getSplitterDimensions(this.props));
+    this.setState(JobView.getSplitterDimensions(this.state.hasSelectedJob));
   }
 
   handleSplitChange(latestSplitSize) {
@@ -190,27 +198,13 @@ class JobView extends React.Component {
     });
   }
 
-  selectFirstJob(jobs) {
-    const { selectedJob } = this.props;
-
-    if (!selectedJob) {
-      this.$rootScope.$emit(thEvents.jobClick, jobs[0]);
-    }
-  }
-
-  clearIfEligibleTarget(target) {
-    if (target.hasAttribute('data-job-clear-on-click')) {
-      this.$rootScope.$emit(thEvents.clearSelectedJob, target);
-    }
-  }
-
   render() {
-    const { revision, selectedJob, $injector } = this.props;
+    const { revision, $injector } = this.props;
     const {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
-      filterModel,
+      filterModel, jobsLoaded, hasSelectedJob,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -224,10 +218,10 @@ class JobView extends React.Component {
     // we resize.  Therefore, we must calculate the new
     // height of the DetailsPanel based on the current height of the PushList.
     // Reported this upstream: https://github.com/tomkp/react-split-pane/issues/282
-    const pushListPct = latestSplitPct === undefined || !selectedJob ?
+    const pushListPct = latestSplitPct === undefined || !hasSelectedJob ?
       defaultPushListPct :
       latestSplitPct;
-    const detailsHeight = latestSplitPct === undefined || !selectedJob ?
+    const detailsHeight = latestSplitPct === undefined || !hasSelectedJob ?
       defaultDetailsHeight :
       getWindowHeight() * (1 - latestSplitPct / 100);
     const filterBarFilters = Object.entries(filterModel.urlParams).reduce((acc, [field, value]) => (
@@ -236,69 +230,69 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <PinnedJobs
-        notify={this.thNotify}
-        selectedJob={selectedJob}
-        selectFirstJob={this.selectFirstJob}
-      >
-        <KeyboardShortcuts
-          filterModel={filterModel}
-          selectedJob={selectedJob}
+      <PinnedJobs notify={this.thNotify}>
+        <SelectedJob
+          jobsLoaded={jobsLoaded}
+          notify={this.thNotify}
           $injector={$injector}
         >
-          <PrimaryNavBar
-            repos={repos}
-            updateButtonClick={this.updateButtonClick}
-            serverChanged={serverChanged}
+          <KeyboardShortcuts
             filterModel={filterModel}
-            setUser={this.setUser}
-            user={user}
-            setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
             $injector={$injector}
-            resultSetStore={this.ThResultSetStore}
-          />
-          <SplitPane
-            split="horizontal"
-            size={`${pushListPct}%`}
-            onChange={size => this.handleSplitChange(size)}
           >
-            <div className="d-flex flex-column w-100" onClick={evt => this.clearIfEligibleTarget(evt.target)}>
-              {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                $injector={$injector}
-                classificationTypes={classificationTypes}
-                filterModel={filterModel}
-                filterBarFilters={filterBarFilters}
-                isFieldFilterVisible={isFieldFilterVisible}
-                toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-              />}
-              {serverChangedDelayed && <UpdateAvailable
-                updateButtonClick={this.updateButtonClick}
-              />}
-              <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-                <span className="th-view-content">
-                  <PushList
-                    user={user}
-                    repoName={repoName}
-                    revision={revision}
-                    currentRepo={currentRepo}
-                    filterModel={filterModel}
-                    $injector={$injector}
-                  />
-                </span>
-              </div>
-            </div>
-            <DetailsPanel
-              resizedHeight={detailsHeight}
-              currentRepo={currentRepo}
-              repoName={repoName}
-              selectedJob={selectedJob}
+            <PrimaryNavBar
+              repos={repos}
+              updateButtonClick={this.updateButtonClick}
+              serverChanged={serverChanged}
+              filterModel={filterModel}
+              setUser={this.setUser}
               user={user}
-              classificationTypes={classificationTypes}
-              classificationMap={classificationMap}
+              setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+              resultSetStore={this.ThResultSetStore}
               $injector={$injector}
             />
-          </SplitPane>
-        </KeyboardShortcuts>
+            <SplitPane
+              split="horizontal"
+              size={`${pushListPct}%`}
+              onChange={size => this.handleSplitChange(size)}
+            >
+              <div className="d-flex flex-column w-100">
+                {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
+                  $injector={$injector}
+                  classificationTypes={classificationTypes}
+                  filterModel={filterModel}
+                  filterBarFilters={filterBarFilters}
+                  isFieldFilterVisible={isFieldFilterVisible}
+                  toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                />}
+                {serverChangedDelayed && <UpdateAvailable
+                  updateButtonClick={this.updateButtonClick}
+                />}
+                <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+                  <span className="th-view-content">
+                    <PushList
+                      user={user}
+                      repoName={repoName}
+                      revision={revision}
+                      currentRepo={currentRepo}
+                      filterModel={filterModel}
+                      $injector={$injector}
+                    />
+                  </span>
+                </div>
+              </div>
+              <DetailsPanel
+                resizedHeight={detailsHeight}
+                currentRepo={currentRepo}
+                repoName={repoName}
+                user={user}
+                classificationTypes={classificationTypes}
+                classificationMap={classificationMap}
+                $injector={$injector}
+              />
+            </SplitPane>
+          </KeyboardShortcuts>
+        </SelectedJob>
       </PinnedJobs>
     );
   }
@@ -307,16 +301,11 @@ class JobView extends React.Component {
 JobView.propTypes = {
   $injector: PropTypes.object.isRequired,
   revision: PropTypes.string,
-  selectedJob: PropTypes.object,
 };
 
 // Some of these props are not ready by the time this renders.
 JobView.defaultProps = {
   revision: null,
-  selectedJob: null,
 };
 
-treeherder.component('jobView', react2angular(
-  JobView,
-  ['revision', 'selectedJob'],
-  ['$injector']));
+treeherder.component('jobView', react2angular(JobView, [], ['$injector']));

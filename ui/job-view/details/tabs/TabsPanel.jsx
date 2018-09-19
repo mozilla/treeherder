@@ -13,6 +13,7 @@ import AutoclassifyTab from './autoclassify/AutoclassifyTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 import { withPinnedJobs } from '../../context/PinnedJobs';
+import { withSelectedJob } from '../../context/SelectedJob';
 
 class TabsPanel extends React.Component {
   constructor(props) {
@@ -94,9 +95,9 @@ class TabsPanel extends React.Component {
   render() {
     const {
       jobDetails, jobLogUrls, logParseStatus, suggestions, errors, user, bugs,
-      bugSuggestionsLoading, selectedJob, perfJobDetail, repoName, jobRevision,
+      bugSuggestionsLoading, perfJobDetail, repoName, jobRevision,
       classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs,
-      classificationMap, logViewerFullUrl, reftestUrl, $injector,
+      classificationMap, logViewerFullUrl, reftestUrl, $injector, clearSelectedJob,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -138,7 +139,7 @@ class TabsPanel extends React.Component {
                 />
               </span>
               <span
-                onClick={() => this.$rootScope.$emit(thEvents.clearSelectedJob)}
+                onClick={() => clearSelectedJob(countPinnedJobs)}
                 className="btn details-panel-close-btn"
               ><span className="fa fa-times" /></span>
             </span>
@@ -149,7 +150,6 @@ class TabsPanel extends React.Component {
           <TabPanel>
             <FailureSummaryTab
               suggestions={suggestions}
-              selectedJob={selectedJob}
               errors={errors}
               bugSuggestionsLoading={bugSuggestionsLoading}
               jobLogUrls={jobLogUrls}
@@ -161,7 +161,6 @@ class TabsPanel extends React.Component {
           </TabPanel>
           {showAutoclassifyTab && <TabPanel>
             <AutoclassifyTab
-              job={selectedJob}
               hasLogs={!!jobLogUrls.length}
               logsParsed={logParseStatus !== 'pending'}
               logParseStatus={logParseStatus}
@@ -173,14 +172,12 @@ class TabsPanel extends React.Component {
             <AnnotationsTab
               classificationMap={classificationMap}
               classifications={classifications}
-              selectedJob={selectedJob}
               bugs={bugs}
               $injector={$injector}
             />
           </TabPanel>
           <TabPanel>
             <SimilarJobsTab
-              selectedJob={selectedJob}
               repoName={repoName}
               classificationMap={classificationMap}
               $injector={$injector}
@@ -210,9 +207,9 @@ TabsPanel.propTypes = {
   pinnedJobs: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   user: PropTypes.object.isRequired,
+  clearSelectedJob: PropTypes.func.isRequired,
   perfJobDetail: PropTypes.array,
   suggestions: PropTypes.array,
-  selectedJob: PropTypes.object,
   jobRevision: PropTypes.string,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
@@ -235,4 +232,4 @@ TabsPanel.defaultProps = {
   reftestUrl: null,
 };
 
-export default withPinnedJobs(TabsPanel);
+export default withSelectedJob(withPinnedJobs(TabsPanel));

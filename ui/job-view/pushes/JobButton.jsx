@@ -67,8 +67,7 @@ export default class JobButtonComponent extends React.Component {
     this.setState({ isSelected });
     // filterPlatformCb will keep a job and platform visible if it contains
     // the selected job, so we must pass in if this job is selected or not.
-    const selectedJobId = isSelected ? job.id : null;
-    filterPlatformCb(platform, selectedJobId);
+    filterPlatformCb(platform, isSelected ? job.id : null);
   }
 
   toggleRunnableSelected() {

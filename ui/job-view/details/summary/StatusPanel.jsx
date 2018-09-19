@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getStatus } from '../../../helpers/job';
+import { withSelectedJob } from '../../context/SelectedJob';
 
-export default function StatusPanel(props) {
+function StatusPanel(props) {
   const { selectedJob } = props;
   const shadingClass = `result-status-shading-${getStatus(selectedJob)}`;
 
@@ -28,3 +29,4 @@ StatusPanel.propTypes = {
   selectedJob: PropTypes.object.isRequired,
 };
 
+export default withSelectedJob(StatusPanel);

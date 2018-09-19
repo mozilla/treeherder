@@ -4,6 +4,7 @@ import { chunk } from 'lodash';
 
 import { thEvents, thBugSuggestionLimit } from '../../js/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { withSelectedJob } from '../context/SelectedJob';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
@@ -15,7 +16,6 @@ import TextLogStepModel from '../../models/textLogStep';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
-import { setUrlParam } from '../../helpers/location';
 
 export const pinboardHeight = 100;
 
@@ -33,7 +33,6 @@ class DetailsPanel extends React.Component {
     this.selectJobController = null;
 
     this.state = {
-      job: null,
       jobDetails: [],
       jobLogUrls: [],
       jobDetailLoading: false,
@@ -52,41 +51,21 @@ class DetailsPanel extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps(props) {
-    if (!props.selectedJob) {
-      return { job: null };
-    }
-    return {};
+  componentDidMount() {
+    this.jobsClassifiedUnlisten = this.$rootScope.$on(thEvents.jobsClassified, () => {
+      this.updateClassifications();
+    });
   }
 
-  componentDidMount() {
-    this.closeJob = this.closeJob.bind(this);
+  componentDidUpdate(prevProps) {
+    const { selectedJob } = this.props;
 
-    this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (evt, job) => {
-      this.setState({
-        jobDetailLoading: true,
-        jobDetails: [],
-        suggestions: [],
-      }, () => this.selectJob(job));
-    });
-
-    this.clearSelectedJobUnlisten = this.$rootScope.$on(thEvents.clearSelectedJob, () => {
-      if (this.selectJobController !== null) {
-        this.selectJobController.abort();
-      }
-      if (!Object.keys(this.props.pinnedJobs).length) {
-        this.closeJob();
-      }
-    });
-
-    this.jobsClassifiedUnlisten = this.$rootScope.$on(thEvents.jobsClassified, () => {
-      this.updateClassifications(this.props.selectedJob);
-    });
+    if (selectedJob && (!prevProps.selectedJob || prevProps.selectedJob.id !== selectedJob.id)) {
+      this.selectJob();
+    }
   }
 
   componentWillUnmount() {
-    this.jobClickUnlisten();
-    this.clearSelectedJobUnlisten();
     this.jobsClassifiedUnlisten();
   }
 
@@ -104,10 +83,13 @@ class DetailsPanel extends React.Component {
     setPinBoardVisible(!isPinBoardVisible);
   }
 
-  loadBugSuggestions(job) {
-      const { repoName } = this.props;
+  loadBugSuggestions() {
+      const { repoName, selectedJob } = this.props;
 
-      BugSuggestionsModel.get(job.id).then((suggestions) => {
+      if (!selectedJob) {
+        return;
+      }
+      BugSuggestionsModel.get(selectedJob.id).then((suggestions) => {
           suggestions.forEach((suggestion) => {
               suggestion.bugs.too_many_open_recent = (
                   suggestion.bugs.open_recent.length > thBugSuggestionLimit
@@ -132,13 +114,13 @@ class DetailsPanel extends React.Component {
           // the log (we can do this asynchronously, it should normally be
           // fast)
           if (!suggestions.length) {
-              TextLogStepModel.get(job.id).then((textLogSteps) => {
+              TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
                   const errors = textLogSteps
                       .filter(step => step.result !== 'success')
                       .map(step => ({
                         name: step.name,
                         result: step.result,
-                        logViewerUrl: getLogViewerUrl(job.id, repoName, step.finished_line_number),
+                        logViewerUrl: getLogViewerUrl(selectedJob.id, repoName, step.finished_line_number),
                       }));
                   this.setState({ errors });
               });
@@ -148,139 +130,130 @@ class DetailsPanel extends React.Component {
       });
   }
 
-  async updateClassifications(job) {
-    const classifications = await JobClassificationModel.getList({ job_id: job.id });
-    const bugs = await BugJobMapModel.getList({ job_id: job.id });
+  async updateClassifications() {
+    const { selectedJob } = this.props;
+    const classifications = await JobClassificationModel.getList({ job_id: selectedJob.id });
+    const bugs = await BugJobMapModel.getList({ job_id: selectedJob.id });
     this.setState({ classifications, bugs });
   }
 
-  selectJob(newJob) {
-    const { repoName } = this.props;
+  selectJob() {
+    const { repoName, selectedJob } = this.props;
 
-    if (this.selectJobController !== null) {
-      // Cancel the in-progress fetch requests.
-      this.selectJobController.abort();
-    }
-    // eslint-disable-next-line no-undef
-    this.selectJobController = new AbortController();
-
-    let jobDetails = [];
-    const jobPromise = JobModel.get(
-      repoName, newJob.id,
-      this.selectJobController.signal);
-
-    const jobDetailPromise = JobDetailModel.getJobDetails(
-      { job_guid: newJob.job_guid },
-      this.selectJobController.signal);
-
-    const jobLogUrlPromise = JobLogUrlModel.getList(
-      { job_id: newJob.id },
-      this.selectJobController.signal);
-
-    const phSeriesPromise = this.PhSeries.getSeriesData(
-      repoName, { job_id: newJob.id });
-
-    Promise.all([
-      jobPromise,
-      jobDetailPromise,
-      jobLogUrlPromise,
-      phSeriesPromise,
-    ]).then(async (results) => {
-
-      // The first result comes from the job promise.
-      // This version of the job has more information than what we get in the main job list.  This
-      // is what we'll pass to the rest of the details panel.  It has extra fields like
-      // taskcluster_metadata.
-      const job = results[0];
-      const jobRevision = this.ThResultSetStore.getPush(job.result_set_id).revision;
-
-      // the second result comes from the job detail promise
-      jobDetails = results[1];
-
-      // incorporate the buildername into the job details if this is a buildbot job
-      // (i.e. it has a buildbot request id)
-      const buildbotRequestIdDetail = jobDetails.find(detail => detail.title === 'buildbot_request_id');
-      if (buildbotRequestIdDetail) {
-        jobDetails = [...jobDetails, { title: 'Buildername', value: job.ref_data_name }];
+    this.setState({ jobDetails: [], suggestions: [], jobDetailLoading: true }, () => {
+      if (this.selectJobController !== null) {
+        // Cancel the in-progress fetch requests.
+        this.selectJobController.abort();
       }
+      // eslint-disable-next-line no-undef
+      this.selectJobController = new AbortController();
 
-      // the third result comes from the jobLogUrl promise
-      // exclude the json log URLs
-      const jobLogUrls = results[2].filter(log => !log.name.endsWith('_json'));
+      let jobDetails = [];
+      const jobPromise = 'logs' in selectedJob ? Promise.resolve(selectedJob) : JobModel.get(
+        repoName, selectedJob.id,
+        this.selectJobController.signal);
 
-      let logParseStatus = 'unavailable';
-      // Provide a parse status as a scope variable for logviewer shortcut
-      if (jobLogUrls.length && jobLogUrls[0].parse_status) {
-        logParseStatus = jobLogUrls[0].parse_status;
-      }
+      const jobDetailPromise = JobDetailModel.getJobDetails(
+        { job_guid: selectedJob.job_guid },
+        this.selectJobController.signal);
 
-      // Provide a parse status for the model
-      const jobLogsAllParsed = (jobLogUrls ?
-        jobLogUrls.every(jlu => jlu.parse_status !== 'pending') :
-        false);
+      const jobLogUrlPromise = JobLogUrlModel.getList(
+        { job_id: selectedJob.id },
+        this.selectJobController.signal);
 
-      const logViewerUrl = getLogViewerUrl(job.id, repoName);
-      const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
-      const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
-      const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
+      const phSeriesPromise = this.PhSeries.getSeriesData(
+        repoName, { job_id: selectedJob.id });
 
-      let perfJobDetail = [];
-      if (performanceData) {
-        const signatureIds = [...new Set(performanceData.map(perf => perf.signature_id))];
-        const seriesListList = await Promise.all(chunk(signatureIds, 20).map(
-          signatureIdChunk => this.PhSeries.getSeriesList(repoName, { id: signatureIdChunk }),
-        ));
-        const seriesList = seriesListList.reduce((a, b) => [...a, ...b], []);
+      Promise.all([
+        jobPromise,
+        jobDetailPromise,
+        jobLogUrlPromise,
+        phSeriesPromise,
+      ]).then(async (results) => {
 
-        perfJobDetail = performanceData.map(d => ({
-          series: seriesList.find(s => d.signature_id === s.id),
-          ...d,
-        })).filter(d => !d.series.parentSignature).map(d => ({
-          url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, job.result_set_id, d.id]}`,
-          value: d.value,
-          title: d.series.name,
-        }));
-      }
+        // The first result comes from the job promise.
+        // This version of the job has more information than what we get in the main job list.  This
+        // is what we'll pass to the rest of the details panel.  It has extra fields like
+        // taskcluster_metadata.
+        Object.assign(selectedJob, results[0]);
+        const jobRevision = this.ThResultSetStore.getPush(selectedJob.result_set_id).revision;
 
-      this.setState({
-        job,
-        jobLogUrls,
-        jobDetails,
-        jobLogsAllParsed,
-        logParseStatus,
-        logViewerUrl,
-        logViewerFullUrl,
-        reftestUrl,
-        perfJobDetail,
-        jobRevision,
-      }, async () => {
-        await this.updateClassifications(job);
-        await this.loadBugSuggestions(job);
-        this.setState({ jobDetailLoading: false });
+        // the second result comes from the job detail promise
+        jobDetails = results[1];
+
+        // incorporate the buildername into the job details if this is a buildbot job
+        // (i.e. it has a buildbot request id)
+        const buildbotRequestIdDetail = jobDetails.find(detail => detail.title === 'buildbot_request_id');
+        if (buildbotRequestIdDetail) {
+          jobDetails = [...jobDetails, { title: 'Buildername', value: selectedJob.ref_data_name }];
+        }
+
+        // the third result comes from the jobLogUrl promise
+        // exclude the json log URLs
+        const jobLogUrls = results[2].filter(log => !log.name.endsWith('_json'));
+
+        let logParseStatus = 'unavailable';
+        // Provide a parse status as a scope variable for logviewer shortcut
+        if (jobLogUrls.length && jobLogUrls[0].parse_status) {
+          logParseStatus = jobLogUrls[0].parse_status;
+        }
+
+        // Provide a parse status for the model
+        const jobLogsAllParsed = (jobLogUrls ?
+          jobLogUrls.every(jlu => jlu.parse_status !== 'pending') :
+          false);
+
+        const logViewerUrl = getLogViewerUrl(selectedJob.id, repoName);
+        const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
+        const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
+        const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
+
+        let perfJobDetail = [];
+        if (performanceData) {
+          const signatureIds = [...new Set(performanceData.map(perf => perf.signature_id))];
+          const seriesListList = await Promise.all(chunk(signatureIds, 20).map(
+            signatureIdChunk => this.PhSeries.getSeriesList(repoName, { id: signatureIdChunk }),
+          ));
+          const seriesList = seriesListList.reduce((a, b) => [...a, ...b], []);
+
+          perfJobDetail = performanceData.map(d => ({
+            series: seriesList.find(s => d.signature_id === s.id),
+            ...d,
+          })).filter(d => !d.series.parentSignature).map(d => ({
+            url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, selectedJob.result_set_id, d.id]}`,
+            value: d.value,
+            title: d.series.name,
+          }));
+        }
+
+        this.setState({
+          jobLogUrls,
+          jobDetails,
+          jobLogsAllParsed,
+          logParseStatus,
+          logViewerUrl,
+          logViewerFullUrl,
+          reftestUrl,
+          perfJobDetail,
+          jobRevision,
+        }, async () => {
+          await this.updateClassifications();
+          await this.loadBugSuggestions();
+          this.setState({ jobDetailLoading: false });
+        });
+      }).finally(() => {
+        this.selectJobController = null;
       });
-    }).finally(() => {
-      this.selectJobController = null;
     });
-  }
-
-  closeJob() {
-    this.$rootScope.selectedJob = null;
-    this.ThResultSetStore.setSelectedJob();
-    setUrlParam('selectedJob', null);
-    if (this.selectJobController) {
-      this.selectJobController.abort();
-    }
-
-    this.setState({ isPinboardVisible: false });
   }
 
   render() {
     const {
       repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
-      classificationTypes, isPinBoardVisible,
+      classificationTypes, isPinBoardVisible, selectedJob,
     } = this.props;
     const {
-      job, jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
+      jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
       perfJobDetail, suggestions, errors, bugSuggestionsLoading, logParseStatus,
       classifications, logViewerUrl, logViewerFullUrl, bugs, reftestUrl,
     } = this.state;
@@ -290,20 +263,18 @@ class DetailsPanel extends React.Component {
       <div
         id="details-panel"
         style={{ height: `${detailsPanelHeight}px` }}
-        className={job ? 'details-panel-slide' : 'hidden'}
+        className={selectedJob ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard
-          selectedJob={job}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
           revisionList={this.getRevisionTips()}
           $injector={$injector}
         />
-        {!!job && <div id="details-panel-content">
+        {!!selectedJob && <div id="details-panel-content">
           <SummaryPanel
             repoName={repoName}
             currentRepo={currentRepo}
-            selectedJob={job}
             classificationMap={classificationMap}
             jobLogUrls={jobLogUrls}
             logParseStatus={logParseStatus}
@@ -319,7 +290,6 @@ class DetailsPanel extends React.Component {
           <TabsPanel
             jobDetails={jobDetails}
             perfJobDetail={perfJobDetail}
-            selectedJob={job}
             repoName={repoName}
             jobRevision={jobRevision}
             suggestions={suggestions}
@@ -353,7 +323,6 @@ DetailsPanel.propTypes = {
   classificationMap: PropTypes.object.isRequired,
   setPinBoardVisible: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -361,4 +330,4 @@ DetailsPanel.defaultProps = {
   selectedJob: null,
 };
 
-export default withPinnedJobs(DetailsPanel);
+export default withSelectedJob(withPinnedJobs(DetailsPanel));

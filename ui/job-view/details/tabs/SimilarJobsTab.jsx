@@ -8,13 +8,13 @@ import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
+import { withSelectedJob } from '../../context/SelectedJob';
 
-export default class SimilarJobsTab extends React.Component {
+class SimilarJobsTab extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
 
     this.pageSize = 20;
@@ -287,4 +287,11 @@ SimilarJobsTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   classificationMap: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object,
 };
+
+SimilarJobsTab.defaultProps = {
+  selectedJob: null,
+};
+
+export default withSelectedJob(SimilarJobsTab);

@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HotKeys } from 'react-hotkeys';
 
-import { thEvents, thJobNavSelectors } from '../js/constants';
+import { thEvents } from '../js/constants';
 import { withPinnedJobs } from './context/PinnedJobs';
+import { withSelectedJob } from './context/SelectedJob';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -41,14 +42,10 @@ class KeyboardShortcuts extends React.Component {
     this.pinEditComment = this.pinEditComment.bind(this);
     this.quickFilter = this.quickFilter.bind(this);
     this.clearFilter = this.clearFilter.bind(this);
-    this.nextUnclassified = this.nextUnclassified.bind(this);
-    this.previousUnclassified = this.previousUnclassified.bind(this);
     this.openLogviewer = this.openLogviewer.bind(this);
     this.jobRetrigger = this.jobRetrigger.bind(this);
     this.selectNextTab = this.selectNextTab.bind(this);
     this.clearPinboard = this.clearPinboard.bind(this);
-    this.previousJob = this.previousJob.bind(this);
-    this.nextJob = this.nextJob.bind(this);
     this.pinJob = this.pinJob.bind(this);
     this.clearSelectedJob = this.clearSelectedJob.bind(this);
     this.saveClassification = this.saveClassification.bind(this);
@@ -64,41 +61,9 @@ class KeyboardShortcuts extends React.Component {
    * Job Navigation Shortcuts
    */
 
-  // select next unclassified failure
-  nextUnclassified() {
-    this.$rootScope.$emit(
-      thEvents.changeSelection,
-      'next',
-      thJobNavSelectors.UNCLASSIFIED_FAILURES);
-  }
-
-  // select previous unclassified failure
-  previousUnclassified() {
-    this.$rootScope.$emit(
-      thEvents.changeSelection,
-      'previous',
-      thJobNavSelectors.UNCLASSIFIED_FAILURES);
-  }
-
-  // select previous job
-  previousJob() {
-    this.$rootScope.$emit(
-      thEvents.changeSelection,
-      'previous',
-      thJobNavSelectors.ALL_JOBS);
-  }
-
-  // select next job
-  nextJob() {
-    this.$rootScope.$emit(
-      thEvents.changeSelection,
-      'next',
-      thJobNavSelectors.ALL_JOBS);
-  }
-
   // close any open panels and clears selected job
   clearSelectedJob() {
-    this.$rootScope.$emit(thEvents.clearSelectedJob);
+    this.props.clearSelectedJob();
     this.$rootScope.setOnscreenShortcutsShowing(false);
     this.$rootScope.$apply();
   }
@@ -221,22 +186,22 @@ class KeyboardShortcuts extends React.Component {
   }
 
   render() {
-    const { filterModel } = this.props;
+    const { filterModel, changeSelectedJob } = this.props;
     const handlers = {
       addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
       pinEditComment: ev => this.doKey(ev, this.pinEditComment),
       quickFilter: ev => this.doKey(ev, this.quickFilter),
       clearFilter: ev => this.doKey(ev, this.clearFilter),
       toggleInProgress: ev => this.doKey(ev, filterModel.toggleInProgress),
-      nextUnclassified: ev => this.doKey(ev, this.nextUnclassified),
-      previousUnclassified: ev => this.doKey(ev, this.previousUnclassified),
+      nextUnclassified: ev => this.doKey(ev, () => changeSelectedJob('next', true)),
+      previousUnclassified: ev => this.doKey(ev, () => changeSelectedJob('previous', true)),
       openLogviewer: ev => this.doKey(ev, this.openLogviewer),
       jobRetrigger: ev => this.doKey(ev, this.jobRetrigger),
       selectNextTab: ev => this.doKey(ev, this.selectNextTab),
       toggleUnclassifiedFailures: ev => this.doKey(ev, filterModel.toggleUnclassifiedFailures),
       clearPinboard: ev => this.doKey(ev, this.clearPinboard),
-      previousJob: ev => this.doKey(ev, this.previousJob),
-      nextJob: ev => this.doKey(ev, this.nextJob),
+      previousJob: ev => this.doKey(ev, () => changeSelectedJob('previous')),
+      nextJob: ev => this.doKey(ev, () => changeSelectedJob('next')),
       pinJob: ev => this.doKey(ev, this.pinJob),
       toggleOnScreenShortcuts: ev => this.doKey(ev, this.toggleOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
@@ -266,6 +231,8 @@ KeyboardShortcuts.propTypes = {
   pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
   children: PropTypes.array.isRequired,
+  clearSelectedJob: PropTypes.func.isRequired,
+  changeSelectedJob: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -273,4 +240,4 @@ KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
 
-export default withPinnedJobs(KeyboardShortcuts);
+export default withPinnedJobs(withSelectedJob(KeyboardShortcuts));

@@ -8,6 +8,7 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { withSelectedJob } from '../context/SelectedJob';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -151,10 +152,15 @@ class PushHeader extends React.PureComponent {
   }
 
   pinAllShownJobs() {
-    const { pinJobs } = this.props;
+    const { selectedJob, setSelectedJob, pinJobs, expandAllPushGroups } = this.props;
     const shownJobs = this.ThResultSetStore.getAllShownJobs(this.props.pushId);
 
-    pinJobs(shownJobs);
+    expandAllPushGroups(() => {
+      pinJobs(shownJobs);
+      if (!selectedJob) {
+        setSelectedJob(shownJobs[0]);
+      }
+    });
   }
 
   render() {
@@ -271,15 +277,19 @@ PushHeader.propTypes = {
   hideRunnableJobsCb: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
+  setSelectedJob: PropTypes.func.isRequired,
   pinJobs: PropTypes.func.isRequired,
+  expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
+  selectedJob: PropTypes.object,
 };
 
 PushHeader.defaultProps = {
+  selectedJob: null,
   jobCounts: null,
   watchState: 'none',
 };
 
-export default withPinnedJobs(PushHeader);
+export default withSelectedJob(withPinnedJobs(PushHeader));

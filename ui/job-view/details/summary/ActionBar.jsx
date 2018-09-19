@@ -10,6 +10,7 @@ import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import LogUrls from './LogUrls';
+import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 
 class ActionBar extends React.Component {
@@ -21,7 +22,6 @@ class ActionBar extends React.Component {
     this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$interpolate = $injector.get('$interpolate');
-    this.$uibModal = $injector.get('$uibModal');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
@@ -347,4 +347,4 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
-export default withPinnedJobs(ActionBar);
+export default withSelectedJob(withPinnedJobs(ActionBar));
