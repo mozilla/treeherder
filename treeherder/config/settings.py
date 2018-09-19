@@ -345,9 +345,9 @@ CELERYBEAT_SCHEDULE = {
         }
     },
     'daily-intermittents-commenter': {
-        # Executes every morning at 7 a.m. UTC except monday
+        # Executes every morning at 6 a.m. UTC except monday
         'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='tuesday-sunday'),
+        'schedule': crontab(minute=0, hour=6, day_of_week='tuesday-sunday'),
         'options': {
             'queue': 'intermittents_commenter'
         },
