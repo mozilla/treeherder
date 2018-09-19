@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { thEvents } from '../../../js/constants';
 import { getBugUrl } from '../../../helpers/url';
+import { withSelectedJob } from '../../context/SelectedJob';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -137,7 +138,7 @@ AnnotationsTable.propTypes = {
   dateFilter: PropTypes.func.isRequired,
 };
 
-export default class AnnotationsTab extends React.Component {
+class AnnotationsTab extends React.Component {
   constructor(props) {
     super(props);
 
@@ -253,3 +254,5 @@ AnnotationsTab.propTypes = {
 AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
+
+export default withSelectedJob(AnnotationsTab);

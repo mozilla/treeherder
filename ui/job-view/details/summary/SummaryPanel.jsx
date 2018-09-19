@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 import { getSearchStr, getTimeFields, getJobMachineUrl } from '../../../helpers/job';
 import { getInspectTaskUrl, getJobSearchStrHref } from '../../../helpers/url';
 
+import { withSelectedJob } from '../../context/SelectedJob';
 import ActionBar from './ActionBar';
 import ClassificationsPanel from './ClassificationsPanel';
 import StatusPanel from './StatusPanel';
 
-export default class SummaryPanel extends React.Component {
+class SummaryPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -36,14 +37,16 @@ export default class SummaryPanel extends React.Component {
     let machineUrl = null;
     let machineUrlStatus = '';
 
-    try {
-      machineUrl = await getJobMachineUrl(selectedJob);
-    } catch (err) {
-      machineUrlStatus = '(Load error)';
-      console.error(`Error fetching machine URL: ${err}`); // eslint-disable-line no-console
-    }
-    if (machineUrl !== prevMachineUrl) {
-      this.setState({ machineUrl, machineUrlStatus });
+    if ('taskcluster_metadata' in selectedJob) {
+      try {
+        machineUrl = await getJobMachineUrl(selectedJob);
+      } catch (err) {
+        machineUrlStatus = '(Load error)';
+        console.error(`Error fetching machine URL: ${err}`); // eslint-disable-line no-console
+      }
+      if (machineUrl !== prevMachineUrl) {
+        this.setState({ machineUrl, machineUrlStatus });
+      }
     }
   }
 
@@ -71,7 +74,6 @@ export default class SummaryPanel extends React.Component {
       <div id="summary-panel">
         <ActionBar
           repoName={repoName}
-          selectedJob={selectedJob}
           logParseStatus={logParseStatus}
           isTryRepo={currentRepo.is_try_repo}
           logViewerUrl={logViewerUrl}
@@ -100,7 +102,7 @@ export default class SummaryPanel extends React.Component {
                   currentRepo={currentRepo}
                   $injector={$injector}
                 />}
-              <StatusPanel selectedJob={selectedJob} />
+              <StatusPanel />
               <div>
                 <li className="small">
                   <label title="">Job</label>
@@ -213,3 +215,5 @@ SummaryPanel.defaultProps = {
   logViewerUrl: null,
   logViewerFullUrl: null,
 };
+
+export default withSelectedJob(SummaryPanel);

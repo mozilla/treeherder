@@ -218,16 +218,6 @@ treeherder.factory('ThResultSetStore', [
             if (_.isEmpty(repoData)) {
                 repoData = {
                     name: repoName,
-
-                    // This keeps track of the selected job.  The selected job,
-                    // when rendered, will be given a class of ``selected-job``,
-                    // but the directive may lose track of that class when we are
-                    // updating with new jobs.  In the event the row with the
-                    // selected job is being re-rendered, knowing which one is
-                    // selected here in the model will allow us to apply the
-                    // correct styling to it.
-                    lastJobObjSelected: {},
-
                     // maps to help finding objects to update/add
                     rsMap: {},
                     jobMap: {},
@@ -257,17 +247,6 @@ treeherder.factory('ThResultSetStore', [
             return shownJobs.filter(job => job.result_set_id === pushId && job.visible);
           }
           return shownJobs.filter(job => job.visible);
-        };
-
-        var getSelectedJob = function () {
-            return {
-                job: repoData.lastJobObjSelected,
-            };
-        };
-
-        var setSelectedJob = function (lastJobObjSelected) {
-            repoData.lastJobObjSelected = lastJobObjSelected;
-            $timeout(() => { $rootScope.selectedJob = lastJobObjSelected; });
         };
 
         var getPlatformKey = function (name, option) {
@@ -988,10 +967,8 @@ treeherder.factory('ThResultSetStore', [
             toggleSelectedRunnableJob: toggleSelectedRunnableJob,
             getPush: getPush,
             getPushArray: getPushArray,
-            getSelectedJob: getSelectedJob,
             getFilteredUnclassifiedFailureCount: getFilteredUnclassifiedFailureCount,
             getAllUnclassifiedFailureCount: getAllUnclassifiedFailureCount,
-            setSelectedJob: setSelectedJob,
             updateUnclassifiedFailureMap: updateUnclassifiedFailureMap,
             defaultPushCount: defaultPushCount,
             recalculateUnclassifiedCounts: recalculateUnclassifiedCounts,

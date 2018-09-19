@@ -30,11 +30,13 @@ export default class Push extends React.Component {
       last_job_counts: job_counts ? { ...job_counts } : null,
       hasBoundaryError: false,
       boundaryError: '',
+      pushGroupState: 'collapsed',
     };
   }
   componentDidMount() {
     this.showRunnableJobs = this.showRunnableJobs.bind(this);
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
+    this.expandAllPushGroups = this.expandAllPushGroups.bind(this);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -45,6 +47,16 @@ export default class Push extends React.Component {
     this.setState({
       hasBoundaryError: true,
       boundaryError: error,
+    });
+  }
+
+  expandAllPushGroups(callback) {
+    // This sets the group state once, then unsets it in the callback.  This
+    // has the result of triggering an expand on all the groups, but then
+    // gives control back to each group to decide to expand or not.
+    this.setState({ pushGroupState: 'expanded' }, () => {
+      this.setState({ pushGroupState: 'collapsed' });
+      callback();
     });
   }
 
@@ -134,7 +146,9 @@ export default class Push extends React.Component {
       push, isLoggedIn, $injector, repoName, currentRepo,
       filterModel, notificationSupported,
     } = this.props;
-    const { watched, runnableVisible, hasBoundaryError, boundaryError } = this.state;
+    const {
+      watched, runnableVisible, hasBoundaryError, boundaryError, pushGroupState,
+    } = this.state;
     const { id, push_timestamp, revision, job_counts, author } = push;
 
     if (hasBoundaryError) {
@@ -164,6 +178,7 @@ export default class Push extends React.Component {
           showRunnableJobsCb={this.showRunnableJobs}
           hideRunnableJobsCb={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
+          expandAllPushGroups={this.expandAllPushGroups}
           notificationSupported={notificationSupported}
         />
         <div className="push-body-divider" />
@@ -180,6 +195,7 @@ export default class Push extends React.Component {
               push={push}
               repoName={repoName}
               filterModel={filterModel}
+              pushGroupState={pushGroupState}
               $injector={$injector}
             />
           </span>

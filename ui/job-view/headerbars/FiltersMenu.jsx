@@ -3,12 +3,22 @@ import PropTypes from 'prop-types';
 
 import { thAllResultStatuses } from '../../js/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { withSelectedJob } from '../context/SelectedJob';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(rs => rs !== 'runnable');
 
 function FiltersMenu(props) {
-  const { filterModel, pinJobs, resultSetStore } = props;
+  const { filterModel, pinJobs, resultSetStore, selectedJob, setSelectedJob } = props;
   const { urlParams: { resultStatus, classifiedState } } = filterModel;
+
+  const pinAllShownJobs = () => {
+    const shownJobs = resultSetStore.getAllShownJobs(this.props.pushId);
+
+    pinJobs(shownJobs);
+    if (!selectedJob) {
+      setSelectedJob(shownJobs[0]);
+    }
+  };
 
   return (
     <span>
@@ -63,7 +73,7 @@ function FiltersMenu(props) {
           <li
             title="Pin all jobs that pass the global filters"
             className="dropdown-item"
-            onClick={() => pinJobs(resultSetStore.getAllShownJobs())}
+            onClick={pinAllShownJobs}
           >Pin all showing</li>
           <li
             title="Show only superseded jobs"
@@ -84,7 +94,13 @@ function FiltersMenu(props) {
 FiltersMenu.propTypes = {
   filterModel: PropTypes.object.isRequired,
   pinJobs: PropTypes.func.isRequired,
+  setSelectedJob: PropTypes.func.isRequired,
   resultSetStore: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object,
 };
 
-export default withPinnedJobs(FiltersMenu);
+FiltersMenu.defaultProps = {
+  selectedJob: null,
+};
+
+export default withSelectedJob(withPinnedJobs(FiltersMenu));

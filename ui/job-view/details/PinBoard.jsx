@@ -11,6 +11,7 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { withSelectedJob } from '../context/SelectedJob';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -326,11 +327,6 @@ class PinBoard extends React.Component {
     }
   }
 
-  viewJob(job) {
-    this.$rootScope.selectedJob = job;
-    this.$rootScope.$emit(thEvents.jobClick, job);
-  }
-
   retriggerAllPinnedJobs() {
     JobModel.retrigger(
       Object.keys(this.props.pinnedJobs),
@@ -343,7 +339,7 @@ class PinBoard extends React.Component {
   render() {
     const {
       selectedJob, revisionList, isLoggedIn, isPinBoardVisible, classificationTypes,
-      pinnedJobs, pinnedJobBugs, removeBug, unPinJob,
+      pinnedJobs, pinnedJobBugs, removeBug, unPinJob, setSelectedJob,
     } = this.props;
     const {
       failureClassificationId, failureClassificationComment,
@@ -367,7 +363,7 @@ class PinBoard extends React.Component {
                   <span
                     className={`btn pinned-job ${getJobBtnClass(job)} ${selectedJobId === job.id ? 'btn-lg selected-job' : 'btn-xs'}`}
                     title={getHoverText(job)}
-                    onClick={() => this.viewJob(job)}
+                    onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
                   >{job.job_type_symbol}</span>
                   <span
@@ -544,6 +540,7 @@ PinBoard.propTypes = {
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
+  setSelectedJob: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
   revisionList: PropTypes.array,
@@ -555,4 +552,4 @@ PinBoard.defaultProps = {
   revisionList: [],
 };
 
-export default withPinnedJobs(PinBoard);
+export default withSelectedJob(withPinnedJobs(PinBoard));

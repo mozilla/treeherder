@@ -16,7 +16,9 @@ PlatformName.propTypes = {
 };
 
 export default function Platform(props) {
-  const { platform, $injector, repoName, filterPlatformCb, filterModel } = props;
+  const {
+    platform, $injector, repoName, filterPlatformCb, filterModel, pushGroupState,
+  } = props;
   const { title, groups, id } = platform;
 
   return (
@@ -29,6 +31,7 @@ export default function Platform(props) {
         filterPlatformCb={filterPlatformCb}
         platform={platform}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
       />
     </tr>
   );
@@ -40,4 +43,5 @@ Platform.propTypes = {
   $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
+  pushGroupState: PropTypes.string.isRequired,
 };

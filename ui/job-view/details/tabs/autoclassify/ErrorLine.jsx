@@ -10,11 +10,12 @@ import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
 import StaticLineOption from './StaticLineOption';
+import { withSelectedJob } from '../../../context/SelectedJob';
 
 const GOOD_MATCH_SCORE = 0.75;
 const BAD_MATCH_SCORE = 0.25;
 
-export default class ErrorLine extends React.Component {
+class ErrorLine extends React.Component {
   constructor(props) {
     super(props);
 
@@ -488,7 +489,7 @@ export default class ErrorLine extends React.Component {
 
   render() {
     const {
-      errorLine, job, canClassify, isSelected, isEditable, setEditable,
+      errorLine, selectedJob, canClassify, isSelected, isEditable, setEditable,
       $injector, toggleSelect,
     } = this.props;
     const {
@@ -497,7 +498,7 @@ export default class ErrorLine extends React.Component {
 
     const failureLine = errorLine.data.metadata.failure_line;
     const searchLine = errorLine.data.bug_suggestions.search;
-    const logUrl = getLogViewerUrl(job.id, this.$rootScope.repoName, errorLine.data.line_number + 1);
+    const logUrl = getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, errorLine.data.line_number + 1);
     const status = this.getStatus();
 
     return (
@@ -585,7 +586,6 @@ export default class ErrorLine extends React.Component {
                 {options.map(option => (
                   (showHidden || !option.hidden) && <li key={option.id}>
                     <LineOption
-                      job={job}
                       errorLine={errorLine}
                       optionModel={option}
                       selectedOption={selectedOption}
@@ -607,7 +607,6 @@ export default class ErrorLine extends React.Component {
                 {extraOptions.map(option => (
                   <li key={option.id}>
                     <LineOption
-                      job={job}
                       errorLine={errorLine}
                       optionModel={option}
                       selectedOption={selectedOption}
@@ -626,7 +625,6 @@ export default class ErrorLine extends React.Component {
 
           {!errorLine.verified && !isEditable && canClassify && <div>
             <StaticLineOption
-              job={job}
               errorLine={errorLine}
               option={selectedOption}
               numOptions={options.length}
@@ -643,7 +641,7 @@ export default class ErrorLine extends React.Component {
 }
 
 ErrorLine.propTypes = {
-  job: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
   errorLine: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   isEditable: PropTypes.bool.isRequired,
@@ -660,3 +658,5 @@ ErrorLine.defaultProps = {
   errorMatchers: null,
   prevErrorLine: null,
 };
+
+export default withSelectedJob(ErrorLine);

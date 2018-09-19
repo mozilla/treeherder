@@ -246,8 +246,6 @@ export const thPerformanceBranches = ['autoland', 'mozilla-inbound'];
  * The set of custom Treeherder events.
  */
 export const thEvents = {
-  // fired (surprisingly) when a job is clicked
-  jobClick: 'job-click-EVT',
   // fired with a selected job on 't'
   selectNextTab: 'select-next-tab-EVT',
   // fired with a selected job on 'r'
@@ -258,18 +256,14 @@ export const thEvents = {
   jobsLoaded: 'jobs-loaded-EVT',
   // when new pushes are prepended, or appended
   pushesLoaded: 'pushes-loaded-EVT',
-  // after deselecting a job via click outside/esc
-  clearSelectedJob: 'clear-selected-job-EVT',
   // fired when a global filter has changed
   globalFilterChanged: 'status-filter-changed-EVT',
   groupStateChanged: 'group-state-changed-EVT',
   duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
   showRunnableJobs: 'show-runnable-jobs-EVT',
   deleteRunnableJobs: 'delete-runnable-jobs-EVT',
-  changeSelection: 'next-previous-job-EVT',
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
-  selectJob: 'select-job-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyVerified: 'ac-verified-EVT',

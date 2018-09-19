@@ -10,6 +10,7 @@ import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/u
 import BugFiler from '../../BugFiler';
 import { thEvents } from '../../../../js/constants';
 import { getAllUrlParams } from '../../../../helpers/location';
+import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 /**
@@ -59,7 +60,7 @@ class LineOption extends React.Component {
 
   render() {
     const {
-      job,
+      selectedJob,
       errorLine,
       optionModel,
       selectedOption,
@@ -74,8 +75,8 @@ class LineOption extends React.Component {
     } = this.props;
     const { isBugFilerOpen, repoName } = this.state;
     const option = optionModel;
-    let logUrl = job.logs.filter(x => x.name.endsWith('_json'));
-    logUrl = logUrl[0] ? logUrl[0].url : job.logs[0].url;
+    let logUrl = selectedJob.logs.filter(x => x.name.endsWith('_json'));
+    logUrl = logUrl[0] ? logUrl[0].url : selectedJob.logs[0].url;
 
     return (
       <div className="classification-option">
@@ -97,10 +98,10 @@ class LineOption extends React.Component {
               className={canClassify ? '' : 'hidden'}
             />}
             {!!option.bugNumber && <span className="line-option-text">
-              {(!canClassify || job.id in pinnedJobs) &&
+              {(!canClassify || selectedJob.id in pinnedJobs) &&
                 <button
                   className="btn btn-xs btn-light-bordered"
-                  onClick={() => addBug({ id: option.bugNumber }, job)}
+                  onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
                   title="add to list of bugs to associate with all pinned jobs"
                 ><i className="fa fa-thumb-tack" /></button>}
               {!!option.bugResolution &&
@@ -180,10 +181,10 @@ class LineOption extends React.Component {
           suggestion={errorLine.data.bug_suggestions}
           suggestions={[errorLine.data.bug_suggestions]}
           fullLog={logUrl}
-          parsedLog={`${location.origin}/${getLogViewerUrl(job.id, repoName)}`}
-          reftestUrl={isReftest(job) ? getReftestUrl(logUrl) : ''}
+          parsedLog={`${location.origin}/${getLogViewerUrl(selectedJob.id, repoName)}`}
+          reftestUrl={isReftest(selectedJob) ? getReftestUrl(logUrl) : ''}
           successCallback={this.bugFilerCallback}
-          jobGroupName={job.job_group_name}
+          jobGroupName={selectedJob.job_group_name}
           notify={this.thNotify}
         />}
       </div>
@@ -194,7 +195,7 @@ class LineOption extends React.Component {
 
 LineOption.propTypes = {
   $injector: PropTypes.object.isRequired,
-  job: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object.isRequired,
   errorLine: PropTypes.object.isRequired,
   optionModel: PropTypes.object.isRequired,
   canClassify: PropTypes.bool.isRequired,
@@ -214,4 +215,4 @@ LineOption.defaultProps = {
   manualBugNumber: undefined,
 };
 
-export default withPinnedJobs(LineOption);
+export default withSelectedJob(withPinnedJobs(LineOption));

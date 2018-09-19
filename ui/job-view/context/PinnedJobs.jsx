@@ -86,7 +86,7 @@ export class PinnedJobs extends React.Component {
 
   pinJobs(jobsToPin) {
     const { pinnedJobs } = this.state;
-    const { notify, selectFirstJob } = this.props;
+    const { notify } = this.props;
     const spaceRemaining = MAX_SIZE - Object.keys(pinnedJobs).length;
     const showError = jobsToPin.length > spaceRemaining;
     const newPinnedJobs = jobsToPin.slice(0, spaceRemaining).reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
@@ -100,7 +100,6 @@ export class PinnedJobs extends React.Component {
       pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
       isPinBoardVisible: true,
     }, () => {
-      selectFirstJob(Object.values(newPinnedJobs));
       if (showError) {
         notify.send(COUNT_ERROR, 'danger', { sticky: true });
       }
@@ -188,6 +187,5 @@ export function withPinnedJobs(Component) {
 
 PinnedJobs.propTypes = {
   notify: PropTypes.object.isRequired,
-  selectFirstJob: PropTypes.func.isRequired,
   children: PropTypes.object.isRequired,
 };

@@ -9,6 +9,7 @@ import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
 import SuggestionsListItem from './SuggestionsListItem';
 import BugFiler from '../../BugFiler';
+import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 class FailureSummaryTab extends React.Component {
@@ -70,7 +71,6 @@ class FailureSummaryTab extends React.Component {
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
-              selectedJob={selectedJob}
             />))}
 
           {!!errors.length &&
@@ -154,4 +154,4 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
 };
 
-export default withPinnedJobs(FailureSummaryTab);
+export default withSelectedJob(withPinnedJobs(FailureSummaryTab));

@@ -37,19 +37,25 @@ GroupSymbol.defaultProps = {
 export default class JobGroup extends React.Component {
   constructor(props) {
     super(props);
-    const { $injector } = this.props;
+    const { $injector, pushGroupState } = this.props;
     this.$rootScope = $injector.get('$rootScope');
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = getUrlParam('group_state');
     const duplicateJobs = getUrlParam('duplicate_jobs');
     this.state = {
-      expanded: groupState === 'expanded',
+      expanded: groupState === 'expanded' || pushGroupState === 'expanded',
       showDuplicateJobs: duplicateJobs === 'visible',
     };
   }
 
-  componentWillMount() {
+  static getDerivedStateFromProps(nextProps, state) {
+    // We should expand this group if it's own state is set to be expanded,
+    // or if the push was set to have all groups expanded.
+    return { expanded: state.expanded || nextProps.pushGroupState === 'expanded' };
+  }
+
+  componentDidMount() {
     // TODO: Move this state up to PushList and pass groupState and duplicates
     // as props.  In PushList, it will listen for history changes to set
     // the values.
@@ -190,5 +196,6 @@ JobGroup.propTypes = {
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
+  pushGroupState: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
 };

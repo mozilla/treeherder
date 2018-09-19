@@ -6,7 +6,10 @@ import { getStatus } from '../../helpers/job';
 
 export default class JobsAndGroups extends React.Component {
   render() {
-    const { $injector, groups, repoName, platform, filterPlatformCb, filterModel } = this.props;
+    const {
+      $injector, groups, repoName, platform, filterPlatformCb, filterModel,
+      pushGroupState,
+    } = this.props;
 
     return (
       <td className="job-row" data-job-clear-on-click>
@@ -21,6 +24,7 @@ export default class JobsAndGroups extends React.Component {
                 filterPlatformCb={filterPlatformCb}
                 platform={platform}
                 key={group.mapKey}
+                pushGroupState={pushGroupState}
               />
             );
           }
@@ -53,4 +57,5 @@ JobsAndGroups.propTypes = {
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
+  pushGroupState: PropTypes.string.isRequired,
 };
