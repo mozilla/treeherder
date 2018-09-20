@@ -10,9 +10,8 @@ import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import LogUrls from './LogUrls';
-import { withPinnedJobs } from '../../context/PinnedJobs';
 
-class ActionBar extends React.Component {
+export default class ActionBar extends React.Component {
   constructor(props) {
     super(props);
 
@@ -351,5 +350,3 @@ ActionBar.defaultProps = {
   logViewerFullUrl: null,
   jobLogUrls: [],
 };
-
-export default withPinnedJobs(ActionBar);

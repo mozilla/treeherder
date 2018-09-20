@@ -51,7 +51,7 @@ export default class SummaryPanel extends React.Component {
     const {
       repoName, selectedJob, latestClassification, bugs, jobLogUrls,
       jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl,
-      logParseStatus, $injector, user, currentRepo, classificationMap,
+      logParseStatus, pinJob, $injector, user, currentRepo, classificationMap,
     } = this.props;
     const { machineUrl, machineUrlStatus } = this.state;
 
@@ -77,6 +77,7 @@ export default class SummaryPanel extends React.Component {
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
           jobLogUrls={jobLogUrls}
+          pinJob={pinJob}
           $injector={$injector}
           user={user}
         />
@@ -188,6 +189,7 @@ export default class SummaryPanel extends React.Component {
 
 SummaryPanel.propTypes = {
   repoName: PropTypes.string.isRequired,
+  pinJob: PropTypes.func.isRequired,
   bugs: PropTypes.array.isRequired,
   $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,

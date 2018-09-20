@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { thPlatformMap, thSimplePlatforms, thEvents } from '../../js/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { getPlatformRowId, getPushTableId } from '../../helpers/aggregateId';
 import { findInstance, findSelectedInstance, findJobInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
@@ -10,7 +9,7 @@ import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import Platform from './Platform';
 
-class PushJobs extends React.Component {
+export default class PushJobs extends React.Component {
   static getDerivedStateFromProps(nextProps, state) {
     const { filterModel, push } = nextProps;
     const { platforms } = state;
@@ -105,7 +104,6 @@ class PushJobs extends React.Component {
   }
 
   onMouseDown(ev) {
-    const { togglePinJob } = this.props;
     const jobElem = ev.target.attributes.getNamedItem('data-job-id');
 
     if (jobElem) {
@@ -118,7 +116,7 @@ class PushJobs extends React.Component {
           this.ThResultSetStore.setSelectedJob(job);
           this.selectJob(job, ev.target);
         }
-        togglePinJob(job);
+        this.$rootScope.$emit(thEvents.toggleJobPin, job);
       } else if (job.state === 'runnable') { // Toggle runnable
         this.handleRunnableClick(job);
       } else {
@@ -236,8 +234,5 @@ PushJobs.propTypes = {
   push: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
-  togglePinJob: PropTypes.func.isRequired,
   $injector: PropTypes.object.isRequired,
 };
-
-export default withPinnedJobs(PushJobs);

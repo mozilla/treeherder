@@ -489,7 +489,7 @@ export default class ErrorLine extends React.Component {
   render() {
     const {
       errorLine, job, canClassify, isSelected, isEditable, setEditable,
-      $injector, toggleSelect,
+      $injector, toggleSelect, pinnedJobs, addBug,
     } = this.props;
     const {
       messageExpanded, showHidden, selectedOption, options, extraOptions,
@@ -592,6 +592,8 @@ export default class ErrorLine extends React.Component {
                       canClassify={canClassify}
                       onOptionChange={this.onOptionChange}
                       ignoreAlways={option.ignoreAlways}
+                      pinnedJobs={pinnedJobs}
+                      addBug={addBug}
                       $injector={$injector}
                     />
                   </li>))}
@@ -618,6 +620,8 @@ export default class ErrorLine extends React.Component {
                       manualBugNumber={option.manualBugNumber}
                       ignoreAlways={option.ignoreAlways}
                       $injector={$injector}
+                      pinnedJobs={pinnedJobs}
+                      addBug={addBug}
                     />
                   </li>))}
               </ul>}
@@ -634,6 +638,8 @@ export default class ErrorLine extends React.Component {
               setEditable={setEditable}
               ignoreAlways={selectedOption.ignoreAlways}
               manualBugNumber={selectedOption.manualBugNumber}
+              pinnedJobs={pinnedJobs}
+              addBug={addBug}
             />
           </div>}
         </div>
@@ -652,6 +658,8 @@ ErrorLine.propTypes = {
   setEditable: PropTypes.func.isRequired,
   canClassify: PropTypes.bool.isRequired,
   $injector: PropTypes.object.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
+  addBug: PropTypes.func.isRequired,
   errorMatchers: PropTypes.object,
   prevErrorLine: PropTypes.object,
 };

@@ -10,12 +10,11 @@ import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/u
 import BugFiler from '../../BugFiler';
 import { thEvents } from '../../../../js/constants';
 import { getAllUrlParams } from '../../../../helpers/location';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 /**
  * Editable option
  */
-class LineOption extends React.Component {
+export default class LineOption extends React.Component {
   constructor(props) {
     super(props);
     const { $injector } = props;
@@ -213,5 +212,3 @@ LineOption.defaultProps = {
   onIgnoreAlwaysChange: null,
   manualBugNumber: undefined,
 };
-
-export default withPinnedJobs(LineOption);

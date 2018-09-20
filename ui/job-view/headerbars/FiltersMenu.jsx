@@ -2,12 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { thAllResultStatuses } from '../../js/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(rs => rs !== 'runnable');
 
-function FiltersMenu(props) {
-  const { filterModel, pinJobs, resultSetStore } = props;
+export default function FiltersMenu(props) {
+  const { filterModel, pinJobs } = props;
   const { urlParams: { resultStatus, classifiedState } } = filterModel;
 
   return (
@@ -63,7 +62,7 @@ function FiltersMenu(props) {
           <li
             title="Pin all jobs that pass the global filters"
             className="dropdown-item"
-            onClick={() => pinJobs(resultSetStore.getAllShownJobs())}
+            onClick={pinJobs}
           >Pin all showing</li>
           <li
             title="Show only superseded jobs"
@@ -84,7 +83,4 @@ function FiltersMenu(props) {
 FiltersMenu.propTypes = {
   filterModel: PropTypes.object.isRequired,
   pinJobs: PropTypes.func.isRequired,
-  resultSetStore: PropTypes.object.isRequired,
 };
-
-export default withPinnedJobs(FiltersMenu);

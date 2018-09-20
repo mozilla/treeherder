@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
 import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { reloadOnChangeParameters } from '../../helpers/filter';
 import {
   findInstance,
@@ -26,7 +25,7 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
 
-class PushList extends React.Component {
+export default class PushList extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, repoName } = this.props;
@@ -314,15 +313,12 @@ class PushList extends React.Component {
 
   // Clear the selectedJob
   closeJob() {
-    const { pinnedJobs } = this.props;
-
     // TODO: Should block clearing the selected job if there are pinned jobs
     // But can't get the pinned jobs at this time.  When we're completely on React,
     // or at least have a shared parent between PushList and DetailsPanel, we can share
     // a PinBoardModel or Context so they both have access.
-    if (!Object.keys(pinnedJobs).length) {
+    if (!this.$rootScope.countPinnedJobs()) {
       const selected = findSelectedInstance();
-
       if (selected) {
         selected.setSelected(false);
       }
@@ -390,7 +386,6 @@ PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };
@@ -399,5 +394,3 @@ PushList.defaultProps = {
   revision: null,
   currentRepo: {},
 };
-
-export default withPinnedJobs(PushList);

@@ -20,7 +20,7 @@ export default class SuggestionsListItem extends React.Component {
 
   render() {
     const {
-      suggestion, selectedJob, toggleBugFiler,
+      suggestion, selectedJob, toggleBugFiler, addBug,
     } = this.props;
     const { suggestionShowMore } = this.state;
 
@@ -46,6 +46,7 @@ export default class SuggestionsListItem extends React.Component {
               bug={bug}
               selectedJob={selectedJob}
               suggestion={suggestion}
+              addBug={addBug}
             />))}
 
         </ul>}
@@ -69,6 +70,7 @@ export default class SuggestionsListItem extends React.Component {
                 suggestion={suggestion}
                 bugClassName={bug.resolution !== '' ? 'deleted' : ''}
                 title={bug.resolution !== '' ? bug.resolution : ''}
+                addBug={addBug}
               />))}
           </ul>}
 
@@ -83,5 +85,6 @@ export default class SuggestionsListItem extends React.Component {
 SuggestionsListItem.propTypes = {
   suggestion: PropTypes.object.isRequired,
   selectedJob: PropTypes.object.isRequired,
+  addBug: PropTypes.func.isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
 };

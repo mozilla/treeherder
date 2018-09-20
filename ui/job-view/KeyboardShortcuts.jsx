@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { HotKeys } from 'react-hotkeys';
 
 import { thEvents, thJobNavSelectors } from '../js/constants';
-import { withPinnedJobs } from './context/PinnedJobs';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -28,7 +27,7 @@ const keyMap = {
   deleteClassification: 'ctrl+backspace',
 };
 
-class KeyboardShortcuts extends React.Component {
+export default class KeyboardShortcuts extends React.Component {
   constructor(props) {
     super(props);
 
@@ -109,37 +108,36 @@ class KeyboardShortcuts extends React.Component {
 
   // pin selected job to pinboard
   pinJob() {
-    const { selectedJob, pinJob } = this.props;
+    const { selectedJob } = this.props;
 
     if (selectedJob) {
-      pinJob(selectedJob);
+      this.$rootScope.$emit(thEvents.jobPin, selectedJob);
     }
   }
 
   // pin selected job to pinboard and add a related bug
   addRelatedBug() {
-    const { selectedJob, pinJob } = this.props;
+    const { selectedJob } = this.$rootScope;
 
     if (selectedJob) {
-      pinJob(selectedJob);
-      document.getElementById('add-related-bug-button').click();
+      this.$rootScope.$emit(thEvents.addRelatedBug, selectedJob);
       document.getElementById('related-bug-input').focus();
     }
   }
 
   // pin selected job to pinboard and enter classification
   pinEditComment() {
-    const { selectedJob, pinJob } = this.props;
+    const { selectedJob } = this.$rootScope;
 
     if (selectedJob) {
-      pinJob(selectedJob);
+      this.$rootScope.$emit(thEvents.jobPin, selectedJob);
       document.getElementById('classification-comment').focus();
     }
   }
 
   // clear the PinBoard
   clearPinboard() {
-    this.props.unPinAll();
+    this.$rootScope.$emit(thEvents.clearPinboard);
   }
 
   saveClassification() {
@@ -263,8 +261,6 @@ class KeyboardShortcuts extends React.Component {
 KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.object.isRequired,
   $injector: PropTypes.object.isRequired,
-  pinJob: PropTypes.func.isRequired,
-  unPinAll: PropTypes.func.isRequired,
   children: PropTypes.array.isRequired,
   selectedJob: PropTypes.object,
 };
@@ -272,5 +268,3 @@ KeyboardShortcuts.propTypes = {
 KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
-
-export default withPinnedJobs(KeyboardShortcuts);

@@ -9,9 +9,8 @@ import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
 import SuggestionsListItem from './SuggestionsListItem';
 import BugFiler from '../../BugFiler';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
 
-class FailureSummaryTab extends React.Component {
+export default class FailureSummaryTab extends React.Component {
   constructor(props) {
     super(props);
 
@@ -55,7 +54,7 @@ class FailureSummaryTab extends React.Component {
   render() {
     const {
       jobLogUrls, logParseStatus, suggestions, errors, logViewerFullUrl,
-      bugSuggestionsLoading, selectedJob, reftestUrl,
+      bugSuggestionsLoading, selectedJob, addBug, reftestUrl,
     } = this.props;
     const { isBugFilerOpen, suggestion } = this.state;
     const logs = jobLogUrls;
@@ -71,6 +70,7 @@ class FailureSummaryTab extends React.Component {
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
               selectedJob={selectedJob}
+              addBug={addBug}
             />))}
 
           {!!errors.length &&
@@ -153,5 +153,3 @@ FailureSummaryTab.defaultProps = {
   logParseStatus: 'pending',
   logViewerFullUrl: null,
 };
-
-export default withPinnedJobs(FailureSummaryTab);

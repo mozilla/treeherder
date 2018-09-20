@@ -12,9 +12,8 @@ import PerformanceTab from './PerformanceTab';
 import AutoclassifyTab from './autoclassify/AutoclassifyTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
-import { withPinnedJobs } from '../../context/PinnedJobs';
 
-class TabsPanel extends React.Component {
+export default class TabsPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -93,9 +92,9 @@ class TabsPanel extends React.Component {
 
   render() {
     const {
-      jobDetails, jobLogUrls, logParseStatus, suggestions, errors, user, bugs,
+      jobDetails, jobLogUrls, logParseStatus, suggestions, errors, pinJob, user, bugs,
       bugSuggestionsLoading, selectedJob, perfJobDetail, repoName, jobRevision,
-      classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs,
+      classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs, addBug,
       classificationMap, logViewerFullUrl, reftestUrl, $injector,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
@@ -125,9 +124,8 @@ class TabsPanel extends React.Component {
                 title={isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'}
               >PinBoard
                 {!!countPinnedJobs && <div
-                  id="pin-count-group"
                   title={`You have ${countPinnedJobs} job${countPinnedJobs > 1 ? 's' : ''} pinned`}
-                  className={`${countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''}`}
+                  className={`pin-count-group ${countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''}`}
                 >
                   <div
                     className={`pin-count-text ${countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''}`}
@@ -154,6 +152,8 @@ class TabsPanel extends React.Component {
               bugSuggestionsLoading={bugSuggestionsLoading}
               jobLogUrls={jobLogUrls}
               logParseStatus={logParseStatus}
+              addBug={addBug}
+              pinJob={pinJob}
               logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
               $injector={$injector}
@@ -165,6 +165,9 @@ class TabsPanel extends React.Component {
               hasLogs={!!jobLogUrls.length}
               logsParsed={logParseStatus !== 'pending'}
               logParseStatus={logParseStatus}
+              addBug={addBug}
+              pinJob={pinJob}
+              pinnedJobs={pinnedJobs}
               user={user}
               $injector={$injector}
             />
@@ -209,6 +212,8 @@ TabsPanel.propTypes = {
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
+  addBug: PropTypes.func.isRequired,
+  pinJob: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   perfJobDetail: PropTypes.array,
   suggestions: PropTypes.array,
@@ -234,5 +239,3 @@ TabsPanel.defaultProps = {
   logViewerFullUrl: null,
   reftestUrl: null,
 };
-
-export default withPinnedJobs(TabsPanel);

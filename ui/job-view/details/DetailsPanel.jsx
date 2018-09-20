@@ -1,9 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { chunk } from 'lodash';
+import $ from 'jquery';
 
-import { thEvents, thBugSuggestionLimit } from '../../js/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
+import {
+  thEvents,
+  thBugSuggestionLimit,
+  thPinboardCountError,
+  thPinboardMaxSize,
+} from '../../js/constants';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
@@ -12,6 +17,7 @@ import JobModel from '../../models/job';
 import JobDetailModel from '../../models/jobDetail';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import TextLogStepModel from '../../models/textLogStep';
+
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
@@ -19,7 +25,7 @@ import { setUrlParam } from '../../helpers/location';
 
 export const pinboardHeight = 100;
 
-class DetailsPanel extends React.Component {
+export default class DetailsPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -27,6 +33,7 @@ class DetailsPanel extends React.Component {
 
     this.PhSeries = $injector.get('PhSeries');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
+    this.thNotify = $injector.get('thNotify');
     this.$rootScope = $injector.get('$rootScope');
 
     // used to cancel all the ajax requests triggered by selectJob
@@ -34,6 +41,7 @@ class DetailsPanel extends React.Component {
 
     this.state = {
       job: null,
+      isPinBoardVisible: false,
       jobDetails: [],
       jobLogUrls: [],
       jobDetailLoading: false,
@@ -49,6 +57,8 @@ class DetailsPanel extends React.Component {
       suggestions: [],
       errors: [],
       bugSuggestionsLoading: false,
+      pinnedJobs: {},
+      pinnedJobBugs: {},
     };
   }
 
@@ -60,13 +70,23 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidMount() {
+    this.pinJob = this.pinJob.bind(this);
+    this.unPinJob = this.unPinJob.bind(this);
+    this.unPinAll = this.unPinAll.bind(this);
+    this.addBug = this.addBug.bind(this);
+    this.removeBug = this.removeBug.bind(this);
     this.closeJob = this.closeJob.bind(this);
+    this.countPinnedJobs = this.countPinnedJobs.bind(this);
+    // give access to this count to components that don't have a common ancestor in React
+    // TODO: remove this once pinnedJobs is converted to a model or Context
+    this.$rootScope.countPinnedJobs = this.countPinnedJobs;
 
     this.jobClickUnlisten = this.$rootScope.$on(thEvents.jobClick, (evt, job) => {
       this.setState({
         jobDetailLoading: true,
         jobDetails: [],
         suggestions: [],
+        isPinBoardVisible: !!this.countPinnedJobs(),
       }, () => this.selectJob(job));
     });
 
@@ -74,20 +94,47 @@ class DetailsPanel extends React.Component {
       if (this.selectJobController !== null) {
         this.selectJobController.abort();
       }
-      if (!Object.keys(this.props.pinnedJobs).length) {
+      if (!this.countPinnedJobs()) {
         this.closeJob();
       }
     });
 
+    this.toggleJobPinUnlisten = this.$rootScope.$on(thEvents.toggleJobPin, (event, job) => {
+      this.toggleJobPin(job);
+    });
+
+    this.jobPinUnlisten = this.$rootScope.$on(thEvents.jobPin, (event, job) => {
+      this.pinJob(job);
+    });
+
     this.jobsClassifiedUnlisten = this.$rootScope.$on(thEvents.jobsClassified, () => {
       this.updateClassifications(this.props.selectedJob);
+    });
+
+    this.pinAllShownJobsUnlisten = this.$rootScope.$on(thEvents.pinJobs, (event, jobs) => {
+      this.pinJobs(jobs);
+    });
+
+    this.clearPinboardUnlisten = this.$rootScope.$on(thEvents.clearPinboard, () => {
+      if (this.state.isPinBoardVisible) {
+        this.unPinAll();
+      }
+    });
+
+    this.pulsePinCountUnlisten = this.$rootScope.$on(thEvents.pulsePinCount, () => {
+      this.pulsePinCount();
     });
   }
 
   componentWillUnmount() {
     this.jobClickUnlisten();
     this.clearSelectedJobUnlisten();
+    this.toggleJobPinUnlisten();
+    this.jobPinUnlisten();
     this.jobsClassifiedUnlisten();
+    this.clearPinboardUnlisten();
+    this.pulsePinCountUnlisten();
+    this.pinAllShownJobsUnlisten();
   }
 
   getRevisionTips() {
@@ -99,9 +146,7 @@ class DetailsPanel extends React.Component {
   }
 
   togglePinBoardVisibility() {
-    const { setPinBoardVisible, isPinBoardVisible } = this.props;
-
-    setPinBoardVisible(!isPinBoardVisible);
+      this.setState({ isPinBoardVisible: !this.state.isPinBoardVisible });
   }
 
   loadBugSuggestions(job) {
@@ -274,15 +319,108 @@ class DetailsPanel extends React.Component {
     this.setState({ isPinboardVisible: false });
   }
 
+  toggleJobPin(job) {
+    const { pinnedJobs } = this.state;
+
+    if (pinnedJobs[job.id]) {
+      this.unPinJob(job.id);
+    } else {
+      this.pinJob(job);
+    }
+  }
+
+  pulsePinCount() {
+    $('.pin-count-group').addClass('pin-count-pulse');
+    window.setTimeout(() => {
+      $('.pin-count-group').removeClass('pin-count-pulse');
+    }, 700);
+  }
+
+  pinJob(job) {
+    const { pinnedJobs } = this.state;
+
+    if (thPinboardMaxSize - this.countPinnedJobs() > 0) {
+      this.setState({
+        pinnedJobs: { ...pinnedJobs, [job.id]: job },
+        isPinBoardVisible: true,
+      });
+      this.pulsePinCount();
+    } else {
+      this.thNotify.send(thPinboardCountError, 'danger');
+    }
+    if (!this.state.selectedJob) {
+      this.selectJob(job);
+    }
+  }
+
+  unPinJob(id) {
+    const { pinnedJobs } = this.state;
+
+    delete pinnedJobs[id];
+    this.setState({ pinnedJobs: { ...pinnedJobs } });
+  }
+
+  pinJobs(jobsToPin) {
+    const { pinnedJobs } = this.state;
+    const spaceRemaining = thPinboardMaxSize - this.countPinnedJobs();
+    const showError = jobsToPin.length > spaceRemaining;
+    const newPinnedJobs = jobsToPin.slice(0, spaceRemaining).reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
+
+    if (!spaceRemaining) {
+      this.thNotify.send(thPinboardCountError, 'danger', { sticky: true });
+      return;
+    }
+
+    this.setState({
+      pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
+      isPinBoardVisible: true,
+    }, () => {
+      if (!this.props.selectedJob) {
+        this.$rootScope.$emit(thEvents.jobClick, jobsToPin[0]);
+      }
+      if (showError) {
+        this.thNotify.send(thPinboardCountError, 'danger', { sticky: true });
+      }
+    });
+  }
+
+  countPinnedJobs() {
+    return Object.keys(this.state.pinnedJobs).length;
+  }
+
+  addBug(bug, job) {
+    const { pinnedJobBugs } = this.state;
+
+    pinnedJobBugs[bug.id] = bug;
+    this.setState({ pinnedJobBugs: { ...pinnedJobBugs } });
+    if (job) {
+        this.pinJob(job);
+    }
+  }
+
+  removeBug(id) {
+    const { pinnedJobBugs } = this.state;
+
+    delete pinnedJobBugs[id];
+    this.setState({ pinnedJobBugs: { ...pinnedJobBugs } });
+  }
+
+  unPinAll() {
+    this.setState({
+      pinnedJobs: {},
+      pinnedJobBugs: {},
+    });
+  }
+
   render() {
     const {
       repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
-      classificationTypes, isPinBoardVisible,
+      classificationTypes,
     } = this.props;
     const {
-      job, jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
+      job, isPinBoardVisible, jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
       perfJobDetail, suggestions, errors, bugSuggestionsLoading, logParseStatus,
-      classifications, logViewerUrl, logViewerFullUrl, bugs, reftestUrl,
+      classifications, logViewerUrl, logViewerFullUrl, pinnedJobs, pinnedJobBugs, bugs, reftestUrl,
     } = this.state;
     const detailsPanelHeight = isPinBoardVisible ? resizedHeight - pinboardHeight : resizedHeight;
 
@@ -293,10 +431,18 @@ class DetailsPanel extends React.Component {
         className={job ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard
+          isVisible={isPinBoardVisible}
           selectedJob={job}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
           revisionList={this.getRevisionTips()}
+          pinnedJobs={pinnedJobs}
+          pinnedJobBugs={pinnedJobBugs}
+          addBug={this.addBug}
+          removeBug={this.removeBug}
+          pinJob={this.pinJob}
+          unPinJob={this.unPinJob}
+          unPinAll={this.unPinAll}
           $injector={$injector}
         />
         {!!job && <div id="details-panel-content">
@@ -311,6 +457,7 @@ class DetailsPanel extends React.Component {
             latestClassification={classifications.length ? classifications[0] : null}
             logViewerUrl={logViewerUrl}
             logViewerFullUrl={logViewerFullUrl}
+            pinJob={this.pinJob}
             bugs={bugs}
             user={user}
             $injector={$injector}
@@ -329,7 +476,11 @@ class DetailsPanel extends React.Component {
             classifications={classifications}
             classificationMap={classificationMap}
             jobLogUrls={jobLogUrls}
+            isPinBoardVisible={isPinBoardVisible}
+            pinnedJobs={pinnedJobs}
             bugs={bugs}
+            addBug={this.addBug}
+            pinJob={this.pinJob}
             togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
             logViewerFullUrl={logViewerFullUrl}
             reftestUrl={reftestUrl}
@@ -351,14 +502,9 @@ DetailsPanel.propTypes = {
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   classificationMap: PropTypes.object.isRequired,
-  setPinBoardVisible: PropTypes.func.isRequired,
-  isPinBoardVisible: PropTypes.bool.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
 };
 
 DetailsPanel.defaultProps = {
   selectedJob: null,
 };
-
-export default withPinnedJobs(DetailsPanel);
