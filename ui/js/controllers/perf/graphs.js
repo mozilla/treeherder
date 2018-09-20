@@ -16,7 +16,7 @@ import {
   phDefaultTimeRangeValue,
   phDefaultFramework,
   thPerformanceBranches,
-} from '../../constants';
+} from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 

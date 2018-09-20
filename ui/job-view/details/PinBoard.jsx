@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
 
-import { thEvents } from '../../js/constants';
+import { thEvents } from '../../helpers/constants';
 import { formatModelError } from '../../helpers/errorMessage';
 import { getJobBtnClass, getHoverText } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';

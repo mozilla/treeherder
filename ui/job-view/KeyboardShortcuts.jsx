@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HotKeys } from 'react-hotkeys';
 
-import { thEvents } from '../js/constants';
+import { thEvents } from '../helpers/constants';
 import { withPinnedJobs } from './context/PinnedJobs';
 import { withSelectedJob } from './context/SelectedJob';
 

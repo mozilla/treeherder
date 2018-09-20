@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thAllResultStatuses } from '../../js/constants';
+import { thAllResultStatuses } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 

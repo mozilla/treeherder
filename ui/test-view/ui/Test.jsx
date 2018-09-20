@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
 
 import { store, actions } from '../redux/store';
-import { thPlatformMap } from '../../js/constants';
+import { thPlatformMap } from '../../helpers/constants';
 import LogViewer from './LogViewer';
 
 

@@ -1,4 +1,4 @@
-import { thDefaultRepo } from '../js/constants';
+import { thDefaultRepo } from './constants';
 import { createQueryParams } from './url';
 
 export const getQueryString = function getQueryString() {

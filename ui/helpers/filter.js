@@ -1,4 +1,4 @@
-import { thFailureResults } from '../js/constants';
+import { thFailureResults } from './constants';
 
 // used with field-filters to determine how to match the value against the
 // job field.

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { thEvents } from '../../js/constants';
+import { thEvents } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';

@@ -12,7 +12,7 @@ import {
   phTimeRangeValues,
   phAlertSummaryStatusMap,
   phAlertStatusMap,
-} from '../../constants';
+} from '../../../helpers/constants';
 import OptionCollectionModel from '../../../models/optionCollection';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';

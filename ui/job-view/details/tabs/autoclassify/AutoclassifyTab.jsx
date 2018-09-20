@@ -2,7 +2,7 @@ import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { thEvents } from '../../../../js/constants';
+import { thEvents } from '../../../../helpers/constants';
 import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 

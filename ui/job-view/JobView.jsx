@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
 import treeherder from '../js/treeherder';
-import { thEvents, thFavicons } from '../js/constants';
+import { thEvents, thFavicons } from '../helpers/constants';
 import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
 import { matchesDefaults } from '../helpers/filter';

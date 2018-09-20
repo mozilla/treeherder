@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 
+import { thJobNavSelectors } from '../../helpers/constants';
 import {
   findJobInstance,
   findSelectedInstance, scrollToElement,
@@ -11,7 +12,6 @@ import { getJobsUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import { withPinnedJobs } from './PinnedJobs';
-import { thJobNavSelectors } from '../../js/constants';
 
 const SelectedJobContext = React.createContext({});
 

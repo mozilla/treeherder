@@ -8,7 +8,7 @@ import {
   phAlertSummaryStatusMap,
   phAlertStatusMap,
   thPerformanceBranches,
-} from '../../constants';
+} from '../../../helpers/constants';
 
 treeherder.factory('PhAlerts', [
     '$http', '$httpParamSerializer', '$q', 'PhSeries',

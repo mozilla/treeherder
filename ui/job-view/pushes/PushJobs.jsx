@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thPlatformMap, thSimplePlatforms, thEvents } from '../../js/constants';
+import { thPlatformMap, thSimplePlatforms, thEvents } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { getPlatformRowId, getPushTableId } from '../../helpers/aggregateId';

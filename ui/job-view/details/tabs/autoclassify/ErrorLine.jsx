@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup } from 'reactstrap';
 
-import { thEvents } from '../../../../js/constants';
+import { thEvents } from '../../../../helpers/constants';
 import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
 import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
 

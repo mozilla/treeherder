@@ -2,7 +2,7 @@ import forIn from 'lodash/forIn';
 import chunk from 'lodash/chunk';
 
 import perf from '../../perf';
-import { thDefaultRepo, phBlockers, phTimeRanges } from '../../constants';
+import { thDefaultRepo, phBlockers, phTimeRanges } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 

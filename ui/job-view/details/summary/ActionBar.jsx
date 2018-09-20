@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 
-import { thEvents } from '../../../js/constants';
+import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';

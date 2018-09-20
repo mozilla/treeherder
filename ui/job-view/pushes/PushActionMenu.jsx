@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { thEvents } from '../../js/constants';
+import { thEvents } from '../../helpers/constants';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 

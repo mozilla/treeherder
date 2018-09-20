@@ -6,7 +6,7 @@ import JobButton from './JobButton';
 import JobCount from './JobCount';
 import { getBtnClass, getStatus } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
-import { thFailureResults, thEvents } from '../../js/constants';
+import { thFailureResults, thEvents } from '../../helpers/constants';
 
 class GroupSymbol extends React.PureComponent {
   render() {

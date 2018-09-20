@@ -1,6 +1,6 @@
 import { slugid } from 'taskcluster-client-web';
 
-import { thMaxPushFetchSize } from '../js/constants';
+import { thMaxPushFetchSize } from '../helpers/constants';
 import { getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
 import { createQueryParams, getProjectUrl } from '../helpers/url';

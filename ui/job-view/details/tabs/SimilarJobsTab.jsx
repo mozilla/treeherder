@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thMaxPushFetchSize } from '../../../js/constants';
+import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
 import { getBtnClass, getStatus } from '../../../helpers/job';
 import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
