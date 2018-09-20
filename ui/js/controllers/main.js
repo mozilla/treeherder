@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import treeherderApp from '../treeherder_app';
-import { thTitleSuffixLimit, thDefaultRepo } from '../constants';
+import { thTitleSuffixLimit, thDefaultRepo } from '../../helpers/constants';
 import { getUrlParam } from '../../helpers/location';
 
 treeherderApp.controller('MainCtrl', [

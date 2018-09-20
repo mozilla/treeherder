@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
-import { thEvents } from '../../../../ui/js/constants';
+import { thEvents } from '../../../../ui/helpers/constants';
 import FilterModel from '../../../../ui/models/filter';
 
 describe('JobGroup component', () => {

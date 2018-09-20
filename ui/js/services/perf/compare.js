@@ -3,7 +3,7 @@ import chunk from 'lodash/chunk';
 
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
-import { phTimeRanges } from '../../constants';
+import { phTimeRanges } from '../../../helpers/constants';
 
 treeherder.factory('PhCompare', [
     '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math',

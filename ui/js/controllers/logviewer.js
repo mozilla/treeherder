@@ -1,7 +1,7 @@
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl, getReftestUrl } from '../../helpers/url';
 import { isReftest } from '../../helpers/job';
-import { thDateFormat } from '../constants';
+import { thDateFormat } from '../../helpers/constants';
 import JobDetailModel from '../../models/jobDetail';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';

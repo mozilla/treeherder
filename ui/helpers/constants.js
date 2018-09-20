@@ -215,16 +215,6 @@ export const thFavicons = {
   unavailable: treeFavicon,
 };
 
-export const thRepoGroupOrder = [
-  'development',
-  'release-stabilization',
-  'project repositories',
-  'comm-repositories',
-  'qa automation tests',
-  'ci-admin',
-  'other',
-];
-
 export const thDefaultRepo = 'mozilla-inbound';
 
 export const thDateFormat = 'EEE MMM d, HH:mm:ss';

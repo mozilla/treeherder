@@ -3,7 +3,7 @@ import $ from 'jquery';
 import {
   thFailureResults,
   thPlatformMap,
-} from '../js/constants';
+} from './constants';
 import { toDateStr } from './display';
 import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
 

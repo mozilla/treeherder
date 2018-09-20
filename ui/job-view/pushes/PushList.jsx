@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
-import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../js/constants';
+import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../helpers/constants';
 import { reloadOnChangeParameters } from '../../helpers/filter';
 import { findJobInstance } from '../../helpers/job';
 import {

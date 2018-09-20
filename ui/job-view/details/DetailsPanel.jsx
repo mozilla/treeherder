@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { chunk } from 'lodash';
 
-import { thEvents, thBugSuggestionLimit } from '../../js/constants';
+import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';

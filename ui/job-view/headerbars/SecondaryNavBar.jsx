@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thEvents } from '../../js/constants';
+import { thEvents } from '../../helpers/constants';
 import { getBtnClass } from '../../helpers/job';
 import { thFilterGroups } from '../../helpers/filter';
 import {

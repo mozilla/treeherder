@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
-import { thEvents } from '../../../js/constants';
+import { thEvents } from '../../../helpers/constants';
 import { getAllUrlParams } from '../../../helpers/location';
 import { getStatus } from '../../../helpers/job';
 

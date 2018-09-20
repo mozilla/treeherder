@@ -7,7 +7,7 @@ import {
 import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 import * as groupsStore from './modules/groups';
-import { thPlatformMap } from '../../js/constants';
+import { thPlatformMap } from '../../helpers/constants';
 import { getServiceUrl, getProjectUrl } from '../../helpers/url';
 
 function getGroupText(group) {

@@ -8,7 +8,7 @@ import { getSearchWords } from '../../../../helpers/display';
 import { isReftest } from '../../../../helpers/job';
 import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/url';
 import BugFiler from '../../BugFiler';
-import { thEvents } from '../../../../js/constants';
+import { thEvents } from '../../../../helpers/constants';
 import { getAllUrlParams } from '../../../../helpers/location';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';

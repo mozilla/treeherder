@@ -2,7 +2,7 @@ import {
   thDefaultRepo,
   thFailureResults,
   thPlatformMap,
-} from '../js/constants';
+} from '../helpers/constants';
 import { getStatus, isClassified } from '../helpers/job';
 import {
   arraysEqual,

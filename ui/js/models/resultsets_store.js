@@ -6,7 +6,7 @@ import _ from 'lodash';
 import max from 'lodash/max';
 import pick from 'lodash/pick';
 
-import { thPlatformMap, thOptionOrder, thEvents } from '../constants';
+import { thPlatformMap, thOptionOrder, thEvents } from '../../helpers/constants';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import treeherder from '../treeherder';
 import JobModel from '../../models/job';
