@@ -16,8 +16,7 @@ from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
                                                FailuresQueryParamsSerializer,
                                                FailuresSerializer)
-from treeherder.webapp.api.utils import (get_end_of_day,
-                                         get_repository)
+from treeherder.webapp.api.utils import get_end_of_day
 
 
 class Failures(generics.ListAPIView):
@@ -35,13 +34,14 @@ class Failures(generics.ListAPIView):
 
         startday = query_params.validated_data['startday']
         endday = get_end_of_day(query_params.validated_data['endday'])
-        repo = list(get_repository(query_params.validated_data['tree']))
+        repo = query_params.validated_data['tree']
 
-        self.queryset = (BugJobMap.failures.default(repo, startday, endday)
-                                  .values('bug_id')
-                                  .annotate(bug_count=Count('job_id'))
-                                  .values('bug_id', 'bug_count')
-                                  .order_by('-bug_count'))
+        self.queryset = (BugJobMap.failures.by_date(startday, endday)
+                                           .by_repo(repo)
+                                           .values('bug_id')
+                                           .annotate(bug_count=Count('job_id'))
+                                           .values('bug_id', 'bug_count')
+                                           .order_by('-bug_count'))
 
         serializer = self.get_serializer(self.paginate_queryset(self.queryset), many=True)
         return self.get_paginated_response(serializer.data)
@@ -63,10 +63,11 @@ class FailuresByBug(generics.ListAPIView):
 
         startday = query_params.validated_data['startday']
         endday = get_end_of_day(query_params.validated_data['endday'])
-        repo = list(get_repository(query_params.validated_data['tree']))
+        repo = query_params.validated_data['tree']
         bug_id = query_params.validated_data['bug']
 
-        self.queryset = (BugJobMap.failures.default(repo, startday, endday)
+        self.queryset = (BugJobMap.failures.by_date(startday, endday)
+                                  .by_repo(repo)
                                   .by_bug(bug_id)
                                   .values('job__repository__name', 'job__machine_platform__platform',
                                           'bug_id', 'job_id', 'job__push__time', 'job__push__revision',
@@ -123,33 +124,33 @@ class FailureCount(generics.ListAPIView):
 
         startday = query_params.validated_data['startday']
         endday = get_end_of_day(query_params.validated_data['endday'])
-        repo = list(get_repository(query_params.validated_data['tree']))
+        repo = query_params.validated_data['tree']
         bug_id = query_params.validated_data['bug']
 
-        push_query = (Push.objects.filter(repository_id__in=repo, time__range=(startday, endday))
-                                  .annotate(date=TruncDate('time'))
-                                  .values('date')
-                                  .annotate(test_runs=Count('author'))
-                                  .order_by('date')
-                                  .values('date', 'test_runs'))
+        push_query = (Push.failures.filter(time__range=(startday, endday))
+                                   .by_repo(repo, False)
+                                   .annotate(date=TruncDate('time'))
+                                   .values('date')
+                                   .annotate(test_runs=Count('author'))
+                                   .values('date', 'test_runs'))
 
         if bug_id:
-            job_query = (BugJobMap.failures.default(repo, startday, endday)
+            job_query = (BugJobMap.failures.by_date(startday, endday)
+                                           .by_repo(repo)
                                            .by_bug(bug_id)
                                            .annotate(date=TruncDate('job__push__time'))
                                            .values('date')
                                            .annotate(failure_count=Count('id'))
-                                           .order_by('date')
                                            .values('date', 'failure_count'))
         else:
-            job_query = (Job.objects.filter(push__time__range=(startday, endday),
-                                            repository_id__in=repo, failure_classification_id=4)
-                                    .select_related('push')
-                                    .annotate(date=TruncDate('push__time'))
-                                    .values('date')
-                                    .annotate(failure_count=Count('id'))
-                                    .order_by('date')
-                                    .values('date', 'failure_count'))
+            job_query = (Job.failures.filter(push__time__range=(startday, endday),
+                                             failure_classification_id=4)
+                                     .by_repo(repo, False)
+                                     .select_related('push')
+                                     .annotate(date=TruncDate('push__time'))
+                                     .values('date')
+                                     .annotate(failure_count=Count('id'))
+                                     .values('date', 'failure_count'))
 
         # merges the push_query and job_query results into a list; if a date is found in both queries,
         # update the job_query with the test_run count, if a date is in push_query but not job_query,

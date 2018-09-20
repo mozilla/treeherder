@@ -4,12 +4,14 @@ from datetime import (datetime,
 
 import django_filters
 
-from treeherder.model.models import Repository
-
+# queries are faster when filtering a range by id rather than name
+# trunk: mozilla-central, mozilla-inbound, autoland
+# firefox-releases: mozilla-beta, mozilla-release
+# comm-releases: comm-beta
 REPO_GROUPS = {
-    'trunk': ['mozilla-central', 'mozilla-inbound', 'autoland'],
-    'firefox-releases': ['mozilla-beta', 'mozilla-release'],
-    'comm-releases': ['comm-beta', 'comm-release'],
+    'trunk': [1, 2, 77],
+    'firefox-releases': [6, 7],
+    'comm-releases': [38],
 }
 
 
@@ -40,18 +42,3 @@ def to_timestamp(datetime_obj):
 def get_end_of_day(date):
     """Add a 23:59:59.999 timestamp (default is 00:00:00)"""
     return date + timedelta(days=1, microseconds=-1)
-
-
-def get_repository(name):
-    """Returns repository id's by name"""
-    queryset = Repository.objects.values_list('id', flat=True)
-
-    if name == 'all':
-        return queryset.filter(active_status='active')
-
-    if name in REPO_GROUPS:
-        param = REPO_GROUPS[name]
-    else:
-        param = [name]
-
-    return queryset.filter(name__in=param)
