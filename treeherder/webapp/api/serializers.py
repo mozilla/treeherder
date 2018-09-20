@@ -320,14 +320,6 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
         if bug is None and self.context == 'requireBug':
             raise serializers.ValidationError('This field is required.')
 
-        elif bug:
-            try:
-                models.Bugscache.objects.get(id=bug)
-
-            except ObjectDoesNotExist:
-                raise serializers.ValidationError(
-                      '{} does not exist or is not an intermittent failure.'.format(bug))
-
         return bug
 
     def validate_tree(self, tree):
