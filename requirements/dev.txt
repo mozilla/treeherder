@@ -99,9 +99,9 @@ pytest-django==3.4.3 \
     --hash=sha256:b379282feaf89069cb790775ab6bbbd2bd2038a68c7ef9b84a41898e0b551081
 
 # Required by pytest-selenium
-selenium==3.14.0 \
-    --hash=sha256:c53d13a2627d835fee3d1d6291214c62196dfeb6f5f35572bacf31ac60c030c0 \
-    --hash=sha256:f9ca21919b564a0a86012cd2177923e3a7f37c4a574207086e710192452a7c40
+selenium==3.14.1 \
+    --hash=sha256:fdb6b1143d8899e8a32e358ad05bf5d89a480dbac359dbbd341592aa8696dcd1 \
+    --hash=sha256:ab192cd046164c40fabcf44b47c66c8b12495142f4a69dcc55ea6eeef096e614
 pytest-html==1.19.0 \
     --hash=sha256:e7ee0f7a83f6a6d2a5a356c09d64ba8acffd007b8b76c5f421f2e39e9f92b1fe \
     --hash=sha256:74ad1ad9bf4c2c15184e4d7f31fe28fa09c19ff6a459e65c106be88f1e5349cd
