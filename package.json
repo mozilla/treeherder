@@ -24,7 +24,7 @@
     "angular-local-storage": "0.7.1",
     "angular-route": "1.7.4",
     "angular-sanitize": "1.7.4",
-    "angular-ui-router": "0.4.3",
+    "angular-ui-router": "1.0.20",
     "angular1-ui-bootstrap4": "2.4.22",
     "auth0-js": "9.7.3",
     "bootstrap": "4.1.3",
