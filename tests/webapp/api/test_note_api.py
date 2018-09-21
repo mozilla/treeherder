@@ -82,8 +82,7 @@ def test_note_detail_bad_project(client, test_repository):
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_create_note(client, test_job, mock_message_broker,
-                     test_user, test_no_auth):
+def test_create_note(client, test_job, test_user, test_no_auth):
     """
     test creating a single note via endpoint when authenticated
     """
@@ -123,7 +122,7 @@ def test_create_note(client, test_job, mock_message_broker,
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_delete_note(client, test_job_with_notes, mock_message_broker, test_repository,
+def test_delete_note(client, test_job_with_notes, test_repository,
                      test_sheriff, test_no_auth):
     """
     test deleting a single note via endpoint

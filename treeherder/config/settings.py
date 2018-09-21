@@ -281,7 +281,6 @@ CELERY_QUEUES = [
           routing_key='crossreference_error_lines.failures'),
     Queue('log_autoclassify', Exchange('default'), routing_key='autoclassify.normal'),
     Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
-    Queue('publish_to_pulse', Exchange('default'), routing_key='publish_to_pulse'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
@@ -447,12 +446,3 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
-
-# Pulse
-# Credentials URL for access to Pulse with our credentials for pushing to Pulse
-# queues for tasks like retriggering a job.  This has been kept in a separate
-# variable so we can deploy the consolidation of our Pulse credentials
-# separately from wrapping them into a service.
-# More details here: https://bugzilla.mozilla.org/show_bug.cgi?id=1281821
-# TODO: remove this in favour of settings.PULSE_URL
-PULSE_URI = env("PULSE_URI", default="amqps://guest:guest@pulse.mozilla.org/")

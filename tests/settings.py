@@ -9,9 +9,6 @@ TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
-# Reconfigure pulse to operate on default vhost of rabbitmq
-PULSE_URI = BROKER_URL
-
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"
 BUGFILER_API_URL = "https://thisisnotbugzilla.org"

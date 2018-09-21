@@ -2,16 +2,13 @@ import datetime
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from six import iteritems
 
-from treeherder.model.models import (Job,
-                                     Push,
+from treeherder.model.models import (Push,
                                      Repository)
-from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import permissions
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (to_datetime,
@@ -171,31 +168,6 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
-
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def cancel_all(self, request, project, pk=None):
-        """
-        Cancel all pending and running jobs in this push
-        """
-        if not pk:  # pragma nocover
-            return Response({"message": "push id required"}, status=HTTP_400_BAD_REQUEST)
-
-        # Notify the build systems which created these jobs...
-        for job in Job.objects.filter(push_id=pk).exclude(state='completed'):
-            publish_job_action.apply_async(
-                args=[project, 'cancel', job.id, request.user.email],
-                routing_key='publish_to_pulse'
-            )
-
-        # Mark pending jobs as cancelled to work around buildbot not including
-        # cancelled jobs in builds-4hr if they never started running.
-        # TODO: Remove when we stop using buildbot.
-        Job.objects.filter(push_id=pk, state='pending').update(
-            state='completed',
-            result='usercancel',
-            last_modified=datetime.datetime.now())
-
-        return Response({"message": "pending and running jobs canceled for push '{0}'".format(pk)})
 
     @detail_route()
     def status(self, request, project, pk=None):

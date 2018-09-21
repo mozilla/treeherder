@@ -5,10 +5,8 @@ from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
 from rest_framework import viewsets
-from rest_framework.decorators import (detail_route,
-                                       list_route)
+from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
@@ -24,7 +22,6 @@ from treeherder.model.models import (Job,
                                      Repository,
                                      TextLogError,
                                      TextLogStep)
-from treeherder.model.tasks import publish_job_action
 from treeherder.webapp.api import (pagination,
                                    permissions,
                                    serializers)
@@ -204,20 +201,6 @@ class JobsViewSet(viewsets.ViewSet):
 
         return response_dict
 
-    def _job_action_event(self, job, action, requester_email):
-        """
-        Helper for issuing an 'action' for a given job (such as
-        cancel/retrigger)
-
-        :param job int: The job which this action pertains to.
-        :param action str: Name of the action (cancel, etc..).
-        :param requester str: Email address of the user who caused action.
-        """
-        publish_job_action.apply_async(
-            args=[job.repository.name, action, job.id, requester_email],
-            routing_key='publish_to_pulse'
-        )
-
     def retrieve(self, request, project, pk=None):
         """
         GET method implementation for detail view
@@ -325,56 +308,6 @@ class JobsViewSet(viewsets.ViewSet):
                                      count=count)
 
         return Response(response_body)
-
-    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def cancel(self, request, project):
-        try:
-            job_ids = [int(job_id) for job_id in request.data["job_id_list"]]
-        except ValueError:
-            return Response(
-                {"message": "Job id(s) must be specified as integers"},
-                status=HTTP_400_BAD_REQUEST)
-
-        for job_id in job_ids:
-            try:
-                job = Job.objects.get(repository__name=project,
-                                      id=job_id)
-            except ObjectDoesNotExist:
-                return Response("No job with id: {0}".format(job_id),
-                                status=HTTP_404_NOT_FOUND)
-
-            self._job_action_event(job, 'cancel', request.user.email)
-
-            # Mark pending jobs as cancelled to work around buildbot not including
-            # cancelled jobs in builds-4hr if they never started running.
-            # TODO: Remove when we stop using buildbot.
-            if job.state == 'pending':
-                job.state = 'completed'
-                job.result = 'usercancel'
-                job.save()
-
-        return Response({"message": "canceled jobs '{0}'".format(job_ids)})
-
-    @list_route(methods=['post'], permission_classes=[IsAuthenticated])
-    def retrigger(self, request, project):
-        """
-        Issue a "retrigger" to the underlying build_system_type by scheduling a
-        pulse message.
-        """
-        job_id_list = request.data["job_id_list"]
-        failure = []
-        for pk in job_id_list:
-            try:
-                job = Job.objects.get(repository__name=project,
-                                      id=pk)
-                self._job_action_event(job, 'retrigger', request.user.email)
-            except ObjectDoesNotExist:
-                failure.append(pk)
-
-        if failure:
-            return Response("Jobs with id(s): '{0}' were not retriggered.".format(failure),
-                            status=HTTP_404_NOT_FOUND)
-        return Response({"message": "All jobs successfully retriggered."})
 
     @detail_route(methods=['get'])
     def text_log_steps(self, request, project, pk=None):
