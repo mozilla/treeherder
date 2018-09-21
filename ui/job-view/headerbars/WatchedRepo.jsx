@@ -66,15 +66,15 @@ export default class WatchedRepo extends React.Component {
     this.treeStatusIntervalId = setInterval(this.updateTreeStatus, 2 * 60 * 1000);
   }
 
+  componentWillUnmount() {
+    clearInterval(this.treeStatusIntervalId);
+  }
+
   componentDidCatch(error) {
     this.setState({
       hasBoundaryError: true,
       boundaryError: error,
     });
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.treeStatusIntervalId);
   }
 
   updateTreeStatus() {

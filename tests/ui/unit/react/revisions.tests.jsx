@@ -221,4 +221,3 @@ describe('initials filter', function () {
     expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials" data-job-clear-on-click="true">ST</div>');
   });
 });
-

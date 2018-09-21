@@ -1,9 +1,12 @@
+import angular from 'angular';
 import React from 'react';
 import { mount } from 'enzyme';
 
 import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
 import { thEvents } from '../../../../ui/helpers/constants';
 import FilterModel from '../../../../ui/models/filter';
+
+const { getJSONFixture, inject } = window;
 
 describe('JobGroup component', () => {
   let $injector;

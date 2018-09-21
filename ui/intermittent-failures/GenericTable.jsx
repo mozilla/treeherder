@@ -61,6 +61,7 @@ class GenericTable extends React.Component {
     }
     return {};
   }
+
   render() {
     const { bugs, columns, trStyling, totalPages } = this.props;
     const { columnId, descending } = this.state;

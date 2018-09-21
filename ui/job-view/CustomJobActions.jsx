@@ -216,7 +216,7 @@ export default class CustomJobActions extends React.Component {
               <span className="fa fa-check-square-o" aria-hidden="true" />
               <span>{triggering ? 'Triggering' : 'Trigger'}</span>
             </Button> :
-            <p className="help-block" > Custom actions require login </p>
+            <p className="help-block"> Custom actions require login </p>
           }
           <Button color="secondary" onClick={toggle}>Cancel</Button>
         </ModalFooter>

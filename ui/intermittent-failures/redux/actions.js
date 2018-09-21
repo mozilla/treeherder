@@ -66,4 +66,3 @@ export const updateTreeName = (tree, name) => ({
   type: `UPDATE_${name}_VIEW_TREE`,
   tree,
 });
-

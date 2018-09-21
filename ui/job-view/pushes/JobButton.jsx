@@ -129,7 +129,7 @@ JobButtonComponent.propTypes = {
   status: PropTypes.string.isRequired,
   platform: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
-  failureClassificationId: PropTypes.number,  // runnable jobs won't have this
+  failureClassificationId: PropTypes.number, // runnable jobs won't have this
 };
 
 JobButtonComponent.defaultProps = {

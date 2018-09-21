@@ -145,7 +145,7 @@ class DetailsPanel extends React.Component {
         // Cancel the in-progress fetch requests.
         this.selectJobController.abort();
       }
-      // eslint-disable-next-line no-undef
+
       this.selectJobController = new AbortController();
 
       let jobDetails = [];

@@ -105,6 +105,7 @@ class TestComponent extends React.Component {
     super(props);
     this.onClick = this.onClick.bind(this);
   }
+
   onClick() {
     store.dispatch(actions.groups.fetchBugsSingleTest(
       this.props.test,
