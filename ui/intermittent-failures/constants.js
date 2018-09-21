@@ -56,10 +56,4 @@ export const prettyErrorMessages = {
   status503: 'There was a problem retrieving the data. Please try again in a minute.',
 };
 
-// names of the specific redux state slices to update when dispatching actions
-export const stateName = {
-  mainView: 'BUGS',
-  mainViewGraphs: 'BUGS_GRAPHS',
-  detailsView: 'BUG_DETAILS',
-  detailsViewGraphs: 'BUG_DETAILS_GRAPHS',
-};
+export const errorMessageClass = 'text-danger py-4 d-block';

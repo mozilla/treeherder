@@ -7,12 +7,11 @@ import 'font-awesome/css/font-awesome.css';
 import '../css/treeherder-global.css';
 import '../css/intermittent-failures.css';
 import App from './App';
-import store from './redux/store';
 
 function load() {
   render((
     <AppContainer>
-      <App store={store} />
+      <App />
     </AppContainer>
   ), document.getElementById('root'));
 }

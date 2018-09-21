@@ -4,7 +4,7 @@ import { Alert } from 'reactstrap';
 import { processErrorMessage } from './helpers';
 
 const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
-  const messages = errorMessages.length > 0 ? errorMessages : processErrorMessage(failureMessage, failureStatus);
+  const messages = errorMessages.length ? errorMessages : processErrorMessage(failureMessage, failureStatus);
 
   return (
     <div>
@@ -16,7 +16,12 @@ const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
 };
 
 ErrorMessages.propTypes = {
-  failureMessage: PropTypes.object,
+  failureMessage: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.arrayOf(
+      PropTypes.string,
+    ),
+  ]),
   failureStatus: PropTypes.number,
   errorMessages: PropTypes.array,
 };
