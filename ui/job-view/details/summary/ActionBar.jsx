@@ -182,7 +182,7 @@ class ActionBar extends React.Component {
         decisionTaskId,
         taskId: results.originalTaskId,
         input: {
-          notify: job.who,
+          notify: user.email,
         },
         staticActionVariables: results.staticActionVariables,
       });
