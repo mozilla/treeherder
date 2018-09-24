@@ -12,7 +12,7 @@ function FiltersMenu(props) {
   const { urlParams: { resultStatus, classifiedState } } = filterModel;
 
   const pinAllShownJobs = () => {
-    const shownJobs = resultSetStore.getAllShownJobs(this.props.pushId);
+    const shownJobs = resultSetStore.getAllShownJobs();
 
     pinJobs(shownJobs);
     if (!selectedJob) {
