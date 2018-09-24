@@ -1,3 +1,7 @@
+import angular from 'angular';
+
+const { inject } = window;
+
 describe('getRevisionUrl filter', () => {
     let $filter;
     beforeEach(angular.mock.module('treeherder'));

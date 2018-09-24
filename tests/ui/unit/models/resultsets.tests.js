@@ -1,6 +1,9 @@
+import angular from 'angular';
 import * as fetchMock from 'fetch-mock';
 
 import { getProjectUrl } from '../../../../ui/helpers/url';
+
+const { getJSONFixture, inject } = window;
 
 describe('ThResultSetStore', () => {
 

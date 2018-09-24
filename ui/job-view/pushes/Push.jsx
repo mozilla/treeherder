@@ -33,6 +33,7 @@ export default class Push extends React.Component {
       pushGroupState: 'collapsed',
     };
   }
+
   componentDidMount() {
     this.showRunnableJobs = this.showRunnableJobs.bind(this);
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);

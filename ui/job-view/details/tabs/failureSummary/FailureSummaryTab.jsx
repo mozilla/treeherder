@@ -67,7 +67,7 @@ class FailureSummaryTab extends React.Component {
         <ul className="list-unstyled failure-summary-list" ref={this.fsMount}>
           {suggestions.map((suggestion, index) =>
             (<SuggestionsListItem
-              key={index}  // eslint-disable-line react/no-array-index-key
+              key={index} // eslint-disable-line react/no-array-index-key
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}

@@ -53,7 +53,53 @@ module.exports = (neutrino) => {
                     radix: 'off',
                     'react/forbid-prop-types': 'off',
                     'react/no-multi-comp': 'off',
+                    // Backport of:
+                    // https://github.com/airbnb/javascript/blob/eslint-config-airbnb-v17.1.0/packages/eslint-config-airbnb/rules/react.js#L230-L272
+                    // Remove once we're on eslint-config-airbnb v17.
+                    'react/sort-comp': ['error', {
+                      order: [
+                        'static-methods',
+                        'instance-variables',
+                        'lifecycle',
+                        '/^on.+$/',
+                        'getters',
+                        'setters',
+                        '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
+                        'instance-methods',
+                        'everything-else',
+                        'rendering',
+                      ],
+                      groups: {
+                        lifecycle: [
+                          'displayName',
+                          'propTypes',
+                          'contextTypes',
+                          'childContextTypes',
+                          'mixins',
+                          'statics',
+                          'defaultProps',
+                          'constructor',
+                          'getDefaultProps',
+                          'getInitialState',
+                          'state',
+                          'getChildContext',
+                          'componentWillMount',
+                          'componentDidMount',
+                          'componentWillReceiveProps',
+                          'shouldComponentUpdate',
+                          'componentWillUpdate',
+                          'componentDidUpdate',
+                          'componentWillUnmount',
+                        ],
+                        rendering: [
+                          '/^render.+$/',
+                          'render',
+                        ],
+                      },
+                    }],
                 },
+                // Remove once we're on newer ESLint that has the updated browser globals list.
+                globals: ['AbortController'],
             },
         }));
 };

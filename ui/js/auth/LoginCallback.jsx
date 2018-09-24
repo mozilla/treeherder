@@ -1,9 +1,10 @@
 import React from 'react';
 import Icon from 'react-fontawesome';
+
 import AuthService from './AuthService';
 import { webAuth, parseHash } from './auth-utils';
 
-export default class LoginCallback extends React.PureComponent {
+class LoginCallback extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -70,3 +71,5 @@ export default class LoginCallback extends React.PureComponent {
     );
   }
 }
+
+export default LoginCallback;

@@ -83,4 +83,3 @@ AutoclassifyToolbar.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onPin: PropTypes.func.isRequired,
 };
-

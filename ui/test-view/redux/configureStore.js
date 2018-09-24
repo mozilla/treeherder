@@ -179,12 +179,13 @@ async function fetchTests(store, fetchParams) {
   // the failed tests.
   // Note: this is in contrast to the "testfailed" entry coming from pushStatus; those are jobs.
   store.dispatch(groupsStore.actions.fetchCounts(pushData.repository.name, getId(pushData.id)));
-  const failedJobs = Object
-    .values(payload.groups)
-    .reduce((gacc, tests) => gacc.concat(Object
-        .values(tests)
-        .reduce((jacc, test) => jacc.concat(test.jobs), []))
-      , []);
+  const failedJobs = Object.values(payload.groups).reduce(
+    (gacc, tests) =>
+      gacc.concat(
+        Object.values(tests).reduce((jacc, test) => jacc.concat(test.jobs), []),
+      ),
+    [],
+  );
   store.dispatch({
     type: groupsStore.types.RENDER_COUNTS,
     payload: {

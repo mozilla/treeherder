@@ -75,4 +75,3 @@ Revision.propTypes = {
   revision: PropTypes.object.isRequired,
   repo: PropTypes.object.isRequired,
 };
-
