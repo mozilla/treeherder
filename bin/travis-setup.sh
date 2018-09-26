@@ -72,6 +72,11 @@ setup_js_env() {
     # Enable Firefox headless mode, avoiding the need for xvfb.
     export MOZ_HEADLESS=1
 
+    echo '-----> Installing yarn'
+    YARN_VERSION=$(jq -r '.engines.yarn' package.json)
+    curl -sSfL "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz" \
+        | tar -zxC "${HOME}" --strip=1
+
     echo '-----> Running yarn install'
     # `--frozen-lockfile` will catch cases where people have forgotten to update `yarn.lock`.
     yarn install --frozen-lockfile
