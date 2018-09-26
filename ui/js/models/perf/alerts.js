@@ -7,6 +7,7 @@ import OptionCollectionModel from '../../../models/optionCollection';
 import {
   phAlertSummaryStatusMap,
   phAlertStatusMap,
+  phFrameworksWithRelatedBranches,
   thPerformanceBranches,
 } from '../../../helpers/constants';
 
@@ -32,10 +33,10 @@ treeherder.factory('PhAlerts', [
                                                 performanceFrameworkId) {
             let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${this.series_signature.id},1`;
 
-            // for talos only, automatically add related branches (we take advantage of
+            // automatically add related branches (we take advantage of
             // the otherwise rather useless signature hash to avoid having to fetch this
             // information from the server)
-            if (performanceFrameworkId === 1) {
+            if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
                 const branches = (alertRepository === 'mozilla-beta') ? ['mozilla-inbound'] : thPerformanceBranches.filter(branch => branch !== alertRepository);
                 url += branches.map(branch => `&series=${branch},${this.series_signature.signature_hash},0`).join('');
             }

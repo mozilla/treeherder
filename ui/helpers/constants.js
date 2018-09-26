@@ -320,6 +320,13 @@ export const phBlockers = {
 
 export const phDefaultFramework = 'talos';
 
+export const phFrameworksWithRelatedBranches = [
+    1,  // talos
+    10, // raptor
+    11, // js-bench
+    12, // devtools
+];
+
 export const phAlertSummaryStatusMap = {
   UNTRIAGED: { id: 0, text: 'untriaged' },
   DOWNSTREAM: { id: 1, text: 'downstream' },
