@@ -82,12 +82,7 @@ In order to do so we need to:
 
   * SETA uses mozilla-inbound as a reference for jobs for all trunk trees
 
-* Make sure the job shows up on the runnable jobs table
-
-  * You can check the [runnable jobs API], however, it can time out
-  * You can update the table with:
-    `export TREEHERDER_DEBUG=True && ./manage.py update_runnable_jobs`
-    (it will take several minutes)
+* Make sure the job shows up in the [runnable jobs API]
 
 * Update the job priority table from the shell:
 

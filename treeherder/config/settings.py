@@ -285,7 +285,6 @@ CELERY_QUEUES = [
     Queue('buildapi_pending', Exchange('default'), routing_key='buildapi_pending'),
     Queue('buildapi_running', Exchange('default'), routing_key='buildapi_running'),
     Queue('buildapi_4hr', Exchange('default'), routing_key='buildapi_4hr'),
-    Queue('fetch_runnablejobs', Exchange('default'), routing_key='fetch_runnablejobs'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
