@@ -15,6 +15,7 @@ describe('JobGroup component', () => {
   let dupGroup;
   const repoName = 'mozilla-inbound';
   const filterModel = new FilterModel();
+  const pushGroupState = 'collapsed';
 
 
   beforeEach(angular.mock.module('treeherder'));
@@ -37,6 +38,7 @@ describe('JobGroup component', () => {
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -58,6 +60,7 @@ describe('JobGroup component', () => {
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -81,6 +84,7 @@ describe('JobGroup component', () => {
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -106,6 +110,7 @@ describe('JobGroup component', () => {
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -132,6 +137,7 @@ describe('JobGroup component', () => {
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -156,6 +162,7 @@ describe('JobGroup component', () => {
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
@@ -182,6 +189,7 @@ describe('JobGroup component', () => {
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
+        pushGroupState={pushGroupState}
         platform={<span>windows</span>}
       />,
     );
