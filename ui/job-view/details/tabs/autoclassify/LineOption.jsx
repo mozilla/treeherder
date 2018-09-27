@@ -75,8 +75,12 @@ class LineOption extends React.Component {
     } = this.props;
     const { isBugFilerOpen, repoName } = this.state;
     const option = optionModel;
-    let logUrl = selectedJob.logs.filter(x => x.name.endsWith('_json'));
-    logUrl = logUrl[0] ? logUrl[0].url : selectedJob.logs[0].url;
+    let logUrl;
+
+    if (selectedJob.logs) {
+      logUrl = selectedJob.logs.filter(x => x.name.endsWith('_json'));
+      logUrl = logUrl[0] ? logUrl[0].url : selectedJob.logs[0].url;
+    }
 
     return (
       <div className="classification-option">
