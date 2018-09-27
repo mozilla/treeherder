@@ -139,6 +139,33 @@ export default class JobModel {
     }
   }
 
+  // Any jobId inside the push will do
+  static async cancelAll(jobId, repoName, ThResultSetStore, thNotify) {
+    const job = await JobModel.get(repoName, jobId);
+    const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+    const results = await TaskclusterModel.load(decisionTaskId, job);
+    const cancelAllTask = results && results.actions.find(result => result.name === 'cancel-all');
+
+    try {
+      await TaskclusterModel.submit({
+        action: cancelAllTask,
+        decisionTaskId,
+        taskId: results.originalTaskId,
+        input: {},
+        staticActionVariables: results.staticActionVariables,
+      });
+    } catch (e) {
+      // The full message is too large to fit in a Treeherder
+      // notification box.
+      thNotify.send(
+        formatTaskclusterError(e),
+        'danger',
+        { sticky: true });
+    }
+
+    thNotify.send('Request sent to cancel all jobs via action.json', 'success');
+  }
+
   static async cancel(jobIds, repoName, ThResultSetStore, thNotify) {
     const isManyJobs = jobIds.length > 1;
 

@@ -113,6 +113,7 @@ export default class TaskclusterModel {
           if (knownKinds.includes(action.kind) &&
             !actions.some(({ name }) => name === action.name) &&
             ((!action.context.length && !originalTask) ||
+              action.name === 'cancel-all' ||
               (originalTask &&
                 originalTask.tags &&
                 this.taskInContext(action.context, originalTask.tags)))) {
