@@ -37,7 +37,8 @@ module.exports = neutrino => {
             'angular-local-storage',
             'angular-route',
             'angular-sanitize',
-            'angular-ui-router',
+            // This must be after `angular` since otherwise window.angular will not be defined.
+            '@uirouter/angularjs',
             'angular1-ui-bootstrap4',
             'auth0-js',
             'bootstrap',
