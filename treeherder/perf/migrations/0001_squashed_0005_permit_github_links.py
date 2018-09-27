@@ -10,14 +10,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ('perf', '0001_squashed_0032_remove_redundant_indexes'),
-        ('perf', '0002_remove_signature_hash_index'),
-        ('perf', '0003_add_performance_signature_alert_change_type'),
-        ('perf', '0004_add_per_push_performance_datum_index'),
-        ('perf', '0005_permit_github_links'),
-    ]
-
     initial = True
 
     dependencies = [

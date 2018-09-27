@@ -11,31 +11,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ('model', '0001_squashed_0053_add_job_platform_option_push_index'),
-        ('model', '0002_add_taskcluster_job_metadata'),
-        ('model', '0003_taskcluster_taskid_not_unique'),
-        ('model', '0004_duplicate_failure_classifications'),
-        ('model', '0005_autoclassify_status'),
-        ('model', '0006_jobs_submit_time_repository_index'),
-        ('model', '0007_add_performance_data_expiry_option'),
-        ('model', '0008_push_job_child_references'),
-        ('model', '0009_add_is_try_repo'),
-        ('model', '0010_remove_TextLogSummary'),
-        ('model', '0011_create_group'),
-        ('model', '0012_add_related_names'),
-        ('model', '0013_add_job_group_to_jobs'),
-        ('model', '0014_add_job_group_runnable_job'),
-        ('model', '0015_remove_job_type_group_fk'),
-        ('model', '0016_remove_job_group_default'),
-        ('model', '0017_remove_exclusion_profiles'),
-        ('model', '0018_superseded_to_textlogstep_enum'),
-        ('model', '0019_remove_job_duration'),
-        ('model', '0020_remove_project_specific_id'),
-        ('model', '0021_remove_revision_hash'),
-        ('model', '0022_modify_bugscache_and_bugjobmap'),
-    ]
-
     initial = True
 
     dependencies = [
