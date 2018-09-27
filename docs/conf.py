@@ -1,7 +1,7 @@
+import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
 
-import sphinx_rtd_theme
 
 # The master toctree document.
 master_doc = 'index'
