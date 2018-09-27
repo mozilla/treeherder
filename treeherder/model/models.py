@@ -1215,31 +1215,6 @@ class Matcher(models.Model):
         db_table = 'matcher'
 
 
-@python_2_unicode_compatible
-class RunnableJob(models.Model):
-    id = models.AutoField(primary_key=True)
-    build_platform = models.ForeignKey(BuildPlatform, on_delete=models.CASCADE)
-    machine_platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
-    job_type = models.ForeignKey(JobType, on_delete=models.CASCADE)
-    job_group = models.ForeignKey(JobGroup, on_delete=models.CASCADE, default=2)
-    option_collection_hash = models.CharField(max_length=64)
-    ref_data_name = models.CharField(max_length=255)
-    build_system_type = models.CharField(max_length=25)
-    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    last_touched = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'runnable_job'
-        unique_together = (
-            ('ref_data_name', 'build_system_type')
-        )
-
-    def __str__(self):
-        return "{0} {1} {2}".format(self.id,
-                                    self.ref_data_name,
-                                    self.build_system_type)
-
-
 class TextLogStep(models.Model):
     """
     An individual step in the textual (unstructured) log

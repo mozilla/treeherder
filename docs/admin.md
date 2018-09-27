@@ -55,7 +55,6 @@ GRANT SELECT ON treeherder.push to 'myuser';
 GRANT SELECT ON treeherder.reference_data_signatures to 'myuser';
 GRANT SELECT ON treeherder.repository to 'myuser';
 GRANT SELECT ON treeherder.repository_group to 'myuser';
-GRANT SELECT ON treeherder.runnable_job to 'myuser';
 GRANT SELECT ON treeherder.seta_jobpriority to 'myuser';
 GRANT SELECT ON treeherder.taskcluster_metadata to 'myuser';
 GRANT SELECT ON treeherder.text_log_error to 'myuser';

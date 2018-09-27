@@ -64,7 +64,7 @@ SETA_FIXED_BY_COMMIT_REPOS = [
 # analyze_failures retrieves jobs marked 'fixed by commit' for the past N days
 SETA_FIXED_BY_COMMIT_DAYS = 90
 
-# when retrieving taskcluster and buildbot runnable jobs, and processing
+# when retrieving taskcluster runnable jobs, and processing
 # them, cache the resulting reference data names map for N seconds; this
 # helps reduce the number of API calls when getting job priorities
 SETA_REF_DATA_NAMES_CACHE_TIMEOUT = 3600

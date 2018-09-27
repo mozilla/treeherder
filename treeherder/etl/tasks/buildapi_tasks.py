@@ -8,7 +8,6 @@ from treeherder.etl.buildapi import (Builds4hJobsProcess,
                                      PendingJobsProcess,
                                      RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
-from treeherder.etl.runnable_jobs import RunnableJobsProcess
 from treeherder.model.models import Repository
 
 
@@ -34,14 +33,6 @@ def fetch_buildapi_build4h():
     Fetches the buildapi running jobs api and load them
     """
     Builds4hJobsProcess().run()
-
-
-@task(name='fetch-runnablejobs', soft_time_limit=15 * 60)
-def fetch_runnablejobs():
-    """
-    Fetches possible jobs from allthethings.json and load them
-    """
-    RunnableJobsProcess().run()
 
 
 @task(name='fetch-push-logs')
