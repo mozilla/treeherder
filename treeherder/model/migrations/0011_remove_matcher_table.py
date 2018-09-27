@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('model', '0008_remove_failure_match'),
+        ('model', '0010_remove_runnable_job'),
     ]
 
     operations = [

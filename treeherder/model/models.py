@@ -1208,13 +1208,6 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
-class Matcher(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    class Meta:
-        db_table = 'matcher'
-
-
 class TextLogStep(models.Model):
     """
     An individual step in the textual (unstructured) log

@@ -5,30 +5,10 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-def populate_matcher_names(apps, schema_editor):
-    FailureMatch = apps.get_model('model', 'FailureMatch')
-    Matcher = apps.get_model('model', 'Matcher')
-    TextLogErrorMatch = apps.get_model('model', 'TextLogErrorMatch')
-
-    for matcher in Matcher.objects.all():
-        FailureMatch.objects.filter(matcher=matcher).update(matcher_name=matcher.name)
-        TextLogErrorMatch.objects.filter(matcher=matcher).update(matcher_name=matcher.name)
-
-
-def empty_matcher_names(apps, schema_editor):
-    FailureMatch = apps.get_model('model', 'FailureMatch')
-    TextLogErrorMatch = apps.get_model('model', 'TextLogErrorMatch')
-
-    FailureMatch.objects.update(matcher_name='')
-    TextLogErrorMatch.objects.update(matcher_name='')
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
         ('model', '0003_add_matcher_name_fields'),
     ]
 
-    operations = [
-        migrations.RunPython(populate_matcher_names, reverse_code=empty_matcher_names)
-    ]
+    operations = []
