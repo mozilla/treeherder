@@ -3,12 +3,14 @@ import jsone from 'json-e';
 import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
+
 import taskcluster from '../helpers/taskcluster';
 import { tcRootUrl } from '../helpers/url';
 
 export default class TaskclusterModel {
   static taskInContext(tagSetList, taskTags) {
-    return tagSetList.some(tagSet => Object.keys(tagSet)
+    return tagSetList
+      .some(tagSet => Object.keys(tagSet)
       .every(tag => taskTags[tag] && taskTags[tag] === tagSet[tag]),
     );
   }
@@ -113,7 +115,6 @@ export default class TaskclusterModel {
           if (knownKinds.includes(action.kind) &&
             !actions.some(({ name }) => name === action.name) &&
             ((!action.context.length && !originalTask) ||
-              action.name === 'cancel-all' ||
               (originalTask &&
                 originalTask.tags &&
                 this.taskInContext(action.context, originalTask.tags)))) {

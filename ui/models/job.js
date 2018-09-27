@@ -143,14 +143,13 @@ export default class JobModel {
   static async cancelAll(jobId, repoName, ThResultSetStore, thNotify) {
     const job = await JobModel.get(repoName, jobId);
     const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
-    const results = await TaskclusterModel.load(decisionTaskId, job);
-    const cancelAllTask = results && results.actions.find(result => result.name === 'cancel-all');
+    const results = await TaskclusterModel.load(decisionTaskId);
+    const cancelAllTask = results.actions.find(result => result.name === 'cancel-all');
 
     try {
       await TaskclusterModel.submit({
         action: cancelAllTask,
         decisionTaskId,
-        taskId: results.originalTaskId,
         input: {},
         staticActionVariables: results.staticActionVariables,
       });
@@ -172,7 +171,7 @@ export default class JobModel {
     try {
       if (isManyJobs) {
         thNotify.send(
-          'Attempting to cancel all jobs via actions.json',
+          'Attempting to cancel selected jobs via actions.json',
           'info');
       }
 
@@ -202,7 +201,7 @@ export default class JobModel {
       }
       /* eslint-enable no-await-in-loop */
 
-      thNotify.send(`Request sent to cancel ${isManyJobs ? 'all jobs' : 'job'} via action.json`, 'success');
+      thNotify.send(`Request sent to cancel ${isManyJobs ? 'selected jobs' : 'job'} via action.json`, 'success');
     } catch (e) {
       thNotify.send(`Unable to cancel ${isManyJobs ? 'all jobs' : 'job'}`, 'danger', { sticky: true });
     }
