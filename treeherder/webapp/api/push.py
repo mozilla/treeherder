@@ -9,19 +9,15 @@ from six import iteritems
 
 from treeherder.model.models import (Push,
                                      Repository)
-from treeherder.webapp.api import permissions
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
 
 
 class PushViewSet(viewsets.ViewSet):
-
     """
     View for ``push`` records
     """
-    throttle_scope = 'push'
-    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     def list(self, request, project):
         """

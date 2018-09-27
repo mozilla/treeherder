@@ -4,16 +4,9 @@ import json
 import responses
 
 from tests.sampledata import SampleData
-from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model import models
-
-
-def post_collection(project, th_collection):
-    # http://testserver is the Django test client's default host name.
-    client = TreeherderClient(server_url='http://testserver')
-    return client.post_collection(project, th_collection)
 
 
 def do_job_ingestion(test_repository, job_data, sample_push,

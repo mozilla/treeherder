@@ -8,12 +8,9 @@ import pytest
 import responses
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
-from requests import Request
-from requests_hawk import HawkAuth
 from rest_framework.test import APIClient
 
 from treeherder.autoclassify.autoclassify import mark_best_classification
-from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Commit,
@@ -270,29 +267,6 @@ def test_job_with_notes(test_job, test_user):
 
 
 @pytest.fixture
-def mock_post_json(monkeypatch, client_credentials, client):
-    def _post_json(th_client, project, endpoint, data):
-        auth = th_client.session.auth
-        if not auth:
-            auth = HawkAuth(id=client_credentials.client_id,
-                            key=str(client_credentials.secret))
-        url = th_client._get_endpoint_url(endpoint, project=project)
-        req = Request('POST', url, json=data, auth=auth)
-        prepped_request = req.prepare()
-        response = client.post(
-            prepped_request.url,
-            data=json.dumps(data),
-            content_type='application/json',
-            HTTP_AUTHORIZATION=str(prepped_request.headers['Authorization'])
-        )
-        # Replacement for the `raise_for_status()` in the original `_post_json()`
-        assert response.status_code == 200
-        return response
-
-    monkeypatch.setattr(TreeherderClient, '_post_json', _post_json)
-
-
-@pytest.fixture
 def activate_responses(request):
 
     responses.start()
@@ -430,22 +404,6 @@ def test_sheriff(request, transactional_db):
     request.addfinalizer(fin)
 
     return user
-
-
-@pytest.fixture
-def client_credentials(request, transactional_db):
-    from treeherder.credentials.models import Credentials
-
-    client_credentials = Credentials.objects.create(
-        client_id='test_client',
-        authorized=True
-    )
-
-    def fin():
-        client_credentials.delete()
-    request.addfinalizer(fin)
-
-    return client_credentials
 
 
 @pytest.fixture

@@ -2,7 +2,6 @@ import re
 
 import newrelic.agent
 from django.utils.deprecation import MiddlewareMixin
-from hawkrest.middleware import HawkResponseMiddleware
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 
@@ -31,13 +30,3 @@ class NewRelicMiddleware(MiddlewareMixin):
         # slow transactions), so for use in Insights we have to add it as a customer parameter.
         if 'HTTP_USER_AGENT' in request.META:
             newrelic.agent.add_custom_parameter('user_agent', request.META['HTTP_USER_AGENT'])
-
-
-class FixedHawkResponseMiddleware(MiddlewareMixin, HawkResponseMiddleware):
-    """
-    Makes HawkResponseMiddleware compatible with Django's new middleware API.
-
-    Remove when `MiddlewareMixin` has been added upstream:
-    https://github.com/kumar303/hawkrest/issues/38
-    """
-    pass

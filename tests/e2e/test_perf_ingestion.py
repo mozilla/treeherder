@@ -1,14 +1,16 @@
 import copy
 
-from tests.test_utils import post_collection
 from treeherder.client.thclient import client
+from treeherder.etl.jobs import store_job_data
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
+# TODO: Turn these into end to end taskcluster tests as part of removing buildbot
+# support in bug 1443251, or else delete them if they're duplicating coverage.
 
-def test_post_perf_artifact(test_repository, failure_classifications,
-                            push_stored, mock_post_json):
+
+def test_store_perf_artifact(test_repository, failure_classifications, push_stored):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
     tjc = client.TreeherderJobCollection()
@@ -44,7 +46,7 @@ def test_post_perf_artifact(test_repository, failure_classifications,
 
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
@@ -52,9 +54,7 @@ def test_post_perf_artifact(test_repository, failure_classifications,
     assert PerformanceDatum.objects.all().count() == 3
 
 
-def test_post_perf_artifact_multiple(test_repository,
-                                     failure_classifications,
-                                     push_stored, mock_post_json):
+def test_store_perf_artifact_multiple(test_repository, failure_classifications, push_stored):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
     perfobj = {
         "framework": {"name": "cheezburger"},
@@ -92,7 +92,7 @@ def test_post_perf_artifact_multiple(test_repository,
 
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)

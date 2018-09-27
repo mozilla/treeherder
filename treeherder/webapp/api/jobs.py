@@ -13,7 +13,6 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from six import iteritems
 
-from treeherder.etl.jobs import store_job_data
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
                                      JobDetail,
@@ -23,7 +22,6 @@ from treeherder.model.models import (Job,
                                      TextLogError,
                                      TextLogStep)
 from treeherder.webapp.api import (pagination,
-                                   permissions,
                                    serializers)
 from treeherder.webapp.api.utils import (CharInFilter,
                                          NumberInFilter,
@@ -100,13 +98,9 @@ class JobFilter(django_filters.FilterSet):
 
 
 class JobsViewSet(viewsets.ViewSet):
-
     """
     This viewset is responsible for the jobs endpoint.
-
     """
-    throttle_scope = 'jobs'
-    permission_classes = (permissions.HasHawkPermissionsOrReadOnly,)
 
     # data that we want to do select_related on when returning job objects
     # (so we don't have a zillion db queries)
@@ -406,20 +400,6 @@ class JobsViewSet(viewsets.ViewSet):
                                      repository=project)
 
         return Response(response_body)
-
-    def create(self, request, project):
-        """
-        This method adds a job to a given push.
-        """
-        try:
-            repository = Repository.objects.get(name=project)
-        except ObjectDoesNotExist:
-            return Response("No repository with name: {0}".format(project),
-                            status=HTTP_404_NOT_FOUND)
-
-        store_job_data(repository, request.data)
-
-        return Response({'message': 'Job successfully updated'})
 
 
 class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):

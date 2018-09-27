@@ -11,24 +11,9 @@ from rest_framework.response import Response
 
 from treeherder.auth.backends import (AuthError,
                                       NoEmailException)
-from treeherder.credentials.models import Credentials
 from treeherder.webapp.api.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
-
-
-def hawk_lookup(id):
-    try:
-        newrelic.agent.add_custom_parameter("hawk_client_id", id)
-        credentials = Credentials.objects.get(client_id=id, authorized=True)
-    except Credentials.DoesNotExist:
-        raise AuthenticationFailed('No authorised credentials found with id %s' % id)
-
-    return {
-        'id': id,
-        'key': str(credentials.secret),
-        'algorithm': 'sha256'
-    }
 
 
 class AuthViewSet(viewsets.ViewSet):

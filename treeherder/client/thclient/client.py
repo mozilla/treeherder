@@ -5,7 +5,6 @@ import logging
 
 import requests
 from requests.exceptions import HTTPError
-from requests_hawk import HawkAuth
 
 # The Python client release process is documented here:
 # https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
@@ -13,6 +12,10 @@ __version__ = '4.0.0'
 
 logger = logging.getLogger(__name__)
 
+
+# TODO: Remove all of the collection related classes in here apart from
+# `TreeherderClient` when we remove buildbot support in bug 1443251,
+# since none of them are actually used by the client any more.
 
 class ValidatorMixin(object):
 
@@ -446,13 +449,10 @@ class TreeherderClient(object):
     BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
-    def __init__(self, server_url='https://treeherder.mozilla.org',
-                 timeout=30, client_id=None, secret=None):
+    def __init__(self, server_url='https://treeherder.mozilla.org', timeout=30):
         """
         :param server_url: The site URL of the Treeherder instance (defaults to production)
         :param timeout: maximum time it can take for a request to complete
-        :param client_id: the Treeherder API credentials client ID
-        :param secret: the Treeherder API credentials secret
         """
         self.server_url = server_url
         self.timeout = timeout
@@ -460,9 +460,6 @@ class TreeherderClient(object):
         # Using a session gives us automatic keep-alive/connection pooling.
         self.session = requests.Session()
         self.session.headers.update(self.REQUEST_HEADERS)
-
-        if client_id and secret:
-            self.session.auth = HawkAuth(id=client_id, key=secret)
 
     def _get_endpoint_url(self, endpoint, project=None):
         if project:
@@ -503,22 +500,6 @@ class TreeherderClient(object):
             raise
 
         return resp.json()
-
-    def _post_json(self, project, endpoint, data):
-        url = self._get_endpoint_url(endpoint, project=project)
-
-        resp = self.session.post(url, json=data, timeout=self.timeout)
-
-        try:
-            resp.raise_for_status()
-            return resp
-        except HTTPError:
-            logger.error("HTTPError %s submitting to %s: %s",
-                         resp.status_code, resp.request.url, resp.content)
-            logger.debug("Request headers: %s", resp.request.headers)
-            logger.debug("Request body: %s", resp.request.body)
-            logger.debug("Response headers: %s", resp.headers)
-            raise
 
     def get_option_collection_hash(self):
         """
@@ -704,33 +685,6 @@ class TreeherderClient(object):
         """
         return self._get_json(self.JOB_LOG_URL_ENDPOINT, project,
                               **params)
-
-    def post_collection(self, project, collection_inst):
-        """
-        Sends a treeherder collection to the server
-
-        :param project: project to submit data for
-        :param collection_inst: a TreeherderCollection instance
-        """
-        if not isinstance(collection_inst, TreeherderCollection):
-            msg = '{0} should be an instance of TreeherderCollection'.format(
-                type(collection_inst))
-            raise TreeherderClientError(msg, [])
-
-        if not collection_inst.endpoint_base:
-            msg = "{0}: collection endpoint_base property not defined".format(
-                self.__class__.__name__)
-            raise TreeherderClientError(msg, [])
-
-        if not collection_inst.data:
-            msg = "{0}: collection data property not defined".format(
-                self.__class__.__name__)
-            raise TreeherderClientError(msg, [])
-
-        collection_inst.validate()
-
-        return self._post_json(project, collection_inst.endpoint_base,
-                               collection_inst.get_collection_data())
 
 
 class TreeherderClientError(Exception):

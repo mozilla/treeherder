@@ -70,5 +70,5 @@ statements using the following SQL:
 SELECT CONCAT('GRANT SELECT ON ', table_schema, '.', table_name, ' to ''myuser'';') AS grant_stmt
 FROM information_schema.TABLES
 WHERE table_schema = 'treeherder'
-AND table_name NOT REGEXP 'django_|auth_|credentials';
+AND table_name NOT REGEXP 'django_|auth_';
 ```

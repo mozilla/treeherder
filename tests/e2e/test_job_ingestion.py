@@ -5,9 +5,9 @@ import pytest
 from django.forms import model_to_dict
 from mock import MagicMock
 
-from tests.test_utils import (add_log_response,
-                              post_collection)
+from tests.test_utils import add_log_response
 from treeherder.client.thclient import client
+from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
 from treeherder.model.models import (Job,
@@ -15,6 +15,9 @@ from treeherder.model.models import (Job,
                                      JobLog,
                                      TextLogError,
                                      TextLogStep)
+
+# TODO: Turn these into end to end taskcluster tests as part of removing buildbot
+# support in bug 1443251, or else delete them if they're duplicating coverage.
 
 
 @pytest.fixture
@@ -50,9 +53,8 @@ def check_job_log(test_repository, job_guid, parse_status):
     assert job_logs[0].status == parse_status
 
 
-def test_post_job_with_unparsed_log(test_repository, failure_classifications,
-                                    push_stored, mock_post_json,
-                                    monkeypatch, activate_responses):
+def test_store_job_with_unparsed_log(test_repository, failure_classifications,
+                                     push_stored, monkeypatch, activate_responses):
     """
     test submitting a job with an unparsed log parses the log,
     generates an appropriate set of text log steps, and calls
@@ -84,7 +86,7 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
         }
     })
     tjc.add(tj)
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # should have 2 errors
     assert TextLogError.objects.count() == 2
@@ -95,11 +97,9 @@ def test_post_job_with_unparsed_log(test_repository, failure_classifications,
     assert len(get_error_summary(Job.objects.get(id=1))) == 2
 
 
-def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
-                                                         push_stored,
-                                                         failure_classifications,
-                                                         activate_responses,
-                                                         mock_post_json):
+def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_stored,
+                                                          failure_classifications,
+                                                          activate_responses):
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
 
@@ -114,7 +114,7 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
         }
     })
     tjc.add(tj)
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
     # should have no text log errors or bug suggestions
     assert TextLogError.objects.count() == 0
     assert get_error_summary(Job.objects.get(guid=job_guid)) == []
@@ -136,18 +136,16 @@ def test_post_job_pending_to_completed_with_unparsed_log(test_repository,
         }
     })
     tjc.add(tj)
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # should have a full set of text log errors
     assert TextLogError.objects.count() == 2
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
 
 
-def test_post_job_with_parsed_log(test_repository, push_stored,
-                                  failure_classifications,
-                                  mock_post_json,
-                                  monkeypatch,
-                                  ):
+def test_store_job_with_parsed_log(test_repository, push_stored,
+                                   failure_classifications,
+                                   monkeypatch):
     """
     test submitting a job with a pre-parsed log gets job_log_url
     parse_status of "parsed" and does not parse, even though no text_log_summary
@@ -176,18 +174,17 @@ def test_post_job_with_parsed_log(test_repository, push_stored,
     })
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
 
 
-def test_post_job_with_text_log_summary_artifact_parsed(
+def test_store_job_with_text_log_summary_artifact_parsed(
         test_repository,
         failure_classifications,
         push_stored,
         monkeypatch,
-        mock_post_json,
         text_log_summary_dict,
         ):
     """
@@ -222,7 +219,7 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     })
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -231,12 +228,11 @@ def test_post_job_with_text_log_summary_artifact_parsed(
     assert mock_parse.called is False
 
 
-def test_post_job_with_text_log_summary_artifact_pending(
+def test_store_job_with_text_log_summary_artifact_pending(
         test_repository,
         failure_classifications,
         push_stored,
         monkeypatch,
-        mock_post_json,
         text_log_summary_dict,
         ):
     """
@@ -273,7 +269,7 @@ def test_post_job_with_text_log_summary_artifact_pending(
 
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -282,12 +278,11 @@ def test_post_job_with_text_log_summary_artifact_pending(
     assert mock_parse.called is False
 
 
-def test_post_job_artifacts_by_add_artifact(
+def test_store_job_artifacts_by_add_artifact(
         test_repository,
         failure_classifications,
         push_stored,
         monkeypatch,
-        mock_post_json,
         ):
     """
     test submitting a job with artifacts added by ``add_artifact``
@@ -350,7 +345,7 @@ def test_post_job_artifacts_by_add_artifact(
 
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     assert JobDetail.objects.count() == 1
     assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
@@ -391,9 +386,7 @@ def test_post_job_artifacts_by_add_artifact(
     assert mock_parse.called is False
 
 
-def test_post_job_with_tier(test_repository, failure_classifications,
-                            push_stored,
-                            mock_post_json):
+def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with tier specified"""
 
     tjc = client.TreeherderJobCollection()
@@ -409,15 +402,13 @@ def test_post_job_with_tier(test_repository, failure_classifications,
     tj.add_tier(3)
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 3
 
 
-def test_post_job_with_default_tier(test_repository, failure_classifications,
-                                    push_stored,
-                                    mock_post_json):
+def test_store_job_with_default_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with no tier specified gets default"""
 
     tjc = client.TreeherderJobCollection()
@@ -432,15 +423,13 @@ def test_post_job_with_default_tier(test_repository, failure_classifications,
     })
     tjc.add(tj)
 
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 1
 
 
-def test_post_job_with_buildapi_artifact(test_repository, failure_classifications,
-                                         push_stored,
-                                         mock_post_json):
+def test_store_job_with_buildapi_artifact(test_repository, failure_classifications, push_stored):
     """
     test submitting a job with a buildapi artifact gets that stored (and
     we update the job object)
@@ -460,7 +449,7 @@ def test_post_job_with_buildapi_artifact(test_repository, failure_classification
                     json.dumps({"buildername": "Windows 8 64-bit cheezburger",
                                 "request_id": 1234}))
     tjc.add(tj)
-    post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
     assert Job.objects.count() == 1
     assert JobDetail.objects.count() == 1
