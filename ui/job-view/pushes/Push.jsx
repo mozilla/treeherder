@@ -19,6 +19,7 @@ export default class Push extends React.Component {
     const { job_counts } = push;
 
     this.$rootScope = $injector.get('$rootScope');
+    this.thNotify = $injector.get('thNotify');
     this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.state = {
