@@ -42,6 +42,10 @@ export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
   return `https://tools.taskcluster.net/tasks/${taskId}`;
 };
 
+export const getInteractiveTaskUrl = function (taskId) {
+  return `https://tools.taskcluster.net/tasks/${taskId}/connect`;
+};
+
 export const getReftestUrl = function getReftestUrl(logUrl) {
   return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
 };
