@@ -47,6 +47,13 @@ job-view {
   height: 100%;
 }
 
+.th-global-content-dark {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  background: #2a2a2a;
+}
+
 .pagination, .panel-title a {
   cursor: pointer;
 }

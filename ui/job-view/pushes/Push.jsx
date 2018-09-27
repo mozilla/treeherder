@@ -4,6 +4,7 @@ import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
 import { thEvents } from '../../helpers/constants';
+import { withTheme } from '../context/Theme';
 
 const watchCycleStates = [
   'none',
@@ -12,7 +13,7 @@ const watchCycleStates = [
   'none',
 ];
 
-export default class Push extends React.Component {
+class Push extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, push } = props;
@@ -146,7 +147,7 @@ export default class Push extends React.Component {
   render() {
     const {
       push, isLoggedIn, $injector, repoName, currentRepo,
-      filterModel, notificationSupported,
+      filterModel, notificationSupported, jobListClass,
     } = this.props;
     const {
       watched, runnableVisible, hasBoundaryError, boundaryError, pushGroupState,
@@ -192,7 +193,7 @@ export default class Push extends React.Component {
               repo={currentRepo}
             />
           }
-          <span className="job-list job-list-pad col-7" data-job-clear-on-click>
+          <span className={`job-list ${jobListClass} job-list-pad col-7`} data-job-clear-on-click>
             <PushJobs
               push={push}
               repoName={repoName}
@@ -215,4 +216,7 @@ Push.propTypes = {
   repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
+  jobListClass: PropTypes.string.isRequired,
 };
+
+export default withTheme(Push);

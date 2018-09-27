@@ -189,6 +189,17 @@ th-action-button .btn-push {
   vertical-align: top;
 }
 
+.platform-dark {
+  font-size: 12px;
+  padding: 0 5px 0 0;
+  line-height: 15px;
+  width: 14.5em;
+  min-width: 14.5em;
+  overflow: hidden;
+  vertical-align: top;
+  color: darkgrey;
+}
+
 .job-row {
   display: table-cell;
   line-height: 15px;
@@ -202,12 +213,19 @@ th-action-button .btn-push {
   width: 100%;
 }
 
-.job-list table tr {
+.job-list-light table tr {
   border-bottom: 1px dotted lightgrey;
 }
 
-.job-list table tr:nth-child(even) {
+.job-list-dark table tr {
+  border-bottom: 1px dotted #5a5a5a;
+}
+
+.job-list-light table tr:nth-child(even) {
   background: #f8f8f8;
+}
+
+.job-list-dark table tr:nth-child(even) {
 }
 
 .get-next {

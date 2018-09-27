@@ -7,15 +7,16 @@ import JobCount from './JobCount';
 import { getBtnClass, getStatus } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { thFailureResults, thEvents } from '../../helpers/constants';
+import { withTheme } from '../context/Theme';
 
 class GroupSymbol extends React.PureComponent {
   render() {
-    const { symbol, tier, toggleExpanded } = this.props;
+    const { symbol, tier, toggleExpanded, groupSymbolClass } = this.props;
     const groupSymbol = symbol === '?' ? '' : symbol;
 
     return (
       <button
-        className="btn group-symbol"
+        className={`btn group-symbol ${groupSymbolClass}`}
         onClick={toggleExpanded}
       >{groupSymbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
       </button>
@@ -26,6 +27,7 @@ class GroupSymbol extends React.PureComponent {
 GroupSymbol.propTypes = {
   symbol: PropTypes.string.isRequired,
   toggleExpanded: PropTypes.func.isRequired,
+  groupSymbolClass: PropTypes.string.isRequired,
   tier: PropTypes.number,
 };
 
@@ -34,7 +36,7 @@ GroupSymbol.defaultProps = {
 };
 
 
-export default class JobGroup extends React.Component {
+class JobGroup extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, pushGroupState } = this.props;
@@ -136,6 +138,7 @@ export default class JobGroup extends React.Component {
     const {
       $injector, repoName, filterPlatformCb, platform, filterModel,
       group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs },
+      groupSymbolClass, groupContentClass,
     } = this.props;
     const { expanded, showDuplicateJobs } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(
@@ -154,8 +157,9 @@ export default class JobGroup extends React.Component {
             symbol={groupSymbol}
             tier={groupTier}
             toggleExpanded={this.toggleExpanded}
+            groupSymbolClass={groupSymbolClass}
           />
-          <span className="group-content">
+          <span className={`group-content ${groupContentClass}`}>
             <span className="group-job-list">
               {buttons.map(job => (
                 <JobButton
@@ -197,5 +201,9 @@ JobGroup.propTypes = {
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
+  groupSymbolClass: PropTypes.string.isRequired,
+  groupContentClass: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
 };
+
+export default withTheme(JobGroup);

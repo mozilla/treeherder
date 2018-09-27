@@ -16,8 +16,9 @@ import { parseQueryParams } from '../../helpers/url';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
+import { withTheme } from '../context/Theme';
 
-export default class PushList extends React.Component {
+class PushList extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, repoName } = this.props;
@@ -153,57 +154,61 @@ export default class PushList extends React.Component {
 
   render() {
     const {
-      $injector, user, repoName, revision, currentRepo, filterModel,
+      $injector, user, repoName, revision, currentRepo, filterModel, globalContentClass,
     } = this.props;
     const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn } = user;
 
     return (
-      <div>
-        {jobsReady && <span className="hidden ready" />}
-        {repoName && pushList.map(push => (
-          <ErrorBoundary
-            errorClasses="pl-2 border-top border-bottom border-dark d-block"
-            message={`Error on push with revision ${push.revision}: `}
-            key={push.id}
-          >
-            <Push
-              push={push}
-              isLoggedIn={isLoggedIn || false}
-              currentRepo={currentRepo}
-              repoName={repoName}
-              filterModel={filterModel}
-              $injector={$injector}
-              notificationSupported={notificationSupported}
-            />
-          </ErrorBoundary>
-        ))}
-        {loadingPushes &&
-          <div
-            className="progress active progress-bar progress-bar-striped"
-            role="progressbar"
-          />
-        }
-        {pushList.length === 0 && !loadingPushes &&
-          <PushLoadErrors
-            loadingPushes={loadingPushes}
-            currentRepo={currentRepo}
-            repoName={repoName}
-            revision={revision}
-          />
-        }
-        <div className="card card-body get-next" data-job-clear-on-click>
-          <span>get next:</span>
-          <div className="btn-group">
-            {[10, 20, 50].map(count => (
-              <div
-                className="btn btn-light-bordered"
-                onClick={() => (this.getNextPushes(count))}
-                key={count}
-              >{count}</div>
+      <div id="th-global-content" className={globalContentClass} data-job-clear-on-click>
+        <span className="th-view-content" tabIndex={-1}>
+          <div>
+            {jobsReady && <span className="hidden ready" />}
+            {repoName && pushList.map(push => (
+              <ErrorBoundary
+                errorClasses="pl-2 border-top border-bottom border-dark d-block"
+                message={`Error on push with revision ${push.revision}: `}
+                key={push.id}
+              >
+                <Push
+                  push={push}
+                  isLoggedIn={isLoggedIn || false}
+                  currentRepo={currentRepo}
+                  repoName={repoName}
+                  filterModel={filterModel}
+                  $injector={$injector}
+                  notificationSupported={notificationSupported}
+                />
+              </ErrorBoundary>
             ))}
+            {loadingPushes &&
+              <div
+                className="progress active progress-bar progress-bar-striped"
+                role="progressbar"
+              />
+            }
+            {pushList.length === 0 && !loadingPushes &&
+              <PushLoadErrors
+                loadingPushes={loadingPushes}
+                currentRepo={currentRepo}
+                repoName={repoName}
+                revision={revision}
+              />
+            }
+            <div className="card card-body get-next" data-job-clear-on-click>
+              <span>get next:</span>
+              <div className="btn-group">
+                {[10, 20, 50].map(count => (
+                  <div
+                    className="btn btn-light-bordered"
+                    onClick={() => (this.getNextPushes(count))}
+                    key={count}
+                  >{count}</div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </span>
       </div>
     );
   }
@@ -214,6 +219,7 @@ PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
+  globalContentClass: PropTypes.string.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };
@@ -222,3 +228,5 @@ PushList.defaultProps = {
   revision: null,
   currentRepo: {},
 };
+
+export default withTheme(PushList);
