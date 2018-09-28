@@ -26,9 +26,7 @@ def find_version(*file_paths):
 
 setup(name='treeherder-client',
       version=find_version('thclient', 'client.py'),
-      description="Python library to retrieve and submit data to the Treeherder API",
-      long_description="""\
-""",
+      description='Python library to retrieve data from the Treeherder API',
       classifiers=[
           'Environment :: Console',
           'Intended Audience :: Developers',
@@ -45,5 +43,5 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       zip_safe=False,
-      install_requires=['requests>=2.4.3', 'requests-hawk>=1.0.0']
+      install_requires=['requests>=2.4.3']
       )

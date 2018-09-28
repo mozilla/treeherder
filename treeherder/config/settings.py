@@ -46,7 +46,6 @@ INSTALLED_APPS = [
 
     # 3rd party apps
     'rest_framework',
-    'hawkrest',
     'corsheaders',
     'django_filters',
     'graphene_django',
@@ -58,7 +57,6 @@ INSTALLED_APPS = [
     'treeherder.etl',
     'treeherder.perf',
     'treeherder.autoclassify',
-    'treeherder.credentials',
     'treeherder.seta',
     'treeherder.intermittents_commenter',
 ]
@@ -82,7 +80,6 @@ MIDDLEWARE = [middleware for middleware in [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'treeherder.middleware.FixedHawkResponseMiddleware',
 ] if middleware]
 
 # Templating
@@ -202,10 +199,6 @@ LOGGING = {
             'filters': ['require_debug_true'],
             'handlers': ['console'],
             'level': 'INFO',
-        },
-        'hawkrest': {
-            'handlers': ['console'],
-            'level': 'WARNING',
         },
         'treeherder': {
             'handlers': ['console'],
@@ -378,16 +371,10 @@ if DEBUG:
 # Elasticsearch
 ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
 
-# Hawkrest
-HAWK_CREDENTIALS_LOOKUP = 'treeherder.webapp.api.auth.hawk_lookup'
-
 # Rest Framework
 REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': ('1.0',),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'hawkrest.HawkAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework_filters.backends.DjangoFilterBackend',),
     'DEFAULT_PARSER_CLASSES': ('rest_framework.parsers.JSONParser',),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
@@ -395,11 +382,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_THROTTLE_CLASSES': ('treeherder.webapp.api.throttling.HawkClientThrottle',),
-    'DEFAULT_THROTTLE_RATES': {
-        'jobs': '220/minute',
-        'push': '400/minute'  # temporary increase: https://bugzilla.mozilla.org/show_bug.cgi?id=1232776
-    },
     'DEFAULT_VERSION': '1.0',
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',

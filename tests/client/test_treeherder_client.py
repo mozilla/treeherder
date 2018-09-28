@@ -5,7 +5,6 @@ import os
 import unittest
 
 import responses
-from requests_hawk import HawkAuth
 from six import iteritems
 
 from treeherder.client.thclient import (TreeherderClient,
@@ -199,47 +198,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
               {"push2": 2},
               {"push3": 3}
               ]
-
-    @responses.activate
-    def test_post_job_collection(self):
-        """Can add a treeherder collections to a TreeherderRequest."""
-        tjc = TreeherderJobCollection()
-
-        for job in self.job_data:
-            tjc.add(tjc.get_job(job))
-
-        client = TreeherderClient(
-            server_url='http://host',
-            client_id='client-abc',
-            secret='secret123',
-            )
-
-        def request_callback(request):
-            # Check that the expected content was POSTed.
-            posted_json = json.loads(request.body)
-            self.assertEqual(posted_json, tjc.get_collection_data())
-            return (200, {}, '{"message": "Job successfully updated"}')
-
-        url = client._get_endpoint_url(tjc.endpoint_base, project='project')
-        responses.add_callback(responses.POST, url, match_querystring=True,
-                               callback=request_callback, content_type='application/json')
-
-        client.post_collection('project', tjc)
-
-    def test_hawkauth_setup(self):
-        """Test that HawkAuth is correctly set up from the `client_id` and `secret` params."""
-        client = TreeherderClient(
-            client_id='client-abc',
-            secret='secret123',
-            )
-        auth = client.session.auth
-        assert isinstance(auth, HawkAuth)
-        expected_credentials = {
-            'id': 'client-abc',
-            'key': 'secret123',
-            'algorithm': 'sha256'
-        }
-        self.assertEqual(auth.credentials, expected_credentials)
 
     @responses.activate
     def test_get_job(self):

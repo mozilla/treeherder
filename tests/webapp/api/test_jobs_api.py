@@ -11,7 +11,6 @@ from treeherder.model.models import (Job,
                                      TaskclusterMetadata,
                                      TextLogError,
                                      TextLogStep)
-from treeherder.webapp.api.jobs import JobsViewSet
 
 
 @pytest.mark.parametrize(('offset', 'count', 'expected_num'),
@@ -389,21 +388,6 @@ def test_list_similar_jobs(client, eleven_jobs_stored,
     assert isinstance(similar_jobs['results'], list)
 
     assert len(similar_jobs['results']) == expected_num
-
-
-def test_job_create(client, test_repository, test_user, eleven_job_blobs,
-                    failure_classifications, monkeypatch):
-    monkeypatch.setattr(JobsViewSet, 'permission_classes', ())
-
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
-    resp = client.post(url, data=eleven_job_blobs)
-
-    assert resp.status_code == 200
-
-    # test that the jobs were actually created
-    assert Job.objects.count() == 11
-    test_job_list(client, None, test_repository, 0, 11, 11)
 
 
 @pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [

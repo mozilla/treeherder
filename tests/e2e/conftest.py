@@ -5,8 +5,8 @@ import simplejson as json
 from django.template import (Context,
                              Template)
 
-from tests import test_utils
 from treeherder.client.thclient import TreeherderJobCollection
+from treeherder.etl.jobs import store_job_data
 
 base_dir = os.path.dirname(__file__)
 
@@ -38,10 +38,9 @@ def completed_jobs(sample_data):
 @pytest.fixture
 def pending_jobs_stored(
         test_repository, failure_classifications, pending_jobs,
-        push_stored, mock_post_json):
+        push_stored):
     """
     stores a list of buildapi pending jobs into the jobs store
-    using BuildApiTreeHerderAdapter
     """
 
     pending_jobs.update(push_stored[0])
@@ -51,13 +50,13 @@ def pending_jobs_stored(
     tj = tjc.get_job(pending_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
 
 @pytest.fixture
 def running_jobs_stored(
         test_repository, failure_classifications, running_jobs,
-        push_stored, mock_post_json):
+        push_stored):
     """
     stores a list of buildapi running jobs
     """
@@ -68,13 +67,13 @@ def running_jobs_stored(
     tj = tjc.get_job(running_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
 
 
 @pytest.fixture
 def completed_jobs_stored(
         test_repository, failure_classifications, completed_jobs,
-        push_stored, mock_post_json):
+        push_stored):
     """
     stores a list of buildapi completed jobs
     """
@@ -85,4 +84,4 @@ def completed_jobs_stored(
     tj = tjc.get_job(completed_jobs)
     tjc.add(tj)
 
-    test_utils.post_collection(test_repository.name, tjc)
+    store_job_data(test_repository, tjc.get_collection_data())
