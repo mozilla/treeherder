@@ -269,7 +269,7 @@ class JobView extends React.Component {
                   updateButtonClick={this.updateButtonClick}
                 />}
                 <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-                  <span className="th-view-content">
+                  <span className="th-view-content" tabIndex={-1}>
                     <PushList
                       user={user}
                       repoName={repoName}
