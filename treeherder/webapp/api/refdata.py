@@ -56,11 +56,3 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
-
-
-class MatcherViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Matcher.objects.all()
-    serializer_class = th_serializers.MatcherSerializer
-
-    class Meta:
-        model = models.Matcher

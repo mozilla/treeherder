@@ -104,13 +104,6 @@ class BugscacheSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MatcherSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Matcher
-        fields = '__all__'
-
-
 class ClassifiedFailureSerializer(serializers.ModelSerializer):
     bug = BugscacheSerializer(read_only=True)
 

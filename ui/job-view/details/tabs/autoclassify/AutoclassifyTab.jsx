@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thEvents } from '../../../../helpers/constants';
-import { getLogViewerUrl, getApiUrl, getProjectJobUrl } from '../../../../helpers/url';
+import { getLogViewerUrl, getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 
 import AutoclassifyToolbar from './AutoclassifyToolbar';
@@ -89,10 +89,6 @@ class AutoclassifyTab extends React.Component {
     this.onPin = this.onPin.bind(this);
     this.save = this.save.bind(this);
 
-    // Cache the errorMatchers if we don't already have them loaded.
-    if (!this.state.errorMatchers) {
-      this.fetchErrorMatchers();
-    }
     // Load the data here
     if (this.props.selectedJob.id) {
       this.fetchErrorData();
@@ -277,14 +273,6 @@ class AutoclassifyTab extends React.Component {
 
     // Emit this event to get the main UI to update
     this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [selectedJob.id]: selectedJob } });
-  }
-
-  async fetchErrorMatchers() {
-    const matcherResp = await fetch(getApiUrl('/matcher/'));
-    const matcherData = await matcherResp.json();
-    const errorMatchers = matcherData.reduce(
-      (matchersById, matcher) => matchersById.set(matcher.id, matcher), new Map());
-    this.setState({ errorMatchers });
   }
 
   /**

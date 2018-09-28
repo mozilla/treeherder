@@ -356,16 +356,14 @@ class ErrorLine extends React.Component {
         matchesByCF.get(match.classified_failure).push(match);
         return matchesByCF;
       }, new Map());
-    const matchFunc = (cf_id) => {
-      const { errorMatchers } = this.props;
-      return matchesByCF.get(cf_id).map(
+
+    const matchFunc = cf_id => matchesByCF.get(cf_id).map(
         function (match) {
           return {
-            matcher: errorMatchers.get(match.matcher),
+            matcher: match.matcher_name,
             score: match.score,
           };
         });
-    };
 
     return matchFunc.bind(this);
   }
@@ -650,12 +648,10 @@ ErrorLine.propTypes = {
   setEditable: PropTypes.func.isRequired,
   canClassify: PropTypes.bool.isRequired,
   $injector: PropTypes.object.isRequired,
-  errorMatchers: PropTypes.object,
   prevErrorLine: PropTypes.object,
 };
 
 ErrorLine.defaultProps = {
-  errorMatchers: null,
   prevErrorLine: null,
 };
 

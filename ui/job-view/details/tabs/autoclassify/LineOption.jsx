@@ -75,8 +75,12 @@ class LineOption extends React.Component {
     } = this.props;
     const { isBugFilerOpen, repoName } = this.state;
     const option = optionModel;
-    let logUrl = selectedJob.logs.filter(x => x.name.endsWith('_json'));
-    logUrl = logUrl[0] ? logUrl[0].url : selectedJob.logs[0].url;
+    let logUrl;
+
+    if (selectedJob.logs) {
+      logUrl = selectedJob.logs.filter(x => x.name.endsWith('_json'));
+      logUrl = logUrl[0] ? logUrl[0].url : selectedJob.logs[0].url;
+    }
 
     return (
       <div className="classification-option">
@@ -171,8 +175,8 @@ class LineOption extends React.Component {
 
         {option.type === 'classifiedFailure' && <div className="classification-matchers">
           Matched by:
-          {option.matches && option.matches.map(match => (<span key={match.matcher.id}>
-            {match.matcher.name} ({match.score})
+          {option.matches && option.matches.map(match => (<span key={match.matcher_name}>
+            {match.matcher_name} ({match.score})
           </span>))}
         </div>}
         {isBugFilerOpen && <BugFiler
