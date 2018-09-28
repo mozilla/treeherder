@@ -48,10 +48,12 @@ class JobView extends React.Component {
     this.$rootScope.filterModel = filterModel;
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
-    const hasSelectedJob = getAllUrlParams().has('selectedJob');
+    const urlParams = getAllUrlParams();
+    const hasSelectedJob = urlParams.has('selectedJob');
 
     this.state = {
       repoName: getRepo(),
+      revision: urlParams.get('revision'),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
@@ -199,12 +201,12 @@ class JobView extends React.Component {
   }
 
   render() {
-    const { revision, $injector } = this.props;
+    const { $injector } = this.props;
     const {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
-      filterModel, jobsLoaded, hasSelectedJob,
+      filterModel, jobsLoaded, hasSelectedJob, revision,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -300,12 +302,6 @@ class JobView extends React.Component {
 
 JobView.propTypes = {
   $injector: PropTypes.object.isRequired,
-  revision: PropTypes.string,
-};
-
-// Some of these props are not ready by the time this renders.
-JobView.defaultProps = {
-  revision: null,
 };
 
 treeherder.component('jobView', react2angular(JobView, [], ['$injector']));
