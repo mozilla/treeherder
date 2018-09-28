@@ -8,6 +8,7 @@ import { Badge } from 'reactstrap';
 import { store, actions } from '../redux/store';
 import { thPlatformMap } from '../../helpers/constants';
 import LogViewer from './LogViewer';
+import { getBugUrl } from '../../helpers/url';
 
 
 const mapStateToProps = ({ groups }) => ({
@@ -163,11 +164,11 @@ class TestComponent extends React.Component {
         {this.props.test.bugs && <div>
           <div className="bottom-separator"><strong>Bugs:</strong></div>
           {Object.values(this.props.test.bugs).map(bug => (
-            <div key={bug.id}><Link
-              to={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug.id}`}
+            <div key={bug.id}><a
+              href={getBugUrl(bug.id)}
               target="_blank"
-              rel="noopener"
-            >{bug.id} - {bug.summary}</Link></div>
+              rel="noopener noreferrer"
+            >{bug.id} - {bug.summary}</a></div>
           ))}
         </div>}
       </div>
