@@ -43,7 +43,7 @@ describe('JobGroup component', () => {
       />,
     );
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
+      '<span class="platform-group" data-group-key="313281W-e10s1linux64debug"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
         '<span class="group-content">' +
           '<span class="group-job-list"><button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
@@ -67,7 +67,7 @@ describe('JobGroup component', () => {
     jobGroup.setState({ expanded: true });
     jobGroup.setState({ expanded: false });
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
+      '<span class="platform-group" data-group-key="313281W-e10s1linux64debug"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
         '<span class="group-content">' +
           '<span class="group-job-list"><button data-job-id="166315800" title="success | test-linux64/debug-web-platform-tests-reftests-e10s-1 -  (18 mins)" class="btn btn-green filter-shown job-btn btn-xs">Wr1</button></span>' +
@@ -90,7 +90,7 @@ describe('JobGroup component', () => {
     );
     jobGroup.setState({ expanded: true });
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
+      '<span class="platform-group" data-group-key="313281W-e10s1linux64debug"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
           '<span class="group-content">' +
             '<span class="group-job-list">' +
@@ -117,7 +117,7 @@ describe('JobGroup component', () => {
 
     $rootScope.$emit(thEvents.groupStateChanged, 'expanded');
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Web platform tests with e10s">' +
+      '<span class="platform-group" data-group-key="313281W-e10s1linux64debug"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
           '<span class="group-content">' +
             '<span class="group-job-list">' +
@@ -143,7 +143,7 @@ describe('JobGroup component', () => {
     );
 
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
+      '<span class="platform-group" data-group-key="313293SM1linux64opt"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
           '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
@@ -169,7 +169,7 @@ describe('JobGroup component', () => {
 
     jobGroup.setState({ showDuplicateJobs: true });
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
+      '<span class="platform-group" data-group-key="313293SM1linux64opt"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
           '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
@@ -196,7 +196,7 @@ describe('JobGroup component', () => {
 
     $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
     expect(jobGroup.html()).toEqual(
-      '<span class="platform-group"><span class="disabled job-group" title="Spidermonkey builds">' +
+      '<span class="platform-group" data-group-key="313293SM1linux64opt"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
         '<span class="group-content"><span class="group-job-list">' +
           '<button data-job-id="166316707" title="retry | spidermonkey-sm-msan-linux64/opt -  (0 mins)" class="btn btn-dkblue filter-shown job-btn btn-xs">msan</button>' +
