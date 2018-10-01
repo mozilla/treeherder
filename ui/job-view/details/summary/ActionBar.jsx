@@ -5,7 +5,7 @@ import $ from 'jquery';
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest } from '../../../helpers/job';
-import { getInteractiveTaskUrl, getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
+import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
@@ -177,7 +177,7 @@ class ActionBar extends React.Component {
     const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
 
     try {
-      const taskId = await TaskclusterModel.submit({
+      await TaskclusterModel.submit({
         action: interactiveTask,
         decisionTaskId,
         taskId: results.originalTaskId,
@@ -187,13 +187,10 @@ class ActionBar extends React.Component {
         staticActionVariables: results.staticActionVariables,
       });
 
-      this.thNotify.send('Request sent to create an interactive job via actions.json.', 'success');
-
-      Object.assign(window.open(), {
-        opener: null,
-        location: getInteractiveTaskUrl(taskId),
-        target: '_blank',
-      });
+      this.thNotify.send(
+        `Request sent to create an interactive job via actions.json.
+          You will soon receive an email containing a link to interact with the task.`,
+        'success');
     } catch (e) {
       // The full message is too large to fit in a Treeherder
       // notification box.
