@@ -7,6 +7,10 @@ strong {
   height: 100%;
 }
 
+.details-panel-dark {
+  background: #2a2a2a;
+}
+
 .details-panel-slide {
   animation: details-panel-slide 0.4s;
   height: 100%;
@@ -213,12 +217,6 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
   flex-flow: row;
 }
 
-#summary-panel {
-  background-color: #fff;
-  display: flex;
-  flex-flow: column;
-}
-
 #job-details-actionbar {
   min-height: 33px;
 }
@@ -292,9 +290,20 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
 }
 
 #summary-panel {
+  display: flex;
+  flex-flow: column;
   width: 260px;
   min-width: 260px;
   height: 100%;
+}
+
+.summary-panel-light {
+  background-color: #fff;
+}
+
+.summary-panel-dark {
+  background-color: #2a2a2a;
+  color: darkgrey;
 }
 
 #summary-panel .content-spacer {
@@ -408,9 +417,15 @@ ul.failure-summary-list {
   height: 100%;
 }
 
-ul.failure-summary-list li {
+ul.failure-summary-list-light li {
   font-size: 11px;
   background: #ccfaff;
+  padding: 1px 0 0 2px;
+}
+
+ul.failure-summary-list-dark li {
+  font-size: 11px;
+  background: #6e989d;
   padding: 1px 0 0 2px;
 }
 

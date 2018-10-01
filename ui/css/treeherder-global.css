@@ -291,6 +291,11 @@ input[type="checkbox"] {
   background-color: white;
 }
 
+.btn-dark-bordered {
+  border: 1px solid #3e3e3e;
+  background-color: darkgrey;
+}
+
 .btn-primary-soft {
     color: #fff;
     background-color: #337ab7;

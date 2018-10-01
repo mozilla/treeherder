@@ -11,6 +11,7 @@ import SuggestionsListItem from './SuggestionsListItem';
 import BugFiler from '../../BugFiler';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
+import { withTheme } from '../../../context/Theme';
 
 class FailureSummaryTab extends React.Component {
   constructor(props) {
@@ -56,7 +57,7 @@ class FailureSummaryTab extends React.Component {
   render() {
     const {
       jobLogUrls, logParseStatus, suggestions, errors, logViewerFullUrl,
-      bugSuggestionsLoading, selectedJob, reftestUrl,
+      bugSuggestionsLoading, selectedJob, reftestUrl, failureSummaryListTheme,
     } = this.props;
     const { isBugFilerOpen, suggestion } = this.state;
     const logs = jobLogUrls;
@@ -64,7 +65,7 @@ class FailureSummaryTab extends React.Component {
 
     return (
       <div className="w-100 h-100">
-        <ul className="list-unstyled failure-summary-list" ref={this.fsMount}>
+        <ul className={`list-unstyled failure-summary-list ${failureSummaryListTheme}`} ref={this.fsMount}>
           {suggestions.map((suggestion, index) =>
             (<SuggestionsListItem
               key={index} // eslint-disable-line react/no-array-index-key
@@ -133,6 +134,7 @@ FailureSummaryTab.propTypes = {
   $injector: PropTypes.object.isRequired,
   addBug: PropTypes.func.isRequired,
   pinJob: PropTypes.func.isRequired,
+  failureSummaryListTheme: PropTypes.string.isRequired,
   suggestions: PropTypes.array,
   selectedJob: PropTypes.object,
   errors: PropTypes.array,
@@ -154,4 +156,4 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
 };
 
-export default withSelectedJob(withPinnedJobs(FailureSummaryTab));
+export default withTheme(withSelectedJob(withPinnedJobs(FailureSummaryTab)));

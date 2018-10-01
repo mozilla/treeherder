@@ -231,8 +231,16 @@ th-action-button .btn-push {
 .get-next {
   flex-direction: row;
   font-size: 14px;
+}
+
+.get-next-light {
   background-color: #f5f5f5;
   border: 1px solid #e3e3e3;
+}
+
+.get-next-dark {
+  background-color: #696969;
+  border: 1px solid #808080;
 }
 
 .get-next > span {

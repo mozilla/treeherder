@@ -16,6 +16,7 @@ import TextLogStepModel from '../../models/textLogStep';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
+import { withTheme } from '../context/Theme';
 
 export const pinboardHeight = 100;
 
@@ -250,7 +251,7 @@ class DetailsPanel extends React.Component {
   render() {
     const {
       repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
-      classificationTypes, isPinBoardVisible, selectedJob,
+      classificationTypes, isPinBoardVisible, selectedJob, detailsPanelClass,
     } = this.props;
     const {
       jobDetails, jobRevision, jobLogUrls, jobDetailLoading,
@@ -263,7 +264,7 @@ class DetailsPanel extends React.Component {
       <div
         id="details-panel"
         style={{ height: `${detailsPanelHeight}px` }}
-        className={selectedJob ? 'details-panel-slide' : 'hidden'}
+        className={`${detailsPanelClass} ${selectedJob ? 'details-panel-slide' : 'hidden'}`}
       >
         <PinBoard
           isLoggedIn={user.isLoggedIn || false}
@@ -323,6 +324,7 @@ DetailsPanel.propTypes = {
   classificationMap: PropTypes.object.isRequired,
   setPinBoardVisible: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
+  detailsPanelClass: PropTypes.string.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -330,4 +332,4 @@ DetailsPanel.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(withPinnedJobs(DetailsPanel));
+export default withTheme(withSelectedJob(withPinnedJobs(DetailsPanel)));

@@ -1,19 +1,42 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+const lightTheme = {
+  jobListClass: 'job-list-light',
+  globalContentClass: 'th-global-content-light',
+  platformClass: 'platform-light',
+  groupSymbolClass: 'group-symbol-light',
+  groupContentClass: 'group-content-light',
+  detailsPanelClass: 'details-panel-light',
+  getNextClass: 'get-next-light',
+  getNextBtnTheme: 'btn-light-bordered',
+  failureSummaryListTheme: 'failure-summary-list-light',
+  summaryPanelTheme: 'summary-panel-light',
+  quickFilterTheme: 'quick-filter-light',
+};
+
+const darkTheme = {
+  jobListClass: 'job-list-dark',
+  globalContentClass: 'th-global-content-dark',
+  platformClass: 'platform-dark',
+  groupSymbolClass: 'group-symbol-dark',
+  groupContentClass: 'group-content-dark',
+  detailsPanelClass: 'details-panel-dark',
+  getNextClass: 'get-next-dark',
+  getNextBtnTheme: 'btn-dark-bordered',
+  failureSummaryListTheme: 'failure-summary-list-dark',
+  summaryPanelTheme: 'summary-panel-dark',
+  quickFilterTheme: 'quick-filter-dark',
+};
+
 const ThemeContext = React.createContext({});
 
 export class Theme extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      jobListClass: 'job-list-dark',
-      globalContentClass: 'th-global-content-dark',
-      platformClass: 'platform-dark',
-      groupSymbolClass: 'group-symbol-dark',
-      groupContentClass: 'group-content-dark',
-    };
+    this.state = lightTheme;
+    this.state = darkTheme;
   }
 
   componentDidMount() {
@@ -47,6 +70,12 @@ export function withTheme(Component) {
             platformClass={context.platformClass}
             groupSymbolClass={context.groupSymbolClass}
             groupContentClass={context.groupContentClass}
+            detailsPanelClass={context.detailsPanelClass}
+            getNextClass={context.getNextClass}
+            getNextBtnTheme={context.getNextBtnTheme}
+            failureSummaryListTheme={context.failureSummaryListTheme}
+            summaryPanelTheme={context.summaryPanelTheme}
+            quickFilterTheme={context.quickFilterTheme}
           />
         )}
       </ThemeContext.Consumer>

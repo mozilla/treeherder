@@ -8,6 +8,7 @@ import { withSelectedJob } from '../../context/SelectedJob';
 import ActionBar from './ActionBar';
 import ClassificationsPanel from './ClassificationsPanel';
 import StatusPanel from './StatusPanel';
+import { withTheme } from '../../context/Theme';
 
 class SummaryPanel extends React.Component {
   constructor(props) {
@@ -55,6 +56,7 @@ class SummaryPanel extends React.Component {
       repoName, selectedJob, latestClassification, bugs, jobLogUrls,
       jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl,
       logParseStatus, $injector, user, currentRepo, classificationMap,
+      summaryPanelTheme,
     } = this.props;
     const { machineUrl, machineUrlStatus } = this.state;
 
@@ -71,7 +73,7 @@ class SummaryPanel extends React.Component {
     }
 
     return (
-      <div id="summary-panel">
+      <div id="summary-panel" className={summaryPanelTheme}>
         <ActionBar
           repoName={repoName}
           logParseStatus={logParseStatus}
@@ -195,6 +197,7 @@ SummaryPanel.propTypes = {
   user: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
+  summaryPanelTheme: PropTypes.string.isRequired,
   selectedJob: PropTypes.object,
   latestClassification: PropTypes.object,
   jobLogUrls: PropTypes.array,
@@ -216,4 +219,4 @@ SummaryPanel.defaultProps = {
   logViewerFullUrl: null,
 };
 
-export default withSelectedJob(SummaryPanel);
+export default withTheme(withSelectedJob(SummaryPanel));

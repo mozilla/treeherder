@@ -12,6 +12,7 @@ import {
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import WatchedRepo from './WatchedRepo';
+import { withTheme } from '../context/Theme';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -21,7 +22,7 @@ const getSearchStrFromUrl = function getSearchStrFromUrl() {
   return searchStr ? searchStr.replace(/,/g, ' ') : '';
 };
 
-export default class SecondaryNavBar extends React.Component {
+class SecondaryNavBar extends React.Component {
   constructor(props) {
     super(props);
 
@@ -189,6 +190,7 @@ export default class SecondaryNavBar extends React.Component {
   render() {
     const {
       updateButtonClick, serverChanged, setCurrentRepoTreeStatus, repos,
+      quickFilterTheme,
     } = this.props;
     const {
       watchedRepoNames, groupsExpanded, showDuplicateJobs, searchQueryStr,
@@ -305,12 +307,12 @@ export default class SecondaryNavBar extends React.Component {
             {/* Quick Filter Field */}
             <span
               id="quick-filter-parent"
-              className="form-group form-inline"
+              className={`form-group form-inline ${quickFilterTheme}`}
               tabIndex={-1}
             >
               <input
                 id="quick-filter"
-                className="form-control form-control-sm"
+                className={`form-control form-control-sm ${quickFilterTheme}`}
                 required
                 value={searchQueryStr}
                 title="Click to enter filter values"
@@ -340,4 +342,7 @@ SecondaryNavBar.propTypes = {
   filterModel: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
+  quickFilterTheme: PropTypes.func.isRequired,
 };
+
+export default withTheme(SecondaryNavBar);

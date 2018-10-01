@@ -154,7 +154,8 @@ class PushList extends React.Component {
 
   render() {
     const {
-      $injector, user, repoName, revision, currentRepo, filterModel, globalContentClass,
+      $injector, user, repoName, revision, currentRepo, filterModel,
+      globalContentClass, getNextClass, getNextBtnTheme,
     } = this.props;
     const { pushList, loadingPushes, jobsReady, notificationSupported } = this.state;
     const { isLoggedIn } = user;
@@ -195,12 +196,12 @@ class PushList extends React.Component {
                 revision={revision}
               />
             }
-            <div className="card card-body get-next" data-job-clear-on-click>
+            <div className={`card card-body get-next ${getNextClass}`} data-job-clear-on-click>
               <span>get next:</span>
               <div className="btn-group">
                 {[10, 20, 50].map(count => (
                   <div
-                    className="btn btn-light-bordered"
+                    className={`btn ${getNextBtnTheme}`}
                     onClick={() => (this.getNextPushes(count))}
                     key={count}
                   >{count}</div>
@@ -220,6 +221,8 @@ PushList.propTypes = {
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   globalContentClass: PropTypes.string.isRequired,
+  getNextClass: PropTypes.string.isRequired,
+  getNextBtnTheme: PropTypes.string.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };
