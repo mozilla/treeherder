@@ -136,14 +136,13 @@ class PushHeader extends React.PureComponent {
   cancelAllJobs() {
     if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
       const { push, isLoggedIn } = this.props;
-      const jobsCanCancel = push.jobList
-        .filter(({ state }) => state === 'running' || state === 'pending')
-        .map(({ id }) => id);
+      // Any job Id inside the push will do
+      const jobId = push.jobList[0].id;
 
       if (!isLoggedIn) return;
 
-      JobModel.cancel(
-        jobsCanCancel,
+      JobModel.cancelAll(
+        jobId,
         this.$rootScope.repoName,
         this.ThResultSetStore,
         this.thNotify,
