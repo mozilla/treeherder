@@ -98,11 +98,11 @@ export default class JobModel {
   }
 
   static async retrigger(jobIds, repoName, ThResultSetStore, thNotify) {
-    const isManyJobs = jobIds.length > 1;
+    const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
       thNotify.send(
-        `Attempting to retrigger ${isManyJobs ? 'all jobs' : 'job'} via actions.json`,
+        `Attempting to retrigger ${jobTerm} via actions.json`,
         'info');
 
       /* eslint-disable no-await-in-loop */
@@ -131,9 +131,9 @@ export default class JobModel {
       }
       /* eslint-enable no-await-in-loop */
 
-      thNotify.send(`Request sent to retrigger ${isManyJobs ? 'all jobs' : 'job'} via action.json`, 'success');
+      thNotify.send(`Request sent to retrigger ${jobTerm} via action.json`, 'success');
     } catch (e) {
-      thNotify.send(`Unable to retrigger ${isManyJobs ? 'all jobs' : 'job'}`, 'danger', { sticky: true });
+      thNotify.send(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 
@@ -164,11 +164,11 @@ export default class JobModel {
   }
 
   static async cancel(jobIds, repoName, ThResultSetStore, thNotify) {
-    const isManyJobs = jobIds.length > 1;
+    const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
       thNotify.send(
-        `Attempting to cancel selected ${isManyJobs ? 'jobs' : 'job'} via actions.json`,
+        `Attempting to cancel selected ${jobTerm} via actions.json`,
         'info');
 
       /* eslint-disable no-await-in-loop */
@@ -197,9 +197,9 @@ export default class JobModel {
       }
       /* eslint-enable no-await-in-loop */
 
-      thNotify.send(`Request sent to cancel ${isManyJobs ? 'selected jobs' : 'job'} via action.json`, 'success');
+      thNotify.send(`Request sent to cancel ${jobTerm} via action.json`, 'success');
     } catch (e) {
-      thNotify.send(`Unable to cancel ${isManyJobs ? 'all jobs' : 'job'}`, 'danger', { sticky: true });
+      thNotify.send(`Unable to cancel ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 }
