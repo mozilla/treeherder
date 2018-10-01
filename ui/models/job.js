@@ -101,11 +101,9 @@ export default class JobModel {
     const isManyJobs = jobIds.length > 1;
 
     try {
-      if (isManyJobs) {
-        thNotify.send(
-          'Attempting to retrigger all jobs via actions.json',
-          'info');
-      }
+      thNotify.send(
+        `Attempting to retrigger ${isManyJobs ? 'all jobs' : 'job'} via actions.json`,
+        'info');
 
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
@@ -169,11 +167,9 @@ export default class JobModel {
     const isManyJobs = jobIds.length > 1;
 
     try {
-      if (isManyJobs) {
-        thNotify.send(
-          'Attempting to cancel selected jobs via actions.json',
-          'info');
-      }
+      thNotify.send(
+        `Attempting to cancel selected ${isManyJobs ? 'jobs' : 'job'} via actions.json`,
+        'info');
 
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
