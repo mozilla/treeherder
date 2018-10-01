@@ -131,14 +131,6 @@ def store_job_artifacts(artifact_data):
                                    "for job with guid %s, this probably "
                                    "means the job was already parsed",
                                    job_guid)
-            elif artifact_name == 'buildapi':
-                buildbot_request_id = json.loads(artifact['blob']).get(
-                    'request_id')
-                if buildbot_request_id:
-                    JobDetail.objects.update_or_create(
-                        job=job,
-                        title='buildbot_request_id',
-                        value=str(buildbot_request_id))
             else:
                 logger.warning("Unknown artifact type: %s submitted with job %s",
                                artifact_name, job.guid)

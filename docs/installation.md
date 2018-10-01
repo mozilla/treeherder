@@ -82,7 +82,7 @@ Starting a local Treeherder instance
 Running the ingestion tasks
 ---------------------------
 
-Ingestion tasks populate the database with version control push logs, queued/running/completed buildbot jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
+Ingestion tasks populate the database with version control push logs, queued/running/completed jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
 
 * Start up a celery worker to process async tasks:
 
@@ -93,8 +93,17 @@ Ingestion tasks populate the database with version control push logs, queued/run
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
+* Then in a new terminal window, run `vagrant ssh` again, and follow the steps from the [loading pulse data](pulseload.md) page.
+
 Ingesting a single push (at a time)
 -----------------------------------
+
+```eval_rst
+.. warning::
+  With the end of life of buildbot, this command is no longer able to ingest jobs.
+  For now after running it, you will need to manually follow the steps from the
+  :doc:`loading pulse data<pulseload>` page.
+```
 
 Alternatively, instead of running a full ingestion task, you can process just
 the jobs associated with any single push generated in the last 4 hours
@@ -108,14 +117,6 @@ vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 
 If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
 the last four hours) on mozilla-inbound.
-
-You can further restrict the amount of data to a specific type of job
-with the "--filter-job-group" parameter. For example, to process only
-talos jobs for a particular push, try:
-
-```bash
-vagrant ~/treeherder$ ./manage.py ingest_push --filter-job-group T mozilla-inbound 63f8a47cfdf
-```
 
 Ingesting a range of pushes
 ---------------------------

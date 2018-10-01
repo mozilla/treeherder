@@ -72,7 +72,7 @@ def _remove_existing_jobs(data):
     return new_data
 
 
-def _load_job(repository, job_datum, push_id, lower_tier_signatures):
+def _load_job(repository, job_datum, push_id):
     """
     Load a job into the treeherder database
 
@@ -185,12 +185,6 @@ def _load_job(repository, job_datum, push_id, lower_tier_signatures):
     tier = job_datum.get('tier') or 1
 
     result = job_datum.get('result', 'unknown')
-
-    # Job tier signatures override the setting from the job structure
-    # Check the signatures list for any supported lower tiers that should
-    # have an overridden tier.
-    if lower_tier_signatures and signature_hash in lower_tier_signatures:
-        tier = lower_tier_signatures[signature_hash]
 
     submit_time = datetime.fromtimestamp(
         _get_number(job_datum.get('submit_timestamp')))
@@ -373,7 +367,7 @@ def _schedule_log_parsing(job, job_logs, result):
                            args=[job.id, job_log_ids, priority])
 
 
-def store_job_data(repository, data, lower_tier_signatures=None):
+def store_job_data(repository, data):
     """
     Store job data instances into jobs db
 
@@ -441,6 +435,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
 
     superseded_job_guid_placeholders = []
 
+    # TODO: Refactor this now that store_job_data() is only over called with one job at a time.
     for datum in data:
         try:
             # TODO: this might be a good place to check the datum against
@@ -458,7 +453,7 @@ def store_job_data(repository, data, lower_tier_signatures=None):
                 revision__startswith=datum['revision'])
 
             # load job
-            job_guid = _load_job(repository, job, push_id, lower_tier_signatures)
+            job_guid = _load_job(repository, job, push_id)
 
             for superseded_guid in superseded:
                 superseded_job_guid_placeholders.append(

@@ -246,30 +246,14 @@ def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_clas
     assert Job.objects.count() == 1
 
 
-def test_ingest_buildbot_tier1_job(test_repository, sample_data, sample_push,
-                                   failure_classifications, mock_log_parser):
-    """Tier is set to 1 if no lower_tier_signatures is used (ie: TaskCluster)"""
+def test_ingest_job_default_tier(test_repository, sample_data, sample_push,
+                                 failure_classifications, mock_log_parser):
+    """Tier is set to 1 by default"""
     job_data = sample_data.job_data[:1]
     store_push_data(test_repository, sample_push)
     store_job_data(test_repository, job_data)
     job = Job.objects.all().first()
     assert job.tier == 1
-
-
-def test_ingest_buildbot_tier2_job(test_repository, sample_data, sample_push,
-                                   failure_classifications, mock_log_parser):
-    """Tier is set to 2 if it matches the signature object"""
-    job_data = sample_data.job_data[:1]
-    test_utils.do_job_ingestion(test_repository, job_data, sample_push)
-    job = Job.objects.all().first()
-    lower_tier_signatures = {
-        job.signature.signature: 2
-    }
-    job_data_2 = copy.deepcopy(job_data)
-    job_data_2[0]['job']['job_guid'] = "foo"
-    store_job_data(test_repository, job_data_2, lower_tier_signatures)
-    job2 = Job.objects.get(guid="foo")
-    assert job2.tier == 2
 
 
 def test_ingesting_skip_existing(test_repository, failure_classifications, sample_data,

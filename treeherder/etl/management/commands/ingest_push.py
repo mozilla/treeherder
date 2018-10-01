@@ -5,9 +5,6 @@ from django.conf import settings
 from django.core.management.base import (BaseCommand,
                                          CommandError)
 
-from treeherder.etl.buildapi import (Builds4hJobsProcess,
-                                     PendingJobsProcess,
-                                     RunningJobsProcess)
 from treeherder.etl.pushlog import (HgPushlogProcess,
                                     last_push_id_from_server)
 from treeherder.model.models import Repository
@@ -23,10 +20,6 @@ class Command(BaseCommand):
         parser.add_argument(
             '--profile-file',
             help='Profile command and write result to profile file'
-        )
-        parser.add_argument(
-            '--filter-job-group',
-            help="Only process jobs in specified group symbol (e.g. 'T')"
         )
         parser.add_argument(
             '--last-n-pushes',
@@ -72,23 +65,17 @@ class Command(BaseCommand):
         process = HgPushlogProcess()
         # Use the actual push SHA, in case the changeset specified was a tag
         # or branch name (eg tip). HgPushlogProcess returns the full SHA.
-        push_sha = process.run(pushlog_url, project, changeset=changeset,
-                               last_push_id=fetch_push_id)
+        process.run(pushlog_url, project, changeset=changeset, last_push_id=fetch_push_id)
 
         # Only perform additional processing if fetching a single changeset
         # because we only have the sha1 if the tip-most push in "last N pushes"
         # mode and can't filter appropriately.
         if not fetch_push_id:
-            group_filter = options['filter_job_group']
-            Builds4hJobsProcess().run(project_filter=project,
-                                      revision_filter=push_sha,
-                                      job_group_filter=group_filter)
-            PendingJobsProcess().run(project_filter=project,
-                                     revision_filter=push_sha,
-                                     job_group_filter=group_filter)
-            RunningJobsProcess().run(project_filter=project,
-                                     revision_filter=push_sha,
-                                     job_group_filter=group_filter)
+            raise CommandError(
+                'This command is not yet able to ingest Taskcluster jobs automatically. '
+                'Please manually configure pulse job ingestion using this guide: '
+                'https://treeherder.readthedocs.io/pulseload.html'
+            )
 
     def handle(self, *args, **options):
 

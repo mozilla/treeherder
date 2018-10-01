@@ -1,38 +1,8 @@
-"""
-This module contains
-"""
 import newrelic.agent
 from celery import task
 
-from treeherder.etl.buildapi import (Builds4hJobsProcess,
-                                     PendingJobsProcess,
-                                     RunningJobsProcess)
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.models import Repository
-
-
-@task(name='fetch-buildapi-pending', soft_time_limit=10 * 60)
-def fetch_buildapi_pending():
-    """
-    Fetches the buildapi pending jobs api and load them
-    """
-    PendingJobsProcess().run()
-
-
-@task(name='fetch-buildapi-running', soft_time_limit=10 * 60)
-def fetch_buildapi_running():
-    """
-    Fetches the buildapi running jobs api and load them
-    """
-    RunningJobsProcess().run()
-
-
-@task(name='fetch-buildapi-build4h', soft_time_limit=10 * 60)
-def fetch_buildapi_build4h():
-    """
-    Fetches the buildapi running jobs api and load them
-    """
-    Builds4hJobsProcess().run()
 
 
 @task(name='fetch-push-logs')

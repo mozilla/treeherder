@@ -6,8 +6,6 @@ import jsonschema
 from django.conf import settings
 from six.moves.html_parser import HTMLParser
 
-from treeherder.etl.buildbot import RESULT_DICT
-
 logger = logging.getLogger(__name__)
 
 
@@ -67,6 +65,20 @@ class StepParser(ParserBase):
     RE_STEP_MARKER = re.compile(r'={9} (?P<marker_type>Started|Finished) (?P<name>.*?) '
                                 r'\(results: (?P<result_code>\d+), elapsed: .*?\) '
                                 r'\(at (?P<timestamp>.*?)\)')
+
+    # Legacy result code to name mapping inherited from buildbot (duplicated in TextLogStep)
+    # TODO: Likely remove this and step handling entirely now that Taskcluster doesn't have steps.
+    RESULT_DICT = {
+        0: "success",
+        1: "testfailed",
+        2: "busted",
+        3: "skipped",
+        4: "exception",
+        5: "retry",
+        6: "usercancel",
+        7: "superseded",
+    }
+
     STATES = {
         # The initial state until we record the first step.
         "awaiting_first_step": 0,
@@ -213,7 +225,7 @@ class StepParser(ParserBase):
             # markers, for Taskcluster logs the start marker line lies about the result, since
             # the log output is unbuffered, so Taskcluster does not know the real result at
             # that point. As such, we only set the result when ending a step.
-            "result": RESULT_DICT.get(result_code, "unknown"),
+            "result": self.RESULT_DICT.get(result_code, "unknown"),
             "errors": step_errors
         })
         # reset the sub_parser for the next step

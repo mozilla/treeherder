@@ -17,8 +17,8 @@ Or for more control, run each tool individually:
   ```bash
   vagrant ~/treeherder$ pytest tests/
   vagrant ~/treeherder$ pytest tests/log_parser/test_tasks.py
-  vagrant ~/treeherder$ pytest tests/etl/test_buildapi.py -k test_ingest_builds4h_jobs
-  vagrant ~/treeherder$ pytest tests/selenium/test_basics.py::test_treeherder_main
+  vagrant ~/treeherder$ pytest tests/etl/test_job_loader.py -k test_ingest_pulse_jobs
+  vagrant ~/treeherder$ pytest tests/selenium/test_pin_jobs.py::test_pin_all_jobs
   ```
 
   To run all tests, including slow tests that are normally skipped, use:
@@ -136,14 +136,8 @@ Hide Jobs with Tiers
 --------------------
 
 To hide jobs we use the job's ``tier`` setting.  Jobs with ``tier`` of 3 are
-hidden by default.  There are two ways to set a job to be hidden in Treeherder:
-
-* TaskCluster - Edit the task definition to include the ``tier`` setting in
-  the Treeherder section.
-* BuildBot - You must get the signature hash of the job from the UI and add that
-  signature hash to the ``buildapi.py`` file in the Treeherder repo.  To get
-  the signature, click the job and then click the ``sig`` link in the Job
-  Details Panel.  That will place the signature hash in the filter field.
+hidden by default.  For TaskCluster, edit the task definition to include the
+``tier`` setting in the Treeherder section.
 
 Connecting to Services Running inside Vagrant
 ---------------------------------------------
