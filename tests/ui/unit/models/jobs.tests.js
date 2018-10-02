@@ -13,7 +13,7 @@ describe('JobModel', () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.reset();
   });
 
   describe('getList', () => {
