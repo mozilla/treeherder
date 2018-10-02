@@ -67,11 +67,12 @@ Table.propTypes = {
 GenericTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  updateState: PropTypes.func.isRequired,
+  updateState: PropTypes.func,
   totalPages: PropTypes.number,
 };
 
 GenericTable.defaultProps = {
   totalPages: null,
   data: undefined,
+  updateState: null,
 };

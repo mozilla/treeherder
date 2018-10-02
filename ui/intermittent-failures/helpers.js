@@ -119,11 +119,17 @@ export const validateQueryParams = function validateQueryParams(params, bugRequi
 };
 
 export const getData = async function getData(url) {
-  const response = await fetch(url);
   let failureStatus = null;
+  const response = await fetch(url);
+
   if (!response.ok) {
     failureStatus = response.status;
   }
+
+  if (response.headers.get('content-type') === 'text/html' && failureStatus) {
+    return { data: { [failureStatus]: response.statusText }, failureStatus };
+  }
+
   const data = await response.json();
   return { data, failureStatus };
 };

@@ -108,3 +108,7 @@ export default class DateRangePicker extends React.Component {
 DateRangePicker.propTypes = {
   updateState: PropTypes.func.isRequired,
 };
+
+DateRangePicker.defaultProps = {
+  updateState: null,
+};

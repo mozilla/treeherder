@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { getBugUrl } from '../helpers/url';
 
 // we're passing the mainview location object to bugdetails because using history.goBack()
-// in bugdetails to navigate back to mainview displays this console warning:
+// in bugdetailsview to navigate back to mainview displays this console warning:
 // "Hash history go(n) causes a full page reload in this browser"
 
 function BugColumn({ tree, startday, endday, data, location }) {
@@ -36,7 +36,11 @@ BugColumn.propTypes = {
   startday: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
   tree: PropTypes.string.isRequired,
-  location: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({}),
+};
+
+BugColumn.defaultProps = {
+  location: null,
 };
 
 export default BugColumn;
