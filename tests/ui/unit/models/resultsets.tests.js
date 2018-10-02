@@ -35,7 +35,7 @@ describe('ThResultSetStore', () => {
     }));
 
     afterEach(() => {
-      fetchMock.restore();
+      fetchMock.reset();
     });
 
     /*

@@ -59,7 +59,7 @@ describe('BugFiler', () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.reset();
   });
 
   const getBugFilerForSummary = (summary) => {
