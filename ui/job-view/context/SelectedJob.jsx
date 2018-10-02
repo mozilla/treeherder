@@ -4,6 +4,7 @@ import $ from 'jquery';
 
 import { thJobNavSelectors } from '../../helpers/constants';
 import {
+  findGroupInstance,
   findJobInstance,
   findSelectedInstance, scrollToElement,
 } from '../../helpers/job';
@@ -125,8 +126,14 @@ class SelectedJobClass extends React.Component {
       const selected = findSelectedInstance();
       if (selected) selected.setSelected(false);
     }
+    const group = findGroupInstance(job);
+    if (group) {
+      group.setExpanded(true);
+    }
     const newSelectedElement = findJobInstance(job.id, true);
-    newSelectedElement.setSelected(true);
+    if (newSelectedElement) {
+      newSelectedElement.setSelected(true);
+    }
 
     // If a timeout is passed in, this will cause a pause before
     // the selection takes place.  This allows for quick-switching

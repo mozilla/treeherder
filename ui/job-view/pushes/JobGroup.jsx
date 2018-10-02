@@ -80,6 +80,10 @@ export default class JobGroup extends React.Component {
     this.groupStateChangedUnlisten();
   }
 
+  setExpanded(isExpanded) {
+    this.setState({ expanded: isExpanded });
+  }
+
   toggleExpanded() {
     this.setState({ expanded: !this.state.expanded });
   }
@@ -135,7 +139,7 @@ export default class JobGroup extends React.Component {
   render() {
     const {
       $injector, repoName, filterPlatformCb, platform, filterModel,
-      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs },
+      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs, mapKey: groupMapKey },
     } = this.props;
     const { expanded, showDuplicateJobs } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(
@@ -145,7 +149,10 @@ export default class JobGroup extends React.Component {
     );
 
     return (
-      <span className="platform-group">
+      <span
+        className="platform-group"
+        data-group-key={groupMapKey}
+      >
         <span
           className="disabled job-group"
           title={groupName}

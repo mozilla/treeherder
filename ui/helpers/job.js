@@ -6,6 +6,7 @@ import {
 } from './constants';
 import { toDateStr } from './display';
 import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
+import { getGroupMapKey } from './aggregateId';
 
 const btnClasses = {
   busted: 'btn-red',
@@ -121,12 +122,23 @@ export const scrollToElement = function scrollToElement(el, duration) {
   }
 };
 
-// Fetch the React instance based on the jobId, and if scrollTo is true, then
-// scroll it into view.
+export const findGroupInstance = function findGroupInstance(job) {
+  const { push_id, job_group_symbol, tier, platform, platform_option } = job;
+  const groupMapKey = getGroupMapKey(push_id, job_group_symbol, tier, platform, platform_option);
+  const viewContent = $('.th-view-content');
+  const groupEl = viewContent.find(
+    `span[data-group-key='${groupMapKey}']`).first();
+
+  if (groupEl.length) {
+    return findInstance(groupEl[0]);
+  }
+};
+
+// Fetch the React instance based on the jobId, and if scrollTo
+// is true, then scroll it into view.
 export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = $('.th-view-content')
-    .find(`button[data-job-id='${jobId}']`)
-    .first();
+  const jobEl = $('.th-view-content').find(
+    `button[data-job-id='${jobId}']`).first();
 
   if (jobEl.length) {
     if (scrollTo) {
