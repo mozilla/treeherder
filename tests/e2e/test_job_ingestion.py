@@ -335,12 +335,10 @@ def test_store_job_artifacts_by_add_artifact(
 
     ji_blob = json.dumps({"job_details": [{"title": "mytitle",
                                            "value": "myvalue"}]})
-    bapi_blob = json.dumps({"buildername": "merd"})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
     tj.add_artifact("text_log_summary", "json", tls_blob)
     tj.add_artifact("Job Info", "json", ji_blob)
-    tj.add_artifact("buildapi", "json", bapi_blob)
     tj.add_artifact("privatebuild", "json", pb_blob)
 
     tjc.add(tj)
@@ -427,34 +425,3 @@ def test_store_job_with_default_tier(test_repository, failure_classifications, p
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 1
-
-
-def test_store_job_with_buildapi_artifact(test_repository, failure_classifications, push_stored):
-    """
-    test submitting a job with a buildapi artifact gets that stored (and
-    we update the job object)
-    """
-    tjc = client.TreeherderJobCollection()
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        'job': {
-            'artifacts': [],
-            'job_guid': job_guid,
-            'state': 'completed',
-        }
-    })
-    tj.add_artifact("buildapi", "json",
-                    json.dumps({"buildername": "Windows 8 64-bit cheezburger",
-                                "request_id": 1234}))
-    tjc.add(tj)
-    store_job_data(test_repository, tjc.get_collection_data())
-
-    assert Job.objects.count() == 1
-    assert JobDetail.objects.count() == 1
-
-    buildbot_request_id_detail = JobDetail.objects.first()
-    assert buildbot_request_id_detail.title == 'buildbot_request_id'
-    assert buildbot_request_id_detail.value == str(1234)
-    assert buildbot_request_id_detail.url is None

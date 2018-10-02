@@ -134,12 +134,6 @@ export default class PushActionMenu extends React.PureComponent {
               onClick={() => showRunnableJobsCb()}
             >Add new jobs</li>
           }
-          <li><a
-            target="_blank"
-            rel="noopener noreferrer"
-            className="dropdown-item"
-            href={`https://secure.pub.build.mozilla.org/buildapi/self-serve/${repoName}/rev/${revision}`}
-          >BuildAPI</a></li>
           {this.triggerMissingRepos.includes(repoName) &&
             <li
               title={isLoggedIn ? 'Trigger all jobs that were optimized away' : 'Must be logged in'}

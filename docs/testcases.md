@@ -262,9 +262,7 @@ Check push actions menu
 -----------------------
 From any push bar, select each entry in the far right dropdown that doesn't involve retriggers. eg:
 
-Bugherder,
-BuildAPI,
-Revision URL List
+Mark with Bugherder
 
 **Expected**: Each should open without error or hanging.
 
