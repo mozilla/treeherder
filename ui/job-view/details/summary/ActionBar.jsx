@@ -30,10 +30,10 @@ class ActionBar extends React.Component {
   }
 
   componentDidMount() {
-    const { logParseStatus } = this.props;
-
     // Open the logviewer and provide notifications if it isn't available
     this.openLogViewerUnlisten = this.$rootScope.$on(thEvents.openLogviewer, () => {
+      const { logParseStatus } = this.props;
+
       switch (logParseStatus) {
         case 'pending':
           this.thNotify.send('Log parsing in progress, log viewer not yet available', 'info'); break;
