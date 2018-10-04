@@ -339,6 +339,7 @@ export const phAlertSummaryStatusMap = {
   FIXED: { id: 7, text: 'fixed' },
   BACKEDOUT: { id: 8, text: 'backedout' },
   CONFIRMING: { id: 9, text: 'confirming' },
+  CONFIRMED: { id: 10, text: 'confirmed' },
 };
 
 export const phAlertStatusMap = {
@@ -348,6 +349,7 @@ export const phAlertStatusMap = {
   INVALID: { id: 3, text: 'invalid' },
   ACKNOWLEDGED: { id: 4, text: 'acknowledged' },
   CONFIRMING: { id: 5, text: 'confirming' },
+  CONFIRMED: { id: 6, text: 'confirmed' },
 };
 
 export const phCompareBaseLineDefaultTimeRange = 86400 * 2;

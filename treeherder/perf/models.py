@@ -223,6 +223,7 @@ class PerformanceAlertSummary(models.Model):
     FIXED = 7
     BACKED_OUT = 8
     CONFIRMING = 9
+    CONFIRMED = 10
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
@@ -232,7 +233,8 @@ class PerformanceAlertSummary(models.Model):
                 (WONTFIX, 'Won\'t fix'),
                 (FIXED, 'Fixed'),
                 (BACKED_OUT, 'Backed out'),
-                (CONFIRMING, 'Confirming'))
+                (CONFIRMING, 'Confirming'),
+                (CONFIRMED, 'Confirmed'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -337,19 +339,21 @@ class PerformanceAlert(models.Model):
     INVALID = 3
     ACKNOWLEDGED = 4
     CONFIRMING = 5
+    CONFIRMED = 6
 
     # statuses where we relate this alert to another summary
     RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
     # statuses where this alert is related only to the summary it was
     # originally assigned to
-    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, CONFIRMING)
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, CONFIRMING, CONFIRMED)
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
                 (REASSIGNED, 'Reassigned'),
                 (INVALID, 'Invalid'),
                 (ACKNOWLEDGED, 'Acknowledged'),
-                (CONFIRMING, 'Confirming'))
+                (CONFIRMING, 'Confirming'),
+                (CONFIRMED, 'Confirmed'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
