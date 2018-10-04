@@ -368,7 +368,7 @@ class PinBoard extends React.Component {
                   >{job.job_type_symbol}</span>
                   <span
                     className={`btn btn-ltgray pinned-job-close-btn ${selectedJobId === job.id ? 'btn-lg selected-job' : 'btn-xs'}`}
-                    onClick={() => unPinJob(job.id)}
+                    onClick={() => unPinJob(job)}
                     title="un-pin this job"
                   ><i className="fa fa-times" /></span>
                 </span>

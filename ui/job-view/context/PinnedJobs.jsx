@@ -77,10 +77,10 @@ export class PinnedJobs extends React.Component {
     }
   }
 
-  unPinJob(id) {
+  unPinJob(job) {
     const { pinnedJobs } = this.state;
 
-    delete pinnedJobs[id];
+    delete pinnedJobs[job.id];
     this.setValue({ pinnedJobs: { ...pinnedJobs } });
   }
 
@@ -134,7 +134,7 @@ export class PinnedJobs extends React.Component {
     const { pinnedJobs } = this.state;
 
     if (pinnedJobs[job.id]) {
-      this.unPinJob(job.id);
+      this.unPinJob(job);
     } else {
       this.pinJob(job);
     }
