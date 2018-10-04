@@ -60,7 +60,7 @@ setup_docs() {
 
 setup_geckodriver() {
     echo '-----> Installing geckodriver'
-    GECKODRIVER_VERSION='0.22.0'
+    GECKODRIVER_VERSION='0.23.0'
     curl -sSfL "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
         | tar -zxC "${HOME}/bin"
 }
