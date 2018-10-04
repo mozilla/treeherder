@@ -54,7 +54,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 signature_data = signature_data.filter(id__in=map(int,
                                                                   signature_ids))
             except ValueError:
-                return Response({"error": "One or more id values invalid (must be integer)"
+                return Response({"message": "One or more id values invalid (must be integer)"
                                  }, status=HTTP_400_BAD_REQUEST)
 
         signature_hashes = request.query_params.getlist('signature')
