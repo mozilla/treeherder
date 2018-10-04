@@ -110,7 +110,8 @@ push_sources = [
 ```
 
 #### Jobs
-Job Exchanges and Projects can be configured in the environment like so:
+Job Exchanges and Projects are defined in ``job_sources``, however can
+also be configured in the environment like so:
 
 ``PULSE_JOB_SOURCES`` defines a list of exchanges with projects.
 ```bash
@@ -146,7 +147,7 @@ celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultset
 * The ``store_pulse_resultsets`` queue will ingest all the pushes from the exchanges
   specified in ``push_sources``.  This can be Mercurial and Github
 * The ``store_pulse_jobs`` queue will ingest all the jobs from the exchanges
-  specified in ``PULSE_JOB_EXCHANGES``.
+  specified in ``job_sources`` (or ``PULSE_JOB_SOURCES``).
 
 ```eval_rst
 .. note:: Any job that comes from **Pulse** that does not have an associated push will be skipped.
