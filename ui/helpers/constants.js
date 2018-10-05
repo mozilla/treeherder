@@ -247,8 +247,6 @@ export const thEvents = {
   jobsLoaded: 'jobs-loaded-EVT',
   // when new pushes are prepended, or appended
   pushesLoaded: 'pushes-loaded-EVT',
-  // fired when a global filter has changed
-  globalFilterChanged: 'status-filter-changed-EVT',
   groupStateChanged: 'group-state-changed-EVT',
   duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
   showRunnableJobs: 'show-runnable-jobs-EVT',

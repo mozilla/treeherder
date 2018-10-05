@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { thEvents } from '../../helpers/constants';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 
@@ -34,18 +33,13 @@ export default class PushActionMenu extends React.PureComponent {
     this.triggerMissingJobs = this.triggerMissingJobs.bind(this);
     this.triggerAllTalosJobs = this.triggerAllTalosJobs.bind(this);
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
+    this.handleUrlChanges = this.handleUrlChanges.bind(this);
 
-    this.unlistenGlobalFilterChanged = this.$rootScope.$on(
-      thEvents.globalFilterChanged, () => {
-        this.setState({
-          topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
-          bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
-        });
-      });
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   componentWillUnmount() {
-    this.unlistenGlobalFilterChanged();
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   getRangeChangeUrl(param, revision) {
@@ -53,6 +47,13 @@ export default class PushActionMenu extends React.PureComponent {
     url = url.replace(`&${param}=${getUrlParam(param)}`, '');
     url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
     return `${url}&${param}=${revision}`;
+  }
+
+  handleUrlChanges() {
+    this.setState({
+      topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
+      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+    });
   }
 
   triggerMissingJobs() {
