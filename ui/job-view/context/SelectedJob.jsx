@@ -78,29 +78,27 @@ class SelectedJobClass extends React.Component {
     const selectedJobId = parseInt(selectedJobIdStr);
 
     if (selectedJobIdStr && (!selectedJob || selectedJob.id !== selectedJobId)) {
-      const jobMap = this.ThResultSetStore.getJobMap();
-      const selectedJobEl = jobMap[selectedJobIdStr];
+      const selectedJobInstance = findJobInstance(selectedJobIdStr, true);
 
       // select the job in question
-      if (selectedJobEl) {
-        this.setSelectedJob(selectedJobEl.job_obj);
+      if (selectedJobInstance) {
+        this.setSelectedJob(selectedJobInstance.props.job);
       } else {
+        setUrlParam('selectedJob');
         // If the ``selectedJob`` was not mapped, then we need to notify
         // the user it's not in the range of the current result set list.
         JobModel.get(repoName, selectedJobId).then((job) => {
           PushModel.get(job.push_id).then(async (resp) => {
             if (resp.ok) {
               const push = await resp.json();
-              const newPushUrl = getJobsUrl({ repo: repoName, revision: push.data.revision, selectedJob: selectedJobId });
-
-              this.clearSelectedJob();
+              const newPushUrl = getJobsUrl({ repo: repoName, revision: push.revision, selectedJob: selectedJobId });
 
               // the job exists, but isn't in any loaded push.
               // provide a message and link to load the right push
               notify.send(
                 `Selected job id: ${selectedJobId} not within current push range.`,
                 'danger',
-                { sticky: true, linkText: 'Load push', newPushUrl });
+                { sticky: true, linkText: 'Load push', url: newPushUrl });
             } else {
               throw Error(`Unable to find push with id ${job.push_id} for selected job`);
             }
