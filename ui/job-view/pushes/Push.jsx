@@ -16,7 +16,6 @@ export default class Push extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, push } = props;
-    const { job_counts } = push;
 
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
@@ -25,10 +24,7 @@ export default class Push extends React.Component {
     this.state = {
       runnableVisible: false,
       watched: 'none',
-
-      // props.push isn't actually immutable due to the way it hooks up to angular, therefore we
-      // need to keep the previous value in the state.
-      last_job_counts: job_counts ? { ...job_counts } : null,
+      jobCounts: { pending: 0, running: 0, completed: 0 },
       hasBoundaryError: false,
       boundaryError: '',
       pushGroupState: 'collapsed',
@@ -39,10 +35,10 @@ export default class Push extends React.Component {
     this.showRunnableJobs = this.showRunnableJobs.bind(this);
     this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
     this.expandAllPushGroups = this.expandAllPushGroups.bind(this);
+  componentDidUpdate(prevProps, prevState) {
+    this.showUpdateNotifications(prevState);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.showUpdateNotifications(nextProps);
   }
 
   componentDidCatch(error) {
@@ -62,8 +58,8 @@ export default class Push extends React.Component {
     });
   }
 
-  showUpdateNotifications(nextProps) {
-    const { watched, last_job_counts } = this.state;
+  showUpdateNotifications(prevState) {
+    const { watched, jobCounts } = this.state;
     const {
       repoName, notificationSupported, push: { revision, id: pushId },
     } = this.props;
@@ -72,13 +68,13 @@ export default class Push extends React.Component {
       return;
     }
 
-    const nextCounts = nextProps.push.job_counts;
-    if (last_job_counts) {
-      const nextUncompleted = nextCounts.pending + nextCounts.running;
-      const lastUncompleted = last_job_counts.pending + last_job_counts.running;
+    const lastCounts = prevState.jobCounts;
+    if (jobCounts) {
+      const lastUncompleted = lastCounts.pending + lastCounts.running;
+      const nextUncompleted = jobCounts.pending + jobCounts.running;
 
-      const nextCompleted = nextCounts.completed;
-      const lastCompleted = last_job_counts.completed;
+      const lastCompleted = lastCounts.completed;
+      const nextCompleted = jobCounts.completed;
 
       let message;
       if (lastUncompleted > 0 && nextUncompleted === 0) {
@@ -106,10 +102,6 @@ export default class Push extends React.Component {
           }
         };
       }
-    }
-
-    if (nextCounts) {
-      this.setState({ last_job_counts: Object.assign({}, nextCounts) });
     }
   }
 
@@ -150,8 +142,9 @@ export default class Push extends React.Component {
     } = this.props;
     const {
       watched, runnableVisible, hasBoundaryError, boundaryError, pushGroupState,
+      platforms, jobCounts, selectedRunnableJobs,
     } = this.state;
-    const { id, push_timestamp, revision, job_counts, author } = push;
+    const { id, push_timestamp, revision, author } = push;
 
     if (hasBoundaryError) {
       return (
@@ -170,7 +163,7 @@ export default class Push extends React.Component {
           pushTimestamp={push_timestamp}
           author={author}
           revision={revision}
-          jobCounts={job_counts}
+          jobCounts={jobCounts}
           watchState={watched}
           isLoggedIn={isLoggedIn}
           repoName={repoName}
