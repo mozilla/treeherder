@@ -23,12 +23,18 @@ Running the standalone development server
 
 The default development server runs the unminified UI and fetches data from the
 production site. You do not need to set up the Vagrant VM unless making backend changes.
-
+ 
 * Start the development server by running:
 
   ```bash
   $ yarn start
   ```
+
+```eval_rst
+.. note::
+
+  Any action you take, such as classifying a job, will affect the live production front-end of Treeherder so we recommend developing against `stage` (details below) unless there's something data-specific that must be addressed on production.
+```
 
 * The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: <http://localhost:5000> to see the UI.
 

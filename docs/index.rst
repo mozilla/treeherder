@@ -7,6 +7,8 @@ Welcome to the Treeherder documentation!
 
    installation
    code_style
+   common_tasks
+   backend_tasks
 
 .. toctree::
    :maxdepth: 2
@@ -14,7 +16,6 @@ Welcome to the Treeherder documentation!
 
    pulseload
    seta
-   common_tasks
    rest_api
    submitting_data
    retrieving_data
