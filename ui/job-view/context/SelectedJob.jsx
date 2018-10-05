@@ -6,13 +6,14 @@ import { thJobNavSelectors } from '../../helpers/constants';
 import {
   findGroupInstance,
   findJobInstance,
-  findSelectedInstance, scrollToElement,
+  findSelectedInstance,
 } from '../../helpers/job';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { getJobsUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import { withPinnedJobs } from './PinnedJobs';
+import { withPushes } from './Pushes';
 
 const SelectedJobContext = React.createContext({});
 
@@ -20,11 +21,9 @@ class SelectedJobClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
-
     this.state = {
       selectedJob: null,
+      repoName: getUrlParam('repo'),
     };
     this.value = {
       ...this.state,
@@ -169,7 +168,6 @@ class SelectedJobClass extends React.Component {
     const { pinnedJobs } = this.props;
     const jobNavSelector = unclassifiedOnly ?
       thJobNavSelectors.UNCLASSIFIED_FAILURES : thJobNavSelectors.ALL_JOBS;
-    const jobMap = this.ThResultSetStore.getJobMap();
     // Get the appropriate next index based on the direction and current job
     // selection (if any).  Must wrap end to end.
     const getIndex = direction === 'next' ?
@@ -206,12 +204,12 @@ class SelectedJobClass extends React.Component {
 
       if (selIdx !== idx) {
         const jobId = jobEl.attr('data-job-id');
+        const jobInstance = findJobInstance(jobId, true);
 
-        if (jobMap && jobMap[jobId]) {
-          scrollToElement(jobEl);
+        if (jobInstance) {
           // Delay loading details for the new job right away,
           // in case the user is switching rapidly between jobs
-          this.setSelectedJob(jobMap[jobId].job_obj, 200);
+          this.setSelectedJob(jobInstance.props.job, 200);
           return;
         }
       } else {
@@ -253,10 +251,9 @@ SelectedJobClass.propTypes = {
   notify: PropTypes.object.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
   children: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
 };
 
-export const SelectedJob = withPinnedJobs(SelectedJobClass);
+export const SelectedJob = withPushes(withPinnedJobs(SelectedJobClass));
 
 export function withSelectedJob(Component) {
   return function SelectedJobComponent(props) {

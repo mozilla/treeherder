@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { withPushes } from '../context/Pushes';
 import { getAllUrlParams } from '../../helpers/location';
 import { uiJobsUrlBase } from '../../helpers/url';
 
-export default function PushLoadErrors(props) {
+function PushLoadErrors(props) {
   const { loadingPushes, currentRepo, revision, repoName } = props;
   const urlParams = getAllUrlParams();
   urlParams.delete('revision');
@@ -74,3 +75,5 @@ PushLoadErrors.propTypes = {
 PushLoadErrors.defaultProps = {
   revision: null,
 };
+
+export default withPushes(PushLoadErrors);

@@ -4,15 +4,16 @@ import PropTypes from 'prop-types';
 import { thAllResultStatuses } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
+import { withPushes } from '../context/Pushes';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(rs => rs !== 'runnable');
 
 function FiltersMenu(props) {
-  const { filterModel, pinJobs, resultSetStore, selectedJob, setSelectedJob } = props;
+  const { filterModel, pinJobs, getAllShownJobs, selectedJob, setSelectedJob } = props;
   const { urlParams: { resultStatus, classifiedState } } = filterModel;
 
   const pinAllShownJobs = () => {
-    const shownJobs = resultSetStore.getAllShownJobs();
+    const shownJobs = getAllShownJobs();
 
     pinJobs(shownJobs);
     if (!selectedJob) {
@@ -95,7 +96,7 @@ FiltersMenu.propTypes = {
   filterModel: PropTypes.object.isRequired,
   pinJobs: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
-  resultSetStore: PropTypes.object.isRequired,
+  getAllShownJobs: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -103,4 +104,4 @@ FiltersMenu.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(withPinnedJobs(FiltersMenu));
+export default withPushes(withSelectedJob(withPinnedJobs(FiltersMenu)));

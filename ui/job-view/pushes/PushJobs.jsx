@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thPlatformMap, thSimplePlatforms, thEvents } from '../../helpers/constants';
+import { thSimplePlatforms } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { getPushTableId } from '../../helpers/aggregateId';
@@ -10,6 +10,7 @@ import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import Platform from './Platform';
+import { withPushes } from '../context/Pushes';
 
 class PushJobs extends React.Component {
   static getDerivedStateFromProps(nextProps) {
@@ -26,14 +27,14 @@ class PushJobs extends React.Component {
     return { filteredPlatforms };
   }
 
-  static filterPlatform(platform, selectedJobId, push, filterModel) {
+  static filterPlatform(platform, selectedJobId, push, filterModel, runnableVisible) {
     platform.visible = false;
     platform.groups.forEach((group) => {
       group.visible = false;
       group.jobs.forEach((job) => {
         job.visible = filterModel.showJob(job) || job.id === selectedJobId;
         if (job.state === 'runnable') {
-          job.visible = job.visible && push.isRunnableVisible;
+          job.visible = job.visible && runnableVisible;
         }
         job.selected = selectedJobId ? job.id === selectedJobId : false;
         if (job.visible) {
@@ -50,7 +51,6 @@ class PushJobs extends React.Component {
     const { $injector, push, repoName } = this.props;
 
     this.$rootScope = $injector.get('$rootScope');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushId = push.id;
     this.aggregateId = getPushTableId(
@@ -59,50 +59,15 @@ class PushJobs extends React.Component {
       push.revision,
     );
 
-    this.onMouseDown = this.onMouseDown.bind(this);
-    this.selectJob = this.selectJob.bind(this);
-    this.filterPlatformCallback = this.filterPlatformCallback.bind(this);
-
     this.state = {
-      isRunnableVisible: false,
       filteredPlatforms: [],
     };
   }
 
   componentDidMount() {
-    this.applyNewJobsUnlisten = this.$rootScope.$on(
-      thEvents.applyNewJobs, (ev, appliedpushId) => {
-        if (appliedpushId === this.pushId) {
-          this.applyNewJobs();
-        }
-      },
-    );
-
-    this.showRunnableJobsUnlisten = this.$rootScope.$on(thEvents.showRunnableJobs, (ev, pushId) => {
-      const { push } = this.props;
-
-      if (push.id === pushId) {
-        push.isRunnableVisible = true;
-        this.setState({ isRunnableVisible: true });
-        this.ThResultSetStore.addRunnableJobs(push);
-      }
-    });
-
-    this.deleteRunnableJobsUnlisten = this.$rootScope.$on(thEvents.deleteRunnableJobs, (ev, pushId) => {
-      const { push } = this.props;
-
-      if (push.id === pushId) {
-        push.isRunnableVisible = false;
-        this.setState({ isRunnableVisible: false });
-        this.applyNewJobs();
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    this.applyNewJobsUnlisten();
-    this.showRunnableJobsUnlisten();
-    this.deleteRunnableJobsUnlisten();
+    this.selectJob = this.selectJob.bind(this);
+    this.filterPlatformCallback = this.filterPlatformCallback.bind(this);
+    this.onMouseDown = this.onMouseDown.bind(this);
   }
 
   onMouseDown(ev) {
@@ -126,16 +91,6 @@ class PushJobs extends React.Component {
     }
   }
 
-  // TODO: Remove when we convert restultsets_store
-  getIdForPlatform(platform) {
-    return getPlatformRowId(
-      this.props.repoName,
-      this.props.push.id,
-      platform.name,
-      platform.option,
-    );
-  }
-
   selectJob(job, el) {
     const { setSelectedJob, selectedJob } = this.props;
     if (selectedJob) {
@@ -145,28 +100,6 @@ class PushJobs extends React.Component {
     const jobInstance = findInstance(el);
     jobInstance.setSelected(true);
     setSelectedJob(job);
-  }
-
-  applyNewJobs() {
-    const { push, filterModel } = this.props;
-    const selectedJobId = parseInt(getUrlParam('selectedJob'));
-
-    if (!push.platforms) {
-      return;
-    }
-
-    const rsPlatforms = push.platforms;
-    const platforms = rsPlatforms.reduce((acc, platform) => {
-      const thisPlatform = { ...platform };
-      // TODO: don't need this ID once we re-work resultsets_store
-      thisPlatform.id = this.getIdForPlatform(platform);
-      thisPlatform.name = thPlatformMap[platform.name] || platform.name;
-      const suffix = (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? '' : ` ${platform.option}`;
-      thisPlatform.title = `${thisPlatform.name}${suffix}`;
-      thisPlatform.visible = true;
-      return [...acc, PushJobs.filterPlatform(thisPlatform, selectedJobId, push, filterModel)];
-    }, []);
-    this.setState({ platforms });
   }
 
   handleLogViewerClick(jobId) {
@@ -183,16 +116,15 @@ class PushJobs extends React.Component {
     });
   }
 
-  handleRunnableClick(job) {
-    this.ThResultSetStore.toggleSelectedRunnableJob(
-      this.pushId,
-      job.ref_data_name,
-    );
-    findJobInstance(job.id, false).toggleRunnableSelected();
+  handleRunnableClick(jobInstance) {
+    const { toggleSelectedRunnableJob } = this.props;
+
+    toggleSelectedRunnableJob(jobInstance.props.job.ref_data_name);
+    jobInstance.toggleRunnableSelected();
   }
 
   filterPlatformCallback(platform, selectedJobId) {
-    const { push, filterModel } = this.props;
+    const { push, filterModel, runnableVisible } = this.props;
     const { filteredPlatforms } = this.state;
 
     // This actually filters the platform in-place.  So we just need to
@@ -216,7 +148,7 @@ class PushJobs extends React.Component {
             platform={platform}
             repoName={repoName}
             $injector={$injector}
-            key={platform.id}
+            key={platform.title}
             filterModel={filterModel}
             pushGroupState={pushGroupState}
             filterPlatformCb={this.filterPlatformCallback}
@@ -232,12 +164,15 @@ class PushJobs extends React.Component {
 
 PushJobs.propTypes = {
   push: PropTypes.object.isRequired,
+  platforms: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   togglePinJob: PropTypes.func.isRequired,
   $injector: PropTypes.object.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
+  toggleSelectedRunnableJob: PropTypes.func.isRequired,
+  runnableVisible: PropTypes.bool.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -245,4 +180,4 @@ PushJobs.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(withPinnedJobs(PushJobs));
+export default withPushes(withSelectedJob(withPinnedJobs(PushJobs)));

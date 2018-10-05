@@ -22,8 +22,6 @@ const controllerContext = require.context('../../../ui/js/controllers', true, /^
 controllerContext.keys().forEach(controllerContext);
 const directiveContext = require.context('../../../ui/js/directives', true, /^\.\/.*\.jsx?$/);
 directiveContext.keys().forEach(directiveContext);
-const modelContext = require.context('../../../ui/js/models', true, /^\.\/.*\.jsx?$/);
-modelContext.keys().forEach(modelContext);
 const serviceContext = require.context('../../../ui/js/services', true, /^\.\/.*\.jsx?$/);
 serviceContext.keys().forEach(serviceContext);
 const componentContext = require.context('../../../ui/js/components', true, /^\.\/.*\.jsx?$/);

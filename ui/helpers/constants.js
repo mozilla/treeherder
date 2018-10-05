@@ -243,17 +243,10 @@ export const thEvents = {
   jobRetrigger: 'job-retrigger-EVT',
   // fired when jobs are classified locally
   jobsClassified: 'jobs-classified-EVT',
-  // after loading a group of jobs
-  jobsLoaded: 'jobs-loaded-EVT',
-  // when new pushes are prepended, or appended
-  pushesLoaded: 'pushes-loaded-EVT',
   groupStateChanged: 'group-state-changed-EVT',
   duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
-  showRunnableJobs: 'show-runnable-jobs-EVT',
-  deleteRunnableJobs: 'delete-runnable-jobs-EVT',
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
-  applyNewJobs: 'apply-new-jobs-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyVerified: 'ac-verified-EVT',
   autoclassifySaveAll: 'ac-save-all-EVT',
@@ -264,9 +257,7 @@ export const thEvents = {
   autoclassifyToggleExpandOptions: 'ac-toggle-expand-options-EVT',
   autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
   autoclassifyOpenLogViewer: 'ac-open-log-viewer-EVT',
-  selectRunnableJob: 'select-runnable-job-EVT',
   toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
-  repositoriesLoaded: 'repositories-loaded-EVT',
 };
 
 export const phCompareDefaultOriginalRepo = 'mozilla-central';

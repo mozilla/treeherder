@@ -97,7 +97,7 @@ export default class JobModel {
     return JobModel.getList(repoName, options, config);
   }
 
-  static async retrigger(jobIds, repoName, ThResultSetStore, thNotify) {
+  static async retrigger(jobIds, repoName, getGeckoDecisionTaskId, thNotify) {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
@@ -108,7 +108,7 @@ export default class JobModel {
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
         const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const decisionTaskId = await getGeckoDecisionTaskId(job.push_id, repoName);
         const results = await TaskclusterModel.load(decisionTaskId, job);
         const retriggerTask = results.actions.find(result => result.name === 'retrigger');
 
@@ -138,9 +138,9 @@ export default class JobModel {
   }
 
   // Any jobId inside the push will do
-  static async cancelAll(jobId, repoName, ThResultSetStore, thNotify) {
+  static async cancelAll(jobId, repoName, getGeckoDecisionTaskId, thNotify) {
     const job = await JobModel.get(repoName, jobId);
-    const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+    const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
     const results = await TaskclusterModel.load(decisionTaskId);
     const cancelAllTask = results.actions.find(result => result.name === 'cancel-all');
 
@@ -163,7 +163,7 @@ export default class JobModel {
     thNotify.send('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobIds, repoName, ThResultSetStore, thNotify) {
+  static async cancel(jobIds, repoName, getGeckoDecisionTaskId, thNotify) {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
@@ -174,7 +174,7 @@ export default class JobModel {
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
         const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+        const decisionTaskId = await getGeckoDecisionTaskId(job.push_id, repoName);
         const results = await TaskclusterModel.load(decisionTaskId, job);
         const cancelTask = results.actions.find(result => result.name === 'cancel');
 

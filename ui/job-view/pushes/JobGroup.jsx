@@ -12,13 +12,12 @@ import { thFailureResults, thEvents } from '../../helpers/constants';
 class GroupSymbol extends React.PureComponent {
   render() {
     const { symbol, tier, toggleExpanded } = this.props;
-    const groupSymbol = symbol === '?' ? '' : symbol;
 
     return (
       <button
         className="btn group-symbol"
         onClick={toggleExpanded}
-      >{groupSymbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
+      >{symbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
       </button>
     );
   }

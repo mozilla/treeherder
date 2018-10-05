@@ -4,8 +4,9 @@ import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
+import { withPushes } from '../context/Pushes';
 
-export default class PushActionMenu extends React.PureComponent {
+class PushActionMenu extends React.PureComponent {
 
   constructor(props) {
     super(props);
@@ -13,7 +14,6 @@ export default class PushActionMenu extends React.PureComponent {
 
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.revision = this.props.revision;
     this.pushId = this.props.pushId;
@@ -57,11 +57,13 @@ export default class PushActionMenu extends React.PureComponent {
   }
 
   triggerMissingJobs() {
+    const { getGeckoDecisionTaskId } = this.props;
+
     if (!window.confirm(`This will trigger all missing jobs for revision ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
       return;
     }
 
-    this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
+    getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
         PushModel.triggerMissingJobs(decisionTaskID)
           .then((msg) => {
@@ -75,6 +77,8 @@ export default class PushActionMenu extends React.PureComponent {
   }
 
   triggerAllTalosJobs() {
+    const { getGeckoDecisionTaskId } = this.props;
+
     if (!window.confirm(`This will trigger all Talos jobs for revision  ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
       return;
     }
@@ -84,7 +88,7 @@ export default class PushActionMenu extends React.PureComponent {
       times = window.prompt('We only allow instances of each talos job to be between 1 to 6 times. Enter again', 6);
     }
 
-    this.ThResultSetStore.getGeckoDecisionTaskId(this.pushId)
+    getGeckoDecisionTaskId(this.pushId)
       .then((decisionTaskID) => {
         PushModel.triggerAllTalosJobs(times, decisionTaskID)
           .then((msg) => {
@@ -105,7 +109,7 @@ export default class PushActionMenu extends React.PureComponent {
 
   render() {
     const { isLoggedIn, repoName, revision, runnableVisible,
-            hideRunnableJobsCb, showRunnableJobsCb, pushId } = this.props;
+            hideRunnableJobs, showRunnableJobs, pushId } = this.props;
     const { topOfRangeUrl, bottomOfRangeUrl, customJobActionsShowing } = this.state;
 
     return (
@@ -127,12 +131,12 @@ export default class PushActionMenu extends React.PureComponent {
             <li
               title="Hide Runnable Jobs"
               className="dropdown-item"
-              onClick={() => hideRunnableJobsCb()}
+              onClick={() => hideRunnableJobs()}
             >Hide Runnable Jobs</li> :
             <li
               title={isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'}
               className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
-              onClick={() => showRunnableJobsCb()}
+              onClick={() => showRunnableJobs()}
             >Add new jobs</li>
           }
           {this.triggerMissingRepos.includes(repoName) &&
@@ -169,7 +173,6 @@ export default class PushActionMenu extends React.PureComponent {
           >Set as bottom of range</a></li>
         </ul>
         {customJobActionsShowing && <CustomJobActions
-          pushModel={this.ThResultSetStore}
           job={null}
           pushId={pushId}
           isLoggedIn={isLoggedIn}
@@ -187,7 +190,11 @@ PushActionMenu.propTypes = {
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
   pushId: PropTypes.number.isRequired,
-  hideRunnableJobsCb: PropTypes.func.isRequired,
-  showRunnableJobsCb: PropTypes.func.isRequired,
+  hideRunnableJobs: PropTypes.func.isRequired,
+  showRunnableJobs: PropTypes.func.isRequired,
+  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   $injector: PropTypes.object.isRequired,
 };
+
+export default withPushes(PushActionMenu);
+

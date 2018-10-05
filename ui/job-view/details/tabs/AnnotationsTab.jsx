@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { withSelectedJob } from '../../context/SelectedJob';
+import { withPushes } from '../../context/Pushes';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -144,7 +145,6 @@ class AnnotationsTab extends React.Component {
 
     const { $injector } = props;
     this.thNotify = $injector.get('thNotify');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$rootScope = $injector.get('$rootScope');
 
     this.deleteBug = this.deleteBug.bind(this);
@@ -170,21 +170,19 @@ class AnnotationsTab extends React.Component {
   }
 
   deleteClassification(classification) {
-    const jobMap = this.ThResultSetStore.getJobMap();
-    const job = jobMap[`${classification.job_id}`].job_obj;
+    const { selectedJob, recalculateUnclassifiedCounts } = this.props;
 
-    job.failure_classification_id = 1;
-    this.ThResultSetStore.updateUnclassifiedFailureMap(job);
+    selectedJob.failure_classification_id = 1;
+    recalculateUnclassifiedCounts();
 
     classification.destroy().then(
       () => {
         this.thNotify.send('Classification successfully deleted', 'success');
         // also be sure the job object in question gets updated to the latest
         // classification state (in case one was added or removed).
-        this.ThResultSetStore.fetchJobs([job.id]);
         this.$rootScope.$emit(
           thEvents.jobsClassified,
-          { jobs: { [job.id]: job } },
+          { jobs: { [selectedJob.id]: selectedJob } },
         );
       },
       () => {
@@ -248,6 +246,7 @@ AnnotationsTab.propTypes = {
   classificationMap: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   classifications: PropTypes.array.isRequired,
+  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -255,4 +254,4 @@ AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(AnnotationsTab);
+export default withPushes(withSelectedJob(AnnotationsTab));
