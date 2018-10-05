@@ -1,6 +1,7 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import countBy from 'lodash/countBy';
+import isEmpty from 'lodash/isEmpty';
 
 import JobButton from './JobButton';
 import JobCount from './JobCount';
@@ -96,7 +97,7 @@ export default class JobGroup extends React.Component {
       buttons = jobs;
     } else {
       const stateCounts = {};
-      const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
+      const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         if (!job.visible) return;
         const status = getStatus(job);
@@ -111,7 +112,7 @@ export default class JobGroup extends React.Component {
         } else {
           const lastJobSelected = {};
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if (!_.isEmpty(lastJobSelected.job) && (lastJobSelected.job.id === job.id)) {
+          if (!isEmpty(lastJobSelected.job) && (lastJobSelected.job.id === job.id)) {
             countInfo.selectedClasses = ['selected-count', 'btn-lg-xform'];
           } else {
             countInfo.selectedClasses = [];
