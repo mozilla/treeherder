@@ -88,7 +88,7 @@ class SelectedJobClass extends React.Component {
         // If the ``selectedJob`` was not mapped, then we need to notify
         // the user it's not in the range of the current result set list.
         JobModel.get(repoName, selectedJobId).then((job) => {
-          PushModel.get(job.result_set_id).then(async (resp) => {
+          PushModel.get(job.push_id).then(async (resp) => {
             if (resp.ok) {
               const push = await resp.json();
               const newPushUrl = getJobsUrl({ repo: repoName, revision: push.data.revision, selectedJob: selectedJobId });
@@ -102,7 +102,7 @@ class SelectedJobClass extends React.Component {
                 'danger',
                 { sticky: true, linkText: 'Load push', newPushUrl });
             } else {
-              throw Error(`Unable to find push with id ${job.result_set_id} for selected job`);
+              throw Error(`Unable to find push with id ${job.push_id} for selected job`);
             }
           });
         }).catch((error) => {

@@ -220,7 +220,7 @@ class DetailsPanel extends React.Component {
             series: seriesList.find(s => d.signature_id === s.id),
             ...d,
           })).filter(d => !d.series.parentSignature).map(d => ({
-            url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, selectedJob.result_set_id, d.id]}`,
+            url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, selectedJob.push_id, d.id]}`,
             value: d.value,
             title: d.series.name,
           }));

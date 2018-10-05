@@ -104,7 +104,7 @@ class ActionBar extends React.Component {
 
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
       this.ThResultSetStore.getGeckoDecisionTaskId(
-        selectedJob.result_set_id).then(decisionTaskId => (
+        selectedJob.push_id).then(decisionTaskId => (
         TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
           const backfilltask = results.actions.find(result => result.name === 'backfill');
 
@@ -317,7 +317,7 @@ class ActionBar extends React.Component {
         {customJobActionsShowing && <CustomJobActions
           pushModel={this.ThResultSetStore}
           job={selectedJob}
-          pushId={selectedJob.result_set_id}
+          pushId={selectedJob.push_id}
           isLoggedIn={user.isLoggedIn}
           notify={this.thNotify}
           toggle={this.toggleCustomJobActions}

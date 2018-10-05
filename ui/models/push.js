@@ -65,9 +65,9 @@ export default class PushModel {
     };
 
     if (!Array.isArray(pushIds)) {
-      params.result_set_id = pushIds;
+      params.push_id = pushIds;
     } else {
-      params.result_set_id__in = pushIds.join(',');
+      params.push_id__in = pushIds.join(',');
     }
     if (lastModified) {
       // XXX: should never happen, but maybe sometimes does? see bug 1287501
