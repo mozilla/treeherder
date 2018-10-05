@@ -6,7 +6,7 @@ import { graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl,
   bugzillaBugsApi } from '../helpers/url';
 
 const withView = defaultState => WrappedComponent =>
-  class extends React.Component {
+  class View extends React.Component {
     constructor(props) {
     super(props);
 
@@ -127,7 +127,13 @@ const withView = defaultState => WrappedComponent =>
   }
 
   updateData(params, urlChanged = false) {
-    this.getGraphData(createApiUrl(graphsEndpoint, params));
+    const { mainGraphData } = this.props;
+
+    if (mainGraphData && !urlChanged) {
+      this.setState({ graphData: mainGraphData });
+    } else {
+      this.getGraphData(createApiUrl(graphsEndpoint, params));
+    }
 
     // the table library fetches data directly when its component mounts and in response
     // to a user selecting pagesize or page; this condition will prevent duplicate requests

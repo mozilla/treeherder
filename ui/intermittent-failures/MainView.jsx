@@ -13,7 +13,7 @@ import DateRangePicker from './DateRangePicker';
 
 const MainView = (props) => {
   const { graphData, tableData, initialParamsSet, startday, endday, updateState,
-    tree, location } = props;
+    tree, location, updateAppState } = props;
 
   const columns = [
     {
@@ -22,7 +22,16 @@ const MainView = (props) => {
       headerClassName: 'bug-column-header',
       className: 'bug-column',
       maxWidth: 150,
-      Cell: _props => <BugColumn data={_props.original} tree={tree} startday={startday} endday={endday} location={location} />,
+      Cell: _props =>
+      (<BugColumn
+        data={_props.original}
+        tree={tree}
+        startday={startday}
+        endday={endday}
+        location={location}
+        graphData={graphData}
+        updateAppState={updateAppState}
+      />),
     },
     {
       Header: 'Count',
