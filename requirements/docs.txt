@@ -4,7 +4,7 @@
 
 Sphinx==1.8.1
 sphinx-autobuild==0.7.1
-sphinx-rtd-theme==0.4.1
+sphinx-rtd-theme==0.4.2
 # Installing from GitHub since the version on PyPI is 2 years old:
 # https://github.com/rtfd/recommonmark/issues/92
 # ...and we need the fix for:
