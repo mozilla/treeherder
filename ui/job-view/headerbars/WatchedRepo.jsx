@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
@@ -119,65 +120,65 @@ export default class WatchedRepo extends React.Component {
       );
     }
     return (
-      <span className="btn-group">
+      <UncontrolledDropdown>
         <a
           href={changeRepoUrl}
           className={`watched-repo-main-btn btn btn-sm ${btnClass} ${activeClass}`}
-          type="button"
           title={status}
         >
           <i className={`fa ${icon} ${pulseIcon} ${color}`} /> {watchedRepo}
         </a>
-        <button
-          className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
-          type="button"
-          title={`${watchedRepo} info`}
-          aria-label={`${watchedRepo} info`}
-          data-toggle="dropdown"
-        ><span className="fa fa-info-circle" /></button>
-        {watchedRepo !== repoName && <button
-          className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
-          onClick={() => unwatchRepo(watchedRepo)}
-          title={`Unwatch ${watchedRepo}`}
-        ><span className="fa fa-times" /></button>}
-
-        <ul className="dropdown-menu" role="menu">
+        <DropdownToggle
+          tag="span"
+        >
+          <button
+            className={`watched-repo-info-btn btn btn-sm btn-view-nav ${btnClass} ${activeClass}`}
+            type="button"
+            title={`${watchedRepo} info`}
+            aria-label={`${watchedRepo} info`}
+          ><span className="fa fa-info-circle" /></button>
+          {watchedRepo !== repoName && <button
+            className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${btnClass} ${activeClass}`}
+            onClick={() => unwatchRepo(watchedRepo)}
+          ><span className="fa fa-times" /></button>}
+        </DropdownToggle>
+        <DropdownMenu right className={'watched-repo-menu'}>
           {status === 'unsupported' && <React.Fragment>
-            <li className="watched-repo-dropdown-item">
+            <DropdownItem header>
               <span>{watchedRepo} is not listed on <a
                 href="https://mozilla-releng.net/treestatus"
                 target="_blank"
                 rel="noopener noreferrer"
               >Tree Status</a></span>
-            </li>
-            <li className="dropdown-divider" />
+            </DropdownItem>
+            <DropdownItem divider />
           </React.Fragment>}
-          {!!reason && <li className="watched-repo-dropdown-item">
+          {!!reason && <DropdownItem header>
             <span><BugLinkify>{reason}</BugLinkify></span>
-          </li>}
-          {!!reason && !!messageOfTheDay && <li className="dropdown-divider" />}
-          {!!messageOfTheDay && <li className="watched-repo-dropdown-item">
+          </DropdownItem>}
+          {!!reason && !!messageOfTheDay && <DropdownItem divider />}
+          {!!messageOfTheDay && <DropdownItem>
             <span><BugLinkify>{messageOfTheDay}</BugLinkify></span>
-          </li>}
-          {(!!reason || !!messageOfTheDay) && <li className="dropdown-divider" />}
-          <li className="watched-repo-dropdown-item">
-            <a
-              href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
-              className="dropdown-item"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Tree Status</a>
-          </li>
-          <li className="watched-repo-dropdown-item">
-            <a
-              href={repo.pushLogUrl}
-              className="dropdown-item"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Pushlog</a>
-          </li>
-        </ul>
-      </span>
+          </DropdownItem>}
+          {(!!reason || !!messageOfTheDay) && <DropdownItem divider />}
+          <DropdownItem
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
+          >
+            <span>Tree Status</span>
+          </DropdownItem>
+          <DropdownItem
+            tag="a"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={repo.pushLogUrl}
+          >
+            <span>Pushlog</span>
+          </DropdownItem>
+        </DropdownMenu>
+      </UncontrolledDropdown>
     );
   }
 }

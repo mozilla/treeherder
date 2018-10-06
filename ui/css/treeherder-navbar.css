@@ -140,9 +140,21 @@ secondary-nav-bar {
     width: 100%;
 }
 
+.watched-repo-menu {
+  min-width: 10rem;
+  word-wrap: break-word;
+  max-width: 250px;
+}
+
+.watched-repo-menu > .dropdown-header {
+  word-wrap: break-word;
+  white-space: normal;
+}
+
 .watched-repo-main-btn {
     border-right: 0;
     padding-right: 5px;
+    min-width: 80px;
 }
 
 .watched-repo-main-btn:visited,
@@ -473,4 +485,8 @@ fieldset[disabled] .btn-view-nav-closed.active {
 
 .dropdown-item:hover {
     background-color: #d3d3d34d;
+}
+
+.dropdown-item > span {
+  color: #212529;
 }
