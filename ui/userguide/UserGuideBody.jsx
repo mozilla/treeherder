@@ -1,7 +1,6 @@
 import React from 'react';
 
 import ShortcutTable from '../shared/ShortcutTable';
-
 import logviewerIconHelp from '../img/logviewerIconHelp.svg';
 
 const notations = [
@@ -65,144 +64,127 @@ const notations = [
   },
 ];
 
-const dates = () => {
-  // Used for dynamic startdate, enddate param examples
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const sd = d.getDate() - 2;
-  const ed = d.getDate();
+const UserGuideBody = function UserGuideBody() {
+  return (
+    <div className="card-body">
+      <div className="row">
+        <div className="col-6">
+          <div className="card">
+            <div className="card-header">
+              <h3>Job notation</h3>
+            </div>
+            <div className="card-body">
+              <table id="legend-other">
+                <tbody>
+                  {notations.map(({ classes, explanation, text }) => (
+                    <tr key={classes}>
+                      <th className="superseded">
+                        <button className={`btn ug-btn ${classes}`}>
+                          {text || 'Th'}
+                        </button>
+                      </th>
+                      <td>{explanation}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-  return {
-    endDate: `${y}-${m}-${ed}`,
-    startDate: `${y}-${m}-${sd}`,
-  };
+        <div className="col-6">
+          <ShortcutTable id="th-shortcut-table" />
+        </div>
+
+        <div className="col-6">
+          <div className="card">
+            <div className="card-header"><h3>Copy values on hover</h3></div>
+            <div className="card-body panel-spacing">
+              <table id="shortcuts">
+                <tbody>
+                  <tr>
+                    <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
+                    <td>Copy job details
+                      <img src={logviewerIconHelp} id="ug-logviewer-icon" alt="" />
+                      logviewer url on hover
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
+                    <td>Copy job details
+                      <span id="ug-raw-log-icon" className="fa fa-file-text-o" />
+                      raw log url on hover
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
+                    <td>Copy job details <span className="small"><label>Job:</label>
+                      <span id="ug-job-name">name</span></span> as raw text on hover
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h3>URL Query String Parameters</h3>
+            </div>
+            <div className="card-body panel-spacing">
+              <table id="queryparams">
+                <tbody>
+                  <tr>
+                    <td><span className="queryparam">nojobs</span></td>
+                    <td>Load pushes without loading any job results.</td>
+                    <td><span className="queryparam">&nojobs</span></td>
+                  </tr>
+
+                  <tr>
+                    <td><span className="queryparam">fromchange</span></td>
+                    <td>Specify the earliest revision in the push range.</td>
+                    <td><span className="queryparam">&fromchange=a12ca6c8b89b</span></td>
+                  </tr>
+
+                  <tr>
+                    <td><span className="queryparam">tochange</span></td>
+                    <td>Specify the latest revision in the push range.</td>
+                    <td><span className="queryparam">&tochange=3215c7fc090b</span></td>
+                  </tr>
+
+                  <tr>
+                    <td><span className="queryparam">startdate</span></td>
+                    <td>
+                      <span>Specify the earliest </span>
+                      <span className="queryparam">YYYY-MM-DD</span>
+                      <span> date in the push range.</span>
+                    </td>
+                    <td><span className="queryparam">&startdate=YYYY-MM-DD</span></td>
+                  </tr>
+
+                  <tr>
+                    <td><span className="queryparam">enddate</span></td>
+                    <td>
+                      <span>Specify the latest </span>
+                      <span className="queryparam">YYYY-MM-DD</span>
+                      <span> date in the push range.</span>
+                    </td>
+                    <td><span className="queryparam">&enddate=YYYY-MM-DD</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
-
-const Notations = () =>
-  notations.map((notation) => {
-    const { classes, explanation, text } = notation;
-
-    return (
-      <tr key={classes}>
-        <th className="superseded">
-          <button className={`btn ug-btn ${classes}`}>{text || 'Th'}</button>
-        </th>
-        <td>{explanation}</td>
-      </tr>
-    );
-  });
-
-const UserGuideBody = () => (
-  <div className="card-body">
-    <div className="row">
-      <div className="col-6">
-        <div className="card">
-          <div className="card-header">
-            <h3>Job notation</h3>
-          </div>
-          <div className="card-body">
-            <table id="legend-other">
-              <tbody>
-                <Notations />
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-6">
-        <ShortcutTable id="th-shortcut-table" />
-      </div>
-
-      <div className="col-6">
-        <div className="card">
-          <div className="card-header"><h3>Copy values on hover</h3></div>
-          <div className="card-body panel-spacing">
-            <table id="shortcuts">
-              <tbody>
-                <tr>
-                  <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
-                  <td>Copy job details
-                    <img src={logviewerIconHelp} id="ug-logviewer-icon" alt="" />
-                    logviewer url on hover
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
-                  <td>Copy job details
-                    <span id="ug-raw-log-icon" className="fa fa-file-text-o" />
-                    raw log url on hover
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><kbd>ctrl/cmd</kbd><kbd>c</kbd></td>
-                  <td>Copy job details <span className="small"><label>Job:</label>
-                    <span id="ug-job-name">name</span></span> as raw text on hover
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="row">
-      <div className="col-12">
-        <div className="card">
-          <div className="card-header">
-            <h3>URL Query String Parameters</h3>
-          </div>
-          <div className="card-body panel-spacing">
-            <table id="queryparams">
-              <tbody>
-                <tr>
-                  <td><span className="queryparam">nojobs</span></td>
-                  <td>Load pushes without loading any job results.</td>
-                  <td><span className="queryparam">&nojobs</span></td>
-                </tr>
-
-                <tr>
-                  <td><span className="queryparam">fromchange</span></td>
-                  <td>Specify the earliest revision in the push range.</td>
-                  <td><span className="queryparam">&fromchange=a12ca6c8b89b</span></td>
-                </tr>
-
-                <tr>
-                  <td><span className="queryparam">tochange</span></td>
-                  <td>Specify the latest revision in the push range.</td>
-                  <td><span className="queryparam">&tochange=3215c7fc090b</span></td>
-                </tr>
-
-                <tr>
-                  <td><span className="queryparam">startdate</span></td>
-                  <td>
-                    <span>Specify the earliest </span>
-                    <span className="queryparam">YYYY-MM-DD</span>
-                    <span> date in the push range.</span>
-                  </td>
-                  <td><span className="queryparam">&startdate={dates.startDate}</span></td>
-                </tr>
-
-                <tr>
-                  <td><span className="queryparam">enddate</span></td>
-                  <td>
-                    <span>Specify the latest </span>
-                    <span className="queryparam">YYYY-MM-DD</span>
-                    <span> date in the push range.</span>
-                  </td>
-                  <td><span className="queryparam">&enddate={dates.endDate}</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 export default UserGuideBody;

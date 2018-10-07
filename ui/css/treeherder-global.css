@@ -420,10 +420,6 @@ h4 {
   width: 100%;
 }
 
-#onscreen-shortcuts .onscreen-shortcuts-close {
-  cursor: pointer;
-}
-
 #onscreen-shortcuts div div.card {
   max-height: 90vh;
   overflow: auto;
