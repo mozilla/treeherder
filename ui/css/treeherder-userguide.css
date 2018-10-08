@@ -1,6 +1,9 @@
-#userguide {
-    padding: 10px 10px 0;
+body {
     overflow: auto;
+}
+
+#userguide {
+    padding: 10px;
 }
 
 #userguide.dt, #userguide.dd {
@@ -53,6 +56,10 @@
     color: #428bca;
 }
 
+#ug-raw-log-icon, #ug-logviewer-icon {
+    margin: 0 3px;
+}
+
 #ug-raw-log-icon {
     font-size: 14px;
     color: #666;
@@ -69,4 +76,7 @@
 
 .ug-footer {
     overflow: auto;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 0 calc(.25rem - 1px);
 }

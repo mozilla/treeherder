@@ -3,7 +3,6 @@ import ngRoute from 'angular-route';
 import uiBootstrap from 'angular1-ui-bootstrap4';
 
 import treeherderModule from './treeherder';
-import thShortcutTableTemplate from '../partials/main/thShortcutTable.html';
 
 const treeherderApp = angular.module('treeherder.app', [
   treeherderModule.name,
@@ -37,10 +36,6 @@ treeherderApp.config(['$compileProvider', '$locationProvider', '$routeProvider',
                 reloadOnSearch: false,
             })
             .otherwise({ redirectTo: '/jobs' });
-    }]).run(['$templateCache', ($templateCache) => {
-        // Templates used by ng-include have to be manually put in the template cache.
-        // Those used by directives should instead be imported at point of use.
-        $templateCache.put('partials/main/thShortcutTable.html', thShortcutTableTemplate);
     }]);
 
 export default treeherderApp;

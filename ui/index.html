@@ -8,15 +8,18 @@
     </head>
     <body ng-controller="MainCtrl">
         <div id="global-container" class="d-flex flex-column h-100">
-            <div id="onscreen-overlay" ng-if="onscreenOverlayShowing"
-                 ng-click="setOnscreenShortcutsShowing(false)">
-               <div id="onscreen-shortcuts" ng-if="onscreenShortcutsShowing"
-                    stop-propagation-on-left-click>
+            <div
+                id="onscreen-overlay"
+                ng-if="onscreenOverlayShowing"
+                ng-click="setOnscreenShortcutsShowing(false)">
+
+               <div id="onscreen-shortcuts">
                  <div class="col-8">
-                    <ng-include src="'partials/main/thShortcutTable.html'"></ng-include>
+                    <shortcut-table onscreen-shortcuts-showing="onscreenShortcutsShowing" />
                  </div>
                </div>
             </div>
+
             <job-view />
         </div>
 
