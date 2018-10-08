@@ -2,7 +2,7 @@ import angular from 'angular';
 import React from 'react';
 import { mount } from 'enzyme';
 
-import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
+import { JobGroupComponent } from '../../../../ui/job-view/pushes/JobGroup';
 import { thEvents } from '../../../../ui/helpers/constants';
 import FilterModel from '../../../../ui/models/filter';
 
@@ -32,7 +32,7 @@ describe('JobGroup component', () => {
    */
   it('collapsed should show a job and count of 2', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
@@ -54,7 +54,7 @@ describe('JobGroup component', () => {
 
   it('should show a job and count of 2 when expanded, then re-collapsed', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
@@ -78,7 +78,7 @@ describe('JobGroup component', () => {
 
   it('should show jobs, not counts when expanded', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
@@ -104,7 +104,7 @@ describe('JobGroup component', () => {
 
   it('should show jobs, not counts when globally expanded', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={countGroup}
@@ -131,7 +131,7 @@ describe('JobGroup component', () => {
 
   it('should hide duplicates by default', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}
@@ -156,7 +156,7 @@ describe('JobGroup component', () => {
 
   it('should show 2 duplicates when set to show duplicates', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}
@@ -183,7 +183,7 @@ describe('JobGroup component', () => {
 
   it('should show 2 duplicates when globally set to show duplicates', () => {
     const jobGroup = mount(
-      <JobGroup
+      <JobGroupComponent
         $injector={$injector}
         repoName={repoName}
         group={dupGroup}

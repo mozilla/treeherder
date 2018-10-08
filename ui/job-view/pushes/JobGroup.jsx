@@ -34,7 +34,7 @@ GroupSymbol.defaultProps = {
 };
 
 
-class JobGroup extends React.Component {
+export class JobGroupComponent extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, pushGroupState } = this.props;
@@ -113,7 +113,7 @@ class JobGroup extends React.Component {
         } else {
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
           if (selectedJob && selectedJob.id === job.id || countInfo.selectedClasses) {
-            countInfo.selectedClasses = 'selected-count btn-lg-xform';
+            countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';
           }
@@ -184,7 +184,7 @@ class JobGroup extends React.Component {
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
-                  className={`${countInfo.btnClass}-count ${countInfo.selectedClasses}`}
+                  className={`${countInfo.btnClass}-count${countInfo.selectedClasses}`}
                   title={`${countInfo.count} ${countInfo.countText} jobs in group`}
                   key={countInfo.lastJob.id}
                 />
@@ -197,7 +197,7 @@ class JobGroup extends React.Component {
   }
 }
 
-JobGroup.propTypes = {
+JobGroupComponent.propTypes = {
   group: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
@@ -208,8 +208,8 @@ JobGroup.propTypes = {
   selectedJob: PropTypes.object,
 };
 
-JobGroup.defaultProps = {
+JobGroupComponent.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(JobGroup);
+export default withSelectedJob(JobGroupComponent);
