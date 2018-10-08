@@ -227,6 +227,9 @@ class Commenter(object):
             logger.warning('error fetching bugzilla metadata for bugs due to {}'.format(e))
             return None
 
+        if response.headers['Content-Type'] == 'text/html; charset=UTF-8':
+            return None
+
         data = response.json()
         if 'bugs' not in data:
             return None
