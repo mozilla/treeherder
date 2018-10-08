@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sortBy from 'lodash/sortBy';
 import max from 'lodash/max';
-import flowRight from 'lodash/flowRight';
 
 import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
@@ -145,11 +144,7 @@ class Push extends React.Component {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       const newJobList = [...existingJobs, ...jobs];
-      const sortAndGroupJobs = flowRight(
-        this.sortGroupedJobs,
-        this.groupJobByPlatform,
-      );
-      const platforms = sortAndGroupJobs(newJobList);
+      const platforms = this.sortGroupedJobs(this.groupJobByPlatform(newJobList));
       const jobCounts = this.getJobCount(newJobList);
 
       // Remove next line when fixing Bug 1450042.  Needed for Angular.

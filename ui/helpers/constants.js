@@ -223,7 +223,7 @@ export const thDateFormat = 'EEE MMM d, HH:mm:ss';
 export const thJobNavSelectors = {
   ALL_JOBS: {
     name: 'jobs',
-    selector: '.job-btn, .selected-job',
+    selector: '.job-btn, .selected-job, .selected-count',
   },
   UNCLASSIFIED_FAILURES: {
     name: 'unclassified failures',

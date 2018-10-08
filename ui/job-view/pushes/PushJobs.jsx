@@ -48,9 +48,7 @@ class PushJobs extends React.Component {
 
   constructor(props) {
     super(props);
-    const { $injector, push, repoName } = this.props;
-
-    this.$rootScope = $injector.get('$rootScope');
+    const { push, repoName } = this.props;
 
     this.pushId = push.id;
     this.aggregateId = getPushTableId(
@@ -74,7 +72,7 @@ class PushJobs extends React.Component {
     const { selectedJob, togglePinJob } = this.props;
     const jobInstance = findInstance(ev.target);
 
-    if (jobInstance) {
+    if (jobInstance && jobInstance.props.job) {
       const job = jobInstance.props.job;
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(job.id);
@@ -83,7 +81,7 @@ class PushJobs extends React.Component {
           this.selectJob(job, ev.target);
         }
         togglePinJob(job);
-      } else if (job.state === 'runnable') { // Toggle runnable
+      } else if (job && job.state === 'runnable') { // Toggle runnable
         this.handleRunnableClick(jobInstance);
       } else {
         this.selectJob(job, ev.target); // Left click
@@ -98,7 +96,9 @@ class PushJobs extends React.Component {
       if (selected) selected.setSelected(false);
     }
     const jobInstance = findInstance(el);
-    jobInstance.setSelected(true);
+    if (jobInstance) {
+      jobInstance.setSelected(true);
+    }
     setSelectedJob(job);
   }
 

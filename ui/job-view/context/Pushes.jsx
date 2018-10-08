@@ -30,6 +30,10 @@ export class Pushes extends React.Component {
   constructor(props) {
     super(props);
 
+    const { $injector } = this.props;
+    this.$rootScope = $injector.get('$rootScope');
+    this.thNotify = $injector.get('thNotify');
+
     this.skipNextPageReload = false;
 
     this.state = {
@@ -204,7 +208,6 @@ export class Pushes extends React.Component {
 
   poll() {
     this.pushIntervalId = setInterval(() => {
-      const { thNotify } = this.props;
       const { pushList } = this.state;
       // these params will be passed in each time we poll to remain
       // within the constraints of the URL params
@@ -218,7 +221,7 @@ export class Pushes extends React.Component {
             const data = await resp.json();
             this.addPushes(data);
           } else {
-            thNotify.send('Error fetching new push data', 'danger', { sticky: true });
+            this.thNotify.send('Error fetching new push data', 'danger', { sticky: true });
           }
         });
 
@@ -260,7 +263,6 @@ export class Pushes extends React.Component {
    */
   fetchPushes(count) {
     const { oldestPushTimestamp } = this.state;
-    const { thNotify } = this.props;
     // const isAppend = (repoData.pushes.length > 0);
     // Only pass supported query string params to this endpoint.
     const options = {
@@ -283,13 +285,12 @@ export class Pushes extends React.Component {
 
         this.addPushes(data.results.length ? data : { results: [] });
       } else {
-        thNotify.send('Error retrieving push data!', 'danger', { sticky: true });
+        this.thNotify.send('Error retrieving push data!', 'danger', { sticky: true });
       }
     }).then(() => this.setValue({ loadingPushes: false }));
   }
 
   addPushes(data) {
-    const { $rootScope } = this.props;
     const { pushList } = this.state;
 
     if (data.results.length > 0) {
@@ -302,8 +303,8 @@ export class Pushes extends React.Component {
         { pushList: [...pushList], oldestPushTimestamp },
         () => this.setRevisionTips(pushList),
       );
-      $rootScope.firstPush = pushList[0];
-      $rootScope.$apply();
+      this.$rootScope.firstPush = pushList[0];
+      this.$rootScope.$apply();
     }
   }
 
@@ -326,7 +327,7 @@ export class Pushes extends React.Component {
    */
   recalculateUnclassifiedCounts() {
     const { jobMap } = this.state;
-    const { filterModel, $rootScope } = this.props;
+    const { filterModel } = this.props;
     const tiers = filterModel.urlParams.tier || [];
     let allUnclassifiedFailureCount = 0;
     let filteredUnclassifiedFailureCount = 0;
@@ -342,8 +343,8 @@ export class Pushes extends React.Component {
       }
     });
     this.setValue({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
-    $rootScope.unclassifiedFailureCount = allUnclassifiedFailureCount;
-    $rootScope.$apply();
+    this.$rootScope.unclassifiedFailureCount = allUnclassifiedFailureCount;
+    this.$rootScope.$apply();
   }
 
   updateJobMap(jobList) {
@@ -374,8 +375,7 @@ export class Pushes extends React.Component {
 Pushes.propTypes = {
   children: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  $rootScope: PropTypes.object.isRequired,
-  thNotify: PropTypes.object.isRequired,
+  $injector: PropTypes.object.isRequired,
 };
 
 export function withPushes(Component) {

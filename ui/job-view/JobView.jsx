@@ -226,7 +226,7 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <Pushes filterModel={filterModel} $rootScope={this.$rootScope} thNotify={this.thNotify}>
+      <Pushes filterModel={filterModel} $injector={$injector}>
         <PinnedJobs notify={this.thNotify}>
           <SelectedJob
             notify={this.thNotify}

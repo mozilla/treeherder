@@ -12,7 +12,6 @@ class PushActionMenu extends React.PureComponent {
     super(props);
     const { $injector } = this.props;
 
-    this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
 
     this.revision = this.props.revision;
@@ -197,4 +196,3 @@ PushActionMenu.propTypes = {
 };
 
 export default withPushes(PushActionMenu);
-

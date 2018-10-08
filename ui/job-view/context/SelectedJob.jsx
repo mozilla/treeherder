@@ -71,17 +71,17 @@ class SelectedJobClass extends React.Component {
    * an error and provide a link to load it with the right push.
    */
   setSelectedJobFromQueryString() {
-    const { notify } = this.props;
+    const { notify, jobMap } = this.props;
     const { repoName, selectedJob } = this.state;
     const selectedJobIdStr = getUrlParam('selectedJob');
     const selectedJobId = parseInt(selectedJobIdStr);
 
     if (selectedJobIdStr && (!selectedJob || selectedJob.id !== selectedJobId)) {
-      const selectedJobInstance = findJobInstance(selectedJobIdStr, true);
+      const selectedJob = jobMap[selectedJobIdStr];
 
       // select the job in question
-      if (selectedJobInstance) {
-        this.setSelectedJob(selectedJobInstance.props.job);
+      if (selectedJob) {
+        this.setSelectedJob(selectedJob);
       } else {
         setUrlParam('selectedJob');
         // If the ``selectedJob`` was not mapped, then we need to notify
@@ -194,10 +194,10 @@ class SelectedJobClass extends React.Component {
     // selection changes away from it, the job will no longer be visible.
     const jobs = $('.th-view-content')
       .find(jobNavSelector.selector)
-      .filter(':visible, .selected-job');
+      .filter(':visible, .selected-job, .selected-count');
 
     if (jobs.length) {
-      const selectedEl = jobs.filter('.selected-job').first();
+      const selectedEl = jobs.filter('.selected-job, .selected-count').first();
       const selIdx = jobs.index(selectedEl);
       const idx = getIndex(selIdx, jobs);
       const jobEl = $(jobs[idx]);
@@ -250,6 +250,7 @@ SelectedJobClass.propTypes = {
   jobsLoaded: PropTypes.bool.isRequired,
   notify: PropTypes.object.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
+  jobMap: PropTypes.object.isRequired,
   children: PropTypes.object.isRequired,
 };
 

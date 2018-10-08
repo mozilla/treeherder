@@ -96,8 +96,12 @@
   background-color: #fff;
 }
 
+.selected-count {
+  background-color: #ffffffb3;
+}
+
 .btn-lg-xform {
-  margin: -2px !important;
+  margin: -2px 0px !important;
   border: 2px solid;
   border-radius: 3px;
   font-size: 12px;
