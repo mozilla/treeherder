@@ -314,7 +314,7 @@ class Commenter(object):
         """batch requests for bugzilla data in groups of 1200 (which is the safe
            limit for not hitting the max url length)"""
         min = 0
-        max = 1200
+        max = 600
         bugs_list = []
         bug_ids_length = len(bug_ids)
 
@@ -323,6 +323,6 @@ class Commenter(object):
             if data:
                 bugs_list += data
             min = max
-            max = max + 1200
+            max = max + 600
 
         return {bug['id']: bug for bug in bugs_list} if len(bugs_list) else None
