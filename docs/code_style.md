@@ -34,4 +34,4 @@ to reduce the line length guess-work when adding imports, even though it's not t
 UI
 --
 
-We use the [Airbnb](https://github.com/airbnb/javascript) style guide for Javascript and validate it with ESlint (see Validating Javascript in the [UI development section](ui/installation.md#validating-javaScript)). For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as much as possible before adding custom CSS to a style sheet. Any custom style that can be made reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.
+We use the [Airbnb](https://github.com/airbnb/javascript) style guide for Javascript and validate it with ESlint (see Validating Javascript in the [Installation section](installation.html#validating-javascript)). For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as much as possible before adding custom CSS to a style sheet. Any custom style that can be made reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.
