@@ -41,9 +41,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    this.autoclassifyChangeSelectionUnlisten = this.$rootScope.$on(thEvents.autoclassifyChangeSelection,
-      (ev, direction, clear) => this.onChangeSelection(direction, clear));
-
     this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
       () => this.onToggleEditable());
 
@@ -57,7 +54,6 @@ class AutoclassifyTab extends React.Component {
     this.setErrorLineInput = this.setErrorLineInput.bind(this);
     this.jobChanged = this.jobChanged.bind(this);
     this.onToggleEditable = this.onToggleEditable.bind(this);
-    this.onChangeSelection = this.onChangeSelection.bind(this);
     this.onOpenLogViewer = this.onOpenLogViewer.bind(this);
     this.onIgnore = this.onIgnore.bind(this);
     this.onSave = this.onSave.bind(this);
@@ -79,7 +75,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   componentWillUnmount() {
-    this.autoclassifyChangeSelectionUnlisten();
     this.autoclassifyToggleEditUnlisten();
     this.autoclassifyOpenLogViewerUnlisten();
   }
@@ -134,59 +129,6 @@ class AutoclassifyTab extends React.Component {
       lineNumber = errorLines.find(line => selectedLineIds.has(line.id)).data.line_number + 1;
     }
     window.open(getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, lineNumber));
-  }
-
-  /**
-   * Pre-determined selection changes, typically for use in response to
-   * key events.
-   * @param {string} direction - 'next': move selection down one row if clear is true.
-   *                                 If clear is false, extend the selection down one row.
-   *                             'previous': move selection up one row if clear is true.
-   *                                 If clear is false, extend the selection up one row.
-   *                             'all_next': Select all rows in the current job after the
-   *                                 current selected row.
-   * @param {boolean} clear - Clear the current selection before selecting new elements
-   */
-  onChangeSelection(direction, clear) {
-    const { errorLines, selectedLineIds } = this.state;
-
-    if (selectedLineIds.size) {
-      // something already selected, determine the next selection
-      const selectedLines = errorLines.filter(line => selectedLineIds.has(line.id));
-      const lastSelected = selectedLines[selectedLines.length - 1];
-      const firstSelected = selectedLines[0];
-
-      if (clear) {
-        selectedLineIds.clear();
-      }
-      if (direction === 'next') {
-        // try to select the next line.
-        const nextIdx = errorLines.indexOf(lastSelected) + 1;
-        const toAdd = errorLines.length > nextIdx ? errorLines[nextIdx] : lastSelected;
-
-        selectedLineIds.add(toAdd.id);
-      } else if (direction === 'previous') {
-        // try to select the previous line.
-        const prevIdx = errorLines.indexOf(firstSelected) - 1;
-        const toAdd = prevIdx >= 0 ? errorLines[prevIdx] : firstSelected;
-
-        selectedLineIds.add(toAdd.id);
-      } else if (direction === 'all_next') {
-        const toAdd = errorLines.slice(errorLines.indexOf(lastSelected));
-        toAdd.forEach(line => selectedLineIds.add(line.id));
-      }
-    } else {
-      const firstUnverified = errorLines.find(line => !line.verified);
-      if (firstUnverified) {
-        selectedLineIds.add(firstUnverified.id);
-      }
-    }
-    this.setState({ selectedLineIds });
-
-    // Scroll the first selected index into view
-    const newFirstSelectedIdx = errorLines.findIndex(line => selectedLineIds.has(line.id));
-    $('.autoclassify-error-lines .error-line')[newFirstSelectedIdx]
-        .scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getPendingLines() {
