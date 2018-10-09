@@ -117,7 +117,6 @@ class AutoclassifyTab extends React.Component {
     const pending = pendingLines || Array.from(this.state.inputByLine.values());
     this.save(pending)
       .then(() => {
-        this.signalFullyClassified();
         this.setState({ selectedLineIds: new Set() });
       });
   }
@@ -126,12 +125,7 @@ class AutoclassifyTab extends React.Component {
    * Save all selected lines
    */
   onSave() {
-    this.save(this.getSelectedLines())
-      .then(() => {
-        if (this.getPendingLines().length === 0) {
-          this.signalFullyClassified();
-        }
-      });
+    this.save(this.getSelectedLines());
   }
 
   /**
@@ -263,16 +257,6 @@ class AutoclassifyTab extends React.Component {
 
     inputByLine.set(id, input);
     this.setState({ inputByLine });
-  }
-
-  /**
-   * Emit an event indicating that the job has been fully classified
-   */
-  signalFullyClassified() {
-    const { selectedJob } = this.props;
-
-    // Emit this event to get the main UI to update
-    this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [selectedJob.id]: selectedJob } });
   }
 
   /**

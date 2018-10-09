@@ -248,7 +248,6 @@ export const thEvents = {
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
-  autoclassifyVerified: 'ac-verified-EVT',
   autoclassifySaveAll: 'ac-save-all-EVT',
   autoclassifySave: 'ac-save-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
