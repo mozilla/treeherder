@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thEvents } from '../../../../helpers/constants';
-import { getLogViewerUrl, getProjectJobUrl } from '../../../../helpers/url';
+import { getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 
 import AutoclassifyToolbar from './AutoclassifyToolbar';
@@ -44,9 +44,6 @@ class AutoclassifyTab extends React.Component {
     this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
       () => this.onToggleEditable());
 
-    this.autoclassifyOpenLogViewerUnlisten = this.$rootScope.$on(thEvents.autoclassifyOpenLogViewer,
-      () => this.onOpenLogViewer());
-
     // TODO: Once we're not using ng-react any longer and
     // are hosted completely in React, then try moving this
     // .bind code to the constructor.
@@ -54,7 +51,6 @@ class AutoclassifyTab extends React.Component {
     this.setErrorLineInput = this.setErrorLineInput.bind(this);
     this.jobChanged = this.jobChanged.bind(this);
     this.onToggleEditable = this.onToggleEditable.bind(this);
-    this.onOpenLogViewer = this.onOpenLogViewer.bind(this);
     this.onIgnore = this.onIgnore.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onSaveAll = this.onSaveAll.bind(this);
@@ -76,7 +72,6 @@ class AutoclassifyTab extends React.Component {
 
   componentWillUnmount() {
     this.autoclassifyToggleEditUnlisten();
-    this.autoclassifyOpenLogViewerUnlisten();
   }
 
   /**
@@ -118,17 +113,6 @@ class AutoclassifyTab extends React.Component {
     const editable = selectedIds.some(id => !editableLineIds.has(id));
 
     this.setEditable(selectedIds, editable);
-  }
-
-  onOpenLogViewer() {
-    const { selectedJob } = this.props;
-    const { selectedLineIds, errorLines } = this.state;
-    let lineNumber = null;
-
-    if (selectedLineIds.size) {
-      lineNumber = errorLines.find(line => selectedLineIds.has(line.id)).data.line_number + 1;
-    }
-    window.open(getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, lineNumber));
   }
 
   getPendingLines() {

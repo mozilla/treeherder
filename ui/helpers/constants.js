@@ -251,7 +251,6 @@ export const thEvents = {
   autoclassifyIgnore: 'ac-ignore-EVT',
   autoclassifyToggleExpandOptions: 'ac-toggle-expand-options-EVT',
   autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
-  autoclassifyOpenLogViewer: 'ac-open-log-viewer-EVT',
   toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
 };
 
