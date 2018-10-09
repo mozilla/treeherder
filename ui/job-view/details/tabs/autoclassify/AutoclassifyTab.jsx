@@ -44,17 +44,6 @@ class AutoclassifyTab extends React.Component {
     this.autoclassifyChangeSelectionUnlisten = this.$rootScope.$on(thEvents.autoclassifyChangeSelection,
       (ev, direction, clear) => this.onChangeSelection(direction, clear));
 
-    this.autoclassifySaveAllUnlisten = this.$rootScope.$on(thEvents.autoclassifySaveAll,
-      () => {
-        const pendingLines = Array.from(this.state.inputByLine.values());
-        if (pendingLines.every(line => this.canSave(line.id))) {
-          this.onSaveAll(pendingLines);
-        } else {
-          const msg = (this.state.canClassify ? 'lines not classified' : 'Not logged in');
-          this.thNotify.send(`Can't save: ${msg}`, 'danger');
-        }
-      });
-
     this.autoclassifySaveUnlisten = this.$rootScope.$on(thEvents.autoclassifySave,
       () => {
         const { selectedLineIds, canClassify } = this.state;
@@ -104,7 +93,6 @@ class AutoclassifyTab extends React.Component {
 
   componentWillUnmount() {
     this.autoclassifyChangeSelectionUnlisten();
-    this.autoclassifySaveAllUnlisten();
     this.autoclassifySaveUnlisten();
     this.autoclassifyToggleEditUnlisten();
     this.autoclassifyOpenLogViewerUnlisten();
