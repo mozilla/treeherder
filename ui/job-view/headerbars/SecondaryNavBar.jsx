@@ -35,8 +35,6 @@ class SecondaryNavBar extends React.Component {
       'in progress'].reduce((acc, val) => acc.concat(val), []);
 
     this.state = {
-      groupsExpanded: getUrlParam('group_state') === 'expanded',
-      showDuplicateJobs: getUrlParam('duplicate_jobs') === 'visible',
       searchQueryStr: getSearchStrFromUrl(),
       watchedRepoNames: [],
       repoName: getRepo(),
@@ -111,21 +109,17 @@ class SecondaryNavBar extends React.Component {
   }
 
   toggleShowDuplicateJobs() {
-    const { showDuplicateJobs } = this.state;
-    const newShowDuplicateJobs = showDuplicateJobs ? null : 'visible';
+    const { duplicateJobsVisible } = this.props;
+    const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
-    this.setState({ showDuplicateJobs: !showDuplicateJobs });
-    setUrlParam('duplicate_jobs', newShowDuplicateJobs);
-    this.$rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
+    setUrlParam('duplicate_jobs', duplicateJobs);
   }
 
   toggleGroupState() {
-    const { groupsExpanded } = this.state;
-    const newGroupState = groupsExpanded ? null : 'expanded';
+    const { groupCountsExpanded } = this.props;
+    const groupState = groupCountsExpanded ? null : 'expanded';
 
-    this.setState({ groupsExpanded: !groupsExpanded });
-    setUrlParam('group_state', newGroupState);
-    this.$rootScope.$emit(thEvents.groupStateChanged, newGroupState);
+    setUrlParam('group_state', groupState);
   }
 
   toggleUnclassifiedFailures() {
@@ -178,10 +172,10 @@ class SecondaryNavBar extends React.Component {
     const {
       updateButtonClick, serverChanged, setCurrentRepoTreeStatus, repos,
       allUnclassifiedFailureCount, filteredUnclassifiedFailureCount,
+      groupCountsExpanded, duplicateJobsVisible,
     } = this.props;
     const {
-      watchedRepoNames, groupsExpanded, showDuplicateJobs, searchQueryStr,
-      repoName,
+      watchedRepoNames, searchQueryStr, repoName,
     } = this.state;
     // This array needs to be RepositoryModel objects, not strings.
     // If ``repos`` is not yet populated, then leave as empty array.
@@ -245,11 +239,11 @@ class SecondaryNavBar extends React.Component {
 
             {/* Toggle Duplicate Jobs */}
             <span
-              className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${groupsExpanded ? 'disabled' : ''} ${!showDuplicateJobs ? 'strikethrough' : ''}`}
+              className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${groupCountsExpanded ? 'disabled' : ''} ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
-              title={showDuplicateJobs ? 'Hide duplicate jobs' : 'Show duplicate jobs'}
-              onClick={() => !groupsExpanded && this.toggleShowDuplicateJobs()}
+              title={duplicateJobsVisible ? 'Hide duplicate jobs' : 'Show duplicate jobs'}
+              onClick={() => !groupCountsExpanded && this.toggleShowDuplicateJobs()}
             />
             <span className="btn-group">
               {/* Toggle Group State Button */}
@@ -257,9 +251,9 @@ class SecondaryNavBar extends React.Component {
                 className="btn btn-view-nav btn-sm btn-toggle-group-state"
                 tabIndex="-1"
                 role="button"
-                title={groupsExpanded ? 'Collapse job groups' : 'Expand job groups'}
+                title={groupCountsExpanded ? 'Collapse job groups' : 'Expand job groups'}
                 onClick={() => this.toggleGroupState()}
-              >( <span className="group-state-nav-icon">{groupsExpanded ? '-' : '+'}</span> )
+              >( <span className="group-state-nav-icon">{groupCountsExpanded ? '-' : '+'}</span> )
               </span>
             </span>
 
@@ -331,6 +325,8 @@ SecondaryNavBar.propTypes = {
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   filteredUnclassifiedFailureCount: PropTypes.number.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };
 
 export default withPushes(SecondaryNavBar);

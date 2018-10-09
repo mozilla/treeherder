@@ -323,8 +323,8 @@ class Push extends React.Component {
 
   render() {
     const {
-      push, isLoggedIn, $injector, repoName, currentRepo,
-      filterModel, notificationSupported, getAllShownJobs,
+      push, isLoggedIn, $injector, repoName, currentRepo, duplicateJobsVisible,
+      filterModel, notificationSupported, getAllShownJobs, groupCountsExpanded,
     } = this.props;
     const {
       watched, runnableVisible, pushGroupState,
@@ -373,6 +373,8 @@ class Push extends React.Component {
               pushGroupState={pushGroupState}
               toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
               runnableVisible={runnableVisible}
+              duplicateJobsVisible={duplicateJobsVisible}
+              groupCountsExpanded={groupCountsExpanded}
               $injector={$injector}
             />
           </span>
@@ -394,6 +396,8 @@ Push.propTypes = {
   updateJobMap: PropTypes.func.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };
 
 export default withPushes(withSelectedJob(Push));

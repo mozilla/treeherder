@@ -8,7 +8,7 @@ export default class JobsAndGroups extends React.Component {
   render() {
     const {
       $injector, groups, repoName, platform, filterPlatformCb, filterModel,
-      pushGroupState,
+      pushGroupState, duplicateJobsVisible, groupCountsExpanded,
     } = this.props;
 
     return (
@@ -25,6 +25,8 @@ export default class JobsAndGroups extends React.Component {
                 platform={platform}
                 key={group.mapKey}
                 pushGroupState={pushGroupState}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
               />
             );
           }
@@ -58,4 +60,6 @@ JobsAndGroups.propTypes = {
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };
