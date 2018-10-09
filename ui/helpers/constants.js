@@ -249,7 +249,6 @@ export const thEvents = {
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
-  autoclassifySelectOption: 'ac-select-EVT',
   autoclassifyChangeSelection: 'ac-change-selection-EVT',
   autoclassifyToggleExpandOptions: 'ac-toggle-expand-options-EVT',
   autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
