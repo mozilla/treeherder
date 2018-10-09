@@ -32,8 +32,6 @@ class Push extends React.Component {
       selectedRunnableJobs: [],
       watched: 'none',
       jobCounts: { pending: 0, running: 0, completed: 0 },
-      hasBoundaryError: false,
-      boundaryError: '',
       pushGroupState: 'collapsed',
     };
   }
@@ -90,13 +88,6 @@ class Push extends React.Component {
 
     latest.setSeconds(latest.getSeconds() - 3);
     return latest;
-  }
-
-  componentDidCatch(error) {
-    this.setState({
-      hasBoundaryError: true,
-      boundaryError: error,
-    });
   }
 
   poll() {
@@ -336,19 +327,10 @@ class Push extends React.Component {
       filterModel, notificationSupported, getAllShownJobs,
     } = this.props;
     const {
-      watched, runnableVisible, hasBoundaryError, boundaryError, pushGroupState,
+      watched, runnableVisible, pushGroupState,
       platforms, jobCounts, selectedRunnableJobs,
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
-
-    if (hasBoundaryError) {
-      return (
-        <div className="border-bottom border-top ml-1">
-          <div>Error displaying push with revision: {revision}</div>
-          <div>{boundaryError.toString()}</div>
-        </div>
-      );
-    }
 
     return (
       <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>

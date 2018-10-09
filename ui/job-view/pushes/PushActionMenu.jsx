@@ -130,12 +130,12 @@ class PushActionMenu extends React.PureComponent {
             <li
               title="Hide Runnable Jobs"
               className="dropdown-item"
-              onClick={() => hideRunnableJobs()}
+              onClick={hideRunnableJobs}
             >Hide Runnable Jobs</li> :
             <li
               title={isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'}
               className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
-              onClick={() => showRunnableJobs()}
+              onClick={showRunnableJobs}
             >Add new jobs</li>
           }
           {this.triggerMissingRepos.includes(repoName) &&
