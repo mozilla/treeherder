@@ -10,12 +10,6 @@ export const prettyDate = function formatPrettyDate(date) {
   return moment(date).format('ddd MMM D, YYYY');
 };
 
-export const setDateRange = function setISODateRange(day, numDays) {
-  const to = ISODate(day);
-  const from = ISODate(day.subtract(numDays, 'days'));
-  return { from, to };
-};
-
 export const formatBugs = function formatBugsForBugzilla(data) {
   let bugs = '';
   for (let i = 0; i < data.length; i++) {
@@ -122,4 +116,37 @@ export const validateQueryParams = function validateQueryParams(params, bugRequi
     messages.push(prettyErrorMessages.bug_ui);
   }
   return messages;
+};
+
+export const getData = async function getData(url) {
+  let failureStatus = null;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    failureStatus = response.status;
+  }
+
+  if (response.headers.get('content-type') === 'text/html' && failureStatus) {
+    return { data: { [failureStatus]: response.statusText }, failureStatus };
+  }
+
+  const data = await response.json();
+  return { data, failureStatus };
+};
+
+export const tableRowStyling = function tableRowStyling(state, bug) {
+  if (bug) {
+    const style = { color: '#aaa' };
+
+    if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {
+      style.textDecoration = 'line-through';
+      return { style };
+    }
+
+    const disabledStrings = new RegExp('(disabled|annotated|marked)', 'i');
+    if (disabledStrings.test(bug.row.whiteboard)) {
+      return { style };
+    }
+  }
+  return {};
 };
