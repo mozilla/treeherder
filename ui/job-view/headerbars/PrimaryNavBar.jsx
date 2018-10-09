@@ -14,7 +14,7 @@ import SecondaryNavBar from './SecondaryNavBar';
 export default function PrimaryNavBar(props) {
   const {
     user, setUser, repos, updateButtonClick, serverChanged,
-    filterModel, $injector, setCurrentRepoTreeStatus, resultSetStore,
+    filterModel, $injector, setCurrentRepoTreeStatus,
   } = props;
 
   return (
@@ -32,7 +32,6 @@ export default function PrimaryNavBar(props) {
               />
               <FiltersMenu
                 filterModel={filterModel}
-                resultSetStore={resultSetStore}
               />
               <HelpMenu />
               <Login
@@ -65,5 +64,4 @@ PrimaryNavBar.propTypes = {
   setUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
-  resultSetStore: PropTypes.object.isRequired,
 };

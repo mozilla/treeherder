@@ -12,6 +12,7 @@ import CustomJobActions from '../../CustomJobActions';
 import LogUrls from './LogUrls';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
+import { withPushes } from '../../context/Pushes';
 
 class ActionBar extends React.Component {
   constructor(props) {
@@ -20,7 +21,6 @@ class ActionBar extends React.Component {
     const { $injector } = this.props;
 
     this.thNotify = $injector.get('thNotify');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$interpolate = $injector.get('$interpolate');
     this.$rootScope = $injector.get('$rootScope');
 
@@ -65,7 +65,7 @@ class ActionBar extends React.Component {
   }
 
   retriggerJob(jobs) {
-    const { user, repoName } = this.props;
+    const { user, repoName, getGeckoDecisionTaskId } = this.props;
     const jobIds = jobs.map(({ id }) => id);
 
     if (!user.isLoggedIn) {
@@ -80,11 +80,11 @@ class ActionBar extends React.Component {
       });
     });
 
-    JobModel.retrigger(jobIds, repoName, this.ThResultSetStore, this.thNotify);
+    JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, this.thNotify);
   }
 
   backfillJob() {
-    const { user, selectedJob } = this.props;
+    const { user, selectedJob, getGeckoDecisionTaskId } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -103,8 +103,8 @@ class ActionBar extends React.Component {
     }
 
     if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
-      this.ThResultSetStore.getGeckoDecisionTaskId(
-        selectedJob.result_set_id).then(decisionTaskId => (
+      getGeckoDecisionTaskId(
+        selectedJob.push_id).then(decisionTaskId => (
         TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
           const backfilltask = results.actions.find(result => result.name === 'backfill');
 
@@ -164,7 +164,7 @@ class ActionBar extends React.Component {
   }
 
   async createInteractiveTask() {
-    const { user, selectedJob, repoName } = this.props;
+    const { user, selectedJob, repoName, getGeckoDecisionTaskId } = this.props;
     const jobId = selectedJob.id;
 
     if (!user.isLoggedIn) {
@@ -172,7 +172,7 @@ class ActionBar extends React.Component {
     }
 
     const job = await JobModel.get(repoName, jobId);
-    const decisionTaskId = await this.ThResultSetStore.getGeckoDecisionTaskId(job.result_set_id);
+    const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
     const results = await TaskclusterModel.load(decisionTaskId, job);
     const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
 
@@ -202,14 +202,14 @@ class ActionBar extends React.Component {
   }
 
   cancelJobs(jobs) {
-    const { user, repoName } = this.props;
+    const { user, repoName, getGeckoDecisionTaskId } = this.props;
     const jobIds = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
 
     if (!user.isLoggedIn) {
       return this.thNotify.send('Must be logged in to cancel a job', 'danger');
     }
 
-    JobModel.cancel(jobIds, repoName, this.ThResultSetStore, this.thNotify);
+    JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, this.thNotify);
   }
 
   cancelJob() {
@@ -315,9 +315,8 @@ class ActionBar extends React.Component {
           </ul>
         </nav>
         {customJobActionsShowing && <CustomJobActions
-          pushModel={this.ThResultSetStore}
           job={selectedJob}
-          pushId={selectedJob.result_set_id}
+          pushId={selectedJob.push_id}
           isLoggedIn={user.isLoggedIn}
           notify={this.thNotify}
           toggle={this.toggleCustomJobActions}
@@ -334,6 +333,7 @@ ActionBar.propTypes = {
   repoName: PropTypes.string.isRequired,
   selectedJob: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
+  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.array,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
@@ -347,4 +347,4 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
-export default withSelectedJob(withPinnedJobs(ActionBar));
+export default withPushes(withSelectedJob(withPinnedJobs(ActionBar)));

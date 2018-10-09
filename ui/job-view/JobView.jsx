@@ -5,6 +5,7 @@ import SplitPane from 'react-split-pane';
 
 import treeherder from '../js/treeherder';
 import { thEvents, thFavicons } from '../helpers/constants';
+import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
 import { matchesDefaults } from '../helpers/filter';
@@ -41,7 +42,6 @@ class JobView extends React.Component {
 
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.thNotify = $injector.get('thNotify');
 
     const filterModel = new FilterModel();
@@ -65,7 +65,6 @@ class JobView extends React.Component {
       classificationTypes: [],
       classificationMap: {},
       hasSelectedJob,
-      jobsLoaded: false,
     };
   }
 
@@ -105,10 +104,6 @@ class JobView extends React.Component {
       this.toggleFieldFilterVisible();
     });
 
-    this.jobsLoadedUnlisten = this.$rootScope.$on(thEvents.jobsLoaded, () => {
-      this.setState({ jobsLoaded: true });
-    });
-
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
       this.setState({ serverRev: revision });
@@ -138,7 +133,6 @@ class JobView extends React.Component {
   }
 
   componentWillUnmount() {
-    this.jobsLoadedUnlisten();
     this.toggleFieldFilterVisibleUnlisten();
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
@@ -206,7 +200,7 @@ class JobView extends React.Component {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
-      filterModel, jobsLoaded, hasSelectedJob, revision,
+      filterModel, hasSelectedJob, revision,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -232,70 +226,71 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <PinnedJobs notify={this.thNotify}>
-        <SelectedJob
-          jobsLoaded={jobsLoaded}
-          notify={this.thNotify}
-          $injector={$injector}
-        >
-          <KeyboardShortcuts
-            filterModel={filterModel}
+      <Pushes filterModel={filterModel} $injector={$injector}>
+        <PinnedJobs notify={this.thNotify}>
+          <SelectedJob
+            notify={this.thNotify}
             $injector={$injector}
           >
-            <PrimaryNavBar
-              repos={repos}
-              updateButtonClick={this.updateButtonClick}
-              serverChanged={serverChanged}
+            <KeyboardShortcuts
               filterModel={filterModel}
-              setUser={this.setUser}
-              user={user}
-              setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
-              resultSetStore={this.ThResultSetStore}
               $injector={$injector}
-            />
-            <SplitPane
-              split="horizontal"
-              size={`${pushListPct}%`}
-              onChange={size => this.handleSplitChange(size)}
             >
-              <div className="d-flex flex-column w-100">
-                {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                  $injector={$injector}
-                  classificationTypes={classificationTypes}
-                  filterModel={filterModel}
-                  filterBarFilters={filterBarFilters}
-                  isFieldFilterVisible={isFieldFilterVisible}
-                  toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                />}
-                {serverChangedDelayed && <UpdateAvailable
-                  updateButtonClick={this.updateButtonClick}
-                />}
-                <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-                  <span className="th-view-content" tabIndex={-1}>
-                    <PushList
-                      user={user}
-                      repoName={repoName}
-                      revision={revision}
-                      currentRepo={currentRepo}
-                      filterModel={filterModel}
-                      $injector={$injector}
-                    />
-                  </span>
-                </div>
-              </div>
-              <DetailsPanel
-                resizedHeight={detailsHeight}
-                currentRepo={currentRepo}
-                repoName={repoName}
+              <PrimaryNavBar
+                repos={repos}
+                updateButtonClick={this.updateButtonClick}
+                serverChanged={serverChanged}
+                filterModel={filterModel}
+                setUser={this.setUser}
                 user={user}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
+                setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+                getAllShownJobs={this.getAllShownJobs}
                 $injector={$injector}
               />
-            </SplitPane>
-          </KeyboardShortcuts>
-        </SelectedJob>
-      </PinnedJobs>
+              <SplitPane
+                split="horizontal"
+                size={`${pushListPct}%`}
+                onChange={size => this.handleSplitChange(size)}
+              >
+                <div className="d-flex flex-column w-100">
+                  {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
+                    $injector={$injector}
+                    classificationTypes={classificationTypes}
+                    filterModel={filterModel}
+                    filterBarFilters={filterBarFilters}
+                    isFieldFilterVisible={isFieldFilterVisible}
+                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                  />}
+                  {serverChangedDelayed && <UpdateAvailable
+                    updateButtonClick={this.updateButtonClick}
+                  />}
+                  <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+                    <span className="th-view-content" tabIndex={-1}>
+                      <PushList
+                        user={user}
+                        repoName={repoName}
+                        revision={revision}
+                        currentRepo={currentRepo}
+                        filterModel={filterModel}
+                        $injector={$injector}
+                      />
+                    </span>
+                  </div>
+                </div>
+                <DetailsPanel
+                  resizedHeight={detailsHeight}
+                  currentRepo={currentRepo}
+                  repoName={repoName}
+                  user={user}
+                  classificationTypes={classificationTypes}
+                  classificationMap={classificationMap}
+                  $injector={$injector}
+                />
+              </SplitPane>
+            </KeyboardShortcuts>
+          </SelectedJob>
+        </PinnedJobs>
+      </Pushes>
     );
   }
 }

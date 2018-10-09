@@ -6,13 +6,14 @@ import { thJobNavSelectors } from '../../helpers/constants';
 import {
   findGroupInstance,
   findJobInstance,
-  findSelectedInstance, scrollToElement,
+  findSelectedInstance,
 } from '../../helpers/job';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { getJobsUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
 import { withPinnedJobs } from './PinnedJobs';
+import { withPushes } from './Pushes';
 
 const SelectedJobContext = React.createContext({});
 
@@ -20,11 +21,9 @@ class SelectedJobClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
-
     this.state = {
       selectedJob: null,
+      repoName: getUrlParam('repo'),
     };
     this.value = {
       ...this.state,
@@ -72,37 +71,35 @@ class SelectedJobClass extends React.Component {
    * an error and provide a link to load it with the right push.
    */
   setSelectedJobFromQueryString() {
-    const { notify } = this.props;
+    const { notify, jobMap } = this.props;
     const { repoName, selectedJob } = this.state;
     const selectedJobIdStr = getUrlParam('selectedJob');
     const selectedJobId = parseInt(selectedJobIdStr);
 
     if (selectedJobIdStr && (!selectedJob || selectedJob.id !== selectedJobId)) {
-      const jobMap = this.ThResultSetStore.getJobMap();
-      const selectedJobEl = jobMap[selectedJobIdStr];
+      const selectedJob = jobMap[selectedJobIdStr];
 
       // select the job in question
-      if (selectedJobEl) {
-        this.setSelectedJob(selectedJobEl.job_obj);
+      if (selectedJob) {
+        this.setSelectedJob(selectedJob);
       } else {
+        setUrlParam('selectedJob');
         // If the ``selectedJob`` was not mapped, then we need to notify
         // the user it's not in the range of the current result set list.
         JobModel.get(repoName, selectedJobId).then((job) => {
-          PushModel.get(job.result_set_id).then(async (resp) => {
+          PushModel.get(job.push_id).then(async (resp) => {
             if (resp.ok) {
               const push = await resp.json();
-              const newPushUrl = getJobsUrl({ repo: repoName, revision: push.data.revision, selectedJob: selectedJobId });
-
-              this.clearSelectedJob();
+              const newPushUrl = getJobsUrl({ repo: repoName, revision: push.revision, selectedJob: selectedJobId });
 
               // the job exists, but isn't in any loaded push.
               // provide a message and link to load the right push
               notify.send(
                 `Selected job id: ${selectedJobId} not within current push range.`,
                 'danger',
-                { sticky: true, linkText: 'Load push', newPushUrl });
+                { sticky: true, linkText: 'Load push', url: newPushUrl });
             } else {
-              throw Error(`Unable to find push with id ${job.result_set_id} for selected job`);
+              throw Error(`Unable to find push with id ${job.push_id} for selected job`);
             }
           });
         }).catch((error) => {
@@ -171,7 +168,6 @@ class SelectedJobClass extends React.Component {
     const { pinnedJobs } = this.props;
     const jobNavSelector = unclassifiedOnly ?
       thJobNavSelectors.UNCLASSIFIED_FAILURES : thJobNavSelectors.ALL_JOBS;
-    const jobMap = this.ThResultSetStore.getJobMap();
     // Get the appropriate next index based on the direction and current job
     // selection (if any).  Must wrap end to end.
     const getIndex = direction === 'next' ?
@@ -198,22 +194,22 @@ class SelectedJobClass extends React.Component {
     // selection changes away from it, the job will no longer be visible.
     const jobs = $('.th-view-content')
       .find(jobNavSelector.selector)
-      .filter(':visible, .selected-job');
+      .filter(':visible, .selected-job, .selected-count');
 
     if (jobs.length) {
-      const selectedEl = jobs.filter('.selected-job').first();
+      const selectedEl = jobs.filter('.selected-job, .selected-count').first();
       const selIdx = jobs.index(selectedEl);
       const idx = getIndex(selIdx, jobs);
       const jobEl = $(jobs[idx]);
 
       if (selIdx !== idx) {
         const jobId = jobEl.attr('data-job-id');
+        const jobInstance = findJobInstance(jobId, true);
 
-        if (jobMap && jobMap[jobId]) {
-          scrollToElement(jobEl);
+        if (jobInstance) {
           // Delay loading details for the new job right away,
           // in case the user is switching rapidly between jobs
-          this.setSelectedJob(jobMap[jobId].job_obj, 200);
+          this.setSelectedJob(jobInstance.props.job, 200);
           return;
         }
       } else {
@@ -254,11 +250,11 @@ SelectedJobClass.propTypes = {
   jobsLoaded: PropTypes.bool.isRequired,
   notify: PropTypes.object.isRequired,
   pinnedJobs: PropTypes.object.isRequired,
+  jobMap: PropTypes.object.isRequired,
   children: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
 };
 
-export const SelectedJob = withPinnedJobs(SelectedJobClass);
+export const SelectedJob = withPushes(withPinnedJobs(SelectedJobClass));
 
 export function withSelectedJob(Component) {
   return function SelectedJobComponent(props) {

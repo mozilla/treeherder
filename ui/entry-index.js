@@ -32,7 +32,5 @@ import './shared/ShortcutTable';
 // Treeherder JS
 import './js/directives/treeherder/main';
 import './js/services/main';
-import './js/models/resultsets_store';
 import './js/models/perf/series';
 import './js/controllers/main';
-import './js/filters';

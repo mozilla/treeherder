@@ -11,8 +11,9 @@ import {
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
+import { withPushes } from './context/Pushes';
 
-export default class CustomJobActions extends React.Component {
+class CustomJobActions extends React.Component {
   constructor(props) {
     super(props);
 
@@ -31,14 +32,14 @@ export default class CustomJobActions extends React.Component {
   }
 
   componentDidMount() {
-    const { pushModel, pushId, job } = this.props;
+    const { getGeckoDecisionTaskId, pushId, job } = this.props;
 
     this.updateSelectedAction = this.updateSelectedAction.bind(this);
     this.onChangeAction = this.onChangeAction.bind(this);
     this.close = this.close.bind(this);
     this.triggerAction = this.triggerAction.bind(this);
 
-    pushModel.getGeckoDecisionTaskId(pushId).then((decisionTaskId) => {
+    getGeckoDecisionTaskId(pushId).then((decisionTaskId) => {
       TaskclusterModel.load(decisionTaskId, job).then((results) => {
         const { originalTask, originalTaskId, staticActionVariables, actions } = results;
         const actionOptions = actions.map(action => ({ value: action, label: action.title }));
@@ -226,14 +227,16 @@ export default class CustomJobActions extends React.Component {
 }
 
 CustomJobActions.propTypes = {
-  pushModel: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   notify: PropTypes.object.isRequired,
   toggle: PropTypes.func.isRequired,
+  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   job: PropTypes.object,
 };
 
 CustomJobActions.defaultProps = {
   job: null,
 };
+
+export default withPushes(CustomJobActions);

@@ -16,6 +16,7 @@ import TextLogStepModel from '../../models/textLogStep';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
+import { withPushes } from '../context/Pushes';
 
 export const pinboardHeight = 100;
 
@@ -26,7 +27,6 @@ class DetailsPanel extends React.Component {
     const { $injector } = this.props;
 
     this.PhSeries = $injector.get('PhSeries');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$rootScope = $injector.get('$rootScope');
 
     // used to cancel all the ajax requests triggered by selectJob
@@ -67,14 +67,6 @@ class DetailsPanel extends React.Component {
 
   componentWillUnmount() {
     this.jobsClassifiedUnlisten();
-  }
-
-  getRevisionTips() {
-    return this.ThResultSetStore.getPushArray().map(push => ({
-      revision: push.revision,
-      author: push.author,
-      title: push.revisions[0].comments.split('\n')[0],
-    }));
   }
 
   togglePinBoardVisibility() {
@@ -134,11 +126,12 @@ class DetailsPanel extends React.Component {
     const { selectedJob } = this.props;
     const classifications = await JobClassificationModel.getList({ job_id: selectedJob.id });
     const bugs = await BugJobMapModel.getList({ job_id: selectedJob.id });
+
     this.setState({ classifications, bugs });
   }
 
   selectJob() {
-    const { repoName, selectedJob } = this.props;
+    const { repoName, selectedJob, getPush } = this.props;
 
     this.setState({ jobDetails: [], suggestions: [], jobDetailLoading: true }, () => {
       if (this.selectJobController !== null) {
@@ -176,7 +169,7 @@ class DetailsPanel extends React.Component {
         // is what we'll pass to the rest of the details panel.  It has extra fields like
         // taskcluster_metadata.
         Object.assign(selectedJob, results[0]);
-        const jobRevision = this.ThResultSetStore.getPush(selectedJob.result_set_id).revision;
+        const jobRevision = getPush(selectedJob.push_id).revision;
 
         // the second result comes from the job detail promise
         jobDetails = results[1];
@@ -220,7 +213,7 @@ class DetailsPanel extends React.Component {
             series: seriesList.find(s => d.signature_id === s.id),
             ...d,
           })).filter(d => !d.series.parentSignature).map(d => ({
-            url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, selectedJob.result_set_id, d.id]}`,
+            url: `/perf.html#/graphs?series=${[repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[repoName, d.signature_id, selectedJob.push_id, d.id]}`,
             value: d.value,
             title: d.series.name,
           }));
@@ -268,7 +261,6 @@ class DetailsPanel extends React.Component {
         <PinBoard
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
-          revisionList={this.getRevisionTips()}
           $injector={$injector}
         />
         {!!selectedJob && <div id="details-panel-content">
@@ -323,6 +315,7 @@ DetailsPanel.propTypes = {
   classificationMap: PropTypes.object.isRequired,
   setPinBoardVisible: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
+  getPush: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -330,4 +323,4 @@ DetailsPanel.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(withPinnedJobs(DetailsPanel));
+export default withPushes(withSelectedJob(withPinnedJobs(DetailsPanel)));

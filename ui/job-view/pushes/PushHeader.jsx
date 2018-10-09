@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import PushActionMenu from './PushActionMenu';
 import { toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { thEvents } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
+import { withPushes } from '../context/Pushes';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.
@@ -67,34 +67,17 @@ class PushHeader extends React.PureComponent {
 
     this.$rootScope = $injector.get('$rootScope');
     this.thNotify = $injector.get('thNotify');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
 
     this.pushDateStr = toDateStr(pushTimestamp);
-
-    this.state = {
-      runnableJobsSelected: false,
-    };
   }
 
   componentWillMount() {
     this.triggerNewJobs = this.triggerNewJobs.bind(this);
-
-    this.toggleRunnableJobUnlisten = this.$rootScope.$on(
-      thEvents.selectRunnableJob, (ev, runnableJobs, pushId) => {
-        if (this.props.pushId === pushId) {
-          this.setState({ runnableJobsSelected: runnableJobs.length > 0 });
-        }
-      },
-    );
   }
 
   componentDidMount() {
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
-  }
-
-  componentWillUnmount() {
-    this.toggleRunnableJobUnlisten();
   }
 
   getLinkParams() {
@@ -107,21 +90,20 @@ class PushHeader extends React.PureComponent {
   }
 
   triggerNewJobs() {
-    const { isLoggedIn, pushId } = this.props;
+    const { isLoggedIn, pushId, getGeckoDecisionTaskId, selectedRunnableJobs, hideRunnableJobs } = this.props;
 
     if (!window.confirm(
         'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
       return;
     }
     if (isLoggedIn) {
-      const builderNames = this.ThResultSetStore.getSelectedRunnableJobs(pushId);
-      this.ThResultSetStore.getGeckoDecisionTaskId(pushId)
+      const builderNames = selectedRunnableJobs;
+      getGeckoDecisionTaskId(pushId)
         .then((decisionTaskID) => {
           PushModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
             this.thNotify.send(result, 'success');
-            this.ThResultSetStore.deleteRunnableJobs(pushId);
-            this.props.hideRunnableJobsCb();
-            this.setState({ runnableJobsSelected: false });
+            hideRunnableJobs(pushId);
+            this.props.hideRunnableJobs();
           }).catch((e) => {
             this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
           });
@@ -135,7 +117,7 @@ class PushHeader extends React.PureComponent {
 
   cancelAllJobs() {
     if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
-      const { push, isLoggedIn } = this.props;
+      const { push, isLoggedIn, getGeckoDecisionTaskId } = this.props;
       // Any job Id inside the push will do
       const jobId = push.jobList[0].id;
 
@@ -144,15 +126,17 @@ class PushHeader extends React.PureComponent {
       JobModel.cancelAll(
         jobId,
         this.$rootScope.repoName,
-        this.ThResultSetStore,
+        getGeckoDecisionTaskId,
         this.thNotify,
       );
     }
   }
 
   pinAllShownJobs() {
-    const { selectedJob, setSelectedJob, pinJobs, expandAllPushGroups } = this.props;
-    const shownJobs = this.ThResultSetStore.getAllShownJobs(this.props.pushId);
+    const {
+      selectedJob, setSelectedJob, pinJobs, expandAllPushGroups, getAllShownJobs,
+    } = this.props;
+    const shownJobs = getAllShownJobs(this.props.pushId);
 
     expandAllPushGroups(() => {
       pinJobs(shownJobs);
@@ -165,8 +149,8 @@ class PushHeader extends React.PureComponent {
   render() {
     const { repoName, isLoggedIn, pushId, jobCounts, author,
             revision, runnableVisible, $injector, watchState,
-            showRunnableJobsCb, hideRunnableJobsCb, cycleWatchState,
-            notificationSupported } = this.props;
+            showRunnableJobs, hideRunnableJobs, cycleWatchState,
+            notificationSupported, selectedRunnableJobs } = this.props;
     const cancelJobsTitle = isLoggedIn ?
       'Cancel all jobs' :
       'Must be logged in to cancel jobs';
@@ -238,7 +222,7 @@ class PushHeader extends React.PureComponent {
                 className="fa fa-thumb-tack"
               />
             </button>
-            {this.state.runnableJobsSelected && runnableVisible &&
+            {!!selectedRunnableJobs.length && runnableVisible &&
               <button
                 className="btn btn-sm btn-push trigger-new-jobs-btn"
                 title="Trigger new jobs"
@@ -252,8 +236,8 @@ class PushHeader extends React.PureComponent {
               repoName={repoName}
               pushId={pushId}
               $injector={$injector}
-              showRunnableJobsCb={showRunnableJobsCb}
-              hideRunnableJobsCb={hideRunnableJobsCb}
+              showRunnableJobs={showRunnableJobs}
+              hideRunnableJobs={hideRunnableJobs}
             />
           </span>
         </div>
@@ -272,14 +256,17 @@ PushHeader.propTypes = {
   $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
-  showRunnableJobsCb: PropTypes.func.isRequired,
-  hideRunnableJobsCb: PropTypes.func.isRequired,
+  showRunnableJobs: PropTypes.func.isRequired,
+  hideRunnableJobs: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   pinJobs: PropTypes.func.isRequired,
   expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
+  getAllShownJobs: PropTypes.func.isRequired,
+  getGeckoDecisionTaskId: PropTypes.func.isRequired,
+  selectedRunnableJobs: PropTypes.array.isRequired,
   jobCounts: PropTypes.object,
   watchState: PropTypes.string,
   selectedJob: PropTypes.object,
@@ -291,4 +278,4 @@ PushHeader.defaultProps = {
   watchState: 'none',
 };
 
-export default withSelectedJob(withPinnedJobs(PushHeader));
+export default withPushes(withSelectedJob(withPinnedJobs(PushHeader)));

@@ -1,23 +1,23 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import countBy from 'lodash/countBy';
 
-import JobButton from './JobButton';
-import JobCount from './JobCount';
+import { withSelectedJob } from '../context/SelectedJob';
+import { thFailureResults, thEvents } from '../../helpers/constants';
 import { getBtnClass, getStatus } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
-import { thFailureResults, thEvents } from '../../helpers/constants';
+import JobButton from './JobButton';
+import JobCount from './JobCount';
 
 class GroupSymbol extends React.PureComponent {
   render() {
     const { symbol, tier, toggleExpanded } = this.props;
-    const groupSymbol = symbol === '?' ? '' : symbol;
 
     return (
       <button
         className="btn group-symbol"
         onClick={toggleExpanded}
-      >{groupSymbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
+      >{symbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
       </button>
     );
   }
@@ -34,7 +34,7 @@ GroupSymbol.defaultProps = {
 };
 
 
-export default class JobGroup extends React.Component {
+export class JobGroupComponent extends React.Component {
   constructor(props) {
     super(props);
     const { $injector, pushGroupState } = this.props;
@@ -89,14 +89,16 @@ export default class JobGroup extends React.Component {
   }
 
   groupButtonsAndCounts(jobs, expanded, showDuplicateJobs) {
+    const { selectedJob } = this.props;
     let buttons = [];
     const counts = [];
+
     if (expanded) {
       // All buttons should be shown when the group is expanded
       buttons = jobs;
     } else {
       const stateCounts = {};
-      const typeSymbolCounts = _.countBy(jobs, 'job_type_symbol');
+      const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
       jobs.forEach((job) => {
         if (!job.visible) return;
         const status = getStatus(job);
@@ -109,12 +111,11 @@ export default class JobGroup extends React.Component {
           // render the job itself, not a count
           buttons.push(job);
         } else {
-          const lastJobSelected = {};
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if (!_.isEmpty(lastJobSelected.job) && (lastJobSelected.job.id === job.id)) {
-            countInfo.selectedClasses = ['selected-count', 'btn-lg-xform'];
+          if (selectedJob && selectedJob.id === job.id || countInfo.selectedClasses) {
+            countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
-            countInfo.selectedClasses = [];
+            countInfo.selectedClasses = '';
           }
           if (stateCounts[countInfo.btnClass]) {
             countInfo.count = stateCounts[countInfo.btnClass].count + 1;
@@ -138,7 +139,7 @@ export default class JobGroup extends React.Component {
 
   render() {
     const {
-      $injector, repoName, filterPlatformCb, platform, filterModel,
+      repoName, filterPlatformCb, platform, filterModel,
       group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs, mapKey: groupMapKey },
     } = this.props;
     const { expanded, showDuplicateJobs } = this.state;
@@ -168,7 +169,6 @@ export default class JobGroup extends React.Component {
                 <JobButton
                   job={job}
                   filterModel={filterModel}
-                  $injector={$injector}
                   visible={job.visible}
                   status={getStatus(job)}
                   failureClassificationId={job.failure_classification_id}
@@ -184,7 +184,7 @@ export default class JobGroup extends React.Component {
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
-                  className={`${countInfo.btnClass}-count`}
+                  className={`${countInfo.btnClass}-count${countInfo.selectedClasses}`}
                   title={`${countInfo.count} ${countInfo.countText} jobs in group`}
                   key={countInfo.lastJob.id}
                 />
@@ -197,7 +197,7 @@ export default class JobGroup extends React.Component {
   }
 }
 
-JobGroup.propTypes = {
+JobGroupComponent.propTypes = {
   group: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
@@ -205,4 +205,11 @@ JobGroup.propTypes = {
   platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
+  selectedJob: PropTypes.object,
 };
+
+JobGroupComponent.defaultProps = {
+  selectedJob: null,
+};
+
+export default withSelectedJob(JobGroupComponent);

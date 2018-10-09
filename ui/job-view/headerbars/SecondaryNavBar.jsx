@@ -12,6 +12,7 @@ import {
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import WatchedRepo from './WatchedRepo';
+import { withPushes } from '../context/Pushes';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';
@@ -21,12 +22,11 @@ const getSearchStrFromUrl = function getSearchStrFromUrl() {
   return searchStr ? searchStr.replace(/,/g, ' ') : '';
 };
 
-export default class SecondaryNavBar extends React.Component {
+class SecondaryNavBar extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$rootScope = $injector.get('$rootScope');
 
     this.filterChicklets = [
@@ -39,8 +39,6 @@ export default class SecondaryNavBar extends React.Component {
       showDuplicateJobs: getUrlParam('duplicate_jobs') === 'visible',
       searchQueryStr: getSearchStrFromUrl(),
       watchedRepoNames: [],
-      allUnclassifiedFailureCount: 0,
-      filteredUnclassifiedFailureCount: 0,
       repoName: getRepo(),
     };
   }
@@ -54,18 +52,11 @@ export default class SecondaryNavBar extends React.Component {
     this.handleUrlChanges = this.handleUrlChanges.bind(this);
 
     window.addEventListener('hashchange', this.handleUrlChanges, false);
-    this.unlistenJobsLoaded = this.$rootScope.$on(thEvents.jobsLoaded, () => (
-      this.setState({
-        allUnclassifiedFailureCount: this.ThResultSetStore.getAllUnclassifiedFailureCount(),
-        filteredUnclassifiedFailureCount: this.ThResultSetStore.getFilteredUnclassifiedFailureCount(),
-      })
-    ));
     this.loadWatchedRepos();
   }
 
   componentWillUnmount() {
     window.removeEventListener('onhashchange', this.handleUrlChanges, false);
-    this.unlistenJobsLoaded();
   }
 
   setSearchStr(ev) {
@@ -73,10 +64,7 @@ export default class SecondaryNavBar extends React.Component {
   }
 
   handleUrlChanges() {
-    this.ThResultSetStore.recalculateUnclassifiedCounts();
     this.setState({
-      allUnclassifiedFailureCount: this.ThResultSetStore.getAllUnclassifiedFailureCount(),
-      filteredUnclassifiedFailureCount: this.ThResultSetStore.getFilteredUnclassifiedFailureCount(),
       searchQueryStr: getSearchStrFromUrl(),
     });
   }
@@ -189,10 +177,11 @@ export default class SecondaryNavBar extends React.Component {
   render() {
     const {
       updateButtonClick, serverChanged, setCurrentRepoTreeStatus, repos,
+      allUnclassifiedFailureCount, filteredUnclassifiedFailureCount,
     } = this.props;
     const {
       watchedRepoNames, groupsExpanded, showDuplicateJobs, searchQueryStr,
-      allUnclassifiedFailureCount, filteredUnclassifiedFailureCount, repoName,
+      repoName,
     } = this.state;
     // This array needs to be RepositoryModel objects, not strings.
     // If ``repos`` is not yet populated, then leave as empty array.
@@ -340,4 +329,8 @@ SecondaryNavBar.propTypes = {
   filterModel: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
+  allUnclassifiedFailureCount: PropTypes.number.isRequired,
+  filteredUnclassifiedFailureCount: PropTypes.number.isRequired,
 };
+
+export default withPushes(SecondaryNavBar);

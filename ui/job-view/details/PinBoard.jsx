@@ -12,6 +12,7 @@ import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
+import { withPushes } from '../context/Pushes';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -19,7 +20,6 @@ class PinBoard extends React.Component {
 
     const { $injector } = this.props;
     this.thNotify = $injector.get('thNotify');
-    this.ThResultSetStore = $injector.get('ThResultSetStore');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
@@ -67,7 +67,7 @@ class PinBoard extends React.Component {
   }
 
   save() {
-    const { isLoggedIn, pinnedJobs } = this.props;
+    const { isLoggedIn, pinnedJobs, recalculateUnclassifiedCounts } = this.props;
 
     let errorFree = true;
     if (this.state.enteringBugNumber) {
@@ -92,6 +92,7 @@ class PinBoard extends React.Component {
       const bugPromises = jobs.map(job => this.saveBugs(job));
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
         this.$rootScope.$emit(thEvents.jobsClassified, { jobs: [...jobs] });
+        recalculateUnclassifiedCounts();
         this.unPinAll();
         this.setState({
           failureClassificationId: 4,
@@ -121,13 +122,14 @@ class PinBoard extends React.Component {
   }
 
   saveClassification(job) {
+    const { recalculateUnclassifiedCounts } = this.props;
     const classification = this.createNewClassification();
 
     // classification can be left unset making this a no-op
     if (classification.failure_classification_id > 0) {
       job.failure_classification_id = classification.failure_classification_id;
       // update the unclassified failure count for the page
-      this.ThResultSetStore.updateUnclassifiedFailureMap(job);
+      recalculateUnclassifiedCounts();
 
       classification.job_id = job.id;
       return classification.create().then(() => {
@@ -189,13 +191,15 @@ class PinBoard extends React.Component {
   }
 
   cancelAllPinnedJobs() {
+    const { getGeckoDecisionTaskId } = this.props;
+
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
       JobModel.cancel(
         jobIds,
         this.$rootScope.repoName,
-        this.ThResultSetStore,
+        getGeckoDecisionTaskId,
         this.thNotify,
       );
 
@@ -328,17 +332,18 @@ class PinBoard extends React.Component {
   }
 
   retriggerAllPinnedJobs() {
+    const { getGeckoDecisionTaskId } = this.props;
     JobModel.retrigger(
       Object.keys(this.props.pinnedJobs),
       this.$rootScope.repoName,
-      this.ThResultSetStore,
+      getGeckoDecisionTaskId,
       this.thNotify,
     );
   }
 
   render() {
     const {
-      selectedJob, revisionList, isLoggedIn, isPinBoardVisible, classificationTypes,
+      selectedJob, revisionTips, isLoggedIn, isPinBoardVisible, classificationTypes,
       pinnedJobs, pinnedJobBugs, removeBug, unPinJob, setSelectedJob,
     } = this.props;
     const {
@@ -467,7 +472,7 @@ class PinBoard extends React.Component {
                       <option value="0" disabled>Choose a recent
                         commit
                       </option>
-                      {revisionList.slice(0, 20).map(tip => (<option
+                      {revisionTips.slice(0, 20).map(tip => (<option
                         title={tip.title}
                         value={tip.revision}
                         key={tip.revision}
@@ -531,6 +536,7 @@ class PinBoard extends React.Component {
 
 PinBoard.propTypes = {
   $injector: PropTypes.object.isRequired,
+  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -540,16 +546,17 @@ PinBoard.propTypes = {
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
+  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
-  revisionList: PropTypes.array,
+  revisionTips: PropTypes.array,
 };
 
 PinBoard.defaultProps = {
   selectedJob: null,
   email: null,
-  revisionList: [],
+  revisionTips: [],
 };
 
-export default withSelectedJob(withPinnedJobs(PinBoard));
+export default withPushes(withSelectedJob(withPinnedJobs(PinBoard)));

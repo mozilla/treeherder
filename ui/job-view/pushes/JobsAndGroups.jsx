@@ -14,7 +14,7 @@ export default class JobsAndGroups extends React.Component {
     return (
       <td className="job-row" data-job-clear-on-click>
         {groups.map((group) => {
-          if (group.tier !== 1 || group.symbol !== '?') {
+          if (group.tier !== 1 || group.symbol !== '') {
             return (
               group.visible && <JobGroup
                 group={group}

@@ -67,7 +67,7 @@ class SimilarJobsTab extends React.Component {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
       newSimilarJobs.pop();
       // create an array of unique push ids
-      const pushIds = [...new Set(newSimilarJobs.map(job => job.result_set_id))];
+      const pushIds = [...new Set(newSimilarJobs.map(job => job.push_id))];
       // get pushes and revisions for the given ids
       let pushList = { results: [] };
       const resp = await PushModel.getList({ id__in: pushIds.join(','), count: thMaxPushFetchSize });
@@ -79,7 +79,7 @@ class SimilarJobsTab extends React.Component {
           { ...acc, [push.id]: push }
         ), {});
         newSimilarJobs.forEach((simJob) => {
-          simJob.result_set = pushes[simJob.result_set_id];
+          simJob.result_set = pushes[simJob.push_id];
           simJob.revisionResultsetFilterUrl = getJobsUrl({ repo: repoName, revision: simJob.result_set.revisions[0].revision });
           simJob.authorResultsetFilterUrl = getJobsUrl({ repo: repoName, author: simJob.result_set.author });
         });

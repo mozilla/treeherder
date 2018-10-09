@@ -4,14 +4,14 @@ export const escapeId = id => (
 
 export const getPlatformRowId = (repoName, pushId, platformName, platformOptions) => (
   // ensure there are no invalid characters in the id (like spaces, etc)
-  escapeId(repoName + pushId + platformName + platformOptions)
+  escapeId(`${repoName}${pushId}${platformName}${platformOptions}`)
 );
 
 export const getPushTableId = (repoName, pushId, revision) => (
-  escapeId(repoName + pushId + revision)
+  escapeId(`${repoName}${pushId}${revision}`)
 );
 
-export const getGroupMapKey = (pushId, grSymbol, grTier, plName, plOpt) => (
+export const getGroupMapKey = (grSymbol, grTier, plName, plOpt) => (
   // Build string key for groupMap entries
-  escapeId(pushId + grSymbol + grTier + plName + plOpt)
+  escapeId(`${grSymbol}${grTier}${plName}${plOpt}`)
 );

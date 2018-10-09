@@ -197,7 +197,7 @@ logViewerApp.controller('LogviewerCtrl', [
                 }
 
                 // get the revision and linkify it
-                PushModel.get(job.result_set_id).then(async (resp) => {
+                PushModel.get(job.push_id).then(async (resp) => {
                     const push = await resp.json();
                     const revision = push.revision;
 

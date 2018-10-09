@@ -5,9 +5,9 @@ import { thTitleSuffixLimit, thDefaultRepo } from '../../helpers/constants';
 import { getUrlParam } from '../../helpers/location';
 
 treeherderApp.controller('MainCtrl', [
-    '$scope', '$rootScope', 'ThResultSetStore', 'thNotify',
+    '$scope', '$rootScope', 'thNotify',
     function MainController(
-        $scope, $rootScope, ThResultSetStore, thNotify) {
+        $scope, $rootScope, thNotify) {
 
         if (window.navigator.userAgent.indexOf('Firefox/52') !== -1) {
           thNotify.send('Firefox ESR52 is not supported. Please update to ESR60 or ideally release/beta/nightly.',
@@ -22,12 +22,14 @@ treeherderApp.controller('MainCtrl', [
             $rootScope.repoName = thDefaultRepo;
         }
 
+        $rootScope.firstPush = null;
+
         const getSingleRevisionTitleString = function () {
             let revisions = [];
             let percentComplete;
 
-            if ($scope.currentRepo && ThResultSetStore.getPushArray()[0]) {
-                revisions = ThResultSetStore.getPushArray()[0].revisions;
+            if ($scope.currentRepo && $rootScope.firstPush) {
+                revisions = $rootScope.firstPush.revisions;
             }
 
             // Revisions (and comments) might not be loaded the first few times this function is called
@@ -35,9 +37,13 @@ treeherderApp.controller('MainCtrl', [
                 return [false, false];
             }
 
-            // Job counts are calculated at a later point in the page load, so this is undefined for a while
-            if (ThResultSetStore.getPushArray()[0].job_counts) {
-                percentComplete = ThResultSetStore.getPushArray()[0].job_counts.percentComplete;
+            // when addressing Bug 1450042, don't need to set ``jobCounts``
+            // on each push anymore.
+            if ($rootScope.firstPush.jobCounts) {
+                const { pending, running, completed } = $rootScope.firstPush.jobCounts;
+                const total = completed + pending + running;
+                percentComplete = total > 0 ?
+                  Math.floor(((completed / total) * 100)) : 0;
             }
 
             let title;
@@ -64,7 +70,7 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $rootScope.getWindowTitle = function () {
-            const ufc = ThResultSetStore.getAllUnclassifiedFailureCount();
+            const ufc = $rootScope.unclassifiedFailureCount;
             const revision = getUrlParam('revision');
 
             // repoName is undefined for the first few title update attempts, show something sensible
@@ -80,6 +86,7 @@ treeherderApp.controller('MainCtrl', [
             return title;
         };
 
+        $rootScope.unclassifiedFailureCount = 0;
         $rootScope.onscreenOverlayShowing = false;
 
         $rootScope.onscreenShortcutsShowing = false;
