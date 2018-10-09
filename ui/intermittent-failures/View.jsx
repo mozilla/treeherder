@@ -20,23 +20,23 @@ const withView = defaultState => WrappedComponent =>
 
     this.default = (this.props.location.state || defaultState);
     this.state = {
-                  errorMessages: [],
-                  initialParamsSet: false,
-                  tree: (this.default.tree || null),
-                  startday: (this.default.startday || null),
-                  endday: (this.default.endday || null),
-                  bug: (this.default.id || null),
-                  summary: (this.default.summary || null),
-                  tableData: {},
-                  tableFailureStatus: null,
-                  isFetchingTable: false,
-                  graphData: [],
-                  graphFailureStatus: null,
-                  isFetchingGraphs: false,
-                  page: 0,
-                  pageSize: 20,
-                  lastLocation: (this.default.location || null),
-                };
+      errorMessages: [],
+      initialParamsSet: false,
+      tree: (this.default.tree || null),
+      startday: (this.default.startday || null),
+      endday: (this.default.endday || null),
+      bug: (this.default.id || null),
+      summary: (this.default.summary || null),
+      tableData: {},
+      tableFailureStatus: null,
+      isFetchingTable: false,
+      graphData: [],
+      graphFailureStatus: null,
+      isFetchingGraphs: false,
+      page: 0,
+      pageSize: 20,
+      lastLocation: (this.default.location || null),
+    };
   }
 
   componentDidMount() {
@@ -172,7 +172,6 @@ const withView = defaultState => WrappedComponent =>
   }
 
   render() {
-
     const updateState = { updateState: this.updateState };
     const newProps = { ...this.props, ...this.state, ...updateState };
     return (

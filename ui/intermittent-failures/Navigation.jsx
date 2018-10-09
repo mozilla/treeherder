@@ -18,7 +18,6 @@ export default class Navigation extends React.Component {
   }
 
   render() {
-
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <span className="lightorange">Intermittent Failures View </span>

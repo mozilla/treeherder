@@ -30,11 +30,7 @@ const Layout = (props) => {
       {(isFetchingGraphs || isFetchingTable) &&
         !(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
         <div className="loading">
-          <Icon
-            spin
-            name="cog"
-            size="4x"
-          />
+          <Icon spin name="cog" size="4x" />
         </div>}
       {(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
         <ErrorMessages

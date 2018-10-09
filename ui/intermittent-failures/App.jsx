@@ -4,7 +4,7 @@ import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
 
-export default class App extends React.Component {
+class App extends React.Component {
     constructor(props) {
     super(props);
     this.updateAppState = this.updateAppState.bind(this);
@@ -52,3 +52,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default App;
