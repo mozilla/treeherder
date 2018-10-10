@@ -18,6 +18,7 @@ PlatformName.propTypes = {
 export default function Platform(props) {
   const {
     platform, $injector, repoName, filterPlatformCb, filterModel, pushGroupState,
+    duplicateJobsVisible, groupCountsExpanded,
   } = props;
   const { title, groups, id } = platform;
 
@@ -32,6 +33,8 @@ export default function Platform(props) {
         platform={platform}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
+        duplicateJobsVisible={duplicateJobsVisible}
+        groupCountsExpanded={groupCountsExpanded}
       />
     </tr>
   );
@@ -44,4 +47,6 @@ Platform.propTypes = {
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };

@@ -1,16 +1,12 @@
-import angular from 'angular';
 import React from 'react';
 import { mount } from 'enzyme';
 
 import { JobGroupComponent } from '../../../../ui/job-view/pushes/JobGroup';
-import { thEvents } from '../../../../ui/helpers/constants';
 import FilterModel from '../../../../ui/models/filter';
 
-const { getJSONFixture, inject } = window;
+const { getJSONFixture } = window;
 
 describe('JobGroup component', () => {
-  let $injector;
-  let $rootScope;
   let countGroup;
   let dupGroup;
   const repoName = 'mozilla-inbound';
@@ -18,14 +14,11 @@ describe('JobGroup component', () => {
   const pushGroupState = 'collapsed';
 
 
-  beforeEach(angular.mock.module('treeherder'));
-  beforeEach(inject((_$injector_) => {
-    $injector = _$injector_;
+  beforeEach(() => {
     jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
     countGroup = getJSONFixture('mappedGroup.json');
     dupGroup = getJSONFixture('mappedGroupDups.json');
-    $rootScope = $injector.get('$rootScope');
-  }));
+  });
 
   /*
       Tests Jobs view
@@ -33,13 +26,14 @@ describe('JobGroup component', () => {
   it('collapsed should show a job and count of 2', () => {
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
       />,
     );
     expect(jobGroup.html()).toEqual(
@@ -55,13 +49,14 @@ describe('JobGroup component', () => {
   it('should show a job and count of 2 when expanded, then re-collapsed', () => {
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
       />,
     );
     jobGroup.setState({ expanded: true });
@@ -79,13 +74,14 @@ describe('JobGroup component', () => {
   it('should show jobs, not counts when expanded', () => {
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
       />,
     );
     jobGroup.setState({ expanded: true });
@@ -103,19 +99,20 @@ describe('JobGroup component', () => {
   });
 
   it('should show jobs, not counts when globally expanded', () => {
+    const groupCountsExpanded = true;
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={countGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={groupCountsExpanded}
       />,
     );
 
-    $rootScope.$emit(thEvents.groupStateChanged, 'expanded');
     expect(jobGroup.html()).toEqual(
       '<span class="platform-group" data-group-key="313281W-e10s1linux64debug"><span class="disabled job-group" title="Web platform tests with e10s">' +
         '<button class="btn group-symbol">W-e10s</button>' +
@@ -132,13 +129,14 @@ describe('JobGroup component', () => {
   it('should hide duplicates by default', () => {
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
       />,
     );
 
@@ -155,19 +153,20 @@ describe('JobGroup component', () => {
   });
 
   it('should show 2 duplicates when set to show duplicates', () => {
+    const duplicateJobsVisible = true;
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={duplicateJobsVisible}
+        groupCountsExpanded={false}
       />,
     );
 
-    jobGroup.setState({ showDuplicateJobs: true });
     expect(jobGroup.html()).toEqual(
       '<span class="platform-group" data-group-key="313293SM1linux64opt"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +
@@ -182,19 +181,20 @@ describe('JobGroup component', () => {
   });
 
   it('should show 2 duplicates when globally set to show duplicates', () => {
+    const duplicateJobsVisible = true;
     const jobGroup = mount(
       <JobGroupComponent
-        $injector={$injector}
         repoName={repoName}
         group={dupGroup}
         filterPlatformCb={() => {}}
         filterModel={filterModel}
         pushGroupState={pushGroupState}
         platform={<span>windows</span>}
+        duplicateJobsVisible={duplicateJobsVisible}
+        groupCountsExpanded={false}
       />,
     );
 
-    $rootScope.$emit(thEvents.duplicateJobsVisibilityChanged);
     expect(jobGroup.html()).toEqual(
       '<span class="platform-group" data-group-key="313293SM1linux64opt"><span class="disabled job-group" title="Spidermonkey builds">' +
         '<button class="btn group-symbol">SM</button>' +

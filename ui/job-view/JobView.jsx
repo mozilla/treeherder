@@ -65,6 +65,8 @@ class JobView extends React.Component {
       classificationTypes: [],
       classificationMap: {},
       hasSelectedJob,
+      groupCountsExpanded: urlParams.get('group_state') === 'expanded',
+      duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
     };
   }
 
@@ -161,12 +163,15 @@ class JobView extends React.Component {
 
   handleUrlChanges() {
     const filterModel = new FilterModel();
+    const urlParams = getAllUrlParams();
 
     this.$rootScope.filterModel = filterModel;
     this.setState({
       filterModel,
       serverChanged: false,
       hasSelectedJob: getAllUrlParams().has('selectedJob'),
+      groupCountsExpanded: urlParams.get('group_state') === 'expanded',
+      duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
     });
   }
 
@@ -200,7 +205,7 @@ class JobView extends React.Component {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
-      filterModel, hasSelectedJob, revision,
+      filterModel, hasSelectedJob, revision, duplicateJobsVisible, groupCountsExpanded,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -245,6 +250,8 @@ class JobView extends React.Component {
                 user={user}
                 setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
                 getAllShownJobs={this.getAllShownJobs}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
                 $injector={$injector}
               />
               <SplitPane
@@ -273,6 +280,8 @@ class JobView extends React.Component {
                         currentRepo={currentRepo}
                         filterModel={filterModel}
                         $injector={$injector}
+                        duplicateJobsVisible={duplicateJobsVisible}
+                        groupCountsExpanded={groupCountsExpanded}
                       />
                     </span>
                   </div>

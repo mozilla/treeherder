@@ -137,7 +137,10 @@ class PushJobs extends React.Component {
 
   render() {
     const filteredPlatforms = this.state.filteredPlatforms || [];
-    const { $injector, repoName, filterModel, pushGroupState } = this.props;
+    const {
+      $injector, repoName, filterModel, pushGroupState, duplicateJobsVisible,
+      groupCountsExpanded,
+    } = this.props;
 
     return (
       <table id={this.aggregateId} className="table-hover" data-job-clear-on-click>
@@ -152,6 +155,8 @@ class PushJobs extends React.Component {
             filterModel={filterModel}
             pushGroupState={pushGroupState}
             filterPlatformCb={this.filterPlatformCallback}
+            duplicateJobsVisible={duplicateJobsVisible}
+            groupCountsExpanded={groupCountsExpanded}
           />
         )) : <tr>
           <td><span className="fa fa-spinner fa-pulse th-spinner" /></td>
@@ -173,6 +178,8 @@ PushJobs.propTypes = {
   pushGroupState: PropTypes.string.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
   selectedJob: PropTypes.object,
 };
 

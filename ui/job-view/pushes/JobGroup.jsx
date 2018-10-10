@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 
 import { withSelectedJob } from '../context/SelectedJob';
-import { thFailureResults, thEvents } from '../../helpers/constants';
+import { thFailureResults } from '../../helpers/constants';
 import { getBtnClass, getStatus } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import JobButton from './JobButton';
@@ -37,15 +37,13 @@ GroupSymbol.defaultProps = {
 export class JobGroupComponent extends React.Component {
   constructor(props) {
     super(props);
-    const { $injector, pushGroupState } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
+    const { pushGroupState } = this.props;
 
     // The group should be expanded initially if the global group state is expanded
     const groupState = getUrlParam('group_state');
-    const duplicateJobs = getUrlParam('duplicate_jobs');
+
     this.state = {
       expanded: groupState === 'expanded' || pushGroupState === 'expanded',
-      showDuplicateJobs: duplicateJobs === 'visible',
     };
   }
 
@@ -56,28 +54,7 @@ export class JobGroupComponent extends React.Component {
   }
 
   componentDidMount() {
-    // TODO: Move this state up to PushList and pass groupState and duplicates
-    // as props.  In PushList, it will listen for history changes to set
-    // the values.
-    this.duplicateJobsVisibilityChangedUnlisten = this.$rootScope.$on(
-      thEvents.duplicateJobsVisibilityChanged,
-      () => {
-        this.setState({ showDuplicateJobs: !this.state.showDuplicateJobs });
-      },
-    );
-
-    this.groupStateChangedUnlisten = this.$rootScope.$on(
-      thEvents.groupStateChanged,
-      (e, newState) => {
-        this.setState({ expanded: newState === 'expanded' });
-      },
-    );
     this.toggleExpanded = this.toggleExpanded.bind(this);
-  }
-
-  componentWillUnmount() {
-    this.duplicateJobsVisibilityChangedUnlisten();
-    this.groupStateChangedUnlisten();
   }
 
   setExpanded(isExpanded) {
@@ -88,12 +65,12 @@ export class JobGroupComponent extends React.Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
-  groupButtonsAndCounts(jobs, expanded, showDuplicateJobs) {
-    const { selectedJob } = this.props;
+  groupButtonsAndCounts(jobs, expanded) {
+    const { selectedJob, duplicateJobsVisible, groupCountsExpanded } = this.props;
     let buttons = [];
     const counts = [];
 
-    if (expanded) {
+    if (expanded || groupCountsExpanded) {
       // All buttons should be shown when the group is expanded
       buttons = jobs;
     } else {
@@ -107,7 +84,7 @@ export class JobGroupComponent extends React.Component {
           countText: status,
         };
         if (thFailureResults.includes(status) ||
-          (typeSymbolCounts[job.job_type_symbol] > 1 && showDuplicateJobs)) {
+          (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)) {
           // render the job itself, not a count
           buttons.push(job);
         } else {
@@ -142,12 +119,8 @@ export class JobGroupComponent extends React.Component {
       repoName, filterPlatformCb, platform, filterModel,
       group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs, mapKey: groupMapKey },
     } = this.props;
-    const { expanded, showDuplicateJobs } = this.state;
-    const { buttons, counts } = this.groupButtonsAndCounts(
-      groupJobs,
-      expanded,
-      showDuplicateJobs,
-    );
+    const { expanded } = this.state;
+    const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
 
     return (
       <span
@@ -204,7 +177,8 @@ JobGroupComponent.propTypes = {
   filterPlatformCb: PropTypes.func.isRequired,
   platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
-  $injector: PropTypes.object.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
   selectedJob: PropTypes.object,
 };
 

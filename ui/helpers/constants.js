@@ -243,8 +243,6 @@ export const thEvents = {
   jobRetrigger: 'job-retrigger-EVT',
   // fired when jobs are classified locally
   jobsClassified: 'jobs-classified-EVT',
-  groupStateChanged: 'group-state-changed-EVT',
-  duplicateJobsVisibilityChanged: 'duplicate-jobs-visibility-changed-EVT',
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',

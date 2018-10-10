@@ -18,7 +18,8 @@ class PushList extends React.Component {
   render() {
     const {
       $injector, user, repoName, revision, currentRepo, filterModel, pushList,
-      loadingPushes, getNextPushes, jobsLoaded,
+      loadingPushes, getNextPushes, jobsLoaded, duplicateJobsVisible,
+      groupCountsExpanded,
     } = this.props;
     const { notificationSupported } = this.state;
     const { isLoggedIn } = user;
@@ -40,6 +41,8 @@ class PushList extends React.Component {
               filterModel={filterModel}
               $injector={$injector}
               notificationSupported={notificationSupported}
+              duplicateJobsVisible={duplicateJobsVisible}
+              groupCountsExpanded={groupCountsExpanded}
             />
           </ErrorBoundary>
         ))}
@@ -83,6 +86,8 @@ PushList.propTypes = {
   getNextPushes: PropTypes.func.isRequired,
   loadingPushes: PropTypes.bool.isRequired,
   jobsLoaded: PropTypes.bool.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };

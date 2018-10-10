@@ -14,7 +14,8 @@ import SecondaryNavBar from './SecondaryNavBar';
 export default function PrimaryNavBar(props) {
   const {
     user, setUser, repos, updateButtonClick, serverChanged,
-    filterModel, $injector, setCurrentRepoTreeStatus,
+    filterModel, $injector, setCurrentRepoTreeStatus, duplicateJobsVisible,
+    groupCountsExpanded,
   } = props;
 
   return (
@@ -48,6 +49,8 @@ export default function PrimaryNavBar(props) {
             filterModel={filterModel}
             repos={repos}
             setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
+            duplicateJobsVisible={duplicateJobsVisible}
+            groupCountsExpanded={groupCountsExpanded}
           />
         </nav>
       </div>
@@ -64,4 +67,6 @@ PrimaryNavBar.propTypes = {
   setUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
+  duplicateJobsVisible: PropTypes.bool.isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };
