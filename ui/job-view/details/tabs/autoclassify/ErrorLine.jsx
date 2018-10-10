@@ -56,16 +56,12 @@ class ErrorLine extends React.Component {
     this.autoclassifyIgnoreUnlisten = this.$rootScope.$on(thEvents.autoclassifyIgnore,
                    () => this.onEventIgnore());
 
-    this.autoclassifyToggleExpandOptionsUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleExpandOptions,
-                   () => this.onEventToggleExpandOptions());
-
     this.onOptionChange = this.onOptionChange.bind(this);
     this.onManualBugNumberChange = this.onManualBugNumberChange.bind(this);
   }
 
   componentWillUnmount() {
     this.autoclassifyIgnoreUnlisten();
-    this.autoclassifyToggleExpandOptionsUnlisten();
   }
 
   /**
@@ -87,16 +83,6 @@ class ErrorLine extends React.Component {
       selectedOption.ignoreAlways = !selectedOption.ignoreAlways;
       this.onOptionChange(selectedOption);
     }
-  }
-
-  /**
-   * Expand or collapse hidden options
-   */
-  onEventToggleExpandOptions() {
-    if (!this.props.isSelected || !this.state.isEditable) {
-      return;
-    }
-    this.setState({ showHidden: !this.state.showHidden });
   }
 
   /**
