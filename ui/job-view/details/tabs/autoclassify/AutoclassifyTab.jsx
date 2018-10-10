@@ -41,9 +41,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
-      () => this.onToggleEditable());
-
     // TODO: Once we're not using ng-react any longer and
     // are hosted completely in React, then try moving this
     // .bind code to the constructor.
@@ -68,10 +65,6 @@ class AutoclassifyTab extends React.Component {
     if (this.props.selectedJob.id !== prevProps.selectedJob.id) {
       this.fetchErrorData();
     }
-  }
-
-  componentWillUnmount() {
-    this.autoclassifyToggleEditUnlisten();
   }
 
   /**

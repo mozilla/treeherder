@@ -249,7 +249,6 @@ export const thEvents = {
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
-  autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
   toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
 };
 
