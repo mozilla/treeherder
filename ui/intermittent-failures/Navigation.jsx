@@ -45,10 +45,9 @@ Nav.propTypes = {
 
 Navigation.propTypes = {
   tree: PropTypes.string,
-  updateState: PropTypes.func,
+  updateState: PropTypes.func.isRequired,
 };
 
 Navigation.defaultProps = {
   tree: null,
-  updateState: null,
 };
