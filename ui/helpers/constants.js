@@ -248,15 +248,7 @@ export const thEvents = {
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
-  autoclassifyVerified: 'ac-verified-EVT',
-  autoclassifySaveAll: 'ac-save-all-EVT',
-  autoclassifySave: 'ac-save-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
-  autoclassifySelectOption: 'ac-select-EVT',
-  autoclassifyChangeSelection: 'ac-change-selection-EVT',
-  autoclassifyToggleExpandOptions: 'ac-toggle-expand-options-EVT',
-  autoclassifyToggleEdit: 'ac-toggle-edit-EVT',
-  autoclassifyOpenLogViewer: 'ac-open-log-viewer-EVT',
   toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
 };
 

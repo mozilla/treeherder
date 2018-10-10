@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thEvents } from '../../../../helpers/constants';
-import { getLogViewerUrl, getProjectJobUrl } from '../../../../helpers/url';
+import { getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 
 import AutoclassifyToolbar from './AutoclassifyToolbar';
@@ -41,39 +41,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    this.autoclassifyChangeSelectionUnlisten = this.$rootScope.$on(thEvents.autoclassifyChangeSelection,
-      (ev, direction, clear) => this.onChangeSelection(direction, clear));
-
-    this.autoclassifySaveAllUnlisten = this.$rootScope.$on(thEvents.autoclassifySaveAll,
-      () => {
-        const pendingLines = Array.from(this.state.inputByLine.values());
-        if (pendingLines.every(line => this.canSave(line.id))) {
-          this.onSaveAll(pendingLines);
-        } else {
-          const msg = (this.state.canClassify ? 'lines not classified' : 'Not logged in');
-          this.thNotify.send(`Can't save: ${msg}`, 'danger');
-        }
-      });
-
-    this.autoclassifySaveUnlisten = this.$rootScope.$on(thEvents.autoclassifySave,
-      () => {
-        const { selectedLineIds, canClassify } = this.state;
-
-        if (Array.from(selectedLineIds).every(id => this.canSave(id))) {
-          this.onSave();
-        } else {
-          const msg = (canClassify ? 'selected lines not classified' : 'Not logged in');
-          this.thNotify.send(`Can't save: ${msg}`, 'danger');
-        }
-      },
-    );
-
-    this.autoclassifyToggleEditUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleEdit,
-      () => this.onToggleEditable());
-
-    this.autoclassifyOpenLogViewerUnlisten = this.$rootScope.$on(thEvents.autoclassifyOpenLogViewer,
-      () => this.onOpenLogViewer());
-
     // TODO: Once we're not using ng-react any longer and
     // are hosted completely in React, then try moving this
     // .bind code to the constructor.
@@ -81,8 +48,6 @@ class AutoclassifyTab extends React.Component {
     this.setErrorLineInput = this.setErrorLineInput.bind(this);
     this.jobChanged = this.jobChanged.bind(this);
     this.onToggleEditable = this.onToggleEditable.bind(this);
-    this.onChangeSelection = this.onChangeSelection.bind(this);
-    this.onOpenLogViewer = this.onOpenLogViewer.bind(this);
     this.onIgnore = this.onIgnore.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onSaveAll = this.onSaveAll.bind(this);
@@ -102,14 +67,6 @@ class AutoclassifyTab extends React.Component {
     }
   }
 
-  componentWillUnmount() {
-    this.autoclassifyChangeSelectionUnlisten();
-    this.autoclassifySaveAllUnlisten();
-    this.autoclassifySaveUnlisten();
-    this.autoclassifyToggleEditUnlisten();
-    this.autoclassifyOpenLogViewerUnlisten();
-  }
-
   /**
    * Save all pending lines
    */
@@ -117,7 +74,6 @@ class AutoclassifyTab extends React.Component {
     const pending = pendingLines || Array.from(this.state.inputByLine.values());
     this.save(pending)
       .then(() => {
-        this.signalFullyClassified();
         this.setState({ selectedLineIds: new Set() });
       });
   }
@@ -126,12 +82,7 @@ class AutoclassifyTab extends React.Component {
    * Save all selected lines
    */
   onSave() {
-    this.save(this.getSelectedLines())
-      .then(() => {
-        if (this.getPendingLines().length === 0) {
-          this.signalFullyClassified();
-        }
-      });
+    this.save(this.getSelectedLines());
   }
 
   /**
@@ -155,70 +106,6 @@ class AutoclassifyTab extends React.Component {
     const editable = selectedIds.some(id => !editableLineIds.has(id));
 
     this.setEditable(selectedIds, editable);
-  }
-
-  onOpenLogViewer() {
-    const { selectedJob } = this.props;
-    const { selectedLineIds, errorLines } = this.state;
-    let lineNumber = null;
-
-    if (selectedLineIds.size) {
-      lineNumber = errorLines.find(line => selectedLineIds.has(line.id)).data.line_number + 1;
-    }
-    window.open(getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, lineNumber));
-  }
-
-  /**
-   * Pre-determined selection changes, typically for use in response to
-   * key events.
-   * @param {string} direction - 'next': move selection down one row if clear is true.
-   *                                 If clear is false, extend the selection down one row.
-   *                             'previous': move selection up one row if clear is true.
-   *                                 If clear is false, extend the selection up one row.
-   *                             'all_next': Select all rows in the current job after the
-   *                                 current selected row.
-   * @param {boolean} clear - Clear the current selection before selecting new elements
-   */
-  onChangeSelection(direction, clear) {
-    const { errorLines, selectedLineIds } = this.state;
-
-    if (selectedLineIds.size) {
-      // something already selected, determine the next selection
-      const selectedLines = errorLines.filter(line => selectedLineIds.has(line.id));
-      const lastSelected = selectedLines[selectedLines.length - 1];
-      const firstSelected = selectedLines[0];
-
-      if (clear) {
-        selectedLineIds.clear();
-      }
-      if (direction === 'next') {
-        // try to select the next line.
-        const nextIdx = errorLines.indexOf(lastSelected) + 1;
-        const toAdd = errorLines.length > nextIdx ? errorLines[nextIdx] : lastSelected;
-
-        selectedLineIds.add(toAdd.id);
-      } else if (direction === 'previous') {
-        // try to select the previous line.
-        const prevIdx = errorLines.indexOf(firstSelected) - 1;
-        const toAdd = prevIdx >= 0 ? errorLines[prevIdx] : firstSelected;
-
-        selectedLineIds.add(toAdd.id);
-      } else if (direction === 'all_next') {
-        const toAdd = errorLines.slice(errorLines.indexOf(lastSelected));
-        toAdd.forEach(line => selectedLineIds.add(line.id));
-      }
-    } else {
-      const firstUnverified = errorLines.find(line => !line.verified);
-      if (firstUnverified) {
-        selectedLineIds.add(firstUnverified.id);
-      }
-    }
-    this.setState({ selectedLineIds });
-
-    // Scroll the first selected index into view
-    const newFirstSelectedIdx = errorLines.findIndex(line => selectedLineIds.has(line.id));
-    $('.autoclassify-error-lines .error-line')[newFirstSelectedIdx]
-        .scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getPendingLines() {
@@ -263,16 +150,6 @@ class AutoclassifyTab extends React.Component {
 
     inputByLine.set(id, input);
     this.setState({ inputByLine });
-  }
-
-  /**
-   * Emit an event indicating that the job has been fully classified
-   */
-  signalFullyClassified() {
-    const { selectedJob } = this.props;
-
-    // Emit this event to get the main UI to update
-    this.$rootScope.$emit(thEvents.autoclassifyVerified, { jobs: { [selectedJob.id]: selectedJob } });
   }
 
   /**

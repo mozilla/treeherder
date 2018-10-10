@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup } from 'reactstrap';
@@ -54,23 +53,15 @@ class ErrorLine extends React.Component {
   }
 
   componentDidMount() {
-    this.autoclassifySelectOptionUnlisten = this.$rootScope.$on(thEvents.autoclassifySelectOption,
-      (ev, key) => this.onEventSelectOption(key));
-
     this.autoclassifyIgnoreUnlisten = this.$rootScope.$on(thEvents.autoclassifyIgnore,
                    () => this.onEventIgnore());
-
-    this.autoclassifyToggleExpandOptionsUnlisten = this.$rootScope.$on(thEvents.autoclassifyToggleExpandOptions,
-                   () => this.onEventToggleExpandOptions());
 
     this.onOptionChange = this.onOptionChange.bind(this);
     this.onManualBugNumberChange = this.onManualBugNumberChange.bind(this);
   }
 
   componentWillUnmount() {
-    this.autoclassifySelectOptionUnlisten();
     this.autoclassifyIgnoreUnlisten();
-    this.autoclassifyToggleExpandOptionsUnlisten();
   }
 
   /**
@@ -92,51 +83,6 @@ class ErrorLine extends React.Component {
       selectedOption.ignoreAlways = !selectedOption.ignoreAlways;
       this.onOptionChange(selectedOption);
     }
-  }
-
-  /**
-   * Select a specified options
-   * @param {string} option - numeric id of the option to select or '=' to select the
-   manual option
-   */
-  onEventSelectOption(option) {
-    const { isSelected, errorLine } = this.props;
-    const { isEditable, options } = this.state;
-    let id;
-
-    if (!isSelected || !isEditable) {
-      return;
-    }
-    if (option === 'manual') {
-      id = `${errorLine.id}-manual`;
-    } else {
-      const idx = parseInt(option);
-      const selectableOptions = options.filter(option => option.selectable);
-      if (selectableOptions[idx]) {
-        id = selectableOptions[idx].id;
-      }
-    }
-    if (!this.optionsById.has(id)) {
-      return;
-    }
-    if (id !== this.state.selectedOption.id) {
-      this.state.selectedOption.id = id;
-
-      this.optionChanged();
-    }
-    if (option === '=') {
-      $(`#${this.props.errorLine.id}-manual-bug`).focus();
-    }
-  }
-
-  /**
-   * Expand or collapse hidden options
-   */
-  onEventToggleExpandOptions() {
-    if (!this.props.isSelected || !this.state.isEditable) {
-      return;
-    }
-    this.setState({ showHidden: !this.state.showHidden });
   }
 
   /**
