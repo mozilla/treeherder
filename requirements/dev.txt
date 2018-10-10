@@ -139,5 +139,6 @@ zope.interface==4.5.0 \
     --hash=sha256:e6b77ae84f2b8502d99a7855fa33334a1eb6159de45626905cb3e454c023f339 \
     --hash=sha256:a1daf9c5120f3cc6f2b5fef8e1d2a3fb7bbbb20ed4bfdc25bc8364bc62dcf54b \
     --hash=sha256:57c38470d9f57e37afb460c399eb254e7193ac7fb8042bd09bdc001981a9c74c
-zope.component==4.4.1 \
-    --hash=sha256:2776ab93945c8df3781fdcc2126dc7080e9a1d64fef5f76a21550473cbb505bf
+zope.component==4.5 \
+    --hash=sha256:984a06ba3def0b02b1117fa4c45b56e772e8c29c0340820fbf367e440a93a3a4 \
+    --hash=sha256:6edfd626c3b593b72895a8cfcf79bff41f4619194ce996a85bce31ac02b94e55
