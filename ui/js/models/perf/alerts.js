@@ -318,6 +318,10 @@ treeherder.factory('PhAlerts', [
                         params[params.length] = ('alerts__series_signature=' +
                                                  options.signatureId);
                     }
+                    if (options && options.seriesSignature !== undefined) {
+                        params[params.length] = ('alerts__series_signature__signature_hash=' +
+                                                 options.seriesSignature);
+                    }
                     if (options && options.repository !== undefined) {
                         params[params.length] = ('repository=' +
                                                  options.repository);
