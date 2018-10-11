@@ -18,11 +18,11 @@ import PropTypes from 'prop-types';
 
 export default class Graph extends React.Component {
 
-  componentWillReceiveProps(nextProps) {
-    const { specs } = this.props;
-    if (specs.data !== nextProps.data) {
-      specs.data = nextProps.data;
-      MG.data_graphic(this.props.specs);
+  componentDidUpdate() {
+    const { specs, data } = this.props;
+    if (specs.data !== data) {
+      specs.data = data;
+      MG.data_graphic(specs);
     }
   }
 
@@ -32,7 +32,7 @@ export default class Graph extends React.Component {
 
       specs.target = element;
       specs.data = data;
-      MG.data_graphic(this.props.specs);
+      MG.data_graphic(specs);
     }
   }
 
