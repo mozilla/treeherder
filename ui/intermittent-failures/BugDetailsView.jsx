@@ -49,7 +49,7 @@ const BugDetailsView = (props) => {
     {
       Header: 'Test Suite',
       accessor: 'test_suite',
-      minWidth: 200,
+      minWidth: 150,
     },
     {
       Header: 'Machine Name',

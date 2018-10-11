@@ -270,13 +270,19 @@ class FailuresSerializer(serializers.ModelSerializer):
 
 
 class TestSuiteField(serializers.Field):
-    """Removes all characters before /"""
-    def to_representation(self, field_value):
-        return re.sub(r'.+/', '', field_value)
+    """Removes all characters from test_suite that's also found in platform"""
+
+    def to_representation(self, value):
+        build_type = value['build_type']
+        platform = value['job__machine_platform__platform']
+        test_suite = value['job__signature__job_type_name']
+        new_string = test_suite.replace('test-{}'.format(platform), '')
+        new_test_suite = new_string.replace(build_type, '')
+        return re.sub(r'^.(/|-)|(/|-)$', '', new_test_suite)
 
 
 class FailuresByBugSerializer(serializers.ModelSerializer):
-    test_suite = TestSuiteField(source="job__signature__job_type_name")
+    test_suite = TestSuiteField(source='*')
     platform = serializers.CharField(source="job__machine_platform__platform")
     revision = serializers.CharField(source="job__push__revision")
     tree = serializers.CharField(source="job__repository__name")
