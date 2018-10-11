@@ -73,11 +73,11 @@ class Push extends React.Component {
   getJobGroupInfo(job) {
     const {
       job_group_name: name, job_group_symbol,
-      platform, platform_option, tier,
+      platform, platform_option, tier, push_id,
     } = job;
     const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
     const mapKey = getGroupMapKey(
-      symbol, tier, platform, platform_option);
+      push_id, symbol, tier, platform, platform_option);
 
     return { name, tier, symbol, mapKey };
   }
@@ -128,8 +128,12 @@ class Push extends React.Component {
   }
 
   mapPushJobs(jobs, skipJobMap) {
+    const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
+
+    // whether or not we got any jobs for this push, the operation to fetch
+    // them has completed.
+    push.jobsLoaded = true;
     if (jobs.length > 0) {
-      const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
       const { jobList } = this.state;
       const newIds = jobs.map(job => job.id);
       // remove old versions of jobs we just fetched.

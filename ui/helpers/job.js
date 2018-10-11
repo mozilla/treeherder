@@ -122,12 +122,17 @@ export const scrollToElement = function scrollToElement(el, duration) {
   }
 };
 
-export const findGroupInstance = function findGroupInstance(job) {
+export const findGroupElement = function findGroupElement(job) {
   const { push_id, job_group_symbol, tier, platform, platform_option } = job;
   const groupMapKey = getGroupMapKey(push_id, job_group_symbol, tier, platform, platform_option);
   const viewContent = $('.th-view-content');
-  const groupEl = viewContent.find(
+
+  return viewContent.find(
     `span[data-group-key='${groupMapKey}']`).first();
+};
+
+export const findGroupInstance = function findGroupInstance(job) {
+  const groupEl = findGroupElement(job);
 
   if (groupEl.length) {
     return findInstance(groupEl[0]);

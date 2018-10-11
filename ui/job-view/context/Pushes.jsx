@@ -351,8 +351,6 @@ export class Pushes extends React.Component {
     const { jobMap, pushList } = this.state;
 
     if (jobList.length) {
-      const push = pushList.find(push => push.id === jobList[0].push_id);
-      push.jobsLoaded = true;
       // lodash ``keyBy`` is significantly faster than doing a ``reduce``
       this.setValue({
         jobMap: { ...jobMap, ...keyBy(jobList, 'id') },
