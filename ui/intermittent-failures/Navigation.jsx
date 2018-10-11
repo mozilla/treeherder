@@ -18,6 +18,7 @@ export default class Navigation extends React.Component {
   }
 
   render() {
+    const { updateState, tree } = this.props;
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <span className="lightorange">Intermittent Failures View </span>
@@ -29,8 +30,8 @@ export default class Navigation extends React.Component {
             </DropdownToggle>
             <DropdownMenuItems
               options={treeOptions}
-              updateData={tree => this.props.updateState({ tree })}
-              default={this.props.tree}
+              updateData={tree => updateState({ tree })}
+              selectedItem={tree}
             />
           </UncontrolledDropdown>
         </Collapse>

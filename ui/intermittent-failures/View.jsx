@@ -43,10 +43,10 @@ const withView = defaultState => WrappedComponent =>
     this.setQueryParams();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { location } = nextProps;
+  componentDidUpdate(prevProps) {
+    const { location } = this.props;
     // update all data if the user edits dates, tree or bug via the query params
-    if (location.search !== this.props.location.search) {
+    if (prevProps.location.search !== location.search) {
       this.checkQueryValidation(parseQueryParams(location.search), this.state.initialParamsSet);
     }
   }
@@ -86,7 +86,7 @@ const withView = defaultState => WrappedComponent =>
     this.setState({ tableFailureStatus: null, isFetchingTable: true });
     const { data, failureStatus } = await getData(url);
 
-    if (defaultState.route === '/main' && !failureStatus) {
+    if (defaultState.route === '/main' && !failureStatus && data.results.length) {
       const bugs_list = formatBugs(data.results);
       const bugzillaUrl = bugzillaBugsApi('bug', {
         include_fields: 'id,status,summary,whiteboard',
