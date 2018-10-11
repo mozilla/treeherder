@@ -4,9 +4,11 @@ import $ from 'jquery';
 
 import { thJobNavSelectors } from '../../helpers/constants';
 import {
+  findGroupElement,
   findGroupInstance,
   findJobInstance,
   findSelectedInstance,
+  scrollToElement,
 } from '../../helpers/job';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { getJobsUrl } from '../../helpers/url';
@@ -130,6 +132,13 @@ class SelectedJobClass extends React.Component {
     const newSelectedElement = findJobInstance(job.id, true);
     if (newSelectedElement) {
       newSelectedElement.setSelected(true);
+    } else {
+      // If the job is in a group count, then the job element won't exist, but
+      // its group will.  We can try scrolling to that.
+      const groupEl = findGroupElement(job);
+      if (groupEl) {
+        scrollToElement(groupEl);
+      }
     }
 
     // If a timeout is passed in, this will cause a pause before
