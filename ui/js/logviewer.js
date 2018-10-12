@@ -1,8 +1,9 @@
 import angular from 'angular';
+import ngSanitize from 'angular-sanitize';
 
 import treeherderModule from './treeherder';
 
-const logViewerApp = angular.module('logviewer', [treeherderModule.name]);
+const logViewerApp = angular.module('logviewer', [treeherderModule.name, ngSanitize]);
 
 logViewerApp.config(['$compileProvider', '$locationProvider',
     function ($compileProvider, $locationProvider) {
