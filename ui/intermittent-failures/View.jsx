@@ -109,7 +109,7 @@ const withView = defaultState => WrappedComponent =>
   updateState(updatedObj, updateTable = false) {
     this.setState(updatedObj, () => {
       const { startday, endday, tree, page, pageSize, bug } = this.state;
-      const params = { startday, endday, tree, page, pageSize };
+      const params = { startday, endday, tree, page, page_size: pageSize };
 
       if (bug) {
         params.bug = bug;
