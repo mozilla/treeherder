@@ -1,11 +1,9 @@
 import angular from 'angular';
-import uiBootstrap from 'angular1-ui-bootstrap4';
 
 import treeherderModule from './treeherder';
 
 const treeherderApp = angular.module('treeherder.app', [
   treeherderModule.name,
-  uiBootstrap,
 ]);
 
 treeherderApp.config(['$compileProvider',
