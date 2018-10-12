@@ -34,11 +34,9 @@ module.exports = neutrino => {
         const jsDeps = [
             'angular',
             'angular-local-storage',
-            'angular-route',
             'angular-sanitize',
             // This must be after `angular` since otherwise window.angular will not be defined.
             '@uirouter/angularjs',
-            'angular1-ui-bootstrap4',
             'auth0-js',
             'bootstrap',
             'hawk',
