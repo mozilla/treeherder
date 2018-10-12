@@ -60,6 +60,12 @@ export const isReftest = function isReftest(job) {
     .some(name => name.toLowerCase().includes('reftest'));
 };
 
+export const isPerfTest = function isPerfTest(job) {
+  return [job.job_group_name, job.job_type_name]
+    .some(name => name.toLowerCase().includes('talos') ||
+                  name.toLowerCase().includes('raptor'));
+};
+
 export const isClassified = function isClassified(job) {
   return !thUnclassifiedIds.includes(job.failure_classification_id);
 };

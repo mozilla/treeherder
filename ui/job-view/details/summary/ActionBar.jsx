@@ -4,7 +4,7 @@ import $ from 'jquery';
 
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
-import { isReftest } from '../../../helpers/job';
+import { isReftest, isPerfTest } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -51,6 +51,7 @@ class ActionBar extends React.Component {
     });
 
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
+    this.createGeckoProfile = this.createGeckoProfile.bind(this);
     this.createInteractiveTask = this.createInteractiveTask.bind(this);
   }
 
@@ -62,6 +63,44 @@ class ActionBar extends React.Component {
   canCancel() {
     const { selectedJob } = this.props;
     return selectedJob.state === 'pending' || selectedJob.state === 'running';
+  }
+
+  createGeckoProfile() {
+    const { user, selectedJob, getGeckoDecisionTaskId } = this.props;
+    if (!user.isLoggedIn) {
+      return this.thNotify.send('Must be logged in to create a gecko profile', 'danger');
+    }
+
+    getGeckoDecisionTaskId(
+      selectedJob.push_id).then(decisionTaskId => (
+      TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
+        const geckoprofile = results.actions.find(result => result.name === 'geckoprofile');
+
+        if (geckoprofile === undefined || !geckoprofile.hasOwnProperty('kind')) {
+          return this.thNotify.send('Job was scheduled without taskcluster support for GeckoProfiles');
+        }
+
+        TaskclusterModel.submit({
+          action: geckoprofile,
+          decisionTaskId,
+          taskId: results.originalTaskId,
+          task: results.originalTask,
+          input: {},
+          staticActionVariables: results.staticActionVariables,
+        }).then(() => {
+          this.thNotify.send(
+            'Request sent to collect gecko profile job via actions.json',
+            'success');
+        }, (e) => {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          this.thNotify.send(
+            formatTaskclusterError(e),
+            'danger',
+            { sticky: true });
+        });
+      })
+    ));
   }
 
   retriggerJob(jobs) {
@@ -303,6 +342,12 @@ class ActionBar extends React.Component {
                       onClick={this.createInteractiveTask}
                     >Create Interactive Task</a>
                   </li>
+                  {isPerfTest(selectedJob) && <li>
+                    <a
+                      className="dropdown-item"
+                      onClick={this.createGeckoProfile}
+                    >Create Gecko Profile</a>
+                  </li>}
                   <li>
                     <a
                       onClick={this.toggleCustomJobActions}
