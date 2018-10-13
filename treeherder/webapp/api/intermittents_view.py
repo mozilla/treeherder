@@ -88,8 +88,7 @@ class FailuresByBug(generics.ListAPIView):
 
         for item in self.queryset:
             item['lines'] = grouped_lines.get(item['job_id'], [])
-
-            match = filter(lambda x: item['job__option_collection_hash'] == x, hash_list)
+            match = [item['job__option_collection_hash'] for x in hash_list if item['job__option_collection_hash'] == x]
             if not match:
                 hash_list.append(item['job__option_collection_hash'])
 
@@ -98,11 +97,9 @@ class FailuresByBug(generics.ListAPIView):
                                               .values('option__name', 'option_collection_hash'))
 
         for item in self.queryset:
-            # Casting to list since Python 3's `filter` produces an iterator
-            # rather than a list, which is not subscriptable.
-            match = list(filter(lambda x: item['job__option_collection_hash'] == x['option_collection_hash'], hash_query))
+            match = [x['option__name'] for x in hash_query if x['option_collection_hash'] == item['job__option_collection_hash']]
             if match:
-                item['build_type'] = match[0]['option__name']
+                item['build_type'] = match[0]
             else:
                 item['build_type'] = 'unknown'
 
@@ -157,9 +154,7 @@ class FailureCount(generics.ListAPIView):
         # add a new object with push_query data and a default for failure_count
         self.queryset = []
         for push in push_query:
-            # Casting to list since Python 3's `filter` produces an iterator
-            # rather than a list, which is not subscriptable.
-            match = list(filter(lambda x: push['date'] == x['date'], job_query))
+            match = [job for job in job_query if push['date'] == job['date']]
             if match:
                 match[0]['test_runs'] = push['test_runs']
                 self.queryset.append(match[0])
