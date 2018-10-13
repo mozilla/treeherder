@@ -22,6 +22,7 @@ import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import NotificationList from '../shared/NotificationList';
+import ShortcutTable from '../shared/ShortcutTable';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -68,6 +69,7 @@ class JobView extends React.Component {
       hasSelectedJob,
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
+      showShortCuts: false,
     };
   }
 
@@ -85,6 +87,7 @@ class JobView extends React.Component {
     this.updateDimensions = this.updateDimensions.bind(this);
     this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
     this.handleUrlChanges = this.handleUrlChanges.bind(this);
+    this.showOnScreenShortcuts = this.showOnScreenShortcuts.bind(this);
 
     RepositoryModel.getList().then((repos) => {
       const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
@@ -162,6 +165,14 @@ class JobView extends React.Component {
     document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
   }
 
+  // If showing is a boolean, then set to that value.  If it's not, then toggle
+  showOnScreenShortcuts(showing) {
+    const { showShortCuts } = this.state;
+    const newValue = typeof showing !== 'boolean' ? !showShortCuts : showing;
+
+    this.setState({ showShortCuts: newValue });
+  }
+
   handleUrlChanges() {
     const filterModel = new FilterModel();
     const urlParams = getAllUrlParams();
@@ -207,6 +218,7 @@ class JobView extends React.Component {
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
       currentRepo, repoName, repos, classificationTypes, classificationMap,
       filterModel, hasSelectedJob, revision, duplicateJobsVisible, groupCountsExpanded,
+      showShortCuts,
     } = this.state;
 
     // TODO: Move this to the constructor.  We are hitting some issues where
@@ -232,74 +244,87 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <Notifications>
-        <Pushes filterModel={filterModel} $injector={$injector}>
-          <PinnedJobs>
-            <SelectedJob>
-              <KeyboardShortcuts
-                filterModel={filterModel}
-                $injector={$injector}
-              >
-                <PrimaryNavBar
-                  repos={repos}
-                  updateButtonClick={this.updateButtonClick}
-                  serverChanged={serverChanged}
+      <div id="global-container" className="d-flex flex-column h-100">
+        <Notifications>
+          <Pushes filterModel={filterModel} $injector={$injector}>
+            <PinnedJobs>
+              <SelectedJob>
+                <KeyboardShortcuts
                   filterModel={filterModel}
-                  setUser={this.setUser}
-                  user={user}
-                  setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
-                  getAllShownJobs={this.getAllShownJobs}
-                  duplicateJobsVisible={duplicateJobsVisible}
-                  groupCountsExpanded={groupCountsExpanded}
                   $injector={$injector}
-                />
-                <SplitPane
-                  split="horizontal"
-                  size={`${pushListPct}%`}
-                  onChange={size => this.handleSplitChange(size)}
+                  showOnScreenShortcuts={this.showOnScreenShortcuts}
                 >
-                  <div className="d-flex flex-column w-100">
-                    {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                      $injector={$injector}
-                      classificationTypes={classificationTypes}
-                      filterModel={filterModel}
-                      filterBarFilters={filterBarFilters}
-                      isFieldFilterVisible={isFieldFilterVisible}
-                      toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                    />}
-                    {serverChangedDelayed && <UpdateAvailable
-                      updateButtonClick={this.updateButtonClick}
-                    />}
-                    <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-                      <span className="th-view-content" tabIndex={-1}>
-                        <PushList
-                          user={user}
-                          repoName={repoName}
-                          revision={revision}
-                          currentRepo={currentRepo}
-                          filterModel={filterModel}
-                          duplicateJobsVisible={duplicateJobsVisible}
-                          groupCountsExpanded={groupCountsExpanded}
-                        />
-                      </span>
-                    </div>
-                  </div>
-                  <DetailsPanel
-                    resizedHeight={detailsHeight}
-                    currentRepo={currentRepo}
-                    repoName={repoName}
+                  <PrimaryNavBar
+                    repos={repos}
+                    updateButtonClick={this.updateButtonClick}
+                    serverChanged={serverChanged}
+                    filterModel={filterModel}
+                    setUser={this.setUser}
                     user={user}
-                    classificationTypes={classificationTypes}
-                    classificationMap={classificationMap}
+                    setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+                    getAllShownJobs={this.getAllShownJobs}
+                    duplicateJobsVisible={duplicateJobsVisible}
+                    groupCountsExpanded={groupCountsExpanded}
                     $injector={$injector}
                   />
-                </SplitPane>
-                <NotificationList />
-              </KeyboardShortcuts>
-            </SelectedJob>
-          </PinnedJobs>
-        </Pushes>
-      </Notifications>
+                  <SplitPane
+                    split="horizontal"
+                    size={`${pushListPct}%`}
+                    onChange={size => this.handleSplitChange(size)}
+                  >
+                    <div className="d-flex flex-column w-100">
+                      {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
+                        $injector={$injector}
+                        classificationTypes={classificationTypes}
+                        filterModel={filterModel}
+                        filterBarFilters={filterBarFilters}
+                        isFieldFilterVisible={isFieldFilterVisible}
+                        toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                      />}
+                      {serverChangedDelayed && <UpdateAvailable
+                        updateButtonClick={this.updateButtonClick}
+                      />}
+                      <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+                        <span className="th-view-content" tabIndex={-1}>
+                          <PushList
+                            user={user}
+                            repoName={repoName}
+                            revision={revision}
+                            currentRepo={currentRepo}
+                            filterModel={filterModel}
+                            duplicateJobsVisible={duplicateJobsVisible}
+                            groupCountsExpanded={groupCountsExpanded}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <DetailsPanel
+                      resizedHeight={detailsHeight}
+                      currentRepo={currentRepo}
+                      repoName={repoName}
+                      user={user}
+                      classificationTypes={classificationTypes}
+                      classificationMap={classificationMap}
+                      $injector={$injector}
+                    />
+                  </SplitPane>
+                  <NotificationList />
+                  {showShortCuts && <div
+                    id="onscreen-overlay"
+                    onClick={() => this.showOnScreenShortcuts(false)}
+                  >
+                    <div id="onscreen-shortcuts">
+                      <div className="col-8">
+                        <ShortcutTable id="th-shortcut-table" />
+                      </div>
+                    </div>
+                  </div>}
+                </KeyboardShortcuts>
+              </SelectedJob>
+            </PinnedJobs>
+          </Pushes>
+        </Notifications>
+      </div>
     );
   }
 }

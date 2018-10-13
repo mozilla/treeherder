@@ -1,7 +1,4 @@
 import React from 'react';
-import { react2angular } from 'react2angular/index.es2015';
-
-import treeherder from '../js/treeherder';
 
 const ShortcutTable = function ShortcutTable() {
   return (
@@ -158,7 +155,5 @@ const ShortcutTable = function ShortcutTable() {
     </div>
   );
 };
-
-treeherder.component('shortcutTable', react2angular(ShortcutTable));
 
 export default ShortcutTable;

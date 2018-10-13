@@ -26,9 +26,6 @@ import './js/treeherder_app';
 // Treeherder React UI
 import './job-view/JobView';
 
-// ShortcutTable React UI
-import './shared/ShortcutTable';
-
 // Treeherder JS
 import './js/models/perf/series';
 import './js/controllers/main';
