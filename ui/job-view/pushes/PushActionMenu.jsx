@@ -5,14 +5,11 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { withPushes } from '../context/Pushes';
+import { withNotifications } from '../../shared/context/Notifications';
 
 class PushActionMenu extends React.PureComponent {
-
   constructor(props) {
     super(props);
-    const { $injector } = this.props;
-
-    this.thNotify = $injector.get('thNotify');
 
     this.revision = this.props.revision;
     this.pushId = this.props.pushId;
@@ -56,7 +53,7 @@ class PushActionMenu extends React.PureComponent {
   }
 
   triggerMissingJobs() {
-    const { getGeckoDecisionTaskId } = this.props;
+    const { getGeckoDecisionTaskId, notify } = this.props;
 
     if (!window.confirm(`This will trigger all missing jobs for revision ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
       return;
@@ -66,17 +63,17 @@ class PushActionMenu extends React.PureComponent {
       .then((decisionTaskID) => {
         PushModel.triggerMissingJobs(decisionTaskID)
           .then((msg) => {
-            this.thNotify.send(msg, 'success');
+            notify(msg, 'success');
           }).catch((e) => {
-            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
       }).catch((e) => {
-        this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
 
   triggerAllTalosJobs() {
-    const { getGeckoDecisionTaskId } = this.props;
+    const { getGeckoDecisionTaskId, notify } = this.props;
 
     if (!window.confirm(`This will trigger all Talos jobs for revision  ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
       return;
@@ -91,12 +88,12 @@ class PushActionMenu extends React.PureComponent {
       .then((decisionTaskID) => {
         PushModel.triggerAllTalosJobs(times, decisionTaskID)
           .then((msg) => {
-            this.thNotify.send(msg, 'success');
+            notify(msg, 'success');
           }).catch((e) => {
-            this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
       }).catch((e) => {
-        this.thNotify.send(formatTaskclusterError(e), 'danger', { sticky: true });
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
 
@@ -175,7 +172,6 @@ class PushActionMenu extends React.PureComponent {
           job={null}
           pushId={pushId}
           isLoggedIn={isLoggedIn}
-          notify={this.thNotify}
           toggle={this.toggleCustomJobActions}
         />}
       </span>
@@ -192,7 +188,7 @@ PushActionMenu.propTypes = {
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
-  $injector: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
-export default withPushes(PushActionMenu);
+export default withNotifications(withPushes(PushActionMenu));

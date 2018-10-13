@@ -18,14 +18,5 @@ configure({ adapter: new Adapter() });
 const jsContext = require.context('../../../ui/js', true, /^\.\/.*\.jsx?$/);
 jsContext('./filters.js');
 
-const controllerContext = require.context('../../../ui/js/controllers', true, /^\.\/.*\.jsx?$/);
-controllerContext.keys().forEach(controllerContext);
-const directiveContext = require.context('../../../ui/js/directives', true, /^\.\/.*\.jsx?$/);
-directiveContext.keys().forEach(directiveContext);
-const serviceContext = require.context('../../../ui/js/services', true, /^\.\/.*\.jsx?$/);
-serviceContext.keys().forEach(serviceContext);
-const componentContext = require.context('../../../ui/js/components', true, /^\.\/.*\.jsx?$/);
-componentContext.keys().forEach(componentContext);
-
 const testContext = require.context('./', true, /^\.\/.*\.tests\.jsx?$/);
 testContext.keys().forEach(testContext);

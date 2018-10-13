@@ -8,6 +8,7 @@ import { thEvents, thFavicons } from '../helpers/constants';
 import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
+import { Notifications } from '../shared/context/Notifications';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
 import { deployedRevisionUrl } from '../helpers/url';
@@ -20,6 +21,7 @@ import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
+import NotificationList from '../shared/NotificationList';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -42,7 +44,6 @@ class JobView extends React.Component {
 
     const { $injector } = this.props;
     this.$rootScope = $injector.get('$rootScope');
-    this.thNotify = $injector.get('thNotify');
 
     const filterModel = new FilterModel();
     this.$rootScope.filterModel = filterModel;
@@ -231,75 +232,74 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <Pushes filterModel={filterModel} $injector={$injector}>
-        <PinnedJobs notify={this.thNotify}>
-          <SelectedJob
-            notify={this.thNotify}
-            $injector={$injector}
-          >
-            <KeyboardShortcuts
-              filterModel={filterModel}
-              $injector={$injector}
-            >
-              <PrimaryNavBar
-                repos={repos}
-                updateButtonClick={this.updateButtonClick}
-                serverChanged={serverChanged}
+      <Notifications>
+        <Pushes filterModel={filterModel} $injector={$injector}>
+          <PinnedJobs>
+            <SelectedJob>
+              <KeyboardShortcuts
                 filterModel={filterModel}
-                setUser={this.setUser}
-                user={user}
-                setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
-                getAllShownJobs={this.getAllShownJobs}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
                 $injector={$injector}
-              />
-              <SplitPane
-                split="horizontal"
-                size={`${pushListPct}%`}
-                onChange={size => this.handleSplitChange(size)}
               >
-                <div className="d-flex flex-column w-100">
-                  {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                    $injector={$injector}
-                    classificationTypes={classificationTypes}
-                    filterModel={filterModel}
-                    filterBarFilters={filterBarFilters}
-                    isFieldFilterVisible={isFieldFilterVisible}
-                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                  />}
-                  {serverChangedDelayed && <UpdateAvailable
-                    updateButtonClick={this.updateButtonClick}
-                  />}
-                  <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
-                    <span className="th-view-content" tabIndex={-1}>
-                      <PushList
-                        user={user}
-                        repoName={repoName}
-                        revision={revision}
-                        currentRepo={currentRepo}
-                        filterModel={filterModel}
-                        $injector={$injector}
-                        duplicateJobsVisible={duplicateJobsVisible}
-                        groupCountsExpanded={groupCountsExpanded}
-                      />
-                    </span>
-                  </div>
-                </div>
-                <DetailsPanel
-                  resizedHeight={detailsHeight}
-                  currentRepo={currentRepo}
-                  repoName={repoName}
+                <PrimaryNavBar
+                  repos={repos}
+                  updateButtonClick={this.updateButtonClick}
+                  serverChanged={serverChanged}
+                  filterModel={filterModel}
+                  setUser={this.setUser}
                   user={user}
-                  classificationTypes={classificationTypes}
-                  classificationMap={classificationMap}
+                  setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+                  getAllShownJobs={this.getAllShownJobs}
+                  duplicateJobsVisible={duplicateJobsVisible}
+                  groupCountsExpanded={groupCountsExpanded}
                   $injector={$injector}
                 />
-              </SplitPane>
-            </KeyboardShortcuts>
-          </SelectedJob>
-        </PinnedJobs>
-      </Pushes>
+                <SplitPane
+                  split="horizontal"
+                  size={`${pushListPct}%`}
+                  onChange={size => this.handleSplitChange(size)}
+                >
+                  <div className="d-flex flex-column w-100">
+                    {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
+                      $injector={$injector}
+                      classificationTypes={classificationTypes}
+                      filterModel={filterModel}
+                      filterBarFilters={filterBarFilters}
+                      isFieldFilterVisible={isFieldFilterVisible}
+                      toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                    />}
+                    {serverChangedDelayed && <UpdateAvailable
+                      updateButtonClick={this.updateButtonClick}
+                    />}
+                    <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+                      <span className="th-view-content" tabIndex={-1}>
+                        <PushList
+                          user={user}
+                          repoName={repoName}
+                          revision={revision}
+                          currentRepo={currentRepo}
+                          filterModel={filterModel}
+                          duplicateJobsVisible={duplicateJobsVisible}
+                          groupCountsExpanded={groupCountsExpanded}
+                        />
+                      </span>
+                    </div>
+                  </div>
+                  <DetailsPanel
+                    resizedHeight={detailsHeight}
+                    currentRepo={currentRepo}
+                    repoName={repoName}
+                    user={user}
+                    classificationTypes={classificationTypes}
+                    classificationMap={classificationMap}
+                    $injector={$injector}
+                  />
+                </SplitPane>
+                <NotificationList />
+              </KeyboardShortcuts>
+            </SelectedJob>
+          </PinnedJobs>
+        </Pushes>
+      </Notifications>
     );
   }
 }

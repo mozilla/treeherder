@@ -4,7 +4,7 @@ import * as fetchMock from 'fetch-mock';
 
 import { hgBaseUrl, bzBaseUrl } from '../../../../ui/helpers/url';
 import { isReftest } from '../../../../ui/helpers/job';
-import BugFiler from '../../../../ui/job-view/details/BugFiler';
+import { BugFilerClass } from '../../../../ui/job-view/details/BugFiler';
 
 describe('BugFiler', () => {
   const fullLog = 'https://queue.taskcluster.net/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log';
@@ -70,7 +70,7 @@ describe('BugFiler', () => {
     };
 
     return mount(
-      <BugFiler
+      <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
         suggestion={suggestion}
@@ -80,7 +80,7 @@ describe('BugFiler', () => {
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
-        notify={{}}
+        notify={() => {}}
       />,
     );
   };
@@ -211,7 +211,7 @@ describe('BugFiler', () => {
         search: 'REFTEST TEST-UNEXPECTED-PASS | flee | floo' },
     ];
     const bugFiler = mount(
-      <BugFiler
+      <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
         suggestion={suggestions[0]}
@@ -221,7 +221,7 @@ describe('BugFiler', () => {
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
-        notify={{}}
+        notify={() => {}}
       />,
     );
 

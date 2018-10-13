@@ -9,13 +9,11 @@ import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
 import { withSelectedJob } from '../../context/SelectedJob';
+import { withNotifications } from '../../../shared/context/Notifications';
 
 class SimilarJobsTab extends React.Component {
   constructor(props) {
     super(props);
-
-    const { $injector } = this.props;
-    this.thNotify = $injector.get('thNotify');
 
     this.pageSize = 20;
 
@@ -46,7 +44,7 @@ class SimilarJobsTab extends React.Component {
 
   async getSimilarJobs() {
     const { page, similarJobs, selectedSimilarJob } = this.state;
-    const { repoName, selectedJob } = this.props;
+    const { repoName, selectedJob, notify } = this.props;
     const options = {
       // get one extra to detect if there are more jobs that can be loaded (hasNextPage)
       count: this.pageSize + 1,
@@ -89,7 +87,7 @@ class SimilarJobsTab extends React.Component {
           this.showJobInfo(newSimilarJobs[0]);
         }
       } else {
-        this.thNotify.send(`Error fetching similar jobs push data: ${resp.message}`, 'danger', { sticky: true });
+        notify(`Error fetching similar jobs push data: ${resp.message}`, 'danger', { sticky: true });
       }
     }
     this.setState({ isLoading: false });
@@ -284,9 +282,9 @@ class SimilarJobsTab extends React.Component {
 }
 
 SimilarJobsTab.propTypes = {
-  $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   classificationMap: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -294,4 +292,4 @@ SimilarJobsTab.defaultProps = {
   selectedJob: null,
 };
 
-export default withSelectedJob(SimilarJobsTab);
+export default withNotifications(withSelectedJob(SimilarJobsTab));

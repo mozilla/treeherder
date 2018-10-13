@@ -9,18 +9,16 @@ import { loggedOutUser } from '../js/auth/auth-utils';
 import taskcluster from '../helpers/taskcluster';
 import { getApiUrl, loginCallbackUrl } from '../helpers/url';
 import UserModel from '../models/user';
+import { withNotifications } from './context/Notifications';
 
 /**
  * This component handles logging in to Taskcluster Authentication
  *
  * See: https://docs.taskcluster.net/manual/3rdparty
  */
-export default class Login extends React.Component {
+class Login extends React.Component {
   constructor(props) {
     super(props);
-
-    const { $injector } = props;
-    this.thNotify = $injector.get('thNotify');
 
     this.authService = new AuthService();
   }
@@ -89,13 +87,15 @@ export default class Login extends React.Component {
   }
 
   logout() {
+    const { notify } = this.props;
+
     fetch(getApiUrl('/auth/logout/'))
       .then(async (resp) => {
         if (resp.ok) {
           this.setLoggedOut();
         } else {
-          const msg = await resp.json();
-          this.thNotify.send(`Logout failed: ${msg}`, 'danger', { sticky: true });
+          const msg = await resp.text();
+          notify(`Logout failed: ${msg}`, 'danger', { sticky: true });
         }
       });
   }
@@ -140,12 +140,16 @@ export default class Login extends React.Component {
 
 Login.propTypes = {
   setUser: PropTypes.func.isRequired,
-  $injector: PropTypes.object.isRequired,
   user: PropTypes.object,
+  notify: PropTypes.func,
 };
 
 Login.defaultProps = {
   user: { isLoggedIn: false },
+  notify: msg => console.error(msg), // eslint-disable-line no-console
 };
 
-treeherder.component('login', react2angular(Login, ['user', 'setUser'], ['$injector']));
+export default withNotifications(Login);
+
+treeherder.component('login', react2angular(
+  withNotifications(Login), ['user', 'setUser'], []));

@@ -13,15 +13,13 @@ import LogUrls from './LogUrls';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 import { withPushes } from '../../context/Pushes';
+import { withNotifications } from '../../../shared/context/Notifications';
 
 class ActionBar extends React.Component {
   constructor(props) {
     super(props);
 
     const { $injector } = this.props;
-
-    this.thNotify = $injector.get('thNotify');
-    this.$interpolate = $injector.get('$interpolate');
     this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
@@ -32,15 +30,15 @@ class ActionBar extends React.Component {
   componentDidMount() {
     // Open the logviewer and provide notifications if it isn't available
     this.openLogViewerUnlisten = this.$rootScope.$on(thEvents.openLogviewer, () => {
-      const { logParseStatus } = this.props;
+      const { logParseStatus, notify } = this.props;
 
       switch (logParseStatus) {
         case 'pending':
-          this.thNotify.send('Log parsing in progress, log viewer not yet available', 'info'); break;
+          notify('Log parsing in progress, log viewer not yet available', 'info'); break;
         case 'failed':
-          this.thNotify.send('Log parsing has failed, log viewer is unavailable', 'warning'); break;
+          notify('Log parsing has failed, log viewer is unavailable', 'warning'); break;
         case 'unavailable':
-          this.thNotify.send('No logs available for this job', 'info'); break;
+          notify('No logs available for this job', 'info'); break;
         case 'parsed':
           $('.logviewer-btn')[0].click();
       }
@@ -66,9 +64,9 @@ class ActionBar extends React.Component {
   }
 
   createGeckoProfile() {
-    const { user, selectedJob, getGeckoDecisionTaskId } = this.props;
+    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
     if (!user.isLoggedIn) {
-      return this.thNotify.send('Must be logged in to create a gecko profile', 'danger');
+      return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
     getGeckoDecisionTaskId(
@@ -77,7 +75,7 @@ class ActionBar extends React.Component {
         const geckoprofile = results.actions.find(result => result.name === 'geckoprofile');
 
         if (geckoprofile === undefined || !geckoprofile.hasOwnProperty('kind')) {
-          return this.thNotify.send('Job was scheduled without taskcluster support for GeckoProfiles');
+          return notify('Job was scheduled without taskcluster support for GeckoProfiles');
         }
 
         TaskclusterModel.submit({
@@ -88,13 +86,13 @@ class ActionBar extends React.Component {
           input: {},
           staticActionVariables: results.staticActionVariables,
         }).then(() => {
-          this.thNotify.send(
+          notify(
             'Request sent to collect gecko profile job via actions.json',
             'success');
         }, (e) => {
           // The full message is too large to fit in a Treeherder
           // notification box.
-          this.thNotify.send(
+          notify(
             formatTaskclusterError(e),
             'danger',
             { sticky: true });
@@ -104,11 +102,11 @@ class ActionBar extends React.Component {
   }
 
   retriggerJob(jobs) {
-    const { user, repoName, getGeckoDecisionTaskId } = this.props;
+    const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
     const jobIds = jobs.map(({ id }) => id);
 
     if (!user.isLoggedIn) {
-      return this.thNotify.send('Must be logged in to retrigger a job', 'danger');
+      return notify('Must be logged in to retrigger a job', 'danger');
     }
 
     // Spin the retrigger button when retriggers happen
@@ -119,24 +117,24 @@ class ActionBar extends React.Component {
       });
     });
 
-    JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, this.thNotify);
+    JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify);
   }
 
   backfillJob() {
-    const { user, selectedJob, getGeckoDecisionTaskId } = this.props;
+    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
 
     if (!this.canBackfill()) {
       return;
     }
 
     if (!user.isLoggedIn) {
-      this.thNotify.send('Must be logged in to backfill a job', 'danger');
+      notify('Must be logged in to backfill a job', 'danger');
 
       return;
     }
 
     if (!selectedJob.id) {
-      this.thNotify.send('Job not yet loaded for backfill', 'warning');
+      notify('Job not yet loaded for backfill', 'warning');
 
       return;
     }
@@ -154,21 +152,16 @@ class ActionBar extends React.Component {
             input: {},
             staticActionVariables: results.staticActionVariables,
           }).then(() => {
-            this.thNotify.send(
-              'Request sent to backfill job via actions.json',
-              'success');
+            notify('Request sent to backfill job via actions.json', 'success');
           }, (e) => {
             // The full message is too large to fit in a Treeherder
             // notification box.
-            this.thNotify.send(
-              formatTaskclusterError(e),
-              'danger',
-              { sticky: true });
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
         })
       ));
     } else {
-      this.thNotify.send('Unable to backfill this job type!', 'danger', { sticky: true });
+      notify('Unable to backfill this job type!', 'danger', { sticky: true });
     }
   }
 
@@ -203,11 +196,11 @@ class ActionBar extends React.Component {
   }
 
   async createInteractiveTask() {
-    const { user, selectedJob, repoName, getGeckoDecisionTaskId } = this.props;
+    const { user, selectedJob, repoName, getGeckoDecisionTaskId, notify } = this.props;
     const jobId = selectedJob.id;
 
     if (!user.isLoggedIn) {
-      return this.thNotify.send('Must be logged in to create an interactive task', 'danger');
+      return notify('Must be logged in to create an interactive task', 'danger');
     }
 
     const job = await JobModel.get(repoName, jobId);
@@ -226,29 +219,26 @@ class ActionBar extends React.Component {
         staticActionVariables: results.staticActionVariables,
       });
 
-      this.thNotify.send(
+      notify(
         `Request sent to create an interactive job via actions.json.
           You will soon receive an email containing a link to interact with the task.`,
         'success');
     } catch (e) {
       // The full message is too large to fit in a Treeherder
       // notification box.
-      this.thNotify.send(
-        formatTaskclusterError(e),
-        'danger',
-        { sticky: true });
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
   }
 
   cancelJobs(jobs) {
-    const { user, repoName, getGeckoDecisionTaskId } = this.props;
+    const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
     const jobIds = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
 
     if (!user.isLoggedIn) {
-      return this.thNotify.send('Must be logged in to cancel a job', 'danger');
+      return notify('Must be logged in to cancel a job', 'danger');
     }
 
-    JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, this.thNotify);
+    JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
   }
 
   cancelJob() {
@@ -363,7 +353,6 @@ class ActionBar extends React.Component {
           job={selectedJob}
           pushId={selectedJob.push_id}
           isLoggedIn={user.isLoggedIn}
-          notify={this.thNotify}
           toggle={this.toggleCustomJobActions}
         />}
       </div>
@@ -379,6 +368,7 @@ ActionBar.propTypes = {
   selectedJob: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.array,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
@@ -392,4 +382,4 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(ActionBar)));
+export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(ActionBar))));

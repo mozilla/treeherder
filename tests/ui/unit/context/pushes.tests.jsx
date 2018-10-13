@@ -4,7 +4,7 @@ import * as fetchMock from 'fetch-mock';
 import { mount } from 'enzyme';
 
 import { getProjectUrl } from '../../../../ui/helpers/url';
-import { Pushes } from '../../../../ui/job-view/context/Pushes';
+import { PushesClass } from '../../../../ui/job-view/context/Pushes';
 import FilterModel from '../../../../ui/models/filter';
 
 const { getJSONFixture, inject } = window;
@@ -42,10 +42,11 @@ describe('Pushes context', () => {
      */
     it('should have 2 pushes', async () => {
         const pushes = mount(
-          <Pushes
+          <PushesClass
             filterModel={new FilterModel()}
             $injector={$injector}
-          ><div /></Pushes>,
+            notify={() => {}}
+          ><div /></PushesClass>,
         );
         await pushes.instance().fetchPushes(10);
         expect(pushes.state('pushList').length).toBe(2);
@@ -53,10 +54,11 @@ describe('Pushes context', () => {
 
     it('should have id of 1 in current repo', async () => {
         const pushes = mount(
-          <Pushes
+          <PushesClass
             filterModel={new FilterModel()}
             $injector={$injector}
-          ><div /></Pushes>,
+            notify={() => {}}
+          ><div /></PushesClass>,
         );
         await pushes.instance().fetchPushes(10);
         expect(pushes.state('pushList')[0].id).toBe(1);

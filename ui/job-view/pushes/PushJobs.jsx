@@ -138,7 +138,7 @@ class PushJobs extends React.Component {
   render() {
     const filteredPlatforms = this.state.filteredPlatforms || [];
     const {
-      $injector, repoName, filterModel, pushGroupState, duplicateJobsVisible,
+      repoName, filterModel, pushGroupState, duplicateJobsVisible,
       groupCountsExpanded,
     } = this.props;
 
@@ -150,7 +150,6 @@ class PushJobs extends React.Component {
           <Platform
             platform={platform}
             repoName={repoName}
-            $injector={$injector}
             key={platform.title}
             filterModel={filterModel}
             pushGroupState={pushGroupState}
@@ -173,7 +172,6 @@ PushJobs.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   togglePinJob: PropTypes.func.isRequired,
-  $injector: PropTypes.object.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,

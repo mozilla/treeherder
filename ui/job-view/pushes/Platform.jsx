@@ -17,7 +17,7 @@ PlatformName.propTypes = {
 
 export default function Platform(props) {
   const {
-    platform, $injector, repoName, filterPlatformCb, filterModel, pushGroupState,
+    platform, repoName, filterPlatformCb, filterModel, pushGroupState,
     duplicateJobsVisible, groupCountsExpanded,
   } = props;
   const { title, groups, id } = platform;
@@ -28,7 +28,6 @@ export default function Platform(props) {
       <JobsAndGroups
         groups={groups}
         repoName={repoName}
-        $injector={$injector}
         filterPlatformCb={filterPlatformCb}
         platform={platform}
         filterModel={filterModel}
@@ -43,7 +42,6 @@ export default function Platform(props) {
 Platform.propTypes = {
   platform: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,

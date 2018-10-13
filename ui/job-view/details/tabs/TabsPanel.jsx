@@ -180,7 +180,6 @@ class TabsPanel extends React.Component {
             <SimilarJobsTab
               repoName={repoName}
               classificationMap={classificationMap}
-              $injector={$injector}
             />
           </TabPanel>
           {!!perfJobDetail.length && <TabPanel>

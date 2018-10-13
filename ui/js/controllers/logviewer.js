@@ -14,10 +14,10 @@ import {
 
 logViewerApp.controller('LogviewerCtrl', [
     '$window', '$document', '$rootScope', '$scope',
-    '$timeout', 'thNotify', 'dateFilter',
+    '$timeout', 'dateFilter',
     function Logviewer(
         $window, $document, $rootScope, $scope,
-        $timeout, thNotify, dateFilter) {
+        $timeout, dateFilter) {
 
         const query_string = getAllUrlParams();
         $scope.css = '';
@@ -209,7 +209,8 @@ logViewerApp.controller('LogviewerCtrl', [
             }).catch((error) => {
                 $scope.loading = false;
                 $scope.jobExists = false;
-                thNotify.send(`${error}`, 'danger', { sticky: true });
+                $scope.jobError = error.toString();
+                $scope.$apply();
             });
         };
 
