@@ -71,7 +71,7 @@
     "react-tabs": "2.3.0",
     "react2angular": "4.0.4",
     "reactstrap": "6.4.0",
-    "redux": "4.0.0",
+    "redux": "4.0.1",
     "redux-debounce": "1.0.1",
     "redux-thunk": "2.3.0",
     "taskcluster-client-web": "8.0.4",
