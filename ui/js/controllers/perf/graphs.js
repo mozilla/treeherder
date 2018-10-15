@@ -43,20 +43,10 @@ perf.controller('GraphsCtrl', [
 
         $scope.createAlert = function (dataPoint) {
             $scope.creatingAlert = true;
-            PhAlerts.createAlert(dataPoint).then(function (alertSummaryId) {
-                PhAlerts.getAlertSummaries({
-                    seriesSignature: dataPoint.series.seriesSignature,
-                    repository: dataPoint.project.id,
-                }).then(function (alertSummaryData) {
-                    $scope.creatingAlert = false;
-
-                    var alertSummary = alertSummaryData.results.find(result =>
-                        result.id === alertSummaryId);
-                    $scope.tooltipContent.alertSummary = alertSummary;
-
-                    dataPoint.series.relatedAlertSummaries = alertSummaryData.results;
-                    plotGraph();
-                });
+            PhAlerts.createAlert(dataPoint)
+            .then(alertSummaryId => refreshGraphData(alertSummaryId, dataPoint))
+            .then(() => {
+                $scope.creatingAlert = false;
             });
         };
 
@@ -66,14 +56,30 @@ perf.controller('GraphsCtrl', [
             const resultSetData = dataPoint.series.flotSeries.resultSetData;
             const towardsDataPoint = PhAlerts.findPushIdNeighbours(dataPoint, resultSetData, direction);
 
-            PhAlerts.nudgeAlert(dataPoint, towardsDataPoint).then(() => {
-                $scope.nudgingAlert = false;
-            }, (error) => {
-                $scope.nudgingAlert = false;
-                alertHttpError(error);
-            });
-
+            PhAlerts.nudgeAlert(dataPoint, towardsDataPoint)
+                .then(alertSummaryId => refreshGraphData(alertSummaryId, dataPoint),
+                      (error) => {
+                          $scope.nudgingAlert = false;
+                          alertHttpError(error);
+                }).then(() => {
+                    deselectDataPoint();
+                    $scope.nudgingAlert = false;
+                });
         };
+
+        function refreshGraphData(alertSummaryId, dataPoint) {
+            return PhAlerts.getAlertSummaries({
+                signatureId: dataPoint.series.id,
+                repository: dataPoint.project.id,
+            }).then(function (alertSummaryData) {
+                var alertSummary = alertSummaryData.results.find(result =>
+                    result.id === alertSummaryId);
+                $scope.tooltipContent.alertSummary = alertSummary;
+
+                dataPoint.series.relatedAlertSummaries = alertSummaryData.results;
+                plotGraph();
+            });
+        }
 
         function getSeriesDataPoint(flotItem) {
             // gets universal elements of a series given a flot item
