@@ -93,7 +93,7 @@ const UserGuideBody = function UserGuideBody() {
         </div>
 
         <div className="col-6">
-          <ShortcutTable id="th-shortcut-table" />
+          <ShortcutTable />
         </div>
 
         <div className="col-6">

@@ -168,7 +168,7 @@ class JobView extends React.Component {
   // If showing is a boolean, then set to that value.  If it's not, then toggle
   showOnScreenShortcuts(showing) {
     const { showShortCuts } = this.state;
-    const newValue = typeof showing !== 'boolean' ? !showShortCuts : showing;
+    const newValue = typeof showing === 'boolean' ? showing : !showShortCuts;
 
     this.setState({ showShortCuts: newValue });
   }
@@ -315,7 +315,7 @@ class JobView extends React.Component {
                   >
                     <div id="onscreen-shortcuts">
                       <div className="col-8">
-                        <ShortcutTable id="th-shortcut-table" />
+                        <ShortcutTable />
                       </div>
                     </div>
                   </div>}
