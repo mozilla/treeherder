@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import {
   thDefaultRepo,
   thFailureResults,
@@ -39,7 +41,7 @@ export default class FilterModel {
         { ...acc, [field]: value };
     }, {});
 
-    return { ...thFilterDefaults, ...groupedValues };
+    return { ...cloneDeep(thFilterDefaults), ...groupedValues };
   }
 
   // If a param matches the defaults, then don't include it.
