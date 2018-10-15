@@ -28,4 +28,3 @@ import './job-view/JobView';
 
 // Treeherder JS
 import './js/models/perf/series';
-import './js/controllers/main';

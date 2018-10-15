@@ -207,8 +207,6 @@ export const thOptionOrder = {
   addon: 6,
 };
 
-export const thTitleSuffixLimit = 70;
-
 export const thFavicons = {
   closed: closedTreeFavicon,
   open: treeFavicon,

@@ -90,8 +90,7 @@ class JobView extends React.Component {
 
     RepositoryModel.getList().then((repos) => {
       const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
-      // To support the title string of the tab when a single revision is showing.
-      this.$rootScope.currentRepo = currentRepo;
+
       this.setState({ currentRepo, repos });
     });
 
@@ -244,7 +243,7 @@ class JobView extends React.Component {
     return (
       <div id="global-container" className="d-flex flex-column h-100">
         <Notifications>
-          <Pushes filterModel={filterModel} $injector={$injector}>
+          <Pushes filterModel={filterModel}>
             <PinnedJobs>
               <SelectedJob>
                 <KeyboardShortcuts

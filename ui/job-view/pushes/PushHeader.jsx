@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PushActionMenu from './PushActionMenu';
-import { toDateStr } from '../../helpers/display';
+import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
@@ -37,8 +37,7 @@ function PushCounts(props) {
   const { pending, running, completed } = props;
   const inProgress = pending + running;
   const total = completed + inProgress;
-  const percentComplete = total > 0 ?
-    Math.floor(((completed / total) * 100)) : 0;
+  const percentComplete = getPercentComplete(props);
 
   return (
     <span className="push-progress">
@@ -152,7 +151,6 @@ class PushHeader extends React.PureComponent {
     const cancelJobsTitle = isLoggedIn ?
       'Cancel all jobs' :
       'Must be logged in to cancel jobs';
-    const counts = jobCounts || { pending: 0, running: 0, completed: 0 };
     const linkParams = this.getLinkParams();
     const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
@@ -179,12 +177,12 @@ class PushHeader extends React.PureComponent {
           </span>
           <PushCounts
             className="push-counts"
-            pending={counts.pending}
-            running={counts.running}
-            completed={counts.completed}
+            pending={jobCounts.pending}
+            running={jobCounts.running}
+            completed={jobCounts.completed}
           />
           <span className="push-buttons">
-            {counts.pending + counts.running > 0 &&
+            {jobCounts.pending + jobCounts.running > 0 &&
               <button
                 className="btn btn-sm btn-push watch-commit-btn"
                 disabled={!notificationSupported}
@@ -264,14 +262,13 @@ PushHeader.propTypes = {
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   selectedRunnableJobs: PropTypes.array.isRequired,
   notify: PropTypes.func.isRequired,
-  jobCounts: PropTypes.object,
+  jobCounts: PropTypes.object.isRequired,
   watchState: PropTypes.string,
   selectedJob: PropTypes.object,
 };
 
 PushHeader.defaultProps = {
   selectedJob: null,
-  jobCounts: null,
   watchState: 'none',
 };
 

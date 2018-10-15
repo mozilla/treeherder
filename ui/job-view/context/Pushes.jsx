@@ -31,9 +31,6 @@ export class PushesClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.skipNextPageReload = false;
 
     this.state = {
@@ -305,8 +302,6 @@ export class PushesClass extends React.Component {
         { pushList: [...pushList], oldestPushTimestamp },
         () => this.setRevisionTips(pushList),
       );
-      this.$rootScope.firstPush = pushList[0];
-      this.$rootScope.$apply();
     }
   }
 
@@ -345,8 +340,6 @@ export class PushesClass extends React.Component {
       }
     });
     this.setValue({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
-    this.$rootScope.unclassifiedFailureCount = allUnclassifiedFailureCount;
-    this.$rootScope.$apply();
   }
 
   updateJobMap(jobList) {
@@ -375,7 +368,6 @@ export class PushesClass extends React.Component {
 PushesClass.propTypes = {
   children: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
