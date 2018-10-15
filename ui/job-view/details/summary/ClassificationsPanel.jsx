@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 
 import { getBugUrl } from '../../../helpers/url';
 import RevisionLinkify from '../../../shared/RevisionLinkify';
+import { longDateFormat } from '../../../helpers/display';
 
 export default function ClassificationsPanel(props) {
   const {
-    $injector, classification, job, bugs, currentRepo, classificationMap,
+    classification, job, bugs, currentRepo, classificationMap,
   } = props;
-
-  const dateFilter = $injector.get('dateFilter');
 
   const failureId = classification.failure_classification_id;
   const iconClass = `${(failureId === 7 ? 'fa-star-o' : 'fa fa-star')} star-${job.result}`;
@@ -34,7 +33,7 @@ export default function ClassificationsPanel(props) {
       <li><em><RevisionLinkify repo={currentRepo}>{classification.text}</RevisionLinkify></em></li>
       }
       <li className="revision-comment">
-        {dateFilter(classification.created, 'EEE MMM d, H:mm:ss')}
+        {new Date(classification.created).toLocaleString('en-US', longDateFormat)}
       </li>
       <li className="revision-comment">
         {classification.who}
@@ -44,7 +43,6 @@ export default function ClassificationsPanel(props) {
 }
 
 ClassificationsPanel.propTypes = {
-  $injector: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classification: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,

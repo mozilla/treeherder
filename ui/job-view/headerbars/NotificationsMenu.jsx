@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { toShortDateStr } from '../../helpers/display';
+import { shortDateFormat } from '../../helpers/display';
 import { withNotifications } from '../../shared/context/Notifications';
 
 class NotificationsMenu extends React.Component {
@@ -51,7 +51,9 @@ class NotificationsMenu extends React.Component {
               >
                 <span title={`${notification.message} ${notification.linkText}`}>
                   <span className={this.getSeverityClass(notification.severity)} />&nbsp;
-                  <small className="text-muted">{toShortDateStr(notification.created / 1000)}</small>
+                  <small className="text-muted">
+                    {new Date(notification.created).toLocaleString('en-US', shortDateFormat)}
+                  </small>
                   &nbsp;{notification.message}&nbsp;
                   <a
                     target="_blank"
