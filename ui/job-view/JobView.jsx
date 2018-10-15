@@ -165,10 +165,10 @@ class JobView extends React.Component {
     document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
   }
 
-  // If showing is a boolean, then set to that value.  If it's not, then toggle
-  showOnScreenShortcuts(showing) {
+  // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
+  showOnScreenShortcuts(show) {
     const { showShortCuts } = this.state;
-    const newValue = typeof showing === 'boolean' ? showing : !showShortCuts;
+    const newValue = typeof show === 'boolean' ? show : !showShortCuts;
 
     this.setState({ showShortCuts: newValue });
   }
