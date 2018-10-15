@@ -82,12 +82,5 @@ treeherderApp.controller('MainCtrl', [
         };
 
         $rootScope.unclassifiedFailureCount = 0;
-        $rootScope.onscreenOverlayShowing = false;
-
-        $rootScope.onscreenShortcutsShowing = false;
-        $rootScope.setOnscreenShortcutsShowing = function (tf) {
-            $rootScope.onscreenShortcutsShowing = tf;
-            $rootScope.onscreenOverlayShowing = tf;
-        };
     },
 ]);

@@ -50,7 +50,6 @@ class KeyboardShortcuts extends React.Component {
     this.clearSelectedJob = this.clearSelectedJob.bind(this);
     this.saveClassification = this.saveClassification.bind(this);
     this.deleteClassification = this.deleteClassification.bind(this);
-    this.toggleOnScreenShortcuts = this.toggleOnScreenShortcuts.bind(this);
 
     // HotKeys requires focus be a component inside itself to work
     // TODO: We may not need this if we wrap <body> with HotKeys.
@@ -63,9 +62,10 @@ class KeyboardShortcuts extends React.Component {
 
   // close any open panels and clears selected job
   clearSelectedJob() {
-    this.props.clearSelectedJob();
-    this.$rootScope.setOnscreenShortcutsShowing(false);
-    this.$rootScope.$apply();
+    const { clearSelectedJob, showOnScreenShortcuts } = this.props;
+
+    clearSelectedJob();
+    showOnScreenShortcuts(false);
   }
 
   /**
@@ -159,11 +159,6 @@ class KeyboardShortcuts extends React.Component {
     filterModel.removeFilter('searchStr');
   }
 
-  toggleOnScreenShortcuts() {
-    this.$rootScope.setOnscreenShortcutsShowing(!this.$rootScope.onscreenShortcutsShowing);
-    this.$rootScope.$apply();
-  }
-
   doKey(ev, callback) {
     const element = ev.target;
 
@@ -186,7 +181,7 @@ class KeyboardShortcuts extends React.Component {
   }
 
   render() {
-    const { filterModel, changeSelectedJob } = this.props;
+    const { filterModel, changeSelectedJob, showOnScreenShortcuts } = this.props;
     const handlers = {
       addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
       pinEditComment: ev => this.doKey(ev, this.pinEditComment),
@@ -203,7 +198,7 @@ class KeyboardShortcuts extends React.Component {
       previousJob: ev => this.doKey(ev, () => changeSelectedJob('previous')),
       nextJob: ev => this.doKey(ev, () => changeSelectedJob('next')),
       pinJob: ev => this.doKey(ev, this.pinJob),
-      toggleOnScreenShortcuts: ev => this.doKey(ev, this.toggleOnScreenShortcuts),
+      toggleOnScreenShortcuts: ev => this.doKey(ev, showOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
       clearSelectedJob: this.clearSelectedJob,
       saveClassification: this.saveClassification,
@@ -233,6 +228,7 @@ KeyboardShortcuts.propTypes = {
   children: PropTypes.array.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   changeSelectedJob: PropTypes.func.isRequired,
+  showOnScreenShortcuts: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
