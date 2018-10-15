@@ -259,6 +259,8 @@ class DetailsPanel extends React.Component {
         className={selectedJob ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard
+          repoName={repoName}
+          currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
           $injector={$injector}
