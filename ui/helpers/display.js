@@ -30,3 +30,11 @@ export const getSearchWords = function getHighlighterArray(text) {
     token.length > 1 ? [...acc, token] : acc
   ), []);
 };
+
+export const getPercentComplete = function getPercentComplete(counts) {
+  const { pending, running, completed } = counts;
+  const inProgress = pending + running;
+  const total = completed + inProgress;
+
+  return total > 0 ? Math.floor(((completed / total) * 100)) : 0;
+};

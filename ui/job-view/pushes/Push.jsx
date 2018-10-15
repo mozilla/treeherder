@@ -14,6 +14,8 @@ import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withNotifications } from '../../shared/context/Notifications';
+import { getRevisionTitle } from '../../helpers/revision';
+import { getPercentComplete } from '../../helpers/display';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
@@ -88,6 +90,14 @@ class Push extends React.Component {
     return latest;
   }
 
+  setSingleRevisionWindowTitle() {
+    const { allUnclassifiedFailureCount, repoName, push } = this.props;
+    const percentComplete = getPercentComplete(this.state.jobCounts);
+    const title = `[${allUnclassifiedFailureCount}] ${repoName}`;
+
+    document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(push.revisions)}`;
+  }
+
   poll() {
     this.pollIntervalId = setInterval(async () => {
       const { push } = this.props;
@@ -139,9 +149,6 @@ class Push extends React.Component {
       const newJobList = [...existingJobs, ...jobs];
       const platforms = this.sortGroupedJobs(this.groupJobByPlatform(newJobList));
       const jobCounts = this.getJobCount(newJobList);
-
-      // Remove next line when fixing Bug 1450042.  Needed for Angular.
-      push.jobCounts = jobCounts;
 
       this.setState({
         platforms,
@@ -329,12 +336,17 @@ class Push extends React.Component {
     const {
       push, isLoggedIn, repoName, currentRepo, duplicateJobsVisible,
       filterModel, notificationSupported, getAllShownJobs, groupCountsExpanded,
+      isOnlyRevision,
     } = this.props;
     const {
       watched, runnableVisible, pushGroupState,
       platforms, jobCounts, selectedRunnableJobs,
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
+
+    if (isOnlyRevision) {
+      this.setSingleRevisionWindowTitle();
+    }
 
     return (
       <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>
@@ -395,10 +407,12 @@ Push.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
   updateJobMap: PropTypes.func.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
+  allUnclassifiedFailureCount: PropTypes.number.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
+  isOnlyRevision: PropTypes.bool.isRequired,
 };
 
 export default withNotifications(withPushes(withSelectedJob(Push)));

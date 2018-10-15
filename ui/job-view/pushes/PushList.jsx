@@ -15,6 +15,12 @@ class PushList extends React.Component {
     };
   }
 
+  setWindowTitle() {
+    const { allUnclassifiedFailureCount, repoName } = this.props;
+
+    document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
+  }
+
   render() {
     const {
       user, repoName, revision, currentRepo, filterModel, pushList,
@@ -23,6 +29,10 @@ class PushList extends React.Component {
     } = this.props;
     const { notificationSupported } = this.state;
     const { isLoggedIn } = user;
+
+    if (!revision) {
+      this.setWindowTitle();
+    }
 
     return (
       <div>
@@ -42,6 +52,7 @@ class PushList extends React.Component {
               notificationSupported={notificationSupported}
               duplicateJobsVisible={duplicateJobsVisible}
               groupCountsExpanded={groupCountsExpanded}
+              isOnlyRevision={push.revision === revision}
             />
           </ErrorBoundary>
         ))}
@@ -86,6 +97,7 @@ PushList.propTypes = {
   jobsLoaded: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  allUnclassifiedFailureCount: PropTypes.number.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };
