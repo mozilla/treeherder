@@ -6,6 +6,7 @@ import { getBugUrl } from '../../../helpers/url';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPushes } from '../../context/Pushes';
 import { withNotifications } from '../../../shared/context/Notifications';
+import { longDateFormat } from '../../../helpers/display';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -63,7 +64,7 @@ RelatedBug.propTypes = {
 };
 
 function TableRow(props) {
-  const { deleteClassification, classification, classificationMap, dateFilter } = props;
+  const { deleteClassification, classification, classificationMap } = props;
   const { created, who, name, text } = classification;
   const deleteEvent = () => { deleteClassification(classification); };
   const failureId = classification.failure_classification_id;
@@ -72,7 +73,7 @@ function TableRow(props) {
 
   return (
     <tr>
-      <td>{dateFilter(created, 'EEE MMM d, H:mm:ss')}</td>
+      <td>{new Date(created).toLocaleString('en-US', longDateFormat)}</td>
       <td>{who}</td>
       <td>
         {/* TODO: the classification label & star has been used in the job_details_pane.jxs
@@ -100,12 +101,11 @@ TableRow.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
   classification: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
-  dateFilter: PropTypes.func.isRequired,
 };
 
 function AnnotationsTable(props) {
   const {
-    classifications, deleteClassification, classificationMap, dateFilter,
+    classifications, deleteClassification, classificationMap,
   } = props;
 
   return (
@@ -122,7 +122,6 @@ function AnnotationsTable(props) {
         {classifications.map(classification => (
           <TableRow
             key={classification.id}
-            dateFilter={dateFilter}
             classification={classification}
             deleteClassification={deleteClassification}
             classificationMap={classificationMap}
@@ -137,7 +136,6 @@ AnnotationsTable.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
   classifications: PropTypes.array.isRequired,
   classificationMap: PropTypes.object.isRequired,
-  dateFilter: PropTypes.func.isRequired,
 };
 
 class AnnotationsTab extends React.Component {
@@ -203,11 +201,7 @@ class AnnotationsTab extends React.Component {
   }
 
   render() {
-    const {
-      $injector, classifications, classificationMap,
-      bugs,
-    } = this.props;
-    const dateFilter = $injector.get('$filter')('date');
+    const { classifications, classificationMap, bugs } = this.props;
 
     return (
       <div className="container-fluid">
@@ -216,7 +210,6 @@ class AnnotationsTab extends React.Component {
             {classifications.length ?
               <AnnotationsTable
                 classifications={classifications}
-                dateFilter={dateFilter}
                 deleteClassification={this.deleteClassification}
                 classificationMap={classificationMap}
               /> :

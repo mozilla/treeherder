@@ -100,7 +100,6 @@ class SummaryPanel extends React.Component {
                   classificationMap={classificationMap}
                   bugs={bugs}
                   currentRepo={currentRepo}
-                  $injector={$injector}
                 />}
               <StatusPanel />
               <div>
