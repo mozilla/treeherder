@@ -165,6 +165,7 @@ class TabsPanel extends React.Component {
               logsParsed={logParseStatus !== 'pending'}
               logParseStatus={logParseStatus}
               user={user}
+              repoName={repoName}
               $injector={$injector}
             />
           </TabPanel>}

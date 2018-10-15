@@ -191,31 +191,25 @@ class PinBoard extends React.Component {
   }
 
   cancelAllPinnedJobs() {
-    const { getGeckoDecisionTaskId, notify } = this.props;
+    const { getGeckoDecisionTaskId, notify, repoName } = this.props;
 
     if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
-      JobModel.cancel(
-        jobIds,
-        this.$rootScope.repoName,
-        getGeckoDecisionTaskId,
-        notify,
-      );
-
+      JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
       this.unPinAll();
     }
   }
 
   canSaveClassifications() {
-    const { pinnedJobBugs, isLoggedIn } = this.props;
+    const { pinnedJobBugs, isLoggedIn, currentRepo } = this.props;
     const { failureClassificationId, failureClassificationComment } = this.state;
 
     return this.hasPinnedJobs() && isLoggedIn &&
       (!!Object.keys(pinnedJobBugs).length ||
         (failureClassificationId !== 4 && failureClassificationId !== 2) ||
-        this.$rootScope.currentRepo.is_try_repo ||
-        this.$rootScope.currentRepo.repository_group.name === 'project repositories' ||
+        currentRepo.is_try_repo ||
+        currentRepo.repository_group.name === 'project repositories' ||
         (failureClassificationId === 4 && failureClassificationComment.length > 0) ||
         (failureClassificationId === 2 && failureClassificationComment.length > 7));
   }
@@ -332,10 +326,11 @@ class PinBoard extends React.Component {
   }
 
   retriggerAllPinnedJobs() {
-    const { getGeckoDecisionTaskId, notify } = this.props;
+    const { getGeckoDecisionTaskId, notify, repoName } = this.props;
+
     JobModel.retrigger(
       Object.keys(this.props.pinnedJobs),
-      this.$rootScope.repoName,
+      repoName,
       getGeckoDecisionTaskId,
       notify,
     );
@@ -549,6 +544,8 @@ PinBoard.propTypes = {
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+  repoName: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
   revisionTips: PropTypes.array,

@@ -47,7 +47,6 @@ class JobView extends React.Component {
     this.$rootScope = $injector.get('$rootScope');
 
     const filterModel = new FilterModel();
-    this.$rootScope.filterModel = filterModel;
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
     const urlParams = getAllUrlParams();
@@ -177,7 +176,6 @@ class JobView extends React.Component {
     const filterModel = new FilterModel();
     const urlParams = getAllUrlParams();
 
-    this.$rootScope.filterModel = filterModel;
     this.setState({
       filterModel,
       serverChanged: false,

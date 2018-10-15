@@ -434,7 +434,7 @@ class ErrorLine extends React.Component {
   render() {
     const {
       errorLine, selectedJob, canClassify, isSelected, isEditable, setEditable,
-      $injector, toggleSelect,
+      $injector, toggleSelect, repoName,
     } = this.props;
     const {
       messageExpanded, showHidden, selectedOption, options, extraOptions,
@@ -442,7 +442,7 @@ class ErrorLine extends React.Component {
 
     const failureLine = errorLine.data.metadata.failure_line;
     const searchLine = errorLine.data.bug_suggestions.search;
-    const logUrl = getLogViewerUrl(selectedJob.id, this.$rootScope.repoName, errorLine.data.line_number + 1);
+    const logUrl = getLogViewerUrl(selectedJob.id, repoName, errorLine.data.line_number + 1);
     const status = this.getStatus();
 
     return (
@@ -593,6 +593,7 @@ ErrorLine.propTypes = {
   setErrorLineInput: PropTypes.func.isRequired,
   setEditable: PropTypes.func.isRequired,
   canClassify: PropTypes.bool.isRequired,
+  repoName: PropTypes.string.isRequired,
   $injector: PropTypes.object.isRequired,
   prevErrorLine: PropTypes.object,
 };

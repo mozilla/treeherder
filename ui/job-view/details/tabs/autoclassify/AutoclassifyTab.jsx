@@ -324,7 +324,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { autoclassifyStatus, user, $injector } = this.props;
+    const { autoclassifyStatus, user, $injector, repoName } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -377,6 +377,7 @@ class AutoclassifyTab extends React.Component {
                 setEditable={() => this.setEditable([errorLine.id], true)}
                 setErrorLineInput={this.setErrorLineInput}
                 toggleSelect={this.toggleSelect}
+                repoName={repoName}
               />
             </li>))}
           </ul>
@@ -393,6 +394,7 @@ AutoclassifyTab.propTypes = {
   hasLogs: PropTypes.bool.isRequired,
   pinJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+  repoName: PropTypes.string.isRequired,
   autoclassifyStatus: PropTypes.string,
   logsParsed: PropTypes.bool,
   logParseStatus: PropTypes.string,
