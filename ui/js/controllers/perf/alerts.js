@@ -62,6 +62,13 @@ perf.controller(
             $scope.issueTrackers = [];
             PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
                 $scope.issueTrackers = issueTrackerList;
+
+                if (issueTrackerList.length >= 1) {
+                    $scope.selectedIssueTracker = issueTrackerList[0];
+                } else {
+                    alert('Unexpectedly retrieved an empty list of issue trackers');
+                    $scope.cancel();
+                }
             });
 
             $scope.update = function () {
