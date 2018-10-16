@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import defaults from 'lodash/defaults';
 import jsone from 'json-e';
 import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
@@ -18,7 +18,7 @@ export default class TaskclusterModel {
   static async submit({ action, actionTaskId, decisionTaskId, taskId,
                  task, input, staticActionVariables,
                }) {
-    const context = _.defaults({}, {
+    const context = defaults({}, {
       taskGroupId: decisionTaskId,
       taskId: taskId || null,
       input,

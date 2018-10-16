@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import countBy from 'lodash/countBy';
 import React from 'react';
 
 export const stringOverlap = function (str1, str2) {
@@ -26,7 +26,7 @@ export const stringOverlap = function (str1, str2) {
   }
 
   const tokenCounts = tokens.map(function (tokens) {
-    return _.countBy(tokens, function (x) {
+    return countBy(tokens, function (x) {
       return x;
     });
   });

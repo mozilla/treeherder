@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isEqual from 'lodash/isEqual';
 import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';
 
@@ -285,7 +285,7 @@ perf.controller('CompareResultsCtrl', [
             if ($scope.originalRevision) {
                 const timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                 // Optimization - if old/new branches are the same collect data in one pass
-                const resultSetIds = (_.isEqual($scope.originalProject, $scope.newProject)) ?
+                const resultSetIds = (isEqual($scope.originalProject, $scope.newProject)) ?
                       [$scope.originalResultSet.id, $scope.newResultSet.id] : [$scope.originalResultSet.id];
 
                 PhSeries.getSeriesList($scope.originalProject.name, {

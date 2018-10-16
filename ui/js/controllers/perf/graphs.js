@@ -3,7 +3,9 @@
 // to let/const won't break anything.
 
 import $ from 'jquery';
-import _ from 'lodash';
+import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
+import countBy from 'lodash/countBy';
 import remove from 'lodash/remove';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
@@ -141,7 +143,7 @@ perf.controller('GraphsCtrl', [
                 var prevResultSetId = (firstResultSetIndex > 0) ?
                     phSeries.flotSeries.resultSetData[firstResultSetIndex - 1] : null;
 
-                var retriggerNum = _.countBy(phSeries.flotSeries.resultSetData,
+                var retriggerNum = countBy(phSeries.flotSeries.resultSetData,
                     function (resultSetId) {
                         return resultSetId === dataPoint.resultSetId ? 'retrigger' : 'original';
                     });
@@ -631,7 +633,7 @@ perf.controller('GraphsCtrl', [
                         points: { show: series.visible },
                         color: series.color,
                         label: series.projectName + ' ' + series.name,
-                        data: _.map(
+                        data: map(
                             seriesData[series.signature],
                             function (dataPoint) {
                                 return [
@@ -639,12 +641,12 @@ perf.controller('GraphsCtrl', [
                                     dataPoint.value,
                                 ];
                             }),
-                        resultSetData: _.map(
+                        resultSetData: map(
                             seriesData[series.signature],
                             'push_id'),
                         thSeries: $.extend({}, series),
-                        jobIdData: _.map(seriesData[series.signature], 'job_id'),
-                        idData: _.map(seriesData[series.signature], 'id'),
+                        jobIdData: map(seriesData[series.signature], 'job_id'),
+                        idData: map(seriesData[series.signature], 'id'),
                     };
                 }).then(function () {
                     series.relatedAlertSummaries = [];
@@ -982,7 +984,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 remove($scope.testsToAdd, test);
             });
             // resort unselected test list
-            $scope.unselectedTestList = _.sortBy($scope.unselectedTestList,
+            $scope.unselectedTestList = sortBy($scope.unselectedTestList,
                 'name');
         };
 
@@ -1128,7 +1130,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                             platform: $scope.selectedPlatform,
                             framework: $scope.selectedFramework.id,
                             subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
-                                $scope.unselectedTestList = _.sortBy(
+                                $scope.unselectedTestList = sortBy(
                                     seriesList.filter(series => series.platform === $scope.selectedPlatform),
                                     'name',
                                 );
