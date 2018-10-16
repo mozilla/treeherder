@@ -462,11 +462,13 @@ perf.controller('GraphsCtrl', [
                                     if (resp.ok) {
                                       const { results } = await resp.json();
 
-                                      addHighlightedDatapoint(series, results[0].id);
-                                      $scope.$apply();
+                                      if (results.length) {
+                                        addHighlightedDatapoint(series, results[0].id);
+                                        $scope.$apply();
+                                      }
+                                      // ignore cases where no push exists
+                                      // for revision
                                     }
-                                    // ignore cases where no push exists
-                                    // for revision
                                 });
                             }
                             return null;
