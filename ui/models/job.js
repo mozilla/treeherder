@@ -132,10 +132,8 @@ export default class JobModel {
     }
   }
 
-  // Any jobId inside the push will do
-  static async cancelAll(jobId, repoName, getGeckoDecisionTaskId, notify) {
-    const job = await JobModel.get(repoName, jobId);
-    const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
+  static async cancelAll(pushId, repoName, getGeckoDecisionTaskId, notify) {
+    const decisionTaskId = await getGeckoDecisionTaskId(pushId);
     const results = await TaskclusterModel.load(decisionTaskId);
     const cancelAllTask = results.actions.find(result => result.name === 'cancel-all');
 
