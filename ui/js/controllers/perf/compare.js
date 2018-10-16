@@ -11,6 +11,7 @@ import {
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
+import PerfSeriesModel from '../../../models/perfSeries';
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q',
@@ -133,11 +134,11 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    '$httpParamSerializer', '$q', 'PhFramework', 'PhSeries',
+    '$httpParamSerializer', '$q', 'PhFramework',
     'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $httpParamSerializer,
-                                $q, PhFramework, PhSeries,
+                                $q, PhFramework,
                                 PhCompare) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
@@ -288,7 +289,7 @@ perf.controller('CompareResultsCtrl', [
                 const resultSetIds = (isEqual($scope.originalProject, $scope.newProject)) ?
                       [$scope.originalResultSet.id, $scope.newResultSet.id] : [$scope.originalResultSet.id];
 
-                PhSeries.getSeriesList($scope.originalProject.name, {
+                PerfSeriesModel.getSeriesList($scope.originalProject.name, {
                     interval: timeRange,
                     subtests: 0,
                     framework: $scope.filterOptions.framework.id,
@@ -311,7 +312,7 @@ perf.controller('CompareResultsCtrl', [
                         return;
                     }
 
-                    PhSeries.getSeriesList($scope.newProject.name, {
+                    PerfSeriesModel.getSeriesList($scope.newProject.name, {
                         interval: timeRange,
                         subtests: 0,
                         framework: $scope.filterOptions.framework.id,
@@ -334,7 +335,7 @@ perf.controller('CompareResultsCtrl', [
                 });
             } else {
                 // using a range of data for baseline comparison
-                PhSeries.getSeriesList($scope.originalProject.name, {
+                PerfSeriesModel.getSeriesList($scope.originalProject.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
                     framework: $scope.filterOptions.framework.id,
@@ -350,7 +351,7 @@ perf.controller('CompareResultsCtrl', [
                             end_date: new Date(endDateMs).toISOString().slice(0, -5),
                         });
                 }).then((originalResultsMap) => {
-                    PhSeries.getSeriesList($scope.newProject.name, {
+                    PerfSeriesModel.getSeriesList($scope.newProject.name, {
                         interval: $scope.selectedTimeRange.value,
                         subtests: 0,
                         framework: $scope.filterOptions.framework.id,
@@ -509,11 +510,9 @@ perf.controller('CompareResultsCtrl', [
     }]);
 
 perf.controller('CompareSubtestResultsCtrl', [
-    '$state', '$stateParams', '$scope',
-    '$q', 'PhSeries',
+    '$state', '$stateParams', '$scope', '$q',
     'PhCompare', '$httpParamSerializer',
-    function CompareSubtestResultsCtrl($state, $stateParams, $scope,
-                                       $q, PhSeries,
+    function CompareSubtestResultsCtrl($state, $stateParams, $scope, $q,
                                        PhCompare,
                                        $httpParamSerializer) {
          // TODO: duplicated from comparectrl
@@ -753,7 +752,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 };
                 if ($scope.originalRevision) {
                     $q.all([
-                        PhSeries.getSeriesList(
+                        PerfSeriesModel.getSeriesList(
                             $scope.originalProject.name, {
                                 signature: $scope.originalSignature,
                                 framework: $scope.filterOptions.framework,
@@ -761,7 +760,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.testList = [originalSeries[0].name];
                                 return undefined;
                             }),
-                        PhSeries.getSeriesList(
+                        PerfSeriesModel.getSeriesList(
                             $scope.originalProject.name,
                             {
                                 parent_signature: $scope.originalSignature,
@@ -795,7 +794,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                         }
 
                         if ($scope.newSignature) {
-                            PhSeries.getSeriesList(
+                            PerfSeriesModel.getSeriesList(
                             $scope.newProject.name, {
                                 parent_signature: $scope.newSignature,
                                 framework: $scope.filterOptions.framework,
@@ -834,7 +833,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                     });
                 } else {
                     $q.all([
-                        PhSeries.getSeriesList(
+                        PerfSeriesModel.getSeriesList(
                             $scope.originalProject.name, {
                                 signature: $scope.originalSignature,
                                 framework: $scope.filterOptions.framework,
@@ -842,7 +841,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.testList = [originalSeries[0].name];
                                 return undefined;
                             }),
-                        PhSeries.getSeriesList(
+                        PerfSeriesModel.getSeriesList(
                             $scope.originalProject.name,
                             {
                                 parent_signature: $scope.originalSignature,
@@ -864,7 +863,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                         function (originalResults) {
                             const originalSeriesMap = originalResults[1];
                             if ($scope.newSignature) {
-                                PhSeries.getSeriesList(
+                                PerfSeriesModel.getSeriesList(
                                 $scope.newProject.name, {
                                     parent_signature: $scope.newSignature,
                                     framework: $scope.filterOptions.framework,
@@ -907,9 +906,7 @@ perf.controller('CompareSubtestResultsCtrl', [
     }]);
 
 perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q',
-    'PhSeries',
-    function CompareSubtestDistributionCtrl($scope, $stateParams, $q,
-        PhSeries) {
+    function CompareSubtestDistributionCtrl($scope, $stateParams, $q) {
         $scope.originalRevision = $stateParams.originalRevision;
         $scope.newRevision = $stateParams.newRevision;
         $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
@@ -923,7 +920,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 .then(async (resp) => {
                     const { results } = await resp.json();
                     replicateData.resultSet = results[0];
-                    return PhSeries.getSeriesData(project, {
+                    return PerfSeriesModel.getSeriesData(project, {
                         signatures: subtestSignature,
                         push_id: replicateData.resultSet.id,
                     });
@@ -934,7 +931,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                     }
                     const numRuns = perfDatumList[subtestSignature].length;
                     const replicatePromises = perfDatumList[subtestSignature].map(
-                        value => PhSeries.getReplicateData({ job_id: value.job_id }));
+                        value => PerfSeriesModel.getReplicateData({ job_id: value.job_id }));
                     return $q.all(replicatePromises).then((replicateData) => {
                         let replicateValues = replicateData.concat.apply([],
                                 replicateData.map((data) => {
@@ -983,7 +980,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
                 $stateParams.originalProject, repos);
             $scope.newProject = RepositoryModel.getRepo(
                 $stateParams.newProject, repos);
-            PhSeries.getSeriesList($scope.originalProject.name, { signature: $scope.originalSubtestSignature }).then(
+            PerfSeriesModel.getSeriesList($scope.originalProject.name, { signature: $scope.originalSubtestSignature }).then(
                 (seriesData) => {
                     $scope.testSuite = seriesData[0].suite;
                     $scope.subtest = seriesData[0].test;

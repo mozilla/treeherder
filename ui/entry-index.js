@@ -25,6 +25,3 @@ import './js/treeherder_app';
 
 // Treeherder React UI
 import './job-view/JobView';
-
-// Treeherder JS
-import './js/models/perf/series';
