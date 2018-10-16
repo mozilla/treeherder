@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
+import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
@@ -107,11 +108,11 @@ treeherder.factory('PhAlerts', [
         };
         AlertSummary.prototype.getTextualSummary = function (copySummary) {
             let resultStr = '';
-            const improved = _.sortBy(
+            const improved = sortBy(
                 this.alerts.filter(alert => !alert.is_regression && alert.visible),
                 'amount_pct',
             ).reverse();
-            const regressed = _.sortBy(
+            const regressed = sortBy(
                 this.alerts.filter(alert => alert.is_regression && alert.visible && !alert.isInvalid()),
                 'amount_pct',
             ).reverse();
@@ -119,7 +120,7 @@ treeherder.factory('PhAlerts', [
             const getMaximumAlertLength = alertList => Math.max(...alertList.map(alert => alert.title.length));
 
             const formatAlert = function (alert, alertList) {
-                return _.padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
+                return padStart(alert.amount_pct.toFixed(0), 3) + '%  ' +
                 (alert.title.padEnd(getMaximumAlertLength(alertList) + 5)) +
                 displayNumberFilter(alert.prev_value) + ' -> ' + displayNumberFilter(alert.new_value);
             };

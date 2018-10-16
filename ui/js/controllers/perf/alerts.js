@@ -1,4 +1,6 @@
-import _ from 'lodash';
+import merge from 'lodash/merge';
+import defaults from 'lodash/defaults';
+import set from 'lodash/set';
 import angular from 'angular';
 
 import perf from '../../perf';
@@ -104,7 +106,7 @@ perf.controller(
             $scope.saveChanges = function () {
                 $scope.modifying = true;
                 $scope.alertSummaryCopy.saveNotes().then(function () {
-                    _.merge(alertSummary, $scope.alertSummaryCopy);
+                    merge(alertSummary, $scope.alertSummaryCopy);
                     $scope.modifying = false;
                     $scope.error = false;
 
@@ -424,8 +426,8 @@ perf.controller('AlertsCtrl', [
             alertSummaries.forEach(function (alertSummary) {
                 // initialize summary map for this repository, if not already
                 // initialized
-                _.defaults(resultSetToSummaryMap,
-                           _.set({}, alertSummary.repository, {}));
+                defaults(resultSetToSummaryMap,
+                           set({}, alertSummary.repository, {}));
 
                 alertSummary.originalNotes = alertSummary.notes;
 
@@ -436,7 +438,7 @@ perf.controller('AlertsCtrl', [
                         const repoMap = resultSetToSummaryMap[alertSummary.repository];
                         // initialize map for this result set, if not already
                         // initialized
-                        _.defaults(repoMap, _.set({}, resultSetId, []));
+                        defaults(repoMap, set({}, resultSetId, []));
                         repoMap[resultSetId].push(alertSummary);
                     });
             });
