@@ -37,7 +37,7 @@ a {
   cursor: pointer;
 }
 
-job-view {
+.height-minus-navbars {
   height: calc(100% - 63px);
 }
 

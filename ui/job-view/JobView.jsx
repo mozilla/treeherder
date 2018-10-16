@@ -241,7 +241,7 @@ class JobView extends React.Component {
     ), []);
 
     return (
-      <div id="global-container" className="d-flex flex-column h-100">
+      <div id="global-container" className="height-minus-navbars">
         <Notifications>
           <Pushes filterModel={filterModel}>
             <PinnedJobs>
