@@ -120,12 +120,10 @@ class PushHeader extends React.PureComponent {
 
     if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
       const { push, isLoggedIn, getGeckoDecisionTaskId } = this.props;
-      // Any job Id inside the push will do
-      const jobId = push.jobList[0].id;
 
       if (!isLoggedIn) return;
 
-      JobModel.cancelAll(jobId, repoName, getGeckoDecisionTaskId, notify);
+      JobModel.cancelAll(push.id, repoName, getGeckoDecisionTaskId, notify);
     }
   }
 
