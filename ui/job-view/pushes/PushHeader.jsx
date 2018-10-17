@@ -130,15 +130,20 @@ class PushHeader extends React.PureComponent {
   pinAllShownJobs() {
     const {
       selectedJob, setSelectedJob, pinJobs, expandAllPushGroups, getAllShownJobs,
+      notify, pushId,
     } = this.props;
-    const shownJobs = getAllShownJobs(this.props.pushId);
+    const shownJobs = getAllShownJobs(pushId);
 
-    expandAllPushGroups(() => {
-      pinJobs(shownJobs);
-      if (!selectedJob) {
-        setSelectedJob(shownJobs[0]);
-      }
-    });
+    if (shownJobs.length) {
+      expandAllPushGroups(() => {
+        pinJobs(shownJobs);
+        if (!selectedJob) {
+          setSelectedJob(shownJobs[0]);
+        }
+      });
+    } else {
+      notify('No jobs available to pin', 'danger');
+    }
   }
 
   render() {
