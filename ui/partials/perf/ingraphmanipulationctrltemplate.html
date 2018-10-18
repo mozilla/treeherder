@@ -1,0 +1,13 @@
+<form name="modifyAlert" ng-submit="modify()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{title}}</h3>
+      <button type="button" class="close" ng-model="closeButton" ng-show="!modifying" ng-click="cancel()">
+        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" ng-class="{'has-danger': modifyAlert.newId.$invalid}"></div>
+    </div>
+    </div>
+    <div class="modal-footer"></div>
+</form>

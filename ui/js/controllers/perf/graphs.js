@@ -11,6 +11,7 @@ import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
+import ingraphmanipulationctrltemplate from '../../../partials/perf/ingraphmanipulationctrltemplate.html';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   thDefaultRepo,
@@ -761,6 +762,18 @@ perf.controller('GraphsCtrl', [
             highlightDataPoints();
         };
 
+        $scope.promptInGraphManipulationDialog = function (tooltipContent) {
+            $uibModal.open({
+                template: ingraphmanipulationctrltemplate,
+                controller: 'InGraphManipulationCtrl',
+                size: 'sm',
+                resolve: {
+                    tooltipContent: () => tooltipContent,
+                },
+            }).result.then(function () {
+            });
+        };
+
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
             if ($stateParams.timerange) {
@@ -908,6 +921,25 @@ perf.controller('GraphsCtrl', [
             };
         });
     }]);
+
+perf.controller(
+    'InGraphManipulationCtrl', ['$scope', '$uibModalInstance',
+        function ($scope, $uibModalInstance) {
+            $scope.title = 'Manipulate alert';
+            $scope.placeholder = 'Task #';
+
+            $scope.update = function () {
+            };
+
+            $scope.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+            };
+            $scope.$on('modal.closing', function (event) {
+                if ($scope.modifying) {
+                    event.preventDefault();
+                }
+            });
+        }]);
 
 perf.filter('testNameContainsWords', function () {
     /*
