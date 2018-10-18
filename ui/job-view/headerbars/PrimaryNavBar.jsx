@@ -14,8 +14,8 @@ import SecondaryNavBar from './SecondaryNavBar';
 export default function PrimaryNavBar(props) {
   const {
     user, setUser, repos, updateButtonClick, serverChanged,
-    filterModel, $injector, setCurrentRepoTreeStatus, duplicateJobsVisible,
-    groupCountsExpanded,
+    filterModel, setCurrentRepoTreeStatus, duplicateJobsVisible,
+    groupCountsExpanded, toggleFieldFilterVisible,
   } = props;
 
   return (
@@ -37,12 +37,12 @@ export default function PrimaryNavBar(props) {
           <SecondaryNavBar
             updateButtonClick={updateButtonClick}
             serverChanged={serverChanged}
-            $injector={$injector}
             filterModel={filterModel}
             repos={repos}
             setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
             duplicateJobsVisible={duplicateJobsVisible}
             groupCountsExpanded={groupCountsExpanded}
+            toggleFieldFilterVisible={toggleFieldFilterVisible}
           />
         </nav>
       </div>
@@ -51,7 +51,6 @@ export default function PrimaryNavBar(props) {
 }
 
 PrimaryNavBar.propTypes = {
-  $injector: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
@@ -61,4 +60,5 @@ PrimaryNavBar.propTypes = {
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  toggleFieldFilterVisible: PropTypes.func.isRequired,
 };

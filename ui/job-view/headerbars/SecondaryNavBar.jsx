@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { thEvents } from '../../helpers/constants';
 import { getBtnClass } from '../../helpers/job';
 import { thFilterGroups } from '../../helpers/filter';
 import {
@@ -26,9 +25,6 @@ class SecondaryNavBar extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.filterChicklets = [
       'failures',
       thFilterGroups.nonfailures,
@@ -43,7 +39,6 @@ class SecondaryNavBar extends React.Component {
 
   componentDidMount() {
     this.toggleGroupState = this.toggleGroupState.bind(this);
-    this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
     this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(this);
     this.clearFilterBox = this.clearFilterBox.bind(this);
     this.unwatchRepo = this.unwatchRepo.bind(this);
@@ -102,10 +97,6 @@ class SecondaryNavBar extends React.Component {
       [filter];
 
     filterModel.toggleResultStatuses(filterValues);
-  }
-
-  toggleFieldFilterVisible() {
-      this.$rootScope.$emit(thEvents.toggleFieldFilterVisible);
   }
 
   toggleShowDuplicateJobs() {
@@ -172,7 +163,7 @@ class SecondaryNavBar extends React.Component {
     const {
       updateButtonClick, serverChanged, setCurrentRepoTreeStatus, repos,
       allUnclassifiedFailureCount, filteredUnclassifiedFailureCount,
-      groupCountsExpanded, duplicateJobsVisible,
+      groupCountsExpanded, duplicateJobsVisible, toggleFieldFilterVisible,
     } = this.props;
     const {
       watchedRepoNames, searchQueryStr, repoName,
@@ -280,7 +271,7 @@ class SecondaryNavBar extends React.Component {
             <span>
               <span
                 className="btn btn-view-nav btn-sm"
-                onClick={() => this.toggleFieldFilterVisible()}
+                onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
               ><i className="fa fa-filter" /></span>
             </span>
@@ -317,7 +308,6 @@ class SecondaryNavBar extends React.Component {
 }
 
 SecondaryNavBar.propTypes = {
-  $injector: PropTypes.object.isRequired,
   updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
   filterModel: PropTypes.object.isRequired,
@@ -327,6 +317,7 @@ SecondaryNavBar.propTypes = {
   filteredUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  toggleFieldFilterVisible: PropTypes.func.isRequired,
 };
 
 export default withPushes(SecondaryNavBar);
