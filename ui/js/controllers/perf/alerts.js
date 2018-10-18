@@ -356,29 +356,17 @@ perf.controller('AlertsCtrl', [
                     });
                 });
         };
-        $scope.markAlertsConfirming = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.CONFIRMING.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
+        $scope.markAlertsConfirming = (alertSummary) => {
+            PhAlerts.markAlertsConfirming(alertSummary)
+                    .then(updateAlertVisibility);
         };
-        $scope.markAlertsAcknowledged = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.ACKNOWLEDGED.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
+        $scope.markAlertsAcknowledged = (alertSummary) => {
+            PhAlerts.markAlertsAcknowledged(alertSummary)
+                    .then(updateAlertVisibility);
         };
-        $scope.markAlertsInvalid = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.INVALID.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
+        $scope.markAlertsInvalid = (alertSummary) => {
+            PhAlerts.markAlertsInvalid(alertSummary)
+                    .then(updateAlertVisibility);
         };
         $scope.markAlertsDownstream = function (alertSummary) {
             $uibModal.open({

@@ -288,6 +288,13 @@ treeherder.factory('PhAlerts', [
             return promise;
         }
 
+        const _modifySelectedAlertsAndUpdate = (
+            alertSummary,
+            phAlertStatusId,
+        ) => alertSummary.modifySelectedAlerts(
+            { status: phAlertStatusId }).then(
+                () => alertSummary.update());
+
         PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
             issueTrackers = issueTrackerList;
         });
@@ -383,5 +390,8 @@ treeherder.factory('PhAlerts', [
                 const alertId = dataPoint.alert.id;
                 return $http.put(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
             },
+            markAlertsConfirming: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.CONFIRMING.id),
+            markAlertsAcknowledged: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.ACKNOWLEDGED.id),
+            markAlertsInvalid: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.INVALID.id),
         };
     }]);
