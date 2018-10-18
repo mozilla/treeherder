@@ -210,35 +210,7 @@
     </div>
     <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
       <div ng-show="anySelected(alertSummary.alerts)">
-        <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
-                ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
-          Reset
-        </button>
-        <span ng-if="!anySelectedAndTriaged(alertSummary.alerts) || allSelectedAreConfirming(alertSummary.alerts)">
-          <button class="btn btn-light-bordered" role="button"
-                  ng-if="!allSelectedAreConfirming(alertSummary.alerts)"
-                  ng-click="markAlertsConfirming(alertSummary)" title="Retriggers & backfills are pending">
-            <span class="fa fa-clock-o"></span> Confirming
-          </button>
-          <button class="btn btn-light-bordered" role="button"
-                  ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
-            <span class="fa fa-check"></span> Acknowledge
-          </button>
-          <button class="btn btn-light-bordered" role="button"
-                  ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
-            <span class="fa fa-ban"></span> Mark invalid
-          </button>
-          <button class="btn btn-light-bordered" role="button"
-                  ng-click="markAlertsDownstream(alertSummary)"
-                  title="Mark selected alerts as downstream from an alert summary on another branch">
-            <span class="fa fa-level-down"></span> Mark downstream
-          </button>
-          <button class="btn btn-light-bordered" role="button"
-                  ng-click="reassignAlerts(alertSummary)"
-                  title="Reassign selected alerts to another alert summary on the same branch">
-            <span class="fa fa-arrow-circle-o-right"></span> Reassign
-          </button>
-        </span>
+        <ng-include src="'partials/perf/buttonPanel.html'"></ng-include>
       </div>
       <div ng-show="alertSummary.notes">
         <p class="notes-preview bg-light rounded mt-2"

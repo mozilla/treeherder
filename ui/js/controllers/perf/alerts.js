@@ -328,6 +328,58 @@ perf.controller('AlertsCtrl', [
                 updateAlertVisibility();
             });
         };
+
+        function updateAlertSummary(alertSummary) {
+            alertSummary.update().then(function () {
+                updateAlertVisibility();
+            });
+        }
+
+        // Alert manipulation operations
+        $scope.resetAlerts = function (alertSummary) {
+            // We need to update not only the summary when resetting the alert,
+            // but other summaries affected by the change
+            const summariesToUpdate = [alertSummary].concat((
+                alertSummary.alerts.filter(alert => alert.selected).map(
+                alert => ($scope.alertSummaries.find(alertSummary =>
+                        alertSummary.id === alert.related_summary_id)),
+                )).filter(alertSummary => alertSummary !== undefined));
+
+            alertSummary.modifySelectedAlerts({
+                status: phAlertStatusMap.UNTRIAGED.id,
+                related_summary_id: null,
+            }).then(
+                function () {
+                    // update the alert summaries appropriately
+                    summariesToUpdate.forEach((alertSummary) => {
+                        updateAlertSummary(alertSummary);
+                    });
+                });
+        };
+        $scope.markAlertsConfirming = function (alertSummary) {
+            alertSummary.modifySelectedAlerts({
+                status: phAlertStatusMap.CONFIRMING.id,
+            }).then(
+                function () {
+                    updateAlertSummary(alertSummary);
+                });
+        };
+        $scope.markAlertsAcknowledged = function (alertSummary) {
+            alertSummary.modifySelectedAlerts({
+                status: phAlertStatusMap.ACKNOWLEDGED.id,
+            }).then(
+                function () {
+                    updateAlertSummary(alertSummary);
+                });
+        };
+        $scope.markAlertsInvalid = function (alertSummary) {
+            alertSummary.modifySelectedAlerts({
+                status: phAlertStatusMap.INVALID.id,
+            }).then(
+                function () {
+                    updateAlertSummary(alertSummary);
+                });
+        };
         $scope.markAlertsDownstream = function (alertSummary) {
             $uibModal.open({
                 template: modifyAlertsCtrlTemplate,
@@ -361,57 +413,6 @@ perf.controller('AlertsCtrl', [
             }).result.then(function () {
                 updateAlertVisibility();
             });
-        };
-
-        function updateAlertSummary(alertSummary) {
-            alertSummary.update().then(function () {
-                updateAlertVisibility();
-            });
-        }
-        $scope.markAlertsConfirming = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.CONFIRMING.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
-        };
-        $scope.markAlertsAcknowledged = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.ACKNOWLEDGED.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
-        };
-        $scope.markAlertsInvalid = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.INVALID.id,
-            }).then(
-                function () {
-                    updateAlertSummary(alertSummary);
-                });
-        };
-
-        $scope.resetAlerts = function (alertSummary) {
-            // We need to update not only the summary when resetting the alert,
-            // but other summaries affected by the change
-            const summariesToUpdate = [alertSummary].concat((
-                alertSummary.alerts.filter(alert => alert.selected).map(
-                alert => ($scope.alertSummaries.find(alertSummary =>
-                        alertSummary.id === alert.related_summary_id)),
-                )).filter(alertSummary => alertSummary !== undefined));
-
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.UNTRIAGED.id,
-                related_summary_id: null,
-            }).then(
-                function () {
-                    // update the alert summaries appropriately
-                    summariesToUpdate.forEach((alertSummary) => {
-                        updateAlertSummary(alertSummary);
-                    });
-                });
         };
 
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
