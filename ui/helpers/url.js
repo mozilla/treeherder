@@ -20,22 +20,6 @@ export const createQueryParams = function createQueryParams(params) {
   return `?${query.toString()}`;
 };
 
-// For API calls, we want arrays to be ``id=1&id=2&id=3`` not ``id=1,2,3``
-// Because the python ``getlist`` function on parameters can't handle the latter.
-export const createApiQueryParams = function createQueryParams(params) {
-  const query = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach(item => query.append(key, item));
-    } else if (value) {
-      query.append(key, value);
-    }
-  });
-
-  return `?${query.toString()}`;
-};
-
 // Leaving this here since even though SERVICE_DOMAIN no longer exists (proxying
 // is used instead), it provides a single place to modify if needed in the future.
 export const getServiceUrl = function getServiceUrl(uri) {

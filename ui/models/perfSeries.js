@@ -1,4 +1,6 @@
-import { createApiQueryParams, getApiUrl, getProjectUrl } from '../helpers/url';
+import queryString from 'query-string';
+
+import { getApiUrl, getProjectUrl } from '../helpers/url';
 import OptionCollectionModel from './optionCollection';
 
 export const getTestName = function (signatureProps) {
@@ -53,8 +55,9 @@ export const getSeriesSummary = function (projectName, signature, signatureProps
 export default class PerfSeriesModel {
   static getSeriesList(projectName, params) {
     return OptionCollectionModel.getMap().then(function (optionCollectionMap) {
+      // console.log('getSeriesList query-string', queryString.stringify(params));
       return fetch(
-        `${getProjectUrl('/performance/signatures/', projectName)}${createApiQueryParams(params)}`,
+        `${getProjectUrl('/performance/signatures/', projectName)}?${queryString.stringify(params)}`,
         ).then(async (resp) => {
           if (resp.ok) {
             const data = await resp.json();
@@ -68,13 +71,14 @@ export default class PerfSeriesModel {
 
   static getPlatformList(projectName, params) {
     return fetch(
-      `${getProjectUrl('/performance/platforms/', projectName)}${createApiQueryParams(params)}`,
+      `${getProjectUrl('/performance/platforms/', projectName)}?${queryString.stringify(params)}`,
     ).then(async resp => resp.json());
   }
 
   static getSeriesData(projectName, params) {
+    // console.log('getSeriesData query-string', queryString.stringify(params));
     return fetch(
-      `${getProjectUrl('/performance/data/', projectName)}${createApiQueryParams(params)}`,
+      `${getProjectUrl('/performance/data/', projectName)}?${queryString.stringify(params)}`,
     ).then((resp) => {
       if (resp.ok) {
         return resp.json();
@@ -84,8 +88,9 @@ export default class PerfSeriesModel {
   }
 
   static getReplicateData(params) {
-    params.value = 'perfherder-data.json';
-    return fetch(`${getApiUrl('/jobdetail/')}${createApiQueryParams(params)}`,
+    const searchParams = { ...params, value: 'perfherder-data.json' };
+
+    return fetch(`${getApiUrl('/jobdetail/')}?${queryString.stringify(searchParams)}`,
       ).then(async (resp) => {
         if (resp.ok) {
           const data = await resp.json();
