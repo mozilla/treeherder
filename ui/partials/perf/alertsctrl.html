@@ -208,7 +208,7 @@
         </span>
       </p>
     </div>
-    <div class="card-body" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
+    <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
       <div ng-show="anySelected(alertSummary.alerts)">
         <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
                 ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
