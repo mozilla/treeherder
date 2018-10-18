@@ -48,8 +48,13 @@ class Push extends React.Component {
     this.poll = this.poll.bind(this);
     this.getLastModifiedJobTime = this.getLastModifiedJobTime.bind(this);
 
-    this.fetchJobs();
-    this.poll();
+    // if ``nojobs`` is on the query string, then don't load jobs.
+    // this allows someone to more quickly load ranges of revisions
+    // when they don't care about the specific jobs and results.
+    if (!getAllUrlParams().has('nojobs')) {
+      this.fetchJobs();
+      this.poll();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -123,13 +128,6 @@ class Push extends React.Component {
 
   async fetchJobs() {
     const { push } = this.props;
-
-    // if ``nojobs`` is on the query string, then don't load jobs.
-    // this allows someone to more quickly load ranges of revisions
-    // when they don't care about the specific jobs and results.
-    if (getAllUrlParams().has('nojobs')) {
-      return;
-    }
     const jobs = await PushModel.getJobs(push.id);
 
     this.mapPushJobs(jobs);
