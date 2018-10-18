@@ -294,13 +294,13 @@ export class PushesClass extends React.Component {
 
     if (data.results.length > 0) {
       const pushIds = pushList.map(push => push.id);
-      pushList.push(...data.results.filter(push => !pushIds.includes(push.id)));
-      pushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
-      const oldestPushTimestamp = pushList[pushList.length - 1].push_timestamp;
+      const newPushList = [...pushList, ...data.results.filter(push => !pushIds.includes(push.id))];
+      newPushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
+      const oldestPushTimestamp = newPushList[newPushList.length - 1].push_timestamp;
       this.recalculateUnclassifiedCounts();
       this.setValue(
-        { pushList: [...pushList], oldestPushTimestamp },
-        () => this.setRevisionTips(pushList),
+        { pushList: newPushList, oldestPushTimestamp },
+        () => this.setRevisionTips(),
       );
     }
   }
