@@ -925,8 +925,29 @@ perf.controller('GraphsCtrl', [
 perf.controller(
     'InGraphManipulationCtrl', ['$scope', '$uibModalInstance',
         function ($scope, $uibModalInstance) {
-            $scope.title = 'Manipulate alert';
+            const initialTitle = 'Manipulate';
+            $scope.alertScope = 'alert';
+            $scope.alertSummaryScope = 'alert summary';
+
+            $scope.title = initialTitle;
             $scope.placeholder = 'Task #';
+            $scope.selectedScope = null;
+
+            $scope.select = function (alertScope) {
+                $scope.selectedScope = alertScope;
+                $scope.title = `${initialTitle} at ${alertScope} scope`;
+
+                if (alertScope === 'alert') {
+                    // enable alert-level menu
+                } else {
+                    // enable summary-level menu
+                }
+            };
+
+            $scope.back = function () {
+                $scope.title = initialTitle;
+                $scope.selectedScope = null;
+            };
 
             $scope.update = function () {
             };
