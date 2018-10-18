@@ -4,10 +4,11 @@ import chunk from 'lodash/chunk';
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
 import { phTimeRanges } from '../../../helpers/constants';
+import PerfSeriesModel from '../../../models/perfSeries';
 
 treeherder.factory('PhCompare', [
-    '$q', '$http', '$httpParamSerializer', 'PhSeries', 'math',
-    function ($q, $http, $httpParamSerializer, PhSeries, math) {
+    '$q', '$http', '$httpParamSerializer', 'math',
+    function ($q, $http, $httpParamSerializer, math) {
 
         // Used for t_test: default stddev if both sets have only a single value - 15%.
         // Should be rare case and it's unreliable, but at least have something.
@@ -234,7 +235,7 @@ treeherder.factory('PhCompare', [
             getResultsMap: (projectName, seriesList, params) => {
                 const resultsMap = {};
                 return $q.all(chunk(seriesList, 40).map(
-                    seriesChunk => PhSeries.getSeriesData(
+                    seriesChunk => PerfSeriesModel.getSeriesData(
                         projectName, {
                             signature_id: seriesChunk.map(series => series.id),
                             framework: [...new Set(seriesChunk.map(series => series.frameworkId))],

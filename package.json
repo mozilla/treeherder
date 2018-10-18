@@ -55,6 +55,7 @@
     "numeral": "2.0.6",
     "popper.js": "1.14.4",
     "prop-types": "15.6.2",
+    "query-string": "6.2.0",
     "react": "16.5.2",
     "react-day-picker": "7.2.4",
     "react-dom": "16.5.2",

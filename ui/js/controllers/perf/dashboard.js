@@ -5,6 +5,7 @@ import perf from '../../perf';
 import { thDefaultRepo, phBlockers, phTimeRanges } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
+import PerfSeriesModel, { getTestName } from '../../../models/perfSeries';
 
 const phDashboardValues = {
     /*
@@ -28,9 +29,9 @@ perf.value('defaultTimeRange', 86400 * 2);
 
 perf.controller('dashCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$httpParamSerializer',
-    'PhSeries', 'PhCompare', 'defaultTimeRange',
+    'PhCompare', 'defaultTimeRange',
     function dashCtrl($state, $stateParams, $scope, $rootScope, $q, $httpParamSerializer,
-                      PhSeries, PhCompare, defaultTimeRange) {
+                      PhCompare, defaultTimeRange) {
         $scope.dataLoading = true;
         $scope.timeRanges = phTimeRanges;
         $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
@@ -74,13 +75,13 @@ perf.controller('dashCtrl', [
                 }).then(async (resp) => {
                     const { results } = resp.json();
                     resultSetId = results[0].id;
-                    return PhSeries.getSeriesList($scope.selectedRepo.name, {
+                    return PerfSeriesModel.getSeriesList($scope.selectedRepo.name, {
                         push_id: resultSetId, subtests: 0 });
                 }, function () {
                     $scope.revisionNotFound = true;
                 });
             } else {
-                getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
+                getSeriesList = PerfSeriesModel.getSeriesList($scope.selectedRepo.name, {
                     interval: $scope.selectedTimeRange.value,
                     subtests: 0,
                     framework: $scope.framework }).then(function (seriesList) {
@@ -105,7 +106,7 @@ perf.controller('dashCtrl', [
                         params.interval = $scope.selectedTimeRange.value;
                     }
 
-                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
+                    return PerfSeriesModel.getSeriesData($scope.selectedRepo.name, params).then(function (seriesData) {
                         forIn(seriesData, function (data, signature) {
                             const series = seriesChunk.find(series =>
                                 series.signature === signature);
@@ -240,9 +241,9 @@ perf.controller('dashCtrl', [
 
 perf.controller('dashSubtestCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q',
-    'PhSeries', 'PhCompare', 'defaultTimeRange',
+    'PhCompare', 'defaultTimeRange',
     function ($state, $stateParams, $scope, $rootScope, $q,
-             PhSeries, PhCompare, defaultTimeRange) {
+             PhCompare, defaultTimeRange) {
 
         const baseSignature = $stateParams.baseSignature;
         const variantSignature = $stateParams.variantSignature;
@@ -280,13 +281,13 @@ perf.controller('dashSubtestCtrl', [
                 }).then(async (resp) => {
                     const { results } = await resp.json();
                     resultSetId = results[0].id;
-                    return PhSeries.getSeriesList($scope.selectedRepo.name, {
+                    return PerfSeriesModel.getSeriesList($scope.selectedRepo.name, {
                         parent_signature: [baseSignature, variantSignature],
                         framework: $scope.framework,
                     });
                 });
             } else {
-                getSeriesList = PhSeries.getSeriesList($scope.selectedRepo.name, {
+                getSeriesList = PerfSeriesModel.getSeriesList($scope.selectedRepo.name, {
                     parent_signature: [baseSignature, variantSignature],
                     framework: $scope.framework,
                 });
@@ -308,7 +309,7 @@ perf.controller('dashSubtestCtrl', [
                     } else {
                         params.interval = $scope.selectedTimeRange.value;
                     }
-                    return PhSeries.getSeriesData($scope.selectedRepo.name, params).then((seriesData) => {
+                    return PerfSeriesModel.getSeriesData($scope.selectedRepo.name, params).then((seriesData) => {
                         forIn(seriesData, function (data, signature) {
                             const series = seriesList.find(series =>
                                 series.signature === signature);
@@ -316,7 +317,7 @@ perf.controller('dashSubtestCtrl', [
                             resultsMap[type][signature] = {
                                 platform: series.platform,
                                 suite: series.suite,
-                                name: PhSeries.getTestName(series),
+                                name: getTestName(series),
                                 lowerIsBetter: series.lowerIsBetter,
                                 values: data.map(d => d.value),
                             };

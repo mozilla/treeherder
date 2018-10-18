@@ -21,12 +21,13 @@ import {
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
+import PerfSeriesModel from '../../../models/perfSeries';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
-    '$window', '$q', '$timeout', 'PhSeries', 'PhAlerts',
+    '$window', '$q', '$timeout', 'PhAlerts',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
-        $uibModal, $window, $q, $timeout, PhSeries, PhAlerts) {
+        $uibModal, $window, $q, $timeout, PhAlerts) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
@@ -623,7 +624,7 @@ perf.controller('GraphsCtrl', [
         }
 
         function getSeriesData(series) {
-            return PhSeries.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
+            return PerfSeriesModel.getSeriesData(series.projectName, { interval: $scope.myTimerange.value,
                 signature_id: series.id,
                 framework: series.frameworkId,
             }).then(
@@ -669,7 +670,7 @@ perf.controller('GraphsCtrl', [
                 } else {
                     params.signature = partialSeries.signature;
                 }
-                return PhSeries.getSeriesList(
+                return PerfSeriesModel.getSeriesList(
                     partialSeries.project, params).then(function (seriesList) {
                         if (!seriesList.length) {
                             return $q.reject('Signature `' + partialSeries.signature +
@@ -924,11 +925,11 @@ perf.filter('testNameContainsWords', function () {
 });
 
 perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
-    'projects', 'timeRange', 'PhSeries',
+    'projects', 'timeRange',
     'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
     '$q', 'testsDisplayed', 'options',
     function ($scope, $uibModalInstance, projects, timeRange,
-        PhSeries, PhFramework, defaultFrameworkId, defaultProjectName,
+        PhFramework, defaultFrameworkId, defaultProjectName,
         defaultPlatform, $q, testsDisplayed, options) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
@@ -1002,7 +1003,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
 
         var loadingExtraDataPromise = $q.defer();
         var addRelatedPlatforms = function (originalSeries) {
-            PhSeries.getSeriesList(
+            PerfSeriesModel.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId,
@@ -1033,7 +1034,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             // get each project's series data from remote and use promise to
             // ensure each step will be executed after last on has finished
             $q.all(branchList.map(function (project) {
-                return PhSeries.getSeriesList(project.name, {
+                return PerfSeriesModel.getSeriesList(project.name, {
                     interval: $scope.timeRange,
                     signature: originalSeries.signature,
                     framework: originalSeries.frameworkId,
@@ -1054,7 +1055,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
         };
 
         var addRelatedConfigs = function (originalSeries) {
-            PhSeries.getSeriesList(
+            PerfSeriesModel.getSeriesList(
                 originalSeries.projectName, {
                     interval: $scope.timeRange,
                     framework: originalSeries.frameworkId,
@@ -1105,7 +1106,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                 $scope.loadingTestData = true;
                 $scope.loadingPlatformList = true;
                 $scope.platformList = [];
-                PhSeries.getPlatformList($scope.selectedProject.name, {
+                PerfSeriesModel.getPlatformList($scope.selectedProject.name, {
                     interval: $scope.timeRange,
                     framework: $scope.selectedFramework.id }).then(function (platformList) {
                         $scope.platformList = platformList;
@@ -1124,7 +1125,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     if ($scope.selectedPlatform) {
                         defaultPlatform = $scope.selectedPlatform;
                     }
-                    PhSeries.getSeriesList(
+                    PerfSeriesModel.getSeriesList(
                         $scope.selectedProject.name,
                         { interval: $scope.timeRange,
                             platform: $scope.selectedPlatform,

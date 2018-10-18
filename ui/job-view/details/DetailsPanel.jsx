@@ -13,6 +13,7 @@ import JobModel from '../../models/job';
 import JobDetailModel from '../../models/jobDetail';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import TextLogStepModel from '../../models/textLogStep';
+import PerfSeriesModel from '../../models/perfSeries';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
@@ -25,8 +26,6 @@ class DetailsPanel extends React.Component {
     super(props);
 
     const { $injector } = this.props;
-
-    this.PhSeries = $injector.get('PhSeries');
     this.$rootScope = $injector.get('$rootScope');
 
     // used to cancel all the ajax requests triggered by selectJob
@@ -154,7 +153,7 @@ class DetailsPanel extends React.Component {
         { job_id: selectedJob.id },
         this.selectJobController.signal);
 
-      const phSeriesPromise = this.PhSeries.getSeriesData(
+      const phSeriesPromise = PerfSeriesModel.getSeriesData(
         repoName, { job_id: selectedJob.id });
 
       Promise.all([
@@ -200,12 +199,12 @@ class DetailsPanel extends React.Component {
         const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
         const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
         const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
-
         let perfJobDetail = [];
-        if (performanceData) {
+
+        if (performanceData.length) {
           const signatureIds = [...new Set(performanceData.map(perf => perf.signature_id))];
           const seriesListList = await Promise.all(chunk(signatureIds, 20).map(
-            signatureIdChunk => this.PhSeries.getSeriesList(repoName, { id: signatureIdChunk }),
+            signatureIdChunk => PerfSeriesModel.getSeriesList(repoName, { id: signatureIdChunk }),
           ));
           const seriesList = seriesListList.reduce((a, b) => [...a, ...b], []);
 

@@ -27,7 +27,6 @@ import './shared/Login';
 
 // Perf JS
 import './js/filters';
-import './js/models/perf/series';
 import './js/models/perf/issue_tracker';
 import './js/models/perf/performance_framework';
 import './js/models/perf/alerts';

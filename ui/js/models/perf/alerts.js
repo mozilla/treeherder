@@ -11,18 +11,19 @@ import {
   phFrameworksWithRelatedBranches,
   thPerformanceBranches,
 } from '../../../helpers/constants';
+import { getSeriesName, getTestName } from '../../../models/perfSeries';
 
 treeherder.factory('PhAlerts', [
-    '$http', '$httpParamSerializer', '$q', 'PhSeries',
+    '$http', '$httpParamSerializer', '$q',
     'PhIssueTracker', 'displayNumberFilter',
-    function ($http, $httpParamSerializer, $q, PhSeries,
+    function ($http, $httpParamSerializer, $q,
              PhIssueTracker, displayNumberFilter) {
 
         let issueTrackers = null;
 
         const Alert = function (alertData, optionCollectionMap) {
             Object.assign(this, alertData);
-            this.title = PhSeries.getSeriesName(
+            this.title = getSeriesName(
                 this.series_signature, optionCollectionMap,
                 { includePlatformInName: true });
         };
@@ -218,7 +219,7 @@ treeherder.factory('PhAlerts', [
             }
             // add test info
             title += ' ' + [...new Set(
-                    alertsInSummary.map(a => PhSeries.getTestName(a.series_signature)),
+                    alertsInSummary.map(a => getTestName(a.series_signature)),
                 )].sort().join(' / ');
             // add platform info
             title += ' (' + [...new Set(
