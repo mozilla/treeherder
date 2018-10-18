@@ -245,7 +245,6 @@ export const thEvents = {
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
-  toggleFieldFilterVisible: 'toggle-field-filter-visible-EVT',
 };
 
 export const phCompareDefaultOriginalRepo = 'mozilla-central';

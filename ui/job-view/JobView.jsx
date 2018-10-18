@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
 import treeherder from '../js/treeherder';
-import { thEvents, thFavicons } from '../helpers/constants';
+import { thFavicons } from '../helpers/constants';
 import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
@@ -104,10 +104,6 @@ class JobView extends React.Component {
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('hashchange', this.handleUrlChanges, false);
 
-    this.toggleFieldFilterVisibleUnlisten = this.$rootScope.$on(thEvents.toggleFieldFilterVisible, () => {
-      this.toggleFieldFilterVisible();
-    });
-
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
       this.setState({ serverRev: revision });
@@ -137,7 +133,6 @@ class JobView extends React.Component {
   }
 
   componentWillUnmount() {
-    this.toggleFieldFilterVisibleUnlisten();
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
@@ -262,7 +257,7 @@ class JobView extends React.Component {
                     getAllShownJobs={this.getAllShownJobs}
                     duplicateJobsVisible={duplicateJobsVisible}
                     groupCountsExpanded={groupCountsExpanded}
-                    $injector={$injector}
+                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
                   />
                   <SplitPane
                     split="horizontal"
@@ -271,7 +266,6 @@ class JobView extends React.Component {
                   >
                     <div className="d-flex flex-column w-100">
                       {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                        $injector={$injector}
                         classificationTypes={classificationTypes}
                         filterModel={filterModel}
                         filterBarFilters={filterBarFilters}
