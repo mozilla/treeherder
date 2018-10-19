@@ -273,7 +273,6 @@ class DetailsPanel extends React.Component {
             logViewerFullUrl={logViewerFullUrl}
             bugs={bugs}
             user={user}
-            $injector={$injector}
           />
           <span className="job-tabs-divider" />
           <TabsPanel

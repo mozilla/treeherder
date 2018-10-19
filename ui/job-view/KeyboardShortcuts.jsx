@@ -30,13 +30,6 @@ const keyMap = {
 };
 
 class KeyboardShortcuts extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-  }
-
   componentDidMount() {
     this.addRelatedBug = this.addRelatedBug.bind(this);
     this.pinEditComment = this.pinEditComment.bind(this);
@@ -122,7 +115,7 @@ class KeyboardShortcuts extends React.Component {
 
   // open the logviewer for the selected job
   openLogviewer() {
-    this.$rootScope.$emit(thEvents.openLogviewer);
+    window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
   }
 
   // retrigger selected job
@@ -224,7 +217,6 @@ class KeyboardShortcuts extends React.Component {
 
 KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
   children: PropTypes.array.isRequired,

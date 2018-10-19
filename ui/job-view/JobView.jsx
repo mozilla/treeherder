@@ -240,7 +240,6 @@ class JobView extends React.Component {
               <SelectedJob>
                 <KeyboardShortcuts
                   filterModel={filterModel}
-                  $injector={$injector}
                   showOnScreenShortcuts={this.showOnScreenShortcuts}
                 >
                   <PrimaryNavBar

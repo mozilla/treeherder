@@ -54,7 +54,7 @@ class SummaryPanel extends React.Component {
     const {
       repoName, selectedJob, latestClassification, bugs, jobLogUrls,
       jobDetailLoading, buildUrl, logViewerUrl, logViewerFullUrl,
-      logParseStatus, $injector, user, currentRepo, classificationMap,
+      logParseStatus, user, currentRepo, classificationMap,
     } = this.props;
     const { machineUrl, machineUrlStatus } = this.state;
 
@@ -79,7 +79,6 @@ class SummaryPanel extends React.Component {
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
           jobLogUrls={jobLogUrls}
-          $injector={$injector}
           user={user}
         />
         <div id="summary-panel-content">
@@ -190,7 +189,6 @@ class SummaryPanel extends React.Component {
 SummaryPanel.propTypes = {
   repoName: PropTypes.string.isRequired,
   bugs: PropTypes.array.isRequired,
-  $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
