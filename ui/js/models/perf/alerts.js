@@ -409,6 +409,14 @@ treeherder.factory('PhAlerts', [
                                                             allAlertSummaries: () => allAlertSummaries,
                                                         },
                                                     }).result,
-            reassignAlerts: null,
+            reassignAlerts: (alertSummary, allAlertSummaries) => $uibModal.open({
+                                                        template: modifyAlertsCtrlTemplate,
+                                                        controller: 'ReassignAlertsCtrl',
+                                                        size: 'sm',
+                                                        resolve: {
+                                                            alertSummary: () => alertSummary,
+                                                            allAlertSummaries: () => allAlertSummaries,
+                                                        },
+                                                    }).result,
         };
     }]);

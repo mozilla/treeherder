@@ -369,21 +369,8 @@ perf.controller('AlertsCtrl', [
                     .then(updateAlertVisibility);
         };
         $scope.reassignAlerts = function (alertSummary) {
-            $uibModal.open({
-                template: modifyAlertsCtrlTemplate,
-                controller: 'ReassignAlertsCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                    allAlertSummaries: function () {
-                        return $scope.alertSummaries;
-                    },
-                },
-            }).result.then(function () {
-                updateAlertVisibility();
-            });
+            PhAlerts.reassignAlerts(alertSummary, $scope.alertSummaries)
+                    .then(updateAlertVisibility);
         };
 
         function addAlertSummaries(alertSummaries, getMoreAlertSummariesHref) {
