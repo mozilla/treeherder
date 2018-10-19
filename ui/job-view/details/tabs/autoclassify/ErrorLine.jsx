@@ -434,7 +434,7 @@ class ErrorLine extends React.Component {
   render() {
     const {
       errorLine, selectedJob, canClassify, isSelected, isEditable, setEditable,
-      $injector, toggleSelect, repoName,
+      toggleSelect, repoName,
     } = this.props;
     const {
       messageExpanded, showHidden, selectedOption, options, extraOptions,
@@ -536,7 +536,6 @@ class ErrorLine extends React.Component {
                       canClassify={canClassify}
                       onOptionChange={this.onOptionChange}
                       ignoreAlways={option.ignoreAlways}
-                      $injector={$injector}
                     />
                   </li>))}
               </ul>
@@ -560,7 +559,6 @@ class ErrorLine extends React.Component {
                       onManualBugNumberChange={this.onManualBugNumberChange}
                       manualBugNumber={option.manualBugNumber}
                       ignoreAlways={option.ignoreAlways}
-                      $injector={$injector}
                     />
                   </li>))}
               </ul>}

@@ -108,7 +108,7 @@ class KeyboardShortcuts extends React.Component {
   }
 
   saveClassification() {
-    this.$rootScope.$emit(thEvents.saveClassification);
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   }
 
   // delete classification and related bugs

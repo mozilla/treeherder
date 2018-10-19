@@ -39,13 +39,11 @@ class PinBoard extends React.Component {
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
     this.pasteSHA = this.pasteSHA.bind(this);
 
-    this.saveClassificationUnlisten = this.$rootScope.$on(thEvents.saveClassification, () => {
-      this.save();
-    });
+    window.addEventListener(thEvents.saveClassification, this.save);
   }
 
   componentWillUnmount() {
-    this.saveClassificationUnlisten();
+    window.removeEventListener(thEvents.saveClassification, this.save);
   }
 
   setClassificationId(evt) {

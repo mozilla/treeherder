@@ -43,9 +43,6 @@ class JobView extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     const filterModel = new FilterModel();
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
