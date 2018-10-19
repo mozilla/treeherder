@@ -1,8 +1,6 @@
 import React from 'react';
-import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
-import treeherder from '../js/treeherder';
 import { thFavicons } from '../helpers/constants';
 import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
@@ -151,7 +149,13 @@ class JobView extends React.Component {
   }
 
   setCurrentRepoTreeStatus(status) {
-    document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
+    const links = document.getElementsByTagName('link');
+
+    for (const link in links) {
+      if (link.rel === 'shortcut icon') {
+        link.href = thFavicons[status] || thFavicons.open;
+      }
+    }
   }
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -313,4 +317,4 @@ class JobView extends React.Component {
   }
 }
 
-treeherder.component('jobView', react2angular(JobView, [], []));
+export default JobView;
