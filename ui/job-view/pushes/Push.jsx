@@ -213,8 +213,8 @@ class Push extends React.Component {
       platform.groups.sort((a, b) => a.symbol.length + a.tier - b.symbol.length - b.tier);
     });
     platforms.sort((a, b) => (
-      (platformArray.indexOf(a.name) * 100 + thOptionOrder[a.option]) -
-      (platformArray.indexOf(b.name) * 100 + thOptionOrder[b.option])
+      (platformArray.indexOf(a.name) * 100 + (thOptionOrder[a.option] || 10)) -
+      (platformArray.indexOf(b.name) * 100 + (thOptionOrder[b.option] || 10))
     ));
     return platforms;
   }
