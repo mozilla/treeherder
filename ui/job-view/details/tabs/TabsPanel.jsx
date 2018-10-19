@@ -19,9 +19,6 @@ class TabsPanel extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
       tabIndex: 0,
@@ -53,19 +50,22 @@ class TabsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.selectNextTabUnlisten = this.$rootScope.$on(thEvents.selectNextTab, () => {
-      const { tabIndex, showAutoclassifyTab } = this.state;
-      const { perfJobDetail } = this.props;
-      const nextIndex = tabIndex + 1;
-      const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length, showAutoclassifyTab).length;
-      this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
-    });
-
     this.setTabIndex = this.setTabIndex.bind(this);
+    this.onSelectNextTab = this.onSelectNextTab.bind(this);
+
+    window.addEventListener(thEvents.selectNextTab, this.onSelectNextTab);
   }
 
   componentWillUnmount() {
-    this.selectNextTabUnlisten();
+    window.removeEventListener(thEvents.selectNextTab, this.onSelectNextTab);
+  }
+
+  onSelectNextTab() {
+    const { tabIndex, showAutoclassifyTab } = this.state;
+    const { perfJobDetail } = this.props;
+    const nextIndex = tabIndex + 1;
+    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length, showAutoclassifyTab).length;
+    this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   }
 
   static getDefaultTabIndex(status, showPerf, showAutoclassify) {

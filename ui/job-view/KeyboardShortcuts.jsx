@@ -141,7 +141,7 @@ class KeyboardShortcuts extends React.Component {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
-      this.$rootScope.$emit(thEvents.selectNextTab);
+      window.dispatchEvent(new CustomEvent(thEvents.selectNextTab));
     }
   }
 
