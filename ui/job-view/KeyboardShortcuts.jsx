@@ -116,7 +116,7 @@ class KeyboardShortcuts extends React.Component {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
-      this.$rootScope.$emit(thEvents.deleteClassification);
+      window.dispatchEvent(new CustomEvent(thEvents.deleteClassification));
     }
   }
 

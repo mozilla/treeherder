@@ -173,7 +173,6 @@ class TabsPanel extends React.Component {
               classificationMap={classificationMap}
               classifications={classifications}
               bugs={bugs}
-              $injector={$injector}
             />
           </TabPanel>
           <TabPanel>
