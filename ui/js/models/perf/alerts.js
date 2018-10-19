@@ -290,9 +290,9 @@ treeherder.factory('PhAlerts', [
 
         const _modifySelectedAlertsAndUpdate = (
             alertSummary,
-            phAlertStatusId,
+            modification,
         ) => alertSummary.modifySelectedAlerts(
-            { status: phAlertStatusId }).then(
+            modification).then(
                 () => alertSummary.update());
 
         PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
@@ -390,8 +390,14 @@ treeherder.factory('PhAlerts', [
                 const alertId = dataPoint.alert.id;
                 return $http.put(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
             },
-            markAlertsConfirming: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.CONFIRMING.id),
-            markAlertsAcknowledged: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.ACKNOWLEDGED.id),
-            markAlertsInvalid: alertSummary => _modifySelectedAlertsAndUpdate(alertSummary, phAlertStatusMap.INVALID.id),
+            resetAlerts: alertSummary => _modifySelectedAlertsAndUpdate(
+                                                    alertSummary,
+                                                    { status: phAlertStatusMap.UNTRIAGED.id, related_summary_id: null }),
+            markAlertsConfirming: alertSummary => _modifySelectedAlertsAndUpdate(
+                                                    alertSummary, { status: phAlertStatusMap.CONFIRMING.id }),
+            markAlertsAcknowledged: alertSummary => _modifySelectedAlertsAndUpdate(
+                                                    alertSummary, { status: phAlertStatusMap.ACKNOWLEDGED.id }),
+            markAlertsInvalid: alertSummary => _modifySelectedAlertsAndUpdate(
+                                                    alertSummary, { status: phAlertStatusMap.INVALID.id }),
         };
     }]);

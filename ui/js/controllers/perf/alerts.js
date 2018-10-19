@@ -336,25 +336,21 @@ perf.controller('AlertsCtrl', [
         }
 
         // Alert manipulation operations
-        $scope.resetAlerts = function (alertSummary) {
-            // We need to update not only the summary when resetting the alert,
-            // but other summaries affected by the change
-            const summariesToUpdate = [alertSummary].concat((
-                alertSummary.alerts.filter(alert => alert.selected).map(
-                alert => ($scope.alertSummaries.find(alertSummary =>
-                        alertSummary.id === alert.related_summary_id)),
-                )).filter(alertSummary => alertSummary !== undefined));
+        $scope.resetAlerts = (alertSummary) => {
+            PhAlerts.resetAlerts(alertSummary)
+                    .then(updateAlertVisibility)
+                    .then(() => {
+                         // We also need to update the other summaries
+                         // affected by the reset
+                        const summariesToUpdate = (alertSummary.alerts.filter(alert => alert.selected).map(
+                                                   alert => ($scope.alertSummaries.find(alertSummary =>
+                                                       alertSummary.id === alert.related_summary_id)),
+                                                   )).filter(alertSummary => alertSummary !== undefined);
 
-            alertSummary.modifySelectedAlerts({
-                status: phAlertStatusMap.UNTRIAGED.id,
-                related_summary_id: null,
-            }).then(
-                function () {
-                    // update the alert summaries appropriately
-                    summariesToUpdate.forEach((alertSummary) => {
-                        updateAlertSummary(alertSummary);
+                        summariesToUpdate.forEach((alertSummary) => {
+                            updateAlertSummary(alertSummary);
+                        });
                     });
-                });
         };
         $scope.markAlertsConfirming = (alertSummary) => {
             PhAlerts.markAlertsConfirming(alertSummary)
