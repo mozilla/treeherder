@@ -205,6 +205,7 @@ export const thOptionOrder = {
   debug: 4,
   cc: 5,
   addon: 6,
+  all: 7,
 };
 
 export const thFavicons = {
