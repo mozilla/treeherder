@@ -44,18 +44,22 @@ class ActionBar extends React.Component {
       }
     });
 
-    this.jobRetriggerUnlisten = this.$rootScope.$on(thEvents.jobRetrigger, (event, job) => {
-      this.retriggerJob([job]);
-    });
-
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
     this.createGeckoProfile = this.createGeckoProfile.bind(this);
     this.createInteractiveTask = this.createInteractiveTask.bind(this);
+    this.onRetriggerJob = this.onRetriggerJob.bind(this);
+    this.retriggerJob = this.retriggerJob.bind(this);
+
+    window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   componentWillUnmount() {
     this.openLogViewerUnlisten();
-    this.jobRetriggerUnlisten();
+    window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
+  }
+
+  onRetriggerJob(event) {
+    this.retriggerJob([event.detail.job]);
   }
 
   canCancel() {

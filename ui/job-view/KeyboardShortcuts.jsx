@@ -130,7 +130,9 @@ class KeyboardShortcuts extends React.Component {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
-      this.$rootScope.$emit(thEvents.jobRetrigger, selectedJob);
+      window.dispatchEvent(
+        new CustomEvent(thEvents.jobRetrigger, { detail: { job: selectedJob } }),
+      );
     }
   }
 
