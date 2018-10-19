@@ -365,21 +365,8 @@ perf.controller('AlertsCtrl', [
                     .then(updateAlertVisibility);
         };
         $scope.markAlertsDownstream = function (alertSummary) {
-            $uibModal.open({
-                template: modifyAlertsCtrlTemplate,
-                controller: 'MarkDownstreamAlertsCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                    allAlertSummaries: function () {
-                        return $scope.alertSummaries;
-                    },
-                },
-            }).result.then(function () {
-                updateAlertVisibility();
-            });
+            PhAlerts.markAlertsDownstream(alertSummary, $scope.alertSummaries)
+                    .then(updateAlertVisibility);
         };
         $scope.reassignAlerts = function (alertSummary) {
             $uibModal.open({

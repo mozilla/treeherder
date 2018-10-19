@@ -3,6 +3,7 @@ import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
+import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import { getApiUrl } from '../../../helpers/url';
 import OptionCollectionModel from '../../../models/optionCollection';
 import {
@@ -14,9 +15,9 @@ import {
 import { getSeriesName, getTestName } from '../../../models/perfSeries';
 
 treeherder.factory('PhAlerts', [
-    '$http', '$httpParamSerializer', '$q',
+    '$http', '$httpParamSerializer', '$q', '$uibModal',
     'PhIssueTracker', 'displayNumberFilter',
-    function ($http, $httpParamSerializer, $q,
+    function ($http, $httpParamSerializer, $q, $uibModal,
              PhIssueTracker, displayNumberFilter) {
 
         let issueTrackers = null;
@@ -399,5 +400,15 @@ treeherder.factory('PhAlerts', [
                                                     alertSummary, { status: phAlertStatusMap.ACKNOWLEDGED.id }),
             markAlertsInvalid: alertSummary => _modifySelectedAlertsAndUpdate(
                                                     alertSummary, { status: phAlertStatusMap.INVALID.id }),
+            markAlertsDownstream: (alertSummary, allAlertSummaries) => $uibModal.open({
+                                                        template: modifyAlertsCtrlTemplate,
+                                                        controller: 'MarkDownstreamAlertsCtrl',
+                                                        size: 'sm',
+                                                        resolve: {
+                                                            alertSummary: () => alertSummary,
+                                                            allAlertSummaries: () => allAlertSummaries,
+                                                        },
+                                                    }).result,
+            reassignAlerts: null,
         };
     }]);
