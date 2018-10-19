@@ -156,7 +156,6 @@ class TabsPanel extends React.Component {
               logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
-              $injector={$injector}
             />
           </TabPanel>
           {showAutoclassifyTab && <TabPanel>

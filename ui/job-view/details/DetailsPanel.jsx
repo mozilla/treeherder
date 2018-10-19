@@ -25,9 +25,6 @@ class DetailsPanel extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
 
@@ -51,9 +48,9 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.jobsClassifiedUnlisten = this.$rootScope.$on(thEvents.jobsClassified, () => {
-      this.updateClassifications();
-    });
+    this.updateClassifications = this.updateClassifications.bind(this);
+
+    window.addEventListener(thEvents.classificationChanged, this.updateClassifications);
   }
 
   componentDidUpdate(prevProps) {
@@ -65,7 +62,7 @@ class DetailsPanel extends React.Component {
   }
 
   componentWillUnmount() {
-    this.jobsClassifiedUnlisten();
+    window.removeEventListener(thEvents.classificationChanged, this.updateClassifications);
   }
 
   togglePinBoardVisibility() {
@@ -262,7 +259,6 @@ class DetailsPanel extends React.Component {
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
-          $injector={$injector}
         />
         {!!selectedJob && <div id="details-panel-content">
           <SummaryPanel

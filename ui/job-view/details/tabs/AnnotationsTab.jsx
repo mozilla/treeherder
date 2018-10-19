@@ -178,10 +178,7 @@ class AnnotationsTab extends React.Component {
         notify('Classification successfully deleted', 'success');
         // also be sure the job object in question gets updated to the latest
         // classification state (in case one was added or removed).
-        this.$rootScope.$emit(
-          thEvents.jobsClassified,
-          { jobs: { [selectedJob.id]: selectedJob } },
-        );
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       },
       () => {
         notify('Classification deletion failed', 'danger', { sticky: true });
@@ -189,12 +186,12 @@ class AnnotationsTab extends React.Component {
   }
 
   deleteBug(bug) {
-    const { selectedJob, notify } = this.props;
+    const { notify } = this.props;
 
     bug.destroy()
       .then(() => {
         notify(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
-        this.$rootScope.$emit(thEvents.jobsClassified, { jobs: { [selectedJob.id]: selectedJob } });
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       }, () => {
         notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
       });

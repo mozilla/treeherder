@@ -16,9 +16,6 @@ class FailureSummaryTab extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       isBugFilerOpen: false,
     };
@@ -128,7 +125,6 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
-  $injector: PropTypes.object.isRequired,
   addBug: PropTypes.func.isRequired,
   pinJob: PropTypes.func.isRequired,
   suggestions: PropTypes.array,
