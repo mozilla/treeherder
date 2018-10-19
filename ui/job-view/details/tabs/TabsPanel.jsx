@@ -97,7 +97,7 @@ class TabsPanel extends React.Component {
       jobDetails, jobLogUrls, logParseStatus, suggestions, errors, user, bugs,
       bugSuggestionsLoading, perfJobDetail, repoName, jobRevision,
       classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs,
-      classificationMap, logViewerFullUrl, reftestUrl, $injector, clearSelectedJob,
+      classificationMap, logViewerFullUrl, reftestUrl, clearSelectedJob,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -165,7 +165,6 @@ class TabsPanel extends React.Component {
               logParseStatus={logParseStatus}
               user={user}
               repoName={repoName}
-              $injector={$injector}
             />
           </TabPanel>}
           <TabPanel>
@@ -196,7 +195,6 @@ class TabsPanel extends React.Component {
 
 TabsPanel.propTypes = {
   classificationMap: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   jobDetails: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
   classifications: PropTypes.array.isRequired,

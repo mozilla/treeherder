@@ -238,7 +238,7 @@ class DetailsPanel extends React.Component {
 
   render() {
     const {
-      repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
+      repoName, user, currentRepo, resizedHeight, classificationMap,
       classificationTypes, isPinBoardVisible, selectedJob,
     } = this.props;
     const {
@@ -292,7 +292,6 @@ class DetailsPanel extends React.Component {
             logViewerFullUrl={logViewerFullUrl}
             reftestUrl={reftestUrl}
             user={user}
-            $injector={$injector}
           />
         </div>}
         <div id="clipboard-container"><textarea id="clipboard" /></div>
@@ -302,7 +301,6 @@ class DetailsPanel extends React.Component {
 }
 
 DetailsPanel.propTypes = {
-  $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,

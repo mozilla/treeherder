@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
@@ -201,7 +200,6 @@ class JobView extends React.Component {
   }
 
   render() {
-    const { $injector } = this.props;
     const {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
@@ -292,7 +290,6 @@ class JobView extends React.Component {
                       user={user}
                       classificationTypes={classificationTypes}
                       classificationMap={classificationMap}
-                      $injector={$injector}
                     />
                   </SplitPane>
                   <NotificationList />
@@ -316,8 +313,4 @@ class JobView extends React.Component {
   }
 }
 
-JobView.propTypes = {
-  $injector: PropTypes.object.isRequired,
-};
-
-treeherder.component('jobView', react2angular(JobView, [], ['$injector']));
+treeherder.component('jobView', react2angular(JobView, [], []));

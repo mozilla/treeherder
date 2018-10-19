@@ -18,9 +18,8 @@ class ErrorLine extends React.Component {
   constructor(props) {
     super(props);
 
-    const { errorLine, setEditable, $injector } = this.props;
+    const { errorLine, setEditable } = this.props;
 
-    this.$rootScope = $injector.get('$rootScope');
     this.bestOption = null;
 
     let options = [];
@@ -53,15 +52,15 @@ class ErrorLine extends React.Component {
   }
 
   componentDidMount() {
-    this.autoclassifyIgnoreUnlisten = this.$rootScope.$on(thEvents.autoclassifyIgnore,
-                   () => this.onEventIgnore());
-
     this.onOptionChange = this.onOptionChange.bind(this);
     this.onManualBugNumberChange = this.onManualBugNumberChange.bind(this);
+    this.onEventIgnore = this.onEventIgnore.bind(this);
+
+    window.addEventListener(thEvents.autoclassifyIgnore, this.onEventIgnore);
   }
 
   componentWillUnmount() {
-    this.autoclassifyIgnoreUnlisten();
+    window.removeEventListener(thEvents.autoclassifyIgnore, this.onEventIgnore);
   }
 
   /**
@@ -592,7 +591,6 @@ ErrorLine.propTypes = {
   setEditable: PropTypes.func.isRequired,
   canClassify: PropTypes.bool.isRequired,
   repoName: PropTypes.string.isRequired,
-  $injector: PropTypes.object.isRequired,
   prevErrorLine: PropTypes.object,
 };
 

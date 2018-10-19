@@ -17,10 +17,6 @@ class AutoclassifyTab extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       loadStatus: 'loading',
       errorLines: [],
@@ -89,7 +85,7 @@ class AutoclassifyTab extends React.Component {
    * Ignore selected lines
    */
   onIgnore() {
-    this.$rootScope.$emit(thEvents.autoclassifyIgnore);
+    window.dispatchEvent(new CustomEvent(thEvents.autoclassifyIgnore));
   }
 
   /**
@@ -324,7 +320,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { autoclassifyStatus, user, $injector, repoName } = this.props;
+    const { autoclassifyStatus, user, repoName } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -371,7 +367,6 @@ class AutoclassifyTab extends React.Component {
                 errorLine={errorLine}
                 prevErrorLine={errorLines[idx - 1]}
                 canClassify={canClassify}
-                $injector={$injector}
                 isSelected={selectedLineIds.has(errorLine.id)}
                 isEditable={editableLineIds.has(errorLine.id)}
                 setEditable={() => this.setEditable([errorLine.id], true)}
@@ -388,7 +383,6 @@ class AutoclassifyTab extends React.Component {
 }
 
 AutoclassifyTab.propTypes = {
-  $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   selectedJob: PropTypes.object.isRequired,
   hasLogs: PropTypes.bool.isRequired,
