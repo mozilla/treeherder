@@ -142,29 +142,29 @@ class AnnotationsTab extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.deleteBug = this.deleteBug.bind(this);
     this.deleteClassification = this.deleteClassification.bind(this);
+    this.onDeleteClassification = this.onDeleteClassification.bind(this);
   }
 
   componentDidMount() {
-    const { classifications, bugs, notify } = this.props;
-
-    this.deleteClassificationUnlisten = this.$rootScope.$on(thEvents.deleteClassification, () => {
-      if (classifications.length) {
-        this.deleteClassification(classifications[0]);
-        // Delete any number of bugs if they exist
-        bugs.forEach((bug) => { this.deleteBug(bug); });
-      } else {
-        notify('No classification on this job to delete', 'warning');
-      }
-    });
+    window.addEventListener(thEvents.deleteClassification, this.onDeleteClassification);
   }
 
   componentWillUnmount() {
-    this.deleteClassificationUnlisten();
+    window.removeEventListener(thEvents.deleteClassification, this.onDeleteClassification);
+  }
+
+  onDeleteClassification() {
+    const { classifications, bugs, notify } = this.props;
+
+    if (classifications.length) {
+      this.deleteClassification(classifications[0]);
+      // Delete any number of bugs if they exist
+      bugs.forEach((bug) => { this.deleteBug(bug); });
+    } else {
+      notify('No classification on this job to delete', 'warning');
+    }
   }
 
   deleteClassification(classification) {
@@ -178,10 +178,7 @@ class AnnotationsTab extends React.Component {
         notify('Classification successfully deleted', 'success');
         // also be sure the job object in question gets updated to the latest
         // classification state (in case one was added or removed).
-        this.$rootScope.$emit(
-          thEvents.jobsClassified,
-          { jobs: { [selectedJob.id]: selectedJob } },
-        );
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       },
       () => {
         notify('Classification deletion failed', 'danger', { sticky: true });
@@ -189,12 +186,12 @@ class AnnotationsTab extends React.Component {
   }
 
   deleteBug(bug) {
-    const { selectedJob, notify } = this.props;
+    const { notify } = this.props;
 
     bug.destroy()
       .then(() => {
         notify(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
-        this.$rootScope.$emit(thEvents.jobsClassified, { jobs: { [selectedJob.id]: selectedJob } });
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       }, () => {
         notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
       });
@@ -231,7 +228,6 @@ class AnnotationsTab extends React.Component {
 }
 
 AnnotationsTab.propTypes = {
-  $injector: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   classifications: PropTypes.array.isRequired,

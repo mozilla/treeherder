@@ -19,9 +19,6 @@ class TabsPanel extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
       tabIndex: 0,
@@ -53,19 +50,22 @@ class TabsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.selectNextTabUnlisten = this.$rootScope.$on(thEvents.selectNextTab, () => {
-      const { tabIndex, showAutoclassifyTab } = this.state;
-      const { perfJobDetail } = this.props;
-      const nextIndex = tabIndex + 1;
-      const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length, showAutoclassifyTab).length;
-      this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
-    });
-
     this.setTabIndex = this.setTabIndex.bind(this);
+    this.onSelectNextTab = this.onSelectNextTab.bind(this);
+
+    window.addEventListener(thEvents.selectNextTab, this.onSelectNextTab);
   }
 
   componentWillUnmount() {
-    this.selectNextTabUnlisten();
+    window.removeEventListener(thEvents.selectNextTab, this.onSelectNextTab);
+  }
+
+  onSelectNextTab() {
+    const { tabIndex, showAutoclassifyTab } = this.state;
+    const { perfJobDetail } = this.props;
+    const nextIndex = tabIndex + 1;
+    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length, showAutoclassifyTab).length;
+    this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   }
 
   static getDefaultTabIndex(status, showPerf, showAutoclassify) {
@@ -97,7 +97,7 @@ class TabsPanel extends React.Component {
       jobDetails, jobLogUrls, logParseStatus, suggestions, errors, user, bugs,
       bugSuggestionsLoading, perfJobDetail, repoName, jobRevision,
       classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs,
-      classificationMap, logViewerFullUrl, reftestUrl, $injector, clearSelectedJob,
+      classificationMap, logViewerFullUrl, reftestUrl, clearSelectedJob,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -156,7 +156,6 @@ class TabsPanel extends React.Component {
               logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
-              $injector={$injector}
             />
           </TabPanel>
           {showAutoclassifyTab && <TabPanel>
@@ -166,7 +165,6 @@ class TabsPanel extends React.Component {
               logParseStatus={logParseStatus}
               user={user}
               repoName={repoName}
-              $injector={$injector}
             />
           </TabPanel>}
           <TabPanel>
@@ -174,7 +172,6 @@ class TabsPanel extends React.Component {
               classificationMap={classificationMap}
               classifications={classifications}
               bugs={bugs}
-              $injector={$injector}
             />
           </TabPanel>
           <TabPanel>
@@ -198,7 +195,6 @@ class TabsPanel extends React.Component {
 
 TabsPanel.propTypes = {
   classificationMap: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   jobDetails: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
   classifications: PropTypes.array.isRequired,

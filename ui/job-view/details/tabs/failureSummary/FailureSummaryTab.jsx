@@ -16,9 +16,6 @@ class FailureSummaryTab extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       isBugFilerOpen: false,
     };
@@ -47,7 +44,7 @@ class FailureSummaryTab extends React.Component {
     const { addBug } = this.props;
 
     addBug({ id: data.success });
-    this.$rootScope.$evalAsync(this.$rootScope.$emit(thEvents.saveClassification));
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(getBugUrl(data.success));
   }
@@ -128,7 +125,6 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
-  $injector: PropTypes.object.isRequired,
   addBug: PropTypes.func.isRequired,
   pinJob: PropTypes.func.isRequired,
   suggestions: PropTypes.array,

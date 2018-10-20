@@ -240,8 +240,8 @@ export const thEvents = {
   selectNextTab: 'select-next-tab-EVT',
   // fired with a selected job on 'r'
   jobRetrigger: 'job-retrigger-EVT',
-  // fired when jobs are classified locally
-  jobsClassified: 'jobs-classified-EVT',
+  // fired when job classifications change (created/deleted)
+  classificationChanged: 'classification-changed-EVT',
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',

@@ -30,13 +30,6 @@ const keyMap = {
 };
 
 class KeyboardShortcuts extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-  }
-
   componentDidMount() {
     this.addRelatedBug = this.addRelatedBug.bind(this);
     this.pinEditComment = this.pinEditComment.bind(this);
@@ -108,7 +101,7 @@ class KeyboardShortcuts extends React.Component {
   }
 
   saveClassification() {
-    this.$rootScope.$emit(thEvents.saveClassification);
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
   }
 
   // delete classification and related bugs
@@ -116,13 +109,13 @@ class KeyboardShortcuts extends React.Component {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
-      this.$rootScope.$emit(thEvents.deleteClassification);
+      window.dispatchEvent(new CustomEvent(thEvents.deleteClassification));
     }
   }
 
   // open the logviewer for the selected job
   openLogviewer() {
-    this.$rootScope.$emit(thEvents.openLogviewer);
+    window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
   }
 
   // retrigger selected job
@@ -141,7 +134,7 @@ class KeyboardShortcuts extends React.Component {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
-      this.$rootScope.$emit(thEvents.selectNextTab);
+      window.dispatchEvent(new CustomEvent(thEvents.selectNextTab));
     }
   }
 
@@ -224,7 +217,6 @@ class KeyboardShortcuts extends React.Component {
 
 KeyboardShortcuts.propTypes = {
   filterModel: PropTypes.object.isRequired,
-  $injector: PropTypes.object.isRequired,
   pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
   children: PropTypes.array.isRequired,

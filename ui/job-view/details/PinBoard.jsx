@@ -19,9 +19,6 @@ class PinBoard extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       failureClassificationId: 4,
       failureClassificationComment: '',
@@ -39,13 +36,11 @@ class PinBoard extends React.Component {
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
     this.pasteSHA = this.pasteSHA.bind(this);
 
-    this.saveClassificationUnlisten = this.$rootScope.$on(thEvents.saveClassification, () => {
-      this.save();
-    });
+    window.addEventListener(thEvents.saveClassification, this.save);
   }
 
   componentWillUnmount() {
-    this.saveClassificationUnlisten();
+    window.removeEventListener(thEvents.saveClassification, this.save);
   }
 
   setClassificationId(evt) {
@@ -91,7 +86,7 @@ class PinBoard extends React.Component {
       const classifyPromises = jobs.map(job => this.saveClassification(job));
       const bugPromises = jobs.map(job => this.saveBugs(job));
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
-        this.$rootScope.$emit(thEvents.jobsClassified, { jobs: [...jobs] });
+        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
         recalculateUnclassifiedCounts();
         this.unPinAll();
         this.setState({
@@ -530,7 +525,6 @@ class PinBoard extends React.Component {
 }
 
 PinBoard.propTypes = {
-  $injector: PropTypes.object.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
@@ -42,9 +41,6 @@ const getWindowHeight = function () {
 class JobView extends React.Component {
   constructor(props) {
     super(props);
-
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
 
     const filterModel = new FilterModel();
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
@@ -204,7 +200,6 @@ class JobView extends React.Component {
   }
 
   render() {
-    const { $injector } = this.props;
     const {
       user, isFieldFilterVisible, serverChangedDelayed,
       defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
@@ -243,7 +238,6 @@ class JobView extends React.Component {
               <SelectedJob>
                 <KeyboardShortcuts
                   filterModel={filterModel}
-                  $injector={$injector}
                   showOnScreenShortcuts={this.showOnScreenShortcuts}
                 >
                   <PrimaryNavBar
@@ -296,7 +290,6 @@ class JobView extends React.Component {
                       user={user}
                       classificationTypes={classificationTypes}
                       classificationMap={classificationMap}
-                      $injector={$injector}
                     />
                   </SplitPane>
                   <NotificationList />
@@ -320,8 +313,4 @@ class JobView extends React.Component {
   }
 }
 
-JobView.propTypes = {
-  $injector: PropTypes.object.isRequired,
-};
-
-treeherder.component('jobView', react2angular(JobView, [], ['$injector']));
+treeherder.component('jobView', react2angular(JobView, [], []));

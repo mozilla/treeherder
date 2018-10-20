@@ -19,9 +19,6 @@ import { withPinnedJobs } from '../../../context/PinnedJobs';
 class LineOption extends React.Component {
   constructor(props) {
     super(props);
-    const { $injector } = props;
-
-    this.$rootScope = $injector.get('$rootScope');
 
     this.state = {
       isBugFilerOpen: false,
@@ -51,7 +48,7 @@ class LineOption extends React.Component {
     const bugId = data.success;
 
     addBug({ id: bugId });
-    this.$rootScope.$evalAsync(this.$rootScope.$emit(thEvents.saveClassification));
+    window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(getBugUrl(bugId));
     onManualBugNumberChange(optionModel, `${bugId}`);
@@ -196,7 +193,6 @@ class LineOption extends React.Component {
 
 
 LineOption.propTypes = {
-  $injector: PropTypes.object.isRequired,
   selectedJob: PropTypes.object.isRequired,
   errorLine: PropTypes.object.isRequired,
   optionModel: PropTypes.object.isRequired,

@@ -25,9 +25,6 @@ class DetailsPanel extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
 
@@ -51,9 +48,9 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.jobsClassifiedUnlisten = this.$rootScope.$on(thEvents.jobsClassified, () => {
-      this.updateClassifications();
-    });
+    this.updateClassifications = this.updateClassifications.bind(this);
+
+    window.addEventListener(thEvents.classificationChanged, this.updateClassifications);
   }
 
   componentDidUpdate(prevProps) {
@@ -65,7 +62,7 @@ class DetailsPanel extends React.Component {
   }
 
   componentWillUnmount() {
-    this.jobsClassifiedUnlisten();
+    window.removeEventListener(thEvents.classificationChanged, this.updateClassifications);
   }
 
   togglePinBoardVisibility() {
@@ -241,7 +238,7 @@ class DetailsPanel extends React.Component {
 
   render() {
     const {
-      repoName, $injector, user, currentRepo, resizedHeight, classificationMap,
+      repoName, user, currentRepo, resizedHeight, classificationMap,
       classificationTypes, isPinBoardVisible, selectedJob,
     } = this.props;
     const {
@@ -262,7 +259,6 @@ class DetailsPanel extends React.Component {
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
-          $injector={$injector}
         />
         {!!selectedJob && <div id="details-panel-content">
           <SummaryPanel
@@ -277,7 +273,6 @@ class DetailsPanel extends React.Component {
             logViewerFullUrl={logViewerFullUrl}
             bugs={bugs}
             user={user}
-            $injector={$injector}
           />
           <span className="job-tabs-divider" />
           <TabsPanel
@@ -297,7 +292,6 @@ class DetailsPanel extends React.Component {
             logViewerFullUrl={logViewerFullUrl}
             reftestUrl={reftestUrl}
             user={user}
-            $injector={$injector}
           />
         </div>}
         <div id="clipboard-container"><textarea id="clipboard" /></div>
@@ -307,7 +301,6 @@ class DetailsPanel extends React.Component {
 }
 
 DetailsPanel.propTypes = {
-  $injector: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,

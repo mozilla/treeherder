@@ -19,47 +19,46 @@ class ActionBar extends React.Component {
   constructor(props) {
     super(props);
 
-    const { $injector } = this.props;
-    this.$rootScope = $injector.get('$rootScope');
-
     this.state = {
       customJobActionsShowing: false,
     };
   }
 
   componentDidMount() {
-    // Open the logviewer and provide notifications if it isn't available
-    this.openLogViewerUnlisten = this.$rootScope.$on(thEvents.openLogviewer, () => {
-      const { logParseStatus, notify } = this.props;
-
-      switch (logParseStatus) {
-        case 'pending':
-          notify('Log parsing in progress, log viewer not yet available', 'info'); break;
-        case 'failed':
-          notify('Log parsing has failed, log viewer is unavailable', 'warning'); break;
-        case 'unavailable':
-          notify('No logs available for this job', 'info'); break;
-        case 'parsed':
-          $('.logviewer-btn')[0].click();
-      }
-    });
-
     this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
     this.createGeckoProfile = this.createGeckoProfile.bind(this);
     this.createInteractiveTask = this.createInteractiveTask.bind(this);
+    this.onOpenLogviewer = this.onOpenLogviewer.bind(this);
     this.onRetriggerJob = this.onRetriggerJob.bind(this);
     this.retriggerJob = this.retriggerJob.bind(this);
 
+    window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   componentWillUnmount() {
-    this.openLogViewerUnlisten();
+    window.removeEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
   onRetriggerJob(event) {
     this.retriggerJob([event.detail.job]);
+  }
+
+  // Open the logviewer and provide notifications if it isn't available
+  onOpenLogviewer() {
+    const { logParseStatus, notify } = this.props;
+
+    switch (logParseStatus) {
+      case 'pending':
+        notify('Log parsing in progress, log viewer not yet available', 'info'); break;
+      case 'failed':
+        notify('Log parsing has failed, log viewer is unavailable', 'warning'); break;
+      case 'unavailable':
+        notify('No logs available for this job', 'info'); break;
+      case 'parsed':
+        $('.logviewer-btn')[0].click();
+    }
   }
 
   canCancel() {
@@ -366,7 +365,6 @@ class ActionBar extends React.Component {
 
 ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
-  $injector: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   selectedJob: PropTypes.object.isRequired,
