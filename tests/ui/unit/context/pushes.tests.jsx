@@ -1,4 +1,3 @@
-import angular from 'angular';
 import React from 'react';
 import * as fetchMock from 'fetch-mock';
 import { mount } from 'enzyme';
@@ -7,15 +6,12 @@ import { getProjectUrl } from '../../../../ui/helpers/url';
 import { PushesClass } from '../../../../ui/job-view/context/Pushes';
 import FilterModel from '../../../../ui/models/filter';
 
-const { getJSONFixture, inject } = window;
+const { getJSONFixture } = window;
 
 describe('Pushes context', () => {
-    let $injector;
     const repoName = 'mozilla-inbound';
 
-  beforeEach(angular.mock.module('treeherder'));
-  beforeEach(inject((_$injector_) => {
-      $injector = _$injector_;
+  beforeEach(() => {
       jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
 
       fetchMock.get(getProjectUrl('/resultset/?full=true&count=10', repoName),
@@ -31,7 +27,7 @@ describe('Pushes context', () => {
         getProjectUrl('/jobs/?return_type=list&count=2000&result_set_id=2', repoName),
         getJSONFixture('job_list/job_2.json'),
       );
-    }));
+    });
 
     afterEach(() => {
       fetchMock.reset();
@@ -44,7 +40,6 @@ describe('Pushes context', () => {
         const pushes = mount(
           <PushesClass
             filterModel={new FilterModel()}
-            $injector={$injector}
             notify={() => {}}
           ><div /></PushesClass>,
         );
@@ -56,7 +51,6 @@ describe('Pushes context', () => {
         const pushes = mount(
           <PushesClass
             filterModel={new FilterModel()}
-            $injector={$injector}
             notify={() => {}}
           ><div /></PushesClass>,
         );
