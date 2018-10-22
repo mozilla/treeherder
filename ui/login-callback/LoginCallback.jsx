@@ -1,8 +1,8 @@
 import React from 'react';
 import Icon from 'react-fontawesome';
 
-import AuthService from './AuthService';
-import { webAuth, parseHash } from './auth-utils';
+import AuthService from '../shared/auth/AuthService';
+import { webAuth, parseHash } from '../helpers/auth';
 
 class LoginCallback extends React.PureComponent {
   constructor(props) {

@@ -71,7 +71,7 @@ module.exports = neutrino => {
         .end();
     neutrino.config
         .entry('login')
-        .add(path.join(UI, 'entry-login.jsx'))
+        .add(path.join(UI, 'login-callback', 'index.jsx'))
         .end();
     neutrino.config
         .entry('userguide')
@@ -190,14 +190,14 @@ module.exports = neutrino => {
             title: 'Treeherder Login',
             meta: [
                 {
-                    "name": "description",
-                    "content": "Treeherder Login"
+                    name: 'description',
+                    content: 'Treeherder Login',
                 },
                 {
-                    "name": "author",
-                    "content": "Mozilla Treeherder"
-                }
-            ]
+                    name: 'author',
+                    content: 'Mozilla Treeherder',
+                },
+            ],
         });
 
     neutrino.config
