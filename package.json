@@ -82,7 +82,7 @@
     "angular-mocks": "1.7.5",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
-    "fetch-mock": "7.1.0",
+    "fetch-mock": "7.2.0",
     "jasmine-core": "3.2.1",
     "jasmine-jquery": "2.1.1",
     "karma": "1.7.1",
