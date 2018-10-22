@@ -23,16 +23,16 @@ import '../css/treeherder-pinboard.css';
 import '../css/treeherder-bugfiler.css';
 import '../css/treeherder-loading-overlay.css';
 
-import App from './App';
+import JobView from './JobView';
 
 const load = () => render((
   <AppContainer>
-    <App />
+    <JobView />
   </AppContainer>
 ), document.getElementById('root'));
 
 if (module.hot) {
-  module.hot.accept('./App', load);
+  module.hot.accept('./JobView', load);
 }
 
 load();
