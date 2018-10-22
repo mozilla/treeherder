@@ -84,13 +84,11 @@ class FailuresByBug(generics.ListAPIView):
             if line is not None:
                 grouped_lines[job_id].append(line)
 
-        hash_list = []
+        hash_list = set()
 
         for item in self.queryset:
             item['lines'] = grouped_lines.get(item['job_id'], [])
-            match = [item['job__option_collection_hash'] for x in hash_list if item['job__option_collection_hash'] == x]
-            if not match:
-                hash_list.append(item['job__option_collection_hash'])
+            hash_list.add(item['job__option_collection_hash'])
 
         hash_query = (OptionCollection.objects.filter(option_collection_hash__in=hash_list)
                                               .select_related('option')
