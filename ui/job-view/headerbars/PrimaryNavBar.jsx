@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Login from '../../shared/Login';
+import Login from '../../shared/auth/Login';
 import LogoMenu from './LogoMenu';
 import NotificationsMenu from './NotificationsMenu';
 import InfraMenu from './InfraMenu';

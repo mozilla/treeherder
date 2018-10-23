@@ -1,7 +1,7 @@
 import { fromNow } from 'taskcluster-client-web';
 import { WebAuth } from 'auth0-js';
 
-import { loginCallbackUrl } from '../../helpers/url';
+import { loginCallbackUrl } from './url';
 
 export const webAuth = new WebAuth({
   clientID: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',

@@ -23,7 +23,7 @@ import './css/treeherder-loading-overlay.css';
 import './js/perf';
 
 // React UI
-import './shared/Login';
+import './shared/auth/Login';
 
 // Perf JS
 import './js/filters';
