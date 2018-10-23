@@ -39,7 +39,8 @@ export default class DateOptions extends React.Component {
       from = 120;
     }
     const startday = ISODate(moment().utc().subtract(from, 'days'));
-    this.props.updateState({ startday });
+    const endday = ISODate(moment().utc());
+    this.props.updateState({ startday, endday });
   }
 
   render() {
