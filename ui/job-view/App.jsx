@@ -36,7 +36,7 @@ const getWindowHeight = function () {
   return windowHeight - navBarHeight;
 };
 
-class JobView extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -68,7 +68,7 @@ class JobView extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     return {
-      ...JobView.getSplitterDimensions(state.hasSelectedJob),
+      ...App.getSplitterDimensions(state.hasSelectedJob),
       repoName: getRepo(),
     };
   }
@@ -149,13 +149,9 @@ class JobView extends React.Component {
   }
 
   setCurrentRepoTreeStatus(status) {
-    const links = document.getElementsByTagName('link');
+    const link = document.head.querySelector('link[rel="shortcut icon"]');
 
-    for (const link in links) {
-      if (link.rel === 'shortcut icon') {
-        link.href = thFavicons[status] || thFavicons.open;
-      }
-    }
+    link.href = thFavicons[status] || thFavicons.open;
   }
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -194,7 +190,7 @@ class JobView extends React.Component {
   }
 
   updateDimensions() {
-    this.setState(JobView.getSplitterDimensions(this.state.hasSelectedJob));
+    this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
   }
 
   handleSplitChange(latestSplitSize) {
@@ -317,4 +313,4 @@ class JobView extends React.Component {
   }
 }
 
-export default JobView;
+export default App;

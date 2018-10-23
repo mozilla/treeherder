@@ -32,11 +32,6 @@ module.exports = neutrino => {
     if (process.env.NODE_ENV !== 'test') {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
-            'angular',
-            'angular-local-storage',
-            'angular-sanitize',
-            // This must be after `angular` since otherwise window.angular will not be defined.
-            '@uirouter/angularjs',
             'auth0-js',
             'bootstrap',
             'hawk',

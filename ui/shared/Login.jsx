@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import { react2angular } from 'react2angular/index.es2015';
 
-import treeherder from '../js/treeherder';
 import AuthService from '../js/auth/AuthService';
 import { loggedOutUser } from '../js/auth/auth-utils';
 import taskcluster from '../helpers/taskcluster';
@@ -150,6 +148,3 @@ Login.defaultProps = {
 };
 
 export default withNotifications(Login);
-
-treeherder.component('login', react2angular(
-  withNotifications(Login), ['user', 'setUser'], []));
