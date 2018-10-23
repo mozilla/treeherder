@@ -13,7 +13,8 @@ const mapStateToProps = ({ groups }) => groups;
 
 class Groups extends React.Component {
 
-  componentWillMount() {
+  constructor(props) {
+    super(props);
     this.filterStr = new URLSearchParams(location.search).get('filter') || '';
   }
 

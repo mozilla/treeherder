@@ -68,11 +68,8 @@ class PushHeader extends React.PureComponent {
     this.pushDateStr = toDateStr(pushTimestamp);
   }
 
-  componentWillMount() {
-    this.triggerNewJobs = this.triggerNewJobs.bind(this);
-  }
-
   componentDidMount() {
+    this.triggerNewJobs = this.triggerNewJobs.bind(this);
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
   }
