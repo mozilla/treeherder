@@ -75,9 +75,9 @@ scandir==1.9.0; python_version < '3.5' \
 
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
-pbr==5.0.0 \
-    --hash=sha256:bfcff1a3878eebf559392c2130a17f612a03f96a0d44c3559d9c1e62a4235a2d \
-    --hash=sha256:ab94783019179bf48f5784edc63f5bc8328ec5ff93f33591567f266d21ac7323
+pbr==5.1.0 \
+    --hash=sha256:8fc938b1123902f5610b06756a31b1e6febf0d105ae393695b0c9d4244ed2910 \
+    --hash=sha256:f20ec0abbf132471b68963bb34d9c78e603a5cf9e24473f14358e66551d47475
 
 # Required by responses
 cookies==2.2.1 --hash=sha256:15bee753002dff684987b8df8c235288eb8d45f8191ae056254812dfd42c81d3
