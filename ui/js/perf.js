@@ -6,12 +6,10 @@ import 'ng-text-truncate-2';
 import LocalStorageModule from 'angular-local-storage';
 import { react2angular } from 'react2angular/index.es2015';
 
-import treeherderModule from './treeherder';
 import Login from '../shared/Login';
+import treeherderModule from './treeherder';
 
-treeherderModule.component('login', react2angular(Login, ['user', 'setUser'], []));
-
-export default angular.module('perf', [
+const perf = angular.module('perf', [
   uiRouter,
   uiBootstrap,
   treeherderModule.name,
@@ -19,3 +17,7 @@ export default angular.module('perf', [
   'ngTextTruncate',
   LocalStorageModule,
 ]);
+
+perf.component('login', react2angular(Login, ['user', 'setUser'], []));
+
+export default perf;
