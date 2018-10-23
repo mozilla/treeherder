@@ -15,9 +15,7 @@ class LoginCallback extends React.PureComponent {
     this.authService = new AuthService();
   }
 
-  async componentWillMount() {
-    let authResult;
-
+  async componentDidMount() {
     // make the user login if there is no access token
     if (!window.location.hash) {
       return webAuth.authorize();
@@ -32,7 +30,7 @@ class LoginCallback extends React.PureComponent {
     }
 
     try {
-      authResult = await parseHash({ hash: window.location.hash });
+      const authResult = await parseHash({ hash: window.location.hash });
 
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
@@ -45,8 +43,12 @@ class LoginCallback extends React.PureComponent {
         }
       }
     } catch (err) {
-      return this.setState({ loginError: err.message ? err.message : err.errorDescription });
+      this.setError(err);
     }
+  }
+
+  setError(err) {
+    this.setState({ loginError: err.message ? err.message : err.errorDescription });
   }
 
   render() {

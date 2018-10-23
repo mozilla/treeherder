@@ -7,20 +7,13 @@ export default class JobButtonComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isSelected: false,
-      isRunnableSelected: false,
-    };
-  }
-
-  componentWillMount() {
     const { job } = this.props;
-    const { id } = job;
     const urlSelectedJob = getUrlParam('selectedJob');
 
-    if (parseInt(urlSelectedJob) === id) {
-      this.setState({ isSelected: true });
-    }
+    this.state = {
+      isSelected: parseInt(urlSelectedJob) === job.id,
+      isRunnableSelected: false,
+    };
   }
 
   componentDidMount() {
