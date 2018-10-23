@@ -1,8 +1,6 @@
 import React from 'react';
-import { react2angular } from 'react2angular/index.es2015';
 import SplitPane from 'react-split-pane';
 
-import treeherder from '../js/treeherder';
 import { thFavicons } from '../helpers/constants';
 import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
@@ -38,7 +36,7 @@ const getWindowHeight = function () {
   return windowHeight - navBarHeight;
 };
 
-class JobView extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -70,7 +68,7 @@ class JobView extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     return {
-      ...JobView.getSplitterDimensions(state.hasSelectedJob),
+      ...App.getSplitterDimensions(state.hasSelectedJob),
       repoName: getRepo(),
     };
   }
@@ -151,7 +149,9 @@ class JobView extends React.Component {
   }
 
   setCurrentRepoTreeStatus(status) {
-    document.getElementById('favicon').href = thFavicons[status] || thFavicons.open;
+    const link = document.head.querySelector('link[rel="shortcut icon"]');
+
+    link.href = thFavicons[status] || thFavicons.open;
   }
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -190,7 +190,7 @@ class JobView extends React.Component {
   }
 
   updateDimensions() {
-    this.setState(JobView.getSplitterDimensions(this.state.hasSelectedJob));
+    this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
   }
 
   handleSplitChange(latestSplitSize) {
@@ -313,4 +313,4 @@ class JobView extends React.Component {
   }
 }
 
-treeherder.component('jobView', react2angular(JobView, [], []));
+export default App;

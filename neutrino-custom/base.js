@@ -32,11 +32,6 @@ module.exports = neutrino => {
     if (process.env.NODE_ENV !== 'test') {
         // Include files from node_modules in the separate, more-cacheable vendor chunk:
         const jsDeps = [
-            'angular',
-            'angular-local-storage',
-            'angular-sanitize',
-            // This must be after `angular` since otherwise window.angular will not be defined.
-            '@uirouter/angularjs',
             'auth0-js',
             'bootstrap',
             'hawk',
@@ -63,7 +58,7 @@ module.exports = neutrino => {
     neutrino.config
         .entry('index')
         .delete(path.join(SRC, 'index.js'))
-        .add(path.join(UI, 'entry-index.js'))
+        .add(path.join(UI, 'job-view', 'index.jsx'))
         .end();
     // Add several other treeherder entry points:
     neutrino.config
@@ -205,7 +200,6 @@ module.exports = neutrino => {
             ]
         });
 
-
     neutrino.config
         .plugin('html-testview')
         .use(HtmlPlugin, {
@@ -228,6 +222,31 @@ module.exports = neutrino => {
                     "content": "Mozilla Treeherder"
                 }
             ]
+        });
+
+    neutrino.config
+        .plugin('html-index')
+        .use(HtmlPlugin, {
+            inject: false,
+            template: htmlTemplate,
+            filename: 'index.html',
+            favicon: 'ui/img/tree_open.png',
+            chunks: ['index', 'vendor', 'manifest'],
+            appMountId: 'root',
+            xhtml: true,
+            mobile: true,
+            minify: HTML_MINIFY_OPTIONS,
+            title: 'Treeherder',
+            meta: [
+                {
+                    name: 'description',
+                    content: 'Treeherder',
+                },
+                {
+                    name: 'author',
+                    content: 'Mozilla Treeherder',
+                },
+            ],
         });
 
     neutrino.config
