@@ -9,19 +9,17 @@ import { getUrlParam } from '../../helpers/location';
 import JobButton from './JobButton';
 import JobCount from './JobCount';
 
-class GroupSymbol extends React.PureComponent {
-  render() {
-    const { symbol, tier, toggleExpanded } = this.props;
+const GroupSymbol = function (props) {
+  const { symbol, tier, toggleExpanded } = props;
 
-    return (
-      <button
-        className="btn group-symbol"
-        onClick={toggleExpanded}
-      >{symbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
-      </button>
-    );
-  }
-}
+  return (
+    <button
+      className="btn group-symbol"
+      onClick={toggleExpanded}
+    >{symbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
+    </button>
+  );
+};
 
 GroupSymbol.propTypes = {
   symbol: PropTypes.string.isRequired,
