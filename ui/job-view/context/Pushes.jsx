@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
+import max from 'lodash/max';
 
-import { thDefaultRepo, thMaxPushFetchSize } from '../../helpers/constants';
+import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../helpers/constants';
 import { parseQueryParams } from '../../helpers/url';
 import {
   getAllUrlParams,
@@ -76,6 +77,7 @@ export class PushesClass extends React.Component {
     this.handleUrlChanges = this.handleUrlChanges.bind(this);
     this.getGeckoDecisionJob = this.getGeckoDecisionJob.bind(this);
     this.getGeckoDecisionTaskId = this.getGeckoDecisionTaskId.bind(this);
+    this.getLastModifiedJobTime = this.getLastModifiedJobTime.bind(this);
     this.poll = this.poll.bind(this);
 
     // TODO: this.value needs to now get the bound versions of the functions.
@@ -203,6 +205,14 @@ export class PushesClass extends React.Component {
     return Promise.reject('No decision task');
   }
 
+  getLastModifiedJobTime() {
+    const { jobMap } = this.state;
+    const latest = max(Object.values(jobMap).map(job => new Date(job.last_modified + 'Z'))) || new Date();
+
+    latest.setSeconds(latest.getSeconds() - 3);
+    return latest;
+  }
+
   poll() {
     this.pushIntervalId = setInterval(() => {
       const { notify } = this.props;
@@ -218,6 +228,7 @@ export class PushesClass extends React.Component {
           if (resp.ok) {
             const data = await resp.json();
             this.addPushes(data);
+            this.fetchNewJobs();
           } else {
             notify('Error fetching new push data', 'danger', { sticky: true });
           }
@@ -303,6 +314,20 @@ export class PushesClass extends React.Component {
         () => this.setRevisionTips(),
       );
     }
+  }
+
+  async fetchNewJobs() {
+    const { pushList } = this.state;
+    const pushIds = pushList.map(push => push.id);
+    const lastModified = this.getLastModifiedJobTime();
+    const jobList = await PushModel.getJobs(pushIds, { lastModified });
+    // break the jobs up per push
+    const jobs = jobList.reduce((acc, job) => {
+      const pushJobs = acc[job.push_id] ? [...acc[job.push_id], job] : [job];
+      return { ...acc, [job.push_id]: pushJobs };
+    }, {});
+
+    window.dispatchEvent(new CustomEvent(thEvents.applyNewJobs, { detail: { jobs } }));
   }
 
   updateUrlFromchange() {

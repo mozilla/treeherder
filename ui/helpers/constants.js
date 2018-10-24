@@ -246,6 +246,7 @@ export const thEvents = {
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
+  applyNewJobs: 'apply-new-jobs-EVT',
 };
 
 export const phCompareDefaultOriginalRepo = 'mozilla-central';

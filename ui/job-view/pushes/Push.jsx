@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sortBy from 'lodash/sortBy';
-import max from 'lodash/max';
 
 import PushJobs from './PushJobs';
 import PushHeader from './PushHeader';
 import { RevisionList } from './RevisionList';
-import { thOptionOrder, thPlatformMap } from '../../helpers/constants';
+import { thEvents, thOptionOrder, thPlatformMap } from '../../helpers/constants';
 import { withPushes } from '../context/Pushes';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams } from '../../helpers/location';
@@ -19,7 +18,6 @@ import { getPercentComplete } from '../../helpers/display';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
-const jobPollInterval = 60000;
 
 class Push extends React.Component {
   constructor(props) {
@@ -45,16 +43,16 @@ class Push extends React.Component {
     this.groupJobByPlatform = this.groupJobByPlatform.bind(this);
     this.sortGroupedJobs = this.sortGroupedJobs.bind(this);
     this.mapPushJobs = this.mapPushJobs.bind(this);
-    this.poll = this.poll.bind(this);
-    this.getLastModifiedJobTime = this.getLastModifiedJobTime.bind(this);
+    this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
 
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
     if (!getAllUrlParams().has('nojobs')) {
       this.fetchJobs();
-      this.poll();
     }
+
+    window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -62,10 +60,7 @@ class Push extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.pollIntervalId) {
-      clearTimeout(this.pollIntervalId);
-      this.pollIntervalId = null;
-    }
+    window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
   }
 
   getJobCount(jobList) {
@@ -87,14 +82,6 @@ class Push extends React.Component {
     return { name, tier, symbol, mapKey };
   }
 
-  getLastModifiedJobTime() {
-    const { jobList } = this.state;
-    const latest = max(jobList.map(job => new Date(job.last_modified + 'Z'))) || new Date();
-
-    latest.setSeconds(latest.getSeconds() - 3);
-    return latest;
-  }
-
   setSingleRevisionWindowTitle() {
     const { allUnclassifiedFailureCount, repoName, push } = this.props;
     const percentComplete = getPercentComplete(this.state.jobCounts);
@@ -103,14 +90,14 @@ class Push extends React.Component {
     document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(push.revisions)}`;
   }
 
-  poll() {
-    this.pollIntervalId = setInterval(async () => {
-      const { push } = this.props;
-      const lastModified = this.getLastModifiedJobTime();
-      const jobs = await PushModel.getJobs(push.id, { lastModified });
+  handleApplyNewJobs(event) {
+    const { push } = this.props;
+    const { jobs } = event.detail;
+    const jobList = jobs[push.id];
 
-      this.mapPushJobs(jobs);
-    }, jobPollInterval);
+    if (jobList) {
+      this.mapPushJobs(jobList);
+    }
   }
 
   toggleSelectedRunnableJob(buildername) {
