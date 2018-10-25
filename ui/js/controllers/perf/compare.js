@@ -773,8 +773,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     { push_id: resultSetIds });
                             }),
                     ]).then(function (results) {
-                        const originalSeriesMap = results[1][$scope.originalResultSet.id];
-                        const newSeriesMap = results[1][$scope.newResultSet.id];
+                        const originalSeriesMap = results[1][$scope.originalResultSet.id] || {};
+                        const newSeriesMap = results[1][$scope.newResultSet.id] || {};
                         [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
                             // If there is no data for a given signature, handle it gracefully
                             if (seriesMap) {
