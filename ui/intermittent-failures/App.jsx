@@ -9,10 +9,12 @@ class App extends React.Component {
     super(props);
     this.updateAppState = this.updateAppState.bind(this);
 
-    // keep track of the mainviews graph data so the API won't be
-    // called again when navigating back from bugdetailsview;
-    // table API will be called every time it mounts.
-    this.state = { graphData: null };
+    // keep track of the mainviews graph and table data so the API won't be
+    // called again when navigating back from bugdetailsview.
+    this.state = {
+        graphData: null,
+        tableData: null,
+      };
   }
 
   updateAppState(state) {
@@ -31,6 +33,7 @@ class App extends React.Component {
               (<MainView
                 {...props}
                 mainGraphData={this.state.graphData}
+                mainTableData={this.state.tableData}
                 updateAppState={this.updateAppState}
               />)}
             />)
@@ -40,6 +43,7 @@ class App extends React.Component {
                 (<MainView
                   {...props}
                   mainGraphData={this.state.graphData}
+                  mainTableData={this.state.tableData}
                   updateAppState={this.updateAppState}
                 />)}
             />)

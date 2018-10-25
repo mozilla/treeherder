@@ -2,6 +2,7 @@ import React from 'react';
 import { Container } from 'reactstrap';
 import PropTypes from 'prop-types';
 import Icon from 'react-fontawesome';
+import 'react-table/react-table.css';
 
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
@@ -89,7 +90,9 @@ Layout.propTypes = {
       PropTypes.shape({}),
     ),
   ),
-  tableData: PropTypes.shape({}),
+  tableData: PropTypes.arrayOf(
+    PropTypes.shape({}),
+  ),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.shape({}),

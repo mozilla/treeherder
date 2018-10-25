@@ -27,14 +27,12 @@ const withView = defaultState => WrappedComponent =>
       endday: (this.default.endday || null),
       bug: (this.default.id || null),
       summary: (this.default.summary || null),
-      tableData: {},
+      tableData: [],
       tableFailureStatus: null,
       isFetchingTable: false,
       graphData: [],
       graphFailureStatus: null,
       isFetchingGraphs: false,
-      page: 0,
-      pageSize: 20,
       lastLocation: (this.default.location || null),
     };
   }
@@ -72,6 +70,7 @@ const withView = defaultState => WrappedComponent =>
 
       this.setState({ initialParamsSet: true });
       this.getGraphData(createApiUrl(graphsEndpoint, params));
+      this.getTableData(createApiUrl(defaultState.endpoint, params));
     }
   }
 
@@ -85,19 +84,15 @@ const withView = defaultState => WrappedComponent =>
   async getTableData(url) {
     this.setState({ tableFailureStatus: null, isFetchingTable: true });
     const { data, failureStatus } = await getData(url);
+    let mergedData = null;
 
-    if (defaultState.route === '/main' && !failureStatus && data.results.length) {
-      const bugs_list = formatBugs(data.results);
-      const bugzillaUrl = bugzillaBugsApi('bug', {
-        include_fields: 'id,status,summary,whiteboard',
-        id: bugs_list,
-      });
-      const bugzillaData = await getData(bugzillaUrl);
-      const results = mergeData(data.results, bugzillaData.data.bugs);
-      data.results = results;
+    if (defaultState.route === '/main' && !failureStatus && data.length) {
+      const bugIds = formatBugs(data);
+      const bugzillaData = await this.batchBugRequests(bugIds);
+      mergedData = mergeData(data, bugzillaData);
     }
 
-    this.setState({ tableData: data, tableFailureStatus: failureStatus, isFetchingTable: false });
+    this.setState({ tableData: mergedData || data, tableFailureStatus: failureStatus, isFetchingTable: false });
   }
 
   async getGraphData(url) {
@@ -106,18 +101,42 @@ const withView = defaultState => WrappedComponent =>
     this.setState({ graphData: data, graphFailureStatus: failureStatus, isFetchingGraphs: false });
   }
 
-  updateState(updatedObj, updateTable = false) {
+  async batchBugRequests(bugIds) {
+    const urlParams = {
+      include_fields: 'id,status,summary,whiteboard',
+    };
+    // TODO: bump up the max to ~1200 when this bug is fixed:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1497721
+    let min = 0;
+    let max = 800;
+    let bugsList = [];
+    const results = [];
+
+    while (bugIds.length >= min) {
+      const batch = bugIds.slice(min, max + 1);
+      urlParams.id = batch.join();
+      results.push(getData(bugzillaBugsApi('bug', urlParams)));
+
+      min = max;
+      max += 800;
+    }
+
+    for (const result of await Promise.all(results)) {
+      bugsList = [...bugsList, ...result.data.bugs];
+    }
+    return bugsList;
+  }
+
+  updateState(updatedObj) {
     this.setState(updatedObj, () => {
-      const { startday, endday, tree, page, pageSize, bug } = this.state;
-      const params = { startday, endday, tree, page, page_size: pageSize };
+      const { startday, endday, tree, bug } = this.state;
+      const params = { startday, endday, tree };
 
       if (bug) {
         params.bug = bug;
       }
 
-      if (!updateTable) {
-        this.getGraphData(createApiUrl(graphsEndpoint, params));
-      }
+      this.getGraphData(createApiUrl(graphsEndpoint, params));
       this.getTableData(createApiUrl(defaultState.endpoint, params));
 
       // update query params if dates or tree are updated
@@ -127,22 +146,16 @@ const withView = defaultState => WrappedComponent =>
   }
 
   updateData(params, urlChanged = false) {
-    const { mainGraphData } = this.props;
+    const { mainGraphData, mainTableData } = this.props;
 
-    if (mainGraphData && !urlChanged) {
-      this.setState({ graphData: mainGraphData });
+    if (mainGraphData && mainTableData && !urlChanged) {
+      this.setState({ graphData: mainGraphData, tableData: mainTableData });
     } else {
       this.getGraphData(createApiUrl(graphsEndpoint, params));
-    }
-
-    // the table library fetches data directly when its component mounts and in response
-    // to a user selecting pagesize or page; this condition will prevent duplicate requests
-    // when this component mounts and when the table mounts.
-    if (urlChanged) {
       this.getTableData(createApiUrl(defaultState.endpoint, params));
     }
 
-    if (params.bug && Object.keys(this.state.tableData).length) {
+    if (params.bug && this.state.tableData.length) {
       this.getBugDetails(bugzillaBugsApi('bug', { include_fields: 'summary', id: params.bug }));
     }
   }

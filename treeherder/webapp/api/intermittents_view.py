@@ -11,7 +11,6 @@ from treeherder.model.models import (BugJobMap,
                                      OptionCollection,
                                      Push,
                                      TextLogError)
-from treeherder.webapp.api.pagination import CustomPagePagination
 from treeherder.webapp.api.serializers import (FailureCountSerializer,
                                                FailuresByBugSerializer,
                                                FailuresQueryParamsSerializer,
@@ -23,7 +22,6 @@ class Failures(generics.ListAPIView):
     """ List of intermittent failures by date range and repo (project name) """
 
     serializer_class = FailuresSerializer
-    pagination_class = CustomPagePagination
     queryset = None
 
     def list(self, request):
@@ -43,15 +41,14 @@ class Failures(generics.ListAPIView):
                                            .values('bug_id', 'bug_count')
                                            .order_by('-bug_count'))
 
-        serializer = self.get_serializer(self.paginate_queryset(self.queryset), many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(data=serializer.data)
 
 
 class FailuresByBug(generics.ListAPIView):
     """ List of intermittent failure job details by bug, date range and repo (project name) """
 
     serializer_class = FailuresByBugSerializer
-    pagination_class = CustomPagePagination
     queryset = None
 
     def list(self, request):
@@ -101,8 +98,8 @@ class FailuresByBug(generics.ListAPIView):
             else:
                 item['build_type'] = 'unknown'
 
-        serializer = self.get_serializer(self.paginate_queryset(self.queryset), many=True)
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(data=serializer.data)
 
 
 class FailureCount(generics.ListAPIView):

@@ -11,10 +11,11 @@ export const prettyDate = function formatPrettyDate(date) {
 };
 
 export const formatBugs = function formatBugsForBugzilla(data) {
-  let bugs = '';
+  const bugs = [];
   for (let i = 0; i < data.length; i++) {
-    bugs += `${data[i].bug_id},`;
+    bugs.push(`${data[i].bug_id}`);
   }
+
   return bugs;
 };
 
