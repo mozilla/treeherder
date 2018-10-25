@@ -15,6 +15,14 @@ const MainView = (props) => {
   const { graphData, tableData, initialParamsSet, startday, endday, updateState,
     tree, location, updateAppState } = props;
 
+  const textFilter = (filter, row) => {
+    const text = row[filter.id];
+    const regex = RegExp(filter.value, 'i');
+    if (regex.test(text)) {
+      return row;
+    }
+  };
+
   const columns = [
     {
       Header: 'Bug',
@@ -38,16 +46,19 @@ const MainView = (props) => {
       Header: 'Count',
       accessor: 'count',
       maxWidth: 100,
+      filterable: false,
     },
     {
       Header: 'Summary',
       accessor: 'summary',
       minWidth: 250,
+      filterMethod: (filter, row) => textFilter(filter, row),
     },
     {
       Header: 'Whiteboard',
       accessor: 'whiteboard',
       minWidth: 150,
+      filterMethod: (filter, row) => textFilter(filter, row),
     },
   ];
 
@@ -91,6 +102,7 @@ const MainView = (props) => {
           getTrProps={tableRowStyling}
           showPaginationTop
           defaultPageSize={50}
+          filterable
         />
       }
       datePicker={
