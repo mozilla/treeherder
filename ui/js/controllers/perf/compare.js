@@ -306,7 +306,7 @@ perf.controller('CompareResultsCtrl', [
                     const newResultsMap = resultMaps[$scope.newResultSet.id] || {};
 
                     // Optimization - we collected all data in a single pass
-                    if (newResultsMap) {
+                    if (isEqual($scope.originalProject, $scope.newProject)) {
                         $scope.dataLoading = false;
                         displayResults(originalResultsMap, newResultsMap);
                         return;
@@ -697,8 +697,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                     resultSetIds = [$scope.originalResultSet.id];
 
                     // Optimization - if old/new branches are the same collect data in one pass
-                    if ($scope.originalProject === $scope.newProject) {
-                        resultSetIds = [$scope.originalResultSet.id, $scope.newResultSet.id];
+                    if (isEqual($scope.originalProject, $scope.newProject)) {
+                        resultSetIds.push($scope.newResultSet.id);
                     }
                 }
 
@@ -786,8 +786,9 @@ perf.controller('CompareSubtestResultsCtrl', [
                             }
                         });
 
-                        // Optimization- collect all data in a single pass
-                        if (newSeriesMap) {
+                        // if original and new project are same, we should
+                        // have collected all data in a single pass
+                        if (isEqual($scope.originalProject, $scope.newProject)) {
                             $scope.dataLoading = false;
                             displayResults(originalSeriesMap, newSeriesMap);
                             return;
