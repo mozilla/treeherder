@@ -8,7 +8,7 @@ matrix:
 
     - env: js-tests
       language: node_js
-      node_js: "10"
+      node_js: "11"
       cache:
         directories:
           - node_modules
@@ -62,7 +62,7 @@ matrix:
           - ${HOME}/venv
           - node_modules
       install:
-        - nvm install 10
+        - nvm install 11
         - source ./bin/travis-setup.sh services python_env geckodriver js_env
       before_script:
         # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
