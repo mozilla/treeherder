@@ -1,6 +1,6 @@
-from treeherder.config.settings import *
+from treeherder.config.settings import *  # noqa: F403
 
-DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}
+DATABASES["default"]["TEST"] = {"NAME": "test_treeherder"}  # noqa: F405
 KEY_PREFIX = 'test'
 
 TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
