@@ -306,8 +306,8 @@ pycryptodome==3.6.6 \
     --hash=sha256:b3cb4af317d9b84f6df50f0cfa6840ba69556af637a83fd971537823e13d601a
 ecdsa==0.13 \
     --hash=sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c
-future==0.16.0 \
-    --hash=sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb
+future==0.17.0 \
+    --hash=sha256:eb6d4df04f1fb538c99f69c9a28b255d1ee4e825d479b9c62fc38c0cf38065a4
 
 furl==2.0.0 \
     --hash=sha256:f7e90e9f85ef3f2e64485f04c2a80b50af6133942812fd87a44d45305b079018 \
