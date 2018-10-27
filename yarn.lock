@@ -3744,10 +3744,10 @@ faye-websocket@~0.11.0:
   dependencies:
     websocket-driver ">=0.5.1"
 
-fetch-mock@7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-7.2.0.tgz#89b8a0fe30dae806924f76e886fb74e165cb0103"
-  integrity sha512-URZutXz5rsIOGx/8iDIpCrrSaB4nM3TvC+LcsiQmIff/Eo/a/MQG2yZ77tcu4N15FRPAq2bzJlsMN6LfmVQT4Q==
+fetch-mock@7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-7.2.2.tgz#29c5bfa0924fb82ad09d576507b7e588b3539b89"
+  integrity sha512-02+L/NR/1+Ey+Hh05f1E8dGjFJGNYlkOq1kvtGjxcVD2/wFBSXFNiG8ecxKWNsREzBI4PECR04Raz0cyLvndKQ==
   dependencies:
     babel-polyfill "^6.26.0"
     glob-to-regexp "^0.4.0"
