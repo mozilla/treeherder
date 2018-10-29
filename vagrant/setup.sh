@@ -38,10 +38,10 @@ ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . vagrant/env.sh
 
-if ! grep -qs 'node_10.x' /etc/apt/sources.list.d/nodesource.list; then
+if ! grep -qs 'node_11.x' /etc/apt/sources.list.d/nodesource.list; then
     echo '-----> Adding APT repository for Node.js'
     sudo curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key -o /etc/apt/trusted.gpg.d/nodesource.asc
-    echo 'deb https://deb.nodesource.com/node_10.x bionic main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+    echo 'deb https://deb.nodesource.com/node_11.x bionic main' | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/yarn.list ]]; then
