@@ -3,7 +3,7 @@
 import requests
 from django.conf import settings
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
@@ -12,7 +12,7 @@ from treeherder.etl.common import make_request
 
 class BugzillaViewSet(viewsets.ViewSet):
 
-    @list_route(methods=['post'])
+    @action(detail=False, methods=['post'])
     def create_bug(self, request):
         """
         Create a bugzilla bug with passed params
