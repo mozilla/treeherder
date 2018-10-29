@@ -10,6 +10,8 @@ You can run flake8, isort and the pytest suite inside the Vagrant VM, using:
 vagrant ~/treeherder$ ./runtests.sh
 ```
 
+Note: The Selenium tests will be skipped unless `yarn build` has been manually run prior.
+
 Or for more control, run each tool individually:
 
 * [pytest](https://docs.pytest.org/en/stable/):
@@ -27,7 +29,14 @@ Or for more control, run each tool individually:
   vagrant ~/treeherder$ pytest --runslow tests/
   ```
 
-  For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>
+  For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>.
+
+  To assist with debugging Selenium test failures, an HTML reporting containing screenshots
+  can be generated using:
+
+  ```bash
+  vagrant ~/treeherder$ pytest tests/selenium/ --html report.html
+  ```
 
 * [flake8](https://flake8.readthedocs.io/):
 
