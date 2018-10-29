@@ -1,4 +1,3 @@
-import taskcluster from './taskcluster';
 import { getAllUrlParams, getRepo } from './location';
 
 export const uiJobsUrlBase = '/#/jobs';
@@ -34,25 +33,12 @@ export const getBugUrl = function getBugUrl(bug_id) {
   return `${bzBaseUrl}show_bug.cgi?id=${bug_id}`;
 };
 
-export const getSlaveHealthUrl = function getSlaveHealthUrl(machine_name) {
-  return `https://secure.pub.build.mozilla.org/builddata/reports/slave_health/slave.html?name=${machine_name}`;
-};
-
 export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
   return `https://tools.taskcluster.net/tasks/${taskId}`;
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
   return `https://hg.mozilla.org/mozilla-central/raw-file/tip/layout/tools/reftest/reftest-analyzer.xhtml#logurl=${logUrl}&only_show_unexpected=1`;
-};
-
-export const getWorkerExplorerUrl = async function getWorkerExplorerUrl(taskId) {
-  const queue = taskcluster.getQueue();
-  const { status } = await queue.status(taskId);
-  const { provisionerId, workerType } = status;
-  const { workerGroup, workerId } = status.runs[status.runs.length - 1];
-
-  return `https://tools.taskcluster.net/provisioners/${provisionerId}/worker-types/${workerType}/workers/${workerGroup}/${workerId}`;
 };
 
 // repoName here is necessary because this data comes from the /jobs endpoint
@@ -64,8 +50,8 @@ export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_n
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
 
-export const getWptUrl = function getWptUrl(url, value) {
-  return `https://mozilla.github.io/wptview/#/?urls=${encodeURIComponent(url)},${encodeURIComponent(value)}`;
+export const getWptUrl = function getWptUrl(url) {
+  return `https://mozilla.github.io/wptview/#/?urls=${encodeURIComponent(url)}`;
 };
 
 export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {

@@ -14,7 +14,7 @@ import TaskclusterModel from '../models/taskcluster';
 import { withPushes } from './context/Pushes';
 import { withNotifications } from '../shared/context/Notifications';
 
-class CustomJobActions extends React.Component {
+class CustomJobActions extends React.PureComponent {
   constructor(props) {
     super(props);
 

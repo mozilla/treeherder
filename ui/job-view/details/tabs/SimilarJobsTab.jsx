@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
 import { getBtnClass, getStatus } from '../../../helpers/job';
-import { getSlaveHealthUrl, getJobsUrl } from '../../../helpers/url';
+import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
@@ -213,16 +213,6 @@ class SimilarJobsTab extends React.Component {
                 <tr>
                   <th>Result</th>
                   <td>{selectedSimilarJob.result_status}</td>
-                </tr>
-                <tr>
-                  <th>Machine name</th>
-                  <td>
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={getSlaveHealthUrl(selectedSimilarJob.machine_name)}
-                    >{selectedSimilarJob.machine_name}</a>
-                  </td>
                 </tr>
                 <tr>
                   <th>Build</th>
