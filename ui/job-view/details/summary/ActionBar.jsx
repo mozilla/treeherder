@@ -15,7 +15,7 @@ import { withPinnedJobs } from '../../context/PinnedJobs';
 import { withPushes } from '../../context/Pushes';
 import { withNotifications } from '../../../shared/context/Notifications';
 
-class ActionBar extends React.Component {
+class ActionBar extends React.PureComponent {
   constructor(props) {
     super(props);
 

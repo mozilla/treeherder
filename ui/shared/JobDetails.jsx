@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getPerfAnalysisUrl, getWptUrl } from '../../../helpers/url';
+import { getPerfAnalysisUrl, getWptUrl } from '../helpers/url';
 
 const UNTITLED = 'Untitled data';
 
-export default class JobDetailsTab extends React.PureComponent {
+export default class JobDetails extends React.PureComponent {
   render() {
     const { jobDetails } = this.props;
-    const sortedDetails = jobDetails ? jobDetails.slice() : [];
-    const builderNameItem = jobDetails.findIndex(detail => detail.title === 'Buildername');
+    const sortedDetails = jobDetails.slice();
 
     sortedDetails.sort((a, b) => {
       const compareA = a.title || UNTITLED;
@@ -36,7 +35,7 @@ export default class JobDetailsTab extends React.PureComponent {
               {line.url && line.value.endsWith('raw.log') &&
                 <span> - <a
                   title={line.value}
-                  href={getWptUrl(line.url, builderNameItem ? builderNameItem.value : undefined)}
+                  href={getWptUrl(line.url)}
                 >open in test results viewer</a>
                 </span>}
               {line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip') &&
@@ -60,10 +59,10 @@ export default class JobDetailsTab extends React.PureComponent {
   }
 }
 
-JobDetailsTab.propTypes = {
+JobDetails.propTypes = {
   jobDetails: PropTypes.array,
 };
 
-JobDetailsTab.defaultProps = {
+JobDetails.defaultProps = {
   jobDetails: [],
 };

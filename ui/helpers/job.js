@@ -4,8 +4,6 @@ import {
   thFailureResults,
   thPlatformMap,
 } from './constants';
-import { toDateStr } from './display';
-import { getSlaveHealthUrl, getWorkerExplorerUrl } from './url';
 import { getGroupMapKey } from './aggregateId';
 
 const btnClasses = {
@@ -178,40 +176,4 @@ export const getHoverText = function getHoverText(job) {
   const duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
 
   return `${job.job_type_name} - ${getStatus(job)} - ${duration} mins`;
-};
-
-export const getJobMachineUrl = function getJobMachineUrl(job) {
-  const { build_system_type, machine_name } = job;
-  const machineUrl = (machine_name !== 'unknown' && build_system_type === 'buildbot') ?
-    getSlaveHealthUrl(machine_name) :
-    getWorkerExplorerUrl(job.taskcluster_metadata.task_id);
-
-  return machineUrl;
-};
-
-export const getTimeFields = function getTimeFields(job) {
-  // time fields to show in detail panel, but that should be grouped together
-  const timeFields = {
-    requestTime: toDateStr(job.submit_timestamp),
-  };
-
-  // If start time is 0, then duration should be from requesttime to now
-  // If we have starttime and no endtime, then duration should be starttime to now
-  // If we have both starttime and endtime, then duration will be between those two
-  const endtime = job.end_timestamp || Date.now() / 1000;
-  const starttime = job.start_timestamp || job.submit_timestamp;
-  const duration = `${Math.round((endtime - starttime) / 60, 0)} minute(s)`;
-
-  if (job.start_timestamp) {
-    timeFields.startTime = toDateStr(job.start_timestamp);
-    timeFields.duration = duration;
-  } else {
-    timeFields.duration = `Not started (queued for ${duration})`;
-  }
-
-  if (job.end_timestamp) {
-    timeFields.endTime = toDateStr(job.end_timestamp);
-  }
-
-  return timeFields;
 };

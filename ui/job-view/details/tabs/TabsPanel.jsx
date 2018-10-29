@@ -6,7 +6,7 @@ import { thEvents } from '../../../helpers/constants';
 import { getAllUrlParams } from '../../../helpers/location';
 import { getStatus } from '../../../helpers/job';
 
-import JobDetailsTab from './JobDetailsTab';
+import JobDetails from '../../../shared/JobDetails';
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
 import PerformanceTab from './PerformanceTab';
 import AutoclassifyTab from './autoclassify/AutoclassifyTab';
@@ -145,7 +145,7 @@ class TabsPanel extends React.Component {
             </span>
           </TabList>
           <TabPanel>
-            <JobDetailsTab jobDetails={jobDetails} />
+            <JobDetails jobDetails={jobDetails} />
           </TabPanel>
           <TabPanel>
             <FailureSummaryTab
