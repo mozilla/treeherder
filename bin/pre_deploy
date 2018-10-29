@@ -22,7 +22,7 @@ echo "-----> PRE-DEPLOY: Loading initial data..."
 # TODO: Look into this again when using newer MySQL and Django 2.x.
 ATTEMPTS=0
 until newrelic-admin run-program ./manage.py load_initial_data; do
-    if (( ++ATTEMPTS == 5 )); then
+    if (( ++ATTEMPTS == 10 )); then
         echo "Failed to load initial data after ${ATTEMPTS} attempts!"
         exit 1
     fi
