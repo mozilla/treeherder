@@ -3,7 +3,6 @@ import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css';
 
 import BugColumn from './BugColumn';
 import { calculateMetrics, prettyDate, ISODate, tableRowStyling } from './helpers';

@@ -3,7 +3,6 @@ import { Row, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 import ReactTable from 'react-table';
-import 'react-table/react-table.css';
 
 import { calculateMetrics, prettyDate, tableRowStyling } from './helpers';
 import { bugDetailsEndpoint, getJobsUrl } from '../helpers/url';
