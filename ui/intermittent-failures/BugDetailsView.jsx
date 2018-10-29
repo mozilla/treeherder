@@ -1,15 +1,13 @@
-import 'react-table/react-table.css';
-
 import React from 'react';
 import { Row, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
+import ReactTable from 'react-table';
 
-import { calculateMetrics, prettyDate } from './helpers';
+import { calculateMetrics, prettyDate, tableRowStyling } from './helpers';
 import { bugDetailsEndpoint, getJobsUrl } from '../helpers/url';
 import BugLogColumn from './BugLogColumn';
 import Layout from './Layout';
-import GenericTable from './GenericTable';
 import withView from './View';
 import DateOptions from './DateOptions';
 
@@ -106,11 +104,14 @@ const BugDetailsView = (props) => {
       }
       table={
         bug && initialParamsSet &&
-        <GenericTable
-          totalPages={tableData.total_pages}
+        <ReactTable
+          data={tableData}
+          showPageSizeOptions
           columns={columns}
-          data={tableData.results}
-          updateState={updateState}
+          className="-striped"
+          getTrProps={tableRowStyling}
+          showPaginationTop
+          defaultPageSize={50}
         />
       }
       datePicker={

@@ -89,7 +89,9 @@ Layout.propTypes = {
       PropTypes.shape({}),
     ),
   ),
-  tableData: PropTypes.shape({}),
+  tableData: PropTypes.arrayOf(
+    PropTypes.shape({}),
+  ),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.shape({}),
