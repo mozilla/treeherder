@@ -5,7 +5,7 @@ from django.contrib.auth import (authenticate,
                                  login,
                                  logout)
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class AuthViewSet(viewsets.ViewSet):
 
-    @list_route()
+    @action(detail=False)
     def login(self, request):
         """
         Verify credentials
@@ -47,7 +47,7 @@ class AuthViewSet(viewsets.ViewSet):
             logger.exception("Error", exc_info=ex)
             raise AuthenticationFailed(str(ex))
 
-    @list_route()
+    @action(detail=False)
     def logout(self, request):
         logout(request)
         return Response("User logged out")

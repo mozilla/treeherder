@@ -5,7 +5,7 @@ from dateutil import parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models as django_models
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -303,7 +303,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def text_log_steps(self, request, project, pk=None):
         """
         Gets a list of steps associated with this job
@@ -320,7 +320,7 @@ class JobsViewSet(viewsets.ViewSet):
                                                           many=True,
                                                           read_only=True).data)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def text_log_errors(self, request, project, pk=None):
         """
         Gets a list of steps associated with this job
@@ -341,7 +341,7 @@ class JobsViewSet(viewsets.ViewSet):
                                                            many=True,
                                                            read_only=True).data)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def bug_suggestions(self, request, project, pk=None):
         """
         Gets a set of bug suggestions for this job
@@ -353,7 +353,7 @@ class JobsViewSet(viewsets.ViewSet):
 
         return Response(get_error_summary(job))
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def similar_jobs(self, request, project, pk=None):
         """
         Get a list of jobs similar to the one selected.
