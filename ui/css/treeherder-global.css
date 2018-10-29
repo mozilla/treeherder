@@ -181,12 +181,12 @@ input[type="checkbox"] {
 }
 
 .result-status-shading-testfailed {
-  background-color: rgba(221, 102, 2, 0.25);
+  background-color: rgba(221, 102, 2, 0.5);
   border-color: rgba(221, 102, 2, 0.25);
 }
 
 .result-status-shading-busted {
-  background-color: rgba(144, 0, 0, 0.25);
+  background-color: rgba(144, 0, 0, 0.5);
   border-color: rgba(144, 0, 0, 0.25);
 }
 
