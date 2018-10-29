@@ -4,7 +4,24 @@ from graphene_django.types import DjangoObjectType
 from graphql.utils.ast_to_dict import ast_to_dict
 
 from treeherder.model import error_summary
-from treeherder.model.models import *
+from treeherder.model.models import (BuildPlatform,
+                                     FailureClassification,
+                                     FailureLine,
+                                     Group,
+                                     Job,
+                                     JobDetail,
+                                     JobGroup,
+                                     JobLog,
+                                     JobType,
+                                     Machine,
+                                     MachinePlatform,
+                                     Option,
+                                     OptionCollection,
+                                     Product,
+                                     Push,
+                                     Repository,
+                                     TextLogError,
+                                     TextLogStep)
 from treeherder.webapp.graphql.helpers import optimize
 from treeherder.webapp.graphql.types import ObjectScalar
 

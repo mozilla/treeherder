@@ -199,7 +199,7 @@ class Commenter(object):
         return False
 
     def update_whiteboard(self, existing, new):
-        whiteboard = re.sub('\[stockwell.*?\]', '', existing)
+        whiteboard = re.sub(r'\[stockwell.*?\]', '', existing)
         return whiteboard + new
 
     def new_request(self):
