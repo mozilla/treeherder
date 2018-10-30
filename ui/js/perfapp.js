@@ -4,8 +4,6 @@ import graphsCtrlTemplate from '../partials/perf/graphsctrl.html';
 import compareCtrlTemplate from '../partials/perf/comparectrl.html';
 import compareSubtestCtrlTemplate from '../partials/perf/comparesubtestctrl.html';
 import compareChooserCtrlTemplate from '../partials/perf/comparechooserctrl.html';
-import dashboardTemplate from '../partials/perf/dashboard.html';
-import dashboardSubtestTemplate from '../partials/perf/dashboardsubtest.html';
 import compareSubtestDistributionTemplate from '../partials/perf/comparesubtestdistribution.html';
 import helpMenuTemplate from '../partials/perf/helpMenu.html';
 import tooltipGraphsTemplate from '../partials/perf/tooltipgraphs.html';
@@ -57,18 +55,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 template: compareChooserCtrlTemplate,
                 url: '/comparechooser?originalProject&originalRevision&newProject&newRevision',
                 controller: 'CompareChooserCtrl',
-            })
-            .state('dashboard', {
-                title: 'Perfherder Dashboard',
-                template: dashboardTemplate,
-                url: '/dashboard?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&showOnlyBlockers&repo&timerange&revision',
-                controller: 'dashCtrl',
-            })
-            .state('dashboardsubtest', {
-                title: 'Perfherder Dashboard - Subtests',
-                template: dashboardSubtestTemplate,
-                url: '/dashboardsubtest?topic&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&baseSignature&variantSignature&repo&timerange&revision',
-                controller: 'dashSubtestCtrl',
             })
             .state('comparesubtestdistribution', {
                 title: 'Compare Subtest Distribution',

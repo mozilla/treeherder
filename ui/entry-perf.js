@@ -35,7 +35,6 @@ import './js/services/perf/compare';
 import './js/controllers/perf/compare';
 import './js/controllers/perf/graphs';
 import './js/controllers/perf/alerts';
-import './js/controllers/perf/dashboard';
 import './js/components/perf/compare';
 import './js/components/loading';
 import './js/perfapp';
