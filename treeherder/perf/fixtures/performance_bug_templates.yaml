@@ -48,6 +48,8 @@
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
       To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Build_Metrics
+
+      *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 - model: perf.PerformanceBugTemplate
   pk: 3
   fields:
