@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
 
-import { thJobNavSelectors } from '../../helpers/constants';
+import { thEvents, thJobNavSelectors } from '../../helpers/constants';
 import {
   findGroupElement,
   findGroupInstance,
@@ -41,6 +41,7 @@ class SelectedJobClass extends React.Component {
     this.clearSelectedJob = this.clearSelectedJob.bind(this);
     this.changeSelectedJob = this.changeSelectedJob.bind(this);
     this.noMoreUnclassifiedFailures = this.noMoreUnclassifiedFailures.bind(this);
+    this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
 
     // TODO: this.value needs to now get the bound versions of the functions.
     // But when we move the function binding to the constructors, we won't
@@ -59,6 +60,12 @@ class SelectedJobClass extends React.Component {
     if (jobsLoaded !== prevProps.jobsLoaded) {
       this.setSelectedJobFromQueryString();
     }
+
+    window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
   }
 
   setValue(newState, callback) {
@@ -164,6 +171,14 @@ class SelectedJobClass extends React.Component {
       setUrlParam('selectedJob', null);
       const selected = findSelectedInstance();
       if (selected) selected.setSelected(false);
+    }
+  }
+
+  handleApplyNewJobs(event) {
+    const { updatedSelectedJob } = event.detail;
+
+    if (updatedSelectedJob) {
+      this.setSelectedJob(updatedSelectedJob);
     }
   }
 

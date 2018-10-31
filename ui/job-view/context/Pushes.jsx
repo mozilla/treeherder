@@ -326,8 +326,16 @@ export class PushesClass extends React.Component {
       const pushJobs = acc[job.push_id] ? [...acc[job.push_id], job] : [job];
       return { ...acc, [job.push_id]: pushJobs };
     }, {});
+    // If a job is selected, and one of the jobs we just fetched is the
+    // updated version of that selected job, then send that with the event.
+    const selectedJobId = getUrlParam('selectedJob');
+    const updatedSelectedJob = selectedJobId ?
+      jobList.find(job => job.id === parseInt(selectedJobId)) : null;
 
-    window.dispatchEvent(new CustomEvent(thEvents.applyNewJobs, { detail: { jobs } }));
+    window.dispatchEvent(new CustomEvent(
+      thEvents.applyNewJobs,
+      { detail: { jobs, updatedSelectedJob } },
+    ));
   }
 
   updateUrlFromchange() {
