@@ -10,8 +10,8 @@ def test_add_test_data(base_url, selenium):
 
 def test_load_test_data(base_url, selenium, test_perf_data):
     """
-        Test that user is able to select test data from the "test chooser" and
-        the correct test data si displayed
+    Test that user is able to select test data from the "test chooser" and
+    the correct test data is displayed
     """
 
     test_data = test_perf_data.first()
