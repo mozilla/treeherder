@@ -21,6 +21,8 @@ def test_load_test_data(base_url, selenium, test_perf_data):
 
     select_test_modal.select_test(test_data)
 
+    # We expect to see a signature in our series list to the side after selecting
+    # it in the chooser
     test_signatures = perf_page.series_list()
 
     assert len(test_signatures) == 1
