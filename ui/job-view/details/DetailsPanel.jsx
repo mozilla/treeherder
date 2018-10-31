@@ -56,7 +56,7 @@ class DetailsPanel extends React.Component {
   componentDidUpdate(prevProps) {
     const { selectedJob } = this.props;
 
-    if (selectedJob && (!prevProps.selectedJob || prevProps.selectedJob.id !== selectedJob.id)) {
+    if (selectedJob && (!prevProps.selectedJob || prevProps.selectedJob !== selectedJob)) {
       this.selectJob();
     }
   }

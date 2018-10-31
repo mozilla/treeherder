@@ -11,7 +11,6 @@ import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams } from '../../helpers/location';
 import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
-import { withSelectedJob } from '../context/SelectedJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
@@ -400,4 +399,4 @@ Push.propTypes = {
   isOnlyRevision: PropTypes.bool.isRequired,
 };
 
-export default withNotifications(withPushes(withSelectedJob(Push)));
+export default withNotifications(withPushes(Push));
