@@ -386,7 +386,7 @@ REST_FRAMEWORK = {
 
 # Whitenoise
 # Files in this directory will be served by WhiteNoise at the site root.
-WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "dist")
+WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "build")
 # Serve index.html for URLs ending in a trailing slash.
 WHITENOISE_INDEX_FILE = True
 # Only output the hashed filename version of static files and not the originals.

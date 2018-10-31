@@ -168,7 +168,7 @@ class PushJobs extends React.Component {
 
 PushJobs.propTypes = {
   push: PropTypes.object.isRequired,
-  platforms: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
+  platforms: PropTypes.array.isRequired,
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   togglePinJob: PropTypes.func.isRequired,

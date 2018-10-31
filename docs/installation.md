@@ -47,7 +47,7 @@ production site. You do not need to set up the Vagrant VM unless making backend 
   If you need to serve data from another domain, type:
 
   ```bash
-  $ BACKEND_DOMAIN=<url> yarn start
+  $ BACKEND=<url> yarn start
   ```
 
   This will run the unminified UI using ``<url>`` as the service domain.
@@ -153,8 +153,7 @@ Starting a local Treeherder instance
   vagrant ~/treeherder$ yarn start:local
   ```
 
-  This will build the UI code in the ``dist/`` folder and keep watching for
-  new changes.
+  This will build the UI code and keep watching for new changes.
 
 * Visit <http://localhost:5000> in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
 

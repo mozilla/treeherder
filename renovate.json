@@ -10,18 +10,7 @@
     "@types/prop-types",
     "@types/react",
     "@types/react-dom",
-    "@uirouter/angularjs",
-    "deepmerge",
-    "eslint",
-    "eslint-config-airbnb",
-    "eslint-plugin-jsx-a11y",
-    "html-loader",
-    "karma",
-    "neutrino",
-    "neutrino-lint-base",
-    "neutrino-preset-karma",
-    "neutrino-preset-react",
-    "react-hot-loader"
+    "@uirouter/angularjs"
   ],
   "reviewers": [
     "@mozilla/treeherder-admins"

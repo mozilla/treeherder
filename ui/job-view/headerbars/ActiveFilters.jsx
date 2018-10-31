@@ -174,5 +174,5 @@ ActiveFilters.propTypes = {
   filterBarFilters: PropTypes.array.isRequired,
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
-  classificationTypes: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
+  classificationTypes: PropTypes.array.isRequired,
 };
