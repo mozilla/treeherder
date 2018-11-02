@@ -15,8 +15,9 @@ matrix:
       install:
         - source ./bin/travis-setup.sh js_env
       script:
+        # `yarn build` is tested as part of the Selenium job.
+        - yarn lint
         - yarn test
-        - yarn build
 
     - env: python2-linters
       sudo: false

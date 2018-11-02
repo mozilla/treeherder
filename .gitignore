@@ -23,7 +23,7 @@ npm-error.log
 
 # Treeherder-specific
 _build/
-dist/
+build/
 treeherder/static/
 
 # Celery

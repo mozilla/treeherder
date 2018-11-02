@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader';
 import SplitPane from 'react-split-pane';
 
 import { thFavicons } from '../helpers/constants';
@@ -313,4 +314,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default hot(module)(App);

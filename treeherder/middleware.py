@@ -6,15 +6,20 @@ from whitenoise.middleware import WhiteNoiseMiddleware
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):
-    """Sets long max-age headers for webpack generated files."""
+    """Sets long max-age headers for Neutrino-generated hashed files."""
 
-    # Matches webpack's style of chunk filenames. eg:
-    # index.f03882a6258f16fceb70.bundle.js
-    IMMUTABLE_FILE_RE = re.compile(r'\.[a-f0-9]{16,}\.bundle\.(js|css)$')
+    # Matches Neutrino's style of hashed filename URLs, eg:
+    #   /assets/index.1d85033a.js
+    #   /assets/2.379789df.css.map
+    #   /assets/fontawesome-webfont.af7ae505.woff2
+    IMMUTABLE_FILE_RE = re.compile(r'^/assets/.*\.[a-f0-9]{8}\..*')
 
     def immutable_file_test(self, path, url):
-        """Support webpack bundle filenames when setting long max-age headers."""
-        if self.IMMUTABLE_FILE_RE.search(url):
+        """
+        Determines whether the given URL represents an immutable file (i.e. a file with a
+        hash of its contents as part of its name) which can therefore be cached forever.
+        """
+        if self.IMMUTABLE_FILE_RE.match(url):
             return True
         # Otherwise fall back to the default method, so we catch filenames in the
         # style output by GzipManifestStaticFilesStorage during collectstatic. eg:
