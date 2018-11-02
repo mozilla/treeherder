@@ -13,26 +13,17 @@ treeherder.component('phCompareTable', {
         return compareTableTemplate;
     }],
     bindings: {
-        baseTitle: '@',
-        newTitle: '@',
         frameworks: '<',
         titles: '<',
         compareResults: '<',
         testList: '<',
         filterOptions: '<',
         filterByFramework: '@',
-        releaseBlockerCriteria: '@',
     },
     controller: ['$attrs', function ($attrs) {
         const ctrl = this;
 
         ctrl.$onInit = function () {
-            if (!ctrl.baseTitle) {
-                ctrl.baseTitle = 'Base';
-            }
-            if (!ctrl.newTitle) {
-                ctrl.newTitle = 'New';
-            }
             ctrl.updateFilteredTestList();
         };
 
@@ -53,7 +44,6 @@ treeherder.component('phCompareTable', {
             return (!ctrl.filterOptions.showOnlyImportant || result.isMeaningful) &&
                 (!ctrl.filterOptions.showOnlyComparable || 'newIsBetter' in result) &&
                 (!ctrl.filterOptions.showOnlyConfident || result.isConfident) &&
-                (!ctrl.filterOptions.showOnlyBlockers || result.isBlocker) &&
                 (!ctrl.filterOptions.showOnlyNoise || result.isNoiseMetric);
         }
         function filterResult(results, key) {
