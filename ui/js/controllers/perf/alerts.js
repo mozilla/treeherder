@@ -11,7 +11,6 @@ import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesc
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
 import {
   thDateFormat,
-  phTimeRanges,
   phDefaultTimeRangeValue,
   phTimeRangeValues,
   phAlertSummaryStatusMap,
@@ -20,6 +19,7 @@ import {
 import OptionCollectionModel from '../../../models/optionCollection';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
+import { phTimeRanges } from '../../../perfherder/constants';
 
 perf.factory('PhBugs', [
     '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
