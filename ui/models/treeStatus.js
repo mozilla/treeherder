@@ -14,7 +14,9 @@ export default class TreeStatusModel {
       .then(async (resp) => {
         if (resp.ok) {
           return resp.json();
-        } else if (resp.status === 404) {
+        }
+
+        if (resp.status === 404) {
           return Promise.resolve({
             result: {
               status: 'unsupported',

@@ -114,16 +114,24 @@ class ErrorLine extends React.Component {
     if (!selectedOption) {
       return;
     }
+
     if (!this.canClassify) {
       return 'classification-disabled';
-    } else if (this.props.errorLine.verified) {
+    }
+
+    if (this.props.errorLine.verified) {
       return 'verified';
-    } else if (selectedOption.type === 'ignore') {
+    }
+
+    if (selectedOption.type === 'ignore') {
       return 'unverified-ignore';
-    } else if (selectedOption.type === 'manual' &&
+    }
+
+    if (selectedOption.type === 'manual' &&
       !selectedOption.manualBugNumber) {
       return 'unverified-no-bug';
     }
+
     return 'unverified';
   }
 

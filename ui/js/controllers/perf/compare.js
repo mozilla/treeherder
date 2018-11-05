@@ -29,7 +29,9 @@ perf.controller('CompareChooserCtrl', [
             const getParameter = function (paramName, defaultValue) {
                 if ($stateParams[paramName]) {
                     return $stateParams[paramName];
-                } else if (localStorageService.get(paramName)) {
+                }
+
+                if (localStorageService.get(paramName)) {
                     return localStorageService.get(paramName);
                 }
                 return defaultValue;
