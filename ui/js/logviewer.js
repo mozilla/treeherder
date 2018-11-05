@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable func-names */
 import angular from 'angular';
 import ngSanitize from 'angular-sanitize';
 

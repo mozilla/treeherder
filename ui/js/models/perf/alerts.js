@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable object-shorthand, prefer-arrow-callback, prefer-destructuring, prefer-template */
+/* eslint-disable func-names, object-shorthand, prefer-arrow-callback, prefer-destructuring, prefer-template */
 import sortBy from 'lodash/sortBy';
 import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';

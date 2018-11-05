@@ -9,7 +9,7 @@ import { getUrlParam } from '../../helpers/location';
 import JobButton from './JobButton';
 import JobCount from './JobCount';
 
-const GroupSymbol = function (props) {
+const GroupSymbol = function GroupSymbol(props) {
   const { symbol, tier, toggleExpanded } = props;
 
   return (

@@ -3,13 +3,13 @@ import queryString from 'query-string';
 import { getApiUrl, getProjectUrl } from '../helpers/url';
 import OptionCollectionModel from './optionCollection';
 
-export const getTestName = function (signatureProps) {
+export const getTestName = function getTestName(signatureProps) {
   // only return suite name if testname is identical, and handle
   // undefined test name
   return [...new Set([signatureProps.suite, signatureProps.test].filter(item => item))].join(' ');
 };
 
-export const getSeriesOptions = function (signatureProps, optionCollectionMap) {
+export const getSeriesOptions = function getSeriesOptions(signatureProps, optionCollectionMap) {
   let options = [optionCollectionMap[signatureProps.option_collection_hash]];
   if (signatureProps.extra_options) {
     options = options.concat(signatureProps.extra_options);
@@ -17,7 +17,7 @@ export const getSeriesOptions = function (signatureProps, optionCollectionMap) {
   return [...new Set(options)];
 };
 
-export const getSeriesName = function (signatureProps, optionCollectionMap,
+export const getSeriesName = function getSeriesName(signatureProps, optionCollectionMap,
                                 displayOptions) {
   const platform = signatureProps.machine_platform;
   let name = getTestName(signatureProps);
@@ -29,7 +29,7 @@ export const getSeriesName = function (signatureProps, optionCollectionMap,
   return `${name} ${options.join(' ')}`;
 };
 
-export const getSeriesSummary = function (projectName, signature, signatureProps,
+export const getSeriesSummary = function getSeriesSummary(projectName, signature, signatureProps,
                                    optionCollectionMap) {
   const platform = signatureProps.machine_platform;
   const options = getSeriesOptions(signatureProps, optionCollectionMap);
