@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable no-nested-ternary, object-shorthand, prefer-template */
+/* eslint-disable no-nested-ternary, object-shorthand, prefer-arrow-callback, prefer-template */
 import forIn from 'lodash/forIn';
 import chunk from 'lodash/chunk';
 

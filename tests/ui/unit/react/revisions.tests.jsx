@@ -187,9 +187,9 @@ describe('More revisions link component', () => {
   });
 });
 
-describe('initials filter', function () {
+describe('initials filter', () => {
   const email = 'foo@bar.baz';
-  it('initializes a one-word name', function () {
+  it('initializes a one-word name', () => {
     const name = 'Starscream';
     const initials = mount(
       <Initials
@@ -199,7 +199,7 @@ describe('initials filter', function () {
     expect(initials.html()).toEqual('<span title="Starscream: foo@bar.baz"><span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true" data-job-clear-on-click="true"></i></span><div class="icon-superscript user-push-initials" data-job-clear-on-click="true">S</div></span>');
   });
 
-  it('initializes a two-word name', function () {
+  it('initializes a two-word name', () => {
     const name = 'Optimus Prime';
     const initials = mount(
       <Initials
@@ -210,7 +210,7 @@ describe('initials filter', function () {
     expect(userPushInitials.html()).toEqual('<div class="icon-superscript user-push-initials" data-job-clear-on-click="true">OP</div>');
   });
 
-  it('initializes a three-word name', function () {
+  it('initializes a three-word name', () => {
     const name = 'Some Other Transformer';
     const initials = mount(
       <Initials

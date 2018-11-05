@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable object-shorthand, prefer-destructuring, prefer-template, radix */
+/* eslint-disable object-shorthand, prefer-arrow-callback, prefer-destructuring, prefer-template, radix */
 import merge from 'lodash/merge';
 import defaults from 'lodash/defaults';
 import set from 'lodash/set';
