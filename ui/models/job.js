@@ -54,8 +54,8 @@ export default class JobModel {
 
           // if the number of elements returned equals the page size, fetch the next pages
           if (fetch_all && (data.results.length === data.meta.count)) {
-            const count = parseInt(data.meta.count);
-            const offset = parseInt(data.meta.offset) + count;
+            const count = parseInt(data.meta.count, 10);
+            const offset = parseInt(data.meta.offset, 10) + count;
             const newOptions = { ...options, offset, count };
 
             nextPagesJobs = await JobModel.getList(repoName, newOptions, config);

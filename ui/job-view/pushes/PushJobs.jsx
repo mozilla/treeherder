@@ -15,7 +15,7 @@ import { withPushes } from '../context/Pushes';
 class PushJobs extends React.Component {
   static getDerivedStateFromProps(nextProps) {
     const { filterModel, push, platforms, runnableVisible } = nextProps;
-    const selectedJobId = parseInt(getUrlParam('selectedJob'));
+    const selectedJobId = parseInt(getUrlParam('selectedJob'), 10);
     const filteredPlatforms = platforms.reduce((acc, platform) => {
       const thisPlatform = { ...platform };
       const suffix = (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? '' : ` ${platform.option}`;

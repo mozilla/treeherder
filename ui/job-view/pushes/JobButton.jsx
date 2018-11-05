@@ -11,7 +11,7 @@ export default class JobButtonComponent extends React.Component {
     const urlSelectedJob = getUrlParam('selectedJob');
 
     this.state = {
-      isSelected: parseInt(urlSelectedJob) === job.id,
+      isSelected: parseInt(urlSelectedJob, 10) === job.id,
       isRunnableSelected: false,
     };
   }

@@ -49,7 +49,6 @@ module.exports = {
     'prefer-arrow-callback': 'off',
     'prefer-destructuring': 'off',
     'prefer-promise-reject-errors': 'off',
-    radix: 'off',
     'react/button-has-type': 'off',
     'react/default-props-match-prop-types': 'off',
     'react/destructuring-assignment': 'off',
