@@ -37,6 +37,9 @@ setup_services() {
     sudo cp vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf
     sudo systemctl start mysql
 
+    echo '-----> Starting redis-server'
+    sudo systemctl start redis-server
+
     echo '-----> Waiting for Elasticsearch to be ready'
     while ! curl "${ELASTICSEARCH_URL}" &> /dev/null; do sleep 1; done
 }
