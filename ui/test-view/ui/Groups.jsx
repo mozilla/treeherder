@@ -15,7 +15,7 @@ class Groups extends React.Component {
 
   constructor(props) {
     super(props);
-    this.filterStr = new URLSearchParams(location.search).get('filter') || '';
+    this.filterStr = new URLSearchParams(window.location.search).get('filter') || '';
   }
 
   componentDidMount() {

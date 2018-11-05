@@ -26,10 +26,19 @@ export default class AutoclassifyToolbar extends React.Component {
 
     return (
       <div className="autoclassify-toolbar th-context-navbar navbar-right">
-        {status === 'ready' && <div>
-          {autoclassifyStatus === 'cross_referenced' && <span>Autoclassification pending</span>}
-          {autoclassifyStatus === 'failed' && <span>Autoclassification failed</span>}
-        </div>}
+        {
+          // TODO: This is broken (bug 1504711)
+          // eslint-disable-next-line no-restricted-globals
+          status === 'ready' && (
+            <div>
+              {autoclassifyStatus === 'cross_referenced' && (
+                <span>Autoclassification pending</span>
+              )}
+              {autoclassifyStatus === 'failed' && (
+                <span>Autoclassification failed</span>
+              )}
+            </div>
+        )}
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"

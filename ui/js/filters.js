@@ -14,7 +14,7 @@ treeherder.filter('getRevisionUrl', function () {
 
 treeherder.filter('displayNumber', ['$filter', function ($filter) {
     return function (input) {
-        if (isNaN(input)) {
+        if (Number.isNaN(input)) {
             return 'N/A';
         }
 

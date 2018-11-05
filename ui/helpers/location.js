@@ -2,7 +2,7 @@ import { thDefaultRepo } from './constants';
 import { createQueryParams } from './url';
 
 export const getQueryString = function getQueryString() {
-  return location.hash.split('?')[1];
+  return window.location.hash.split('?')[1];
 };
 
 export const getAllUrlParams = function getAllUrlParams() {
@@ -18,7 +18,7 @@ export const getRepo = function getRepo() {
 };
 
 export const setLocation = function setLocation(params, hashPrefix = '/jobs') {
-  location.hash = `#${hashPrefix}${createQueryParams(params)}`;
+  window.location.hash = `#${hashPrefix}${createQueryParams(params)}`;
 };
 
 export const setUrlParam = function setUrlParam(field, value, hashPrefix = '/jobs') {

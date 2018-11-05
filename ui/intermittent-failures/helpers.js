@@ -113,7 +113,7 @@ export const validateQueryParams = function validateQueryParams(params, bugRequi
   if (!params.endday || params.endday.search(dateFormat) === -1) {
     messages.push(prettyErrorMessages.endday);
   }
-  if (bugRequired && (!params.bug || isNaN(params.bug))) {
+  if (bugRequired && (!params.bug || Number.isNaN(params.bug))) {
     messages.push(prettyErrorMessages.bug_ui);
   }
   return messages;

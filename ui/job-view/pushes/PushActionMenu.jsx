@@ -80,7 +80,7 @@ class PushActionMenu extends React.PureComponent {
     }
 
     let times = parseInt(window.prompt('Enter number of instances to have for each talos job', 6), 10);
-    while (times < 1 || times > 6 || isNaN(times)) {
+    while (times < 1 || times > 6 || Number.isNaN(times)) {
       times = window.prompt('We only allow instances of each talos job to be between 1 to 6 times. Enter again', 6);
     }
 

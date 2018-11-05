@@ -181,7 +181,7 @@ class LineOption extends React.Component {
           suggestion={errorLine.data.bug_suggestions}
           suggestions={[errorLine.data.bug_suggestions]}
           fullLog={logUrl}
-          parsedLog={`${location.origin}/${getLogViewerUrl(selectedJob.id, repoName)}`}
+          parsedLog={`${window.location.origin}/${getLogViewerUrl(selectedJob.id, repoName)}`}
           reftestUrl={isReftest(selectedJob) ? getReftestUrl(logUrl) : ''}
           successCallback={this.bugFilerCallback}
           jobGroupName={selectedJob.job_group_name}
