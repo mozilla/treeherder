@@ -18,7 +18,7 @@ const SKIPPED_LINK_PARAMS = [
 ];
 
 function Author(props) {
-  const authorMatch = props.author.match(/\<(.*?)\>+/);
+  const authorMatch = props.author.match(/<(.*?)>+/);
   const authorEmail = authorMatch ? authorMatch[1] : props.author;
 
   return (

@@ -16,7 +16,7 @@ export const stringOverlap = function (str1, str2) {
     })
     .map(function (str) {
       // Split into tokens on whitespace / ,  and |
-      return str.split(/[\s\/\,|]+/).filter(function (x) {
+      return str.split(/[\s/,|]+/).filter(function (x) {
         return x !== '';
       });
     });
