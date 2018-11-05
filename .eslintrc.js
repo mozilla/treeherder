@@ -41,7 +41,6 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'no-shadow': 'off',
     'no-underscore-dangle': 'off',
-    'no-useless-escape': 'off',
     'object-curly-newline': 'off',
     'object-shorthand': 'off',
     'operator-linebreak': 'off',

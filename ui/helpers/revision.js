@@ -23,7 +23,7 @@ export const getRevisionTitle = function getRevisionTitle(revisions) {
     title = title.replace(/\btry: .*/, '');
     title = title.replace(/\b(r|sr|f|a)=.*/, '');
     title = title.replace(/(imported patch|\[mq\]:) /, '');
-    title = title.replace(/[;,\-\. ]+$/, '').trim();
+    title = title.replace(/[;,\-. ]+$/, '').trim();
     if (title) {
       if (title.length > thTitleSuffixLimit) {
         title = `${title.substr(0, thTitleSuffixLimit - 3)}...`;
