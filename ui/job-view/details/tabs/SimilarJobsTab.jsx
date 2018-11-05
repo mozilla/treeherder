@@ -237,7 +237,7 @@ class SimilarJobsTab extends React.Component {
                 <tr>
                   <th>Duration</th>
                   <td>
-                    {selectedSimilarJob.duration >= 0 ? selectedSimilarJob.duration.toFixed(0) + ' minute(s)' : 'unknown'}
+                    {selectedSimilarJob.duration >= 0 ? `${selectedSimilarJob.duration.toFixed(0)} minute(s)` : 'unknown'}
                   </td>
                 </tr>
                 <tr>

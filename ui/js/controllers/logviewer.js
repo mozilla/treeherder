@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable prefer-template */
 import logViewerApp from '../logviewer';
 import { getInspectTaskUrl, getReftestUrl } from '../../helpers/url';
 import { isReftest } from '../../helpers/job';

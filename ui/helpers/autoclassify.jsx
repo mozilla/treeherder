@@ -11,7 +11,7 @@ export const stringOverlap = function (str1, str2) {
       // Replace paths like /foo/bar/baz.html with just the filename baz.html
       return str.replace(/[^\s]+\/([^\s]+)\s/,
                          function (m, p1) {
-                           return ' ' + p1 + ' ';
+                           return ` ${p1} `;
                          });
     })
     .map(function (str) {

@@ -209,11 +209,11 @@ export class BugFilerClass extends React.Component {
       const lowerJobGroupName = jobGroupName.toLowerCase();
       // Try to fix up file paths for some job types.
       if (lowerJobGroupName.includes('spidermonkey')) {
-        failurePath = 'js/src/tests/' + failurePath;
+        failurePath = `js/src/tests/${failurePath}`;
       }
       if (lowerJobGroupName.includes('videopuppeteer ')) {
         failurePath = failurePath.replace('FAIL ', '');
-        failurePath = 'dom/media/test/external/external_media_tests/' + failurePath;
+        failurePath = `dom/media/test/external/external_media_tests/${failurePath}`;
       }
       if (lowerJobGroupName.includes('web platform')) {
         failurePath = failurePath.startsWith('mozilla/tests') ?
@@ -361,7 +361,7 @@ export class BugFilerClass extends React.Component {
 
     let failureString = `${source} returned status ${status}(${statusText})`;
     if (data && data.failure) {
-      failureString += '\n\n' + data.failure;
+      failureString += `\n\n${data.failure}`;
     }
     if (status === 403) {
       failureString += '\n\nAuthentication failed. Has your Treeherder session expired?';

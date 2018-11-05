@@ -207,7 +207,7 @@ export class PushesClass extends React.Component {
 
   getLastModifiedJobTime() {
     const { jobMap } = this.state;
-    const latest = max(Object.values(jobMap).map(job => new Date(job.last_modified + 'Z'))) || new Date();
+    const latest = max(Object.values(jobMap).map(job => new Date(`${job.last_modified}Z`))) || new Date();
 
     latest.setSeconds(latest.getSeconds() - 3);
     return latest;
