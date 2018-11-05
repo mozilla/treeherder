@@ -187,7 +187,7 @@ class DetailsPanel extends React.Component {
         }
 
         const logViewerUrl = getLogViewerUrl(selectedJob.id, repoName);
-        const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
+        const logViewerFullUrl = `${window.location.origin}/${logViewerUrl}`;
         const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
         const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
         let perfJobDetail = [];

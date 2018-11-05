@@ -78,6 +78,8 @@ export default class JobButtonComponent extends React.Component {
     const resultStatus = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
     const btnClass = getBtnClass(resultStatus, failure_classification_id);
+    // TODO: This is broken (bug 1504713)
+    // eslint-disable-next-line no-restricted-globals
     let title = `${resultStatus} | ${job_type_name} - ${status}`;
 
     if (state === 'completed') {

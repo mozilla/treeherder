@@ -92,7 +92,7 @@ export default class FilterModel {
    * will get updates.
    */
   push() {
-    location.hash = `#/jobs?${this.getFilterQueryString()}`;
+    window.location.hash = `#/jobs?${this.getFilterQueryString()}`;
   }
 
   setOnlySuperseded() {

@@ -1,16 +1,16 @@
 import FilterModel from '../../../../ui/models/filter';
 
 describe('FilterModel', () => {
-  const oldHash = location.hash;
+  const oldHash = window.location.hash;
 
   afterEach(() => {
-    location.hash = oldHash;
+    window.location.hash = oldHash;
   });
 
   describe('parsing an old url', () => {
 
     it('should parse the repo with defaults', () => {
-      location.hash = '?repo=mozilla-inbound';
+      window.location.hash = '?repo=mozilla-inbound';
       const urlParams = FilterModel.getUrlParamsWithDefaults();
 
       expect(urlParams).toEqual({
@@ -22,7 +22,7 @@ describe('FilterModel', () => {
     });
 
     it('should parse resultStatus params', () => {
-      location.hash = '?repo=mozilla-inbound&filter-resultStatus=testfailed&' +
+      window.location.hash = '?repo=mozilla-inbound&filter-resultStatus=testfailed&' +
         'filter-resultStatus=busted&filter-resultStatus=exception&' +
         'filter-resultStatus=success&filter-resultStatus=retry' +
         '&filter-resultStatus=runnable';
@@ -37,7 +37,7 @@ describe('FilterModel', () => {
     });
 
     it('should parse searchStr params with tier and groupState intact', () => {
-      location.hash = '?repo=mozilla-inbound&filter-searchStr=Linux%20x64%20debug%20build-linux64-base-toolchains%2Fdebug%20(Bb)&filter-tier=1&group_state=expanded';
+      window.location.hash = '?repo=mozilla-inbound&filter-searchStr=Linux%20x64%20debug%20build-linux64-base-toolchains%2Fdebug%20(Bb)&filter-tier=1&group_state=expanded';
       const urlParams = FilterModel.getUrlParamsWithDefaults();
 
       expect(urlParams).toEqual({
@@ -51,7 +51,7 @@ describe('FilterModel', () => {
     });
 
     it('should parse job field filters', () => {
-      location.hash = '?repo=mozilla-inbound&filter-job_type_name=mochi';
+      window.location.hash = '?repo=mozilla-inbound&filter-job_type_name=mochi';
       const urlParams = FilterModel.getUrlParamsWithDefaults();
 
       expect(urlParams).toEqual({
@@ -66,7 +66,7 @@ describe('FilterModel', () => {
 
   describe('parsing a new url', () => {
     it('should parse resultStatus and searchStr', () => {
-      location.hash = '?repo=mozilla-inbound&resultStatus=testfailed,busted,exception,success,retry,runnable&' +
+      window.location.hash = '?repo=mozilla-inbound&resultStatus=testfailed,busted,exception,success,retry,runnable&' +
                       'searchStr=linux,x64,debug,build-linux64-base-toolchains%2Fdebug,(bb)';
       const urlParams = FilterModel.getUrlParamsWithDefaults();
 
@@ -80,7 +80,7 @@ describe('FilterModel', () => {
     });
 
     it('should preserve the case in email addresses', () => {
-      location.hash = '?repo=mozilla-inbound&author=VYV03354@nifty.ne.jp';
+      window.location.hash = '?repo=mozilla-inbound&author=VYV03354@nifty.ne.jp';
       const urlParams = FilterModel.getUrlParamsWithDefaults();
 
       expect(urlParams).toEqual({

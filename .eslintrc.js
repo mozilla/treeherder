@@ -33,7 +33,6 @@ module.exports = {
     'no-continue': 'off',
     'no-param-reassign': 'off',
     'no-plusplus': 'off',
-    'no-restricted-globals': 'off',
     'no-restricted-syntax': 'off',
     'no-shadow': 'off',
     'no-underscore-dangle': 'off',

@@ -268,7 +268,7 @@ export class PushesClass extends React.Component {
     if (!defaulting && cachedReloadTriggerParams &&
       !isEqual(newReloadTriggerParams, cachedReloadTriggerParams) &&
       !this.skipNextPageReload) {
-      location.reload();
+      window.location.reload();
     } else {
       this.setState({ cachedReloadTriggerParams: newReloadTriggerParams });
     }

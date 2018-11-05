@@ -110,7 +110,7 @@ class PushJobs extends React.Component {
       jobId,
     ).then((data) => {
       if (data.logs.length > 0) {
-        window.open(`${location.origin}/${
+        window.open(`${window.location.origin}/${
           getLogViewerUrl(jobId, repoName)}`);
       }
     });
