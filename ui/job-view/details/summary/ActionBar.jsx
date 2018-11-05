@@ -114,8 +114,8 @@ class ActionBar extends React.PureComponent {
 
     // Spin the retrigger button when retriggers happen
     $('#retrigger-btn > span').removeClass('action-bar-spin');
-    window.requestAnimationFrame(function () {
-      window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
         $('#retrigger-btn > span').addClass('action-bar-spin');
       });
     });

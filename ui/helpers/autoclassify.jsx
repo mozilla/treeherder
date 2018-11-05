@@ -7,32 +7,23 @@ export const stringOverlap = function (str1, str2) {
   // the total tokens
 
   const tokens = [str1, str2]
-    .map(function (str) {
+    .map(str =>
       // Replace paths like /foo/bar/baz.html with just the filename baz.html
-      return str.replace(/[^\s]+\/([^\s]+)\s/,
-                         function (m, p1) {
-                           return ` ${p1} `;
-                         });
-    })
-    .map(function (str) {
+      str.replace(/[^\s]+\/([^\s]+)\s/, (m, p1) => ` ${p1} `),
+    )
+    .map(str =>
       // Split into tokens on whitespace / ,  and |
-      return str.split(/[\s/,|]+/).filter(function (x) {
-        return x !== '';
-      });
-    });
+      str.split(/[\s/,|]+/).filter(x => x !== ''),
+    );
 
   if (tokens[0].length === 0 || tokens[1].length === 0) {
     return 0;
   }
 
-  const tokenCounts = tokens.map(function (tokens) {
-    return countBy(tokens, function (x) {
-      return x;
-    });
-  });
+  const tokenCounts = tokens.map(tokens => countBy(tokens, x => x));
 
   const overlap = Object.keys(tokenCounts[0])
-    .reduce(function (overlap, x) {
+    .reduce((overlap, x) => {
       if (Object.prototype.hasOwnProperty.call(tokenCounts[1], x)) {
         overlap += 2 * Math.min(tokenCounts[0][x], tokenCounts[1][x]);
       }

@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable prefer-arrow-callback */
 import numeral from 'numeral';
 
 import treeherder from './treeherder';

@@ -54,19 +54,18 @@ export const getSeriesSummary = function (projectName, signature, signatureProps
 
 export default class PerfSeriesModel {
   static getSeriesList(projectName, params) {
-    return OptionCollectionModel.getMap().then(function (optionCollectionMap) {
-      // console.log('getSeriesList query-string', queryString.stringify(params));
-      return fetch(
+    return OptionCollectionModel.getMap().then(optionCollectionMap =>
+      fetch(
         `${getProjectUrl('/performance/signatures/', projectName)}?${queryString.stringify(params)}`,
-        ).then(async (resp) => {
-          if (resp.ok) {
-            const data = await resp.json();
-            return Object.entries(data).map(([signature, signatureProps]) => (
-              getSeriesSummary(projectName, signature, signatureProps, optionCollectionMap)
-            ));
-          }
-      });
-    });
+      ).then(async (resp) => {
+        if (resp.ok) {
+          const data = await resp.json();
+          return Object.entries(data).map(([signature, signatureProps]) => (
+            getSeriesSummary(projectName, signature, signatureProps, optionCollectionMap)
+          ));
+        }
+      }),
+    );
   }
 
   static getPlatformList(projectName, params) {

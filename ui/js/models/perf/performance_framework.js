@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable object-shorthand */
+/* eslint-disable object-shorthand, prefer-arrow-callback */
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
 

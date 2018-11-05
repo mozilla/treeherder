@@ -191,7 +191,7 @@ export class PushesClass extends React.Component {
     const decisionTask = this.getGeckoDecisionJob(pushId);
     if (decisionTask) {
       return JobModel.get(repoName, decisionTask.id).then(
-        function (job) {
+        (job) => {
           // this failure case is unlikely, but I guess you
           // never know
           if (!job.taskcluster_metadata) {

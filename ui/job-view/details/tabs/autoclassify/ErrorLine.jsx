@@ -306,7 +306,7 @@ class ErrorLine extends React.Component {
    */
   getClassifiedFailureMatcher() {
     const matchesByCF = this.props.errorLine.data.matches.reduce(
-      function (matchesByCF, match) {
+      (matchesByCF, match) => {
         if (!matchesByCF.has(match.classified_failure)) {
           matchesByCF.set(match.classified_failure, []);
         }
@@ -315,12 +315,10 @@ class ErrorLine extends React.Component {
       }, new Map());
 
     const matchFunc = cf_id => matchesByCF.get(cf_id).map(
-        function (match) {
-          return {
+        match => ({
             matcher: match.matcher_name,
             score: match.score,
-          };
-        });
+          }));
 
     return matchFunc.bind(this);
   }
