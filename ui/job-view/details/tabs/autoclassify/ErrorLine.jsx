@@ -98,7 +98,7 @@ class ErrorLine extends React.Component {
     const digits = bugNumber.replace(/\D/, '');
 
     if (digits) {
-      option.manualBugNumber = parseInt(digits);
+      option.manualBugNumber = parseInt(digits, 10);
     }
     this.onOptionChange(option);
   }

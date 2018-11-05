@@ -84,7 +84,7 @@ class SelectedJobClass extends React.Component {
     const { notify, jobMap } = this.props;
     const { repoName, selectedJob } = this.state;
     const selectedJobIdStr = getUrlParam('selectedJob');
-    const selectedJobId = parseInt(selectedJobIdStr);
+    const selectedJobId = parseInt(selectedJobIdStr, 10);
 
     if (selectedJobIdStr && (!selectedJob || selectedJob.id !== selectedJobId)) {
       const selectedJob = jobMap[selectedJobIdStr];

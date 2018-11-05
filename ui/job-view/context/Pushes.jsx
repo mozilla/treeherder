@@ -346,7 +346,7 @@ export class PushesClass extends React.Component {
     // updated version of that selected job, then send that with the event.
     const selectedJobId = getUrlParam('selectedJob');
     const updatedSelectedJob = selectedJobId ?
-      jobList.find(job => job.id === parseInt(selectedJobId)) : null;
+      jobList.find(job => job.id === parseInt(selectedJobId, 10)) : null;
 
     window.dispatchEvent(new CustomEvent(
       thEvents.applyNewJobs,

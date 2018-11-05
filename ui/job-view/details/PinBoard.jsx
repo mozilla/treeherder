@@ -44,7 +44,7 @@ class PinBoard extends React.Component {
   }
 
   setClassificationId(evt) {
-    this.setState({ failureClassificationId: parseInt(evt.target.value) });
+    this.setState({ failureClassificationId: parseInt(evt.target.value, 10) });
   }
 
   setClassificationText(evt) {
@@ -302,7 +302,7 @@ class PinBoard extends React.Component {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
       } else if (this.isNumber(newBugNumber)) {
-        this.props.addBug({ id: parseInt(newBugNumber) });
+        this.props.addBug({ id: parseInt(newBugNumber, 10) });
         this.toggleEnterBugNumber(false);
         return true;
       }
