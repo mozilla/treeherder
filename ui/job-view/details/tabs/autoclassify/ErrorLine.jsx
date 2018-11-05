@@ -252,10 +252,12 @@ class ErrorLine extends React.Component {
     // Get the test id for this line and the last line, if any
     const thisTest = failureLine ? failureLine.test :
       parseTest(errorLine.data.bug_suggestions.search);
-    const prevTest = prevErrorLine ? (prevErrorLine.data.failure_line ?
-      prevErrorLine.data.failure_line.test :
-      parseTest(prevErrorLine.data.bug_suggestions.search)) :
-      null;
+    let prevTest;
+    if (prevErrorLine) {
+      prevTest = prevErrorLine.data.failure_line
+        ? prevErrorLine.data.failure_line.test
+        : parseTest(prevErrorLine.data.bug_suggestions.search);
+    }
 
     let ignore;
 
@@ -279,10 +281,12 @@ class ErrorLine extends React.Component {
       ignore = false;
     } else {
       // Don't ignore lines containing a well-known string
-      const message = failureLine ?
-        (failureLine.signature ? failureLine.signature :
-          failureLine.message) :
-        this.props.errorLine.data.bug_suggestions.search;
+      let message;
+      if (failureLine) {
+        message = failureLine.signature ? failureLine.signature : failureLine.message;
+      } else {
+        message = this.props.errorLine.data.bug_suggestions.search;
+      }
       ignore = !importantLines.some(x => x.test(message));
     }
     // If we didn't choose to ignore the line and there is a bug suggestion
@@ -332,11 +336,16 @@ class ErrorLine extends React.Component {
       this.bestOption.bugNumber === null) ?
       this.bestOption.classifiedFailureId :
       option.classifiedFailureId);
-    const bug = (option.type === 'manual' ?
-      option.manualBugNumber :
-      (option.type === 'ignore' ?
-        (option.ignoreAlways ? 0 : null) :
-        option.bugNumber));
+
+    let bug;
+    if (option.type === 'manual') {
+      bug = option.manualBugNumber;
+    } else if (option.type === 'ignore') {
+      bug = option.ignoreAlways ? 0 : null;
+    } else {
+      bug = option.bugNumber;
+    }
+
     const data = {
       id: errorLine.id,
       type: option.type,

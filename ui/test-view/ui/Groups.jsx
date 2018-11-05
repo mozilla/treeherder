@@ -90,22 +90,24 @@ class Groups extends React.Component {
               <th key="test">Test</th>
             </tr>
           </thead>
-          {this.props.fetchStatus === 'HasData' ? Object.entries(this.props.rowData).map(([name, rows]) => (
-            <tbody key={name}>
-              <tr style={{ backgroundColor: '#f9f9f9' }}>
-                <td colSpan={4} style={{ textAlign: 'center', fontSize: '1.5rem' }}>
-                  <code style={{ color: '#000', backgroundColor: 'transparent' }}>
-                    {name}
-                  </code>
-                </td>
-              </tr>
-              {Object.entries(rows).map(([testName, test]) => (
-                <tr key={testName}>
-                  <BugCount testName={testName} test={test} jobGroup={name} />
-                  <Test name={testName} test={test} jobGroup={name} />
+          {
+            // eslint-disable-next-line no-nested-ternary
+            this.props.fetchStatus === 'HasData' ? Object.entries(this.props.rowData).map(([name, rows]) => (
+              <tbody key={name}>
+                <tr style={{ backgroundColor: '#f9f9f9' }}>
+                  <td colSpan={4} style={{ textAlign: 'center', fontSize: '1.5rem' }}>
+                    <code style={{ color: '#000', backgroundColor: 'transparent' }}>
+                      {name}
+                    </code>
+                  </td>
                 </tr>
-            ))}
-            </tbody>
+                {Object.entries(rows).map(([testName, test]) => (
+                  <tr key={testName}>
+                    <BugCount testName={testName} test={test} jobGroup={name} />
+                    <Test name={testName} test={test} jobGroup={name} />
+                  </tr>
+              ))}
+              </tbody>
           )) : (
             this.props.fetchStatus ? (
               <tbody>

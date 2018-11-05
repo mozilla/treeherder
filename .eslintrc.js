@@ -31,7 +31,6 @@ module.exports = {
     'max-len': 'off',
     'no-alert': 'off',
     'no-continue': 'off',
-    'no-nested-ternary': 'off',
     'no-param-reassign': 'off',
     'no-plusplus': 'off',
     'no-restricted-globals': 'off',
