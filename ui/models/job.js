@@ -17,7 +17,7 @@ export default class JobModel {
     // we want to do a search on something like `fxup-esr(`)
     let symbolInfo = (this.job_group_symbol === '?') ? '' :
       this.job_group_symbol;
-    symbolInfo += '(' + this.job_type_symbol + ')';
+    symbolInfo += `(${this.job_type_symbol})`;
 
     return [
       thPlatformMap[this.platform] || this.platform,

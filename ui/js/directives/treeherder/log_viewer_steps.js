@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable prefer-template */
 import $ from 'jquery';
 
 import treeherder from '../../treeherder';

@@ -26,7 +26,7 @@ export const getRevisionTitle = function getRevisionTitle(revisions) {
     title = title.replace(/[;,\-\. ]+$/, '').trim();
     if (title) {
       if (title.length > thTitleSuffixLimit) {
-        title = title.substr(0, thTitleSuffixLimit - 3) + '...';
+        title = `${title.substr(0, thTitleSuffixLimit - 3)}...`;
       }
       break;
     }

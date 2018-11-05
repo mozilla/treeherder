@@ -1,4 +1,5 @@
-/* eslint-disable no-use-before-define, no-var, vars-on-top */
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable no-use-before-define, no-var, prefer-template, vars-on-top */
 // TODO: Vet/fix the use-before-defines to ensure switching var
 // to let/const won't break anything.
 

@@ -243,7 +243,7 @@ function filterTests(store, { filter, groups, options, hideClassified }) {
   } else {
     params.delete('filter');
   }
-  history.push(location.pathname + '?' + params.toString());
+  history.push(`${location.pathname}?${params.toString()}`);
   store.dispatch({
     type: groupsStore.types.RENDER_TESTS,
     payload: { filter, rowData },

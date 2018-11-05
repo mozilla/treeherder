@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable prefer-template */
 import isEqual from 'lodash/isEqual';
 import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';

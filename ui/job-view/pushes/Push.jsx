@@ -239,7 +239,7 @@ class Push extends React.Component {
         this.setState({ watched: 'none' });
       } else if (watched === 'job' && lastCompleted < nextCompleted) {
         const completeCount = nextCompleted - lastCompleted;
-        message = completeCount + ' jobs completed';
+        message = `${completeCount} jobs completed`;
       }
 
       if (message) {
