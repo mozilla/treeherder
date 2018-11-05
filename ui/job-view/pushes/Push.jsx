@@ -268,7 +268,7 @@ class Push extends React.Component {
     try {
       const decisionTaskId = await getGeckoDecisionTaskId(push.id, repoName);
       const jobList = await RunnableJobModel.getList(repoName, { decision_task_id: decisionTaskId });
-      const id = push.id;
+      const { id } = push;
 
       jobList.forEach((job) => {
         job.push_id = id;

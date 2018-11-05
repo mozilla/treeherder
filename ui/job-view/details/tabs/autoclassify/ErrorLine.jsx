@@ -379,7 +379,7 @@ class ErrorLine extends React.Component {
       return;
     }
 
-    this.bestOption = options[0];
+    [this.bestOption] = options;
 
     const lowerCutoff = 0.1;
     const bestRatio = 0.5;
@@ -404,7 +404,7 @@ class ErrorLine extends React.Component {
     options
       .forEach((option) => {
         let score;
-        const data = this.props.errorLine.data;
+        const { data } = this.props.errorLine;
         if (option.type === 'classifiedFailure') {
           score = parseFloat(
             data.matches.find(

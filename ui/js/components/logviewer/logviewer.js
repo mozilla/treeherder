@@ -1,3 +1,5 @@
+// Remove the eslint-disable when rewriting this file during the React conversion.
+/* eslint-disable prefer-destructuring */
 import treeherder from '../../treeherder';
 import logviewerTemplate from '../../../partials/logviewer/logviewer.html';
 import { getUrlParam } from '../../../helpers/location';
