@@ -40,12 +40,12 @@ export const getSeriesSummary = function (projectName, signature, signatureProps
     testName: getTestName(signatureProps), // unadorned with platform/option info
     suite: signatureProps.suite,
     test: signatureProps.test || null,
-    signature: signature,
+    signature,
     hasSubtests: signatureProps.has_subtests || false,
     parentSignature: signatureProps.parent_signature || null,
-    projectName: projectName,
-    platform: platform,
-    options: options,
+    projectName,
+    platform,
+    options,
     frameworkId: signatureProps.framework_id,
     lowerIsBetter: (signatureProps.lower_is_better === undefined ||
       signatureProps.lower_is_better),

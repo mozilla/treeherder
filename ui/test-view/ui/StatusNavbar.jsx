@@ -17,7 +17,7 @@ const mapStateToProps = ({ groups }) => {
     hideClassified: groups.hideClassified,
     push: {
       revision: revision && revision.substring(0, 12),
-      author: author,
+      author,
     },
   };
 };

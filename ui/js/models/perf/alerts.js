@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable prefer-template */
+/* eslint-disable object-shorthand, prefer-template */
 import sortBy from 'lodash/sortBy';
 import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
