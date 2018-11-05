@@ -88,7 +88,7 @@ describe('BugFiler', () => {
   it('parses a crash suggestion', () => {
     const summary = 'PROCESS-CRASH | browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]';
     const bugFiler = getBugFilerForSummary(summary);
-    const parsedSummary = bugFiler.state().parsedSummary;
+    const { parsedSummary } = bugFiler.state();
     expect(parsedSummary[0][0]).toEqual('browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js');
   });
 
@@ -225,7 +225,7 @@ describe('BugFiler', () => {
       />,
     );
 
-    const thisFailure = bugFiler.state().thisFailure;
+    const { thisFailure } = bugFiler.state();
     expect(thisFailure).toBe('browser/extensions/pdfjs/test/browser_pdfjs_views.js | Test timed out -\n' +
                              'browser/extensions/pdfjs/test/browser_pdfjs_views.js | Found a tab after previous test timed out: about:blank -\n' +
                              'TEST-UNEXPECTED-PASS | flee | floo');

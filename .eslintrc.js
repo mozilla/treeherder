@@ -40,7 +40,6 @@ module.exports = {
     'operator-linebreak': 'off',
     'padded-blocks': 'off',
     'prefer-arrow-callback': 'off',
-    'prefer-destructuring': 'off',
     'prefer-promise-reject-errors': 'off',
     'react/button-has-type': 'off',
     'react/default-props-match-prop-types': 'off',

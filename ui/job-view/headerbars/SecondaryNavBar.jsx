@@ -64,7 +64,7 @@ class SecondaryNavBar extends React.Component {
 
   search(ev) {
     const { filterModel } = this.props;
-    const value = ev.target.value;
+    const { value } = ev.target;
 
     if (ev.key === 'Enter') {
       if (value && value.length) {

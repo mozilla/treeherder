@@ -157,17 +157,14 @@ class DetailsPanel extends React.Component {
         jobDetailPromise,
         jobLogUrlPromise,
         phSeriesPromise,
-      ]).then(async (results) => {
-
-        // The first result comes from the job promise.
+      ]).then(async ([jobResult, jobDetailResult, jobLogUrlResult, phSeriesResult]) => {
         // This version of the job has more information than what we get in the main job list.  This
         // is what we'll pass to the rest of the details panel.  It has extra fields like
         // taskcluster_metadata.
-        Object.assign(selectedJob, results[0]);
+        Object.assign(selectedJob, jobResult);
         const jobRevision = getPush(selectedJob.push_id).revision;
 
-        // the second result comes from the job detail promise
-        jobDetails = results[1];
+        jobDetails = jobDetailResult;
 
         // incorporate the buildername into the job details if this is a buildbot job
         // (i.e. it has a buildbot request id)
@@ -178,7 +175,7 @@ class DetailsPanel extends React.Component {
 
         // the third result comes from the jobLogUrl promise
         // exclude the json log URLs
-        const jobLogUrls = results[2].filter(log => !log.name.endsWith('_json'));
+        const jobLogUrls = jobLogUrlResult.filter(log => !log.name.endsWith('_json'));
 
         let logParseStatus = 'unavailable';
         // Provide a parse status as a scope variable for logviewer shortcut
@@ -189,7 +186,7 @@ class DetailsPanel extends React.Component {
         const logViewerUrl = getLogViewerUrl(selectedJob.id, repoName);
         const logViewerFullUrl = `${window.location.origin}/${logViewerUrl}`;
         const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
-        const performanceData = Object.values(results[3]).reduce((a, b) => [...a, ...b], []);
+        const performanceData = Object.values(phSeriesResult).reduce((a, b) => [...a, ...b], []);
         let perfJobDetail = [];
 
         if (performanceData.length) {

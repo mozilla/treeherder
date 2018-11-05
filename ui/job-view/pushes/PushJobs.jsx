@@ -73,7 +73,7 @@ class PushJobs extends React.Component {
     const jobInstance = findInstance(ev.target);
 
     if (jobInstance && jobInstance.props.job) {
-      const job = jobInstance.props.job;
+      const { job } = jobInstance.props;
       if (ev.button === 1) { // Middle click
         this.handleLogViewerClick(job.id);
       } else if (ev.metaKey || ev.ctrlKey) { // Pin job

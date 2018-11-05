@@ -96,7 +96,7 @@ export default class PerfSeriesModel {
           const data = await resp.json();
 
           if (data.results.length) {
-            const url = data.results[0].url;
+            const { url } = data.results[0];
             return fetch(url).then(resultResp => resultResp.json());
           }
         }

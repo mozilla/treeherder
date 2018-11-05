@@ -30,7 +30,7 @@ export default class DateRangePicker extends React.Component {
   }
 
   showFromMonth() {
-    const from = this.state.from;
+    const { from } = this.state;
     if (!from) {
       return;
     }

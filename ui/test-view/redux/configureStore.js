@@ -235,7 +235,7 @@ async function fetchCounts(store, fetchParams) {
 function filterTests(store, { filter, groups, options, hideClassified }) {
   const rowData = filterGroups(filter, groups, options, hideClassified);
   const history = createHistory();
-  const location = history.location;
+  const { location } = history;
   const params = new URLSearchParams(location.search.slice(1));
 
   if (filter) {

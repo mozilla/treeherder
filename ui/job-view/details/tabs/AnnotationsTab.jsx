@@ -10,7 +10,7 @@ import { longDateFormat } from '../../../helpers/display';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
-  const bug_id = bug.bug_id;
+  const { bug_id } = bug;
 
   return (
     <span className="btn-group pinboard-related-bugs-btn">

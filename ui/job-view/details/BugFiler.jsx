@@ -22,6 +22,7 @@ const omittedLeads = ['TEST-UNEXPECTED-FAIL', 'PROCESS-CRASH', 'TEST-UNEXPECTED-
  */
 const findFilename = (summary) => {
   // Take left side of any reftest comparisons, as the right side is the reference file
+  // eslint-disable-next-line prefer-destructuring
   summary = summary.split('==')[0];
   // Take the leaf node of unix paths
   summary = summary.split('/').pop();
@@ -30,6 +31,7 @@ const findFilename = (summary) => {
   // Remove leading/trailing whitespace
   summary = summary.trim();
   // If there's a space in what's remaining, take the first word
+  // eslint-disable-next-line prefer-destructuring
   summary = summary.split(' ')[0];
   return summary;
 };
@@ -202,6 +204,7 @@ export class BugFilerClass extends React.Component {
 
       // If the "TEST-UNEXPECTED-foo" isn't one of the omitted ones, use the next piece in the summary
       if (failurePath.includes('TEST-UNEXPECTED-')) {
+        // eslint-disable-next-line prefer-destructuring
         failurePath = parsedSummary[0][1];
         possibleFilename = findFilename(failurePath);
       }
@@ -236,7 +239,7 @@ export class BugFilerClass extends React.Component {
             // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
             fetch(dxrlink, { headers: { Accept: 'application/json' } })
               .then((secondRequest) => {
-                const results = secondRequest.data.results;
+                const { results } = secondRequest.data;
                 let resultsCount = results.length;
                 // If the search returns too many results, this probably isn't a good search term, so bail
                 if (resultsCount === 0) {

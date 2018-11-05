@@ -13,6 +13,7 @@ export function Initials(props) {
   let initials = '';
 
   if (firstLetters.length === 1) {
+    // eslint-disable-next-line prefer-destructuring
     initials = firstLetters[0];
   } else if (firstLetters.length > 1) {
     initials = firstLetters[0] + firstLetters[firstLetters.length - 1];
@@ -38,6 +39,7 @@ export class Revision extends React.PureComponent {
     super(props);
     const { revision } = this.props;
 
+    // eslint-disable-next-line prefer-destructuring
     this.comment = revision.comments.split('\n')[0];
     this.tags = this.comment.search('Backed out') >= 0 || this.comment.search('Back out') >= 0 ?
         'backout' : '';
