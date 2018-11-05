@@ -63,6 +63,8 @@ BugCountComponent.propTypes = {
   bugSuggestions: PropTypes.object.isRequired,
 };
 
+// TODO: Move `Platform` into its own file.
+// eslint-disable-next-line react/no-multi-comp
 class Platform extends React.Component {
   getIcon(failureClassification) {
     switch (failureClassification) {
@@ -104,6 +106,8 @@ Platform.propTypes = {
   platform: PropTypes.string.isRequired,
 };
 
+// TODO: Move `TestComponent` into its own file.
+// eslint-disable-next-line react/no-multi-comp
 class TestComponent extends React.Component {
   constructor(props) {
     super(props);
