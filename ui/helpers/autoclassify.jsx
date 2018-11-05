@@ -1,7 +1,7 @@
 import countBy from 'lodash/countBy';
 import React from 'react';
 
-export const stringOverlap = function (str1, str2) {
+export const stringOverlap = function stringOverlap(str1, str2) {
   // Get a measure of the similarity of two strings by a simple process
   // of tokenizing and then computing the ratio of the tokens in common to
   // the total tokens

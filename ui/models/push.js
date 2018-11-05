@@ -9,7 +9,7 @@ import TaskclusterModel from './taskcluster';
 
 const uri_base = '/resultset/';
 
-const convertDates = function (locationParams) {
+const convertDates = function convertDates(locationParams) {
   // support date ranges.  we must convert the strings to a timezone
   // appropriate timestamp
   if ('startdate' in locationParams) {

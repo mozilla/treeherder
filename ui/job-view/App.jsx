@@ -29,7 +29,7 @@ const HIDDEN_URL_PARAMS = [
   'repo', 'classifiedState', 'resultStatus', 'selectedJob', 'searchStr',
 ];
 
-const getWindowHeight = function () {
+const getWindowHeight = function getWindowHeight() {
   const windowHeight = window.innerHeight;
   const navBar = document.getElementById('th-global-navbar');
   const navBarHeight = navBar ? navBar.clientHeight : 0;

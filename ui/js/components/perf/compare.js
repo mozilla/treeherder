@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable object-shorthand */
+/* eslint-disable func-names, object-shorthand */
 import treeherder from '../../treeherder';
 import compareTableTemplate from '../../../partials/perf/comparetable.html';
 import averageTemplate from '../../../partials/perf/average.html';

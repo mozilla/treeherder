@@ -17,7 +17,6 @@ module.exports = {
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'default-case': 'off',
-    'func-names': 'off',
     'function-paren-newline': 'off',
     'implicit-arrow-linebreak': 'off',
     // Indentation is disabled pending a switch from 4 to 2 space for JS.
