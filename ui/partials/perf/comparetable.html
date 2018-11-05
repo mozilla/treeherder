@@ -44,14 +44,6 @@
             Show Only Noise
         </label>
     </div>
-  <div ng-if="$ctrl.releaseBlockerCriteria" class="checkbox">
-    <label>
-      <input type="checkbox"
-             ng-model="$ctrl.filterOptions.showOnlyBlockers"
-             ng-change="$ctrl.updateFilteredTestList()"/>
-      Show only regressions blocking release
-    </label>
-  </div>
 </form>
 <hr/>
 <table class="table table-sm compare-table" style="table-layout: fixed;" ng-repeat="compareResults in $ctrl.filteredResultList | orderBy: 'testName' track by compareResults.testName">
@@ -59,9 +51,9 @@
     <tr class="subtest-header">
       <!-- Manually specify table widths because it's just easier this way -->
       <th class="test-title"><span style=" word-wrap: break-word;">{{$ctrl.titles[compareResults.testName]}}</span></th>
-      <th style="width: 140px;">{{$ctrl.baseTitle}}</th>
+      <th style="width: 140px;">Base</th>
       <th style="width: 30px;"><!-- less than / greater than --></th>
-      <th style="width: 140px;">{{$ctrl.newTitle}}</th>
+      <th style="width: 140px;">New</th>
       <th style="width: 80px;">Delta</th>
       <th style="width: 120px"><!-- Graphical difference --></th>
       <th style="width: 100px;">Confidence</th>

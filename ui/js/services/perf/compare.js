@@ -63,7 +63,6 @@ treeherder.factory('PhCompare', [
             // - .newIsBetter              // is new result better or worse (even if unsure)
             // - .isImprovement            // is new result better + we're confident about it
             // - .isRegression             // is new result worse + we're confident about it
-            // - .isBlocker                // new result matches "blocker" criteria
             // - .delta
             // - .deltaPercentage
             // - .confidence               // t-test value
@@ -74,7 +73,7 @@ treeherder.factory('PhCompare', [
             // - .className
             // - .magnitude
             // - .marginDirection
-            getCounterMap: function getDisplayLineData(testName, originalData, newData, blockerCriteria) {
+            getCounterMap: function getDisplayLineData(testName, originalData, newData) {
 
                 function numericCompare(a, b) {
                     return a < b ? -1 : a > b ? 1 : 0;
@@ -171,14 +170,6 @@ treeherder.factory('PhCompare', [
                 }
                 cmap.isRegression = (cmap.className === 'compare-regression');
                 cmap.isImprovement = (cmap.className === 'compare-improvement');
-                if (blockerCriteria !== undefined &&
-                    blockerCriteria[testName] !== undefined &&
-                    cmap.isRegression &&
-                    cmap.deltaPercentage > blockerCriteria[testName]) {
-                    cmap.isBlocker = true;
-                } else {
-                    cmap.isBlocker = false;
-                }
                 cmap.isMeaningful = (cmap.className !== '');
                 cmap.isComplete = (cmap.originalRuns.length &&
                                    cmap.newRuns.length);
@@ -303,57 +294,6 @@ treeherder.factory('PhCompare', [
                     }
                 }
                 return graphsLink;
-            },
-
-            // Compares baseData and newData and returns object of results
-            // The result object has the following properties:
-            // - .isEmpty: true if no data for either side.
-            // If both originalData/newData exist, comparison data:
-            // - .newIsBetter              // is new result better or worse (even if unsure)
-            // - .isImprovement            // is new result better + we're confident about it
-            // - .isRegression             // is new result worse + we're confident about it
-            // - .isBlocker                // new result matches "blocker" criteria
-            // - .delta
-            // - .deltaPercentage
-            // - .isMeaningful             // for highlighting - bool over t-test threshold
-            // And some data to help formatting of the comparison:
-            // - .className
-            // - .magnitude
-            getTrendMap: function getDisplayLineData(testName, baseData, newData) {
-
-                // Eventually the result object, after setting properties as required.
-                const trendMap = { isEmpty: true };
-
-                // It's possible to get an object with empty values, so check for that too.
-                if (!baseData.delta && !newData.delta) {
-                    return trendMap; // No data for either side
-                }
-
-                trendMap.isEmpty = false;
-                trendMap.name = baseData.name;
-
-                // Compare the sides
-                trendMap.delta = (newData.delta - baseData.delta);
-                trendMap.newIsBetter = (baseData.lowerIsBetter && trendMap.delta < 0) ||
-                    (!baseData.lowerIsBetter && trendMap.delta > 0);
-
-                // delta percentage (for display)
-                trendMap.deltaPercentage = math.percentOf(trendMap.delta, baseData.delta);
-
-                // is meaningful (show only important) if change is > 2%
-                trendMap.isMeaningful = (Math.abs(trendMap.deltaPercentage)) > 2.0;
-
-                // mark not confident if either base or new data results are not confident
-                trendMap.isConfident = (baseData.isConfident === true && newData.isConfident === true);
-
-                // mark is blocking if either base or new data resuls are maked as blocking
-                trendMap.isBlocker = (baseData.isBlocker === true || newData.isBlocker === true);
-
-                // arbitrary scale from 0-20% multiplied by 5, capped
-                // at 100 (so 20% regression === 100% bad)
-                trendMap.magnitude = Math.min(Math.abs(trendMap.deltaPercentage) * 5, 100);
-
-                return trendMap;
             },
         };
     }]);

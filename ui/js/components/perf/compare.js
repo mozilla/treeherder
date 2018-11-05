@@ -1,38 +1,23 @@
 import treeherder from '../../treeherder';
-import trendTableTemplate from '../../../partials/perf/trendtable.html';
 import compareTableTemplate from '../../../partials/perf/comparetable.html';
 import averageTemplate from '../../../partials/perf/average.html';
 import revisionDescribeTemplate from '../../../partials/perf/revisiondescribe.html';
 import compareErrorTemplate from '../../../partials/perf/comparerror.html';
 
 treeherder.component('phCompareTable', {
-    template: ['$attrs', function ($attrs) {
-        if ($attrs.type === 'trend') {
-            return trendTableTemplate;
-        }
-        return compareTableTemplate;
-    }],
+    template: compareTableTemplate,
     bindings: {
-        baseTitle: '@',
-        newTitle: '@',
         frameworks: '<',
         titles: '<',
         compareResults: '<',
         testList: '<',
         filterOptions: '<',
         filterByFramework: '@',
-        releaseBlockerCriteria: '@',
     },
-    controller: ['$attrs', function ($attrs) {
+    controller: function () {
         const ctrl = this;
 
         ctrl.$onInit = function () {
-            if (!ctrl.baseTitle) {
-                ctrl.baseTitle = 'Base';
-            }
-            if (!ctrl.newTitle) {
-                ctrl.newTitle = 'New';
-            }
             ctrl.updateFilteredTestList();
         };
 
@@ -53,7 +38,6 @@ treeherder.component('phCompareTable', {
             return (!ctrl.filterOptions.showOnlyImportant || result.isMeaningful) &&
                 (!ctrl.filterOptions.showOnlyComparable || 'newIsBetter' in result) &&
                 (!ctrl.filterOptions.showOnlyConfident || result.isConfident) &&
-                (!ctrl.filterOptions.showOnlyBlockers || result.isBlocker) &&
                 (!ctrl.filterOptions.showOnlyNoise || result.isNoiseMetric);
         }
         function filterResult(results, key) {
@@ -61,13 +45,9 @@ treeherder.component('phCompareTable', {
                 return results;
             }
             return results.filter((result) => {
-                const testCondition = `${key} ${($attrs.type === 'trend') ? result.trendResult.name : result.name}`;
-                return ctrl.filterOptions.filter.split(' ').every((matchText) => {
-                    if ($attrs.type === 'trend') {
-                        return filter(testCondition, matchText) && shouldBeShown(result.trendResult);
-                    }
-                    return filter(testCondition, matchText) && shouldBeShown(result);
-                });
+                const testCondition = `${key} ${result.name}`;
+                return ctrl.filterOptions.filter.split(' ').every(matchText =>
+                    filter(testCondition, matchText) && shouldBeShown(result));
             });
         }
 
@@ -83,7 +63,7 @@ treeherder.component('phCompareTable', {
               testName => ({ testName, results: ctrl.filteredResultList[testName] }),
             );
         };
-    }],
+    },
 });
 
 treeherder.component('phAverage', {
