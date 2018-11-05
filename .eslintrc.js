@@ -37,7 +37,6 @@ module.exports = {
     'no-shadow': 'off',
     'no-underscore-dangle': 'off',
     'object-curly-newline': 'off',
-    'object-shorthand': 'off',
     'operator-linebreak': 'off',
     'padded-blocks': 'off',
     'prefer-arrow-callback': 'off',

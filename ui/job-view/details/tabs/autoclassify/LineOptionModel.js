@@ -4,8 +4,8 @@ export default class LineOptionModel {
   constructor(type, id, classifiedFailureId, bugNumber,
               bugSummary, bugResolution, matches) {
     extendProperties(this, {
-      type: type,
-      id: id,
+      type,
+      id,
       classifiedFailureId: classifiedFailureId || null,
       bugNumber: bugNumber || null,
       bugSummary: bugSummary || null,

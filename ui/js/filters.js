@@ -6,7 +6,7 @@ import { getJobsUrl } from '../helpers/url';
 treeherder.filter('getRevisionUrl', function () {
     return function (revision, projectName) {
         if (revision) {
-            return getJobsUrl({ repo: projectName, revision: revision });
+            return getJobsUrl({ repo: projectName, revision });
         }
         return '';
     };

@@ -349,7 +349,7 @@ class ErrorLine extends React.Component {
     const data = {
       id: errorLine.id,
       type: option.type,
-      classifiedFailureId: classifiedFailureId,
+      classifiedFailureId,
       bugNumber: bug,
     };
 
