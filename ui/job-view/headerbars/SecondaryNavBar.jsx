@@ -172,8 +172,8 @@ class SecondaryNavBar extends React.Component {
     // If ``repos`` is not yet populated, then leave as empty array.
     // We need to filter just in case some of these repo names do not exist.
     // This could happen if the user typed an invalid ``repo`` param on the URL
-    const watchedRepos = !!repos.length && watchedRepoNames.map(
-      name => RepositoryModel.getRepo(name, repos)).filter(name => name) || [];
+    const watchedRepos = (repos.length && watchedRepoNames.map(
+      name => RepositoryModel.getRepo(name, repos)).filter(name => name)) || [];
 
     return (
       <div
