@@ -83,7 +83,7 @@ export class JobGroupComponent extends React.Component {
           buttons.push(job);
         } else {
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if (selectedJob && selectedJob.id === job.id || countInfo.selectedClasses) {
+          if ((selectedJob && selectedJob.id === job.id) || countInfo.selectedClasses) {
             countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';
