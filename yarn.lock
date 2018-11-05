@@ -4753,10 +4753,10 @@ jsesc@~0.5.0:
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
-json-e@2.7.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.7.0.tgz#2f0fdb6bb7a0d410b045687f379bfae8ddadcfab"
-  integrity sha512-Pp5hiSn5X7rINoQ6vORTJnFUy7rxa71XTKMe4wMmdEilvI/aBJKGNSg5tgZlTbSo6ZrGs6Sqgzk0D19aigv+yg==
+json-e@2.7.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/json-e/-/json-e-2.7.1.tgz#875f754489b2b12655634933612d1f4c9cac3d6a"
+  integrity sha512-z1kdwLWe6BxXH0iczQ8rjw3z/UOlhHJxbvWh757FzSslYVdlZLnjrhKof25i9AmPjGTjTfuht8bjlCzoIcJQ4Q==
   dependencies:
     json-stable-stringify "^1.0.1"
 
