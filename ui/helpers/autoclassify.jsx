@@ -33,7 +33,7 @@ export const stringOverlap = function (str1, str2) {
 
   const overlap = Object.keys(tokenCounts[0])
     .reduce(function (overlap, x) {
-      if (tokenCounts[1].hasOwnProperty(x)) {
+      if (Object.prototype.hasOwnProperty.call(tokenCounts[1], x)) {
         overlap += 2 * Math.min(tokenCounts[0][x], tokenCounts[1][x]);
       }
       return overlap;

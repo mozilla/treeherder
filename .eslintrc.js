@@ -36,7 +36,6 @@ module.exports = {
     'no-nested-ternary': 'off',
     'no-param-reassign': 'off',
     'no-plusplus': 'off',
-    'no-prototype-builtins': 'off',
     'no-restricted-globals': 'off',
     'no-restricted-syntax': 'off',
     'no-shadow': 'off',

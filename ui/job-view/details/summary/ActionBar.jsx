@@ -77,7 +77,7 @@ class ActionBar extends React.PureComponent {
       TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
         const geckoprofile = results.actions.find(result => result.name === 'geckoprofile');
 
-        if (geckoprofile === undefined || !geckoprofile.hasOwnProperty('kind')) {
+        if (geckoprofile === undefined || !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')) {
           return notify('Job was scheduled without taskcluster support for GeckoProfiles');
         }
 
