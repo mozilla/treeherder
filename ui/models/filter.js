@@ -246,7 +246,9 @@ export default class FilterModel {
   _getJobFieldValue(job, field) {
     if (field === 'platform') {
       return `${thPlatformMap[job.platform] || job.platform} ${job.platform_option}`;
-    } else if (field === 'searchStr') {
+    }
+
+    if (field === 'searchStr') {
       // lazily get this to avoid storing redundant information
       return job.getSearchStr();
     }

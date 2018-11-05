@@ -171,7 +171,9 @@ class PinBoard extends React.Component {
   cancelAllPinnedJobsTitle() {
     if (!this.props.isLoggedIn) {
       return 'Not logged in';
-    } else if (!this.canCancelAllPinnedJobs()) {
+    }
+
+    if (!this.canCancelAllPinnedJobs()) {
       return 'No pending / running jobs in pinBoard';
     }
 
