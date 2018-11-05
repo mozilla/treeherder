@@ -47,6 +47,5 @@ module.exports = {
     'react/jsx-one-expression-per-line': 'off',
     'react/jsx-wrap-multilines': 'off',
     'react/no-access-state-in-setstate': 'off',
-    'react/no-multi-comp': 'off',
   },
 };
