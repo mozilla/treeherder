@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
-import LogoMenu from './LogoMenu';
+import LogoMenu from '../../shared/LogoMenu';
 import NotificationsMenu from './NotificationsMenu';
 import InfraMenu from './InfraMenu';
 import ReposMenu from './ReposMenu';
@@ -23,7 +24,10 @@ export default function PrimaryNavBar(props) {
       <div id="th-global-top-nav-panel">
         <nav id="th-global-navbar" className="navbar navbar-dark">
           <div id="th-global-navbar-top">
-            <LogoMenu />
+            <LogoMenu
+              menuText="Treeherder"
+              menuImage={Logo}
+            />
             <span className="navbar-right">
               <NotificationsMenu />
               <InfraMenu />
