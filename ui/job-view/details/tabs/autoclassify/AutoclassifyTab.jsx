@@ -172,9 +172,6 @@ class AutoclassifyTab extends React.Component {
             const selected = errorLines.find(line => !line.verified);
             this.setState({
               selectedLineIds: new Set([selected ? selected.id : null]),
-              editableLines: errorLines.reduce((pending, line) => (
-                !line.verified ? { ...pending, [line.id]: line } : pending
-              ), {}),
             });
           }
 
@@ -286,7 +283,6 @@ class AutoclassifyTab extends React.Component {
     this.setState({
       loadStatus: newLoadStatus,
       selectedLineIds: new Set(),
-      editableLines: new Set(),
       inputByLine: new Map(),
       autoclassifyStatusOnLoad: null,
     });

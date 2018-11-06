@@ -32,7 +32,6 @@ class DetailsPanel extends React.Component {
       jobDetails: [],
       jobLogUrls: [],
       jobDetailLoading: false,
-      jobLogsAllParsed: false,
       logViewerUrl: null,
       logViewerFullUrl: null,
       reftestUrl: null,
@@ -187,11 +186,6 @@ class DetailsPanel extends React.Component {
           logParseStatus = jobLogUrls[0].parse_status;
         }
 
-        // Provide a parse status for the model
-        const jobLogsAllParsed = (jobLogUrls ?
-          jobLogUrls.every(jlu => jlu.parse_status !== 'pending') :
-          false);
-
         const logViewerUrl = getLogViewerUrl(selectedJob.id, repoName);
         const logViewerFullUrl = `${location.origin}/${logViewerUrl}`;
         const reftestUrl = jobLogUrls.length ? getReftestUrl(jobLogUrls[0].url) : '';
@@ -218,7 +212,6 @@ class DetailsPanel extends React.Component {
         this.setState({
           jobLogUrls,
           jobDetails,
-          jobLogsAllParsed,
           logParseStatus,
           logViewerUrl,
           logViewerFullUrl,

@@ -110,11 +110,9 @@ export class BugFilerClass extends React.Component {
     this.state = {
       tooltipOpen: {},
       summary: `Intermittent ${summaryString}`,
-      parsedLog: null,
       productSearch: null,
       suggestedProducts: [],
       isFilerSummaryVisible: false,
-      possibleFilename: null,
       selectedProduct: null,
       isIntermittent: true,
       searching: false,
