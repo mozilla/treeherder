@@ -8,7 +8,7 @@ const choices = [
 ];
 
 export default function LogoMenu(props) {
-  const { menuText, menuTitle, menuImage } = props;
+  const { menuText, menuImage } = props;
 
   const menuChoices = choices.filter(choice => choice.text !== menuText);
 
@@ -16,9 +16,10 @@ export default function LogoMenu(props) {
     <span className="dropdown">
       <button
         id="th-logo"
-        title={menuTitle}
+        title="Treeherder services"
         data-toggle="dropdown"
         className="btn btn-view-nav dropdown-toggle"
+        type="button"
       >
         <img src={menuImage} alt={menuText} />
       </button>
@@ -33,7 +34,6 @@ export default function LogoMenu(props) {
 
 LogoMenu.propTypes = {
   menuText: PropTypes.string.isRequired,
-  menuTitle: PropTypes.string.isRequired,
   menuImage: PropTypes.string,
 };
 

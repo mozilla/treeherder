@@ -26,7 +26,6 @@ export default function PrimaryNavBar(props) {
           <div id="th-global-navbar-top">
             <LogoMenu
               menuText="Treeherder"
-              menuTitle="Treeherder services"
               menuImage={Logo}
             />
             <span className="navbar-right">
