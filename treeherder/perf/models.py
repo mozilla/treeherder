@@ -53,6 +53,7 @@ class PerformanceSignature(models.Model):
 
     # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
+    # generous max_length permits up to 8 verbose option names
     extra_options = models.CharField(max_length=360, blank=True)
 
     # these properties override the default settings for how alert
