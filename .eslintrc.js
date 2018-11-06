@@ -60,6 +60,5 @@ module.exports = {
     'react/jsx-wrap-multilines': 'off',
     'react/no-access-state-in-setstate': 'off',
     'react/no-multi-comp': 'off',
-    'react/no-unused-state': 'off',
   },
 };

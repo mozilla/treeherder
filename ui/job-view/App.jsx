@@ -53,7 +53,6 @@ class App extends React.Component {
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
       isFieldFilterVisible: false,
-      pushListPct: hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100,
       serverChangedDelayed: false,
       serverChanged: false,
       repos: [],

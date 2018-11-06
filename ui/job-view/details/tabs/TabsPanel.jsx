@@ -22,8 +22,6 @@ class TabsPanel extends React.Component {
     this.state = {
       showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
       tabIndex: 0,
-      perfJobDetailSize: 0,
-      jobId: null,
     };
   }
 
