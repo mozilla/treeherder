@@ -222,18 +222,30 @@ export class PushesClass extends React.Component {
       const locationSearch = parseQueryParams(getQueryString());
       const pushPollingParams = pushPollingKeys.reduce(
           (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
-      const fromchange = pushList[pushList.length - 1].revision;
-      PushModel.getList({ ...parseQueryParams(getQueryString()), fromchange, ...pushPollingParams })
-        .then(async (resp) => {
-          if (resp.ok) {
-            const data = await resp.json();
-            this.addPushes(data);
-            this.fetchNewJobs();
-          } else {
-            notify('Error fetching new push data', 'danger', { sticky: true });
-          }
-        });
 
+      if (pushList.length === 1 && locationSearch.revision) {
+        // If we are on a single revision, no need to poll for more pushes, but
+        // we need to keep polling for jobs.
+        this.fetchNewJobs();
+      } else {
+        if (pushList.length) {
+          // We have a range of pushes, but not bound to a single push,
+          // so get only pushes newer than our latest.
+          pushPollingParams.fromchange = pushList[pushList.length - 1].revision;
+        }
+        // We will either have a ``revision`` param, but no push for it yet,
+        // or a ``fromchange`` param because we have at least 1 push already.
+        PushModel.getList(pushPollingParams)
+          .then(async (resp) => {
+            if (resp.ok) {
+              const data = await resp.json();
+              this.addPushes(data);
+              this.fetchNewJobs();
+            } else {
+              notify('Error fetching new push data', 'danger', { sticky: true });
+            }
+          });
+      }
     }, pushPollInterval);
   }
 
@@ -318,6 +330,10 @@ export class PushesClass extends React.Component {
 
   async fetchNewJobs() {
     const { pushList } = this.state;
+    if (!pushList.length) {
+      // If we have no pushes, then no need to poll for jobs.
+      return;
+    }
     const pushIds = pushList.map(push => push.id);
     const lastModified = this.getLastModifiedJobTime();
     const jobList = await PushModel.getJobs(pushIds, { lastModified });
