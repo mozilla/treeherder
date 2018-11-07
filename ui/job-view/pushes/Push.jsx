@@ -9,12 +9,13 @@ import {
 } from '../../helpers/constants';
 import { withPushes } from '../context/Pushes';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
-import { getAllUrlParams } from '../../helpers/location';
+import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+import { Revision } from './Revision';
 
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
@@ -27,6 +28,9 @@ class Push extends React.Component {
   constructor(props) {
     super(props);
 
+    const { push } = props;
+    const collapsedPushes = getUrlParam('collapsedPushes') || '';
+
     this.state = {
       platforms: [],
       jobList: [],
@@ -35,6 +39,7 @@ class Push extends React.Component {
       watched: 'none',
       jobCounts: { pending: 0, running: 0, completed: 0 },
       pushGroupState: 'collapsed',
+      collapsed: collapsedPushes.includes(push.id),
     };
   }
 
@@ -48,6 +53,7 @@ class Push extends React.Component {
     this.sortGroupedJobs = this.sortGroupedJobs.bind(this);
     this.mapPushJobs = this.mapPushJobs.bind(this);
     this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
+    this.handleUrlChange = this.handleUrlChange.bind(this);
 
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
@@ -57,6 +63,7 @@ class Push extends React.Component {
     }
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
+    window.addEventListener('hashchange', this.handleUrlChange);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -65,6 +72,7 @@ class Push extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
+    window.removeEventListener('hashchange', this.handleUrlChange);
   }
 
   getJobCount(jobList) {
@@ -106,6 +114,13 @@ class Push extends React.Component {
     document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
       push.revisions,
     )}`;
+  }
+
+  handleUrlChange() {
+    const { push } = this.props;
+    const collapsedPushes = getUrlParam('collapsedPushes') || '';
+
+    this.setState({ collapsed: collapsedPushes.includes(push.id) });
   }
 
   handleApplyNewJobs(event) {
@@ -379,8 +394,10 @@ class Push extends React.Component {
       platforms,
       jobCounts,
       selectedRunnableJobs,
+      collapsed,
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
+    const tipRevision = push.revisions[0];
 
     if (isOnlyRevision) {
       this.setSingleRevisionWindowTitle();
@@ -409,27 +426,45 @@ class Push extends React.Component {
           hideRunnableJobs={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
           expandAllPushGroups={this.expandAllPushGroups}
+          collapsed={collapsed}
           getAllShownJobs={getAllShownJobs}
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
         />
         <div className="push-body-divider" />
-        <div className="row push clearfix">
-          {currentRepo && <RevisionList push={push} repo={currentRepo} />}
-          <span className="job-list job-list-pad col-7">
-            <PushJobs
-              push={push}
-              platforms={platforms}
-              repoName={repoName}
-              filterModel={filterModel}
-              pushGroupState={pushGroupState}
-              toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
-              runnableVisible={runnableVisible}
-              duplicateJobsVisible={duplicateJobsVisible}
-              groupCountsExpanded={groupCountsExpanded}
-            />
+        {!collapsed ? (
+          <div className="row push clearfix">
+            {currentRepo &&
+              <RevisionList
+                push={push}
+                repo={currentRepo}
+              />
+            }
+            <span className="job-list job-list-pad col-7">
+              <PushJobs
+                push={push}
+                platforms={platforms}
+                repoName={repoName}
+                filterModel={filterModel}
+                pushGroupState={pushGroupState}
+                toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
+                runnableVisible={runnableVisible}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
+              />
+            </span>
+          </div>
+        ) : (
+          <span className="row push revision-list col-12">
+            <ul className="list-unstyled">
+              <Revision
+                revision={tipRevision}
+                repo={currentRepo}
+                key={tipRevision.revision}
+              />
+            </ul>
           </span>
-        </div>
+        )}
       </div>
     );
   }

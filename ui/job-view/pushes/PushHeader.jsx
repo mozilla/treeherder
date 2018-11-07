@@ -10,6 +10,7 @@ import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
 import { withNotifications } from '../../shared/context/Notifications';
+import { getUrlParam, setUrlParam } from '../../helpers/location';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -77,6 +78,7 @@ class PushHeader extends React.PureComponent {
     this.triggerNewJobs = this.triggerNewJobs.bind(this);
     this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
     this.cancelAllJobs = this.cancelAllJobs.bind(this);
+    this.togglePushCollapsed = this.togglePushCollapsed.bind(this);
   }
 
   getLinkParams() {
@@ -168,6 +170,24 @@ class PushHeader extends React.PureComponent {
     }
   }
 
+  togglePushCollapsed() {
+    const { push, collapsed } = this.props;
+    const pushId = `${push.id}`;
+    const collapsedPushesParam = getUrlParam('collapsedPushes');
+    const collapsedPushes = collapsedPushesParam
+      ? new Set(collapsedPushesParam.split(','))
+      : new Set();
+
+    if (collapsed) {
+      collapsedPushes.delete(pushId);
+    } else {
+      collapsedPushes.add(pushId);
+    }
+    setUrlParam('collapsedPushes', collapsedPushes.size
+      ? Array.from(collapsedPushes)
+      : null);
+  }
+
   render() {
     const {
       repoName,
@@ -183,6 +203,7 @@ class PushHeader extends React.PureComponent {
       cycleWatchState,
       notificationSupported,
       selectedRunnableJobs,
+      collapsed,
     } = this.props;
     const cancelJobsTitle = isLoggedIn
       ? 'Cancel all jobs'
@@ -202,6 +223,11 @@ class PushHeader extends React.PureComponent {
         <div className="push-bar">
           <span className="push-left">
             <span className="push-title-left">
+              <span
+                onClick={this.togglePushCollapsed}
+                className={`fa ${collapsed ? 'fa-plus-square-o' : 'fa-minus-square-o'} mr-2 mt-2 text-muted pointable`}
+                title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
+              />
               <span>
                 <a href={revisionPushFilterUrl} title="View only this push">
                   {this.pushDateStr}{' '}
@@ -305,6 +331,7 @@ PushHeader.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   selectedRunnableJobs: PropTypes.array.isRequired,
+  collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.object.isRequired,
   watchState: PropTypes.string,
