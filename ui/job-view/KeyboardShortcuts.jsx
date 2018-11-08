@@ -5,6 +5,7 @@ import { HotKeys } from 'react-hotkeys';
 import { thEvents } from '../helpers/constants';
 import { withPinnedJobs } from './context/PinnedJobs';
 import { withSelectedJob } from './context/SelectedJob';
+import { withNotifications } from '../shared/context/Notifications';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -24,7 +25,7 @@ const keyMap = {
   pinJob: 'space',
   toggleOnScreenShortcuts: '?',
   /* these should happen regardless of being in an input field */
-  clearSelectedJob: 'escape',
+  clearScreen: 'escape',
   saveClassification: 'ctrl+enter',
   deleteClassification: 'ctrl+backspace',
 };
@@ -40,7 +41,7 @@ class KeyboardShortcuts extends React.Component {
     this.selectNextTab = this.selectNextTab.bind(this);
     this.clearPinboard = this.clearPinboard.bind(this);
     this.pinJob = this.pinJob.bind(this);
-    this.clearSelectedJob = this.clearSelectedJob.bind(this);
+    this.clearScreen = this.clearScreen.bind(this);
     this.saveClassification = this.saveClassification.bind(this);
     this.deleteClassification = this.deleteClassification.bind(this);
 
@@ -53,12 +54,20 @@ class KeyboardShortcuts extends React.Component {
    * Job Navigation Shortcuts
    */
 
-  // close any open panels and clears selected job
-  clearSelectedJob() {
-    const { clearSelectedJob, showOnScreenShortcuts } = this.props;
+  // close any notifications, if they exist.  If not, then close any
+  // open panels and selected job
+  clearScreen() {
+    const {
+      clearSelectedJob, showOnScreenShortcuts, notifications,
+      clearOnScreenNotifications,
+    } = this.props;
 
-    clearSelectedJob();
-    showOnScreenShortcuts(false);
+    if (notifications.length) {
+      clearOnScreenNotifications();
+    } else {
+      clearSelectedJob();
+      showOnScreenShortcuts(false);
+    }
   }
 
   /**
@@ -195,7 +204,7 @@ class KeyboardShortcuts extends React.Component {
       pinJob: ev => this.doKey(ev, this.pinJob),
       toggleOnScreenShortcuts: ev => this.doKey(ev, showOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
-      clearSelectedJob: this.clearSelectedJob,
+      clearScreen: this.clearScreen,
       saveClassification: this.saveClassification,
       deleteClassification: this.deleteClassification,
     };
@@ -223,6 +232,15 @@ KeyboardShortcuts.propTypes = {
   clearSelectedJob: PropTypes.func.isRequired,
   changeSelectedJob: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
+  notifications: PropTypes.arrayOf(
+    PropTypes.shape({
+      created: PropTypes.number.isRequired,
+      message: PropTypes.string.isRequired,
+      severity: PropTypes.string.isRequired,
+      sticky: PropTypes.bool,
+    }),
+  ).isRequired,
+  clearOnScreenNotifications: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -230,4 +248,4 @@ KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
 
-export default withPinnedJobs(withSelectedJob(KeyboardShortcuts));
+export default withPinnedJobs(withSelectedJob(withNotifications(KeyboardShortcuts)));
