@@ -113,7 +113,7 @@ class App extends React.PureComponent {
   onHighlight(range) {
     const { highlight } = this.state;
     const { _start, _end, size } = range;
-    let newHighlight = null;
+    let newHighlight = -1;
 
     if (size === 1) {
       newHighlight = [_start];
@@ -155,7 +155,7 @@ class App extends React.PureComponent {
   updateQuery() {
     const { highlight } = this.state;
 
-    if (!highlight) {
+    if (highlight < 1) {
       setUrlParam('lineNumber', null);
     } else if (highlight.length > 1) {
       setUrlParam('lineNumber', `${highlight[0]}-${highlight[1]}`);
