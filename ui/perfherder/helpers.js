@@ -26,7 +26,7 @@ export const getStdDev = function getStandardDeviation(values, avg) {
   if (!avg) avg = calcAverage(values);
 
   return Math.sqrt(
-    values.map(v => (v - avg) ** 2).reduce(function (a, b) { return a + b; }) / (values.length - 1));
+    values.map(v => (v - avg) ** 2).reduce((a, b) => a + b) / (values.length - 1));
 };
 
 // If a set has only one value, assume average-ish-plus standard deviation, which
@@ -66,9 +66,15 @@ export const getTTest = function getTTest(valuesC, valuesT, stddev_default_facto
 // TODO many of these are only used in one controller so can likely be moved
 // into the appropriate react component
 
-function numericCompare(a, b) {
-  return a < b ? -1 : (a > b ? 1 : 0);
-}
+const numericCompare = (a, b) => {
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 0;
+};
 
 const analyzeSet = (values, testName) => {
   let average;
@@ -247,11 +253,11 @@ export const validateQueryParams = async function validateQueryParams(params) {
   const { data, failureStatus } = await getData(getApiUrl('/repository/'));
 
   if (!failureStatus && data.find(project => project.name === originalProject)) {
-    errors.push("Invalid project, doesn't exist: " + originalProject);
+    errors.push(`Invalid project, doesn't exist ${originalProject}`);
   }
 
   if (!failureStatus && data.find(project => project.name === newProject)) {
-    errors.push("Invalid project, doesn't exist: " + newProject);
+    errors.push(`Invalid project, doesn't exist ${newProject}`);
   }
 
   return errors;
