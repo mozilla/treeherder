@@ -33,5 +33,3 @@ import './js/controllers/perf/alerts';
 import './js/components/perf/compare';
 import './js/components/loading';
 import './js/perfapp';
-import './perfherder/constants';
-import './perfherder/helpers';

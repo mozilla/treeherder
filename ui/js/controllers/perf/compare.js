@@ -8,12 +8,12 @@ import perf from '../../perf';
 import {
   phCompareDefaultOriginalRepo,
   phCompareDefaultNewRepo,
+  phTimeRanges,
   phCompareBaseLineDefaultTimeRange,
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
-import { phTimeRanges } from '../../../perfherder/constants';
 import { getCounterMap, getInterval, validateQueryParams, getResultsMap,
     getGraphsLink } from '../../../perfherder/helpers';
 

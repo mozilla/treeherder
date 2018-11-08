@@ -1,10 +1,10 @@
 import chunk from 'lodash/chunk';
 
-import { tValueCareMin, tValueConfidence, phTimeRanges } from './constants';
+import { tValueCareMin, tValueConfidence } from './constants';
 import { getApiUrl, createQueryParams } from '../helpers/url';
-// TODO move getData into a the global helpers file if using for everything
-import { getData } from '../intermittent-failures/helpers';
+import { getData } from '../helpers/http';
 import PerfSeriesModel from '../models/perfSeries';
+import { phTimeRanges } from '../helpers/constants';
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? 100 * a / b : 0;
@@ -66,8 +66,9 @@ export const getTTest = function getTTest(valuesC, valuesT, stddev_default_facto
 // TODO many of these are only used in one controller so can likely be moved
 // into the appropriate react component
 
-// eslint-disable-next-line arrow-body-style
-const numericCompare = (a, b) => { return a < b ? -1 : (a > b ? 1 : 0); };
+function numericCompare(a, b) {
+  return a < b ? -1 : (a > b ? 1 : 0);
+}
 
 const analyzeSet = (values, testName) => {
   let average;
@@ -92,14 +93,7 @@ const analyzeSet = (values, testName) => {
 };
 
 const getClassName = (newIsBetter, oldVal, newVal, absTValue) => {
-  // NOTE: we care about general ratio rather than how much is new compared
-  // to old - this could end up with slightly higher or lower threshold
-  // in practice than indicated by DIFF_CARE_MIN. E.g.:
-  // - If old is 10 and new is 5, then new = old -50%
-  // - If old is 5 and new is 10, then new = old + 100%
-  // And if the threshold was 75% then one would matter and the other wouldn't.
-  // Instead, we treat both cases as 2.0 (general ratio), and both would matter
-  // if our threshold was 75% (i.e. DIFF_CARE_MIN = 1.75).
+  // Returns a class name, if any, based on a relative change in the absolute value
   if (!oldVal || !newVal) {
     return '';
   }

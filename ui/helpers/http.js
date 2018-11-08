@@ -34,3 +34,19 @@ export const destroy = function deleteRecord(uri) {
     credentials: 'same-origin',
   });
 };
+
+export const getData = async function getData(url) {
+  let failureStatus = null;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    failureStatus = response.status;
+  }
+
+  if (response.headers.get('content-type') === 'text/html' && failureStatus) {
+    return { data: { [failureStatus]: response.statusText }, failureStatus };
+  }
+
+  const data = await response.json();
+  return { data, failureStatus };
+};

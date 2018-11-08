@@ -15,6 +15,7 @@ import perf from '../../perf';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   thDefaultRepo,
+  phTimeRanges,
   phDefaultTimeRangeValue,
   phDefaultFramework,
   thPerformanceBranches,
@@ -22,7 +23,6 @@ import {
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
-import { phTimeRanges } from '../../../perfherder/constants';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
