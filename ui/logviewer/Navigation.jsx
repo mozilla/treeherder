@@ -50,12 +50,12 @@ export default class Navigation extends React.PureComponent {
             <span>
               <a
                 title="Open the Reftest Analyser in a new window"
-                className="nav-link"
+                className="nav-link btn-view-nav"
                 target="_blank"
                 rel="noopener noreferrer"
                 href={reftestUrl}
               >
-                <span className="fa fa-bar-chart-o actionbtn-icon" />
+                <span className="fa fa-bar-chart-o actionbtn-icon mr-1" />
                 <span>open analyser</span>
               </a>
             </span>
