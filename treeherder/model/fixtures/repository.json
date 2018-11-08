@@ -949,13 +949,13 @@
     "model": "model.repository",
     "fields": {
         "dvcs_type": "git",
-        "name": "servo",
+        "name": "servo-master",
         "url": "https://github.com/servo/servo",
         "branch": "master",
         "active_status": "active",
         "codebase": "servo",
-        "repository_group": 7,
-        "description": "The Servo Parallel Browser Engine.",
+        "repository_group": 10,
+        "description": "The Servo Parallel Browser Engine − master",
         "expire_performance_data": false
     }
 },
@@ -1271,6 +1271,36 @@
         "codebase": "ci-admin",
         "repository_group": 9,
         "description": "Administrative configuration for Firefox CI"
+    }
+},
+{
+    "pk": 99,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "servo-try",
+        "url": "https://github.com/servo/servo",
+        "branch": "try",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 10,
+        "description": "The Servo Parallel Browser Engine − try",
+        "expire_performance_data": false
+    }
+},
+{
+    "pk": 100,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "servo-auto",
+        "url": "https://github.com/servo/servo",
+        "branch": "auto",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 10,
+        "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
+        "expire_performance_data": false
     }
 }
 ]
