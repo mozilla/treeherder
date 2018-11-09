@@ -7614,10 +7614,10 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-taskcluster-client-web@8.0.4:
-  version "8.0.4"
-  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-8.0.4.tgz#928e0c95644a1730c493e7f396197800bc942784"
-  integrity sha512-7Dj0kqLSpiJkIRMKDLXHlDGgBDINS831anrKr54BrBorx+YSYLeuE+xdbxnDZraFEg5FO1cugtw7BxDQ7tRFYw==
+taskcluster-client-web@8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-8.1.0.tgz#b6d7ff6781bc24b6d764e8cd67642d4670e96a02"
+  integrity sha512-vNgtzEP1HhPpUQXZDFKmQkOd/fA6H2BKap8DGRX4D8f3pJjqHueXSDSjvTbuRIBgb+xwWMQdGYx8lmPq8/FqYw==
   dependencies:
     hawk "^7.0.7"
     query-string "^6.1.0"
