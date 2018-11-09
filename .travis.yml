@@ -1,6 +1,4 @@
 dist: xenial
-# The fully visualised "sudo" GCE environments are faster for longer running jobs.
-sudo: required
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
 matrix:
@@ -20,7 +18,6 @@ matrix:
         - yarn test
 
     - env: python2-linters
-      sudo: false
       language: python
       python: "2.7.15"
       cache:
