@@ -127,7 +127,7 @@ module.exports = {
         // to help prevent unknowingly regressing the bundle size (bug 1384255).
         neutrino.config.performance
           .hints('error')
-          .maxAssetSize(1.29 * 1024 * 1024)
+          .maxAssetSize(1.20 * 1024 * 1024)
           .maxEntrypointSize(1.63 * 1024 * 1024);
       }
     },
