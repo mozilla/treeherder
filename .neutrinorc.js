@@ -13,8 +13,9 @@ module.exports = {
         title: 'Treeherder',
       },
       logviewer: {
-        entry: 'entry-logviewer.js',
-        template: 'ui/logviewer.html',
+        entry: 'logviewer/index.jsx',
+        favicon: 'ui/img/logviewerIcon.png',
+        title: 'Treeherder Logviewer',
       },
       userguide: {
         entry: 'userguide/index.jsx',
@@ -126,7 +127,7 @@ module.exports = {
         // to help prevent unknowingly regressing the bundle size (bug 1384255).
         neutrino.config.performance
           .hints('error')
-          .maxAssetSize(1.29 * 1024 * 1024)
+          .maxAssetSize(1.20 * 1024 * 1024)
           .maxEntrypointSize(1.63 * 1024 * 1024);
       }
     },
