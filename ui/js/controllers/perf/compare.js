@@ -14,6 +14,8 @@ import {
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
+import { getCounterMap, getInterval, validateQueryParams, getResultsMap,
+    getGraphsLink } from '../../../perfherder/helpers';
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q',
@@ -139,11 +141,9 @@ perf.controller('CompareChooserCtrl', [
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
     '$httpParamSerializer', '$q', 'PhFramework',
-    'PhCompare',
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $httpParamSerializer,
-                                $q, PhFramework,
-                                PhCompare) {
+                                $q, PhFramework) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
             $scope.titles = {};
@@ -174,7 +174,7 @@ perf.controller('CompareResultsCtrl', [
                         newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform,
                     );
 
-                    const cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                    const cmap = getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
                     if (cmap.isEmpty) {
                         return;
                     }
@@ -214,7 +214,7 @@ perf.controller('CompareResultsCtrl', [
 
                         cmap.links.push({
                             title: 'graph',
-                            href: PhCompare.getGraphsLink([...new Set(
+                            href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
                                     signature: oldSig,
@@ -242,7 +242,7 @@ perf.controller('CompareResultsCtrl', [
 
                         cmap.links.push({
                             title: 'graph',
-                            href: PhCompare.getGraphsLink([...new Set(
+                            href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
                                     signature: oldSig,
@@ -263,7 +263,7 @@ perf.controller('CompareResultsCtrl', [
             const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
             $scope.platformList.forEach(function (platform) {
-                const cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
+                const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
                 if (cmap.isEmpty) {
                     return;
                 }
@@ -288,7 +288,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.platformList = [];
 
             if ($scope.originalRevision) {
-                const timeRange = PhCompare.getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+                const timeRange = getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                 // Optimization - if old/new branches are the same collect data in one pass
                 const resultSetIds = (isEqual($scope.originalProject, $scope.newProject)) ?
                       [$scope.originalResultSet.id, $scope.newResultSet.id] : [$scope.originalResultSet.id];
@@ -302,7 +302,7 @@ perf.controller('CompareResultsCtrl', [
                         originalSeriesList.map(series => series.platform))];
                     $scope.testList = [...new Set(
                         originalSeriesList.map(series => series.name))];
-                    return PhCompare.getResultsMap($scope.originalProject.name,
+                    return getResultsMap($scope.originalProject.name,
                                                    originalSeriesList,
                                                    { push_id: resultSetIds });
                 }).then((resultMaps) => {
@@ -329,7 +329,7 @@ perf.controller('CompareResultsCtrl', [
                             ...$scope.testList,
                             ...new Set(newSeriesList.map(series => series.name)),
                         ])];
-                        return PhCompare.getResultsMap($scope.newProject.name,
+                        return getResultsMap($scope.newProject.name,
                                                        newSeriesList,
                                                        { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
@@ -349,7 +349,7 @@ perf.controller('CompareResultsCtrl', [
                     const startDateMs = ($scope.newResultSet.push_timestamp -
                                          $scope.selectedTimeRange.value) * 1000;
                     const endDateMs = $scope.newResultSet.push_timestamp * 1000;
-                    return PhCompare.getResultsMap(
+                    return getResultsMap(
                         $scope.originalProject.name, originalSeriesList, {
                             start_date: new Date(startDateMs).toISOString().slice(0, -5),
                             end_date: new Date(endDateMs).toISOString().slice(0, -5),
@@ -368,7 +368,7 @@ perf.controller('CompareResultsCtrl', [
                             ...$scope.testList,
                             ...new Set(newSeriesList.map(series => series.name)),
                         ])];
-                        return PhCompare.getResultsMap($scope.newProject.name,
+                        return getResultsMap($scope.newProject.name,
                                                        newSeriesList,
                                                        { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
@@ -447,10 +447,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.errors = [];
             // validation works only for revision to revision comparison
             if ($stateParams.originalRevision) {
-                $scope.errors = PhCompare.validateInput($stateParams.originalProject,
-                                            $stateParams.newProject,
-                                            $stateParams.originalRevision,
-                                            $stateParams.newRevision);
+                $scope.errors = validateQueryParams($stateParams);
 
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
@@ -515,9 +512,8 @@ perf.controller('CompareResultsCtrl', [
 
 perf.controller('CompareSubtestResultsCtrl', [
     '$state', '$stateParams', '$scope', '$q',
-    'PhCompare', '$httpParamSerializer',
+    '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $q,
-                                       PhCompare,
                                        $httpParamSerializer) {
          // TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
@@ -573,7 +569,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 const oldSig = mapsigs[0];
                 const newSig = mapsigs[1];
 
-                const cmap = PhCompare.getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                const cmap = getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
                 if (oldSig === $scope.originalSignature ||
                     oldSig === $scope.newSignature ||
                     newSig === $scope.originalSignature ||
@@ -596,7 +592,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 if ($scope.originalRevision) {
                     cmap.links = [{
                         title: 'graph',
-                        href: PhCompare.getGraphsLink([...new Set([
+                        href: getGraphsLink([...new Set([
                             $scope.originalProject,
                             $scope.newProject,
                         ])].map(project => ({
@@ -622,7 +618,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 } else {
                     cmap.links = [{
                         title: 'graph',
-                        href: PhCompare.getGraphsLink([...new Set([
+                        href: getGraphsLink([...new Set([
                             $scope.originalProject,
                             $scope.newProject,
                         ])].map(project => ({
@@ -637,7 +633,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             const noiseMetricTestName = 'Noise Metric';
             $scope.compareResults[noiseMetricTestName] = [];
-            const cmap = PhCompare.getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
+            const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
                 cmap.name = testName;
                 cmap.isNoiseMetric = true;
@@ -655,12 +651,7 @@ perf.controller('CompareSubtestResultsCtrl', [
         RepositoryModel.getList().then((repos) => {
             $scope.errors = [];
             if ($stateParams.originalRevision) {
-                $scope.errors = PhCompare.validateInput($stateParams.originalProject,
-                                                    $stateParams.newProject,
-                                                    $stateParams.originalRevision,
-                                                    $stateParams.newRevision,
-                                                    $stateParams.originalSignature,
-                                                    $stateParams.newSignature);
+                $scope.errors = validateQueryParams($stateParams);
 
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
@@ -772,7 +763,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             }).then(function (originalSubtestList) {
                                 $scope.pageList = originalSubtestList.map(subtest => subtest.name);
                                 $scope.platformList = [...new Set(originalSubtestList.map(subtest => subtest.platform))];
-                                return PhCompare.getResultsMap($scope.originalProject.name,
+                                return getResultsMap($scope.originalProject.name,
                                     originalSubtestList,
                                     { push_id: resultSetIds });
                             }),
@@ -813,7 +804,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     ...newSeriesList.map(series => series.name),
                                 ])];
 
-                                return PhCompare.getResultsMap($scope.newProject.name,
+                                return getResultsMap($scope.newProject.name,
                                     newSeriesList,
                                     { push_id: [$scope.newResultSet.id] });
                             }).then(function (newSeriesMaps) {
@@ -857,7 +848,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 const startDateMs = ($scope.newResultSet.push_timestamp -
                                                      $scope.selectedTimeRange.value) * 1000;
                                 const endDateMs = $scope.newResultSet.push_timestamp * 1000;
-                                return PhCompare.getResultsMap(
+                                return getResultsMap(
                                     $scope.originalProject.name,
                                     originalSubtestList, {
                                         start_date: new Date(startDateMs).toISOString().slice(0, -5),
@@ -882,7 +873,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                         ...newSeriesList.map(series => series.name),
                                     ])];
 
-                                    return PhCompare.getResultsMap($scope.newProject.name,
+                                    return getResultsMap($scope.newProject.name,
                                         newSeriesList,
                                         { push_id: [$scope.newResultSet.id] });
                                 }).then(function (newSeriesMaps) {

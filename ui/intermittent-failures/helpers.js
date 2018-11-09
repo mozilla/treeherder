@@ -119,22 +119,6 @@ export const validateQueryParams = function validateQueryParams(params, bugRequi
   return messages;
 };
 
-export const getData = async function getData(url) {
-  let failureStatus = null;
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    failureStatus = response.status;
-  }
-
-  if (response.headers.get('content-type') === 'text/html' && failureStatus) {
-    return { data: { [failureStatus]: response.statusText }, failureStatus };
-  }
-
-  const data = await response.json();
-  return { data, failureStatus };
-};
-
 export const tableRowStyling = function tableRowStyling(state, bug) {
   if (bug) {
     const style = { color: '#aaa' };

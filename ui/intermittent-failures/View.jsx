@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { updateQueryParams, validateQueryParams, getData, mergeData, formatBugs } from './helpers';
+import { updateQueryParams, validateQueryParams, mergeData, formatBugs } from './helpers';
 import { graphsEndpoint, parseQueryParams, createQueryParams, createApiUrl,
   bugzillaBugsApi } from '../helpers/url';
+import { getData } from '../helpers/http';
 
 const withView = defaultState => WrappedComponent =>
   class View extends React.Component {
