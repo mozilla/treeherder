@@ -113,6 +113,8 @@ class App extends React.PureComponent {
   onHighlight(range) {
     const { highlight } = this.state;
     const { _start, _end, size } = range;
+    // We can't use null to represent "no highlight", due to:
+    // https://github.com/mozilla-frontend-infra/react-lazylog/issues/22
     let newHighlight = -1;
 
     if (size === 1) {
