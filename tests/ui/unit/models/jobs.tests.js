@@ -45,7 +45,7 @@ describe('JobModel', () => {
     it('should return a page of results by default', async () => {
       const jobList = await JobModel.getList(repoName, { count: 2 });
 
-      expect(jobList.length).toBe(2);
+      expect(jobList).toHaveLength(2);
     });
 
     it('should return all the pages when fetch_all==true', async () => {
@@ -55,7 +55,7 @@ describe('JobModel', () => {
         { fetch_all: true },
       );
 
-      expect(jobList.length).toBe(3);
+      expect(jobList).toHaveLength(3);
       expect(jobList[2].id).toBe(3);
     });
   });

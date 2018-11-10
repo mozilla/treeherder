@@ -50,7 +50,7 @@ describe('Pushes context', () => {
       </PushesClass>,
     );
     await pushes.instance().fetchPushes(10);
-    expect(pushes.state('pushList').length).toBe(2);
+    expect(pushes.state('pushList')).toHaveLength(2);
   });
 
   it('should have id of 1 in current repo', async () => {
