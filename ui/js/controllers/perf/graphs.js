@@ -23,6 +23,8 @@ import {
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
+import { getApiUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -925,13 +927,10 @@ perf.filter('testNameContainsWords', function () {
     };
 });
 
-perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
-    'projects', 'timeRange',
-    'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
-    '$q', 'testsDisplayed', 'options',
+perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', 'timeRange',
+    'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform', '$q', 'testsDisplayed', 'options',
     function ($scope, $uibModalInstance, projects, timeRange,
-        PhFramework, defaultFrameworkId, defaultProjectName,
-        defaultPlatform, $q, testsDisplayed, options) {
+              defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = projects.find(project =>
@@ -1091,7 +1090,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             });
         }
 
-        PhFramework.getFrameworkList().then(function (frameworkList) {
+        getData(getApiUrl('/performance/framework/')).then(({ data: frameworkList }) => {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
                 $scope.selectedFramework = $scope.frameworkList.find(framework =>

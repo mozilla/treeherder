@@ -9,6 +9,7 @@ import perf from '../../perf';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 import {
   thDateFormat,
   phTimeRanges,
@@ -200,12 +201,9 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
-    'dateFilter', 'clipboard',
-    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
-                        $uibModal,
-                        PhFramework, PhAlerts, PhBugs, PhIssueTracker,
-                        dateFilter, clipboard) {
+    'PhAlerts', 'PhBugs', 'PhIssueTracker', 'dateFilter', 'clipboard',
+    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q, $uibModal,
+                        PhAlerts, PhBugs, PhIssueTracker, dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {
@@ -589,7 +587,7 @@ perf.controller('AlertsCtrl', [
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
-            $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
+            $q.all([getData(getApiUrl('/performance/framework/')).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
