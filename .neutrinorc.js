@@ -93,6 +93,11 @@ module.exports = {
         // Enable source maps for `yarn build` too (but not on CI, since it doubles build times).
         production: process.env.CI ? false : 'source-map',
       },
+      html: {
+        // Disable the default viewport meta tag, since Treeherder doesn't work well at
+        // small viewport sizes, so shouldn't use `width=device-width` (see bug 1505417).
+        meta: false,
+      },
       style: {
         // Disable Neutrino's CSS modules support, since we don't use it.
         modules: false,
