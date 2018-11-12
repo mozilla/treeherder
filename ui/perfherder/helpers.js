@@ -278,7 +278,7 @@ export const validateQueryParams = async function validateQueryParams(params) {
     if (!newSignature) errors.push('Missing input: newSignature');
   }
 
-  const { data, failureStatus } = await getData(getApiUrl('/repository/'));
+  const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
 
   if (
     !failureStatus &&

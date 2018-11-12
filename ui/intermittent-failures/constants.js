@@ -58,4 +58,4 @@ export const prettyErrorMessages = {
     'There was a problem retrieving the data. Please try again in a minute.',
 };
 
-export const errorMessageClass = 'text-danger py-4 d-block';
+export const errorMessageClass = 'text-danger py-4 d-block text-center';

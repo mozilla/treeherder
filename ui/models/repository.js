@@ -1,6 +1,4 @@
-import { getApiUrl } from '../helpers/url';
-
-const uri = getApiUrl('/repository/');
+import { getApiUrl, repoEndpoint } from '../helpers/url';
 
 export default class RepositoryModel {
   constructor(props) {

@@ -46,6 +46,12 @@ a {
   visibility: hidden;
 }
 
+/* this is better for drop down menu items because
+  display: none will change text alignment */
+.hide {
+  visibility: hidden;
+}
+
 /* Similar Jobs panel */
 .checkbox {
   min-height: 20px;

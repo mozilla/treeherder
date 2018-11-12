@@ -8,8 +8,6 @@ import { createQueryParams, getProjectUrl } from '../helpers/url';
 import JobModel from './job';
 import TaskclusterModel from './taskcluster';
 
-const uri_base = '/resultset/';
-
 const convertDates = function convertDates(locationParams) {
   // support date ranges.  we must convert the strings to a timezone
   // appropriate timestamp
@@ -59,7 +57,7 @@ export default class PushModel {
 
   static get(pk, options = {}) {
     const repoName = options.repo || getUrlParam('repo');
-    return fetch(getProjectUrl(`${uri_base}${pk}/`, repoName));
+    return fetch(getProjectUrl(`${resultsetEndpoint}${pk}/`, repoName));
   }
 
   static getJobs(pushIds, options = {}) {

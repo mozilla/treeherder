@@ -10,7 +10,7 @@ import {
   phCompareDefaultOriginalRepo,
   phCompareDefaultNewRepo,
   phTimeRanges,
-  phCompareBaseLineDefaultTimeRange,
+  compareDefaultTimeRange,
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
@@ -132,7 +132,7 @@ perf.controller('CompareChooserCtrl', [
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                selectedTimeRange: phCompareBaseLineDefaultTimeRange,
+                                selectedTimeRange: compareDefaultTimeRange,
                             });
                         }
                     }
@@ -484,7 +484,7 @@ perf.controller('CompareResultsCtrl', [
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
-                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange),
+                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : compareDefaultTimeRange),
                 );
             }
             $q.all(verifyPromises).then(function () {
@@ -676,7 +676,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
-                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : phCompareBaseLineDefaultTimeRange),
+                    timeRange.value === ($stateParams.selectedTimeRange ? parseInt($stateParams.selectedTimeRange) : compareDefaultTimeRange),
                 );
             }
 

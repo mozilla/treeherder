@@ -10,6 +10,20 @@ export const dxrBaseUrl = 'https://dxr.mozilla.org/';
 
 export const tcRootUrl = 'https://taskcluster.net';
 
+export const bugsEndpoint = 'failures/';
+
+export const bugDetailsEndpoint = 'failuresbybug/';
+
+export const graphsEndpoint = 'failurecount/';
+
+export const deployedRevisionUrl = '/revision.txt';
+
+export const loginCallbackUrl = '/login.html';
+
+export const resultsetEndpoint = '/resultset/';
+
+export const repoEndpoint = '/repository/';
+
 export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
   return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
 };
@@ -88,12 +102,6 @@ export const getCompareChooserUrl = function getCompareChooserUrl(params) {
   return `perf.html#/comparechooser${createQueryParams(params)}`;
 };
 
-export const bugsEndpoint = 'failures/';
-
-export const bugDetailsEndpoint = 'failuresbybug/';
-
-export const graphsEndpoint = 'failurecount/';
-
 export const parseQueryParams = function parseQueryParams(search) {
   const params = new URLSearchParams(search);
 
@@ -114,10 +122,6 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   const query = createQueryParams(params);
   return `${bzBaseUrl}rest/${api}${query}`;
 };
-
-export const deployedRevisionUrl = '/revision.txt';
-
-export const loginCallbackUrl = '/login.html';
 
 export const getRepoUrl = function getRepoUrl(newRepoName) {
   const params = getAllUrlParams();

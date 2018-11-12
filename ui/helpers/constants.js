@@ -250,6 +250,7 @@ export const thEvents = {
   applyNewJobs: 'apply-new-jobs-EVT',
 };
 
+// TODO remove these two consts
 export const phCompareDefaultOriginalRepo = 'mozilla-central';
 
 export const phCompareDefaultNewRepo = 'try';
@@ -302,7 +303,7 @@ export const phAlertStatusMap = {
   CONFIRMING: { id: 5, text: 'confirming' },
 };
 
-export const phCompareBaseLineDefaultTimeRange = 86400 * 2;
+export const compareDefaultTimeRange = 86400 * 2;
 
 export const thBugSuggestionLimit = 20;
 

@@ -68,6 +68,7 @@ export default class DateOptions extends React.Component {
           <DropdownMenuItems
             options={dateOptions}
             updateData={this.updateDateRange}
+            selectedItem={dateRange}
           />
         </ButtonDropdown>
         {dateRange === 'custom range' && (
