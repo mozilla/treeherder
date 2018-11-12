@@ -1101,6 +1101,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
                     framework.name === phDefaultFramework,
                 );
             }
+            $scope.$digest();
+
             $scope.updateTestInput = function () {
                 $scope.addTestDataDisabled = true;
                 $scope.loadingTestData = true;

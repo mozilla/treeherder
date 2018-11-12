@@ -6,6 +6,7 @@ import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
 import { getApiUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 import OptionCollectionModel from '../../../models/optionCollection';
 import {
   phAlertSummaryStatusMap,
@@ -16,10 +17,8 @@ import {
 import { getSeriesName, getTestName } from '../../../models/perfSeries';
 
 treeherder.factory('PhAlerts', [
-    '$http', '$httpParamSerializer', '$q',
-    'PhIssueTracker', 'displayNumberFilter',
-    function ($http, $httpParamSerializer, $q,
-             PhIssueTracker, displayNumberFilter) {
+    '$http', '$httpParamSerializer', '$q', 'displayNumberFilter',
+    function ($http, $httpParamSerializer, $q, displayNumberFilter) {
 
         let issueTrackers = null;
 
@@ -290,7 +289,7 @@ treeherder.factory('PhAlerts', [
             return promise;
         }
 
-        PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
+        getData(getApiUrl('/performance/issue-tracker/')).then(({ data: issueTrackerList }) => {
             issueTrackers = issueTrackerList;
         });
 

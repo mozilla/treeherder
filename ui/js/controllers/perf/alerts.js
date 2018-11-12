@@ -60,12 +60,12 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'PhIssueTracker',
-        function ($scope, $uibModalInstance, alertSummary, PhIssueTracker) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
+        function ($scope, $uibModalInstance, alertSummary) {
             $scope.title = 'Link to bug';
             $scope.placeholder = 'Task #';
             $scope.issueTrackers = [];
-            PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
+            getData(getApiUrl('/performance/issue-tracker/')).then(({ data: issueTrackerList }) => {
                 $scope.issueTrackers = issueTrackerList;
 
                 if (issueTrackerList.length >= 1) {
@@ -201,9 +201,9 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'PhAlerts', 'PhBugs', 'PhIssueTracker', 'dateFilter', 'clipboard',
+    'PhAlerts', 'PhBugs', 'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q, $uibModal,
-                        PhAlerts, PhBugs, PhIssueTracker, dateFilter, clipboard) {
+                        PhAlerts, PhBugs, dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {
