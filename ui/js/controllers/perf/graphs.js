@@ -12,6 +12,7 @@ import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   thDefaultRepo,
@@ -1090,7 +1091,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
             });
         }
 
-        getData(getApiUrl('/performance/framework/')).then(({ data: frameworkList }) => {
+        getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworkList }) => {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
                 $scope.selectedFramework = $scope.frameworkList.find(framework =>

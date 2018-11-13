@@ -5,6 +5,7 @@ import padStart from 'lodash/padStart';
 import capitalize from 'lodash/capitalize';
 
 import treeherder from '../../treeherder';
+import { endpoints } from '../../../perfherder/constants';
 import { getApiUrl } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 import OptionCollectionModel from '../../../models/optionCollection';
@@ -289,7 +290,7 @@ treeherder.factory('PhAlerts', [
             return promise;
         }
 
-        getData(getApiUrl('/performance/issue-tracker/')).then(({ data: issueTrackerList }) => {
+        getData(getApiUrl(endpoints.issueTrackers)).then(({ data: issueTrackerList }) => {
             issueTrackers = issueTrackerList;
         });
 

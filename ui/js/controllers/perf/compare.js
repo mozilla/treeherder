@@ -5,6 +5,7 @@ import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import {
   phCompareDefaultOriginalRepo,
   phCompareDefaultNewRepo,
@@ -439,7 +440,7 @@ perf.controller('CompareResultsCtrl', [
         $scope.dataLoading = true;
 
         const loadRepositories = RepositoryModel.getList();
-        const loadFrameworks = getData(getApiUrl('/performance/framework/')).then(({ data: frameworks }) => {
+        const loadFrameworks = getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             });
 

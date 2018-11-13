@@ -6,6 +6,7 @@ import set from 'lodash/set';
 import angular from 'angular';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
@@ -65,7 +66,7 @@ perf.controller(
             $scope.title = 'Link to bug';
             $scope.placeholder = 'Task #';
             $scope.issueTrackers = [];
-            getData(getApiUrl('/performance/issue-tracker/')).then(({ data: issueTrackerList }) => {
+            getData(getApiUrl(endpoints.issueTrackers)).then(({ data: issueTrackerList }) => {
                 $scope.issueTrackers = issueTrackerList;
 
                 if (issueTrackerList.length >= 1) {
@@ -587,7 +588,7 @@ perf.controller('AlertsCtrl', [
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
-            $q.all([getData(getApiUrl('/performance/framework/')).then(({ data: frameworks }) => {
+            $q.all([getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
