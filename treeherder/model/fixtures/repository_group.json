@@ -70,5 +70,13 @@
         "name": "ci-admin",
         "description": "Administration of Firefox CI"
     }
+},
+{
+    "pk": 10,
+    "model": "model.repositorygroup",
+    "fields": {
+        "name": "servo",
+        "description": "Branches of github.com/servo/servo"
+    }
 }
 ]
