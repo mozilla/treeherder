@@ -70,7 +70,7 @@ class PushList extends React.Component {
             revision={revision}
           />
         }
-        <div className="card card-body get-next" data-job-clear-on-click>
+        <div className="card card-body get-next">
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (

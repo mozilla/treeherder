@@ -47,7 +47,6 @@ function PushCounts(props) {
       {percentComplete < 100 && total > 0 &&
         <span
           title="Proportion of jobs that are complete"
-          data-job-clear-on-click
         >{percentComplete}% - {inProgress} in progress</span>
       }
     </span>
@@ -163,8 +162,8 @@ class PushHeader extends React.PureComponent {
 
     return (
       <div className="push-header">
-        <div className="push-bar" data-job-clear-on-click>
-          <span className="push-left" data-job-clear-on-click>
+        <div className="push-bar">
+          <span className="push-left">
             <span className="push-title-left">
               <span>
                 <a

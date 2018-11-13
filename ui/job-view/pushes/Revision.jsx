@@ -22,9 +22,9 @@ export function Initials(props) {
   return (
     <span title={props.title}>
       <span className="user-push-icon">
-        <i className="fa fa-user-o" aria-hidden="true" data-job-clear-on-click />
+        <i className="fa fa-user-o" aria-hidden="true" />
       </span>
-      <div className="icon-superscript user-push-initials" data-job-clear-on-click>{initials}</div>
+      <div className="icon-superscript user-push-initials">{initials}</div>
     </span>
   );
 }
@@ -52,7 +52,7 @@ export class Revision extends React.PureComponent {
 
     return (<li className="clearfix">
       <span className="revision" data-tags={this.tags}>
-        <span className="revision-holder" data-job-clear-on-click>
+        <span className="revision-holder">
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
@@ -65,7 +65,9 @@ export class Revision extends React.PureComponent {
         />
         <span title={this.comment}>
           <span className="revision-comment">
-            <em data-job-clear-on-click><BugLinkify>{this.comment}</BugLinkify></em>
+            <em>
+              <BugLinkify>{this.comment}</BugLinkify>
+            </em>
           </span>
         </span>
       </span>

@@ -269,7 +269,7 @@ class App extends React.Component {
                       {serverChangedDelayed && <UpdateAvailable
                         updateButtonClick={this.updateButtonClick}
                       />}
-                      <div id="th-global-content" className="th-global-content" data-job-clear-on-click>
+                      <div id="th-global-content" className="th-global-content">
                         <span className="th-view-content" tabIndex={-1}>
                           <PushList
                             user={user}

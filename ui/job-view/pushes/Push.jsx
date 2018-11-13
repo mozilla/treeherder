@@ -333,7 +333,7 @@ class Push extends React.Component {
     }
 
     return (
-      <div className="push" ref={(ref) => { this.container = ref; }} data-job-clear-on-click>
+      <div className="push" ref={(ref) => { this.container = ref; }}>
         <PushHeader
           push={push}
           pushId={id}
@@ -362,7 +362,7 @@ class Push extends React.Component {
               repo={currentRepo}
             />
           }
-          <span className="job-list job-list-pad col-7" data-job-clear-on-click>
+          <span className="job-list job-list-pad col-7">
             <PushJobs
               push={push}
               platforms={platforms}

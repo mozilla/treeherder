@@ -143,7 +143,7 @@ class PushJobs extends React.Component {
     } = this.props;
 
     return (
-      <table id={this.aggregateId} className="table-hover" data-job-clear-on-click>
+      <table id={this.aggregateId} className="table-hover">
         <tbody onMouseDown={this.onMouseDown}>
           {filteredPlatforms ? filteredPlatforms.map(platform => (
           platform.visible &&

@@ -13,7 +13,7 @@ export class RevisionList extends React.PureComponent {
     const { push, repo } = this.props;
 
     return (
-      <span className="revision-list col-5" data-job-clear-on-click>
+      <span className="revision-list col-5">
         <ul className="list-unstyled">
           {push.revisions.map(revision =>
             (<Revision
