@@ -95,9 +95,9 @@ const BugDetailsView = (props) => {
             <Row>
               <Col xs="4" className="mx-auto"><p className="text-secondary text-center">{summary}</p></Col>
             </Row>}
-            {tableData && tableData.count &&
+            {tableData.length > 0 &&
             <Row>
-              <Col xs="12" className="mx-auto"><p className="text-secondary">{tableData.count} total failures</p></Col>
+              <Col xs="12" className="mx-auto"><p className="text-secondary">{tableData.length} total failures</p></Col>
             </Row>}
           </React.Fragment>}
         </React.Fragment>
