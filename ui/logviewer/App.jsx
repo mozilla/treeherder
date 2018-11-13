@@ -52,6 +52,7 @@ class App extends React.PureComponent {
       highlight: getUrlLineNumber(),
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
+      jobUrl: null,
     };
 
     this.setSelectedLine = this.setSelectedLine.bind(this);
@@ -85,7 +86,10 @@ class App extends React.PureComponent {
           const push = await resp.json();
           const { revision } = push;
 
-          this.setState({ revision });
+          this.setState({
+            revision,
+            jobUrl: getJobsUrl({ repo: repoName, revision, selectedJob: jobId }),
+          });
         });
       });
     }).catch((error) => {
@@ -169,11 +173,11 @@ class App extends React.PureComponent {
   render() {
     const {
       job, rawLogUrl, reftestUrl, jobDetails, jobError, jobExists,
-      revision, errors, highlight, jobId, repoName,
+      revision, errors, highlight, jobUrl,
     } = this.state;
     const extraFields = [{
       title: 'Revision',
-      url: getJobsUrl({ repo: repoName, revision, selectedJob: jobId }),
+      url: jobUrl,
       value: revision,
     }];
 
@@ -185,6 +189,7 @@ class App extends React.PureComponent {
           jobError={jobError}
           rawLogUrl={rawLogUrl}
           reftestUrl={reftestUrl}
+          jobUrl={jobUrl}
         />
         {job && (
           <div className="d-flex flex-column flex-fill">
@@ -195,6 +200,7 @@ class App extends React.PureComponent {
                   extraFields={extraFields}
                   revision={revision}
                   className="list-unstyled"
+                  showJobFilters={false}
                 />
                 <JobDetails jobDetails={jobDetails} />
               </div>

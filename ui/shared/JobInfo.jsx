@@ -35,7 +35,7 @@ const getTimeFields = function getTimeFields(job) {
 
 export default class JobInfo extends React.PureComponent {
   render() {
-    const { job, extraFields } = this.props;
+    const { job, extraFields, showJobFilters } = this.props;
     const jobSearchStr = getSearchStr(job);
     const timeFields = getTimeFields(job);
 
@@ -43,14 +43,21 @@ export default class JobInfo extends React.PureComponent {
       <ul id="job-info" className="list-unstyled">
         <li className="small">
           <label>Job: </label>
-          <a
-            title="Filter jobs with this unique SHA signature"
-            href={getJobSearchStrHref(job.signature)}
-          >(sig)</a>:&nbsp;
-          <a
-            title="Filter jobs containing these keywords"
-            href={getJobSearchStrHref(jobSearchStr)}
-          >{jobSearchStr}</a>
+          {showJobFilters ? (
+            <React.Fragment>
+              <a
+                title="Filter jobs with this unique SHA signature"
+                href={getJobSearchStrHref(job.signature)}
+              >(sig)</a>:&nbsp;
+              <a
+                title="Filter jobs containing these keywords"
+                href={getJobSearchStrHref(jobSearchStr)}
+              >{jobSearchStr}</a>
+            </React.Fragment>
+            ) : (
+              <span>{job.getTitle()}</span>
+            )
+          }
         </li>
         {job.taskcluster_metadata &&
           <li className="small">
@@ -98,8 +105,10 @@ JobInfo.propTypes = {
       value: PropTypes.string,
     }),
   ),
+  showJobFilters: PropTypes.bool,
 };
 
 JobInfo.defaultProps = {
   extraFields: [],
+  showJobFilters: true,
 };
