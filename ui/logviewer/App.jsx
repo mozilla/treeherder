@@ -169,11 +169,11 @@ class App extends React.PureComponent {
   render() {
     const {
       job, rawLogUrl, reftestUrl, jobDetails, jobError, jobExists,
-      revision, errors, highlight, jobId,
+      revision, errors, highlight, jobId, repoName,
     } = this.state;
     const extraFields = [{
       title: 'Revision',
-      url: getJobsUrl({ revision, selectedJob: jobId }),
+      url: getJobsUrl({ repo: repoName, revision, selectedJob: jobId }),
       value: revision,
     }];
 
