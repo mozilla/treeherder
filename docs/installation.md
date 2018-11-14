@@ -55,17 +55,25 @@ production site. You do not need to set up the Vagrant VM unless making backend 
 Validating JavaScript
 ---------------------
 
-We run our JavaScript code in the frontend through [eslint] to ensure
+We run our JavaScript code in the frontend through [ESLint] to ensure
 that new code has a consistent style and doesn't suffer from common
-errors. Eslint will run automatically when you build the JavaScript code
-or run the  development server. A production build will fail if your code
+errors. ESLint will run automatically when you build the JavaScript code
+or run the development server. A production build will fail if your code
 does not match the style requirements.
 
-To run eslint by itself, you may run the lint task:
+To run ESLint by itself, you may run the lint task:
 
 ```bash
 $ yarn lint
 ```
+
+Or to automatically fix issues found (where possible):
+
+```bash
+$ yarn lint --fix
+```
+
+See the [code style](code_style.html#ui) section for more details.
 
 Running the unit tests
 ----------------------
@@ -86,7 +94,6 @@ $ yarn test:watch
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
 
-Continue to the [Code Style](code_style.md) doc.
 
 Server and Full-stack Development
 =================================
@@ -251,6 +258,6 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [Node.js]: https://nodejs.org/en/download/current/
 [Yarn]: https://yarnpkg.com/en/docs/install
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
-[eslint]: https://eslint.org
+[ESLint]: https://eslint.org
 [Jasmine]: https://jasmine.github.io/
 [enzyme]: http://airbnb.io/enzyme/

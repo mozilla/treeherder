@@ -1,6 +1,17 @@
 module.exports = {
   root: true,
-  extends: 'eslint-config-airbnb',
+  extends: [
+    'eslint-config-airbnb',
+    // We use Prettier instead of AirBnb for style-related rules (see .prettierrc.js).
+    process.env.NODE_ENV === 'development'
+      ? // Disables the AirBnB style rules but does not enable Prettier
+        // (to reduce the amount of console noise when using `yarn start`).
+        'prettier'
+      : // The above plus enables the prettier rule.
+        'plugin:prettier/recommended',
+    // Disable React-related AirBnB style rules.
+    'prettier/react',
+  ],
   parser: 'babel-eslint',
   settings: {
     react: {
@@ -17,17 +28,12 @@ module.exports = {
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'default-case': 'off',
-    'function-paren-newline': 'off',
-    'implicit-arrow-linebreak': 'off',
-    // Indentation is disabled pending a switch from 4 to 2 space for JS.
-    indent: 'off',
     'jsx-a11y/anchor-is-valid': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/label-has-associated-control': 'off',
     'jsx-a11y/label-has-for': 'off',
     'jsx-a11y/no-noninteractive-element-interactions': 'off',
     'jsx-a11y/no-static-element-interactions': 'off',
-    'max-len': 'off',
     'no-alert': 'off',
     'no-continue': 'off',
     'no-param-reassign': 'off',
@@ -35,17 +41,11 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'no-shadow': 'off',
     'no-underscore-dangle': 'off',
-    'object-curly-newline': 'off',
-    'operator-linebreak': 'off',
-    'padded-blocks': 'off',
     'prefer-promise-reject-errors': 'off',
     'react/button-has-type': 'off',
     'react/default-props-match-prop-types': 'off',
     'react/destructuring-assignment': 'off',
     'react/forbid-prop-types': 'off',
-    'react/jsx-closing-tag-location': 'off',
-    'react/jsx-one-expression-per-line': 'off',
-    'react/jsx-wrap-multilines': 'off',
     'react/no-access-state-in-setstate': 'off',
     // Override AirBnB's config for this rule to make it more strict.
     // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
@@ -56,4 +56,15 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      // Exclude our legacy JS from prettier since it will be rewritten when converted to React.
+      // This directory is already ignored in .prettierignore but have to repeat here due to:
+      // https://github.com/prettier/eslint-plugin-prettier/issues/126
+      files: ['ui/js/**'],
+      rules: {
+        'prettier/prettier': 'off',
+      },
+    },
+  ],
 };
