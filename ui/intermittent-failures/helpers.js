@@ -47,7 +47,7 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
   for (let i = 0; i < data.length; i++) {
     const failures = data[i].failure_count;
     const testRuns = data[i].test_runs;
-    const freq = (testRuns < 1 || failures < 1) ? 0 : failures / testRuns;
+    const freq = testRuns < 1 || failures < 1 ? 0 : failures / testRuns;
     // metrics graphics only accepts JS Date objects
     const date = moment(data[i].date).toDate();
 
@@ -57,19 +57,29 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
     dateTestRunCounts.push({ date, value: testRuns });
     dateFreqs.push({ date, value: freq });
   }
-  return { graphOneData: dateFreqs, graphTwoData: [dateCounts, dateTestRunCounts], totalFailures, totalRuns };
+  return {
+    graphOneData: dateFreqs,
+    graphTwoData: [dateCounts, dateTestRunCounts],
+    totalFailures,
+    totalRuns,
+  };
 };
 
-export const updateQueryParams = function updateHistoryWithQueryParams(view, queryParams, history, location) {
-    history.replace({ pathname: view, search: queryParams });
-    // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
-    location.search = queryParams;
+export const updateQueryParams = function updateHistoryWithQueryParams(
+  view,
+  queryParams,
+  history,
+  location,
+) {
+  history.replace({ pathname: view, search: queryParams });
+  // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
+  location.search = queryParams;
 };
 
 export const sortData = function sortData(data, sortBy, desc) {
   data.sort((a, b) => {
-    const item1 = (desc ? b[sortBy] : a[sortBy]);
-    const item2 = (desc ? a[sortBy] : b[sortBy]);
+    const item1 = desc ? b[sortBy] : a[sortBy];
+    const item2 = desc ? a[sortBy] : b[sortBy];
 
     if (item1 < item2) {
       return -1;
@@ -82,7 +92,10 @@ export const sortData = function sortData(data, sortBy, desc) {
   return data;
 };
 
-export const processErrorMessage = function processErrorMessage(errorMessage, status) {
+export const processErrorMessage = function processErrorMessage(
+  errorMessage,
+  status,
+) {
   const messages = [];
 
   if (status === 503) {
@@ -101,7 +114,10 @@ export const processErrorMessage = function processErrorMessage(errorMessage, st
   return messages || [prettyErrorMessages.default];
 };
 
-export const validateQueryParams = function validateQueryParams(params, bugRequired = false) {
+export const validateQueryParams = function validateQueryParams(
+  params,
+  bugRequired = false,
+) {
   const messages = [];
   const dateFormat = /\d{4}[-]\d{2}[-]\d{2}/;
 

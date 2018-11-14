@@ -5,13 +5,17 @@ import { Alert } from 'reactstrap';
 import { processErrorMessage } from './helpers';
 
 const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
-  const messages = errorMessages.length ? errorMessages : processErrorMessage(failureMessage, failureStatus);
+  const messages = errorMessages.length
+    ? errorMessages
+    : processErrorMessage(failureMessage, failureStatus);
 
   return (
     <div>
-      {messages.map(message =>
-        <Alert color="danger" key={message}>{message}</Alert>,
-      )}
+      {messages.map(message => (
+        <Alert color="danger" key={message}>
+          {message}
+        </Alert>
+      ))}
     </div>
   );
 };
@@ -19,9 +23,7 @@ const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
 ErrorMessages.propTypes = {
   failureMessage: PropTypes.oneOfType([
     PropTypes.object,
-    PropTypes.arrayOf(
-      PropTypes.string,
-    ),
+    PropTypes.arrayOf(PropTypes.string),
   ]),
   failureStatus: PropTypes.number,
   errorMessages: PropTypes.array,
@@ -30,9 +32,7 @@ ErrorMessages.propTypes = {
 ErrorMessages.defaultProps = {
   failureMessage: null,
   failureStatus: null,
-  errorMessages: PropTypes.arrayOf(
-    PropTypes.string,
-  ),
+  errorMessages: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default ErrorMessages;

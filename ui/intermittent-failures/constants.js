@@ -51,9 +51,11 @@ export const prettyErrorMessages = {
   startday: 'startday is required and must be in YYYY-MM-DD format.',
   endday: 'endday is required and must be in YYYY-MM-DD format.',
   bug_ui: 'bug is required and must be a valid integer.',
-  tree_ui: 'tree is required and must be a valid repository or repository group.',
+  tree_ui:
+    'tree is required and must be a valid repository or repository group.',
   default: 'Something went wrong.',
-  status503: 'There was a problem retrieving the data. Please try again in a minute.',
+  status503:
+    'There was a problem retrieving the data. Please try again in a minute.',
 };
 
 export const errorMessageClass = 'text-danger py-4 d-block';

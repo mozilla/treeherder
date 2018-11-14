@@ -27,7 +27,11 @@ const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;
 const HIDDEN_URL_PARAMS = [
-  'repo', 'classifiedState', 'resultStatus', 'selectedJob', 'searchStr',
+  'repo',
+  'classifiedState',
+  'resultStatus',
+  'selectedJob',
+  'searchStr',
 ];
 
 const getWindowHeight = function getWindowHeight() {
@@ -83,13 +87,14 @@ class App extends React.Component {
     this.handleUrlChanges = this.handleUrlChanges.bind(this);
     this.showOnScreenShortcuts = this.showOnScreenShortcuts.bind(this);
 
-    RepositoryModel.getList().then((repos) => {
-      const currentRepo = repos.find(repo => repo.name === repoName) || this.state.currentRepo;
+    RepositoryModel.getList().then(repos => {
+      const currentRepo =
+        repos.find(repo => repo.name === repoName) || this.state.currentRepo;
 
       this.setState({ currentRepo, repos });
     });
 
-    ClassificationTypeModel.getList().then((classificationTypes) => {
+    ClassificationTypeModel.getList().then(classificationTypes => {
       this.setState({
         classificationTypes,
         classificationMap: ClassificationTypeModel.getMap(classificationTypes),
@@ -100,29 +105,38 @@ class App extends React.Component {
     window.addEventListener('hashchange', this.handleUrlChanges, false);
 
     // Get the current Treeherder revision and poll to notify on updates.
-    this.fetchDeployedRevision().then((revision) => {
+    this.fetchDeployedRevision().then(revision => {
       this.setState({ serverRev: revision });
       this.updateInterval = setInterval(() => {
-        this.fetchDeployedRevision()
-          .then((revision) => {
-            const { serverChangedTimestamp, serverRev, serverChanged } = this.state;
+        this.fetchDeployedRevision().then(revision => {
+          const {
+            serverChangedTimestamp,
+            serverRev,
+            serverChanged,
+          } = this.state;
 
-            if (serverChanged) {
-              if (Date.now() - serverChangedTimestamp > REVISION_POLL_DELAYED_INTERVAL) {
-                this.setState({ serverChangedDelayed: true });
-                // Now that we know there's an update, stop polling.
-                clearInterval(this.updateInterval);
-              }
+          if (serverChanged) {
+            if (
+              Date.now() - serverChangedTimestamp >
+              REVISION_POLL_DELAYED_INTERVAL
+            ) {
+              this.setState({ serverChangedDelayed: true });
+              // Now that we know there's an update, stop polling.
+              clearInterval(this.updateInterval);
             }
-            // This request returns the treeherder git revision running on the server
-            // If this differs from the version chosen during the UI page load, show a warning
-            if (serverRev && serverRev !== revision) {
-              this.setState({ serverRev: revision });
-              if (serverChanged === false) {
-                this.setState({ serverChangedTimestamp: Date.now(), serverChanged: true });
-              }
+          }
+          // This request returns the treeherder git revision running on the server
+          // If this differs from the version chosen during the UI page load, show a warning
+          if (serverRev && serverRev !== revision) {
+            this.setState({ serverRev: revision });
+            if (serverChanged === false) {
+              this.setState({
+                serverChangedTimestamp: Date.now(),
+                serverChanged: true,
+              });
             }
-          });
+          }
+        });
       }, REVISION_POLL_INTERVAL);
     });
   }
@@ -136,8 +150,10 @@ class App extends React.Component {
     const defaultPushListPct = hasSelectedJob ? 100 - DEFAULT_DETAILS_PCT : 100;
     // calculate the height of the details panel to use if it has not been
     // resized by the user.
-    const defaultDetailsHeight = defaultPushListPct < 100 ?
-      DEFAULT_DETAILS_PCT / 100 * getWindowHeight() : 0;
+    const defaultDetailsHeight =
+      defaultPushListPct < 100
+        ? (DEFAULT_DETAILS_PCT / 100) * getWindowHeight()
+        : 0;
 
     return {
       defaultPushListPct,
@@ -196,16 +212,29 @@ class App extends React.Component {
 
   handleSplitChange(latestSplitSize) {
     this.setState({
-      latestSplitPct: latestSplitSize / getWindowHeight() * 100,
+      latestSplitPct: (latestSplitSize / getWindowHeight()) * 100,
     });
   }
 
   render() {
     const {
-      user, isFieldFilterVisible, serverChangedDelayed,
-      defaultPushListPct, defaultDetailsHeight, latestSplitPct, serverChanged,
-      currentRepo, repoName, repos, classificationTypes, classificationMap,
-      filterModel, hasSelectedJob, revision, duplicateJobsVisible, groupCountsExpanded,
+      user,
+      isFieldFilterVisible,
+      serverChangedDelayed,
+      defaultPushListPct,
+      defaultDetailsHeight,
+      latestSplitPct,
+      serverChanged,
+      currentRepo,
+      repoName,
+      repos,
+      classificationTypes,
+      classificationMap,
+      filterModel,
+      hasSelectedJob,
+      revision,
+      duplicateJobsVisible,
+      groupCountsExpanded,
       showShortCuts,
     } = this.state;
 
@@ -220,16 +249,21 @@ class App extends React.Component {
     // we resize.  Therefore, we must calculate the new
     // height of the DetailsPanel based on the current height of the PushList.
     // Reported this upstream: https://github.com/tomkp/react-split-pane/issues/282
-    const pushListPct = latestSplitPct === undefined || !hasSelectedJob ?
-      defaultPushListPct :
-      latestSplitPct;
-    const detailsHeight = latestSplitPct === undefined || !hasSelectedJob ?
-      defaultDetailsHeight :
-      getWindowHeight() * (1 - latestSplitPct / 100);
-    const filterBarFilters = Object.entries(filterModel.urlParams).reduce((acc, [field, value]) => (
-      HIDDEN_URL_PARAMS.includes(field) || matchesDefaults(field, value) ?
-        acc : [...acc, { field, value }]
-    ), []);
+    const pushListPct =
+      latestSplitPct === undefined || !hasSelectedJob
+        ? defaultPushListPct
+        : latestSplitPct;
+    const detailsHeight =
+      latestSplitPct === undefined || !hasSelectedJob
+        ? defaultDetailsHeight
+        : getWindowHeight() * (1 - latestSplitPct / 100);
+    const filterBarFilters = Object.entries(filterModel.urlParams).reduce(
+      (acc, [field, value]) =>
+        HIDDEN_URL_PARAMS.includes(field) || matchesDefaults(field, value)
+          ? acc
+          : [...acc, { field, value }],
+      [],
+    );
 
     return (
       <div id="global-container" className="height-minus-navbars">
@@ -260,16 +294,22 @@ class App extends React.Component {
                     onChange={size => this.handleSplitChange(size)}
                   >
                     <div className="d-flex flex-column w-100">
-                      {(isFieldFilterVisible || !!filterBarFilters.length) && <ActiveFilters
-                        classificationTypes={classificationTypes}
-                        filterModel={filterModel}
-                        filterBarFilters={filterBarFilters}
-                        isFieldFilterVisible={isFieldFilterVisible}
-                        toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                      />}
-                      {serverChangedDelayed && <UpdateAvailable
-                        updateButtonClick={this.updateButtonClick}
-                      />}
+                      {(isFieldFilterVisible || !!filterBarFilters.length) && (
+                        <ActiveFilters
+                          classificationTypes={classificationTypes}
+                          filterModel={filterModel}
+                          filterBarFilters={filterBarFilters}
+                          isFieldFilterVisible={isFieldFilterVisible}
+                          toggleFieldFilterVisible={
+                            this.toggleFieldFilterVisible
+                          }
+                        />
+                      )}
+                      {serverChangedDelayed && (
+                        <UpdateAvailable
+                          updateButtonClick={this.updateButtonClick}
+                        />
+                      )}
                       <div id="th-global-content" className="th-global-content">
                         <span className="th-view-content" tabIndex={-1}>
                           <PushList
@@ -294,16 +334,18 @@ class App extends React.Component {
                     />
                   </SplitPane>
                   <NotificationList />
-                  {showShortCuts && <div
-                    id="onscreen-overlay"
-                    onClick={() => this.showOnScreenShortcuts(false)}
-                  >
-                    <div id="onscreen-shortcuts">
-                      <div className="col-8">
-                        <ShortcutTable />
+                  {showShortCuts && (
+                    <div
+                      id="onscreen-overlay"
+                      onClick={() => this.showOnScreenShortcuts(false)}
+                    >
+                      <div id="onscreen-shortcuts">
+                        <div className="col-8">
+                          <ShortcutTable />
+                        </div>
                       </div>
                     </div>
-                  </div>}
+                  )}
                 </KeyboardShortcuts>
               </SelectedJob>
             </PinnedJobs>

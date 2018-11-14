@@ -8,7 +8,7 @@ import { phTimeRanges } from '../helpers/constants';
 import { tValueCareMin, tValueConfidence } from './constants';
 
 export const calcPercentOf = function calcPercentOf(a, b) {
-  return b ? 100 * a / b : 0;
+  return b ? (100 * a) / b : 0;
 };
 
 export const calcAverage = function calcAverage(values) {
@@ -27,14 +27,20 @@ export const getStdDev = function getStandardDeviation(values, avg) {
   if (!avg) avg = calcAverage(values);
 
   return Math.sqrt(
-    values.map(v => (v - avg) ** 2).reduce((a, b) => a + b) / (values.length - 1));
+    values.map(v => (v - avg) ** 2).reduce((a, b) => a + b) /
+      (values.length - 1),
+  );
 };
 
 // If a set has only one value, assume average-ish-plus standard deviation, which
 // will manifest as smaller t-value the less items there are at the group
 // (so quite small for 1 value). This default value is a parameter.
 // C/T mean control/test group (in our case original/new data).
-export const getTTest = function getTTest(valuesC, valuesT, stddev_default_factor) {
+export const getTTest = function getTTest(
+  valuesC,
+  valuesT,
+  stddev_default_factor,
+) {
   const lenC = valuesC.length;
   const lenT = valuesT.length;
 
@@ -44,22 +50,21 @@ export const getTTest = function getTTest(valuesC, valuesT, stddev_default_facto
 
   const avgC = calcAverage(valuesC);
   const avgT = calcAverage(valuesT);
-  let stddevC = (lenC > 1 ? getStdDev(valuesC, avgC) : stddev_default_factor * avgC);
-  let stddevT = (lenT > 1 ? getStdDev(valuesT, avgT) : stddev_default_factor * avgT);
+  let stddevC =
+    lenC > 1 ? getStdDev(valuesC, avgC) : stddev_default_factor * avgC;
+  let stddevT =
+    lenT > 1 ? getStdDev(valuesT, avgT) : stddev_default_factor * avgT;
 
   if (lenC === 1) {
-    stddevC = valuesC[0] * stddevT / avgT;
+    stddevC = (valuesC[0] * stddevT) / avgT;
   } else if (lenT === 1) {
-    stddevT = valuesT[0] * stddevC / avgC;
+    stddevT = (valuesT[0] * stddevC) / avgC;
   }
 
   const delta = avgT - avgC;
-  const stdDiffErr = (
-    Math.sqrt(
-      (stddevC * stddevC / lenC) // control-variance / control-size
-        +
-      (stddevT * stddevT / lenT),
-    )
+  const stdDiffErr = Math.sqrt(
+    (stddevC * stddevC) / lenC + // control-variance / control-size
+      (stddevT * stddevT) / lenT,
   );
 
   return delta / stdDiffErr;
@@ -82,20 +87,20 @@ const analyzeSet = (values, testName) => {
   let stddev = 1;
 
   if (testName === 'Noise Metric') {
-      average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
+    average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
   } else {
-      average = calcAverage(values);
-      stddev = getStdDev(values, average);
+    average = calcAverage(values);
+    stddev = getStdDev(values, average);
   }
 
   return {
-      average,
-      stddev,
-      stddevPct: Math.round(calcPercentOf(stddev, average) * 100) / 100,
-      // TODO verify this is needed
-      // We use slice to keep the original values at their original order
-      // in case the order is important elsewhere.
-      runs: values.slice().sort(numericCompare),
+    average,
+    stddev,
+    stddevPct: Math.round(calcPercentOf(stddev, average) * 100) / 100,
+    // TODO verify this is needed
+    // We use slice to keep the original values at their original order
+    // in case the order is important elsewhere.
+    runs: values.slice().sort(numericCompare),
   };
 };
 
@@ -144,7 +149,11 @@ const getClassName = (newIsBetter, oldVal, newVal, absTValue) => {
 // - .magnitude
 // - .marginDirection
 
-export const getCounterMap = function getCounterMap(testName, originalData, newData) {
+export const getCounterMap = function getCounterMap(
+  testName,
+  originalData,
+  newData,
+) {
   // TODO setting this value seems a bit odd, look into how its being used
   const cmap = { isEmpty: false };
   const hasOrig = originalData && originalData.values.length;
@@ -181,9 +190,10 @@ export const getCounterMap = function getCounterMap(testName, originalData, newD
 
   cmap.frameworkId = originalData.frameworkId;
   // Normally tests are "lower is better", can be over-ridden with a series option
-  cmap.delta = (cmap.newValue - cmap.originalValue);
-  cmap.newIsBetter = (originalData.lowerIsBetter && cmap.delta < 0) ||
-      (!originalData.lowerIsBetter && cmap.delta > 0);
+  cmap.delta = cmap.newValue - cmap.originalValue;
+  cmap.newIsBetter =
+    (originalData.lowerIsBetter && cmap.delta < 0) ||
+    (!originalData.lowerIsBetter && cmap.delta > 0);
 
   cmap.deltaPercentage = calcPercentOf(cmap.delta, cmap.originalValue);
   // arbitrary scale from 0-20% multiplied by 5, capped
@@ -192,35 +202,46 @@ export const getCounterMap = function getCounterMap(testName, originalData, newD
 
   // 0.15 is used for getTTest: default stddev if both sets have only a single value - 15%.
   // Should be rare case and it's unreliable, but at least have something.
-  const absTValue = Math.abs(getTTest(originalData.values, newData.values, 0.15));
-  cmap.className = getClassName(cmap.newIsBetter, cmap.originalValue, cmap.newValue, absTValue);
+  const absTValue = Math.abs(
+    getTTest(originalData.values, newData.values, 0.15),
+  );
+  cmap.className = getClassName(
+    cmap.newIsBetter,
+    cmap.originalValue,
+    cmap.newValue,
+    absTValue,
+  );
   cmap.confidence = absTValue;
-  cmap.confidenceTextLong = 'Result of running t-test on base versus new result distribution: ';
+  cmap.confidenceTextLong =
+    'Result of running t-test on base versus new result distribution: ';
 
   if (absTValue < tValueCareMin) {
-      cmap.confidenceText = 'low';
-      cmap.confidenceTextLong += "A value of 'low' suggests less confidence that there is a sustained, significant change between the two revisions.";
+    cmap.confidenceText = 'low';
+    cmap.confidenceTextLong +=
+      "A value of 'low' suggests less confidence that there is a sustained, significant change between the two revisions.";
   } else if (absTValue < tValueConfidence) {
-      cmap.confidenceText = 'med';
-      cmap.confidenceTextLong += "A value of 'med' indicates uncertainty that there is a significant change. If you haven't already, consider retriggering the job to be more sure.";
+    cmap.confidenceText = 'med';
+    cmap.confidenceTextLong +=
+      "A value of 'med' indicates uncertainty that there is a significant change. If you haven't already, consider retriggering the job to be more sure.";
   } else {
-      cmap.confidenceText = 'high';
-      cmap.confidenceTextLong += "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
+    cmap.confidenceText = 'high';
+    cmap.confidenceTextLong +=
+      "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
   }
-  cmap.isRegression = (cmap.className === 'compare-regression');
-  cmap.isImprovement = (cmap.className === 'compare-improvement');
-  cmap.isMeaningful = (cmap.className !== '');
+  cmap.isRegression = cmap.className === 'compare-regression';
+  cmap.isImprovement = cmap.className === 'compare-improvement';
+  cmap.isMeaningful = cmap.className !== '';
 
-  cmap.isComplete = (cmap.originalRuns.length &&
-                      cmap.newRuns.length);
-  cmap.isConfident = ((cmap.originalRuns.length > 1 &&
-                        cmap.newRuns.length > 1 &&
-                        absTValue >= tValueConfidence) ||
-                      (cmap.originalRuns.length >= 6 &&
-                        cmap.newRuns.length >= 6 &&
-                        absTValue >= tValueCareMin));
-  cmap.needsMoreRuns = (cmap.isComplete && !cmap.isConfident &&
-                        cmap.originalRuns.length < 6);
+  cmap.isComplete = cmap.originalRuns.length && cmap.newRuns.length;
+  cmap.isConfident =
+    (cmap.originalRuns.length > 1 &&
+      cmap.newRuns.length > 1 &&
+      absTValue >= tValueConfidence) ||
+    (cmap.originalRuns.length >= 6 &&
+      cmap.newRuns.length >= 6 &&
+      absTValue >= tValueCareMin);
+  cmap.needsMoreRuns =
+    cmap.isComplete && !cmap.isConfident && cmap.originalRuns.length < 6;
   cmap.isNoiseMetric = false;
 
   return cmap;
@@ -228,7 +249,7 @@ export const getCounterMap = function getCounterMap(testName, originalData, newD
 
 // TODO: move into a react component as this is only used once (in PhCompare controller)
 export const getInterval = function getInterval(oldTimestamp, newTimestamp) {
-  const now = (new Date()).getTime() / 1000;
+  const now = new Date().getTime() / 1000;
   let timeRange = Math.min(oldTimestamp, newTimestamp);
   timeRange = Math.round(now - timeRange);
   const newTimeRange = phTimeRanges.find(time => timeRange <= time.value);
@@ -237,8 +258,14 @@ export const getInterval = function getInterval(oldTimestamp, newTimestamp) {
 
 // TODO possibly break up into different functions and/or move into a component
 export const validateQueryParams = async function validateQueryParams(params) {
-  const { originalProject, newProject, originalRevision, newRevision, originalSignature,
-    newSignature } = params;
+  const {
+    originalProject,
+    newProject,
+    originalRevision,
+    newRevision,
+    originalSignature,
+    newSignature,
+  } = params;
   const errors = [];
 
   if (!originalProject) errors.push('Missing input: originalProject');
@@ -253,7 +280,10 @@ export const validateQueryParams = async function validateQueryParams(params) {
 
   const { data, failureStatus } = await getData(getApiUrl('/repository/'));
 
-  if (!failureStatus && data.find(project => project.name === originalProject)) {
+  if (
+    !failureStatus &&
+    data.find(project => project.name === originalProject)
+  ) {
     errors.push(`Invalid project, doesn't exist ${originalProject}`);
   }
 
@@ -274,23 +304,29 @@ const getResultMapEntry = (datum, resultsMap, params) => {
   return resultsMap;
 };
 
-export const getResultsMap = function getResultsMap(projectName, seriesList, params) {
+export const getResultsMap = function getResultsMap(
+  projectName,
+  seriesList,
+  params,
+) {
   const resultsMap = {};
 
-  return Promise.all(chunk(seriesList, 150).map(
-    seriesChunk => PerfSeriesModel.getSeriesData(
-      projectName, {
-          signature_id: seriesChunk.map(series => series.id),
-          framework: [...new Set(seriesChunk.map(series => series.frameworkId))],
-          ...params,
-      }).then((seriesData) => {
+  return Promise.all(
+    chunk(seriesList, 150).map(seriesChunk =>
+      PerfSeriesModel.getSeriesData(projectName, {
+        signature_id: seriesChunk.map(series => series.id),
+        framework: [...new Set(seriesChunk.map(series => series.frameworkId))],
+        ...params,
+      }).then(seriesData => {
         // Aggregates data from a single group of values and returns an object containing
         // description (name/platform) and values; these are later processed in getCounterMap.
         for (const [signatureHash, data] of Object.entries(seriesData)) {
-          const signature = seriesList.find(series => series.signature === signatureHash);
+          const signature = seriesList.find(
+            series => series.signature === signatureHash,
+          );
 
           if (signature) {
-            data.forEach((datum) => {
+            data.forEach(datum => {
               const entry = getResultMapEntry(datum, resultsMap, params);
               if (!entry[signatureHash]) {
                 entry[signatureHash] = {
@@ -304,27 +340,35 @@ export const getResultsMap = function getResultsMap(projectName, seriesList, par
           }
         }
       }),
-  )).then(() => resultsMap);
+    ),
+  ).then(() => resultsMap);
 };
 
-export const getGraphsLink = function getGraphsLink(seriesList, resultSets, timeRange) {
+export const getGraphsLink = function getGraphsLink(
+  seriesList,
+  resultSets,
+  timeRange,
+) {
   const params = {
-    series: seriesList.map(series => ([
+    series: seriesList.map(series => [
       series.projectName,
-      series.signature, 1,
+      series.signature,
+      1,
       series.frameworkId,
-    ])),
-    highlightedRevisions: resultSets.map(resultSet => (
-      resultSet.revision.slice(0, 12)
-    )),
+    ]),
+    highlightedRevisions: resultSets.map(resultSet =>
+      resultSet.revision.slice(0, 12),
+    ),
   };
 
   if (resultSets && !timeRange) {
-      params.timerange = Math.max(
+    params.timerange = Math.max(
       ...resultSets.map(resultSet =>
-        phTimeRanges.map(range => range.value).find(t =>
-          ((Date.now() / 1000.0) - resultSet.push_timestamp) < t),
-      ));
+        phTimeRanges
+          .map(range => range.value)
+          .find(t => Date.now() / 1000.0 - resultSet.push_timestamp < t),
+      ),
+    );
   }
 
   if (timeRange) {

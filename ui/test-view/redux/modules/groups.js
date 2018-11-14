@@ -14,7 +14,8 @@ export const types = {
   RENDER_BUGS: 'RENDER_BUGS',
 };
 
-export const getTestDataQuery = revision => encodeURIComponent(`
+export const getTestDataQuery = revision =>
+  encodeURIComponent(`
   query pushesQuery {
     allPushes(revision: "${revision}") {
         edges {
@@ -71,7 +72,8 @@ export const getTestDataQuery = revision => encodeURIComponent(`
     }
   }
 `);
-export const getBugSuggestionQuery = guid => encodeURIComponent(`
+export const getBugSuggestionQuery = guid =>
+  encodeURIComponent(`
   query textLogQuery {
     allJobs(guid:"${guid}") {
       edges {
@@ -175,7 +177,14 @@ export const actions = {
 const initialState = {
   groups: {},
   rowData: {},
-  counts: { failed: 0, intermittent: 0, infra: 0, success: 0, running: 0, pending: 0 },
+  counts: {
+    failed: 0,
+    intermittent: 0,
+    infra: 0,
+    success: 0,
+    running: 0,
+    pending: 0,
+  },
   hideClassified: { infra: true, intermittent: true },
   push: { revision: '', author: '', id: '', repository: {} },
   expanded: {},

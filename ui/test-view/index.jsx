@@ -8,8 +8,9 @@ import '../css/treeherder-test-view.css';
 import { store, actions } from './redux/store';
 import App from './ui/App';
 
-render((
+render(
   <Provider store={store}>
     <App actions={actions} />
-  </Provider>
-), document.getElementById('root'));
+  </Provider>,
+  document.getElementById('root'),
+);

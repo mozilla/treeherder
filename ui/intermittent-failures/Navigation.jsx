@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Collapse, Navbar, Nav, UncontrolledDropdown, DropdownToggle } from 'reactstrap';
+import {
+  Collapse,
+  Navbar,
+  Nav,
+  UncontrolledDropdown,
+  DropdownToggle,
+} from 'reactstrap';
 
 import DropdownMenuItems from './DropdownMenuItems';
 import { treeOptions } from './constants';

@@ -12,66 +12,100 @@ import { withPinnedJobs } from '../../../context/PinnedJobs';
  */
 function StaticLineOption(props) {
   const {
-    selectedJob, canClassify, errorLine, option, numOptions, setEditable, ignoreAlways,
-    manualBugNumber, pinnedJobs, addBug,
+    selectedJob,
+    canClassify,
+    errorLine,
+    option,
+    numOptions,
+    setEditable,
+    ignoreAlways,
+    manualBugNumber,
+    pinnedJobs,
+    addBug,
   } = props;
 
   const optionCount = numOptions - 1;
-  const ignoreAlwaysText = ignoreAlways ? 'for future classifications' : 'here only';
+  const ignoreAlwaysText = ignoreAlways
+    ? 'for future classifications'
+    : 'here only';
 
   return (
     <div className="static-classification-option">
       <div className="classification-icon">
-        {option.isBest ?
-          <span className="fa fa-star-o" title="Autoclassifier best match" /> :
-          <span className="classification-no-icon">&nbsp;</span>}
+        {option.isBest ? (
+          <span className="fa fa-star-o" title="Autoclassifier best match" />
+        ) : (
+          <span className="classification-no-icon">&nbsp;</span>
+        )}
       </div>
 
-      {!!option.bugNumber && <span className="line-option-text">
-        {(!canClassify || selectedJob.id in pinnedJobs) &&
-          <button
-            className="btn btn-xs btn-light-bordered"
-            onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
-            title="add to list of bugs to associate with all pinned jobs"
-          ><i className="fa fa-thumb-tack" /></button>}
-        {!!option.bugResolution &&
-          <span className="classification-bug-resolution">[{option.bugResolution}]</span>}
-        <a
-          href={getBugUrl(option.bugNumber)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >{option.bugNumber} -
-          <Highlighter
-            searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
-            textToHighlight={option.bugSummary}
-            caseSensitive
-            highlightTag="strong"
-          />
-        </a>
-        <span>[ {Number.parseFloat(option.score).toPrecision(2)} ]</span>
-      </span>}
+      {!!option.bugNumber && (
+        <span className="line-option-text">
+          {(!canClassify || selectedJob.id in pinnedJobs) && (
+            <button
+              className="btn btn-xs btn-light-bordered"
+              onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
+              title="add to list of bugs to associate with all pinned jobs"
+            >
+              <i className="fa fa-thumb-tack" />
+            </button>
+          )}
+          {!!option.bugResolution && (
+            <span className="classification-bug-resolution">
+              [{option.bugResolution}]
+            </span>
+          )}
+          <a
+            href={getBugUrl(option.bugNumber)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {option.bugNumber} -
+            <Highlighter
+              searchWords={getSearchWords(
+                errorLine.data.bug_suggestions.search,
+              )}
+              textToHighlight={option.bugSummary}
+              caseSensitive
+              highlightTag="strong"
+            />
+          </a>
+          <span>[ {Number.parseFloat(option.score).toPrecision(2)} ]</span>
+        </span>
+      )}
 
-      {option.type === 'classifiedFailure' && !option.bugNumber && <span>
-        Autoclassified failure with no associated bug number
-      </span>}
+      {option.type === 'classifiedFailure' && !option.bugNumber && (
+        <span>Autoclassified failure with no associated bug number</span>
+      )}
 
-      {option.type === 'manual' && <span className="line-option-text">
-        Bug
-        {!!manualBugNumber && <a
-          href={getBugUrl(option.manualBugNumber)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >{manualBugNumber}</a>}
-        {!!manualBugNumber && <span>No bug number specified</span>}
-      </span>}
+      {option.type === 'manual' && (
+        <span className="line-option-text">
+          Bug
+          {!!manualBugNumber && (
+            <a
+              href={getBugUrl(option.manualBugNumber)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {manualBugNumber}
+            </a>
+          )}
+          {!!manualBugNumber && <span>No bug number specified</span>}
+        </span>
+      )}
 
-      {option.type === 'ignore' &&
-        <span className="line-option-text">Ignore {ignoreAlwaysText}</span>}
-      {optionCount > 0 && <span>, {optionCount} other {optionCount === 1 ? 'option' : 'options'}
-
-      </span>}
+      {option.type === 'ignore' && (
+        <span className="line-option-text">Ignore {ignoreAlwaysText}</span>
+      )}
+      {optionCount > 0 && (
+        <span>
+          , {optionCount} other {optionCount === 1 ? 'option' : 'options'}
+        </span>
+      )}
       <div>
-        <a onClick={setEditable} className="link-style">Edit…</a>
+        <a onClick={setEditable} className="link-style">
+          Edit…
+        </a>
       </div>
     </div>
   );

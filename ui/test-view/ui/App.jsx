@@ -22,11 +22,19 @@ const App = () => (
           <Route
             exact
             path="/testview.html"
-            render={props => (hasProps(props.location.search) ?
-              <Groups {...props} /> :
-              <NotFound {...props} />)}
+            render={props =>
+              hasProps(props.location.search) ? (
+                <Groups {...props} />
+              ) : (
+                <NotFound {...props} />
+              )
+            }
           />
-          <Route name="search" path="?revision=:revision&repo=:repo" handler={Groups} />
+          <Route
+            name="search"
+            path="?revision=:revision&repo=:repo"
+            handler={Groups}
+          />
           <Route name="notfound" component={NotFound} />
         </Switch>
       </main>

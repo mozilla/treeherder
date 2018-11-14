@@ -1,7 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip, FormGroup, Input,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Tooltip,
+  FormGroup,
+  Input,
   Label,
 } from 'reactstrap';
 
@@ -16,11 +23,16 @@ import { create } from '../../helpers/http';
 import { withNotifications } from '../../shared/context/Notifications';
 
 const crashRegex = /application crashed \[@ (.+)\]$/g;
-const omittedLeads = ['TEST-UNEXPECTED-FAIL', 'PROCESS-CRASH', 'TEST-UNEXPECTED-ERROR', 'REFTEST ERROR'];
+const omittedLeads = [
+  'TEST-UNEXPECTED-FAIL',
+  'PROCESS-CRASH',
+  'TEST-UNEXPECTED-ERROR',
+  'REFTEST ERROR',
+];
 /*
  *  Find the first thing in the summary line that looks like a filename.
  */
-const findFilename = (summary) => {
+const findFilename = summary => {
   // Take left side of any reftest comparisons, as the right side is the reference file
   // eslint-disable-next-line prefer-destructuring
   summary = summary.split('==')[0];
@@ -39,7 +51,7 @@ const findFilename = (summary) => {
  *  Remove extraneous junk from the start of the summary line
  *  and try to find the failing test name from what's left
  */
-const parseSummary = (suggestion) => {
+const parseSummary = suggestion => {
   let summary = suggestion.search;
   const searchTerms = suggestion.search_terms;
   // Strip out some extra stuff at the start of some failure paths
@@ -59,7 +71,10 @@ const parseSummary = (suggestion) => {
   summary = summary.replace(re, '');
   summary = summary.replace('/_mozilla/', 'mozilla/tests/');
   // We don't want to include "REFTEST" when it's an unexpected pass
-  summary = summary.replace('REFTEST TEST-UNEXPECTED-PASS', 'TEST-UNEXPECTED-PASS');
+  summary = summary.replace(
+    'REFTEST TEST-UNEXPECTED-PASS',
+    'TEST-UNEXPECTED-PASS',
+  );
   const summaryParts = summary.split(' | ');
 
   // If the search_terms used for finding bug suggestions
@@ -67,7 +82,7 @@ const parseSummary = (suggestion) => {
   // for the full string match, so don't omit it in this case.
   // If it's not needed, go ahead and omit it.
   if (searchTerms.length && summaryParts.length > 1) {
-    omittedLeads.forEach((lead) => {
+    omittedLeads.forEach(lead => {
       if (!searchTerms[0].includes(lead) && summaryParts[0].includes(lead)) {
         summaryParts.shift();
       }
@@ -76,7 +91,10 @@ const parseSummary = (suggestion) => {
 
   // Some of the TEST-FOO bits aren't removed from the summary,
   // so we sometimes end up with them instead of the test path here.
-  const summaryName = summaryParts[0].startsWith('TEST-') && summaryParts.length > 1 ? summaryParts[1] : summaryParts[0];
+  const summaryName =
+    summaryParts[0].startsWith('TEST-') && summaryParts.length > 1
+      ? summaryParts[1]
+      : summaryParts[0];
   const possibleFilename = findFilename(summaryName);
 
   return [summaryParts, possibleFilename];
@@ -86,16 +104,30 @@ export class BugFilerClass extends React.Component {
   constructor(props) {
     super(props);
 
-    const { suggestions, suggestion, fullLog, parsedLog, reftestUrl, jobGroupName } = props;
+    const {
+      suggestions,
+      suggestion,
+      fullLog,
+      parsedLog,
+      reftestUrl,
+      jobGroupName,
+    } = props;
 
-    const allFailures = suggestions.map(sugg => sugg.search
-      .split(' | ')
-      .filter(part => !omittedLeads.includes(part))
-      .map(item => (item === 'REFTEST TEST-UNEXPECTED-PASS' ? 'TEST-UNEXPECTED-PASS' : item)),
+    const allFailures = suggestions.map(sugg =>
+      sugg.search
+        .split(' | ')
+        .filter(part => !omittedLeads.includes(part))
+        .map(item =>
+          item === 'REFTEST TEST-UNEXPECTED-PASS'
+            ? 'TEST-UNEXPECTED-PASS'
+            : item,
+        ),
     );
     const thisFailure = allFailures.map(f => f.join(' | ')).join('\n');
     const crash = suggestion.search.match(crashRegex);
-    const crashSignatures = crash ? [crash[0].split('application crashed ')[1]] : [];
+    const crashSignatures = crash
+      ? [crash[0].split('application crashed ')[1]]
+      : [];
     const parsedSummary = parseSummary(suggestion);
 
     let summaryString = parsedSummary[0].join(' | ');
@@ -140,7 +172,7 @@ export class BugFilerClass extends React.Component {
       return 'Selected failure does not contain any searchable terms.';
     }
     if (searchTerms.every(term => !summary.includes(term))) {
-      return 'Summary does not include the full text of any of the selected failure\'s search terms:';
+      return "Summary does not include the full text of any of the selected failure's search terms:";
     }
     return '';
   }
@@ -157,7 +189,10 @@ export class BugFilerClass extends React.Component {
       if (jg.includes('talos')) {
         newProducts.push('Testing :: Talos');
       }
-      if (jg.includes('mochitest') && (fp.includes('webextensions/') || fp.includes('components/extensions'))) {
+      if (
+        jg.includes('mochitest') &&
+        (fp.includes('webextensions/') || fp.includes('components/extensions'))
+      ) {
         newProducts.push('WebExtensions :: General');
       }
       if (jg.includes('mochitest') && fp.includes('webrtc/')) {
@@ -193,12 +228,20 @@ export class BugFilerClass extends React.Component {
     this.setState({ searching: true });
 
     if (productSearch) {
-      const resp = await fetch(`${bzBaseUrl}rest/prod_comp_search/${productSearch}?limit=5`);
+      const resp = await fetch(
+        `${bzBaseUrl}rest/prod_comp_search/${productSearch}?limit=5`,
+      );
       const data = await resp.json();
-      const products = data.products.filter(item => !!item.product && !!item.component);
-      suggestedProductsSet = new Set([...suggestedProductsSet, ...products.map(prod => (
-        prod.product + (prod.component ? ` :: ${prod.component}` : '')
-      ))]);
+      const products = data.products.filter(
+        item => !!item.product && !!item.component,
+      );
+      suggestedProductsSet = new Set([
+        ...suggestedProductsSet,
+        ...products.map(
+          prod =>
+            prod.product + (prod.component ? ` :: ${prod.component}` : ''),
+        ),
+      ]);
     } else {
       let failurePath = parsedSummary[0][0];
 
@@ -219,17 +262,22 @@ export class BugFilerClass extends React.Component {
         failurePath = `dom/media/test/external/external_media_tests/${failurePath}`;
       }
       if (lowerJobGroupName.includes('web platform')) {
-        failurePath = failurePath.startsWith('mozilla/tests') ?
-          `testing/web-platform/${failurePath}` :
-          `testing/web-platform/tests/${failurePath}`;
+        failurePath = failurePath.startsWith('mozilla/tests')
+          ? `testing/web-platform/${failurePath}`
+          : `testing/web-platform/tests/${failurePath}`;
       }
 
       // Search mercurial's moz.build metadata to find products/components
-      fetch(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`)
-        .then(resp => resp.json().then((firstRequest) => {
-
-          if (firstRequest.data.aggregate && firstRequest.data.aggregate.recommended_bug_component) {
-            const suggested = firstRequest.data.aggregate.recommended_bug_component;
+      fetch(
+        `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`,
+      ).then(resp =>
+        resp.json().then(firstRequest => {
+          if (
+            firstRequest.data.aggregate &&
+            firstRequest.data.aggregate.recommended_bug_component
+          ) {
+            const suggested =
+              firstRequest.data.aggregate.recommended_bug_component;
             suggestedProductsSet.add(`${suggested[0]} :: ${suggested[1]}`);
           }
 
@@ -237,34 +285,53 @@ export class BugFilerClass extends React.Component {
           if (suggestedProductsSet.size === 0 && possibleFilename.length > 4) {
             const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${possibleFilename}&redirect=false&limit=5`;
             // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
-            fetch(dxrlink, { headers: { Accept: 'application/json' } })
-              .then((secondRequest) => {
+            fetch(dxrlink, { headers: { Accept: 'application/json' } }).then(
+              secondRequest => {
                 const { results } = secondRequest.data;
                 let resultsCount = results.length;
                 // If the search returns too many results, this probably isn't a good search term, so bail
                 if (resultsCount === 0) {
-                  suggestedProductsSet = new Set([...suggestedProductsSet, this.getSpecialProducts(failurePath)]);
+                  suggestedProductsSet = new Set([
+                    ...suggestedProductsSet,
+                    this.getSpecialProducts(failurePath),
+                  ]);
                 }
-                results.forEach((result) => {
-                  fetch(`${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`)
-                    .then((thirdRequest) => {
-                      if (thirdRequest.data.aggregate && thirdRequest.data.aggregate.recommended_bug_component) {
-                        const suggested = thirdRequest.data.aggregate.recommended_bug_component;
-                        suggestedProductsSet.add(`${suggested[0]} :: ${suggested[1]}`);
-                      }
-                      // Only get rid of the throbber when all of these searches have completed
-                      resultsCount -= 1;
-                      if (resultsCount === 0) {
-                        suggestedProductsSet = new Set([...suggestedProductsSet, this.getSpecialProducts(failurePath)]);
-                      }
-                    });
+                results.forEach(result => {
+                  fetch(
+                    `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${
+                      result.path
+                    }`,
+                  ).then(thirdRequest => {
+                    if (
+                      thirdRequest.data.aggregate &&
+                      thirdRequest.data.aggregate.recommended_bug_component
+                    ) {
+                      const suggested =
+                        thirdRequest.data.aggregate.recommended_bug_component;
+                      suggestedProductsSet.add(
+                        `${suggested[0]} :: ${suggested[1]}`,
+                      );
+                    }
+                    // Only get rid of the throbber when all of these searches have completed
+                    resultsCount -= 1;
+                    if (resultsCount === 0) {
+                      suggestedProductsSet = new Set([
+                        ...suggestedProductsSet,
+                        this.getSpecialProducts(failurePath),
+                      ]);
+                    }
+                  });
                 });
-              });
+              },
+            );
           } else {
-            suggestedProductsSet = new Set([...suggestedProductsSet, this.getSpecialProducts(failurePath)]);
+            suggestedProductsSet = new Set([
+              ...suggestedProductsSet,
+              this.getSpecialProducts(failurePath),
+            ]);
           }
-
-        }));
+        }),
+      );
     }
     const newSuggestedProducts = [...suggestedProductsSet];
 
@@ -277,9 +344,9 @@ export class BugFilerClass extends React.Component {
 
   toggleCheckedLogLink(link) {
     const { checkedLogLinks } = this.state;
-    const newCheckedLogLinks = checkedLogLinks.includes(link) ?
-      checkedLogLinks.filter(item => item !== link) :
-      [...checkedLogLinks, link];
+    const newCheckedLogLinks = checkedLogLinks.includes(link)
+      ? checkedLogLinks.filter(item => item !== link)
+      : [...checkedLogLinks, link];
 
     this.setState({ checkedLogLinks: newCheckedLogLinks });
   }
@@ -289,19 +356,32 @@ export class BugFilerClass extends React.Component {
    */
   async submitFiler() {
     const {
-      summary, selectedProduct, comment, isIntermittent, checkedLogLinks,
-      blocks, dependsOn, seeAlso, crashSignatures,
+      summary,
+      selectedProduct,
+      comment,
+      isIntermittent,
+      checkedLogLinks,
+      blocks,
+      dependsOn,
+      seeAlso,
+      crashSignatures,
     } = this.state;
     const { toggle, successCallback, notify } = this.props;
     const [product, component] = selectedProduct.split(' :: ');
 
     if (!selectedProduct) {
-      notify('Please select (or search and select) a product/component pair to continue', 'danger');
+      notify(
+        'Please select (or search and select) a product/component pair to continue',
+        'danger',
+      );
       return;
     }
 
     if (summary.length > 255) {
-      notify('Please ensure the summary is no more than 255 characters', 'danger');
+      notify(
+        'Please ensure the summary is no more than 255 characters',
+        'danger',
+      );
       return;
     }
 
@@ -320,12 +400,16 @@ export class BugFilerClass extends React.Component {
     // submit the new bug.  Only request the versions because some products
     // take quite a long time to fetch the full object
     try {
-      const productResp = await fetch(bugzillaBugsApi(`product/${product}`, { include_fields: 'versions' }));
+      const productResp = await fetch(
+        bugzillaBugsApi(`product/${product}`, { include_fields: 'versions' }),
+      );
       const productData = await productResp.json();
       if (productResp.ok) {
         const productObject = productData.products[0];
         // Find the newest version for the product that is_active
-        const version = productObject.versions.filter(prodVer => prodVer.is_active).slice(-1)[0];
+        const version = productObject.versions
+          .filter(prodVer => prodVer.is_active)
+          .slice(-1)[0];
         const payload = {
           product,
           component,
@@ -342,17 +426,30 @@ export class BugFilerClass extends React.Component {
           comment_tags: 'treeherder',
         };
 
-        const bugResp = await create(getApiUrl('/bugzilla/create_bug/'), payload);
+        const bugResp = await create(
+          getApiUrl('/bugzilla/create_bug/'),
+          payload,
+        );
         // const bugResp = await create('http://httpstat.us/404', payload);
         const data = await bugResp.json();
         if (bugResp.ok) {
           successCallback(data);
           toggle();
         } else {
-          this.submitFailure('Treeherder Bug Filer API', bugResp.status, bugResp.statusText, data);
+          this.submitFailure(
+            'Treeherder Bug Filer API',
+            bugResp.status,
+            bugResp.statusText,
+            data,
+          );
         }
       } else {
-        this.submitFailure('Bugzilla', productResp.status, productResp.statusText, productData);
+        this.submitFailure(
+          'Bugzilla',
+          productResp.status,
+          productResp.statusText,
+          productData,
+        );
       }
     } catch (e) {
       notify(`Error filing bug: ${e.toString()}`, 'danger', { sticky: true });
@@ -367,28 +464,45 @@ export class BugFilerClass extends React.Component {
       failureString += `\n\n${data.failure}`;
     }
     if (status === 403) {
-      failureString += '\n\nAuthentication failed. Has your Treeherder session expired?';
+      failureString +=
+        '\n\nAuthentication failed. Has your Treeherder session expired?';
     }
     notify(failureString, 'danger', { sticky: true });
   }
 
   toggleTooltip(key) {
     const { tooltipOpen } = this.state;
-    this.setState({ tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] } });
+    this.setState({
+      tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] },
+    });
   }
 
   render() {
     const {
-      isOpen, toggle, suggestion, parsedLog, fullLog, reftestUrl,
+      isOpen,
+      toggle,
+      suggestion,
+      parsedLog,
+      fullLog,
+      reftestUrl,
     } = this.props;
     const {
-      productSearch, suggestedProducts, thisFailure, isFilerSummaryVisible,
-      isIntermittent, summary, searching, checkedLogLinks, tooltipOpen,
+      productSearch,
+      suggestedProducts,
+      thisFailure,
+      isFilerSummaryVisible,
+      isIntermittent,
+      summary,
+      searching,
+      checkedLogLinks,
+      tooltipOpen,
       selectedProduct,
     } = this.state;
     const searchTerms = suggestion.search_terms;
     const crash = summary.match(crashRegex);
-    const crashSignatures = crash ? [crash[0].split('application crashed ')[1]] : [];
+    const crashSignatures = crash
+      ? [crash[0].split('application crashed ')[1]]
+      : [];
     const unhelpfulSummaryReason = this.getUnhelpfulSummaryReason(summary);
 
     return (
@@ -402,7 +516,9 @@ export class BugFilerClass extends React.Component {
                   name="modalProductFinderSearch"
                   id="modalProductFinderSearch"
                   onKeyDown={this.productSearchEnter}
-                  onChange={evt => this.setState({ productSearch: evt.target.value })}
+                  onChange={evt =>
+                    this.setState({ productSearch: evt.target.value })
+                  }
                   type="text"
                   placeholder="Firefox"
                   className="flex-fill flex-grow-1"
@@ -411,29 +527,42 @@ export class BugFilerClass extends React.Component {
                   target="modalProductFinderSearch"
                   isOpen={tooltipOpen.modalProductFinderSearch}
                   toggle={() => this.toggleTooltip('modalProductFinderSearch')}
-                >Manually search for a product</Tooltip>
+                >
+                  Manually search for a product
+                </Tooltip>
                 <Button
                   color="secondary"
                   className="ml-1 btn-sm"
                   type="button"
                   onClick={this.findProduct}
-                >Find Product</Button>
+                >
+                  Find Product
+                </Button>
               </div>
               <div>
-                {!!productSearch && searching && <div>
-                  <span className="fa fa-spinner fa-pulse th-spinner-lg" />Searching {productSearch}
-                </div>}
+                {!!productSearch && searching && (
+                  <div>
+                    <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+                    Searching {productSearch}
+                  </div>
+                )}
                 <FormGroup tag="fieldset" className="mt-1">
                   {suggestedProducts.map(product => (
-                    <div className="ml-4" key={`modalProductSuggestion${product}`}>
+                    <div
+                      className="ml-4"
+                      key={`modalProductSuggestion${product}`}
+                    >
                       <Label check>
                         <Input
                           type="radio"
                           value={product}
                           checked={product === selectedProduct}
-                          onChange={evt => this.setState({ selectedProduct: evt.target.value })}
+                          onChange={evt =>
+                            this.setState({ selectedProduct: evt.target.value })
+                          }
                           name="productGroup"
-                        />{product}
+                        />
+                        {product}
                       </Label>
                     </div>
                   ))}
@@ -441,20 +570,31 @@ export class BugFilerClass extends React.Component {
               </div>
               <label>Summary:</label>
               <div className="d-flex">
-                {!!unhelpfulSummaryReason && <div>
-                  <div className="text-danger">
-                    <span
-                      className="fa fa-warning"
-                      id="unhelpful-summary-reason"
-                    />Warning: {unhelpfulSummaryReason}
-                    <Tooltip
-                      target="unhelpful-summary-reason"
-                      isOpen={tooltipOpen.unhelpfulSummaryReason}
-                      toggle={() => this.toggleTooltip('unhelpfulSummaryReason')}
-                    >This can cause poor bug suggestions to be generated</Tooltip>
+                {!!unhelpfulSummaryReason && (
+                  <div>
+                    <div className="text-danger">
+                      <span
+                        className="fa fa-warning"
+                        id="unhelpful-summary-reason"
+                      />
+                      Warning: {unhelpfulSummaryReason}
+                      <Tooltip
+                        target="unhelpful-summary-reason"
+                        isOpen={tooltipOpen.unhelpfulSummaryReason}
+                        toggle={() =>
+                          this.toggleTooltip('unhelpfulSummaryReason')
+                        }
+                      >
+                        This can cause poor bug suggestions to be generated
+                      </Tooltip>
+                    </div>
+                    {searchTerms.map(term => (
+                      <div className="text-monospace pl-3" key={term}>
+                        {term}
+                      </div>
+                    ))}
                   </div>
-                  {searchTerms.map(term => <div className="text-monospace pl-3" key={term}>{term}</div>)}
-                </div>}
+                )}
                 <Input
                   id="summary"
                   className="flex-grow-1"
@@ -469,27 +609,45 @@ export class BugFilerClass extends React.Component {
                   isOpen={tooltipOpen.toggleFailureLines}
                   toggle={() => this.toggleTooltip('toggleFailureLines')}
                 >
-                  {isFilerSummaryVisible ? 'Hide all failure lines for this job' : 'Show all failure lines for this job'}
+                  {isFilerSummaryVisible
+                    ? 'Hide all failure lines for this job'
+                    : 'Show all failure lines for this job'}
                 </Tooltip>
                 <i
-                  onClick={() => this.setState({ isFilerSummaryVisible: !isFilerSummaryVisible })}
-                  className={`fa fa-lg pointable align-bottom pt-2 ml-1 ${isFilerSummaryVisible ? 'fa-chevron-circle-up' : 'fa-chevron-circle-down'}`}
+                  onClick={() =>
+                    this.setState({
+                      isFilerSummaryVisible: !isFilerSummaryVisible,
+                    })
+                  }
+                  className={`fa fa-lg pointable align-bottom pt-2 ml-1 ${
+                    isFilerSummaryVisible
+                      ? 'fa-chevron-circle-up'
+                      : 'fa-chevron-circle-down'
+                  }`}
                   id="toggle-failure-lines"
                 />
                 <span
                   id="summaryLength"
-                  className={`ml-1 font-weight-bold lg ${summary.length > 255 ? 'text-danger' : 'text-success'}`}
-                >{summary.length}</span>
+                  className={`ml-1 font-weight-bold lg ${
+                    summary.length > 255 ? 'text-danger' : 'text-success'
+                  }`}
+                >
+                  {summary.length}
+                </span>
               </div>
-              {isFilerSummaryVisible && <span>
-                <Input
-                  className="w-100"
-                  type="textarea"
-                  value={thisFailure}
-                  readOnly
-                  onChange={evt => this.setState({ thisFailure: evt.target.value })}
-                />
-              </span>}
+              {isFilerSummaryVisible && (
+                <span>
+                  <Input
+                    className="w-100"
+                    type="textarea"
+                    value={thisFailure}
+                    readOnly
+                    onChange={evt =>
+                      this.setState({ thisFailure: evt.target.value })
+                    }
+                  />
+                </span>
+              )}
               <div className="ml-5 mt-2">
                 <div>
                   <label>
@@ -498,7 +656,13 @@ export class BugFilerClass extends React.Component {
                       checked={checkedLogLinks.includes(parsedLog)}
                       onChange={() => this.toggleCheckedLogLink(parsedLog)}
                     />
-                    <a target="_blank" rel="noopener noreferrer" href={parsedLog}>Include Parsed Log Link</a>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={parsedLog}
+                    >
+                      Include Parsed Log Link
+                    </a>
                   </label>
                 </div>
                 <div>
@@ -508,17 +672,29 @@ export class BugFilerClass extends React.Component {
                       checked={checkedLogLinks.includes(fullLog)}
                       onChange={() => this.toggleCheckedLogLink(fullLog)}
                     />
-                    <a target="_blank" rel="noopener noreferrer" href={fullLog}>Include Full Log Link</a>
+                    <a target="_blank" rel="noopener noreferrer" href={fullLog}>
+                      Include Full Log Link
+                    </a>
                   </label>
                 </div>
-                {!!reftestUrl && <div><label>
-                  <Input
-                    type="checkbox"
-                    checked={checkedLogLinks.includes(reftestUrl)}
-                    onChange={() => this.toggleCheckedLogLink(reftestUrl)}
-                  />
-                  <a target="_blank" rel="noopener noreferrer" href={reftestUrl}>Include Reftest Viewer Link</a>
-                </label></div>}
+                {!!reftestUrl && (
+                  <div>
+                    <label>
+                      <Input
+                        type="checkbox"
+                        checked={checkedLogLinks.includes(reftestUrl)}
+                        onChange={() => this.toggleCheckedLogLink(reftestUrl)}
+                      />
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={reftestUrl}
+                      >
+                        Include Reftest Viewer Link
+                      </a>
+                    </label>
+                  </div>
+                )}
               </div>
               <div className="d-flex flex-column">
                 <label>Comment:</label>
@@ -533,17 +709,22 @@ export class BugFilerClass extends React.Component {
                 <div className="mt-2">
                   <label>
                     <Input
-                      onChange={() => this.setState({ isIntermittent: !isIntermittent })}
+                      onChange={() =>
+                        this.setState({ isIntermittent: !isIntermittent })
+                      }
                       type="checkbox"
                       checked={isIntermittent}
-                    />This is an intermittent failure
+                    />
+                    This is an intermittent failure
                   </label>
                 </div>
                 <div className="d-inline-flex ml-2">
                   <Input
                     id="blocksInput"
                     type="text"
-                    onChange={evt => this.setState({ blocks: evt.target.value })}
+                    onChange={evt =>
+                      this.setState({ blocks: evt.target.value })
+                    }
                     placeholder="Blocks"
                   />
                   <Tooltip
@@ -551,12 +732,16 @@ export class BugFilerClass extends React.Component {
                     placement="bottom"
                     isOpen={tooltipOpen.blocksInput}
                     toggle={() => this.toggleTooltip('blocksInput')}
-                  >Comma-separated list of bugs</Tooltip>
+                  >
+                    Comma-separated list of bugs
+                  </Tooltip>
                   <Input
                     id="dependsOn"
                     type="text"
                     className="ml-1"
-                    onChange={evt => this.setState({ dependsOn: evt.target.value })}
+                    onChange={evt =>
+                      this.setState({ dependsOn: evt.target.value })
+                    }
                     placeholder="Depends on"
                   />
                   <Tooltip
@@ -564,12 +749,16 @@ export class BugFilerClass extends React.Component {
                     placement="bottom"
                     isOpen={tooltipOpen.dependsOn}
                     toggle={() => this.toggleTooltip('dependsOn')}
-                  >Comma-separated list of bugs</Tooltip>
+                  >
+                    Comma-separated list of bugs
+                  </Tooltip>
                   <Input
                     id="seeAlso"
                     className="ml-1"
                     type="text"
-                    onChange={evt => this.setState({ seeAlso: evt.target.value })}
+                    onChange={evt =>
+                      this.setState({ seeAlso: evt.target.value })
+                    }
                     placeholder="See also"
                   />
                   <Tooltip
@@ -577,25 +766,34 @@ export class BugFilerClass extends React.Component {
                     placement="bottom"
                     isOpen={tooltipOpen.seeAlso}
                     toggle={() => this.toggleTooltip('seeAlso')}
-                  >Comma-separated list of bugs</Tooltip>
+                  >
+                    Comma-separated list of bugs
+                  </Tooltip>
                 </div>
-
               </div>
-              {!!crashSignatures.length && <div>
-                <label>Signature:</label>
-                <Input
-                  type="textarea"
-                  onChange={evt => this.setState({ crashSignatures: evt.target.value })}
-                  maxLength="2048"
-                  readOnly
-                  value={crashSignatures.join('\n')}
-                />
-              </div>}
+              {!!crashSignatures.length && (
+                <div>
+                  <label>Signature:</label>
+                  <Input
+                    type="textarea"
+                    onChange={evt =>
+                      this.setState({ crashSignatures: evt.target.value })
+                    }
+                    maxLength="2048"
+                    readOnly
+                    value={crashSignatures.join('\n')}
+                  />
+                </div>
+              )}
             </form>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.submitFiler}>Submit Bug</Button>{' '}
-            <Button color="secondary" onClick={toggle}>Cancel</Button>
+            <Button color="secondary" onClick={this.submitFiler}>
+              Submit Bug
+            </Button>{' '}
+            <Button color="secondary" onClick={toggle}>
+              Cancel
+            </Button>
           </ModalFooter>
         </Modal>
       </div>

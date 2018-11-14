@@ -52,11 +52,14 @@ class ActionBar extends React.PureComponent {
 
     switch (logParseStatus) {
       case 'pending':
-        notify('Log parsing in progress, log viewer not yet available', 'info'); break;
+        notify('Log parsing in progress, log viewer not yet available', 'info');
+        break;
       case 'failed':
-        notify('Log parsing has failed, log viewer is unavailable', 'warning'); break;
+        notify('Log parsing has failed, log viewer is unavailable', 'warning');
+        break;
       case 'unavailable':
-        notify('No logs available for this job', 'info'); break;
+        notify('No logs available for this job', 'info');
+        break;
       case 'parsed':
         $('.logviewer-btn')[0].click();
     }
@@ -73,13 +76,19 @@ class ActionBar extends React.PureComponent {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
-    getGeckoDecisionTaskId(
-      selectedJob.push_id).then(decisionTaskId => (
-      TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
-        const geckoprofile = results.actions.find(result => result.name === 'geckoprofile');
+    getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
+      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+        const geckoprofile = results.actions.find(
+          result => result.name === 'geckoprofile',
+        );
 
-        if (geckoprofile === undefined || !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')) {
-          return notify('Job was scheduled without taskcluster support for GeckoProfiles');
+        if (
+          geckoprofile === undefined ||
+          !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
+        ) {
+          return notify(
+            'Job was scheduled without taskcluster support for GeckoProfiles',
+          );
         }
 
         TaskclusterModel.submit({
@@ -89,20 +98,21 @@ class ActionBar extends React.PureComponent {
           task: results.originalTask,
           input: {},
           staticActionVariables: results.staticActionVariables,
-        }).then(() => {
-          notify(
-            'Request sent to collect gecko profile job via actions.json',
-            'success');
-        }, (e) => {
-          // The full message is too large to fit in a Treeherder
-          // notification box.
-          notify(
-            formatTaskclusterError(e),
-            'danger',
-            { sticky: true });
-        });
-      })
-    ));
+        }).then(
+          () => {
+            notify(
+              'Request sent to collect gecko profile job via actions.json',
+              'success',
+            );
+          },
+          e => {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
+          },
+        );
+      }),
+    );
   }
 
   retriggerJob(jobs) {
@@ -143,11 +153,15 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (selectedJob.build_system_type === 'taskcluster' || selectedJob.reason.startsWith('Created by BBB for task')) {
-      getGeckoDecisionTaskId(
-        selectedJob.push_id).then(decisionTaskId => (
-        TaskclusterModel.load(decisionTaskId, selectedJob).then((results) => {
-          const backfilltask = results.actions.find(result => result.name === 'backfill');
+    if (
+      selectedJob.build_system_type === 'taskcluster' ||
+      selectedJob.reason.startsWith('Created by BBB for task')
+    ) {
+      getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
+        TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+          const backfilltask = results.actions.find(
+            result => result.name === 'backfill',
+          );
 
           return TaskclusterModel.submit({
             action: backfilltask,
@@ -155,15 +169,21 @@ class ActionBar extends React.PureComponent {
             taskId: results.originalTaskId,
             input: {},
             staticActionVariables: results.staticActionVariables,
-          }).then(() => {
-            notify('Request sent to backfill job via actions.json', 'success');
-          }, (e) => {
-            // The full message is too large to fit in a Treeherder
-            // notification box.
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          });
-        })
-      ));
+          }).then(
+            () => {
+              notify(
+                'Request sent to backfill job via actions.json',
+                'success',
+              );
+            },
+            e => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            },
+          );
+        }),
+      );
     } else {
       notify('Unable to backfill this job type!', 'danger', { sticky: true });
     }
@@ -189,7 +209,8 @@ class ActionBar extends React.PureComponent {
     }
 
     if (title === '') {
-      title = 'Trigger jobs of ths type on prior pushes ' +
+      title =
+        'Trigger jobs of ths type on prior pushes ' +
         'to fill in gaps where the job was not run';
     } else {
       // Cut off trailing '/ ' if one exists, capitalize first letter
@@ -200,17 +221,28 @@ class ActionBar extends React.PureComponent {
   }
 
   async createInteractiveTask() {
-    const { user, selectedJob, repoName, getGeckoDecisionTaskId, notify } = this.props;
+    const {
+      user,
+      selectedJob,
+      repoName,
+      getGeckoDecisionTaskId,
+      notify,
+    } = this.props;
     const jobId = selectedJob.id;
 
     if (!user.isLoggedIn) {
-      return notify('Must be logged in to create an interactive task', 'danger');
+      return notify(
+        'Must be logged in to create an interactive task',
+        'danger',
+      );
     }
 
     const job = await JobModel.get(repoName, jobId);
     const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
     const results = await TaskclusterModel.load(decisionTaskId, job);
-    const interactiveTask = results.actions.find(result => result.name === 'create-interactive');
+    const interactiveTask = results.actions.find(
+      result => result.name === 'create-interactive',
+    );
 
     try {
       await TaskclusterModel.submit({
@@ -226,7 +258,8 @@ class ActionBar extends React.PureComponent {
       notify(
         `Request sent to create an interactive job via actions.json.
           You will soon receive an email containing a link to interact with the task.`,
-        'success');
+        'success',
+      );
     } catch (e) {
       // The full message is too large to fit in a Treeherder
       // notification box.
@@ -236,7 +269,9 @@ class ActionBar extends React.PureComponent {
 
   cancelJobs(jobs) {
     const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
-    const jobIds = jobs.filter(({ state }) => state === 'pending' || state === 'running').map(({ id }) => id);
+    const jobIds = jobs
+      .filter(({ state }) => state === 'pending' || state === 'running')
+      .map(({ id }) => id);
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to cancel a job', 'danger');
@@ -256,14 +291,20 @@ class ActionBar extends React.PureComponent {
   }
 
   render() {
-    const { selectedJob, logViewerUrl, logViewerFullUrl, jobLogUrls, user, pinJob } = this.props;
+    const {
+      selectedJob,
+      logViewerUrl,
+      logViewerFullUrl,
+      jobLogUrls,
+      user,
+      pinJob,
+    } = this.props;
     const { customJobActionsShowing } = this.state;
 
     return (
       <div id="job-details-actionbar">
         <nav className="navbar navbar-dark details-panel-navbar">
           <ul className="nav navbar-nav actionbar-nav">
-
             <LogUrls
               logUrls={jobLogUrls}
               logViewerUrl={logViewerUrl}
@@ -275,32 +316,53 @@ class ActionBar extends React.PureComponent {
                 title="Add this job to the pinboard"
                 className="btn icon-blue"
                 onClick={() => pinJob(selectedJob)}
-              ><span className="fa fa-thumb-tack" /></span>
+              >
+                <span className="fa fa-thumb-tack" />
+              </span>
             </li>
             <li>
               <span
                 id="retrigger-btn"
-                title={user.isLoggedIn ? 'Repeat the selected job' : 'Must be logged in to retrigger a job'}
+                title={
+                  user.isLoggedIn
+                    ? 'Repeat the selected job'
+                    : 'Must be logged in to retrigger a job'
+                }
                 className={`btn ${user.isLoggedIn ? 'icon-green' : 'disabled'}`}
                 disabled={!user.isLoggedIn}
                 onClick={() => this.retriggerJob([selectedJob])}
-              ><span className="fa fa-repeat" /></span>
+              >
+                <span className="fa fa-repeat" />
+              </span>
             </li>
-            {isReftest(selectedJob) && jobLogUrls.map(jobLogUrl => (<li key={`reftest-${jobLogUrl.id}`}>
-              <a
-                title="Launch the Reftest Analyser in a new window"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={getReftestUrl(jobLogUrl.url)}
-              ><span className="fa fa-bar-chart-o" /></a>
-            </li>))}
-            {this.canCancel() && <li>
-              <a
-                title={user.isLoggedIn ? 'Cancel this job' : 'Must be logged in to cancel a job'}
-                className={user.isLoggedIn ? 'hover-warning' : 'disabled'}
-                onClick={() => this.cancelJob()}
-              ><span className="fa fa-times-circle cancel-job-icon" /></a>
-            </li>}
+            {isReftest(selectedJob) &&
+              jobLogUrls.map(jobLogUrl => (
+                <li key={`reftest-${jobLogUrl.id}`}>
+                  <a
+                    title="Launch the Reftest Analyser in a new window"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={getReftestUrl(jobLogUrl.url)}
+                  >
+                    <span className="fa fa-bar-chart-o" />
+                  </a>
+                </li>
+              ))}
+            {this.canCancel() && (
+              <li>
+                <a
+                  title={
+                    user.isLoggedIn
+                      ? 'Cancel this job'
+                      : 'Must be logged in to cancel a job'
+                  }
+                  className={user.isLoggedIn ? 'hover-warning' : 'disabled'}
+                  onClick={() => this.cancelJob()}
+                >
+                  <span className="fa fa-times-circle cancel-job-icon" />
+                </a>
+              </li>
+            )}
           </ul>
           <ul className="nav navbar-right">
             <li className="dropdown">
@@ -311,54 +373,76 @@ class ActionBar extends React.PureComponent {
                 aria-expanded="false"
                 className="dropdown-toggle"
                 data-toggle="dropdown"
-              ><span className="fa fa-ellipsis-h" aria-hidden="true" /></span>
+              >
+                <span className="fa fa-ellipsis-h" aria-hidden="true" />
+              </span>
               <ul className="dropdown-menu actionbar-menu" role="menu">
                 <li>
                   <span
                     id="backfill-btn"
-                    className={`btn dropdown-item ${!user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''}`}
+                    className={`btn dropdown-item ${
+                      !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
+                    }`}
                     title={this.backfillButtonTitle()}
                     onClick={() => !this.canBackfill() || this.backfillJob()}
-                  >Backfill</span>
+                  >
+                    Backfill
+                  </span>
                 </li>
-                {selectedJob.taskcluster_metadata && <React.Fragment>
-                  <li>
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="dropdown-item"
-                      href={getInspectTaskUrl(selectedJob.taskcluster_metadata.task_id)}
-                    >Inspect Task</a>
-                  </li>
-                  <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={this.createInteractiveTask}
-                    >Create Interactive Task</a>
-                  </li>
-                  {isPerfTest(selectedJob) && <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={this.createGeckoProfile}
-                    >Create Gecko Profile</a>
-                  </li>}
-                  <li>
-                    <a
-                      onClick={this.toggleCustomJobActions}
-                      className="dropdown-item"
-                    >Custom Action...</a>
-                  </li>
-                </React.Fragment>}
+                {selectedJob.taskcluster_metadata && (
+                  <React.Fragment>
+                    <li>
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="dropdown-item"
+                        href={getInspectTaskUrl(
+                          selectedJob.taskcluster_metadata.task_id,
+                        )}
+                      >
+                        Inspect Task
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        className="dropdown-item"
+                        onClick={this.createInteractiveTask}
+                      >
+                        Create Interactive Task
+                      </a>
+                    </li>
+                    {isPerfTest(selectedJob) && (
+                      <li>
+                        <a
+                          className="dropdown-item"
+                          onClick={this.createGeckoProfile}
+                        >
+                          Create Gecko Profile
+                        </a>
+                      </li>
+                    )}
+                    <li>
+                      <a
+                        onClick={this.toggleCustomJobActions}
+                        className="dropdown-item"
+                      >
+                        Custom Action...
+                      </a>
+                    </li>
+                  </React.Fragment>
+                )}
               </ul>
             </li>
           </ul>
         </nav>
-        {customJobActionsShowing && <CustomJobActions
-          job={selectedJob}
-          pushId={selectedJob.push_id}
-          isLoggedIn={user.isLoggedIn}
-          toggle={this.toggleCustomJobActions}
-        />}
+        {customJobActionsShowing && (
+          <CustomJobActions
+            job={selectedJob}
+            pushId={selectedJob.push_id}
+            isLoggedIn={user.isLoggedIn}
+            toggle={this.toggleCustomJobActions}
+          />
+        )}
       </div>
     );
   }
@@ -385,4 +469,6 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
-export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(ActionBar))));
+export default withNotifications(
+  withPushes(withSelectedJob(withPinnedJobs(ActionBar))),
+);

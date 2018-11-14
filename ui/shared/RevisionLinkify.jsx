@@ -18,7 +18,7 @@ export default class RevisionLinkify extends React.Component {
         }
         return 0;
       },
-      normalize: (match) => {
+      normalize: match => {
         const rev = match.text.replace('rev:', '');
 
         match.url = `${props.repo.url}/rev/${rev}`;
@@ -34,10 +34,11 @@ export default class RevisionLinkify extends React.Component {
     return revMatches ? text.replace(revRe, revProtocol) : text;
   }
 
-
   render() {
     return (
-      <ReactLinkify properties={{ target: '_blank', rel: 'noopener noreferrer' }}>
+      <ReactLinkify
+        properties={{ target: '_blank', rel: 'noopener noreferrer' }}
+      >
         {this.getRevisionsAsLinkProtocol(this.props.children)}
       </ReactLinkify>
     );

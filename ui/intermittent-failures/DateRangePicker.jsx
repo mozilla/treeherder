@@ -80,7 +80,7 @@ export default class DateRangePicker extends React.Component {
         <span className="ml-1 mr-1">-</span>
         <span className="InputFromTo-to">
           <DayPickerInput
-            ref={(element) => {
+            ref={element => {
               this.to = element;
             }}
             value={to}
@@ -98,7 +98,9 @@ export default class DateRangePicker extends React.Component {
             onDayChange={this.toChange}
           />
         </span>
-        <Button color="secondary" className="ml-2" onClick={this.updateData}>update</Button>
+        <Button color="secondary" className="ml-2" onClick={this.updateData}>
+          update
+        </Button>
       </div>
     );
   }

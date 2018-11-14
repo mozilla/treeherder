@@ -14,14 +14,16 @@ const uri = getApiUrl('/failureclassification/');
 
 export default class ClassificationTypeModel {
   static getList() {
-    return fetch(uri).then(async resp => (
-      resp.json()
-    ));
+    return fetch(uri).then(async resp => resp.json());
   }
 
   static getMap(classificationTypes) {
-    return classificationTypes.reduce((acc, { id, name }) => (
-      { ...acc, [id]: { name, star: classificationColors[id] } }
-    ), {});
+    return classificationTypes.reduce(
+      (acc, { id, name }) => ({
+        ...acc,
+        [id]: { name, star: classificationColors[id] },
+      }),
+      {},
+    );
   }
 }

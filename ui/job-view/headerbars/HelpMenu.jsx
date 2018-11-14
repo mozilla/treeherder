@@ -17,7 +17,8 @@ const menuItems = [
     text: 'API Reference',
   },
   {
-    href: 'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
+    href:
+      'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
     icon: 'fa-file-word-o',
     text: 'Project Wiki',
   },
@@ -27,7 +28,8 @@ const menuItems = [
     text: 'Mailing List',
   },
   {
-    href: 'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
+    href:
+      'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
     icon: 'fa-bug',
     text: 'Report a Bug',
   },
@@ -37,9 +39,10 @@ const menuItems = [
     text: 'Source',
   },
   {
-    href: 'https://whatsdeployed.io/?owner=mozilla&repo=treeherder&name[]=Stage&url[]=https://treeherder.allizom.org/revision.txt&name[]=Prod&url[]=https://treeherder.mozilla.org/revision.txt',
+    href:
+      'https://whatsdeployed.io/?owner=mozilla&repo=treeherder&name[]=Stage&url[]=https://treeherder.allizom.org/revision.txt&name[]=Prod&url[]=https://treeherder.mozilla.org/revision.txt',
     icon: 'fa-question',
-    text: 'What\'s Deployed?',
+    text: "What's Deployed?",
   },
 ];
 
@@ -60,11 +63,19 @@ export default function HelpMenu() {
         role="menu"
         aria-labelledby="helpLabel"
       >
-        {menuItems.map(item => (<li key={item.text}>
-          <a href={item.href} target="_blank" rel="noopener noreferrer" className="dropdown-item">
-            <span className={`fa ${item.icon} midgray`} />{item.text}
-          </a>
-        </li>))}
+        {menuItems.map(item => (
+          <li key={item.text}>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="dropdown-item"
+            >
+              <span className={`fa ${item.icon} midgray`} />
+              {item.text}
+            </a>
+          </li>
+        ))}
       </ul>
     </span>
   );

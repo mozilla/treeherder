@@ -1,4 +1,8 @@
-import { userSessionFromAuthResult, renew, loggedOutUser } from '../../helpers/auth';
+import {
+  userSessionFromAuthResult,
+  renew,
+  loggedOutUser,
+} from '../../helpers/auth';
 import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
@@ -25,9 +29,7 @@ export default class AuthService {
       const user = await userResponse.json();
 
       if (!userResponse.ok) {
-        reject(
-          new Error(user.detail || userResponse.statusText),
-        );
+        reject(new Error(user.detail || userResponse.statusText));
       }
 
       resolve(new UserModel(user));

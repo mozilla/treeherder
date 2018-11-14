@@ -16,7 +16,13 @@ import PushActionMenu from './PushActionMenu';
 // url params we don't want added from the current querystring to the revision
 // and author links.
 const SKIPPED_LINK_PARAMS = [
-  'revision', 'fromchange', 'tochange', 'nojobs', 'startdate', 'enddate', 'author',
+  'revision',
+  'fromchange',
+  'tochange',
+  'nojobs',
+  'startdate',
+  'enddate',
+  'author',
 ];
 
 function Author(props) {
@@ -43,14 +49,12 @@ function PushCounts(props) {
 
   return (
     <span className="push-progress">
-      {percentComplete === 100 &&
-      <span>- Complete -</span>
-      }
-      {percentComplete < 100 && total > 0 &&
-        <span
-          title="Proportion of jobs that are complete"
-        >{percentComplete}% - {inProgress} in progress</span>
-      }
+      {percentComplete === 100 && <span>- Complete -</span>}
+      {percentComplete < 100 && total > 0 && (
+        <span title="Proportion of jobs that are complete">
+          {percentComplete}% - {inProgress} in progress
+        </span>
+      )}
     </span>
   );
 }
@@ -78,34 +82,45 @@ class PushHeader extends React.PureComponent {
   getLinkParams() {
     const { filterModel } = this.props;
 
-    return Object.entries(filterModel.getUrlParamsWithoutDefaults())
-      .reduce((acc, [field, values]) => (
-        SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values }
-      ), {});
+    return Object.entries(filterModel.getUrlParamsWithoutDefaults()).reduce(
+      (acc, [field, values]) =>
+        SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values },
+      {},
+    );
   }
 
   triggerNewJobs() {
     const {
-      isLoggedIn, pushId, getGeckoDecisionTaskId, selectedRunnableJobs,
-      hideRunnableJobs, notify,
+      isLoggedIn,
+      pushId,
+      getGeckoDecisionTaskId,
+      selectedRunnableJobs,
+      hideRunnableJobs,
+      notify,
     } = this.props;
 
-    if (!window.confirm(
-        'This will trigger all selected jobs. Click "OK" if you want to proceed.')) {
+    if (
+      !window.confirm(
+        'This will trigger all selected jobs. Click "OK" if you want to proceed.',
+      )
+    ) {
       return;
     }
     if (isLoggedIn) {
       const builderNames = selectedRunnableJobs;
       getGeckoDecisionTaskId(pushId)
-        .then((decisionTaskID) => {
-          PushModel.triggerNewJobs(builderNames, decisionTaskID).then((result) => {
-            notify(result, 'success');
-            hideRunnableJobs(pushId);
-            this.props.hideRunnableJobs();
-          }).catch((e) => {
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          });
-        }).catch((e) => {
+        .then(decisionTaskID => {
+          PushModel.triggerNewJobs(builderNames, decisionTaskID)
+            .then(result => {
+              notify(result, 'success');
+              hideRunnableJobs(pushId);
+              this.props.hideRunnableJobs();
+            })
+            .catch(e => {
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            });
+        })
+        .catch(e => {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         });
     } else {
@@ -116,7 +131,11 @@ class PushHeader extends React.PureComponent {
   cancelAllJobs() {
     const { notify, repoName } = this.props;
 
-    if (window.confirm('This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?')) {
+    if (
+      window.confirm(
+        'This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?',
+      )
+    ) {
       const { push, isLoggedIn, getGeckoDecisionTaskId } = this.props;
 
       if (!isLoggedIn) return;
@@ -127,8 +146,13 @@ class PushHeader extends React.PureComponent {
 
   pinAllShownJobs() {
     const {
-      selectedJob, setSelectedJob, pinJobs, expandAllPushGroups, getAllShownJobs,
-      notify, pushId,
+      selectedJob,
+      setSelectedJob,
+      pinJobs,
+      expandAllPushGroups,
+      getAllShownJobs,
+      notify,
+      pushId,
     } = this.props;
     const shownJobs = getAllShownJobs(pushId);
 
@@ -145,13 +169,24 @@ class PushHeader extends React.PureComponent {
   }
 
   render() {
-    const { repoName, isLoggedIn, pushId, jobCounts, author,
-            revision, runnableVisible, watchState,
-            showRunnableJobs, hideRunnableJobs, cycleWatchState,
-            notificationSupported, selectedRunnableJobs } = this.props;
-    const cancelJobsTitle = isLoggedIn ?
-      'Cancel all jobs' :
-      'Must be logged in to cancel jobs';
+    const {
+      repoName,
+      isLoggedIn,
+      pushId,
+      jobCounts,
+      author,
+      revision,
+      runnableVisible,
+      watchState,
+      showRunnableJobs,
+      hideRunnableJobs,
+      cycleWatchState,
+      notificationSupported,
+      selectedRunnableJobs,
+    } = this.props;
+    const cancelJobsTitle = isLoggedIn
+      ? 'Cancel all jobs'
+      : 'Must be logged in to cancel jobs';
     const linkParams = this.getLinkParams();
     const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
@@ -168,11 +203,12 @@ class PushHeader extends React.PureComponent {
           <span className="push-left">
             <span className="push-title-left">
               <span>
-                <a
-                  href={revisionPushFilterUrl}
-                  title="View only this push"
-                >{this.pushDateStr} <span className="fa fa-external-link icon-superscript" />
-                </a> - </span>
+                <a href={revisionPushFilterUrl} title="View only this push">
+                  {this.pushDateStr}{' '}
+                  <span className="fa fa-external-link icon-superscript" />
+                </a>{' '}
+                -{' '}
+              </span>
               <Author author={author} url={authorPushFilterUrl} />
             </span>
           </span>
@@ -183,49 +219,56 @@ class PushHeader extends React.PureComponent {
             completed={jobCounts.completed}
           />
           <span className="push-buttons">
-            {jobCounts.pending + jobCounts.running > 0 &&
+            {jobCounts.pending + jobCounts.running > 0 && (
               <button
                 className="btn btn-sm btn-push watch-commit-btn"
                 disabled={!notificationSupported}
-                title={notificationSupported ? 'Get Desktop Notifications for this Push' : 'Desktop notifications not supported in this browser'}
+                title={
+                  notificationSupported
+                    ? 'Get Desktop Notifications for this Push'
+                    : 'Desktop notifications not supported in this browser'
+                }
                 data-watch-state={watchState}
                 onClick={() => cycleWatchState()}
-              >{watchStateLabel}</button>}
+              >
+                {watchStateLabel}
+              </button>
+            )}
             <a
               className="btn btn-sm btn-push test-view-btn"
               href={`/testview.html?repo=${repoName}&revision=${revision}`}
               target="_blank"
               rel="noopener noreferrer"
               title="View details on failed test results for this push"
-            >View Tests</a>
-            {isLoggedIn &&
+            >
+              View Tests
+            </a>
+            {isLoggedIn && (
               <button
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
                 onClick={this.cancelAllJobs}
               >
-                <span
-                  className="fa fa-times-circle cancel-job-icon dim-quarter"
-                />
+                <span className="fa fa-times-circle cancel-job-icon dim-quarter" />
               </button>
-            }
+            )}
             <button
               className="btn btn-sm btn-push pin-all-jobs-btn"
               title="Pin all available jobs in this push"
               aria-label="Pin all available jobs in this push"
               onClick={this.pinAllShownJobs}
             >
-              <span
-                className="fa fa-thumb-tack"
-              />
+              <span className="fa fa-thumb-tack" />
             </button>
-            {!!selectedRunnableJobs.length && runnableVisible &&
+            {!!selectedRunnableJobs.length && runnableVisible && (
               <button
                 className="btn btn-sm btn-push trigger-new-jobs-btn"
                 title="Trigger new jobs"
                 onClick={this.triggerNewJobs}
-              >Trigger New Jobs</button>
-            }
+              >
+                Trigger New Jobs
+              </button>
+            )}
             <PushActionMenu
               isLoggedIn={isLoggedIn}
               runnableVisible={runnableVisible}
@@ -273,4 +316,6 @@ PushHeader.defaultProps = {
   watchState: 'none',
 };
 
-export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(PushHeader))));
+export default withNotifications(
+  withPushes(withSelectedJob(withPinnedJobs(PushHeader))),
+);

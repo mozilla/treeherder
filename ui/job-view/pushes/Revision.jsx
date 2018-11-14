@@ -7,9 +7,9 @@ import BugLinkify from '../../shared/BugLinkify';
 export function Initials(props) {
   const str = props.author || '';
   const words = str.split(' ');
-  const firstLetters = words.map(
-        word => word.replace(/[^A-Z]/gi, '')[0],
-    ).filter(firstLetter => typeof firstLetter !== 'undefined');
+  const firstLetters = words
+    .map(word => word.replace(/[^A-Z]/gi, '')[0])
+    .filter(firstLetter => typeof firstLetter !== 'undefined');
   let initials = '';
 
   if (firstLetters.length === 1) {
@@ -41,8 +41,11 @@ export class Revision extends React.PureComponent {
 
     // eslint-disable-next-line prefer-destructuring
     this.comment = revision.comments.split('\n')[0];
-    this.tags = this.comment.search('Backed out') >= 0 || this.comment.search('Back out') >= 0 ?
-        'backout' : '';
+    this.tags =
+      this.comment.search('Backed out') >= 0 ||
+      this.comment.search('Back out') >= 0
+        ? 'backout'
+        : '';
   }
 
   render() {
@@ -50,28 +53,28 @@ export class Revision extends React.PureComponent {
     const { name, email } = parseAuthor(revision.author);
     const commitRevision = revision.revision;
 
-    return (<li className="clearfix">
-      <span className="revision" data-tags={this.tags}>
-        <span className="revision-holder">
-          <a
-            title={`Open revision ${commitRevision} on ${repo.url}`}
-            href={repo.getRevisionHref(commitRevision)}
-          >{commitRevision.substring(0, 12)}
-          </a>
-        </span>
-        <Initials
-          title={`${name}: ${email}`}
-          author={name}
-        />
-        <span title={this.comment}>
-          <span className="revision-comment">
-            <em>
-              <BugLinkify>{this.comment}</BugLinkify>
-            </em>
+    return (
+      <li className="clearfix">
+        <span className="revision" data-tags={this.tags}>
+          <span className="revision-holder">
+            <a
+              title={`Open revision ${commitRevision} on ${repo.url}`}
+              href={repo.getRevisionHref(commitRevision)}
+            >
+              {commitRevision.substring(0, 12)}
+            </a>
+          </span>
+          <Initials title={`${name}: ${email}`} author={name} />
+          <span title={this.comment}>
+            <span className="revision-comment">
+              <em>
+                <BugLinkify>{this.comment}</BugLinkify>
+              </em>
+            </span>
           </span>
         </span>
-      </span>
-    </li>);
+      </li>
+    );
   }
 }
 

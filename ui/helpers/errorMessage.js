@@ -11,19 +11,20 @@ Helper method for constructing an error message from the server side.
                         found in the error object.
 */
 export const formatModelError = function formatModelError(e, message) {
-    // Generic error message when we encounter 401 status codes from the
-    // server.
-    const AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
+  // Generic error message when we encounter 401 status codes from the
+  // server.
+  const AUTH_ERROR_MSG = 'Please login to Treeherder to complete this action';
 
-    // If we failed to authenticate for some reason return a nicer error message.
-    if (e.status === 401 || e.status === 403) {
-        return AUTH_ERROR_MSG;
-    }
+  // If we failed to authenticate for some reason return a nicer error message.
+  if (e.status === 401 || e.status === 403) {
+    return AUTH_ERROR_MSG;
+  }
 
-    // If there is nothing in the server message use the HTTP response status.
-    const errorMessage = `${(e.data && e.data.detail) || e.status} ${e.statusText}`;
-    return `${message}: ${errorMessage}`;
-
+  // If there is nothing in the server message use the HTTP response status.
+  const errorMessage = `${(e.data && e.data.detail) || e.status} ${
+    e.statusText
+  }`;
+  return `${message}: ${errorMessage}`;
 };
 
 /**
@@ -37,7 +38,7 @@ export const formatTaskclusterError = function formatTaskclusterError(e) {
   const errorMessage = err.message || err.toString();
 
   if (errorMessage.indexOf('----') !== -1) {
-      return `${TC_ERROR_PREFIX}${errorMessage.split('----')[0]}`;
+    return `${TC_ERROR_PREFIX}${errorMessage.split('----')[0]}`;
   }
 
   return `${TC_ERROR_PREFIX}${errorMessage}`;

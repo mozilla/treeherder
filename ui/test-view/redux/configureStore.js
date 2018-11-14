@@ -13,8 +13,9 @@ import { getServiceUrl, getProjectUrl } from '../../helpers/url';
 import * as groupsStore from './modules/groups';
 
 function getGroupText(group) {
-  const symbol = group.symbol.startsWith('tc-') ?
-    group.symbol.substring(3) : group.symbol;
+  const symbol = group.symbol.startsWith('tc-')
+    ? group.symbol.substring(3)
+    : group.symbol;
   const name = group.name.replace(' executed by TaskCluster', '');
   return symbol === '?' ? 'Ungrouped' : `${symbol} - ${name}`;
 }
@@ -27,8 +28,16 @@ function buildFailureLines(lsAcc, failureLine) {
   if (failureLine.test) {
     lsAcc[failureLine.test] = lsAcc[failureLine.test]
       ? lsAcc[failureLine.test]
-      : { group: failureLine.group.length ? failureLine.group[0].name : 'Unavailable', failureLines: [] };
-    lsAcc[failureLine.test].failureLines = [...lsAcc[failureLine.test].failureLines, failureLine];
+      : {
+          group: failureLine.group.length
+            ? failureLine.group[0].name
+            : 'Unavailable',
+          failureLines: [],
+        };
+    lsAcc[failureLine.test].failureLines = [
+      ...lsAcc[failureLine.test].failureLines,
+      failureLine,
+    ];
   }
   return lsAcc;
 }
@@ -44,8 +53,16 @@ function buildFailureLines(lsAcc, failureLine) {
  * @param options - The map of optionCollectionHash to option strings
  * @param regexes - Array of Regexes that ``filterStr`` must pass
  */
-function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideClassified) {
-  test.jobs.forEach((job) => {
+function addFilteredJobs(
+  acc,
+  test,
+  groupName,
+  testName,
+  options,
+  regexes,
+  hideClassified,
+) {
+  test.jobs.forEach(job => {
     // Reconstruct this each time because the same ``job`` can exist on
     // different test paths (more than one test can happen as a result of
     // one job).  So we can't just store this ``filterStr`` in the job
@@ -53,8 +70,13 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
     if (hideClassified[job.failureClassification.name]) {
       return;
     }
-    const filterStr = [groupName, testName, test.group,
-      thPlatformMap[job.buildPlatform.platform], options[job.optionCollectionHash]].join(' ');
+    const filterStr = [
+      groupName,
+      testName,
+      test.group,
+      thPlatformMap[job.buildPlatform.platform],
+      options[job.optionCollectionHash],
+    ].join(' ');
 
     if (regexes.every(regex => regex.test(filterStr))) {
       // create the groupName if we haven't done so yet.
@@ -81,11 +103,21 @@ function addFilteredJobs(acc, test, groupName, testName, options, regexes, hideC
  * @returns Filtered UI display-able groups object
  */
 function filterGroups(filter, groups, options, hideClassified) {
-  const filterRegexes = filter ? filter.split(' ').map(regexStr => new RegExp(regexStr, 'i')) : [new RegExp('', 'i')];
+  const filterRegexes = filter
+    ? filter.split(' ').map(regexStr => new RegExp(regexStr, 'i'))
+    : [new RegExp('', 'i')];
 
   return Object.entries(groups).reduce((gacc, [groupName, tests]) => {
     Object.entries(tests).forEach(([testName, test]) => {
-      addFilteredJobs(gacc, test, groupName, testName, options, filterRegexes, hideClassified);
+      addFilteredJobs(
+        gacc,
+        test,
+        groupName,
+        testName,
+        options,
+        filterRegexes,
+        hideClassified,
+      );
     });
     return gacc;
   }, {});
@@ -130,11 +162,15 @@ async function fetchTests(store, fetchParams) {
     job.jobId = getId(job.id);
 
     // Split this job's failureLines into each test they belong to.
-    const testFailureLines = logSet.reduce((lsAcc, joblog) => (
-      joblog.failureLine.reduce((flAcc, failureLine) => (
-        failureLine ? buildFailureLines(lsAcc, failureLine) : lsAcc
-      ), {})
-    ), {});
+    const testFailureLines = logSet.reduce(
+      (lsAcc, joblog) =>
+        joblog.failureLine.reduce(
+          (flAcc, failureLine) =>
+            failureLine ? buildFailureLines(lsAcc, failureLine) : lsAcc,
+          {},
+        ),
+      {},
+    );
 
     // ``testFailureLines`` looks like:
     //   { testName: [FailureLine, FailureLine] }
@@ -153,8 +189,12 @@ async function fetchTests(store, fetchParams) {
       acc[jobGroupName][testName] = acc[jobGroupName][testName]
         ? acc[jobGroupName][testName]
         : { group: test.group, jobs: [] };
-      acc[jobGroupName][testName].jobs = [...acc[jobGroupName][testName].jobs, flJob];
-      acc[jobGroupName][testName].bugs = bugSuggestions[`${jobGroupName}-${testName}`];
+      acc[jobGroupName][testName].jobs = [
+        ...acc[jobGroupName][testName].jobs,
+        flJob,
+      ];
+      acc[jobGroupName][testName].bugs =
+        bugSuggestions[`${jobGroupName}-${testName}`];
     });
     return acc;
   }, {});
@@ -180,7 +220,12 @@ async function fetchTests(store, fetchParams) {
   // the "test failures" rather than jobs.  So we walk each group(manifest) and count
   // the failed tests.
   // Note: this is in contrast to the "testfailed" entry coming from pushStatus; those are jobs.
-  store.dispatch(groupsStore.actions.fetchCounts(pushData.repository.name, getId(pushData.id)));
+  store.dispatch(
+    groupsStore.actions.fetchCounts(
+      pushData.repository.name,
+      getId(pushData.id),
+    ),
+  );
   const failedJobs = Object.values(payload.groups).reduce(
     (gacc, tests) =>
       gacc.concat(
@@ -192,9 +237,16 @@ async function fetchTests(store, fetchParams) {
     type: groupsStore.types.RENDER_COUNTS,
     payload: {
       counts: {
-        failed: failedJobs.filter(job => !(['infra', 'intermittent'].includes(job.failureClassification.name))).length,
-        infra: failedJobs.filter(job => job.failureClassification.name === 'infra').length,
-        intermittent: failedJobs.filter(job => job.failureClassification.name === 'intermittent').length,
+        failed: failedJobs.filter(
+          job =>
+            !['infra', 'intermittent'].includes(job.failureClassification.name),
+        ).length,
+        infra: failedJobs.filter(
+          job => job.failureClassification.name === 'infra',
+        ).length,
+        intermittent: failedJobs.filter(
+          job => job.failureClassification.name === 'intermittent',
+        ).length,
       },
     },
   });
@@ -207,10 +259,13 @@ async function fetchOptions(store, fetchParams) {
   store.dispatch({
     type: groupsStore.types.STORE_OPTIONS,
     payload: {
-      options: options.data.allOptionCollections.reduce((acc, opt) => ({
-        ...acc,
-        [opt.optionCollectionHash]: opt.option.name,
-      }), {}),
+      options: options.data.allOptionCollections.reduce(
+        (acc, opt) => ({
+          ...acc,
+          [opt.optionCollectionHash]: opt.option.name,
+        }),
+        {},
+      ),
     },
   });
 }
@@ -284,33 +339,48 @@ function stripHost(urlStr) {
  * @returns {Array}
  */
 function splitTestName(testName) {
-  return testName.split(' == ').map(testSub => testSub.substring(testSub.lastIndexOf('/')));
+  return testName
+    .split(' == ')
+    .map(testSub => testSub.substring(testSub.lastIndexOf('/')));
 }
 
 function getMatchingTestBugs(bs, testName) {
-  return splitTestName(testName).some(sub => bs.search.includes(sub)) ?
-    bs.bugs.open_recent.reduce((bsAcc, bug) => (
-      // Since one test can have multiple jobs which could have multiples of the same bug,
-      // key this object off the bug id so we automatically eliminate duplicates.
-      { ...bsAcc, [bug.id]: bug }
-    ), {}) : {};
+  return splitTestName(testName).some(sub => bs.search.includes(sub))
+    ? bs.bugs.open_recent.reduce(
+        (bsAcc, bug) =>
+          // Since one test can have multiple jobs which could have multiples of the same bug,
+          // key this object off the bug id so we automatically eliminate duplicates.
+          ({ ...bsAcc, [bug.id]: bug }),
+        {},
+      )
+    : {};
 }
 
 function extractBugSuggestions(bugSuggestions, testName) {
-  return bugSuggestions.data.allJobs.edges.reduce((jacc, { node: job }) => (
-    { ...jacc,
-      ...job.textLogStep.reduce((tlsAcc, step) => (
-      // Only add the bug suggestions that match the testName for this job
-        { ...tlsAcc,
-          ...step.errors.reduce((sAcc, error) => (
-          { ...sAcc, ...getMatchingTestBugs(error.bugSuggestions, testName) }
-        ), {}) }
-      ), {}) }
-  ), {});
+  return bugSuggestions.data.allJobs.edges.reduce(
+    (jacc, { node: job }) => ({
+      ...jacc,
+      ...job.textLogStep.reduce(
+        (tlsAcc, step) =>
+          // Only add the bug suggestions that match the testName for this job
+          ({
+            ...tlsAcc,
+            ...step.errors.reduce(
+              (sAcc, error) => ({
+                ...sAcc,
+                ...getMatchingTestBugs(error.bugSuggestions, testName),
+              }),
+              {},
+            ),
+          }),
+        {},
+      ),
+    }),
+    {},
+  );
 }
 
 async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
-
   const testMap = test.jobs.reduce((gacc, job) => {
     const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
     gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [...gacc[bsUrl], test] : [test] };
@@ -319,12 +389,14 @@ async function fetchBugsSingleTest(store, { test, bugSuggestions, url }) {
 
   // Do a request for each url in the keys of the testMap.  Using them as keys eliminates
   // duplicate requests since multiple tests can be in the same job.
-  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(getServiceUrl(url))));
+  const responses = await Promise.all(
+    Object.keys(testMap).map(url => fetch(getServiceUrl(url))),
+  );
   const respData = await Promise.all(responses.map(promise => promise.json()));
   const updatedBugSuggestions = {
     ...bugSuggestions,
     ...respData.reduce((bsAcc, data, idx) => {
-      testMap[stripHost(responses[idx].url)].forEach((test) => {
+      testMap[stripHost(responses[idx].url)].forEach(test => {
         test.bugs = { ...test.bugs, ...extractBugSuggestions(data, test.name) };
         bsAcc = { ...bsAcc, [`${test.jobGroup}-${test.name}`]: test.bugs };
       });
@@ -344,19 +416,24 @@ async function fetchBugs(store, { rowData, url }) {
   // map of tests to urls
   const testMap = Object.entries(rowData).reduce((gacc, [, tests]) => {
     Object.entries(tests).forEach(([, test]) => {
-      test.jobs.forEach((job) => {
+      test.jobs.forEach(job => {
         const bsUrl = url + groupsStore.getBugSuggestionQuery(job.guid);
-        gacc = { ...gacc, [bsUrl]: gacc[bsUrl] ? [...gacc[bsUrl], test] : [test] };
+        gacc = {
+          ...gacc,
+          [bsUrl]: gacc[bsUrl] ? [...gacc[bsUrl], test] : [test],
+        };
       });
     });
     return gacc;
   }, {});
   // Do a request for each url in the keys of the testMap.  Using them as keys eliminates
   // duplicate requests since multiple tests can be in the same job.
-  const responses = await Promise.all(Object.keys(testMap).map(url => fetch(getServiceUrl(url))));
+  const responses = await Promise.all(
+    Object.keys(testMap).map(url => fetch(getServiceUrl(url))),
+  );
   const respData = await Promise.all(responses.map(promise => promise.json()));
   const bugSuggestions = respData.reduce((bsAcc, data, idx) => {
-    testMap[stripHost(responses[idx].url)].forEach((test) => {
+    testMap[stripHost(responses[idx].url)].forEach(test => {
       test.bugs = { ...test.bugs, ...extractBugSuggestions(data, test.name) };
       bsAcc = { ...bsAcc, [`${test.jobGroup}-${test.name}`]: test.bugs };
     });
@@ -380,7 +457,7 @@ async function toggleExpanded(store, { toggled, testName, expanded }) {
   });
 }
 
-const testDataMiddleware = store => next => (action) => {
+const testDataMiddleware = store => next => action => {
   if (!action.meta) {
     return next(action);
   }
@@ -426,7 +503,10 @@ export default () => {
   const reducer = combineReducers({
     groups: groupsStore.reducer,
   });
-  const store = createStore(reducer, applyMiddleware(debouncer, testDataMiddleware));
+  const store = createStore(
+    reducer,
+    applyMiddleware(debouncer, testDataMiddleware),
+  );
   const actions = {
     groups: bindActionCreators(groupsStore.actions, store.dispatch),
   };

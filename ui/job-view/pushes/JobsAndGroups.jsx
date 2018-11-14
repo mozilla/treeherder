@@ -9,43 +9,49 @@ import JobGroup from './JobGroup';
 export default class JobsAndGroups extends React.Component {
   render() {
     const {
-      groups, repoName, platform, filterPlatformCb, filterModel,
-      pushGroupState, duplicateJobsVisible, groupCountsExpanded,
+      groups,
+      repoName,
+      platform,
+      filterPlatformCb,
+      filterModel,
+      pushGroupState,
+      duplicateJobsVisible,
+      groupCountsExpanded,
     } = this.props;
 
     return (
       <td className="job-row">
-        {groups.map((group) => {
+        {groups.map(group => {
           if (group.tier !== 1 || group.symbol !== '') {
             return (
-              group.visible && <JobGroup
-                group={group}
-                repoName={repoName}
-                filterModel={filterModel}
-                filterPlatformCb={filterPlatformCb}
-                platform={platform}
-                key={group.mapKey}
-                pushGroupState={pushGroupState}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
-              />
+              group.visible && (
+                <JobGroup
+                  group={group}
+                  repoName={repoName}
+                  filterModel={filterModel}
+                  filterPlatformCb={filterPlatformCb}
+                  platform={platform}
+                  key={group.mapKey}
+                  pushGroupState={pushGroupState}
+                  duplicateJobsVisible={duplicateJobsVisible}
+                  groupCountsExpanded={groupCountsExpanded}
+                />
+              )
             );
           }
-          return (
-            group.jobs.map(job => (
-              <JobButton
-                job={job}
-                filterModel={filterModel}
-                repoName={repoName}
-                visible={job.visible}
-                status={getStatus(job)}
-                failureClassificationId={job.failure_classification_id}
-                filterPlatformCb={filterPlatformCb}
-                platform={platform}
-                key={job.id}
-              />
-            ))
-          );
+          return group.jobs.map(job => (
+            <JobButton
+              job={job}
+              filterModel={filterModel}
+              repoName={repoName}
+              visible={job.visible}
+              status={getStatus(job)}
+              failureClassificationId={job.failure_classification_id}
+              filterPlatformCb={filterPlatformCb}
+              platform={platform}
+              key={job.id}
+            />
+          ));
         })}
       </td>
     );

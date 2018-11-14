@@ -9,7 +9,9 @@ export class Notifications extends React.Component {
 
     this.state = {
       notifications: [],
-      storedNotifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
+      storedNotifications: JSON.parse(
+        localStorage.getItem('notifications') || '[]',
+      ),
     };
     this.value = {
       ...this.state,
@@ -25,12 +27,16 @@ export class Notifications extends React.Component {
     this.removeNotification = this.removeNotification.bind(this);
     this.shift = this.shift.bind(this);
     this.clearStoredNotifications = this.clearStoredNotifications.bind(this);
-    this.clearOnScreenNotifications = this.clearOnScreenNotifications.bind(this);
+    this.clearOnScreenNotifications = this.clearOnScreenNotifications.bind(
+      this,
+    );
 
-    this.unlistenStorage = window.addEventListener('storage', (e) => {
+    this.unlistenStorage = window.addEventListener('storage', e => {
       if (e.key === 'notifications') {
         this.setValue({
-          storedNotifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
+          storedNotifications: JSON.parse(
+            localStorage.getItem('notifications') || '[]',
+          ),
         });
       }
     });
@@ -66,7 +72,10 @@ export class Notifications extends React.Component {
     localStorage.setItem('notifications', JSON.stringify(storedNotifications));
 
     this.setValue(
-      { notifications: newNotifications, storedNotifications: [...storedNotifications] },
+      {
+        notifications: newNotifications,
+        storedNotifications: [...storedNotifications],
+      },
       () => {
         if (!opts.sticky) {
           if (notifications.length > maxNsNotifications) {
@@ -86,7 +95,10 @@ export class Notifications extends React.Component {
     const { notifications } = this.state;
 
     notifications.splice(index, 1);
-    setTimeout(() => this.setValue({ notifications: [...notifications] }), delay);
+    setTimeout(
+      () => this.setValue({ notifications: [...notifications] }),
+      delay,
+    );
   }
 
   /*

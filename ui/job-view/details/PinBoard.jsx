@@ -30,7 +30,9 @@ class PinBoard extends React.Component {
   componentDidMount() {
     this.bugNumberKeyPress = this.bugNumberKeyPress.bind(this);
     this.save = this.save.bind(this);
-    this.handleRelatedBugDocumentClick = this.handleRelatedBugDocumentClick.bind(this);
+    this.handleRelatedBugDocumentClick = this.handleRelatedBugDocumentClick.bind(
+      this,
+    );
     this.handleRelatedBugEscape = this.handleRelatedBugEscape.bind(this);
     this.unPinAll = this.unPinAll.bind(this);
     this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
@@ -62,7 +64,12 @@ class PinBoard extends React.Component {
   }
 
   save() {
-    const { isLoggedIn, pinnedJobs, recalculateUnclassifiedCounts, notify } = this.props;
+    const {
+      isLoggedIn,
+      pinnedJobs,
+      recalculateUnclassifiedCounts,
+      notify,
+    } = this.props;
 
     let errorFree = true;
     if (this.state.enteringBugNumber) {
@@ -107,7 +114,10 @@ class PinBoard extends React.Component {
 
   createNewClassification() {
     const { email } = this.props;
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const {
+      failureClassificationId,
+      failureClassificationComment,
+    } = this.state;
 
     return new JobClassificationModel({
       text: failureClassificationComment,
@@ -127,10 +137,18 @@ class PinBoard extends React.Component {
       recalculateUnclassifiedCounts();
 
       classification.job_id = job.id;
-      return classification.create().then(() => {
-          notify(`Classification saved for ${job.platform} ${job.job_type_name}`, 'success');
-        }).catch((response) => {
-          const message = `Error saving classification for ${job.platform} ${job.job_type_name}`;
+      return classification
+        .create()
+        .then(() => {
+          notify(
+            `Classification saved for ${job.platform} ${job.job_type_name}`,
+            'success',
+          );
+        })
+        .catch(response => {
+          const message = `Error saving classification for ${job.platform} ${
+            job.job_type_name
+          }`;
           notify(formatModelError(response, message), 'danger');
         });
     }
@@ -139,21 +157,27 @@ class PinBoard extends React.Component {
   saveBugs(job) {
     const { pinnedJobBugs, notify } = this.props;
 
-    Object.values(pinnedJobBugs).forEach((bug) => {
+    Object.values(pinnedJobBugs).forEach(bug => {
       const bjm = new BugJobMapModel({
         bug_id: bug.id,
         job_id: job.id,
         type: 'annotation',
       });
 
-      bjm.create()
+      bjm
+        .create()
         .then(() => {
-          notify(`Bug association saved for ${job.platform} ${job.job_type_name}`, 'success');
+          notify(
+            `Bug association saved for ${job.platform} ${job.job_type_name}`,
+            'success',
+          );
         })
-        .catch((response) => {
-          const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
+        .catch(response => {
+          const message = `Error saving bug association for ${job.platform} ${
+            job.job_type_name
+          }`;
           notify(formatModelError(response, message), 'danger');
-      });
+        });
     });
   }
 
@@ -182,7 +206,8 @@ class PinBoard extends React.Component {
 
   canCancelAllPinnedJobs() {
     const cancellableJobs = Object.values(this.props.pinnedJobs).filter(
-      job => (job.state === 'pending' || job.state === 'running'));
+      job => job.state === 'pending' || job.state === 'running',
+    );
 
     return this.props.isLoggedIn && cancellableJobs.length > 0;
   }
@@ -190,7 +215,9 @@ class PinBoard extends React.Component {
   cancelAllPinnedJobs() {
     const { getGeckoDecisionTaskId, notify, repoName } = this.props;
 
-    if (window.confirm('This will cancel all the selected jobs. Are you sure?')) {
+    if (
+      window.confirm('This will cancel all the selected jobs. Are you sure?')
+    ) {
       const jobIds = Object.keys(this.props.pinnedJobs);
 
       JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
@@ -200,24 +227,37 @@ class PinBoard extends React.Component {
 
   canSaveClassifications() {
     const { pinnedJobBugs, isLoggedIn, currentRepo } = this.props;
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const {
+      failureClassificationId,
+      failureClassificationComment,
+    } = this.state;
 
-    return this.hasPinnedJobs() && isLoggedIn &&
+    return (
+      this.hasPinnedJobs() &&
+      isLoggedIn &&
       (!!Object.keys(pinnedJobBugs).length ||
         (failureClassificationId !== 4 && failureClassificationId !== 2) ||
         currentRepo.is_try_repo ||
         currentRepo.repository_group.name === 'project repositories' ||
-        (failureClassificationId === 4 && failureClassificationComment.length > 0) ||
-        (failureClassificationId === 2 && failureClassificationComment.length > 7));
+        (failureClassificationId === 4 &&
+          failureClassificationComment.length > 0) ||
+        (failureClassificationId === 2 &&
+          failureClassificationComment.length > 7))
+    );
   }
 
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
   pinboardIsDirty() {
-    const { failureClassificationId, failureClassificationComment } = this.state;
+    const {
+      failureClassificationId,
+      failureClassificationComment,
+    } = this.state;
 
-    return failureClassificationComment !== '' ||
+    return (
+      failureClassificationComment !== '' ||
       !!Object.keys(this.props.pinnedJobBugs).length ||
-      failureClassificationId !== 4;
+      failureClassificationId !== 4
+    );
   }
 
   // Dynamic btn/anchor title for classification save
@@ -274,23 +314,32 @@ class PinBoard extends React.Component {
   }
 
   toggleEnterBugNumber(tf) {
-    this.setState({
-      enteringBugNumber: tf,
-    }, () => {
-      if (tf) {
-        document.getElementById('related-bug-input').focus();
-        // Bind escape to canceling the bug entry.
-        document.addEventListener('keydown', this.handleRelatedBugEscape);
-        // Install a click handler on the document so that clicking
-        // outside of the input field will close it. A blur handler
-        // can't be used because it would have timing issues with the
-        // click handler on the + icon.
-        document.addEventListener('click', this.handleRelatedBugDocumentClick);
-      } else {
-        document.removeEventListener('keydown', this.handleRelatedBugEscape);
-        document.removeEventListener('click', this.handleRelatedBugDocumentClick);
-      }
-    });
+    this.setState(
+      {
+        enteringBugNumber: tf,
+      },
+      () => {
+        if (tf) {
+          document.getElementById('related-bug-input').focus();
+          // Bind escape to canceling the bug entry.
+          document.addEventListener('keydown', this.handleRelatedBugEscape);
+          // Install a click handler on the document so that clicking
+          // outside of the input field will close it. A blur handler
+          // can't be used because it would have timing issues with the
+          // click handler on the + icon.
+          document.addEventListener(
+            'click',
+            this.handleRelatedBugDocumentClick,
+          );
+        } else {
+          document.removeEventListener('keydown', this.handleRelatedBugEscape);
+          document.removeEventListener(
+            'click',
+            this.handleRelatedBugDocumentClick,
+          );
+        }
+      },
+    );
   }
 
   isNumber(text) {
@@ -335,39 +384,60 @@ class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJob, revisionTips, isLoggedIn, isPinBoardVisible, classificationTypes,
-      pinnedJobs, pinnedJobBugs, removeBug, unPinJob, setSelectedJob,
+      selectedJob,
+      revisionTips,
+      isLoggedIn,
+      isPinBoardVisible,
+      classificationTypes,
+      pinnedJobs,
+      pinnedJobBugs,
+      removeBug,
+      unPinJob,
+      setSelectedJob,
     } = this.props;
     const {
-      failureClassificationId, failureClassificationComment,
-      enteringBugNumber, newBugNumber,
+      failureClassificationId,
+      failureClassificationComment,
+      enteringBugNumber,
+      newBugNumber,
     } = this.state;
     const selectedJobId = selectedJob ? selectedJob.id : null;
 
     return (
-      <div
-        id="pinboard-panel"
-        className={isPinBoardVisible ? '' : 'hidden'}
-      >
+      <div id="pinboard-panel" className={isPinBoardVisible ? '' : 'hidden'}>
         <div id="pinboard-contents">
           <div id="pinned-job-list">
             <div className="content">
-              {!this.hasPinnedJobs() && <span
-                className="pinboard-preload-txt"
-              >press spacebar to pin a selected job</span>}
+              {!this.hasPinnedJobs() && (
+                <span className="pinboard-preload-txt">
+                  press spacebar to pin a selected job
+                </span>
+              )}
               {Object.values(pinnedJobs).map(job => (
                 <span className="btn-group" key={job.id}>
                   <span
-                    className={`btn pinned-job ${getJobBtnClass(job)} ${selectedJobId === job.id ? 'btn-lg selected-job' : 'btn-xs'}`}
+                    className={`btn pinned-job ${getJobBtnClass(job)} ${
+                      selectedJobId === job.id
+                        ? 'btn-lg selected-job'
+                        : 'btn-xs'
+                    }`}
                     title={getHoverText(job)}
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
-                  >{job.job_type_symbol}</span>
+                  >
+                    {job.job_type_symbol}
+                  </span>
                   <span
-                    className={`btn btn-ltgray pinned-job-close-btn ${selectedJobId === job.id ? 'btn-lg selected-job' : 'btn-xs'}`}
+                    className={`btn btn-ltgray pinned-job-close-btn ${
+                      selectedJobId === job.id
+                        ? 'btn-lg selected-job'
+                        : 'btn-xs'
+                    }`}
                     onClick={() => unPinJob(job)}
                     title="un-pin this job"
-                  ><i className="fa fa-times" /></span>
+                  >
+                    <i className="fa fa-times" />
+                  </span>
                 </span>
               ))}
             </div>
@@ -381,45 +451,59 @@ class PinBoard extends React.Component {
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 className="pointable"
                 title="Add a related bug"
-              ><i className="fa fa-plus-square add-related-bugs-icon" /></span>
-              {!this.hasPinnedJobBugs() && <span
-                className="pinboard-preload-txt pinboard-related-bug-preload-txt"
-                onClick={() => {
-                  this.toggleEnterBugNumber(!enteringBugNumber);
-                }}
-              >click to add a related bug</span>}
-              {enteringBugNumber && <span
-                className="add-related-bugs-form"
               >
-                <Input
-                  id="related-bug-input"
-                  data-bug-input
-                  type="text"
-                  pattern="[0-9]*"
-                  className="add-related-bugs-input"
-                  placeholder="enter bug number"
-                  invalid={!this.isNumber(newBugNumber)}
-                  onKeyPress={this.bugNumberKeyPress}
-                  onChange={ev => this.setState({ newBugNumber: ev.target.value })}
-                />
-                <FormFeedback>Please enter only numbers</FormFeedback>
-              </span>}
-              {Object.values(pinnedJobBugs).map(bug => (<span key={bug.id}>
-                <span className="btn-group pinboard-related-bugs-btn">
-                  <a
-                    className="btn btn-xs related-bugs-link"
-                    title={bug.summary}
-                    href={getBugUrl(bug.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  ><em>{bug.id}</em></a>
-                  <span
-                    className="btn btn-ltgray btn-xs pinned-job-close-btn"
-                    onClick={() => removeBug(bug.id)}
-                    title="remove this bug"
-                  ><i className="fa fa-times" /></span>
+                <i className="fa fa-plus-square add-related-bugs-icon" />
+              </span>
+              {!this.hasPinnedJobBugs() && (
+                <span
+                  className="pinboard-preload-txt pinboard-related-bug-preload-txt"
+                  onClick={() => {
+                    this.toggleEnterBugNumber(!enteringBugNumber);
+                  }}
+                >
+                  click to add a related bug
                 </span>
-              </span>))}
+              )}
+              {enteringBugNumber && (
+                <span className="add-related-bugs-form">
+                  <Input
+                    id="related-bug-input"
+                    data-bug-input
+                    type="text"
+                    pattern="[0-9]*"
+                    className="add-related-bugs-input"
+                    placeholder="enter bug number"
+                    invalid={!this.isNumber(newBugNumber)}
+                    onKeyPress={this.bugNumberKeyPress}
+                    onChange={ev =>
+                      this.setState({ newBugNumber: ev.target.value })
+                    }
+                  />
+                  <FormFeedback>Please enter only numbers</FormFeedback>
+                </span>
+              )}
+              {Object.values(pinnedJobBugs).map(bug => (
+                <span key={bug.id}>
+                  <span className="btn-group pinboard-related-bugs-btn">
+                    <a
+                      className="btn btn-xs related-bugs-link"
+                      title={bug.summary}
+                      href={getBugUrl(bug.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <em>{bug.id}</em>
+                    </a>
+                    <span
+                      className="btn btn-ltgray btn-xs pinned-job-close-btn"
+                      onClick={() => removeBug(bug.id)}
+                      title="remove this bug"
+                    >
+                      <i className="fa fa-times" />
+                    </span>
+                  </span>
+                </span>
+              ))}
             </div>
           </div>
 
@@ -437,7 +521,9 @@ class PinBoard extends React.Component {
                   onChange={evt => this.setClassificationId(evt)}
                 >
                   {classificationTypes.map(opt => (
-                    <option value={opt.id} key={opt.id}>{opt.name}</option>
+                    <option value={opt.id} key={opt.id}>
+                      {opt.name}
+                    </option>
                   ))}
                 </Input>
               </FormGroup>
@@ -452,26 +538,32 @@ class PinBoard extends React.Component {
                   placeholder="click to add comment"
                   value={failureClassificationComment}
                 />
-                {failureClassificationId === 2 && <div>
-                  <FormGroup>
-                    <Input
-                      id="pinboard-revision-select"
-                      className="classification-select"
-                      type="select"
-                      defaultValue={0}
-                      onChange={evt => this.setClassificationText(evt)}
-                    >
-                      <option value="0" disabled>Choose a recent
-                        commit
-                      </option>
-                      {revisionTips.slice(0, 20).map(tip => (<option
-                        title={tip.title}
-                        value={tip.revision}
-                        key={tip.revision}
-                      >{tip.revision.slice(0, 12)} {tip.author}</option>))}
-                    </Input>
-                  </FormGroup>
-                </div>}
+                {failureClassificationId === 2 && (
+                  <div>
+                    <FormGroup>
+                      <Input
+                        id="pinboard-revision-select"
+                        className="classification-select"
+                        type="select"
+                        defaultValue={0}
+                        onChange={evt => this.setClassificationText(evt)}
+                      >
+                        <option value="0" disabled>
+                          Choose a recent commit
+                        </option>
+                        {revisionTips.slice(0, 20).map(tip => (
+                          <option
+                            title={tip.title}
+                            value={tip.revision}
+                            key={tip.revision}
+                          >
+                            {tip.revision.slice(0, 12)} {tip.author}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -484,14 +576,27 @@ class PinBoard extends React.Component {
           >
             <div className="btn-group save-btn-group dropdown">
               <button
-                className={`btn btn-light-bordered btn-xs save-btn ${!isLoggedIn || !this.canSaveClassifications() ? 'disabled' : ''}`}
+                className={`btn btn-light-bordered btn-xs save-btn ${
+                  !isLoggedIn || !this.canSaveClassifications()
+                    ? 'disabled'
+                    : ''
+                }`}
                 title={this.saveUITitle('classification')}
                 onClick={this.save}
-              >save
+              >
+                save
               </button>
               <button
-                className={`btn btn-light-bordered btn-xs dropdown-toggle save-btn-dropdown ${!this.hasPinnedJobs() && !this.pinboardIsDirty() ? 'disabled' : ''}`}
-                title={!this.hasPinnedJobs() && !this.pinboardIsDirty() ? 'No pinned jobs' : 'Additional pinboard functions'}
+                className={`btn btn-light-bordered btn-xs dropdown-toggle save-btn-dropdown ${
+                  !this.hasPinnedJobs() && !this.pinboardIsDirty()
+                    ? 'disabled'
+                    : ''
+                }`}
+                title={
+                  !this.hasPinnedJobs() && !this.pinboardIsDirty()
+                    ? 'No pinned jobs'
+                    : 'Additional pinboard functions'
+                }
                 type="button"
                 data-toggle="dropdown"
               >
@@ -500,23 +605,36 @@ class PinBoard extends React.Component {
               <ul className="dropdown-menu save-btn-dropdown-menu">
                 <li
                   className={!isLoggedIn ? 'disabled' : ''}
-                  title={!isLoggedIn ? 'Not logged in' : 'Repeat the pinned jobs'}
+                  title={
+                    !isLoggedIn ? 'Not logged in' : 'Repeat the pinned jobs'
+                  }
                 >
                   <a
                     className="dropdown-item"
                     onClick={() => !isLoggedIn || this.retriggerAllPinnedJobs()}
-                  >Retrigger all</a></li>
+                  >
+                    Retrigger all
+                  </a>
+                </li>
                 <li
                   className={this.canCancelAllPinnedJobs() ? '' : 'disabled'}
                   title={this.cancelAllPinnedJobsTitle()}
                 >
                   <a
                     className="dropdown-item"
-                    onClick={() => this.canCancelAllPinnedJobs() && this.cancelAllPinnedJobs()}
-                  >Cancel all</a>
+                    onClick={() =>
+                      this.canCancelAllPinnedJobs() &&
+                      this.cancelAllPinnedJobs()
+                    }
+                  >
+                    Cancel all
+                  </a>
                 </li>
-                <li><a className="dropdown-item" onClick={() => this.unPinAll()}>Clear
-                  all</a></li>
+                <li>
+                  <a className="dropdown-item" onClick={() => this.unPinAll()}>
+                    Clear all
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -553,4 +671,6 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
-export default withNotifications(withPushes(withSelectedJob(withPinnedJobs(PinBoard))));
+export default withNotifications(
+  withPushes(withSelectedJob(withPinnedJobs(PinBoard))),
+);

@@ -14,10 +14,9 @@ const GroupSymbol = function GroupSymbol(props) {
   const { symbol, tier, toggleExpanded } = props;
 
   return (
-    <button
-      className="btn group-symbol"
-      onClick={toggleExpanded}
-    >{symbol}{tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
+    <button className="btn group-symbol" onClick={toggleExpanded}>
+      {symbol}
+      {tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
     </button>
   );
 };
@@ -31,7 +30,6 @@ GroupSymbol.propTypes = {
 GroupSymbol.defaultProps = {
   tier: 1,
 };
-
 
 export class JobGroupComponent extends React.Component {
   constructor(props) {
@@ -49,7 +47,9 @@ export class JobGroupComponent extends React.Component {
   static getDerivedStateFromProps(nextProps, state) {
     // We should expand this group if it's own state is set to be expanded,
     // or if the push was set to have all groups expanded.
-    return { expanded: state.expanded || nextProps.pushGroupState === 'expanded' };
+    return {
+      expanded: state.expanded || nextProps.pushGroupState === 'expanded',
+    };
   }
 
   setExpanded(isExpanded) {
@@ -61,7 +61,11 @@ export class JobGroupComponent extends React.Component {
   }
 
   groupButtonsAndCounts(jobs, expanded) {
-    const { selectedJob, duplicateJobsVisible, groupCountsExpanded } = this.props;
+    const {
+      selectedJob,
+      duplicateJobsVisible,
+      groupCountsExpanded,
+    } = this.props;
     let buttons = [];
     const counts = [];
 
@@ -71,20 +75,25 @@ export class JobGroupComponent extends React.Component {
     } else {
       const stateCounts = {};
       const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
-      jobs.forEach((job) => {
+      jobs.forEach(job => {
         if (!job.visible) return;
         const status = getStatus(job);
         let countInfo = {
           btnClass: getBtnClass(status, job.failure_classification_id),
           countText: status,
         };
-        if (thFailureResults.includes(status) ||
-          (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)) {
+        if (
+          thFailureResults.includes(status) ||
+          (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)
+        ) {
           // render the job itself, not a count
           buttons.push(job);
         } else {
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if ((selectedJob && selectedJob.id === job.id) || countInfo.selectedClasses) {
+          if (
+            (selectedJob && selectedJob.id === job.id) ||
+            countInfo.selectedClasses
+          ) {
             countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';
@@ -111,8 +120,17 @@ export class JobGroupComponent extends React.Component {
 
   render() {
     const {
-      repoName, filterPlatformCb, platform, filterModel,
-      group: { name: groupName, symbol: groupSymbol, tier: groupTier, jobs: groupJobs, mapKey: groupMapKey },
+      repoName,
+      filterPlatformCb,
+      platform,
+      filterModel,
+      group: {
+        name: groupName,
+        symbol: groupSymbol,
+        tier: groupTier,
+        jobs: groupJobs,
+        mapKey: groupMapKey,
+      },
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
@@ -120,14 +138,8 @@ export class JobGroupComponent extends React.Component {
     this.toggleExpanded = this.toggleExpanded.bind(this);
 
     return (
-      <span
-        className="platform-group"
-        data-group-key={groupMapKey}
-      >
-        <span
-          className="disabled job-group"
-          title={groupName}
-        >
+      <span className="platform-group" data-group-key={groupMapKey}>
+        <span className="disabled job-group" title={groupName}>
           <GroupSymbol
             symbol={groupSymbol}
             tier={groupTier}
@@ -154,8 +166,12 @@ export class JobGroupComponent extends React.Component {
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
-                  className={`${countInfo.btnClass}-count${countInfo.selectedClasses}`}
-                  title={`${countInfo.count} ${countInfo.countText} jobs in group`}
+                  className={`${countInfo.btnClass}-count${
+                    countInfo.selectedClasses
+                  }`}
+                  title={`${countInfo.count} ${
+                    countInfo.countText
+                  } jobs in group`}
                   key={countInfo.lastJob.id}
                 />
               ))}

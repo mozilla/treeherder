@@ -21,7 +21,11 @@ export const setLocation = function setLocation(params, hashPrefix = '/jobs') {
   window.location.hash = `#${hashPrefix}${createQueryParams(params)}`;
 };
 
-export const setUrlParam = function setUrlParam(field, value, hashPrefix = '/jobs') {
+export const setUrlParam = function setUrlParam(
+  field,
+  value,
+  hashPrefix = '/jobs',
+) {
   const params = getAllUrlParams();
 
   if (value) {

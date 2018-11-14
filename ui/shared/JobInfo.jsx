@@ -48,30 +48,38 @@ export default class JobInfo extends React.PureComponent {
               <a
                 title="Filter jobs with this unique SHA signature"
                 href={getJobSearchStrHref(job.signature)}
-              >(sig)</a>:&nbsp;
+              >
+                (sig)
+              </a>
+              :&nbsp;
               <a
                 title="Filter jobs containing these keywords"
                 href={getJobSearchStrHref(jobSearchStr)}
-              >{jobSearchStr}</a>
+              >
+                {jobSearchStr}
+              </a>
             </React.Fragment>
-            ) : (
-              <span>{job.getTitle()}</span>
-            )
-          }
+          ) : (
+            <span>{job.getTitle()}</span>
+          )}
         </li>
-        {job.taskcluster_metadata &&
+        {job.taskcluster_metadata && (
           <li className="small">
             <label>Task: </label>
             <a
               href={getInspectTaskUrl(job.taskcluster_metadata.task_id)}
               target="_blank"
               rel="noopener noreferrer"
-            >{job.taskcluster_metadata.task_id}</a>
+            >
+              {job.taskcluster_metadata.task_id}
+            </a>
           </li>
-        }
+        )}
         <li className="small">
           <label>Build: </label>
-          <span>{`${job.build_architecture} ${job.build_platform} ${job.build_os || ''}`}</span>
+          <span>{`${job.build_architecture} ${
+            job.build_platform
+          } ${job.build_os || ''}`}</span>
         </li>
         <li className="small">
           <label>Job name: </label>
@@ -80,18 +88,21 @@ export default class JobInfo extends React.PureComponent {
         {[...timeFields, ...extraFields].map(field => (
           <li className="small" key={`${field.title}${field.value}`}>
             <label>{field.title}: </label>
-            {field.url ?
+            {field.url ? (
               <a
                 title={field.value}
                 href={field.url}
                 target="_blank"
                 rel="noopener noreferrer"
-              >{field.value}</a> :
-              <span>{field.value}</span>}
+              >
+                {field.value}
+              </a>
+            ) : (
+              <span>{field.value}</span>
+            )}
           </li>
         ))}
       </ul>
-
     );
   }
 }

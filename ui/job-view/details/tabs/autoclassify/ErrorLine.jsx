@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { FormGroup } from 'reactstrap';
 
 import { thEvents } from '../../../../helpers/constants';
-import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
+import {
+  stringOverlap,
+  highlightLogLine,
+} from '../../../../helpers/autoclassify';
 import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
 import { withSelectedJob } from '../../../context/SelectedJob';
 
@@ -127,8 +130,7 @@ class ErrorLine extends React.Component {
       return 'unverified-ignore';
     }
 
-    if (selectedOption.type === 'manual' &&
-      !selectedOption.manualBugNumber) {
+    if (selectedOption.type === 'manual' && !selectedOption.manualBugNumber) {
       return 'unverified-no-bug';
     }
 
@@ -141,40 +143,53 @@ class ErrorLine extends React.Component {
   getOptions() {
     const bugSuggestions = [].concat(
       this.props.errorLine.data.bug_suggestions.bugs.open_recent,
-      this.props.errorLine.data.bug_suggestions.bugs.all_others);
+      this.props.errorLine.data.bug_suggestions.bugs.all_others,
+    );
     const classificationMatches = this.getClassifiedFailureMatcher();
     const autoclassifyOptions = this.props.errorLine.data.classified_failures
       .filter(cf => cf.bug_number !== 0)
-      .map(cf => new LineOptionModel(
-        'classifiedFailure',
-        `${this.props.errorLine.id}-${cf.id}`,
-        cf.id,
-        cf.bug_number,
-        cf.bug ? cf.bug.summary : '',
-        cf.bug ? cf.bug.resolution : '',
-        classificationMatches(cf.id),
-      ));
-    const autoclassifiedBugs = autoclassifyOptions
-      .reduce((classifiedBugs, option) => classifiedBugs.add(option.bugNumber),
-              new Set());
+      .map(
+        cf =>
+          new LineOptionModel(
+            'classifiedFailure',
+            `${this.props.errorLine.id}-${cf.id}`,
+            cf.id,
+            cf.bug_number,
+            cf.bug ? cf.bug.summary : '',
+            cf.bug ? cf.bug.resolution : '',
+            classificationMatches(cf.id),
+          ),
+      );
+    const autoclassifiedBugs = autoclassifyOptions.reduce(
+      (classifiedBugs, option) => classifiedBugs.add(option.bugNumber),
+      new Set(),
+    );
     const bugSuggestionOptions = bugSuggestions
       .filter(bug => !autoclassifiedBugs.has(bug.id))
-      .map(bugSuggestion => new LineOptionModel(
-        'unstructuredBug',
-        `${this.props.errorLine.id}-ub-${bugSuggestion.id}`,
-        null,
-        bugSuggestion.id,
-        bugSuggestion.summary,
-        bugSuggestion.resolution));
+      .map(
+        bugSuggestion =>
+          new LineOptionModel(
+            'unstructuredBug',
+            `${this.props.errorLine.id}-ub-${bugSuggestion.id}`,
+            null,
+            bugSuggestion.id,
+            bugSuggestion.summary,
+            bugSuggestion.resolution,
+          ),
+      );
 
     this.bestOption = null;
 
     // Look for an option that has been marked as the best classification.
     // This is always sorted first and never hidden, so we remove it and readd it.
     if (!this.bestIsIgnore()) {
-      const bestIndex = this.props.errorLine.bestClassification ?
-        autoclassifyOptions
-          .findIndex(option => option.classifiedFailureId === this.props.errorLine.bestClassification.id) : -1;
+      const bestIndex = this.props.errorLine.bestClassification
+        ? autoclassifyOptions.findIndex(
+            option =>
+              option.classifiedFailureId ===
+              this.props.errorLine.bestClassification.id,
+          )
+        : -1;
 
       if (bestIndex > -1) {
         this.bestOption = autoclassifyOptions[bestIndex];
@@ -199,8 +214,14 @@ class ErrorLine extends React.Component {
    * Build a list of the default options that apply to all lines.
    */
   getExtraOptions() {
-    const extraOptions = [new LineOptionModel('manual', `${this.props.errorLine.id}-manual`)];
-    const ignoreOption = new LineOptionModel('ignore', `${this.props.errorLine.id}-ignore`, 0);
+    const extraOptions = [
+      new LineOptionModel('manual', `${this.props.errorLine.id}-manual`),
+    ];
+    const ignoreOption = new LineOptionModel(
+      'ignore',
+      `${this.props.errorLine.id}-ignore`,
+      0,
+    );
 
     extraOptions.push(ignoreOption);
     if (this.bestIsIgnore()) {
@@ -250,8 +271,9 @@ class ErrorLine extends React.Component {
      */
 
     // Get the test id for this line and the last line, if any
-    const thisTest = failureLine ? failureLine.test :
-      parseTest(errorLine.data.bug_suggestions.search);
+    const thisTest = failureLine
+      ? failureLine.test
+      : parseTest(errorLine.data.bug_suggestions.search);
     let prevTest;
     if (prevErrorLine) {
       prevTest = prevErrorLine.data.failure_line
@@ -274,16 +296,19 @@ class ErrorLine extends React.Component {
       // suggestions, we assume that is the signature line
       // and this is ignorable
       ignore = true;
-    } else if (failureLine &&
-      (failureLine.action === 'crash' ||
-        failureLine.action === 'test_result')) {
+    } else if (
+      failureLine &&
+      (failureLine.action === 'crash' || failureLine.action === 'test_result')
+    ) {
       // Don't ignore crashes or test results
       ignore = false;
     } else {
       // Don't ignore lines containing a well-known string
       let message;
       if (failureLine) {
-        message = failureLine.signature ? failureLine.signature : failureLine.message;
+        message = failureLine.signature
+          ? failureLine.signature
+          : failureLine.message;
       } else {
         message = this.props.errorLine.data.bug_suggestions.search;
       }
@@ -312,13 +337,15 @@ class ErrorLine extends React.Component {
         }
         matchesByCF.get(match.classified_failure).push(match);
         return matchesByCF;
-      }, new Map());
+      },
+      new Map(),
+    );
 
-    const matchFunc = cf_id => matchesByCF.get(cf_id).map(
-        match => ({
-            matcher: match.matcher_name,
-            score: match.score,
-          }));
+    const matchFunc = cf_id =>
+      matchesByCF.get(cf_id).map(match => ({
+        matcher: match.matcher_name,
+        score: match.score,
+      }));
 
     return matchFunc.bind(this);
   }
@@ -329,11 +356,12 @@ class ErrorLine extends React.Component {
     // TODO: consider adding the update/create options back here, although it's
     // not clear anyone ever understood how they were supposed to work
     const { errorLine, setErrorLineInput } = this.props;
-    const classifiedFailureId = ((this.bestOption &&
+    const classifiedFailureId =
+      this.bestOption &&
       this.bestOption.classifiedFailureId &&
-      this.bestOption.bugNumber === null) ?
-      this.bestOption.classifiedFailureId :
-      option.classifiedFailureId);
+      this.bestOption.bugNumber === null
+        ? this.bestOption.classifiedFailureId
+        : option.classifiedFailureId;
 
     let bug;
     if (option.type === 'manual') {
@@ -386,10 +414,11 @@ class ErrorLine extends React.Component {
     const bestScore = this.bestOption.score;
 
     options.forEach((option, idx) => {
-      option.hidden = idx > (minOptions - 1) &&
+      option.hidden =
+        idx > minOptions - 1 &&
         (option.score < lowerCutoff ||
           option.score < bestRatio * bestScore ||
-          idx > (maxOptions - 1));
+          idx > maxOptions - 1);
     });
   }
 
@@ -399,22 +428,25 @@ class ErrorLine extends React.Component {
    * @param {Object[]} options - List of options to score
    */
   scoreOptions(options) {
-    options
-      .forEach((option) => {
-        let score;
-        const { data } = this.props.errorLine;
-        if (option.type === 'classifiedFailure') {
-          score = parseFloat(
-            data.matches.find(
-              x => x.classified_failure === option.classifiedFailureId).score);
-        } else {
-          score = stringOverlap(data.bug_suggestions.search,
-                                option.bugSummary.replace(/^\s*Intermittent\s+/, ''));
-          // Artificially reduce the score of resolved bugs
-          score *= option.bugResolution ? 0.8 : 1;
-        }
-        option.score = score;
-      });
+    options.forEach(option => {
+      let score;
+      const { data } = this.props.errorLine;
+      if (option.type === 'classifiedFailure') {
+        score = parseFloat(
+          data.matches.find(
+            x => x.classified_failure === option.classifiedFailureId,
+          ).score,
+        );
+      } else {
+        score = stringOverlap(
+          data.bug_suggestions.search,
+          option.bugSummary.replace(/^\s*Intermittent\s+/, ''),
+        );
+        // Artificially reduce the score of resolved bugs
+        score *= option.bugResolution ? 0.8 : 1;
+      }
+      option.score = score;
+    });
   }
 
   /**
@@ -429,11 +461,15 @@ class ErrorLine extends React.Component {
    * Test if the initial best option is to ignore the line
    */
   bestIsIgnore() {
-    const { errorLine: { data: errorData } } = this.props;
+    const {
+      errorLine: { data: errorData },
+    } = this.props;
 
     if (errorData.metaData) {
-      return (errorData.metadata.best_classification &&
-        errorData.metadata.best_classification.bugNumber === 0);
+      return (
+        errorData.metadata.best_classification &&
+        errorData.metadata.best_classification.bugNumber === 0
+      );
     }
     return false;
   }
@@ -442,21 +478,37 @@ class ErrorLine extends React.Component {
    * Determine whether the line should be open for editing by default
    */
   defaultEditable(option) {
-    return option ? !(option.score >= GOOD_MATCH_SCORE || option.type === 'ignore') : false;
+    return option
+      ? !(option.score >= GOOD_MATCH_SCORE || option.type === 'ignore')
+      : false;
   }
 
   render() {
     const {
-      errorLine, selectedJob, canClassify, isSelected, isEditable, setEditable,
-      toggleSelect, repoName,
+      errorLine,
+      selectedJob,
+      canClassify,
+      isSelected,
+      isEditable,
+      setEditable,
+      toggleSelect,
+      repoName,
     } = this.props;
     const {
-      messageExpanded, showHidden, selectedOption, options, extraOptions,
+      messageExpanded,
+      showHidden,
+      selectedOption,
+      options,
+      extraOptions,
     } = this.state;
 
     const failureLine = errorLine.data.metadata.failure_line;
     const searchLine = errorLine.data.bug_suggestions.search;
-    const logUrl = getLogViewerUrl(selectedJob.id, repoName, errorLine.data.line_number + 1);
+    const logUrl = getLogViewerUrl(
+      selectedJob.id,
+      repoName,
+      errorLine.data.line_number + 1,
+    );
     const status = this.getStatus();
 
     return (
@@ -465,131 +517,215 @@ class ErrorLine extends React.Component {
         onClick={evt => toggleSelect(evt, errorLine)}
       >
         <div className={status}>&nbsp;</div>
-        {errorLine.verified && <div>
-          {!errorLine.verifiedIgnore && <span
-            className="badge badge-xs badge-primary"
-            title="This line is verified"
-          >Verified</span>}
-          {errorLine.verifiedIgnore && <span
-            className="badge badge-xs badge-ignored"
-            title="This line is ignored"
-          >Ignored</span>}
-        </div>}
+        {errorLine.verified && (
+          <div>
+            {!errorLine.verifiedIgnore && (
+              <span
+                className="badge badge-xs badge-primary"
+                title="This line is verified"
+              >
+                Verified
+              </span>
+            )}
+            {errorLine.verifiedIgnore && (
+              <span
+                className="badge badge-xs badge-ignored"
+                title="This line is ignored"
+              >
+                Ignored
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="classification-line-detail">
-          {failureLine && <div>
-            {failureLine.action === 'test_result' && <span>
-              <span className={errorLine.verifiedIgnore ? 'ignored-line' : ''}>
-                <strong className="failure-line-status">{failureLine.status}</strong>
-                {failureLine.expected !== 'PASS' && failureLine.expected !== 'OK' && <span>
-                  (expected <strong>{failureLine.expected}</strong>)
-                </span>} | <strong>{failureLine.test}</strong>
-                {failureLine.subtest && <span>| {failureLine.subtest}</span>}
-              </span>
-              {failureLine.message && !errorLine.verifiedIgnore &&
-                <div className="failure-line-message">
+          {failureLine && (
+            <div>
+              {failureLine.action === 'test_result' && (
+                <span>
                   <span
-                    className={`failure-line-message-toggle fa fa-fw fa-lg${messageExpanded ? 'fa-caret-down' : 'fa-carat-right'}`}
-                    onClick={() => this.setState({ messageExpanded: !messageExpanded })}
-                  />
-                  {messageExpanded ?
-                    <span className="failure-line-message-expanded">{failureLine.message}</span> :
-                    <span className="failure-line-message-collapsed">{failureLine.message}</span>}
-                </div>}
-            </span>}
-            {failureLine.action === 'log' && <span>
+                    className={errorLine.verifiedIgnore ? 'ignored-line' : ''}
+                  >
+                    <strong className="failure-line-status">
+                      {failureLine.status}
+                    </strong>
+                    {failureLine.expected !== 'PASS' &&
+                      failureLine.expected !== 'OK' && (
+                        <span>
+                          (expected <strong>{failureLine.expected}</strong>)
+                        </span>
+                      )}{' '}
+                    | <strong>{failureLine.test}</strong>
+                    {failureLine.subtest && (
+                      <span>| {failureLine.subtest}</span>
+                    )}
+                  </span>
+                  {failureLine.message && !errorLine.verifiedIgnore && (
+                    <div className="failure-line-message">
+                      <span
+                        className={`failure-line-message-toggle fa fa-fw fa-lg${
+                          messageExpanded ? 'fa-caret-down' : 'fa-carat-right'
+                        }`}
+                        onClick={() =>
+                          this.setState({ messageExpanded: !messageExpanded })
+                        }
+                      />
+                      {messageExpanded ? (
+                        <span className="failure-line-message-expanded">
+                          {failureLine.message}
+                        </span>
+                      ) : (
+                        <span className="failure-line-message-collapsed">
+                          {failureLine.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </span>
+              )}
+              {failureLine.action === 'log' && (
+                <span>
                   LOG {failureLine.level} | {failureLine.message}
-            </span>}
-            {failureLine.action === 'crash' && <span>
+                </span>
+              )}
+              {failureLine.action === 'crash' && (
+                <span>
                   CRASH |
-              {failureLine.test && <span><strong>{failureLine.test}</strong> |
-              </span>}
+                  {failureLine.test && (
+                    <span>
+                      <strong>{failureLine.test}</strong> |
+                    </span>
+                  )}
                   application crashed [{failureLine.signature}]
-              </span>}
-            <span> [<a
-              title="Open the log viewer in a new window"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={logUrl}
-              className=""
-            >log…</a>]</span>
-          </div>}
-          {!failureLine && <div>
-            {highlightLogLine(searchLine)}
-            <span> [<a
-              title="Open the log viewer in a new window"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={logUrl}
-            >log…</a>]</span>
-          </div>}
-
-          {errorLine.verified && !errorLine.verifiedIgnore && <div>
-            <span className="fa fa-star best-classification-star" />
-            {errorLine.bugNumber && <span className="line-option-text">
-              <a
-                href={getBugUrl(errorLine.bugNumber)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >Bug {errorLine.bugNumber} - {errorLine.bugSummary && <span>{errorLine.bugSummary}</span>}</a>
-              {!errorLine.bugNumber && <span className="line-option-text">
-                Classifed failure with no bug number
-              </span>}
-            </span>}
-          </div>}
-
-          {((!errorLine.verified && isEditable) || !canClassify) && <div>
-            <FormGroup>
-              <ul className="list-unstyled">
-                {options.map(option => (
-                  (showHidden || !option.hidden) && <li key={option.id}>
-                    <LineOption
-                      errorLine={errorLine}
-                      optionModel={option}
-                      selectedOption={selectedOption}
-                      canClassify={canClassify}
-                      onOptionChange={this.onOptionChange}
-                      ignoreAlways={option.ignoreAlways}
-                    />
-                  </li>))}
-              </ul>
-              {this.hasHidden(options) &&
+                </span>
+              )}
+              <span>
+                {' '}
+                [
                 <a
-                  onClick={() => this.setState({ showHidden: !this.state.showHidden })}
-                  className="link-style has-hidden"
-                >{!showHidden ? <span>More…</span> : <span>Fewer</span>}</a>
-              }
-              {canClassify && <ul className="list-unstyled extra-options">
-                {/* classification options for line */}
-                {extraOptions.map(option => (
-                  <li key={option.id}>
-                    <LineOption
-                      errorLine={errorLine}
-                      optionModel={option}
-                      selectedOption={selectedOption}
-                      canClassify={canClassify}
-                      onOptionChange={this.onOptionChange}
-                      onIgnoreAlwaysChange={this.onIgnoreAlwaysChange}
-                      onManualBugNumberChange={this.onManualBugNumberChange}
-                      manualBugNumber={option.manualBugNumber}
-                      ignoreAlways={option.ignoreAlways}
-                    />
-                  </li>))}
-              </ul>}
-            </FormGroup>
-          </div>}
+                  title="Open the log viewer in a new window"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={logUrl}
+                  className=""
+                >
+                  log…
+                </a>
+                ]
+              </span>
+            </div>
+          )}
+          {!failureLine && (
+            <div>
+              {highlightLogLine(searchLine)}
+              <span>
+                {' '}
+                [
+                <a
+                  title="Open the log viewer in a new window"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={logUrl}
+                >
+                  log…
+                </a>
+                ]
+              </span>
+            </div>
+          )}
 
-          {!errorLine.verified && !isEditable && canClassify && <div>
-            <StaticLineOption
-              errorLine={errorLine}
-              option={selectedOption}
-              numOptions={options.length}
-              canClassify={canClassify}
-              setEditable={setEditable}
-              ignoreAlways={selectedOption.ignoreAlways}
-              manualBugNumber={selectedOption.manualBugNumber}
-            />
-          </div>}
+          {errorLine.verified && !errorLine.verifiedIgnore && (
+            <div>
+              <span className="fa fa-star best-classification-star" />
+              {errorLine.bugNumber && (
+                <span className="line-option-text">
+                  <a
+                    href={getBugUrl(errorLine.bugNumber)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Bug {errorLine.bugNumber} -{' '}
+                    {errorLine.bugSummary && (
+                      <span>{errorLine.bugSummary}</span>
+                    )}
+                  </a>
+                  {!errorLine.bugNumber && (
+                    <span className="line-option-text">
+                      Classifed failure with no bug number
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+          )}
+
+          {((!errorLine.verified && isEditable) || !canClassify) && (
+            <div>
+              <FormGroup>
+                <ul className="list-unstyled">
+                  {options.map(
+                    option =>
+                      (showHidden || !option.hidden) && (
+                        <li key={option.id}>
+                          <LineOption
+                            errorLine={errorLine}
+                            optionModel={option}
+                            selectedOption={selectedOption}
+                            canClassify={canClassify}
+                            onOptionChange={this.onOptionChange}
+                            ignoreAlways={option.ignoreAlways}
+                          />
+                        </li>
+                      ),
+                  )}
+                </ul>
+                {this.hasHidden(options) && (
+                  <a
+                    onClick={() =>
+                      this.setState({ showHidden: !this.state.showHidden })
+                    }
+                    className="link-style has-hidden"
+                  >
+                    {!showHidden ? <span>More…</span> : <span>Fewer</span>}
+                  </a>
+                )}
+                {canClassify && (
+                  <ul className="list-unstyled extra-options">
+                    {/* classification options for line */}
+                    {extraOptions.map(option => (
+                      <li key={option.id}>
+                        <LineOption
+                          errorLine={errorLine}
+                          optionModel={option}
+                          selectedOption={selectedOption}
+                          canClassify={canClassify}
+                          onOptionChange={this.onOptionChange}
+                          onIgnoreAlwaysChange={this.onIgnoreAlwaysChange}
+                          onManualBugNumberChange={this.onManualBugNumberChange}
+                          manualBugNumber={option.manualBugNumber}
+                          ignoreAlways={option.ignoreAlways}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </FormGroup>
+            </div>
+          )}
+
+          {!errorLine.verified && !isEditable && canClassify && (
+            <div>
+              <StaticLineOption
+                errorLine={errorLine}
+                option={selectedOption}
+                numOptions={options.length}
+                canClassify={canClassify}
+                setEditable={setEditable}
+                ignoreAlways={selectedOption.ignoreAlways}
+                manualBugNumber={selectedOption.manualBugNumber}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

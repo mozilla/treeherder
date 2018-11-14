@@ -37,7 +37,6 @@ const errorLinesCss = function errorLinesCss(errors) {
   style.sheet.insertRule(rule);
 };
 
-
 class App extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -64,48 +63,64 @@ class App extends React.PureComponent {
   componentDidMount() {
     const { repoName, jobId } = this.state;
 
-    JobModel.get(repoName, jobId).then(async (job) => {
-      // set the title of the browser window/tab
-      document.title = job.getTitle();
-      const rawLogUrl = job.logs && job.logs.length ? job.logs[0].url : null;
-      // other properties, in order of appearance
-      // Test to disable successful steps checkbox on taskcluster jobs
-      // Test to expose the reftest button in the logviewer actionbar
-      const reftestUrl = rawLogUrl && job.job_group_name && isReftest(job)
-        ? getReftestUrl(rawLogUrl) : null;
-      const jobDetails = await JobDetailModel.getJobDetails({ job_id: jobId });
+    JobModel.get(repoName, jobId)
+      .then(async job => {
+        // set the title of the browser window/tab
+        document.title = job.getTitle();
+        const rawLogUrl = job.logs && job.logs.length ? job.logs[0].url : null;
+        // other properties, in order of appearance
+        // Test to disable successful steps checkbox on taskcluster jobs
+        // Test to expose the reftest button in the logviewer actionbar
+        const reftestUrl =
+          rawLogUrl && job.job_group_name && isReftest(job)
+            ? getReftestUrl(rawLogUrl)
+            : null;
+        const jobDetails = await JobDetailModel.getJobDetails({
+          job_id: jobId,
+        });
 
-      this.setState({
-        job,
-        rawLogUrl,
-        reftestUrl,
-        jobDetails,
-        jobExists: true,
-      }, async () => {
-        // get the revision and linkify it
-        PushModel.get(job.push_id).then(async (resp) => {
-          const push = await resp.json();
-          const { revision } = push;
+        this.setState(
+          {
+            job,
+            rawLogUrl,
+            reftestUrl,
+            jobDetails,
+            jobExists: true,
+          },
+          async () => {
+            // get the revision and linkify it
+            PushModel.get(job.push_id).then(async resp => {
+              const push = await resp.json();
+              const { revision } = push;
 
-          this.setState({
-            revision,
-            jobUrl: getJobsUrl({ repo: repoName, revision, selectedJob: jobId }),
-          });
+              this.setState({
+                revision,
+                jobUrl: getJobsUrl({
+                  repo: repoName,
+                  revision,
+                  selectedJob: jobId,
+                }),
+              });
+            });
+          },
+        );
+      })
+      .catch(error => {
+        this.setState({
+          jobExists: false,
+          jobError: error.toString(),
         });
       });
-    }).catch((error) => {
-      this.setState({
-        jobExists: false,
-        jobError: error.toString(),
-      });
-    });
 
-    TextLogStepModel.get(jobId).then((textLogSteps) => {
+    TextLogStepModel.get(jobId).then(textLogSteps => {
       const stepErrors = textLogSteps.length ? textLogSteps[0].errors : [];
-      const errors = stepErrors.map(error => (
-        { line: error.line, lineNumber: error.line_number + 1 }
-      ));
-      const firstErrorLineNumber = errors.length ? [errors[0].lineNumber] : null;
+      const errors = stepErrors.map(error => ({
+        line: error.line,
+        lineNumber: error.line_number + 1,
+      }));
+      const firstErrorLineNumber = errors.length
+        ? [errors[0].lineNumber]
+        : null;
       const urlLN = getUrlLineNumber();
       const highlight = urlLN || firstErrorLineNumber;
 
@@ -173,14 +188,24 @@ class App extends React.PureComponent {
 
   render() {
     const {
-      job, rawLogUrl, reftestUrl, jobDetails, jobError, jobExists,
-      revision, errors, highlight, jobUrl,
+      job,
+      rawLogUrl,
+      reftestUrl,
+      jobDetails,
+      jobError,
+      jobExists,
+      revision,
+      errors,
+      highlight,
+      jobUrl,
     } = this.state;
-    const extraFields = [{
-      title: 'Revision',
-      url: jobUrl,
-      value: revision,
-    }];
+    const extraFields = [
+      {
+        title: 'Revision',
+        url: jobUrl,
+        value: revision,
+      },
+    ];
 
     return (
       <div className="d-flex flex-column body-logviewer h-100">
@@ -205,10 +230,7 @@ class App extends React.PureComponent {
                 />
                 <JobDetails jobDetails={jobDetails} />
               </div>
-              <ErrorLines
-                errors={errors}
-                onClickLine={this.setSelectedLine}
-              />
+              <ErrorLines errors={errors} onClickLine={this.setSelectedLine} />
             </div>
             <div className="log-contents flex-fill">
               <LazyLog

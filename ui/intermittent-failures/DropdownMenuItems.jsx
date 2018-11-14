@@ -3,17 +3,20 @@ import Icon from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import { DropdownMenu, DropdownItem } from 'reactstrap';
 
-const DropdownMenuItems = ({ selectedItem, updateData, options }) =>
-(
+const DropdownMenuItems = ({ selectedItem, updateData, options }) => (
   <DropdownMenu>
-    {options.map(item =>
-      (<DropdownItem key={item} onClick={event => updateData(event.target.innerText)}>
+    {options.map(item => (
+      <DropdownItem
+        key={item}
+        onClick={event => updateData(event.target.innerText)}
+      >
         <Icon
           name="check"
           className={`pr-1 ${selectedItem === item ? '' : 'hide'}`}
         />
         {item}
-      </DropdownItem>))}
+      </DropdownItem>
+    ))}
   </DropdownMenu>
 );
 

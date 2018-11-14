@@ -26,18 +26,27 @@ class NotificationList extends React.Component {
           <li key={notification.created}>
             <div className={`alert alert-${notification.severity}`}>
               <span
-                className={NotificationList.getSeverityClass(notification.severity)}
+                className={NotificationList.getSeverityClass(
+                  notification.severity,
+                )}
               />
               <span>{notification.message}</span>
-              {notification.url && notification.linkText && <span>
-                <a href={notification.url}>{notification.linkText}</a>
-              </span>}
-              {notification.sticky && <button
-                onClick={() => removeNotification(idx)}
-                className="close"
-              >x</button>}
+              {notification.url && notification.linkText && (
+                <span>
+                  <a href={notification.url}>{notification.linkText}</a>
+                </span>
+              )}
+              {notification.sticky && (
+                <button
+                  onClick={() => removeNotification(idx)}
+                  className="close"
+                >
+                  x
+                </button>
+              )}
             </div>
-          </li>))}
+          </li>
+        ))}
       </ul>
     );
   }

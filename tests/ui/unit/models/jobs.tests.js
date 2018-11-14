@@ -18,7 +18,10 @@ describe('JobModel', () => {
 
   describe('getList', () => {
     beforeEach(() => {
-      fetchMock.get(getProjectUrl('/jobs/'), getJSONFixture('job_list/job_1.json'));
+      fetchMock.get(
+        getProjectUrl('/jobs/'),
+        getJSONFixture('job_list/job_1.json'),
+      );
     });
 
     it('should return a promise', () => {
@@ -29,8 +32,14 @@ describe('JobModel', () => {
 
   describe('pagination', () => {
     beforeEach(() => {
-      fetchMock.get(getProjectUrl('/jobs/?count=2'), getJSONFixture('job_list/pagination/page_1.json'));
-      fetchMock.get(getProjectUrl('/jobs/?count=2&offset=2'), getJSONFixture('job_list/pagination/page_2.json'));
+      fetchMock.get(
+        getProjectUrl('/jobs/?count=2'),
+        getJSONFixture('job_list/pagination/page_1.json'),
+      );
+      fetchMock.get(
+        getProjectUrl('/jobs/?count=2&offset=2'),
+        getJSONFixture('job_list/pagination/page_2.json'),
+      );
     });
 
     it('should return a page of results by default', async () => {
@@ -40,7 +49,11 @@ describe('JobModel', () => {
     });
 
     it('should return all the pages when fetch_all==true', async () => {
-      const jobList = await JobModel.getList(repoName, { count: 2 }, { fetch_all: true });
+      const jobList = await JobModel.getList(
+        repoName,
+        { count: 2 },
+        { fetch_all: true },
+      );
 
       expect(jobList.length).toBe(3);
       expect(jobList[2].id).toBe(3);

@@ -15,7 +15,8 @@ export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
 };
 
 export const createQueryParams = function createQueryParams(params) {
-  const query = params instanceof URLSearchParams ? params : new URLSearchParams(params);
+  const query =
+    params instanceof URLSearchParams ? params : new URLSearchParams(params);
   return `?${query.toString()}`;
 };
 
@@ -45,7 +46,11 @@ export const getReftestUrl = function getReftestUrl(logUrl) {
 // which is a "project" endpoint that requires the project name.  We shouldn't
 // need that since the ids are unique across projects.
 // Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
-export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_number) {
+export const getLogViewerUrl = function getLogViewerUrl(
+  job_id,
+  repoName,
+  line_number,
+) {
   const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
@@ -92,9 +97,10 @@ export const graphsEndpoint = 'failurecount/';
 export const parseQueryParams = function parseQueryParams(search) {
   const params = new URLSearchParams(search);
 
-  return [...params.entries()].reduce((acc, [key, value]) => (
-    { ...acc, [key]: value }
-  ), {});
+  return [...params.entries()].reduce(
+    (acc, [key, value]) => ({ ...acc, [key]: value }),
+    {},
+  );
 };
 
 // TODO: Combine this with getApiUrl().

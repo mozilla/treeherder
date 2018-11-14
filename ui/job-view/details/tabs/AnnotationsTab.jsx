@@ -48,11 +48,9 @@ function RelatedBug(props) {
       <ul className="annotations-bug-list">
         {bugs.map(bug => (
           <li key={bug.bug_id}>
-            <RelatedBugSaved
-              bug={bug}
-              deleteBug={() => deleteBug(bug)}
-            />
-          </li>))}
+            <RelatedBugSaved bug={bug} deleteBug={() => deleteBug(bug)} />
+          </li>
+        ))}
       </ul>
     </span>
   );
@@ -66,7 +64,9 @@ RelatedBug.propTypes = {
 function TableRow(props) {
   const { deleteClassification, classification, classificationMap } = props;
   const { created, who, name, text } = classification;
-  const deleteEvent = () => { deleteClassification(classification); };
+  const deleteEvent = () => {
+    deleteClassification(classification);
+  };
   const failureId = classification.failure_classification_id;
   const iconClass = failureId === 7 ? 'fa-star-o' : 'fa fa-star';
   const classificationName = classificationMap[failureId];
@@ -104,9 +104,7 @@ TableRow.propTypes = {
 };
 
 function AnnotationsTable(props) {
-  const {
-    classifications, deleteClassification, classificationMap,
-  } = props;
+  const { classifications, deleteClassification, classificationMap } = props;
 
   return (
     <table className="table-super-condensed table-hover">
@@ -125,8 +123,8 @@ function AnnotationsTable(props) {
             classification={classification}
             deleteClassification={deleteClassification}
             classificationMap={classificationMap}
-          />))
-        }
+          />
+        ))}
       </tbody>
     </table>
   );
@@ -148,11 +146,17 @@ class AnnotationsTab extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener(thEvents.deleteClassification, this.onDeleteClassification);
+    window.addEventListener(
+      thEvents.deleteClassification,
+      this.onDeleteClassification,
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener(thEvents.deleteClassification, this.onDeleteClassification);
+    window.removeEventListener(
+      thEvents.deleteClassification,
+      this.onDeleteClassification,
+    );
   }
 
   onDeleteClassification() {
@@ -161,7 +165,9 @@ class AnnotationsTab extends React.Component {
     if (classifications.length) {
       this.deleteClassification(classifications[0]);
       // Delete any number of bugs if they exist
-      bugs.forEach((bug) => { this.deleteBug(bug); });
+      bugs.forEach(bug => {
+        this.deleteBug(bug);
+      });
     } else {
       notify('No classification on this job to delete', 'warning');
     }
@@ -182,19 +188,27 @@ class AnnotationsTab extends React.Component {
       },
       () => {
         notify('Classification deletion failed', 'danger', { sticky: true });
-      });
+      },
+    );
   }
 
   deleteBug(bug) {
     const { notify } = this.props;
 
-    bug.destroy()
-      .then(() => {
-        notify(`Association to bug ${bug.bug_id} successfully deleted`, 'success');
+    bug.destroy().then(
+      () => {
+        notify(
+          `Association to bug ${bug.bug_id} successfully deleted`,
+          'success',
+        );
         window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
-      }, () => {
-        notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', { sticky: true });
-      });
+      },
+      () => {
+        notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', {
+          sticky: true,
+        });
+      },
+    );
   }
 
   render() {
@@ -204,23 +218,22 @@ class AnnotationsTab extends React.Component {
       <div className="container-fluid">
         <div className="row h-100">
           <div className="col-sm-10 classifications-pane">
-            {classifications.length ?
+            {classifications.length ? (
               <AnnotationsTable
                 classifications={classifications}
                 deleteClassification={this.deleteClassification}
                 classificationMap={classificationMap}
-              /> :
+              />
+            ) : (
               <p>This job has not been classified</p>
-            }
+            )}
           </div>
 
-          {!!classifications.length && !!bugs.length &&
-          <div className="col-sm-2 bug-list-pane">
-            <RelatedBug
-              bugs={bugs}
-              deleteBug={this.deleteBug}
-            />
-          </div>}
+          {!!classifications.length && !!bugs.length && (
+            <div className="col-sm-2 bug-list-pane">
+              <RelatedBug bugs={bugs} deleteBug={this.deleteBug} />
+            </div>
+          )}
         </div>
       </div>
     );

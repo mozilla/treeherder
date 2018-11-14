@@ -5,19 +5,23 @@ export default function ErrorsList(props) {
   const errorListItem = props.errors.map((error, key) => (
     <li
       key={key} // eslint-disable-line react/no-array-index-key
-    >{error.name} : {error.result}.
+    >
+      {error.name} : {error.result}.
       <a
         title="Open in Log Viewer"
         target="_blank"
         rel="noopener noreferrer"
         href={error.logViewerUrl}
-      ><span className="ml-1">View log</span></a>
+      >
+        <span className="ml-1">View log</span>
+      </a>
     </li>
   ));
 
   return (
     <li>
-      No Bug Suggestions Available.<br />
+      No Bug Suggestions Available.
+      <br />
       <span className="font-weight-bold">Unsuccessful Execution Steps</span>
       <ul>{errorListItem}</ul>
     </li>

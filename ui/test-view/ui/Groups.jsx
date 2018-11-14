@@ -1,6 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, FormGroup, Input, Label, Row, Col, Table, Container } from 'reactstrap';
+import {
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  Row,
+  Col,
+  Table,
+  Container,
+} from 'reactstrap';
 import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 
@@ -13,10 +22,10 @@ import StatusNavbar from './StatusNavbar';
 const mapStateToProps = ({ groups }) => groups;
 
 class Groups extends React.Component {
-
   constructor(props) {
     super(props);
-    this.filterStr = new URLSearchParams(window.location.search).get('filter') || '';
+    this.filterStr =
+      new URLSearchParams(window.location.search).get('filter') || '';
   }
 
   componentDidMount() {
@@ -26,10 +35,7 @@ class Groups extends React.Component {
     this.updateTests();
 
     // Update the tests every two minutes.
-    this.testTimerId = setInterval(
-      () => this.updateTests(),
-      120000,
-    );
+    this.testTimerId = setInterval(() => this.updateTests(), 120000);
   }
 
   componentWillUnmount() {
@@ -42,14 +48,24 @@ class Groups extends React.Component {
     const revision = searchParams.get('revision');
     const filter = searchParams.get('filter') || '';
 
-    store.dispatch(actions.groups.updateTests(revision, filter, options, hideClassified, bugSuggestions));
+    store.dispatch(
+      actions.groups.updateTests(
+        revision,
+        filter,
+        options,
+        hideClassified,
+        bugSuggestions,
+      ),
+    );
   }
 
   filter(e) {
     const { groups, options, hideClassified } = this.props;
     const { value } = e.target;
 
-    store.dispatch(actions.groups.filterTests(value, groups, options, hideClassified));
+    store.dispatch(
+      actions.groups.filterTests(value, groups, options, hideClassified),
+    );
   }
 
   render() {
@@ -62,13 +78,16 @@ class Groups extends React.Component {
             <Row>
               <Col md={3} sm={12} xs={12} style={{ textAlign: 'right' }}>
                 Known intermittent failure&nbsp;&nbsp;
-                <Icon name="bug" style={{ color: '#d78236' }} /><br />
+                <Icon name="bug" style={{ color: '#d78236' }} />
+                <br />
                 Infrastructure issue&nbsp;&nbsp;
                 <Icon name="chain-broken" style={{ color: '#db3737' }} />
               </Col>
               <Col md={6} sm={12} xs={12}>
                 <FormGroup style={{ marginBottom: 0 }}>
-                  <Label htmlFor="filter" hidden>Filter</Label>
+                  <Label htmlFor="filter" hidden>
+                    Filter
+                  </Label>
                   <Input
                     style={{ borderRadius: '2rem' }}
                     type="text"
@@ -87,17 +106,27 @@ class Groups extends React.Component {
         <Table size="sm" responsive>
           <thead>
             <tr>
-              <th key="status" style={{ paddingLeft: '1rem', textAlign: 'center' }}>Bugs</th>
+              <th
+                key="status"
+                style={{ paddingLeft: '1rem', textAlign: 'center' }}
+              >
+                Bugs
+              </th>
               <th key="test">Test</th>
             </tr>
           </thead>
-          {
-            // eslint-disable-next-line no-nested-ternary
-            this.props.fetchStatus === 'HasData' ? Object.entries(this.props.rowData).map(([name, rows]) => (
+          {// eslint-disable-next-line no-nested-ternary
+          this.props.fetchStatus === 'HasData' ? (
+            Object.entries(this.props.rowData).map(([name, rows]) => (
               <tbody key={name}>
                 <tr style={{ backgroundColor: '#f9f9f9' }}>
-                  <td colSpan={4} style={{ textAlign: 'center', fontSize: '1.5rem' }}>
-                    <code style={{ color: '#000', backgroundColor: 'transparent' }}>
+                  <td
+                    colSpan={4}
+                    style={{ textAlign: 'center', fontSize: '1.5rem' }}
+                  >
+                    <code
+                      style={{ color: '#000', backgroundColor: 'transparent' }}
+                    >
                       {name}
                     </code>
                   </td>
@@ -107,29 +136,32 @@ class Groups extends React.Component {
                     <BugCount testName={testName} test={test} jobGroup={name} />
                     <Test name={testName} test={test} jobGroup={name} />
                   </tr>
-              ))}
+                ))}
               </tbody>
-          )) : (
-            this.props.fetchStatus ? (
-              <tbody>
-                <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
-                    {this.props.fetchStatus}
-                  </td>
-                </tr>
-              </tbody>
-
-            ) : (
-              <tbody>
-                <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', paddingTop: '2rem' }}>
-                    <Icon name="spinner" size="2x" spin />
-                  </td>
-                </tr>
-              </tbody>
-            )
-          )
-          }
+            ))
+          ) : this.props.fetchStatus ? (
+            <tbody>
+              <tr>
+                <td
+                  colSpan={4}
+                  style={{ textAlign: 'center', paddingTop: '2rem' }}
+                >
+                  {this.props.fetchStatus}
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody>
+              <tr>
+                <td
+                  colSpan={4}
+                  style={{ textAlign: 'center', paddingTop: '2rem' }}
+                >
+                  <Icon name="spinner" size="2x" spin />
+                </td>
+              </tr>
+            </tbody>
+          )}
         </Table>
       </div>
     );

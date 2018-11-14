@@ -38,7 +38,11 @@ export default class DateOptions extends React.Component {
       // bug history is max 4 months
       from = 120;
     }
-    const startday = ISODate(moment().utc().subtract(from, 'days'));
+    const startday = ISODate(
+      moment()
+        .utc()
+        .subtract(from, 'days'),
+    );
     const endday = ISODate(moment().utc());
     this.props.updateState({ startday, endday });
   }
@@ -46,23 +50,29 @@ export default class DateOptions extends React.Component {
   render() {
     const { updateState } = this.props;
     const { dropdownOpen, dateRange } = this.state;
-    const dateOptions = ['last 7 days', 'last 30 days', 'custom range', 'entire history'];
+    const dateOptions = [
+      'last 7 days',
+      'last 30 days',
+      'custom range',
+      'entire history',
+    ];
 
     return (
       <div className="d-inline-block">
-        <ButtonDropdown className="mr-3" isOpen={dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret>
-            date range
-          </DropdownToggle>
+        <ButtonDropdown
+          className="mr-3"
+          isOpen={dropdownOpen}
+          toggle={this.toggle}
+        >
+          <DropdownToggle caret>date range</DropdownToggle>
           <DropdownMenuItems
             options={dateOptions}
             updateData={this.updateDateRange}
           />
         </ButtonDropdown>
-        {dateRange === 'custom range' &&
-        <DateRangePicker
-          updateState={updateState}
-        />}
+        {dateRange === 'custom range' && (
+          <DateRangePicker updateState={updateState} />
+        )}
       </div>
     );
   }

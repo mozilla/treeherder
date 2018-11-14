@@ -68,10 +68,9 @@ class AutoclassifyTab extends React.Component {
    */
   onSaveAll(pendingLines) {
     const pending = pendingLines || Array.from(this.state.inputByLine.values());
-    this.save(pending)
-      .then(() => {
-        this.setState({ selectedLineIds: new Set() });
-      });
+    this.save(pending).then(() => {
+      this.setState({ selectedLineIds: new Set() });
+    });
   }
 
   /**
@@ -121,21 +120,32 @@ class AutoclassifyTab extends React.Component {
 
   getLoadStatusText() {
     switch (this.state.loadStatus) {
-      case 'job_pending': return 'Job not complete, please wait';
-      case 'pending': return 'Logs not fully parsed, please wait';
-      case 'failed': return 'Log parsing failed';
-      case 'no_logs': return 'No errors logged';
-      case 'error': return 'Error showing autoclassification data';
-      case 'loading': return null;
-      case 'ready': return (!this.state.errorLines || this.state.errorLines.length === 0) ? 'No error lines reported' : null;
-      default: return `Unexpected status: ${this.state.loadStatus}`;
+      case 'job_pending':
+        return 'Job not complete, please wait';
+      case 'pending':
+        return 'Logs not fully parsed, please wait';
+      case 'failed':
+        return 'Log parsing failed';
+      case 'no_logs':
+        return 'No errors logged';
+      case 'error':
+        return 'Error showing autoclassification data';
+      case 'loading':
+        return null;
+      case 'ready':
+        return !this.state.errorLines || this.state.errorLines.length === 0
+          ? 'No error lines reported'
+          : null;
+      default:
+        return `Unexpected status: ${this.state.loadStatus}`;
     }
   }
 
   setEditable(lineIds, editable) {
     const { editableLineIds } = this.state;
-    const f = editable ? lineId => editableLineIds.add(lineId) :
-      lineId => editableLineIds.delete(lineId);
+    const f = editable
+      ? lineId => editableLineIds.add(lineId)
+      : lineId => editableLineIds.delete(lineId);
 
     lineIds.forEach(f);
     this.setState({ editableLineIds });
@@ -154,18 +164,23 @@ class AutoclassifyTab extends React.Component {
   async fetchErrorData() {
     const { selectedJob } = this.props;
 
-    this.setState({
+    this.setState(
+      {
         loadStatus: 'loading',
         errorLines: [],
         selectedLineIds: new Set(),
         editableLineIds: new Set(),
         inputByLine: new Map(),
         autoclassifyStatusOnLoad: null,
-      }, async () => {
+      },
+      async () => {
         if (selectedJob.id) {
-          const errorLineResp = await fetch(getProjectJobUrl('/text_log_errors/', selectedJob.id));
+          const errorLineResp = await fetch(
+            getProjectJobUrl('/text_log_errors/', selectedJob.id),
+          );
           const errorLineData = await errorLineResp.json();
-          const errorLines = errorLineData.map(line => new ErrorLineData(line))
+          const errorLines = errorLineData
+            .map(line => new ErrorLineData(line))
             .sort((a, b) => a.data.id - b.data.id);
 
           if (errorLines.length) {
@@ -180,9 +195,9 @@ class AutoclassifyTab extends React.Component {
             loadStatus: 'ready',
           });
         }
-      });
+      },
+    );
   }
-
 
   /**
    * Test if it is possible to save a specific line.
@@ -214,8 +229,11 @@ class AutoclassifyTab extends React.Component {
   canSaveAll() {
     const pendingLines = this.getPendingLines();
 
-    return (this.state.canClassify && !!pendingLines.length &&
-      pendingLines.every(line => this.canSave(line.id)));
+    return (
+      this.state.canClassify &&
+      !!pendingLines.length &&
+      pendingLines.every(line => this.canSave(line.id))
+    );
   }
 
   /**
@@ -236,19 +254,23 @@ class AutoclassifyTab extends React.Component {
     }));
 
     this.setState({ loadStatus: 'loading' });
-    return TextLogErrorsModel
-      .verifyMany(data)
-      .then((data) => {
-        const newErrorLines = data.reduce((newLines, updatedLine) => {
-          const idx = newLines.findIndex(line => line.id === updatedLine.id);
-          newLines[idx] = new ErrorLineData(updatedLine);
-          return newLines;
-        }, [...errorLines]);
+    return TextLogErrorsModel.verifyMany(data)
+      .then(data => {
+        const newErrorLines = data.reduce(
+          (newLines, updatedLine) => {
+            const idx = newLines.findIndex(line => line.id === updatedLine.id);
+            newLines[idx] = new ErrorLineData(updatedLine);
+            return newLines;
+          },
+          [...errorLines],
+        );
         this.setState({ errorLines: newErrorLines, loadStatus: 'ready' });
       })
-      .catch((err) => {
+      .catch(err => {
         const prefix = 'Error saving classifications: ';
-        const msg = err.stack ? `${prefix}${err}${err.stack}` : `${prefix}${err.statusText} - ${err.data.detail}`;
+        const msg = err.stack
+          ? `${prefix}${err}${err.stack}`
+          : `${prefix}${err.statusText} - ${err.data.detail}`;
         notify(msg, 'danger', { sticky: true });
       });
   }
@@ -257,7 +279,13 @@ class AutoclassifyTab extends React.Component {
    * Update the panel for a new job selection
    */
   jobChanged() {
-    const { autoclassifyStatus, hasLogs, logsParsed, logParseStatus, selectedJob } = this.props;
+    const {
+      autoclassifyStatus,
+      hasLogs,
+      logsParsed,
+      logParseStatus,
+      selectedJob,
+    } = this.props;
     const { loadStatus, autoclassifyStatusOnLoad } = this.state;
 
     let newLoadStatus = 'loading';
@@ -269,7 +297,10 @@ class AutoclassifyTab extends React.Component {
       newLoadStatus = 'failed';
     } else if (!hasLogs) {
       newLoadStatus = 'no_logs';
-    } else if (autoclassifyStatusOnLoad === null || autoclassifyStatusOnLoad === 'cross_referenced') {
+    } else if (
+      autoclassifyStatusOnLoad === null ||
+      autoclassifyStatusOnLoad === 'cross_referenced'
+    ) {
       if (loadStatus !== 'ready') {
         newLoadStatus = 'loading';
       }
@@ -331,46 +362,52 @@ class AutoclassifyTab extends React.Component {
 
     return (
       <React.Fragment>
-        {canClassify && <AutoclassifyToolbar
-          loadStatus={loadStatus}
-          autoclassifyStatus={autoclassifyStatus}
-          user={user}
-          hasSelection={!!selectedLineIds.size}
-          canSave={canSave}
-          canSaveAll={canSaveAll}
-          canClassify={canClassify}
-          onPin={this.onPin}
-          onIgnore={this.onIgnore}
-          onEdit={this.onToggleEditable}
-          onSave={this.onSave}
-          onSaveAll={() => this.onSaveAll()}
-        />}
+        {canClassify && (
+          <AutoclassifyToolbar
+            loadStatus={loadStatus}
+            autoclassifyStatus={autoclassifyStatus}
+            user={user}
+            hasSelection={!!selectedLineIds.size}
+            canSave={canSave}
+            canSaveAll={canSaveAll}
+            canClassify={canClassify}
+            onPin={this.onPin}
+            onIgnore={this.onIgnore}
+            onEdit={this.onToggleEditable}
+            onSave={this.onSave}
+            onSaveAll={() => this.onSaveAll()}
+          />
+        )}
 
         <div>
           {loadStatusText && <span>{loadStatusText}</span>}
-          {loadStatus === 'loading' && <div className="overlay">
-            <div>
-              <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+          {loadStatus === 'loading' && (
+            <div className="overlay">
+              <div>
+                <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+              </div>
             </div>
-          </div>}
+          )}
         </div>
 
         <span className="autoclassify-error-lines">
           <ul className="list-unstyled">
-            {errorLines.map((errorLine, idx) => (<li key={errorLine.id}>
-              <ErrorLine
-                errorMatchers={errorMatchers}
-                errorLine={errorLine}
-                prevErrorLine={errorLines[idx - 1]}
-                canClassify={canClassify}
-                isSelected={selectedLineIds.has(errorLine.id)}
-                isEditable={editableLineIds.has(errorLine.id)}
-                setEditable={() => this.setEditable([errorLine.id], true)}
-                setErrorLineInput={this.setErrorLineInput}
-                toggleSelect={this.toggleSelect}
-                repoName={repoName}
-              />
-            </li>))}
+            {errorLines.map((errorLine, idx) => (
+              <li key={errorLine.id}>
+                <ErrorLine
+                  errorMatchers={errorMatchers}
+                  errorLine={errorLine}
+                  prevErrorLine={errorLines[idx - 1]}
+                  canClassify={canClassify}
+                  isSelected={selectedLineIds.has(errorLine.id)}
+                  isEditable={editableLineIds.has(errorLine.id)}
+                  setEditable={() => this.setEditable([errorLine.id], true)}
+                  setErrorLineInput={this.setErrorLineInput}
+                  toggleSelect={this.toggleSelect}
+                  repoName={repoName}
+                />
+              </li>
+            ))}
           </ul>
         </span>
       </React.Fragment>
@@ -396,4 +433,6 @@ AutoclassifyTab.defaultProps = {
   logParseStatus: 'pending',
 };
 
-export default withNotifications(withSelectedJob(withPinnedJobs(AutoclassifyTab)));
+export default withNotifications(
+  withSelectedJob(withPinnedJobs(AutoclassifyTab)),
+);

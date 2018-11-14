@@ -5,9 +5,7 @@ import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
 import jsyaml from 'js-yaml';
 import { slugid } from 'taskcluster-client-web';
-import {
-  Button, Modal, ModalHeader, ModalBody, ModalFooter,
-} from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
@@ -41,19 +39,30 @@ class CustomJobActions extends React.PureComponent {
     this.close = this.close.bind(this);
     this.triggerAction = this.triggerAction.bind(this);
 
-    getGeckoDecisionTaskId(pushId).then((decisionTaskId) => {
-      TaskclusterModel.load(decisionTaskId, job).then((results) => {
-        const { originalTask, originalTaskId, staticActionVariables, actions } = results;
-        const actionOptions = actions.map(action => ({ value: action, label: action.title }));
-
-        this.setState({
+    getGeckoDecisionTaskId(pushId).then(decisionTaskId => {
+      TaskclusterModel.load(decisionTaskId, job).then(results => {
+        const {
           originalTask,
           originalTaskId,
-          actions,
           staticActionVariables,
-          actionOptions,
-          selectedActionOption: actionOptions[0],
-        }, () => this.updateSelectedAction(actions[0]));
+          actions,
+        } = results;
+        const actionOptions = actions.map(action => ({
+          value: action,
+          label: action.title,
+        }));
+
+        this.setState(
+          {
+            originalTask,
+            originalTaskId,
+            actions,
+            staticActionVariables,
+            actionOptions,
+            selectedActionOption: actionOptions[0],
+          },
+          () => this.updateSelectedAction(actions[0]),
+        );
       });
       this.setState({ decisionTaskId });
     });
@@ -87,8 +96,14 @@ class CustomJobActions extends React.PureComponent {
   triggerAction() {
     this.setState({ triggering: true });
     const {
-      ajv, validate, payload, decisionTaskId, originalTaskId, originalTask,
-      selectedActionOption, staticActionVariables,
+      ajv,
+      validate,
+      payload,
+      decisionTaskId,
+      originalTaskId,
+      originalTask,
+      selectedActionOption,
+      staticActionVariables,
     } = this.state;
     const { notify } = this.props;
     const action = selectedActionOption.value;
@@ -111,34 +126,40 @@ class CustomJobActions extends React.PureComponent {
     }
 
     TaskclusterModel.submit({
-       action,
-       actionTaskId: slugid(),
-       decisionTaskId,
-       taskId: originalTaskId,
-       task: originalTask,
-       input,
-       staticActionVariables,
-     }).then((taskId) => {
-      this.setState({ triggering: false });
-      let message = 'Custom action request sent successfully:';
-      let url = `https://tools.taskcluster.net/tasks/${taskId}`;
+      action,
+      actionTaskId: slugid(),
+      decisionTaskId,
+      taskId: originalTaskId,
+      task: originalTask,
+      input,
+      staticActionVariables,
+    }).then(
+      taskId => {
+        this.setState({ triggering: false });
+        let message = 'Custom action request sent successfully:';
+        let url = `https://tools.taskcluster.net/tasks/${taskId}`;
 
-      // For the time being, we are redirecting specific actions to
-      // specific urls that are different than usual. At this time, we are
-      // only directing loaner tasks to the loaner UI in the tools site.
-      // It is possible that we may make this a part of the spec later.
-      const loaners = ['docker-worker-linux-loaner', 'generic-worker-windows-loaner'];
-      if (loaners.includes(action.name)) {
-        message = 'Visit Taskcluster Tools site to access loaner:';
-        url = `${url}/connect`;
-      }
-      notify(message, 'success', { linkText: 'Open in Taskcluster', url });
-      this.close();
-    }, (e) => {
-      notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      this.setState({ triggering: false });
-      this.close();
-    });
+        // For the time being, we are redirecting specific actions to
+        // specific urls that are different than usual. At this time, we are
+        // only directing loaner tasks to the loaner UI in the tools site.
+        // It is possible that we may make this a part of the spec later.
+        const loaners = [
+          'docker-worker-linux-loaner',
+          'generic-worker-windows-loaner',
+        ];
+        if (loaners.includes(action.name)) {
+          message = 'Visit Taskcluster Tools site to access loaner:';
+          url = `${url}/connect`;
+        }
+        notify(message, 'success', { linkText: 'Open in Taskcluster', url });
+        this.close();
+      },
+      e => {
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        this.setState({ triggering: false });
+        this.close();
+      },
+    );
   }
 
   close() {
@@ -154,62 +175,79 @@ class CustomJobActions extends React.PureComponent {
   render() {
     const { isLoggedIn, toggle } = this.props;
     const {
-      triggering, selectedActionOption, schema, actions, actionOptions, payload,
+      triggering,
+      selectedActionOption,
+      schema,
+      actions,
+      actionOptions,
+      payload,
     } = this.state;
     const isOpen = true;
     const selectedAction = selectedActionOption.value;
 
     return (
       <Modal isOpen={isOpen} toggle={this.close} size="lg">
-        <ModalHeader toggle={this.close}>Custom Taskcluster Job Actions</ModalHeader>
+        <ModalHeader toggle={this.close}>
+          Custom Taskcluster Job Actions
+        </ModalHeader>
         <ModalBody>
-          {!actions && <div>
-            <p className="blink"> Getting available actions...</p>
-          </div>}
-          {!!actions && <div>
-            <div className="form-group">
-              <label>Action</label>
-              <Select
-                aria-describedby="selectedActionHelp"
-                value={selectedActionOption}
-                onChange={this.onChangeAction}
-                options={actionOptions}
-              />
-              <p
-                id="selectedActionHelp"
-                className="help-block"
-              >{selectedAction.description}</p>
-              {selectedAction.kind === 'hook' && <p>This action triggers hook&nbsp;
-                <code>{selectedAction.hookGroupId}/{selectedAction.hookId}</code>
-              </p>}
+          {!actions && (
+            <div>
+              <p className="blink"> Getting available actions...</p>
             </div>
-            <div className="row">
-              {!!selectedAction.schema && <React.Fragment>
-                <div className="col-s-12 col-md-6 form-group">
-                  <label>Payload</label>
-                  <textarea
-                    value={payload}
-                    className="form-control pre"
-                    rows="10"
-                    onChange={evt => this.onChangePayload(evt.target.value)}
-                    spellCheck="false"
-                  />
-                </div>
-                <div className="col-s-12 col-md-6 form-group">
-                  <label>Schema</label>
-                  <textarea
-                    className="form-control pre"
-                    rows="10"
-                    readOnly
-                    value={schema}
-                  />
-                </div>
-              </React.Fragment>}
+          )}
+          {!!actions && (
+            <div>
+              <div className="form-group">
+                <label>Action</label>
+                <Select
+                  aria-describedby="selectedActionHelp"
+                  value={selectedActionOption}
+                  onChange={this.onChangeAction}
+                  options={actionOptions}
+                />
+                <p id="selectedActionHelp" className="help-block">
+                  {selectedAction.description}
+                </p>
+                {selectedAction.kind === 'hook' && (
+                  <p>
+                    This action triggers hook&nbsp;
+                    <code>
+                      {selectedAction.hookGroupId}/{selectedAction.hookId}
+                    </code>
+                  </p>
+                )}
+              </div>
+              <div className="row">
+                {!!selectedAction.schema && (
+                  <React.Fragment>
+                    <div className="col-s-12 col-md-6 form-group">
+                      <label>Payload</label>
+                      <textarea
+                        value={payload}
+                        className="form-control pre"
+                        rows="10"
+                        onChange={evt => this.onChangePayload(evt.target.value)}
+                        spellCheck="false"
+                      />
+                    </div>
+                    <div className="col-s-12 col-md-6 form-group">
+                      <label>Schema</label>
+                      <textarea
+                        className="form-control pre"
+                        rows="10"
+                        readOnly
+                        value={schema}
+                      />
+                    </div>
+                  </React.Fragment>
+                )}
+              </div>
             </div>
-          </div>}
+          )}
         </ModalBody>
         <ModalFooter>
-          {isLoggedIn ?
+          {isLoggedIn ? (
             <Button
               color="secondary"
               className={`btn btn-primary-soft ${triggering ? 'disabled' : ''}`}
@@ -218,10 +256,13 @@ class CustomJobActions extends React.PureComponent {
             >
               <span className="fa fa-check-square-o" aria-hidden="true" />
               <span>{triggering ? 'Triggering' : 'Trigger'}</span>
-            </Button> :
+            </Button>
+          ) : (
             <p className="help-block"> Custom actions require login </p>
-          }
-          <Button color="secondary" onClick={toggle}>Cancel</Button>
+          )}
+          <Button color="secondary" onClick={toggle}>
+            Cancel
+          </Button>
         </ModalFooter>
       </Modal>
     );

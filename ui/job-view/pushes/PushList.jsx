@@ -24,8 +24,16 @@ class PushList extends React.Component {
 
   render() {
     const {
-      user, repoName, revision, currentRepo, filterModel, pushList,
-      loadingPushes, getNextPushes, jobsLoaded, duplicateJobsVisible,
+      user,
+      repoName,
+      revision,
+      currentRepo,
+      filterModel,
+      pushList,
+      loadingPushes,
+      getNextPushes,
+      jobsLoaded,
+      duplicateJobsVisible,
       groupCountsExpanded,
     } = this.props;
     const { notificationSupported } = this.state;
@@ -38,48 +46,51 @@ class PushList extends React.Component {
     return (
       <div>
         {jobsLoaded && <span className="hidden ready" />}
-        {repoName && pushList.map(push => (
-          <ErrorBoundary
-            errorClasses="pl-2 border-top border-bottom border-dark d-block"
-            message={`Error on push with revision ${push.revision}: `}
-            key={push.id}
-          >
-            <Push
-              push={push}
-              isLoggedIn={isLoggedIn || false}
-              currentRepo={currentRepo}
-              repoName={repoName}
-              filterModel={filterModel}
-              notificationSupported={notificationSupported}
-              duplicateJobsVisible={duplicateJobsVisible}
-              groupCountsExpanded={groupCountsExpanded}
-              isOnlyRevision={push.revision === revision}
-            />
-          </ErrorBoundary>
-        ))}
-        {loadingPushes &&
+        {repoName &&
+          pushList.map(push => (
+            <ErrorBoundary
+              errorClasses="pl-2 border-top border-bottom border-dark d-block"
+              message={`Error on push with revision ${push.revision}: `}
+              key={push.id}
+            >
+              <Push
+                push={push}
+                isLoggedIn={isLoggedIn || false}
+                currentRepo={currentRepo}
+                repoName={repoName}
+                filterModel={filterModel}
+                notificationSupported={notificationSupported}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
+                isOnlyRevision={push.revision === revision}
+              />
+            </ErrorBoundary>
+          ))}
+        {loadingPushes && (
           <div
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
           />
-        }
-        {pushList.length === 0 && !loadingPushes &&
+        )}
+        {pushList.length === 0 && !loadingPushes && (
           <PushLoadErrors
             loadingPushes={loadingPushes}
             currentRepo={currentRepo}
             repoName={repoName}
             revision={revision}
           />
-        }
+        )}
         <div className="card card-body get-next">
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (
               <div
                 className="btn btn-light-bordered"
-                onClick={() => (getNextPushes(count))}
+                onClick={() => getNextPushes(count)}
                 key={count}
-              >{count}</div>
+              >
+                {count}
+              </div>
             ))}
           </div>
         </div>
