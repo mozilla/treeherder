@@ -20,17 +20,20 @@ function PushLoadErrors(props) {
         <div className="push-body unknown-message-body">
           <span>
             {revision &&
-              <span>
-                <span>Waiting for a push with revision <strong>{revision}</strong></span>
-                <a
-                  href={currentRepo.getPushLogHref(revision)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={`open revision ${revision} on ${currentRepo.url}`}
-                >(view pushlog)</a>
-                <span className="fa fa-spinner fa-pulse th-spinner" />
-                <div>If the push exists, it will appear in a few minutes once it has been processed.</div>
-              </span>
+              <div>
+                <p>
+                  Waiting for push with revision&nbsp;
+                  <a
+                    href={currentRepo.getPushLogHref(revision)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Open revision ${revision} on ${currentRepo.url}`}
+                  >{revision}</a>
+                  &nbsp;
+                  <span className="fa fa-spinner fa-pulse th-spinner" />
+                </p>
+                <p>If the push exists, it will appear in a few minutes once it has been processed.</p>
+              </div>
             }
           </span>
         </div>
