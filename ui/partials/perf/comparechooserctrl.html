@@ -4,7 +4,7 @@
     <div class="spacer"></div>
     <div class="form-group">
       <div class="spacer"></div>
-      <div class="card centered-element">
+      <div id="original-project" class="card centered-element">
         <div class="card-header">Base</div>
         <div class="card-body">
           <label for="original-project-selector">Project</label>
@@ -31,7 +31,7 @@
         </div>
         <label class="form-control-label" style="color:#A94442" ng-show="originalRevisionError">{{originalRevisionError}}"</label>
       </div>
-      <div class="card centered-element">
+      <div id="new-project" class="card centered-element">
         <div class="card-header">New</div>
         <div class="card-body">
           <label for="new-project-selector">Project</label>
@@ -57,7 +57,7 @@
     <div class="horizontal-box">
       <div class="spacer"></div>
       <div class="form-group button-container">
-        <button type="submit" class="btn btn-primary-soft btn-lg btn-block"
+        <button id="compare-button" type="submit" class="btn btn-primary-soft btn-lg btn-block"
                 ng-click="runCompare()"
                 ng-disabled="(originalRevision.length > 0 && originalRevision.length < 12) || newRevision.length < 12">
           Compare

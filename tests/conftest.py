@@ -2,6 +2,7 @@ import copy
 import datetime
 import json
 import os
+import random
 
 import kombu
 import pytest
@@ -468,7 +469,8 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
     from treeherder.perf.models import PerformanceDatum
 
     def normalized_time(hour):
-        return datetime.datetime(2018, 7, 3, hour)
+        date_time = datetime.datetime.now()
+        return date_time.replace(hour=hour)
 
     # for making things easier, ids for jobs
     # and push should be the same;
@@ -480,7 +482,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         job.save()
 
         perf_datum = PerformanceDatum.objects.create(
-            value=10,
+            value=(perf_jobs.count() - index + 1) * 10,
             push_timestamp=normalized_time(index),
             job=job,
             push=job.push,

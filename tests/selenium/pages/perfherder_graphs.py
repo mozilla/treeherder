@@ -6,8 +6,8 @@ from .base import (Base,
                    Modal)
 
 
-class Perfherder(Base):
-    URL_TEMPLATE = '/perf.html'
+class PerfherderGraphs(Base):
+    URL_TEMPLATE = '/perf.html#/graphs'
 
     _add_test_data_locator = (By.ID, 'add-test-data-button')
     _test_series_locator = (By.CSS_SELECTOR, 'tr[ng-repeat*="series"]')

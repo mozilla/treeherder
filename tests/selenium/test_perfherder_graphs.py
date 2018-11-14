@@ -1,9 +1,9 @@
-from pages.perfherder import Perfherder
+from pages.perfherder_graphs import PerfherderGraphs
 
 
 def test_add_test_data(base_url, selenium):
     '''This tests that we can click the add test data button'''
-    page = Perfherder(selenium, base_url).open()
+    page = PerfherderGraphs(selenium, base_url).open()
     page.add_test_data()
     # FIXME: Add more coverage.
 
@@ -16,7 +16,7 @@ def test_load_test_data(base_url, selenium, test_perf_data):
 
     test_data = test_perf_data.first()
 
-    perf_page = Perfherder(selenium, base_url).open()
+    perf_page = PerfherderGraphs(selenium, base_url).open()
     select_test_modal = perf_page.add_test_data()
 
     select_test_modal.select_test(test_data)
@@ -40,7 +40,7 @@ def test_verify_graph_tool_tip(base_url, selenium, test_perf_data):
     """Test graph tooltip information is according to test data"""
 
     test_data = test_perf_data.first()
-    perf_page = Perfherder(selenium, base_url)
+    perf_page = PerfherderGraphs(selenium, base_url)
     perf_page.driver.get("%s/perf.html#/graphs?timerange=31536000"
                          "&series=test_treeherder_jobs,1,1,1"
                          "&selected=test_treeherder_jobs,1,1,1,1" % base_url)

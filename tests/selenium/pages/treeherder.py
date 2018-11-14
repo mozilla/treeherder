@@ -145,8 +145,8 @@ class Treeherder(Base):
 
     def switch_to_perfherder(self):
         self.header.switch_app()
-        from pages.perfherder import Perfherder
-        return Perfherder(self.driver, self.base_url).wait_for_page_to_load()
+        from pages.perfherder_graphs import PerfherderGraphs
+        return PerfherderGraphs(self.driver, self.base_url).wait_for_page_to_load()
 
     def toggle_failures(self):
         self.find_element(*self._filter_failures_locator).click()
