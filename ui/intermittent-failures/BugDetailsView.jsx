@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 import ReactTable from 'react-table';
 
-import { calculateMetrics, prettyDate, tableRowStyling } from './helpers';
 import { bugDetailsEndpoint, getJobsUrl } from '../helpers/url';
+
+import { calculateMetrics, prettyDate, tableRowStyling } from './helpers';
 import BugLogColumn from './BugLogColumn';
 import Layout from './Layout';
 import withView from './View';

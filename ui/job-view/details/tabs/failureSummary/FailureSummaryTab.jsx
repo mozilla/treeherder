@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
 import { getBugUrl } from '../../../../helpers/url';
+import { withSelectedJob } from '../../../context/SelectedJob';
+import { withPinnedJobs } from '../../../context/PinnedJobs';
+import BugFiler from '../../BugFiler';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
 import SuggestionsListItem from './SuggestionsListItem';
-import BugFiler from '../../BugFiler';
-import { withSelectedJob } from '../../../context/SelectedJob';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 class FailureSummaryTab extends React.Component {
   constructor(props) {

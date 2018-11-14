@@ -3,24 +3,25 @@ import { hot } from 'react-hot-loader';
 import SplitPane from 'react-split-pane';
 
 import { thFavicons } from '../helpers/constants';
-import { Pushes } from './context/Pushes';
-import { SelectedJob } from './context/SelectedJob';
-import { PinnedJobs } from './context/PinnedJobs';
 import { Notifications } from '../shared/context/Notifications';
+import NotificationList from '../shared/NotificationList';
+import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
 import { deployedRevisionUrl } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
+
+import { Pushes } from './context/Pushes';
+import { SelectedJob } from './context/SelectedJob';
+import { PinnedJobs } from './context/PinnedJobs';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import NotificationList from '../shared/NotificationList';
-import ShortcutTable from '../shared/ShortcutTable';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;

@@ -5,13 +5,13 @@ import React from 'react';
 import { thEvents } from '../../../../helpers/constants';
 import { getProjectJobUrl } from '../../../../helpers/url';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
+import { withSelectedJob } from '../../../context/SelectedJob';
+import { withPinnedJobs } from '../../../context/PinnedJobs';
+import { withNotifications } from '../../../../shared/context/Notifications';
 
 import AutoclassifyToolbar from './AutoclassifyToolbar';
 import ErrorLine from './ErrorLine';
 import ErrorLineData from './ErrorLineModel';
-import { withSelectedJob } from '../../../context/SelectedJob';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
-import { withNotifications } from '../../../../shared/context/Notifications';
 
 class AutoclassifyTab extends React.Component {
   constructor(props) {

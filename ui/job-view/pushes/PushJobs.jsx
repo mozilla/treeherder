@@ -9,8 +9,9 @@ import { findInstance, findSelectedInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import Platform from './Platform';
 import { withPushes } from '../context/Pushes';
+
+import Platform from './Platform';
 
 class PushJobs extends React.Component {
   static getDerivedStateFromProps(nextProps) {

@@ -5,11 +5,11 @@ import { FormGroup } from 'reactstrap';
 import { thEvents } from '../../../../helpers/constants';
 import { stringOverlap, highlightLogLine } from '../../../../helpers/autoclassify';
 import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
+import { withSelectedJob } from '../../../context/SelectedJob';
 
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
 import StaticLineOption from './StaticLineOption';
-import { withSelectedJob } from '../../../context/SelectedJob';
 
 const GOOD_MATCH_SCORE = 0.75;
 const BAD_MATCH_SCORE = 0.25;

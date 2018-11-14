@@ -1,6 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
 /* eslint-disable func-names, prefer-arrow-callback */
-import perf from './perf';
 import alertsCtrlTemplate from '../partials/perf/alertsctrl.html';
 import graphsCtrlTemplate from '../partials/perf/graphsctrl.html';
 import compareCtrlTemplate from '../partials/perf/comparectrl.html';
@@ -9,6 +8,8 @@ import compareChooserCtrlTemplate from '../partials/perf/comparechooserctrl.html
 import compareSubtestDistributionTemplate from '../partials/perf/comparesubtestdistribution.html';
 import helpMenuTemplate from '../partials/perf/helpMenu.html';
 import tooltipGraphsTemplate from '../partials/perf/tooltipgraphs.html';
+
+import perf from './perf';
 
 // configure the router here, after we have defined all the controllers etc
 perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$stateProvider', '$urlRouterProvider',

@@ -47,5 +47,13 @@ module.exports = {
     'react/jsx-one-expression-per-line': 'off',
     'react/jsx-wrap-multilines': 'off',
     'react/no-access-state-in-setstate': 'off',
+    // Override AirBnB's config for this rule to make it more strict.
+    // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
+    'import/order': [
+      'error',
+      {
+        'newlines-between': 'always',
+      },
+    ],
   },
 };

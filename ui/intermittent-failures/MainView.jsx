@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table';
 
+import { bugsEndpoint } from '../helpers/url';
+
 import BugColumn from './BugColumn';
 import { calculateMetrics, prettyDate, ISODate, tableRowStyling } from './helpers';
-import { bugsEndpoint } from '../helpers/url';
 import withView from './View';
 import Layout from './Layout';
 import DateRangePicker from './DateRangePicker';

@@ -2,8 +2,9 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 import numeral from 'numeral';
 
-import treeherder from './treeherder';
 import { getJobsUrl } from '../helpers/url';
+
+import treeherder from './treeherder';
 
 treeherder.filter('getRevisionUrl', function () {
     return function (revision, projectName) {

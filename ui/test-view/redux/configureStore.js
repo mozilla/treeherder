@@ -6,9 +6,11 @@ import {
 } from 'redux';
 import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
-import * as groupsStore from './modules/groups';
+
 import { thPlatformMap } from '../../helpers/constants';
 import { getServiceUrl, getProjectUrl } from '../../helpers/url';
+
+import * as groupsStore from './modules/groups';
 
 function getGroupText(group) {
   const symbol = group.symbol.startsWith('tc-') ?

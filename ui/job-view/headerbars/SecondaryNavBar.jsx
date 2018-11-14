@@ -10,8 +10,9 @@ import {
 } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import WatchedRepo from './WatchedRepo';
 import { withPushes } from '../context/Pushes';
+
+import WatchedRepo from './WatchedRepo';
 
 const MAX_WATCHED_REPOS = 3;
 const WATCHED_REPOS_STORAGE_KEY = 'thWatchedRepos';

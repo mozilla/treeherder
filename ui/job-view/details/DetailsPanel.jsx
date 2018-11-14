@@ -5,6 +5,7 @@ import chunk from 'lodash/chunk';
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
+import { withPushes } from '../context/Pushes';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
@@ -14,10 +15,10 @@ import JobDetailModel from '../../models/jobDetail';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import TextLogStepModel from '../../models/textLogStep';
 import PerfSeriesModel from '../../models/perfSeries';
+
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
-import { withPushes } from '../context/Pushes';
 
 export const pinboardHeight = 100;
 

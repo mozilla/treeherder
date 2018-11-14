@@ -1,10 +1,11 @@
 import chunk from 'lodash/chunk';
 
-import { tValueCareMin, tValueConfidence } from './constants';
 import { getApiUrl, createQueryParams } from '../helpers/url';
 import { getData } from '../helpers/http';
 import PerfSeriesModel from '../models/perfSeries';
 import { phTimeRanges } from '../helpers/constants';
+
+import { tValueCareMin, tValueConfidence } from './constants';
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? 100 * a / b : 0;

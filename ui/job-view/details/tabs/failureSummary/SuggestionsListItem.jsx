@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { thBugSuggestionLimit } from '../../../../helpers/constants';
+
 import BugListItem from './BugListItem';
 
 export default class SuggestionsListItem extends React.Component {

@@ -4,6 +4,7 @@ import { thMaxPushFetchSize } from '../helpers/constants';
 import { getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
 import { createQueryParams, getProjectUrl } from '../helpers/url';
+
 import JobModel from './job';
 import TaskclusterModel from './taskcluster';
 

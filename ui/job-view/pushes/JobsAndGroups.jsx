@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { getStatus } from '../../helpers/job';
+
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
-import { getStatus } from '../../helpers/job';
 
 export default class JobsAndGroups extends React.Component {
   render() {

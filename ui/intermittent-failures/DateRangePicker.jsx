@@ -3,9 +3,9 @@ import 'react-day-picker/lib/style.css';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-
 import { parseDate, formatDate } from 'react-day-picker/moment';
 import { Button } from 'reactstrap';
+
 import { ISODate } from './helpers';
 
 export default class DateRangePicker extends React.Component {
