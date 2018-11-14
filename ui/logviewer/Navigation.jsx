@@ -9,7 +9,7 @@ const getShadingClass = result => `result-status-shading-${result}`;
 export default class Navigation extends React.PureComponent {
   render() {
     const {
-      jobExists, result, jobError, rawLogUrl, reftestUrl,
+      jobExists, result, jobError, jobUrl, rawLogUrl, reftestUrl,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
@@ -34,6 +34,20 @@ export default class Navigation extends React.PureComponent {
                 </span>
               </span>
             )}
+          {!!jobUrl && (
+            <span>
+              <a
+                title="Open the Job in Treeherder"
+                className="nav-link btn-view-nav"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={jobUrl}
+              >
+                <span className="fa fa-tree actionbtn-icon mr-1" />
+                <span>open Job</span>
+              </a>
+            </span>
+          )}
           <span>
             <a
               title="Open the raw log in a new window"
@@ -71,9 +85,11 @@ Navigation.propTypes = {
   result: PropTypes.string.isRequired,
   jobError: PropTypes.string.isRequired,
   rawLogUrl: PropTypes.string.isRequired,
+  jobUrl: PropTypes.string,
   reftestUrl: PropTypes.string,
 };
 
 Navigation.defaultProps = {
+  jobUrl: null,
   reftestUrl: null,
 };
