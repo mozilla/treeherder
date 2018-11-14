@@ -27,7 +27,6 @@ class App extends React.Component {
       <HashRouter>
         <main>
           <Switch>
-            (
             <Route
               exact
               path="/main"
@@ -40,7 +39,6 @@ class App extends React.Component {
                 />
               )}
             />
-            ) (
             <Route
               path="/main?startday=:startday&endday=:endday&tree=:tree"
               render={props => (
@@ -52,7 +50,6 @@ class App extends React.Component {
                 />
               )}
             />
-            )
             <Route path="/bugdetails" component={BugDetailsView} />
             <Route
               path="/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug"
