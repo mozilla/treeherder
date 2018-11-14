@@ -1302,5 +1302,20 @@
         "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
         "expire_performance_data": false
     }
+},
+{
+    "pk": 101,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "servo-try-taskcluster",
+        "url": "https://github.com/servo/servo",
+        "branch": "try-taskcluster",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 10,
+        "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
+        "expire_performance_data": false
+    }
 }
 ]
