@@ -47,7 +47,7 @@ class NotificationsMenu extends React.Component {
             storedNotifications.map(notification => (
               <li
                 className="notification-dropdown-line"
-                key={notification.created}
+                key={`${notification.created}${notification.message}`}
               >
                 <span title={`${notification.message} ${notification.linkText}`}>
                   <span className={this.getSeverityClass(notification.severity)} />&nbsp;

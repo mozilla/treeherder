@@ -44,7 +44,14 @@ class NotificationList extends React.Component {
 }
 
 NotificationList.propTypes = {
-  notifications: PropTypes.array.isRequired,
+  notifications: PropTypes.arrayOf(
+    PropTypes.shape({
+      created: PropTypes.number.isRequired,
+      message: PropTypes.string.isRequired,
+      severity: PropTypes.string.isRequired,
+      sticky: PropTypes.bool,
+    }),
+  ).isRequired,
   removeNotification: PropTypes.func.isRequired,
 };
 

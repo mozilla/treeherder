@@ -16,6 +16,7 @@ export class Notifications extends React.Component {
       notify: this.notify,
       removeNotification: this.removeNotification,
       clearStoredNotifications: this.clearStoredNotifications,
+      clearOnScreenNotifications: this.clearOnScreenNotifications,
     };
   }
 
@@ -24,6 +25,7 @@ export class Notifications extends React.Component {
     this.removeNotification = this.removeNotification.bind(this);
     this.shift = this.shift.bind(this);
     this.clearStoredNotifications = this.clearStoredNotifications.bind(this);
+    this.clearOnScreenNotifications = this.clearOnScreenNotifications.bind(this);
 
     this.unlistenStorage = window.addEventListener('storage', (e) => {
       if (e.key === 'notifications') {
@@ -38,6 +40,7 @@ export class Notifications extends React.Component {
       notify: this.notify,
       removeNotification: this.removeNotification,
       clearStoredNotifications: this.clearStoredNotifications,
+      clearOnScreenNotifications: this.clearOnScreenNotifications,
     };
   }
 
@@ -105,6 +108,10 @@ export class Notifications extends React.Component {
     this.setValue({ storedNotifications });
   }
 
+  clearOnScreenNotifications() {
+    this.setValue({ notifications: [] });
+  }
+
   render() {
     return (
       <NotificationsContext.Provider value={this.value}>
@@ -130,6 +137,7 @@ export function withNotifications(Component) {
             notify={context.notify}
             removeNotification={context.removeNotification}
             clearStoredNotifications={context.clearStoredNotifications}
+            clearOnScreenNotifications={context.clearOnScreenNotifications}
           />
         )}
       </NotificationsContext.Consumer>
