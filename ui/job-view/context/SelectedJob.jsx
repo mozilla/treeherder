@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import intersection from 'lodash/intersection';
 import $ from 'jquery';
 
 import { thEvents, thJobNavSelectors } from '../../helpers/constants';
@@ -251,7 +252,15 @@ class SelectedJobClass extends React.Component {
   }
 
   clearIfEligibleTarget(target) {
-    if (target.hasAttribute('data-job-clear-on-click')) {
+    // Target must be within the "push" area, but not be a dropdown-item or
+    // a btn.
+    // This will exclude the JobDetails and navbars.
+    const globalContent = document.getElementById('th-global-content');
+    const isEligible = globalContent.contains(target) &&
+      target.tagName !== 'A' &&
+      !intersection(target.classList, ['btn', 'dropdown-item']).length;
+
+    if (isEligible) {
       this.clearSelectedJob();
     }
   }
