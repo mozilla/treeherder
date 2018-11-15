@@ -5,7 +5,6 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 
 import { parseDate, formatDate } from 'react-day-picker/moment';
-import { setTimeout } from 'timers';
 import { Button } from 'reactstrap';
 import { ISODate } from './helpers';
 
