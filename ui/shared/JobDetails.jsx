@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getPerfAnalysisUrl, getWptUrl } from '../helpers/url';
+import { getPerfAnalysisUrl } from '../helpers/url';
 
 const UNTITLED = 'Untitled data';
 
@@ -32,12 +32,6 @@ export default class JobDetails extends React.PureComponent {
                 target="_blank"
                 rel="noopener noreferrer"
               >{line.value}</a>}
-              {line.url && line.value.endsWith('raw.log') &&
-                <span> - <a
-                  title={line.value}
-                  href={getWptUrl(line.url)}
-                >open in test results viewer</a>
-                </span>}
               {line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip') &&
                 <span> - <a
                   title={line.value}

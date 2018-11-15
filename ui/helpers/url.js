@@ -50,10 +50,6 @@ export const getLogViewerUrl = function getLogViewerUrl(job_id, repoName, line_n
   return line_number ? `${rv}&lineNumber=${line_number}` : rv;
 };
 
-export const getWptUrl = function getWptUrl(url) {
-  return `https://mozilla.github.io/wptview/#/?urls=${encodeURIComponent(url)}`;
-};
-
 export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
   return `https://perf-html.io/from-url/${encodeURIComponent(url)}`;
 };
