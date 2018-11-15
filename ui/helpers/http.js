@@ -43,7 +43,9 @@ export const getData = async function getData(url) {
     failureStatus = response.status;
   }
 
-  if (response.headers.get('content-type') === 'text/html' && failureStatus) {
+  const responseHeader = response.headers.get('content-type').split(';');
+
+  if (responseHeader[0] === 'text/html' && failureStatus) {
     return { data: { [failureStatus]: response.statusText }, failureStatus };
   }
 
