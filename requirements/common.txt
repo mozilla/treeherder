@@ -218,7 +218,9 @@ django-redis==4.9.0 \
     --hash=sha256:15b47faef6aefaa3f47135a2aeb67372da300e4a4cf06809c66ab392686a2155
 
 # Required by django-redis
-redis==2.10.6 --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb
+redis==3.0.0.post1 \
+    --hash=sha256:abfbc9a18e9388f3de53d2ae90b174669d50e289fef90850177e63af902ea992 \
+    --hash=sha256:03b1b3d5c360091760666a2865ca60fcfbcfc5b54d0c4df21728e94c96caa7cb
 
 elasticsearch==6.3.1 \
     --hash=sha256:7546cc08e3899716e12fe67d12d7cfe9a64647014d1134b014c3c392b63cad42 \
