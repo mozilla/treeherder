@@ -83,12 +83,11 @@ class GithubTransformer(object):
         })
         return info
 
-    def fetch_push(self, url, repository, sha=None):
-        params = {"sha": sha} if sha else {}
+    def fetch_push(self, url, repository):
+        params = {}
         params.update(self.CREDENTIALS)
 
         logger.info("Fetching push details: %s", url)
-        newrelic.agent.add_custom_parameter("sha", sha)
 
         commits = self.get_cleaned_commits(fetch_json(url, params))
         head_commit = commits[-1]
@@ -134,24 +133,19 @@ class GithubPushTransformer(GithubTransformer):
     #     version:1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/commits"
+    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        commit = self.message_body["details"]["event.head.sha"]
         push_url = self.URL_BASE.format(
             self.message_body["organization"],
-            self.message_body["repository"]
+            self.message_body["repository"],
+            self.message_body["details"]["event.base.sha"],
+            self.message_body["details"]["event.head.sha"],
         )
-        return self.fetch_push(push_url, repository, sha=commit)
+        return self.fetch_push(push_url, repository)
 
-    def get_cleaned_commits(self, commits):
-        # The list of commits will include ones not in the push.  we
-        # need to trim the list
-        base_sha = self.message_body["details"]["event.base.sha"]
-        for idx, commit in enumerate(commits):
-            if commit["sha"] == base_sha:
-                commits = commits[:idx]
-        return list(reversed(commits))
+    def get_cleaned_commits(self, compare):
+        return compare["commits"]
 
 
 class GithubPullRequestTransformer(GithubTransformer):
