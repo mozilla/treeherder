@@ -1,2 +1,17 @@
+# Ignore generated directories.
+.*/
+_build/
+build/
+treeherder/static/
+
 # Ignore our legacy JS since it will be rewritten when converted to React.
 ui/js/
+
+# Ignore Prettier-supported filetypes that we haven't yet converted to its style,
+# so that "format on save" doesn't try to format them when making unrelated changes.
+*.css
+*.html
+*.json
+*.md
+*.yaml
+*.yml
