@@ -32,6 +32,7 @@ const HIDDEN_URL_PARAMS = [
   'resultStatus',
   'selectedJob',
   'searchStr',
+  'collapsedPushes',
 ];
 
 const getWindowHeight = function getWindowHeight() {
