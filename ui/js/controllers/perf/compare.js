@@ -5,6 +5,7 @@ import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import {
   phCompareDefaultOriginalRepo,
   phCompareDefaultNewRepo,
@@ -16,6 +17,8 @@ import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
 import { getCounterMap, getInterval, validateQueryParams, getResultsMap,
     getGraphsLink } from '../../../perfherder/helpers';
+import { getApiUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 
 perf.controller('CompareChooserCtrl', [
     '$state', '$stateParams', '$scope', '$q',
@@ -140,10 +143,9 @@ perf.controller('CompareChooserCtrl', [
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
-    '$httpParamSerializer', '$q', 'PhFramework',
+    '$httpParamSerializer', '$q',
     function CompareResultsCtrl($state, $stateParams, $scope,
-                                $httpParamSerializer,
-                                $q, PhFramework) {
+                                $httpParamSerializer, $q) {
         function displayResults(rawResultsMap, newRawResultsMap) {
             $scope.compareResults = {};
             $scope.titles = {};
@@ -438,8 +440,7 @@ perf.controller('CompareResultsCtrl', [
         $scope.dataLoading = true;
 
         const loadRepositories = RepositoryModel.getList();
-        const loadFrameworks = PhFramework.getFrameworkList().then(
-            function (frameworks) {
+        const loadFrameworks = getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             });
 

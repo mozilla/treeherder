@@ -6,9 +6,11 @@ import set from 'lodash/set';
 import angular from 'angular';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 import {
   thDateFormat,
   phTimeRanges,
@@ -59,12 +61,12 @@ perf.factory('PhBugs', [
     }]);
 
 perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary', 'PhIssueTracker',
-        function ($scope, $uibModalInstance, alertSummary, PhIssueTracker) {
+    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
+        function ($scope, $uibModalInstance, alertSummary) {
             $scope.title = 'Link to bug';
             $scope.placeholder = 'Task #';
             $scope.issueTrackers = [];
-            PhIssueTracker.getIssueTrackerList().then((issueTrackerList) => {
+            getData(getApiUrl(endpoints.issueTrackers)).then(({ data: issueTrackerList }) => {
                 $scope.issueTrackers = issueTrackerList;
 
                 if (issueTrackerList.length >= 1) {
@@ -200,12 +202,9 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'PhFramework', 'PhAlerts', 'PhBugs', 'PhIssueTracker',
-    'dateFilter', 'clipboard',
-    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q,
-                        $uibModal,
-                        PhFramework, PhAlerts, PhBugs, PhIssueTracker,
-                        dateFilter, clipboard) {
+    'PhAlerts', 'PhBugs', 'dateFilter', 'clipboard',
+    function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q, $uibModal,
+                        PhAlerts, PhBugs, dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {
@@ -589,7 +588,7 @@ perf.controller('AlertsCtrl', [
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
-            $q.all([PhFramework.getFrameworkList().then(function (frameworks) {
+            $q.all([getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;

@@ -12,6 +12,7 @@ import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
+import { endpoints } from '../../../perfherder/constants';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   thDefaultRepo,
@@ -23,6 +24,8 @@ import {
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
+import { getApiUrl } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -925,13 +928,10 @@ perf.filter('testNameContainsWords', function () {
     };
 });
 
-perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
-    'projects', 'timeRange',
-    'PhFramework', 'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform',
-    '$q', 'testsDisplayed', 'options',
+perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', 'timeRange',
+    'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform', '$q', 'testsDisplayed', 'options',
     function ($scope, $uibModalInstance, projects, timeRange,
-        PhFramework, defaultFrameworkId, defaultProjectName,
-        defaultPlatform, $q, testsDisplayed, options) {
+              defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = projects.find(project =>
@@ -1091,7 +1091,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
             });
         }
 
-        PhFramework.getFrameworkList().then(function (frameworkList) {
+        getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworkList }) => {
             $scope.frameworkList = frameworkList;
             if (defaultFrameworkId) {
                 $scope.selectedFramework = $scope.frameworkList.find(framework =>
@@ -1102,6 +1102,8 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance',
                     framework.name === phDefaultFramework,
                 );
             }
+            $scope.$digest();
+
             $scope.updateTestInput = function () {
                 $scope.addTestDataDisabled = true;
                 $scope.loadingTestData = true;
