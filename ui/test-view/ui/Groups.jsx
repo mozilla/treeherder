@@ -4,10 +4,11 @@ import { Form, FormGroup, Input, Label, Row, Col, Table, Container } from 'react
 import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 
+import { store, actions } from '../redux/store';
+
 import { Test, BugCount } from './Test';
 import StatusProgress from './StatusProgress';
 import StatusNavbar from './StatusNavbar';
-import { store, actions } from '../redux/store';
 
 const mapStateToProps = ({ groups }) => groups;
 

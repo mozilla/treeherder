@@ -15,9 +15,10 @@ import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { getJobsUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
+import { withNotifications } from '../../shared/context/Notifications';
+
 import { withPinnedJobs } from './PinnedJobs';
 import { withPushes } from './Pushes';
-import { withNotifications } from '../../shared/context/Notifications';
 
 const SelectedJobContext = React.createContext({});
 

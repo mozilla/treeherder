@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import { withPushes } from '../context/Pushes';
+
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
-import { withPushes } from '../context/Pushes';
 
 class PushList extends React.Component {
   constructor(props) {

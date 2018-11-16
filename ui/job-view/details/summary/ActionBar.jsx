@@ -9,11 +9,12 @@ import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import LogUrls from './LogUrls';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 import { withPushes } from '../../context/Pushes';
 import { withNotifications } from '../../../shared/context/Notifications';
+
+import LogUrls from './LogUrls';
 
 class ActionBar extends React.PureComponent {
   constructor(props) {

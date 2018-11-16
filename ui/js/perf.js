@@ -7,6 +7,7 @@ import LocalStorageModule from 'angular-local-storage';
 import { react2angular } from 'react2angular/index.es2015';
 
 import Login from '../shared/auth/Login';
+
 import treeherderModule from './treeherder';
 
 const perf = angular.module('perf', [

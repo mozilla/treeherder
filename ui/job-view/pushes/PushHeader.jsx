@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import PushActionMenu from './PushActionMenu';
+
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { getJobsUrl } from '../../helpers/url';
@@ -10,6 +10,8 @@ import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
 import { withNotifications } from '../../shared/context/Notifications';
+
+import PushActionMenu from './PushActionMenu';
 
 // url params we don't want added from the current querystring to the revision
 // and author links.

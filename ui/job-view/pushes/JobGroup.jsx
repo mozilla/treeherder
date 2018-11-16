@@ -6,6 +6,7 @@ import { withSelectedJob } from '../context/SelectedJob';
 import { thFailureResults } from '../../helpers/constants';
 import { getBtnClass, getStatus } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
+
 import JobButton from './JobButton';
 import JobCount from './JobCount';
 

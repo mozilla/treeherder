@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 
-import AuthService from './AuthService';
 import { loggedOutUser } from '../../helpers/auth';
 import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 import { withNotifications } from '../context/Notifications';
+
+import AuthService from './AuthService';
 
 /**
  * This component handles logging in to Taskcluster Authentication

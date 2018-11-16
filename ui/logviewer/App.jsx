@@ -12,6 +12,7 @@ import PushModel from '../models/push';
 import TextLogStepModel from '../models/textLogStep';
 import JobDetails from '../shared/JobDetails';
 import JobInfo from '../shared/JobInfo';
+
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
 

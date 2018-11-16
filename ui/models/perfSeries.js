@@ -1,6 +1,7 @@
 import queryString from 'query-string';
 
 import { getApiUrl, getProjectUrl } from '../helpers/url';
+
 import OptionCollectionModel from './optionCollection';
 
 export const getTestName = function getTestName(signatureProps) {

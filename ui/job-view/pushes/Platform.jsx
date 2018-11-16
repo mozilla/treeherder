@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import JobsAndGroups from './JobsAndGroups';
 
 function PlatformName(props) {

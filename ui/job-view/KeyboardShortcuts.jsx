@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { HotKeys } from 'react-hotkeys';
 
 import { thEvents } from '../helpers/constants';
+import { withNotifications } from '../shared/context/Notifications';
+
 import { withPinnedJobs } from './context/PinnedJobs';
 import { withSelectedJob } from './context/SelectedJob';
-import { withNotifications } from '../shared/context/Notifications';
 
 const keyMap = {
   addRelatedBug: 'b',

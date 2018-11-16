@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sortBy from 'lodash/sortBy';
 
-import PushJobs from './PushJobs';
-import PushHeader from './PushHeader';
-import { RevisionList } from './RevisionList';
 import { thEvents, thOptionOrder, thPlatformMap } from '../../helpers/constants';
 import { withPushes } from '../context/Pushes';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
@@ -14,6 +11,10 @@ import RunnableJobModel from '../../models/runnableJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+
+import PushHeader from './PushHeader';
+import PushJobs from './PushJobs';
+import { RevisionList } from './RevisionList';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);

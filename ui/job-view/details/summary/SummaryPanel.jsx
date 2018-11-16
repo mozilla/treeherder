@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { withSelectedJob } from '../../context/SelectedJob';
 import JobInfo from '../../../shared/JobInfo';
+
 import ActionBar from './ActionBar';
 import ClassificationsPanel from './ClassificationsPanel';
 import StatusPanel from './StatusPanel';

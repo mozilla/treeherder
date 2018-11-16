@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { withNotifications } from '../../shared/context/Notifications';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';

@@ -5,15 +5,15 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { thEvents } from '../../../helpers/constants';
 import { getAllUrlParams } from '../../../helpers/location';
 import { getStatus } from '../../../helpers/job';
-
 import JobDetails from '../../../shared/JobDetails';
+import { withPinnedJobs } from '../../context/PinnedJobs';
+import { withSelectedJob } from '../../context/SelectedJob';
+
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
 import PerformanceTab from './PerformanceTab';
 import AutoclassifyTab from './autoclassify/AutoclassifyTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
-import { withPinnedJobs } from '../../context/PinnedJobs';
-import { withSelectedJob } from '../../context/SelectedJob';
 
 class TabsPanel extends React.Component {
   constructor(props) {

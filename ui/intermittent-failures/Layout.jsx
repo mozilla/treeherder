@@ -3,11 +3,12 @@ import { Container } from 'reactstrap';
 import PropTypes from 'prop-types';
 import Icon from 'react-fontawesome';
 
+import ErrorBoundary from '../shared/ErrorBoundary';
+
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
 import ErrorMessages from './ErrorMessages';
 import { prettyErrorMessages, errorMessageClass } from './constants';
-import ErrorBoundary from '../shared/ErrorBoundary';
 
 const Layout = (props) => {
 

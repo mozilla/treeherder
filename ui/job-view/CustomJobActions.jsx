@@ -11,8 +11,9 @@ import {
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
-import { withPushes } from './context/Pushes';
 import { withNotifications } from '../shared/context/Notifications';
+
+import { withPushes } from './context/Pushes';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {

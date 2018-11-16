@@ -1,5 +1,6 @@
 import React from 'react';
 import { Nav, Navbar, Collapse } from 'reactstrap';
+
 import logoUrl from '../../img/treeherder-logo.png';
 
 export default class Navigation extends React.Component {

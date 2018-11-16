@@ -7,9 +7,9 @@ import { Badge } from 'reactstrap';
 
 import { store, actions } from '../redux/store';
 import { thPlatformMap } from '../../helpers/constants';
-import LogViewer from './LogViewer';
 import { getBugUrl } from '../../helpers/url';
 
+import LogViewer from './LogViewer';
 
 const mapStateToProps = ({ groups }) => ({
   expanded: groups.expanded,

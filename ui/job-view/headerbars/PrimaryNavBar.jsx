@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
+
 import NotificationsMenu from './NotificationsMenu';
 import InfraMenu from './InfraMenu';
 import ReposMenu from './ReposMenu';
