@@ -15,8 +15,8 @@ import RunnableJobModel from '../../models/runnableJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
-import { Revision } from './Revision';
 
+import { Revision } from './Revision';
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
 import { RevisionList } from './RevisionList';
@@ -434,12 +434,7 @@ class Push extends React.Component {
         <div className="push-body-divider" />
         {!collapsed ? (
           <div className="row push clearfix">
-            {currentRepo &&
-              <RevisionList
-                push={push}
-                repo={currentRepo}
-              />
-            }
+            {currentRepo && <RevisionList push={push} repo={currentRepo} />}
             <span className="job-list job-list-pad col-7">
               <PushJobs
                 push={push}

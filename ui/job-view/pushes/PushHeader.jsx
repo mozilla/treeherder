@@ -183,9 +183,10 @@ class PushHeader extends React.PureComponent {
     } else {
       collapsedPushes.add(pushId);
     }
-    setUrlParam('collapsedPushes', collapsedPushes.size
-      ? Array.from(collapsedPushes)
-      : null);
+    setUrlParam(
+      'collapsedPushes',
+      collapsedPushes.size ? Array.from(collapsedPushes) : null,
+    );
   }
 
   render() {
@@ -225,7 +226,9 @@ class PushHeader extends React.PureComponent {
             <span className="push-title-left">
               <span
                 onClick={this.togglePushCollapsed}
-                className={`fa ${collapsed ? 'fa-plus-square-o' : 'fa-minus-square-o'} mr-2 mt-2 text-muted pointable`}
+                className={`fa ${
+                  collapsed ? 'fa-plus-square-o' : 'fa-minus-square-o'
+                } mr-2 mt-2 text-muted pointable`}
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
               <span>
