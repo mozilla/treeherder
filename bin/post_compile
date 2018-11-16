@@ -5,13 +5,13 @@
 set -euo pipefail
 
 # Make the current Git revision accessible at <site-root>/revision.txt
-echo "$SOURCE_VERSION" > build/revision.txt
+echo "$SOURCE_VERSION" > .build/revision.txt
 
 # Generate gzipped versions of files that would benefit from compression, that
 # WhiteNoise can then serve in preference to the originals. This is required
 # since WhiteNoise's Django storage backend only gzips assets handled by
-# collectstatic, and so does not affect files in the `build/` directory.
-python -m whitenoise.compress build
+# collectstatic, and so does not affect files in the `.build/` directory.
+python -m whitenoise.compress .build
 
 # Remove nodejs files to reduce slug size (and avoid environment variable
 # pollution from the nodejs profile script), since they are no longer

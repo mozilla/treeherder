@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
-import os
 import re
 from datetime import timedelta
+from os.path import (abspath,
+                     dirname,
+                     join)
 
 import environ
 from celery.schedules import crontab
@@ -13,7 +15,8 @@ from kombu import (Exchange,
 from treeherder.config.utils import (connection_should_use_tls,
                                      get_tls_redis_url)
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+# TODO: Switch to pathlib once using Python 3.
+SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
@@ -138,7 +141,7 @@ USE_I18N = False
 USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = os.path.join(PROJECT_DIR, "static")
+STATIC_ROOT = join(SRC_DIR, ".django-static")
 STATIC_URL = "/static/"
 
 # Create hashed+gzipped versions of assets during collectstatic,
@@ -386,7 +389,7 @@ REST_FRAMEWORK = {
 
 # Whitenoise
 # Files in this directory will be served by WhiteNoise at the site root.
-WHITENOISE_ROOT = os.path.join(PROJECT_DIR, "..", "build")
+WHITENOISE_ROOT = join(SRC_DIR, ".build")
 # Serve index.html for URLs ending in a trailing slash.
 WHITENOISE_INDEX_FILE = True
 # Only output the hashed filename version of static files and not the originals.

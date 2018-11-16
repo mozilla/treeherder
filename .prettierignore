@@ -1,8 +1,5 @@
 # Ignore generated directories.
 .*/
-_build/
-build/
-treeherder/static/
 
 # Ignore our legacy JS since it will be rewritten when converted to React.
 ui/js/

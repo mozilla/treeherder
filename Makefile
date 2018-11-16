@@ -2,7 +2,7 @@
 
 SPHINXOPTS    = -n -W
 SPHINXBUILD   = sphinx-build
-BUILDDIR      = _build
+BUILDDIR      = .build-docs
 SOURCEDIR     = docs
 
 # User-friendly check for sphinx-build
