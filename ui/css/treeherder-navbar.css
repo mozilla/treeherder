@@ -464,7 +464,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #infra-dropdown {
-    min-width: 11rem;
+    min-width: 21rem;
 }
 
 .checkbox-dropdown-menu .repogroup {

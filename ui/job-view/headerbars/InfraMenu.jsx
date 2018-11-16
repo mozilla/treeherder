@@ -17,61 +17,14 @@ export default function InfraMenu() {
         role="menu"
         aria-labelledby="infraLabel"
       >
-        <li role="presentation" className="dropdown-header">
-          Buildbot
-        </li>
         <li>
           <a
             className="dropdown-item"
-            href="https://secure.pub.build.mozilla.org/buildapi/pending"
+            href="https://wiki.mozilla.org/CIDuty"
             target="_blank"
             rel="noopener noreferrer"
           >
-            BuildAPI: Pending
-          </a>
-        </li>
-        <li>
-          <a
-            className="dropdown-item"
-            href="https://secure.pub.build.mozilla.org/buildapi/running"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            BuildAPI: Running
-          </a>
-        </li>
-        <li>
-          <a
-            className="dropdown-item"
-            href="https://www.hostedgraphite.com/da5c920d/86a8384e-d9cf-4208-989b-9538a1a53e4b/grafana2/#/dashboard/db/ec2-dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            EC2 Dashboard
-          </a>
-        </li>
-        <li>
-          <a
-            className="dropdown-item"
-            href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Slave Health
-          </a>
-        </li>
-        <li role="presentation" className="dropdown-divider" />
-        <li role="presentation" className="dropdown-header">
-          Other
-        </li>
-        <li>
-          <a
-            className="dropdown-item"
-            href="https://mozilla-releng.net/treestatus"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            TreeStatus
+            CI Duty
           </a>
         </li>
         <li>
@@ -81,7 +34,37 @@ export default function InfraMenu() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Taskcluster
+            Taskcluster Diagnostics
+          </a>
+        </li>
+        <li>
+          <a
+            className="dropdown-item"
+            href="https://tools.taskcluster.net/provisioners/releng-hardware/worker-types?layout=table&orderBy=pendingTasks&lastActive=false"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Taskcluster Workers: releng-hardware
+          </a>
+        </li>
+        <li>
+          <a
+            className="dropdown-item"
+            href="https://tools.taskcluster.net/provisioners/aws-provisioner-v1/worker-types?layout=table&orderBy=pendingCapacity&lastActive=false"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Taskcluster Workers: aws-provisioner-v1
+          </a>
+        </li>
+        <li>
+          <a
+            className="dropdown-item"
+            href="https://mozilla-releng.net/treestatus"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TreeStatus
           </a>
         </li>
       </ul>
