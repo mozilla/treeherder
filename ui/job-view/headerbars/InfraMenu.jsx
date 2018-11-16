@@ -8,21 +8,27 @@ export default function InfraMenu() {
         title="Infrastructure status"
         data-toggle="dropdown"
         className="btn btn-view-nav nav-menu-btn dropdown-toggle"
-      >Infra</button>
+      >
+        Infra
+      </button>
       <ul
         id="infra-dropdown"
         className="dropdown-menu nav-dropdown-menu-right container"
         role="menu"
         aria-labelledby="infraLabel"
       >
-        <li role="presentation" className="dropdown-header">Buildbot</li>
+        <li role="presentation" className="dropdown-header">
+          Buildbot
+        </li>
         <li>
           <a
             className="dropdown-item"
             href="https://secure.pub.build.mozilla.org/buildapi/pending"
             target="_blank"
             rel="noopener noreferrer"
-          >BuildAPI: Pending</a>
+          >
+            BuildAPI: Pending
+          </a>
         </li>
         <li>
           <a
@@ -30,7 +36,9 @@ export default function InfraMenu() {
             href="https://secure.pub.build.mozilla.org/buildapi/running"
             target="_blank"
             rel="noopener noreferrer"
-          >BuildAPI: Running</a>
+          >
+            BuildAPI: Running
+          </a>
         </li>
         <li>
           <a
@@ -38,7 +46,9 @@ export default function InfraMenu() {
             href="https://www.hostedgraphite.com/da5c920d/86a8384e-d9cf-4208-989b-9538a1a53e4b/grafana2/#/dashboard/db/ec2-dashboard"
             target="_blank"
             rel="noopener noreferrer"
-          >EC2 Dashboard</a>
+          >
+            EC2 Dashboard
+          </a>
         </li>
         <li>
           <a
@@ -46,17 +56,23 @@ export default function InfraMenu() {
             href="https://secure.pub.build.mozilla.org/builddata/reports/slave_health/"
             target="_blank"
             rel="noopener noreferrer"
-          >Slave Health</a>
+          >
+            Slave Health
+          </a>
         </li>
         <li role="presentation" className="dropdown-divider" />
-        <li role="presentation" className="dropdown-header">Other</li>
+        <li role="presentation" className="dropdown-header">
+          Other
+        </li>
         <li>
           <a
             className="dropdown-item"
             href="https://mozilla-releng.net/treestatus"
             target="_blank"
             rel="noopener noreferrer"
-          >TreeStatus</a>
+          >
+            TreeStatus
+          </a>
         </li>
         <li>
           <a
@@ -64,7 +80,9 @@ export default function InfraMenu() {
             href="https://tools.taskcluster.net/diagnostics"
             target="_blank"
             rel="noopener noreferrer"
-          >Taskcluster</a>
+          >
+            Taskcluster
+          </a>
         </li>
       </ul>
     </span>

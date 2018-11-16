@@ -9,19 +9,25 @@ export default class ErrorLineModel {
     // an actual boolean later
     if (line.metadata) {
       this.verified = line.metadata.best_is_verified;
-      this.bestClassification = line.metadata.best_classification ?
-        line.classified_failures
-          .find(cf => cf.id === line.metadata.best_classification) : null;
+      this.bestClassification = line.metadata.best_classification
+        ? line.classified_failures.find(
+            cf => cf.id === line.metadata.best_classification,
+          )
+        : null;
     } else {
       this.verified = false;
       this.bestClassification = null;
       line.metadata = {};
     }
-    this.bugNumber = this.bestClassification ?
-      this.bestClassification.bug_number : null;
-    this.verifiedIgnore = this.verified && (this.bugNumber === 0 ||
-      this.bestClassification === null);
-    this.bugSummary = (this.bestClassification && this.bestClassification.bug) ?
-      this.bestClassification.bug.summary : null;
+    this.bugNumber = this.bestClassification
+      ? this.bestClassification.bug_number
+      : null;
+    this.verifiedIgnore =
+      this.verified &&
+      (this.bugNumber === 0 || this.bestClassification === null);
+    this.bugSummary =
+      this.bestClassification && this.bestClassification.bug
+        ? this.bestClassification.bug.summary
+        : null;
   }
 }

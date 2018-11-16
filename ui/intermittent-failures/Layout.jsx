@@ -10,47 +10,68 @@ import GraphsContainer from './GraphsContainer';
 import ErrorMessages from './ErrorMessages';
 import { prettyErrorMessages, errorMessageClass } from './constants';
 
-const Layout = (props) => {
+const Layout = props => {
+  const {
+    graphData,
+    tableData,
+    errorMessages,
+    tree,
+    isFetchingTable,
+    isFetchingGraphs,
+    tableFailureStatus,
+    graphFailureStatus,
+    updateState,
+    graphOneData,
+    graphTwoData,
+    table,
+    datePicker,
+    header,
+  } = props;
 
-  const { graphData, tableData, errorMessages, tree, isFetchingTable,
-    isFetchingGraphs, tableFailureStatus, graphFailureStatus, updateState,
-    graphOneData, graphTwoData, table, datePicker, header } = props;
-
-    let failureMessage = null;
-    if (tableFailureStatus) {
-      failureMessage = tableData;
-    } else if (graphFailureStatus) {
-      failureMessage = graphData;
-    }
+  let failureMessage = null;
+  if (tableFailureStatus) {
+    failureMessage = tableData;
+  } else if (graphFailureStatus) {
+    failureMessage = graphData;
+  }
   return (
-    <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
-      <Navigation
-        updateState={updateState}
-        tree={tree}
-      />
+    <Container
+      fluid
+      style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}
+    >
+      <Navigation updateState={updateState} tree={tree} />
       {(isFetchingGraphs || isFetchingTable) &&
-        !(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
-        <div className="loading">
-          <Icon spin name="cog" size="4x" />
-        </div>}
-      {(tableFailureStatus || graphFailureStatus || errorMessages.length > 0) &&
+        !(
+          tableFailureStatus ||
+          graphFailureStatus ||
+          errorMessages.length > 0
+        ) && (
+          <div className="loading">
+            <Icon spin name="cog" size="4x" />
+          </div>
+        )}
+      {(tableFailureStatus ||
+        graphFailureStatus ||
+        errorMessages.length > 0) && (
         <ErrorMessages
           failureMessage={failureMessage}
           failureStatus={tableFailureStatus || graphFailureStatus}
           errorMessages={errorMessages}
-        />}
+        />
+      )}
       {header}
       <ErrorBoundary
         errorClasses={errorMessageClass}
         message={prettyErrorMessages.default}
       >
-        {graphOneData && graphTwoData &&
-        <GraphsContainer
-          graphOneData={graphOneData}
-          graphTwoData={graphTwoData}
-        >
-          {datePicker}
-        </GraphsContainer>}
+        {graphOneData && graphTwoData && (
+          <GraphsContainer
+            graphOneData={graphOneData}
+            graphTwoData={graphTwoData}
+          >
+            {datePicker}
+          </GraphsContainer>
+        )}
       </ErrorBoundary>
 
       <ErrorBoundary
@@ -59,7 +80,8 @@ const Layout = (props) => {
       >
         {table}
       </ErrorBoundary>
-    </Container>);
+    </Container>
+  );
 };
 
 Container.propTypes = {
@@ -71,32 +93,17 @@ Layout.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string,
   }).isRequired,
-  datePicker: PropTypes.oneOfType([
-    PropTypes.shape({}), PropTypes.bool,
-  ]),
-  header: PropTypes.oneOfType([
-    PropTypes.shape({}), PropTypes.bool,
-  ]),
-  table: PropTypes.oneOfType([
-    PropTypes.shape({}), PropTypes.bool,
-  ]),
-  graphOneData: PropTypes.arrayOf(
-    PropTypes.shape({}),
-  ),
+  datePicker: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  graphOneData: PropTypes.arrayOf(PropTypes.shape({})),
   graphTwoData: PropTypes.arrayOf(
-    PropTypes.arrayOf(
-      PropTypes.shape({}),
-    ), PropTypes.arrayOf(
-      PropTypes.shape({}),
-    ),
+    PropTypes.arrayOf(PropTypes.shape({})),
+    PropTypes.arrayOf(PropTypes.shape({})),
   ),
-  tableData: PropTypes.arrayOf(
-    PropTypes.shape({}),
-  ),
+  tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.shape({}),
-    ),
+    PropTypes.arrayOf(PropTypes.shape({})),
     PropTypes.shape({}),
   ]),
   tree: PropTypes.string,

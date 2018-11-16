@@ -29,12 +29,11 @@ const taskcluster = (() => {
   return {
     getAgent: tcAgent,
     // When the access token is refreshed, simply update it on the credential agent
-    getQueue: () => (
+    getQueue: () =>
       new Queue({
         credentialAgent: tcAgent(),
         rootUrl: tcRootUrl,
-      })
-    ),
+      }),
     updateAgent: () => {
       const userSession = localStorage.getItem('userSession');
 

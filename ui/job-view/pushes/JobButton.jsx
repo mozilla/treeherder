@@ -71,9 +71,18 @@ export default class JobButtonComponent extends React.Component {
   render() {
     const { job } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
-    const { state, job_type_name, failure_classification_id, end_timestamp,
-            start_timestamp, ref_data_name, visible, id,
-            job_type_symbol, result } = job;
+    const {
+      state,
+      job_type_name,
+      failure_classification_id,
+      end_timestamp,
+      start_timestamp,
+      ref_data_name,
+      visible,
+      id,
+      job_type_symbol,
+      result,
+    } = job;
 
     if (!visible) return null;
     const resultStatus = state === 'completed' ? result : state;
@@ -111,9 +120,7 @@ export default class JobButtonComponent extends React.Component {
     }
 
     attributes.className = classes.join(' ');
-    return (
-      <button {...attributes}>{job_type_symbol}</button>
-    );
+    return <button {...attributes}>{job_type_symbol}</button>;
   }
 }
 

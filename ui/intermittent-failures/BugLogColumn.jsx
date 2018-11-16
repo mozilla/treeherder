@@ -4,7 +4,6 @@ import { Tooltip } from 'reactstrap';
 
 import { getLogViewerUrl } from '../helpers/url';
 
-
 export default class BugLogColumn extends React.Component {
   constructor(props) {
     super(props);
@@ -36,7 +35,9 @@ export default class BugLogColumn extends React.Component {
     return (
       <div>
         <span ref={this.updateTarget}>
-          {`${original.lines.length} unexpected-fail${original.lines.length > 1 ? 's' : ''}`}
+          {`${original.lines.length} unexpected-fail${
+            original.lines.length > 1 ? 's' : ''
+          }`}
           <br />
           <a
             className="small-text"
@@ -48,20 +49,23 @@ export default class BugLogColumn extends React.Component {
           </a>
         </span>
 
-        {target && original.lines.length > 0 &&
-        <Tooltip
-          placement="left"
-          isOpen={tooltipOpen}
-          target={target}
-          toggle={this.toggle}
-          className="tooltip"
-        >
-          <ul>
-            {original.lines.map(line => (
-              <li key={line} className="failure_li text-truncate">{line}</li>
-            ))}
-          </ul>
-        </Tooltip>}
+        {target && original.lines.length > 0 && (
+          <Tooltip
+            placement="left"
+            isOpen={tooltipOpen}
+            target={target}
+            toggle={this.toggle}
+            className="tooltip"
+          >
+            <ul>
+              {original.lines.map(line => (
+                <li key={line} className="failure_li text-truncate">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </Tooltip>
+        )}
       </div>
     );
   }

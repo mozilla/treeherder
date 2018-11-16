@@ -28,9 +28,10 @@ export const toShortDateStr = function toDateStr(timestamp) {
 export const getSearchWords = function getHighlighterArray(text) {
   const tokens = text.split(/[^a-zA-Z0-9_-]+/);
 
-  return tokens.reduce((acc, token) => (
-    token.length > 1 ? [...acc, token] : acc
-  ), []);
+  return tokens.reduce(
+    (acc, token) => (token.length > 1 ? [...acc, token] : acc),
+    [],
+  );
 };
 
 export const getPercentComplete = function getPercentComplete(counts) {
@@ -38,5 +39,5 @@ export const getPercentComplete = function getPercentComplete(counts) {
   const inProgress = pending + running;
   const total = completed + inProgress;
 
-  return total > 0 ? Math.floor(((completed / total) * 100)) : 0;
+  return total > 0 ? Math.floor((completed / total) * 100) : 0;
 };

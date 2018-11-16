@@ -15,9 +15,16 @@ import SecondaryNavBar from './SecondaryNavBar';
 
 export default function PrimaryNavBar(props) {
   const {
-    user, setUser, repos, updateButtonClick, serverChanged,
-    filterModel, setCurrentRepoTreeStatus, duplicateJobsVisible,
-    groupCountsExpanded, toggleFieldFilterVisible,
+    user,
+    setUser,
+    repos,
+    updateButtonClick,
+    serverChanged,
+    filterModel,
+    setCurrentRepoTreeStatus,
+    duplicateJobsVisible,
+    groupCountsExpanded,
+    toggleFieldFilterVisible,
   } = props;
 
   return (
@@ -25,10 +32,7 @@ export default function PrimaryNavBar(props) {
       <div id="th-global-top-nav-panel">
         <nav id="th-global-navbar" className="navbar navbar-dark">
           <div id="th-global-navbar-top">
-            <LogoMenu
-              menuText="Treeherder"
-              menuImage={Logo}
-            />
+            <LogoMenu menuText="Treeherder" menuImage={Logo} />
             <span className="navbar-right">
               <NotificationsMenu />
               <InfraMenu />

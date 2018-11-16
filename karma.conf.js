@@ -18,13 +18,9 @@ webpackConfig.node.Buffer = true;
 webpackConfig.optimization.splitChunks = false;
 webpackConfig.optimization.runtimeChunk = false;
 
-module.exports = (config) => {
+module.exports = config => {
   config.set({
-    plugins: [
-      'karma-webpack',
-      'karma-firefox-launcher',
-      'karma-jasmine',
-    ],
+    plugins: ['karma-webpack', 'karma-firefox-launcher', 'karma-jasmine'],
     browsers: ['FirefoxHeadless'],
     frameworks: ['jasmine'],
     files: [

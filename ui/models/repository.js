@@ -20,9 +20,9 @@ export default class RepositoryModel {
   }
 
   static getList() {
-    return fetch(uri).then(resp => resp.json()).then(repos => (
-      repos.map(datum => new RepositoryModel(datum))
-    ));
+    return fetch(uri)
+      .then(resp => resp.json())
+      .then(repos => repos.map(datum => new RepositoryModel(datum)));
   }
 
   static getRepo(name, repos) {
@@ -34,16 +34,16 @@ export default class RepositoryModel {
   }
 
   getPushLogHref(revision) {
-    return this.dvcs_type === 'git' ?
-      this.getRevisionHref(revision) :
-      `${this.pushLogUrl}?changeset=${revision}`;
+    return this.dvcs_type === 'git'
+      ? this.getRevisionHref(revision)
+      : `${this.pushLogUrl}?changeset=${revision}`;
   }
 
   getPushLogRangeHref(params) {
     const { fromchange, tochange } = params;
 
-    return this.dvcs_type === 'git' ?
-      `${this.url}/compare/${fromchange}...${tochange}` :
-      `${this.pushLogUrl}?${new URLSearchParams(params).toString()}`;
+    return this.dvcs_type === 'git'
+      ? `${this.url}/compare/${fromchange}...${tochange}`
+      : `${this.pushLogUrl}?${new URLSearchParams(params).toString()}`;
   }
 }

@@ -9,10 +9,7 @@ function StatusPanel(props) {
   const shadingClass = `result-status-shading-${getStatus(selectedJob)}`;
 
   return (
-    <li
-      id="result-status-pane"
-      className={`small ${shadingClass}`}
-    >
+    <li id="result-status-pane" className={`small ${shadingClass}`}>
       <div>
         <label>Result:</label>
         <span> {selectedJob.result}</span>

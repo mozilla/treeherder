@@ -48,7 +48,9 @@ export default class ActiveFilters extends React.Component {
     const choice = fieldChoices[field];
     const choiceValue = choice.choices.find(c => String(c.id) === value);
 
-    return choice.matchType === 'choice' && choiceValue ? choiceValue.name : value;
+    return choice.matchType === 'choice' && choiceValue
+      ? choiceValue.name
+      : value;
   }
 
   addNewFieldFilter() {
@@ -75,95 +77,142 @@ export default class ActiveFilters extends React.Component {
   render() {
     const { isFieldFilterVisible, filterModel, filterBarFilters } = this.props;
     const {
-      newFilterField, newFilterMatchType, newFilterValue, newFilterChoices,
+      newFilterField,
+      newFilterMatchType,
+      newFilterValue,
+      newFilterChoices,
       fieldChoices,
     } = this.state;
 
     return (
       <div className="alert-info active-filters-bar">
-        {!!filterBarFilters.length && <div>
-          <span
-            className="pointable"
-            title="Clear all of these filters"
-            onClick={filterModel.clearNonStatusFilters}
-          ><i className="fa fa-times-circle" /> </span>
-          <span className="active-filters-title">
-            <b>Active Filters</b>
-          </span>
-          {filterBarFilters.map(filter => (
-            filter.value.map(filterValue => (
-              <span className="filtersbar-filter" key={`${filter.field}${filterValue}`}>
+        {!!filterBarFilters.length && (
+          <div>
+            <span
+              className="pointable"
+              title="Clear all of these filters"
+              onClick={filterModel.clearNonStatusFilters}
+            >
+              <i className="fa fa-times-circle" />{' '}
+            </span>
+            <span className="active-filters-title">
+              <b>Active Filters</b>
+            </span>
+            {filterBarFilters.map(filter =>
+              filter.value.map(filterValue => (
                 <span
-                  className="pointable"
-                  title={`Clear filter: ${filter.field}`}
-                  onClick={() => filterModel.removeFilter(filter.field, filterValue)}
+                  className="filtersbar-filter"
+                  key={`${filter.field}${filterValue}`}
                 >
-                  <i className="fa fa-times-circle" />&nbsp;
+                  <span
+                    className="pointable"
+                    title={`Clear filter: ${filter.field}`}
+                    onClick={() =>
+                      filterModel.removeFilter(filter.field, filterValue)
+                    }
+                  >
+                    <i className="fa fa-times-circle" />
+                    &nbsp;
+                  </span>
+                  <span title={`Filter by ${filter.field}: ${filterValue}`}>
+                    <b>{filter.field}:</b>
+                    {filter.field === 'failure_classification_id' && (
+                      <span>
+                        {' '}
+                        {this.getFilterValue(filter.field, filterValue)}
+                      </span>
+                    )}
+                    {filter.field === 'author' && (
+                      <span> {filterValue.split('@')[0].substr(0, 20)}</span>
+                    )}
+                    {filter.field !== 'author' &&
+                      filter.field !== 'failure_classification_id' && (
+                        <span> {filterValue.substr(0, 12)}</span>
+                      )}
+                  </span>
                 </span>
-                <span title={`Filter by ${filter.field}: ${filterValue}`}>
-                  <b>{filter.field}:</b>
-                  {filter.field === 'failure_classification_id' && (
-                    <span> {this.getFilterValue(filter.field, filterValue)}</span>
+              )),
+            )}
+          </div>
+        )}
+        {isFieldFilterVisible && (
+          <div>
+            <form className="form-inline">
+              <div className="form-group input-group-sm new-filter-input">
+                <label className="sr-only" htmlFor="job-filter-field">
+                  Field
+                </label>
+                <select
+                  id="job-filter-field"
+                  className="form-control"
+                  value={newFilterField}
+                  onChange={evt => this.setNewFilterField(evt.target.value)}
+                  placeholder="filter field"
+                  required
+                >
+                  <option value="" disabled>
+                    select filter field
+                  </option>
+                  {Object.entries(fieldChoices).map(([field, obj]) =>
+                    obj.name !== 'tier' ? (
+                      <option value={field} key={field}>
+                        {obj.name}
+                      </option>
+                    ) : null,
                   )}
-                  {filter.field === 'author' && <span> {filterValue.split('@')[0].substr(0, 20)}</span>}
-                  {filter.field !== 'author' && filter.field !== 'failure_classification_id' && <span> {filterValue.substr(0, 12)}</span>}
-                </span>
-              </span>
-            ))
-          ))}
-          </div>}
-        {isFieldFilterVisible && <div>
-          <form className="form-inline">
-            <div className="form-group input-group-sm new-filter-input">
-              <label className="sr-only" htmlFor="job-filter-field">Field</label>
-              <select
-                id="job-filter-field"
-                className="form-control"
-                value={newFilterField}
-                onChange={evt => this.setNewFilterField(evt.target.value)}
-                placeholder="filter field"
-                required
-              >
-                <option value="" disabled>select filter field</option>
-                {Object.entries(fieldChoices).map(([field, obj]) => (
-                  obj.name !== 'tier' ? <option value={field} key={field}>{obj.name}</option> : null
-                ))}
-              </select>
-              <label className="sr-only" htmlFor="job-filter-value">Value</label>
-              {newFilterMatchType !== 'choice' && <input
-                className="form-control"
-                value={newFilterValue}
-                onChange={evt => this.setNewFilterValue(evt.target.value)}
-                id="job-filter-value"
-                type="text"
-                required
-                placeholder="enter filter value"
-              />}
-              <label className="sr-only" htmlFor="job-filter-choice-value">Value</label>
-              {newFilterMatchType === 'choice' && <select
-                className="form-control"
-                value={newFilterValue}
-                onChange={evt => this.setNewFilterValue(evt.target.value)}
-                id="job-filter-choice-value"
-              >
-                <option value="" disabled>select value</option>
-                {Object.entries(newFilterChoices).map(([fci, fci_obj]) => (
-                  <option value={fci_obj.id} key={fci}>{fci_obj.name}</option>
-                )) }
-              </select>}
-              <button
-                type="submit"
-                className="btn btn-light-bordered btn-sm"
-                onClick={this.addNewFieldFilter}
-              >add</button>
-              <button
-                type="reset"
-                className="btn btn-light-bordered btn-sm"
-                onClick={this.clearNewFieldFilter}
-              >cancel</button>
-            </div>
-          </form>
-        </div>}
+                </select>
+                <label className="sr-only" htmlFor="job-filter-value">
+                  Value
+                </label>
+                {newFilterMatchType !== 'choice' && (
+                  <input
+                    className="form-control"
+                    value={newFilterValue}
+                    onChange={evt => this.setNewFilterValue(evt.target.value)}
+                    id="job-filter-value"
+                    type="text"
+                    required
+                    placeholder="enter filter value"
+                  />
+                )}
+                <label className="sr-only" htmlFor="job-filter-choice-value">
+                  Value
+                </label>
+                {newFilterMatchType === 'choice' && (
+                  <select
+                    className="form-control"
+                    value={newFilterValue}
+                    onChange={evt => this.setNewFilterValue(evt.target.value)}
+                    id="job-filter-choice-value"
+                  >
+                    <option value="" disabled>
+                      select value
+                    </option>
+                    {Object.entries(newFilterChoices).map(([fci, fci_obj]) => (
+                      <option value={fci_obj.id} key={fci}>
+                        {fci_obj.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <button
+                  type="submit"
+                  className="btn btn-light-bordered btn-sm"
+                  onClick={this.addNewFieldFilter}
+                >
+                  add
+                </button>
+                <button
+                  type="reset"
+                  className="btn btn-light-bordered btn-sm"
+                  onClick={this.clearNewFieldFilter}
+                >
+                  cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     );
   }

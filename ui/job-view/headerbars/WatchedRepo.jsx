@@ -6,37 +6,37 @@ import BugLinkify from '../../shared/BugLinkify';
 import { getRepoUrl } from '../../helpers/url';
 
 const statusInfoMap = {
-    open: {
-        icon: 'fa-circle-o',
-        color: 'tree-open',
-        btnClass: 'btn-view-nav',
-    },
-    'approval required': {
-        icon: 'fa-lock',
-        color: 'tree-approval',
-        btnClass: 'btn-view-nav',
-    },
-    closed: {
-        icon: 'fa-times-circle',
-        color: 'tree-closed',
-        btnClass: 'btn-view-nav-closed',
-    },
-    unsupported: {
-        icon: 'fa-question',
-        color: 'tree-unavailable',
-        btnClass: 'btn-view-nav',
-    },
-    'not retrieved yet': {
-        icon: 'fa-spinner',
-        pulseIcon: 'fa-pulse',
-        color: 'tree-unavailable',
-        btnClass: 'btn-view-nav',
-    },
-    error: {
-        icon: 'fa-question',
-        color: 'tree-unavailable',
-        btnClass: 'btn-view-nav',
-    },
+  open: {
+    icon: 'fa-circle-o',
+    color: 'tree-open',
+    btnClass: 'btn-view-nav',
+  },
+  'approval required': {
+    icon: 'fa-lock',
+    color: 'tree-approval',
+    btnClass: 'btn-view-nav',
+  },
+  closed: {
+    icon: 'fa-times-circle',
+    color: 'tree-closed',
+    btnClass: 'btn-view-nav-closed',
+  },
+  unsupported: {
+    icon: 'fa-question',
+    color: 'tree-unavailable',
+    btnClass: 'btn-view-nav',
+  },
+  'not retrieved yet': {
+    icon: 'fa-spinner',
+    pulseIcon: 'fa-pulse',
+    color: 'tree-unavailable',
+    btnClass: 'btn-view-nav',
+  },
+  error: {
+    icon: 'fa-question',
+    color: 'tree-unavailable',
+    btnClass: 'btn-view-nav',
+  },
 };
 
 export default class WatchedRepo extends React.Component {
@@ -63,7 +63,10 @@ export default class WatchedRepo extends React.Component {
 
     this.updateTreeStatus();
     // update the TreeStatus every 2 minutes
-    this.treeStatusIntervalId = setInterval(this.updateTreeStatus, 2 * 60 * 1000);
+    this.treeStatusIntervalId = setInterval(
+      this.updateTreeStatus,
+      2 * 60 * 1000,
+    );
   }
 
   componentWillUnmount() {
@@ -81,7 +84,7 @@ export default class WatchedRepo extends React.Component {
     const { repo, repoName, setCurrentRepoTreeStatus } = this.props;
     const watchedRepoName = repo.name;
 
-    TreeStatusModel.get(watchedRepoName).then((data) => {
+    TreeStatusModel.get(watchedRepoName).then(data => {
       const treeStatus = data.result;
 
       if (watchedRepoName === repoName) {
@@ -100,7 +103,11 @@ export default class WatchedRepo extends React.Component {
   render() {
     const { repoName, unwatchRepo, repo } = this.props;
     const {
-      status, messageOfTheDay, reason, statusInfo, hasBoundaryError,
+      status,
+      messageOfTheDay,
+      reason,
+      statusInfo,
+      hasBoundaryError,
       boundaryError,
     } = this.state;
     const watchedRepo = repo.name;
@@ -115,7 +122,9 @@ export default class WatchedRepo extends React.Component {
         <span
           className="btn-view-nav pl-1 pr-1 border-right"
           title={boundaryError.toString()}
-        >Error getting {watchedRepo} info</span>
+        >
+          Error getting {watchedRepo} info
+        </span>
       );
     }
     return (
@@ -134,39 +143,64 @@ export default class WatchedRepo extends React.Component {
           title={`${watchedRepo} info`}
           aria-label={`${watchedRepo} info`}
           data-toggle="dropdown"
-        ><span className="fa fa-info-circle" /></button>
-        {watchedRepo !== repoName && <button
-          className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
-          onClick={() => unwatchRepo(watchedRepo)}
-          title={`Unwatch ${watchedRepo}`}
-        ><span className="fa fa-times" /></button>}
+        >
+          <span className="fa fa-info-circle" />
+        </button>
+        {watchedRepo !== repoName && (
+          <button
+            className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
+            onClick={() => unwatchRepo(watchedRepo)}
+            title={`Unwatch ${watchedRepo}`}
+          >
+            <span className="fa fa-times" />
+          </button>
+        )}
 
         <ul className="dropdown-menu" role="menu">
-          {status === 'unsupported' && <React.Fragment>
+          {status === 'unsupported' && (
+            <React.Fragment>
+              <li className="watched-repo-dropdown-item">
+                <span>
+                  {watchedRepo} is not listed on{' '}
+                  <a
+                    href="https://mozilla-releng.net/treestatus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Tree Status
+                  </a>
+                </span>
+              </li>
+              <li className="dropdown-divider" />
+            </React.Fragment>
+          )}
+          {!!reason && (
             <li className="watched-repo-dropdown-item">
-              <span>{watchedRepo} is not listed on <a
-                href="https://mozilla-releng.net/treestatus"
-                target="_blank"
-                rel="noopener noreferrer"
-              >Tree Status</a></span>
+              <span>
+                <BugLinkify>{reason}</BugLinkify>
+              </span>
             </li>
-            <li className="dropdown-divider" />
-          </React.Fragment>}
-          {!!reason && <li className="watched-repo-dropdown-item">
-            <span><BugLinkify>{reason}</BugLinkify></span>
-          </li>}
+          )}
           {!!reason && !!messageOfTheDay && <li className="dropdown-divider" />}
-          {!!messageOfTheDay && <li className="watched-repo-dropdown-item">
-            <span><BugLinkify>{messageOfTheDay}</BugLinkify></span>
-          </li>}
-          {(!!reason || !!messageOfTheDay) && <li className="dropdown-divider" />}
+          {!!messageOfTheDay && (
+            <li className="watched-repo-dropdown-item">
+              <span>
+                <BugLinkify>{messageOfTheDay}</BugLinkify>
+              </span>
+            </li>
+          )}
+          {(!!reason || !!messageOfTheDay) && (
+            <li className="dropdown-divider" />
+          )}
           <li className="watched-repo-dropdown-item">
             <a
               href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
               className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
-            >Tree Status</a>
+            >
+              Tree Status
+            </a>
           </li>
           <li className="watched-repo-dropdown-item">
             <a
@@ -174,7 +208,9 @@ export default class WatchedRepo extends React.Component {
               className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
-            >Pushlog</a>
+            >
+              Pushlog
+            </a>
           </li>
         </ul>
       </span>

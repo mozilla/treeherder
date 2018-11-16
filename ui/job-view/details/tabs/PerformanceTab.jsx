@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { getCompareChooserUrl } from '../../../helpers/url';
 
 export default class PerformanceTab extends React.PureComponent {
-
   render() {
     const { repoName, revision, perfJobDetail } = this.props;
     const sortedDetails = perfJobDetail ? perfJobDetail.slice() : [];
@@ -13,26 +12,34 @@ export default class PerformanceTab extends React.PureComponent {
 
     return (
       <div className="performance-panel">
-        {!!sortedDetails.length && <ul>
-          <li>Perfherder:
-            {sortedDetails.map((detail, idx) => (
-              <ul
-                key={idx} // eslint-disable-line react/no-array-index-key
-              >
-                <li>{detail.title}:
-                  <a href={detail.url}> {detail.value}</a>
-                </li>
-              </ul>
-            ))}
-          </li>
-        </ul>}
+        {!!sortedDetails.length && (
+          <ul>
+            <li>
+              Perfherder:
+              {sortedDetails.map((detail, idx) => (
+                <ul
+                  key={idx} // eslint-disable-line react/no-array-index-key
+                >
+                  <li>
+                    {detail.title}:<a href={detail.url}> {detail.value}</a>
+                  </li>
+                </ul>
+              ))}
+            </li>
+          </ul>
+        )}
         <ul>
           <li>
             <a
-              href={getCompareChooserUrl({ newProject: repoName, newRevision: revision })}
+              href={getCompareChooserUrl({
+                newProject: repoName,
+                newRevision: revision,
+              })}
               target="_blank"
               rel="noopener noreferrer"
-            >Compare result against another revision</a>
+            >
+              Compare result against another revision
+            </a>
           </li>
         </ul>
       </div>

@@ -20,7 +20,10 @@ export const thFieldChoices = {
   machine_name: { name: 'machine name', matchType: thMatchType.substr },
   platform: { name: 'platform', matchType: thMatchType.substr },
   tier: { name: 'tier', matchType: thMatchType.exactstr },
-  failure_classification_id: { name: 'failure classification', matchType: thMatchType.choice },
+  failure_classification_id: {
+    name: 'failure classification',
+    matchType: thMatchType.choice,
+  },
   // text search across multiple fields
   searchStr: { name: 'search string', matchType: thMatchType.searchStr },
 };

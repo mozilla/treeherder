@@ -1,8 +1,15 @@
 import { extendProperties } from '../../../../helpers/object';
 
 export default class LineOptionModel {
-  constructor(type, id, classifiedFailureId, bugNumber,
-              bugSummary, bugResolution, matches) {
+  constructor(
+    type,
+    id,
+    classifiedFailureId,
+    bugNumber,
+    bugSummary,
+    bugResolution,
+    matches,
+  ) {
     extendProperties(this, {
       type,
       id,

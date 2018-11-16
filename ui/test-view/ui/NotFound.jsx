@@ -6,7 +6,8 @@ const NotFound = () => (
     <Row>
       <Col>
         <Alert color="danger">
-          Missing required URL parameters of <code>repo</code> and <code>revision</code>.
+          Missing required URL parameters of <code>repo</code> and{' '}
+          <code>revision</code>.
         </Alert>
       </Col>
     </Row>

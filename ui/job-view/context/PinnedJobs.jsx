@@ -69,10 +69,15 @@ export class PinnedJobsClass extends React.Component {
     const { notify } = this.props;
 
     if (MAX_SIZE - Object.keys(pinnedJobs).length > 0) {
-      this.setValue({
-        pinnedJobs: { ...pinnedJobs, [job.id]: job },
-        isPinBoardVisible: true,
-      }, () => { if (callback) callback(); });
+      this.setValue(
+        {
+          pinnedJobs: { ...pinnedJobs, [job.id]: job },
+          isPinBoardVisible: true,
+        },
+        () => {
+          if (callback) callback();
+        },
+      );
       this.pulsePinCount();
     } else {
       notify(COUNT_ERROR, 'danger');
@@ -91,21 +96,26 @@ export class PinnedJobsClass extends React.Component {
     const { notify } = this.props;
     const spaceRemaining = MAX_SIZE - Object.keys(pinnedJobs).length;
     const showError = jobsToPin.length > spaceRemaining;
-    const newPinnedJobs = jobsToPin.slice(0, spaceRemaining).reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
+    const newPinnedJobs = jobsToPin
+      .slice(0, spaceRemaining)
+      .reduce((acc, job) => ({ ...acc, [job.id]: job }), {});
 
     if (!spaceRemaining) {
       notify(COUNT_ERROR, 'danger', { sticky: true });
       return;
     }
 
-    this.setValue({
-      pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
-      isPinBoardVisible: true,
-    }, () => {
-      if (showError) {
-        notify(COUNT_ERROR, 'danger', { sticky: true });
-      }
-    });
+    this.setValue(
+      {
+        pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
+        isPinBoardVisible: true,
+      },
+      () => {
+        if (showError) {
+          notify(COUNT_ERROR, 'danger', { sticky: true });
+        }
+      },
+    );
   }
 
   addBug(bug, job) {
@@ -114,7 +124,7 @@ export class PinnedJobsClass extends React.Component {
     pinnedJobBugs[bug.id] = bug;
     this.setValue({ pinnedJobBugs: { ...pinnedJobBugs } });
     if (job) {
-        this.pinJob(job);
+      this.pinJob(job);
     }
   }
 

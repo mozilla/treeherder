@@ -5,7 +5,11 @@ import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
 import max from 'lodash/max';
 
-import { thDefaultRepo, thEvents, thMaxPushFetchSize } from '../../helpers/constants';
+import {
+  thDefaultRepo,
+  thEvents,
+  thMaxPushFetchSize,
+} from '../../helpers/constants';
 import { parseQueryParams } from '../../helpers/url';
 import {
   getAllUrlParams,
@@ -68,7 +72,9 @@ export class PushesClass extends React.Component {
     this.updateJobMap = this.updateJobMap.bind(this);
     this.getAllShownJobs = this.getAllShownJobs.bind(this);
     this.fetchPushes = this.fetchPushes.bind(this);
-    this.recalculateUnclassifiedCounts = this.recalculateUnclassifiedCounts.bind(this);
+    this.recalculateUnclassifiedCounts = this.recalculateUnclassifiedCounts.bind(
+      this,
+    );
     this.setRevisionTips = this.setRevisionTips.bind(this);
     this.addPushes = this.addPushes.bind(this);
     this.getPush = this.getPush.bind(this);
@@ -125,26 +131,30 @@ export class PushesClass extends React.Component {
     const params = parseQueryParams(getQueryString());
 
     return reloadOnChangeParameters.reduce(
-      (acc, prop) => (params[prop] ? { ...acc, [prop]: params[prop] } : acc), {});
+      (acc, prop) => (params[prop] ? { ...acc, [prop]: params[prop] } : acc),
+      {},
+    );
   }
 
   getAllShownJobs(pushId) {
     const { jobMap } = this.state;
     const jobList = Object.values(jobMap);
 
-    return pushId ?
-      jobList.filter(job => job.push_id === pushId && job.visible) :
-      jobList.filter(job => job.visible);
+    return pushId
+      ? jobList.filter(job => job.push_id === pushId && job.visible)
+      : jobList.filter(job => job.visible);
   }
 
   setRevisionTips() {
     const { pushList } = this.state;
 
-    this.setValue({ revisionTips: pushList.map(push => ({
-      revision: push.revision,
-      author: push.author,
-      title: push.revisions[0].comments.split('\n')[0],
-    })) });
+    this.setValue({
+      revisionTips: pushList.map(push => ({
+        revision: push.revision,
+        author: push.author,
+        title: push.revisions[0].comments.split('\n')[0],
+      })),
+    });
   }
 
   getPush(pushId) {
@@ -180,25 +190,26 @@ export class PushesClass extends React.Component {
   getGeckoDecisionJob(pushId) {
     const { jobMap } = this.state;
 
-    return Object.values(jobMap).find(job => (
-      job.push_id === pushId &&
-      job.platform === 'gecko-decision' &&
-      job.state === 'completed' &&
-      job.job_type_symbol === 'D'));
+    return Object.values(jobMap).find(
+      job =>
+        job.push_id === pushId &&
+        job.platform === 'gecko-decision' &&
+        job.state === 'completed' &&
+        job.job_type_symbol === 'D',
+    );
   }
 
   getGeckoDecisionTaskId(pushId, repoName) {
     const decisionTask = this.getGeckoDecisionJob(pushId);
     if (decisionTask) {
-      return JobModel.get(repoName, decisionTask.id).then(
-        (job) => {
-          // this failure case is unlikely, but I guess you
-          // never know
-          if (!job.taskcluster_metadata) {
-            return Promise.reject('Decision task missing taskcluster metadata');
-          }
-          return job.taskcluster_metadata.task_id;
-        });
+      return JobModel.get(repoName, decisionTask.id).then(job => {
+        // this failure case is unlikely, but I guess you
+        // never know
+        if (!job.taskcluster_metadata) {
+          return Promise.reject('Decision task missing taskcluster metadata');
+        }
+        return job.taskcluster_metadata.task_id;
+      });
     }
 
     // no decision task, we fail
@@ -207,7 +218,10 @@ export class PushesClass extends React.Component {
 
   getLastModifiedJobTime() {
     const { jobMap } = this.state;
-    const latest = max(Object.values(jobMap).map(job => new Date(`${job.last_modified}Z`))) || new Date();
+    const latest =
+      max(
+        Object.values(jobMap).map(job => new Date(`${job.last_modified}Z`)),
+      ) || new Date();
 
     latest.setSeconds(latest.getSeconds() - 3);
     return latest;
@@ -221,7 +235,10 @@ export class PushesClass extends React.Component {
       // within the constraints of the URL params
       const locationSearch = parseQueryParams(getQueryString());
       const pushPollingParams = pushPollingKeys.reduce(
-          (acc, prop) => (locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc), {});
+        (acc, prop) =>
+          locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc,
+        {},
+      );
 
       if (pushList.length === 1 && locationSearch.revision) {
         // If we are on a single revision, no need to poll for more pushes, but
@@ -235,16 +252,15 @@ export class PushesClass extends React.Component {
         }
         // We will either have a ``revision`` param, but no push for it yet,
         // or a ``fromchange`` param because we have at least 1 push already.
-        PushModel.getList(pushPollingParams)
-          .then(async (resp) => {
-            if (resp.ok) {
-              const data = await resp.json();
-              this.addPushes(data);
-              this.fetchNewJobs();
-            } else {
-              notify('Error fetching new push data', 'danger', { sticky: true });
-            }
-          });
+        PushModel.getList(pushPollingParams).then(async resp => {
+          if (resp.ok) {
+            const data = await resp.json();
+            this.addPushes(data);
+            this.fetchNewJobs();
+          } else {
+            notify('Error fetching new push data', 'danger', { sticky: true });
+          }
+        });
       }
     }, pushPollInterval);
   }
@@ -262,12 +278,16 @@ export class PushesClass extends React.Component {
     const newReloadTriggerParams = this.getNewReloadTriggerParams();
     // if we are just setting the repo to the default because none was
     // set initially, then don't reload the page.
-    const defaulting = newReloadTriggerParams.repo === thDefaultRepo &&
+    const defaulting =
+      newReloadTriggerParams.repo === thDefaultRepo &&
       !cachedReloadTriggerParams.repo;
 
-    if (!defaulting && cachedReloadTriggerParams &&
+    if (
+      !defaulting &&
+      cachedReloadTriggerParams &&
       !isEqual(newReloadTriggerParams, cachedReloadTriggerParams) &&
-      !this.skipNextPageReload) {
+      !this.skipNextPageReload
+    ) {
       window.location.reload();
     } else {
       this.setState({ cachedReloadTriggerParams: newReloadTriggerParams });
@@ -301,15 +321,17 @@ export class PushesClass extends React.Component {
       delete options.tochange;
       options.push_timestamp__lte = oldestPushTimestamp;
     }
-    return PushModel.getList(options).then(async (resp) => {
-      if (resp.ok) {
-        const data = await resp.json();
+    return PushModel.getList(options)
+      .then(async resp => {
+        if (resp.ok) {
+          const data = await resp.json();
 
-        this.addPushes(data.results.length ? data : { results: [] });
-      } else {
-        notify('Error retrieving push data!', 'danger', { sticky: true });
-      }
-    }).then(() => this.setValue({ loadingPushes: false }));
+          this.addPushes(data.results.length ? data : { results: [] });
+        } else {
+          notify('Error retrieving push data!', 'danger', { sticky: true });
+        }
+      })
+      .then(() => this.setValue({ loadingPushes: false }));
   }
 
   addPushes(data) {
@@ -317,13 +339,16 @@ export class PushesClass extends React.Component {
 
     if (data.results.length > 0) {
       const pushIds = pushList.map(push => push.id);
-      const newPushList = [...pushList, ...data.results.filter(push => !pushIds.includes(push.id))];
+      const newPushList = [
+        ...pushList,
+        ...data.results.filter(push => !pushIds.includes(push.id)),
+      ];
       newPushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
-      const oldestPushTimestamp = newPushList[newPushList.length - 1].push_timestamp;
+      const oldestPushTimestamp =
+        newPushList[newPushList.length - 1].push_timestamp;
       this.recalculateUnclassifiedCounts();
-      this.setValue(
-        { pushList: newPushList, oldestPushTimestamp },
-        () => this.setRevisionTips(),
+      this.setValue({ pushList: newPushList, oldestPushTimestamp }, () =>
+        this.setRevisionTips(),
       );
     }
   }
@@ -345,13 +370,15 @@ export class PushesClass extends React.Component {
     // If a job is selected, and one of the jobs we just fetched is the
     // updated version of that selected job, then send that with the event.
     const selectedJobId = getUrlParam('selectedJob');
-    const updatedSelectedJob = selectedJobId ?
-      jobList.find(job => job.id === parseInt(selectedJobId, 10)) : null;
+    const updatedSelectedJob = selectedJobId
+      ? jobList.find(job => job.id === parseInt(selectedJobId, 10))
+      : null;
 
-    window.dispatchEvent(new CustomEvent(
-      thEvents.applyNewJobs,
-      { detail: { jobs, updatedSelectedJob } },
-    ));
+    window.dispatchEvent(
+      new CustomEvent(thEvents.applyNewJobs, {
+        detail: { jobs, updatedSelectedJob },
+      }),
+    );
   }
 
   updateUrlFromchange() {
@@ -378,7 +405,7 @@ export class PushesClass extends React.Component {
     let allUnclassifiedFailureCount = 0;
     let filteredUnclassifiedFailureCount = 0;
 
-    Object.values(jobMap).forEach((job) => {
+    Object.values(jobMap).forEach(job => {
       if (isUnclassifiedFailure(job)) {
         if (tiers.includes(String(job.tier))) {
           if (filterModel.showJob(job)) {
@@ -388,7 +415,10 @@ export class PushesClass extends React.Component {
         }
       }
     });
-    this.setValue({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
+    this.setValue({
+      allUnclassifiedFailureCount,
+      filteredUnclassifiedFailureCount,
+    });
   }
 
   updateJobMap(jobList) {
@@ -411,7 +441,6 @@ export class PushesClass extends React.Component {
       </PushesContext.Provider>
     );
   }
-
 }
 
 PushesClass.propTypes = {
@@ -435,12 +464,16 @@ export function withPushes(Component) {
             jobsLoaded={context.jobsLoaded}
             loadingPushes={context.loadingPushes}
             allUnclassifiedFailureCount={context.allUnclassifiedFailureCount}
-            filteredUnclassifiedFailureCount={context.filteredUnclassifiedFailureCount}
+            filteredUnclassifiedFailureCount={
+              context.filteredUnclassifiedFailureCount
+            }
             updateJobMap={context.updateJobMap}
             getAllShownJobs={context.getAllShownJobs}
             fetchPushes={context.fetchPushes}
             getPush={context.getPush}
-            recalculateUnclassifiedCounts={context.recalculateUnclassifiedCounts}
+            recalculateUnclassifiedCounts={
+              context.recalculateUnclassifiedCounts
+            }
             getNextPushes={context.getNextPushes}
             getGeckoDecisionJob={context.getGeckoDecisionJob}
             getGeckoDecisionTaskId={context.getGeckoDecisionTaskId}

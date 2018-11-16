@@ -59,7 +59,9 @@ class KeyboardShortcuts extends React.Component {
   // open panels and selected job
   clearScreen() {
     const {
-      clearSelectedJob, showOnScreenShortcuts, notifications,
+      clearSelectedJob,
+      showOnScreenShortcuts,
+      notifications,
       clearOnScreenNotifications,
     } = this.props;
 
@@ -134,7 +136,9 @@ class KeyboardShortcuts extends React.Component {
 
     if (selectedJob) {
       window.dispatchEvent(
-        new CustomEvent(thEvents.jobRetrigger, { detail: { job: selectedJob } }),
+        new CustomEvent(thEvents.jobRetrigger, {
+          detail: { job: selectedJob },
+        }),
       );
     }
   }
@@ -172,11 +176,15 @@ class KeyboardShortcuts extends React.Component {
       return;
     }
 
-    if ((element.tagName === 'INPUT' &&
-      element.type !== 'radio' && element.type !== 'checkbox') ||
+    if (
+      (element.tagName === 'INPUT' &&
+        element.type !== 'radio' &&
+        element.type !== 'checkbox') ||
       element.tagName === 'SELECT' ||
       element.tagName === 'TEXTAREA' ||
-      element.isContentEditable || ev.key === 'shift') {
+      element.isContentEditable ||
+      ev.key === 'shift'
+    ) {
       return;
     }
 
@@ -186,19 +194,26 @@ class KeyboardShortcuts extends React.Component {
   }
 
   render() {
-    const { filterModel, changeSelectedJob, showOnScreenShortcuts } = this.props;
+    const {
+      filterModel,
+      changeSelectedJob,
+      showOnScreenShortcuts,
+    } = this.props;
     const handlers = {
       addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
       pinEditComment: ev => this.doKey(ev, this.pinEditComment),
       quickFilter: ev => this.doKey(ev, this.quickFilter),
       clearFilter: ev => this.doKey(ev, this.clearFilter),
       toggleInProgress: ev => this.doKey(ev, filterModel.toggleInProgress),
-      nextUnclassified: ev => this.doKey(ev, () => changeSelectedJob('next', true)),
-      previousUnclassified: ev => this.doKey(ev, () => changeSelectedJob('previous', true)),
+      nextUnclassified: ev =>
+        this.doKey(ev, () => changeSelectedJob('next', true)),
+      previousUnclassified: ev =>
+        this.doKey(ev, () => changeSelectedJob('previous', true)),
       openLogviewer: ev => this.doKey(ev, this.openLogviewer),
       jobRetrigger: ev => this.doKey(ev, this.jobRetrigger),
       selectNextTab: ev => this.doKey(ev, this.selectNextTab),
-      toggleUnclassifiedFailures: ev => this.doKey(ev, filterModel.toggleUnclassifiedFailures),
+      toggleUnclassifiedFailures: ev =>
+        this.doKey(ev, filterModel.toggleUnclassifiedFailures),
       clearPinboard: ev => this.doKey(ev, this.clearPinboard),
       previousJob: ev => this.doKey(ev, () => changeSelectedJob('previous')),
       nextJob: ev => this.doKey(ev, () => changeSelectedJob('next')),
@@ -249,4 +264,6 @@ KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
 
-export default withPinnedJobs(withSelectedJob(withNotifications(KeyboardShortcuts)));
+export default withPinnedJobs(
+  withSelectedJob(withNotifications(KeyboardShortcuts)),
+);

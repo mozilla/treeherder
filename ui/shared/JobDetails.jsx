@@ -26,18 +26,27 @@ export default class JobDetails extends React.PureComponent {
             >
               <label>{line.title ? line.title : UNTITLED}:</label>&nbsp;
               {/* URL provided */}
-              {!!line.url && <a
-                title={line.title ? line.title : line.value}
-                href={line.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >{line.value}</a>}
-              {line.url && line.value.startsWith('profile_') && line.value.endsWith('.zip') &&
-                <span> - <a
-                  title={line.value}
-                  href={getPerfAnalysisUrl(line.url)}
-                >open in perf-html.io</a>
-                </span>}
+              {!!line.url && (
+                <a
+                  title={line.title ? line.title : line.value}
+                  href={line.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {line.value}
+                </a>
+              )}
+              {line.url &&
+                line.value.startsWith('profile_') &&
+                line.value.endsWith('.zip') && (
+                  <span>
+                    {' '}
+                    -{' '}
+                    <a title={line.value} href={getPerfAnalysisUrl(line.url)}>
+                      open in perf-html.io
+                    </a>
+                  </span>
+                )}
               {/*
                 no URL (just informational)
                 If this is showing HTML from a TinderboxPrint line it should
@@ -46,7 +55,8 @@ export default class JobDetails extends React.PureComponent {
                 a 'title' value in the '<a>' element.
               */}
               {!line.url && <span>{line.value}</span>}
-            </li>))}
+            </li>
+          ))}
         </ul>
       </div>
     );

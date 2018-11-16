@@ -16,9 +16,13 @@ const GROUP_ORDER = [
 
 export default function ReposMenu(props) {
   const { repos } = props;
-  const groups = repos.reduce((acc, repo, idx, arr, group = repo => repo.repository_group.name) => (
-    { ...acc, [group(repo)]: [...acc[group(repo)] || [], repo] }
-  ), {});
+  const groups = repos.reduce(
+    (acc, repo, idx, arr, group = repo => repo.repository_group.name) => ({
+      ...acc,
+      [group(repo)]: [...(acc[group(repo)] || []), repo],
+    }),
+    {},
+  );
   const groupedRepos = GROUP_ORDER.map(name => ({ name, repos: groups[name] }));
 
   return (
@@ -29,7 +33,9 @@ export default function ReposMenu(props) {
           title="Watch a repo"
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn dropdown-toggle"
-        >Repos</button>
+        >
+          Repos
+        </button>
         <span
           id="repo-dropdown"
           className="dropdown-menu nav-dropdown-menu-right container"
@@ -47,16 +53,21 @@ export default function ReposMenu(props) {
                   role="presentation"
                   className="dropdown-header"
                   title={group.name}
-                >{group.name} <span className="fa fa-info-circle" /></li>
-                {!!group.repos && group.repos.map(repo => (
-                  <li key={repo.name}>
-                    <a
-                      title="Open repo"
-                      className="dropdown-link"
-                      href={getRepoUrl(repo.name)}
-                    >{repo.name}</a>
-                  </li>
-                ))}
+                >
+                  {group.name} <span className="fa fa-info-circle" />
+                </li>
+                {!!group.repos &&
+                  group.repos.map(repo => (
+                    <li key={repo.name}>
+                      <a
+                        title="Open repo"
+                        className="dropdown-link"
+                        href={getRepoUrl(repo.name)}
+                      >
+                        {repo.name}
+                      </a>
+                    </li>
+                  ))}
               </span>
             ))}
           </ul>
@@ -65,7 +76,6 @@ export default function ReposMenu(props) {
     </span>
   );
 }
-
 
 ReposMenu.propTypes = {
   repos: PropTypes.array.isRequired,

@@ -19,20 +19,38 @@ class PushJobs extends React.Component {
     const selectedJobId = parseInt(getUrlParam('selectedJob'), 10);
     const filteredPlatforms = platforms.reduce((acc, platform) => {
       const thisPlatform = { ...platform };
-      const suffix = (thSimplePlatforms.includes(platform.name) && platform.option === 'opt') ? '' : ` ${platform.option}`;
+      const suffix =
+        thSimplePlatforms.includes(platform.name) && platform.option === 'opt'
+          ? ''
+          : ` ${platform.option}`;
       thisPlatform.title = `${thisPlatform.name}${suffix}`;
       thisPlatform.visible = true;
-      return [...acc, PushJobs.filterPlatform(thisPlatform, selectedJobId, push, filterModel, runnableVisible)];
+      return [
+        ...acc,
+        PushJobs.filterPlatform(
+          thisPlatform,
+          selectedJobId,
+          push,
+          filterModel,
+          runnableVisible,
+        ),
+      ];
     }, []);
 
     return { filteredPlatforms };
   }
 
-  static filterPlatform(platform, selectedJobId, push, filterModel, runnableVisible) {
+  static filterPlatform(
+    platform,
+    selectedJobId,
+    push,
+    filterModel,
+    runnableVisible,
+  ) {
     platform.visible = false;
-    platform.groups.forEach((group) => {
+    platform.groups.forEach(group => {
       group.visible = false;
-      group.jobs.forEach((job) => {
+      group.jobs.forEach(job => {
         job.visible = filterModel.showJob(job) || job.id === selectedJobId;
         if (job.state === 'runnable') {
           job.visible = job.visible && runnableVisible;
@@ -52,11 +70,7 @@ class PushJobs extends React.Component {
     const { push, repoName } = this.props;
 
     this.pushId = push.id;
-    this.aggregateId = getPushTableId(
-      repoName,
-      this.pushId,
-      push.revision,
-    );
+    this.aggregateId = getPushTableId(repoName, this.pushId, push.revision);
 
     this.state = {
       filteredPlatforms: [],
@@ -75,14 +89,17 @@ class PushJobs extends React.Component {
 
     if (jobInstance && jobInstance.props.job) {
       const { job } = jobInstance.props;
-      if (ev.button === 1) { // Middle click
+      if (ev.button === 1) {
+        // Middle click
         this.handleLogViewerClick(job.id);
-      } else if (ev.metaKey || ev.ctrlKey) { // Pin job
+      } else if (ev.metaKey || ev.ctrlKey) {
+        // Pin job
         if (!selectedJob) {
           this.selectJob(job, ev.target);
         }
         togglePinJob(job);
-      } else if (job && job.state === 'runnable') { // Toggle runnable
+      } else if (job && job.state === 'runnable') {
+        // Toggle runnable
         this.handleRunnableClick(jobInstance);
       } else {
         this.selectJob(job, ev.target); // Left click
@@ -106,13 +123,11 @@ class PushJobs extends React.Component {
   handleLogViewerClick(jobId) {
     // Open logviewer in a new window
     const { repoName } = this.props;
-    JobModel.get(
-      repoName,
-      jobId,
-    ).then((data) => {
+    JobModel.get(repoName, jobId).then(data => {
       if (data.logs.length > 0) {
-        window.open(`${window.location.origin}/${
-          getLogViewerUrl(jobId, repoName)}`);
+        window.open(
+          `${window.location.origin}/${getLogViewerUrl(jobId, repoName)}`,
+        );
       }
     });
   }
@@ -130,7 +145,13 @@ class PushJobs extends React.Component {
 
     // This actually filters the platform in-place.  So we just need to
     // trigger a re-render by giving it a new ``filteredPlatforms`` object instance.
-    PushJobs.filterPlatform(platform, selectedJobId, push, filterModel, runnableVisible);
+    PushJobs.filterPlatform(
+      platform,
+      selectedJobId,
+      push,
+      filterModel,
+      runnableVisible,
+    );
     if (filteredPlatforms.length) {
       this.setState({ filteredPlatforms: [...filteredPlatforms] });
     }
@@ -139,28 +160,39 @@ class PushJobs extends React.Component {
   render() {
     const filteredPlatforms = this.state.filteredPlatforms || [];
     const {
-      repoName, filterModel, pushGroupState, duplicateJobsVisible,
+      repoName,
+      filterModel,
+      pushGroupState,
+      duplicateJobsVisible,
       groupCountsExpanded,
     } = this.props;
 
     return (
       <table id={this.aggregateId} className="table-hover">
         <tbody onMouseDown={this.onMouseDown}>
-          {filteredPlatforms ? filteredPlatforms.map(platform => (
-          platform.visible &&
-          <Platform
-            platform={platform}
-            repoName={repoName}
-            key={platform.title}
-            filterModel={filterModel}
-            pushGroupState={pushGroupState}
-            filterPlatformCb={this.filterPlatformCallback}
-            duplicateJobsVisible={duplicateJobsVisible}
-            groupCountsExpanded={groupCountsExpanded}
-          />
-        )) : <tr>
-          <td><span className="fa fa-spinner fa-pulse th-spinner" /></td>
-        </tr>}
+          {filteredPlatforms ? (
+            filteredPlatforms.map(
+              platform =>
+                platform.visible && (
+                  <Platform
+                    platform={platform}
+                    repoName={repoName}
+                    key={platform.title}
+                    filterModel={filterModel}
+                    pushGroupState={pushGroupState}
+                    filterPlatformCb={this.filterPlatformCallback}
+                    duplicateJobsVisible={duplicateJobsVisible}
+                    groupCountsExpanded={groupCountsExpanded}
+                  />
+                ),
+            )
+          ) : (
+            <tr>
+              <td>
+                <span className="fa fa-spinner fa-pulse th-spinner" />
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     );

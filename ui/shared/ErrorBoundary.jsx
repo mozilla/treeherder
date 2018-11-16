@@ -22,17 +22,18 @@ export default class ErrorBoundary extends React.Component {
     const { hasError, error } = this.state;
 
     if (hasError) {
-      return <span className={errorClasses}>{message} {error.toString()}</span>;
+      return (
+        <span className={errorClasses}>
+          {message} {error.toString()}
+        </span>
+      );
     }
     return children;
   }
 }
 
 ErrorBoundary.propTypes = {
-  children: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.bool,
-  ]),
+  children: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   errorClasses: PropTypes.string,
   message: PropTypes.string,
 };

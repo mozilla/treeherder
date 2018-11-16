@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default class AutoclassifyToolbar extends React.Component {
-
   getButtonTitle(condition, activeTitle, inactiveTitle) {
     const { user } = this.props;
 
@@ -20,60 +19,88 @@ export default class AutoclassifyToolbar extends React.Component {
 
   render() {
     const {
-      hasSelection, canSave, canSaveAll, canClassify, onPin, onIgnore, onSave,
-      onSaveAll, onEdit, autoclassifyStatus,
+      hasSelection,
+      canSave,
+      canSaveAll,
+      canClassify,
+      onPin,
+      onIgnore,
+      onSave,
+      onSaveAll,
+      onEdit,
+      autoclassifyStatus,
     } = this.props;
 
     return (
       <div className="autoclassify-toolbar th-context-navbar navbar-right">
-        {
-          // TODO: This is broken (bug 1504711)
-          // eslint-disable-next-line no-restricted-globals
-          status === 'ready' && (
-            <div>
-              {autoclassifyStatus === 'cross_referenced' && (
-                <span>Autoclassification pending</span>
-              )}
-              {autoclassifyStatus === 'failed' && (
-                <span>Autoclassification failed</span>
-              )}
-            </div>
+        {// TODO: This is broken (bug 1504711)
+        // eslint-disable-next-line no-restricted-globals
+        status === 'ready' && (
+          <div>
+            {autoclassifyStatus === 'cross_referenced' && (
+              <span>Autoclassification pending</span>
+            )}
+            {autoclassifyStatus === 'failed' && (
+              <span>Autoclassification failed</span>
+            )}
+          </div>
         )}
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
           title="Pin job for bustage"
           onClick={onPin}
-        >Bustage
+        >
+          Bustage
         </button>
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
-          title={this.getButtonTitle(hasSelection, 'Edit selected lines', 'Nothing selected')}
+          title={this.getButtonTitle(
+            hasSelection,
+            'Edit selected lines',
+            'Nothing selected',
+          )}
           onClick={onEdit}
           disabled={hasSelection && !canClassify}
-        >Edit</button>
+        >
+          Edit
+        </button>
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
-          title={this.getButtonTitle(hasSelection, 'Ignore selected lines', 'Nothing selected')}
+          title={this.getButtonTitle(
+            hasSelection,
+            'Ignore selected lines',
+            'Nothing selected',
+          )}
           onClick={onIgnore}
           disabled={hasSelection && !canClassify}
-        >Ignore</button>
+        >
+          Ignore
+        </button>
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
           title={this.getButtonTitle(canSave, 'Save', 'Nothing selected')}
           onClick={onSave}
           disabled={!canSave}
-        >Save</button>
+        >
+          Save
+        </button>
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
-          title={this.getButtonTitle(canSaveAll, 'Save All', 'Lines not classified')}
+          title={this.getButtonTitle(
+            canSaveAll,
+            'Save All',
+            'Lines not classified',
+          )}
           onClick={onSaveAll}
           disabled={!canSaveAll}
-        >Save All</button>
+        >
+          Save All
+        </button>
       </div>
     );
   }

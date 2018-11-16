@@ -51,15 +51,18 @@ class SimilarJobsTab extends React.Component {
       offset: (page - 1) * this.pageSize,
     };
 
-    ['filterBuildPlatformId', 'filterOptionCollectionHash']
-      .forEach((key) => {
-        if (this.state[key]) {
-          const field = this.filterMap[key];
-          options[field] = selectedJob[field];
-        }
+    ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach(key => {
+      if (this.state[key]) {
+        const field = this.filterMap[key];
+        options[field] = selectedJob[field];
+      }
     });
 
-    const newSimilarJobs = await JobModel.getSimilarJobs(repoName, selectedJob.id, options);
+    const newSimilarJobs = await JobModel.getSimilarJobs(
+      repoName,
+      selectedJob.id,
+      options,
+    );
 
     if (newSimilarJobs.length > 0) {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
@@ -68,18 +71,28 @@ class SimilarJobsTab extends React.Component {
       const pushIds = [...new Set(newSimilarJobs.map(job => job.push_id))];
       // get pushes and revisions for the given ids
       let pushList = { results: [] };
-      const resp = await PushModel.getList({ id__in: pushIds.join(','), count: thMaxPushFetchSize });
+      const resp = await PushModel.getList({
+        id__in: pushIds.join(','),
+        count: thMaxPushFetchSize,
+      });
 
       if (resp.ok) {
         pushList = await resp.json();
         // decorate the list of jobs with their result sets
-        const pushes = pushList.results.reduce((acc, push) => (
-          { ...acc, [push.id]: push }
-        ), {});
-        newSimilarJobs.forEach((simJob) => {
+        const pushes = pushList.results.reduce(
+          (acc, push) => ({ ...acc, [push.id]: push }),
+          {},
+        );
+        newSimilarJobs.forEach(simJob => {
           simJob.result_set = pushes[simJob.push_id];
-          simJob.revisionResultsetFilterUrl = getJobsUrl({ repo: repoName, revision: simJob.result_set.revisions[0].revision });
-          simJob.authorResultsetFilterUrl = getJobsUrl({ repo: repoName, author: simJob.result_set.author });
+          simJob.revisionResultsetFilterUrl = getJobsUrl({
+            repo: repoName,
+            revision: simJob.result_set.revisions[0].revision,
+          });
+          simJob.authorResultsetFilterUrl = getJobsUrl({
+            repo: repoName,
+            author: simJob.result_set.author,
+          });
         });
         this.setState({ similarJobs: [...similarJobs, ...newSimilarJobs] });
         // on the first page show the first element info by default
@@ -87,7 +100,11 @@ class SimilarJobsTab extends React.Component {
           this.showJobInfo(newSimilarJobs[0]);
         }
       } else {
-        notify(`Error fetching similar jobs push data: ${resp.message}`, 'danger', { sticky: true });
+        notify(
+          `Error fetching similar jobs push data: ${resp.message}`,
+          'danger',
+          { sticky: true },
+        );
       }
     }
     this.setState({ isLoading: false });
@@ -102,25 +119,30 @@ class SimilarJobsTab extends React.Component {
   showJobInfo(job) {
     const { repoName, classificationMap } = this.props;
 
-    JobModel.get(repoName, job.id)
-      .then((nextJob) => {
-        nextJob.result_status = getStatus(nextJob);
-        nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
-        nextJob.failure_classification = classificationMap[
-          nextJob.failure_classification_id];
+    JobModel.get(repoName, job.id).then(nextJob => {
+      nextJob.result_status = getStatus(nextJob);
+      nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
+      nextJob.failure_classification =
+        classificationMap[nextJob.failure_classification_id];
 
-        // retrieve the list of error lines
-        TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
-          nextJob.error_lines = textLogSteps.reduce((acc, step) => (
-            [...acc, ...step.errors]), []);
-          this.setState({ selectedSimilarJob: nextJob });
-        });
+      // retrieve the list of error lines
+      TextLogStepModel.get(nextJob.id).then(textLogSteps => {
+        nextJob.error_lines = textLogSteps.reduce(
+          (acc, step) => [...acc, ...step.errors],
+          [],
+        );
+        this.setState({ selectedSimilarJob: nextJob });
       });
+    });
   }
 
   toggleFilter(filterField) {
     this.setState(
-      { [filterField]: !this.state[filterField], similarJobs: [], isLoading: true },
+      {
+        [filterField]: !this.state[filterField],
+        similarJobs: [],
+        isLoading: true,
+      },
       this.getSimilarJobs,
     );
   }
@@ -135,7 +157,9 @@ class SimilarJobsTab extends React.Component {
       isLoading,
     } = this.state;
     const button_class = job => getBtnClass(getStatus(job));
-    const selectedSimilarJobId = selectedSimilarJob ? selectedSimilarJob.id : null;
+    const selectedSimilarJobId = selectedSimilarJob
+      ? selectedSimilarJob.id
+      : null;
 
     return (
       <div className="similar-jobs w-100">
@@ -154,19 +178,25 @@ class SimilarJobsTab extends React.Component {
                 <tr
                   key={similarJob.id}
                   onClick={() => this.showJobInfo(similarJob)}
-                  className={selectedSimilarJobId === similarJob.id ? 'table-active' : ''}
+                  className={
+                    selectedSimilarJobId === similarJob.id ? 'table-active' : ''
+                  }
                 >
                   <td>
                     <button
-                      className={`btn btn-similar-jobs btn-xs ${button_class(similarJob)}`}
-                    >{similarJob.job_type_symbol}
-                      {similarJob.failure_classification_id > 1 &&
-                      <span>*</span>}
+                      className={`btn btn-similar-jobs btn-xs ${button_class(
+                        similarJob,
+                      )}`}
+                    >
+                      {similarJob.job_type_symbol}
+                      {similarJob.failure_classification_id > 1 && (
+                        <span>*</span>
+                      )}
                     </button>
                   </td>
-                  <td
-                    title={toDateStr(similarJob.result_set.push_timestamp)}
-                  >{toShortDateStr(similarJob.result_set.push_timestamp)}</td>
+                  <td title={toDateStr(similarJob.result_set.push_timestamp)}>
+                    {toShortDateStr(similarJob.result_set.push_timestamp)}
+                  </td>
                   <td>
                     <a href={similarJob.authorResultsetFilterUrl}>
                       {similarJob.result_set.author}
@@ -177,14 +207,18 @@ class SimilarJobsTab extends React.Component {
                       {similarJob.result_set.revisions[0].revision}
                     </a>
                   </td>
-                </tr>))}
+                </tr>
+              ))}
             </tbody>
           </table>
-          {hasNextPage &&
-          <button
-            className="btn btn-light-bordered btn-sm link-style"
-            onClick={this.showNext}
-          >Show previous jobs</button>}
+          {hasNextPage && (
+            <button
+              className="btn btn-light-bordered btn-sm link-style"
+              onClick={this.showNext}
+            >
+              Show previous jobs
+            </button>
+          )}
         </div>
         <div className="similar-job-detail-panel">
           <form className="form form-inline">
@@ -195,7 +229,6 @@ class SimilarJobsTab extends React.Component {
                 checked={filterBuildPlatformId}
               />
               <small>Same platform</small>
-
             </div>
             <div className="checkbox">
               <input
@@ -204,70 +237,83 @@ class SimilarJobsTab extends React.Component {
                 checked={filterOptionCollectionHash}
               />
               <small>Same options</small>
-
             </div>
           </form>
           <div className="similar_job_detail">
-            {selectedSimilarJob && <table className="table table-super-condensed">
-              <tbody>
-                <tr>
-                  <th>Result</th>
-                  <td>{selectedSimilarJob.result_status}</td>
-                </tr>
-                <tr>
-                  <th>Build</th>
-                  <td>
-                    {selectedSimilarJob.build_architecture} {selectedSimilarJob.build_platform} {selectedSimilarJob.build_os}
-                  </td>
-                </tr>
-                <tr>
-                  <th>Build option</th>
-                  <td>
-                    {selectedSimilarJob.platform_option}
-                  </td>
-                </tr>
-                <tr>
-                  <th>Job name</th>
-                  <td>{selectedSimilarJob.job_type_name}</td>
-                </tr>
-                <tr>
-                  <th>Started</th>
-                  <td>{toDateStr(selectedSimilarJob.start_timestamp)}</td>
-                </tr>
-                <tr>
-                  <th>Duration</th>
-                  <td>
-                    {selectedSimilarJob.duration >= 0 ? `${selectedSimilarJob.duration.toFixed(0)} minute(s)` : 'unknown'}
-                  </td>
-                </tr>
-                <tr>
-                  <th>Classification</th>
-                  <td>
-                    <label
-                      className={`badge ${selectedSimilarJob.failure_classification.star}`}
-                    >{selectedSimilarJob.failure_classification.name}</label>
-                  </td>
-                </tr>
-                {!!selectedSimilarJob.error_lines && <tr>
-                  <td colSpan={2}>
-                    <ul className="list-unstyled error_list">
-                      {selectedSimilarJob.error_lines.map(error => (<li key={error.id}>
-                        <small title={error.line}>{error.line}</small>
-                      </li>))}
-                    </ul>
-                  </td>
-                </tr>}
-              </tbody>
-            </table>}
+            {selectedSimilarJob && (
+              <table className="table table-super-condensed">
+                <tbody>
+                  <tr>
+                    <th>Result</th>
+                    <td>{selectedSimilarJob.result_status}</td>
+                  </tr>
+                  <tr>
+                    <th>Build</th>
+                    <td>
+                      {selectedSimilarJob.build_architecture}{' '}
+                      {selectedSimilarJob.build_platform}{' '}
+                      {selectedSimilarJob.build_os}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Build option</th>
+                    <td>{selectedSimilarJob.platform_option}</td>
+                  </tr>
+                  <tr>
+                    <th>Job name</th>
+                    <td>{selectedSimilarJob.job_type_name}</td>
+                  </tr>
+                  <tr>
+                    <th>Started</th>
+                    <td>{toDateStr(selectedSimilarJob.start_timestamp)}</td>
+                  </tr>
+                  <tr>
+                    <th>Duration</th>
+                    <td>
+                      {selectedSimilarJob.duration >= 0
+                        ? `${selectedSimilarJob.duration.toFixed(0)} minute(s)`
+                        : 'unknown'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Classification</th>
+                    <td>
+                      <label
+                        className={`badge ${
+                          selectedSimilarJob.failure_classification.star
+                        }`}
+                      >
+                        {selectedSimilarJob.failure_classification.name}
+                      </label>
+                    </td>
+                  </tr>
+                  {!!selectedSimilarJob.error_lines && (
+                    <tr>
+                      <td colSpan={2}>
+                        <ul className="list-unstyled error_list">
+                          {selectedSimilarJob.error_lines.map(error => (
+                            <li key={error.id}>
+                              <small title={error.line}>{error.line}</small>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
-        {isLoading && <div className="overlay">
-          <div>
-            <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+        {isLoading && (
+          <div className="overlay">
+            <div>
+              <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+            </div>
           </div>
-        </div>}
+        )}
       </div>
-  );
+    );
   }
 }
 

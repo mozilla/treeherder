@@ -26,15 +26,12 @@ class StatusNavbar extends React.Component {
   toggleHideClassified(classification) {
     const { hideClassified, filter, groups, options } = this.props;
 
-    store.dispatch(actions.groups.toggleHideClassified(
-      filter,
-      groups,
-      options,
-      {
+    store.dispatch(
+      actions.groups.toggleHideClassified(filter, groups, options, {
         ...hideClassified,
         [classification]: !hideClassified[classification],
-      },
-    ));
+      }),
+    );
   }
 
   render() {
@@ -44,7 +41,8 @@ class StatusNavbar extends React.Component {
       <Navbar expand>
         <Nav className="mr-auto">
           <span className="navbar-text">
-            <Icon name="code" /> Revision <code className="push-revision">{push.revision}</code>
+            <Icon name="code" /> Revision{' '}
+            <code className="push-revision">{push.revision}</code>
           </span>
 
           <span className="navbar-text">
@@ -57,16 +55,24 @@ class StatusNavbar extends React.Component {
           <Badge color="danger">{counts.failed} Other Failed Tests</Badge>
         </span>
 
-        <span className="navbar-text toggle-count" onClick={() => this.toggleHideClassified('infra')}>
+        <span
+          className="navbar-text toggle-count"
+          onClick={() => this.toggleHideClassified('infra')}
+        >
           <Badge color="infra">
             <Icon name={hideClassified.infra ? 'square-o' : 'check-square-o'} />
             {counts.infra} Infra Tests
           </Badge>
         </span>
 
-        <span className="navbar-text toggle-count" onClick={() => this.toggleHideClassified('intermittent')}>
+        <span
+          className="navbar-text toggle-count"
+          onClick={() => this.toggleHideClassified('intermittent')}
+        >
           <Badge color="intermittent">
-            <Icon name={hideClassified.intermittent ? 'square-o' : 'check-square-o'} />
+            <Icon
+              name={hideClassified.intermittent ? 'square-o' : 'check-square-o'}
+            />
             {counts.intermittent} Intermittent Tests
           </Badge>
         </span>

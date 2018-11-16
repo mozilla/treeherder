@@ -26,30 +26,38 @@ class BugCountComponent extends React.Component {
   }
 
   onClick() {
-    store.dispatch(actions.groups.fetchBugsSingleTest(
-      this.props.test,
-      this.props.bugSuggestions,
-    ));
-    store.dispatch(actions.groups.toggleExpanded(
-      Boolean(!this.props.expanded[this.props.testName]),
-      this.props.testName,
-      this.props.expanded || {},
-    ));
+    store.dispatch(
+      actions.groups.fetchBugsSingleTest(
+        this.props.test,
+        this.props.bugSuggestions,
+      ),
+    );
+    store.dispatch(
+      actions.groups.toggleExpanded(
+        Boolean(!this.props.expanded[this.props.testName]),
+        this.props.testName,
+        this.props.expanded || {},
+      ),
+    );
   }
 
   render() {
     return (
-      <td
-        className="bug-count"
-        onClick={this.onClick}
-      >
-        {
-          // TODO: Clean this up
-          // eslint-disable-next-line no-nested-ternary
-          this.props.test.bugs === undefined ? <Icon name="minus" title="Click to expand and fetch bugs" /> : (
-            Object.keys(this.props.test.bugs).length > 0 ? Object.keys(this.props.test.bugs).length : (
-              <Badge size="sm" color="danger" style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}>0</Badge>
-            )
+      <td className="bug-count" onClick={this.onClick}>
+        {// TODO: Clean this up
+        // eslint-disable-next-line no-nested-ternary
+        this.props.test.bugs === undefined ? (
+          <Icon name="minus" title="Click to expand and fetch bugs" />
+        ) : Object.keys(this.props.test.bugs).length > 0 ? (
+          Object.keys(this.props.test.bugs).length
+        ) : (
+          <Badge
+            size="sm"
+            color="danger"
+            style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}
+          >
+            0
+          </Badge>
         )}
       </td>
     );
@@ -71,9 +79,13 @@ class Platform extends React.Component {
       case 'not classified':
         return;
       case 'intermittent':
-        return <Icon name="bug" className="classified classified-intermittent" />;
+        return (
+          <Icon name="bug" className="classified classified-intermittent" />
+        );
       case 'infra':
-        return <Icon name="chain-broken" className="classified classified-infra" />;
+        return (
+          <Icon name="chain-broken" className="classified classified-infra" />
+        );
       default:
         return <Icon name="star" className="classified" />;
     }
@@ -83,10 +95,14 @@ class Platform extends React.Component {
     return (
       <span
         className="platform badge"
-        title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
+        title={`${this.props.job.jobType.symbol} ${
+          this.props.job.failureClassification.name
+        }`}
       >
         <Link
-          to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
+          to={`/#/jobs?repo=${this.props.repo}&revision=${
+            this.props.revision
+          }&selectedJob=${this.props.job.jobId}`}
           target="_blank"
           rel="noopener"
         >
@@ -115,21 +131,27 @@ class TestComponent extends React.Component {
   }
 
   onClick() {
-    store.dispatch(actions.groups.fetchBugsSingleTest(
-      this.props.test,
-      this.props.bugSuggestions,
-    ));
-    store.dispatch(actions.groups.toggleExpanded(
-      Boolean(!this.props.expanded[this.props.name]),
-      this.props.name,
-      this.props.expanded || {},
-    ));
+    store.dispatch(
+      actions.groups.fetchBugsSingleTest(
+        this.props.test,
+        this.props.bugSuggestions,
+      ),
+    );
+    store.dispatch(
+      actions.groups.toggleExpanded(
+        Boolean(!this.props.expanded[this.props.name]),
+        this.props.name,
+        this.props.expanded || {},
+      ),
+    );
   }
 
   renderExpanded() {
     return (
       <div className="test-detail-list">
-        <div className="bottom-separator"><strong>Test Group: {this.props.test.group}</strong></div>
+        <div className="bottom-separator">
+          <strong>Test Group: {this.props.test.group}</strong>
+        </div>
         {this.props.test.jobs.map(job => (
           <div key={job.id}>
             <Platform
@@ -139,45 +161,70 @@ class TestComponent extends React.Component {
               repo={this.props.repo}
               revision={this.props.revision}
             />
-            <LogViewer
-              job={job}
-              repo={this.props.repo}
-            />
-            {job.tier > 1 && <span className="tier badge">Tier-{job.tier}</span>}
-            <div>{job.failureLines.map(failureLine => (
-              <span key={failureLine.id}>
-                {failureLine && <div>
-                  <span>
-                    {failureLine.action === 'TEST_RESULT' && <div className="failure-line">
-                      {failureLine.subtest && <span>{failureLine.subtest}</span>}
-                      {failureLine.message && failureLine.message.includes('Stack trace:') && <div><pre>{failureLine.message}</pre></div>}
-                      {failureLine.message && !failureLine.message.includes('Stack trace:') && <span> - {failureLine.message}</span>}
+            <LogViewer job={job} repo={this.props.repo} />
+            {job.tier > 1 && (
+              <span className="tier badge">Tier-{job.tier}</span>
+            )}
+            <div>
+              {job.failureLines.map(failureLine => (
+                <span key={failureLine.id}>
+                  {failureLine && (
+                    <div>
+                      <span>
+                        {failureLine.action === 'TEST_RESULT' && (
+                          <div className="failure-line">
+                            {failureLine.subtest && (
+                              <span>{failureLine.subtest}</span>
+                            )}
+                            {failureLine.message &&
+                              failureLine.message.includes('Stack trace:') && (
+                                <div>
+                                  <pre>{failureLine.message}</pre>
+                                </div>
+                              )}
+                            {failureLine.message &&
+                              !failureLine.message.includes('Stack trace:') && (
+                                <span> - {failureLine.message}</span>
+                              )}
+                          </div>
+                        )}
+                        {failureLine.action === 'LOG' && (
+                          <div className="failure-line">
+                            LOG {failureLine.level} | {failureLine.message}
+                          </div>
+                        )}
+                        {failureLine.action === 'CRASH' && (
+                          <div className="failure-line">
+                            <strong>CRASH</strong> | application crashed [
+                            {failureLine.signature}]
+                          </div>
+                        )}
+                      </span>
                     </div>
-                    }
-                    {failureLine.action === 'LOG' && <div className="failure-line">
-                      LOG {failureLine.level} | {failureLine.message}
-                    </div>
-                    }
-                    {failureLine.action === 'CRASH' && <div className="failure-line">
-                      <strong>CRASH</strong> | application crashed [{failureLine.signature}]
-                    </div>
-                    }
-                  </span>
-                </div>}
-              </span>
-            ))}</div>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
         ))}
-        {this.props.test.bugs && <div>
-          <div className="bottom-separator"><strong>Bugs:</strong></div>
-          {Object.values(this.props.test.bugs).map(bug => (
-            <div key={bug.id}><a
-              href={getBugUrl(bug.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >{bug.id} - {bug.summary}</a></div>
-          ))}
-        </div>}
+        {this.props.test.bugs && (
+          <div>
+            <div className="bottom-separator">
+              <strong>Bugs:</strong>
+            </div>
+            {Object.values(this.props.test.bugs).map(bug => (
+              <div key={bug.id}>
+                <a
+                  href={getBugUrl(bug.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {bug.id} - {bug.summary}
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -185,10 +232,9 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span
-          className="test"
-          onClick={this.onClick}
-        >{this.props.name}</span>
+        <span className="test" onClick={this.onClick}>
+          {this.props.name}
+        </span>
         <span className="platform-list">
           {this.props.test.jobs.map(job => (
             <Platform
@@ -201,7 +247,7 @@ class TestComponent extends React.Component {
             />
           ))}
         </span>
-        { this.props.expanded[this.props.name] && this.renderExpanded() }
+        {this.props.expanded[this.props.name] && this.renderExpanded()}
       </td>
     );
   }

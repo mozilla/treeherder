@@ -49,7 +49,9 @@ class LoginCallback extends React.PureComponent {
   }
 
   setError(err) {
-    this.setState({ loginError: err.message ? err.message : err.errorDescription });
+    this.setState({
+      loginError: err.message ? err.message : err.errorDescription,
+    });
   }
 
   render() {

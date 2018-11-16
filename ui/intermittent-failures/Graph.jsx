@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 // };
 
 export default class Graph extends React.Component {
-
   componentDidUpdate() {
     const { specs, data } = this.props;
     if (specs.data !== data) {
@@ -48,7 +47,8 @@ export default class Graph extends React.Component {
 Graph.propTypes = {
   specs: PropTypes.shape({
     legend: PropTypes.oneOfType([
-      PropTypes.string, PropTypes.arrayOf(PropTypes.string),
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
     ]),
   }).isRequired,
   data: PropTypes.oneOfType([
@@ -65,7 +65,8 @@ Graph.propTypes = {
           date: PropTypes.shape({ Date: PropTypes.string }),
           value: PropTypes.number,
         }),
-      ), PropTypes.arrayOf(
+      ),
+      PropTypes.arrayOf(
         PropTypes.shape({
           date: PropTypes.shape({ Date: PropTypes.string }),
           value: PropTypes.number,

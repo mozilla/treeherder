@@ -8,18 +8,38 @@ import { getBugUrl } from '../helpers/url';
 // in bugdetailsview to navigate back to mainview displays this console warning:
 // "Hash history go(n) causes a full page reload in this browser"
 
-function BugColumn({ tree, startday, endday, data, location, graphData, tableData, updateAppState }) {
+function BugColumn({
+  tree,
+  startday,
+  endday,
+  data,
+  location,
+  graphData,
+  tableData,
+  updateAppState,
+}) {
   const { id, summary } = data;
   return (
     <div>
-      <a className="ml-1" target="_blank" rel="noopener noreferrer" href={getBugUrl(id)}>{id}</a>
+      <a
+        className="ml-1"
+        target="_blank"
+        rel="noopener noreferrer"
+        href={getBugUrl(id)}
+      >
+        {id}
+      </a>
       &nbsp;
-      <span className="ml-1 small-text bug-details" onClick={() => updateAppState({ graphData, tableData })}>
+      <span
+        className="ml-1 small-text bug-details"
+        onClick={() => updateAppState({ graphData, tableData })}
+      >
         <Link
-          to={{ pathname: '/bugdetails',
-                search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
-                state: { startday, endday, tree, id, summary, location },
-              }}
+          to={{
+            pathname: '/bugdetails',
+            search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+            state: { startday, endday, tree, id, summary, location },
+          }}
         >
           details
         </Link>
@@ -38,14 +58,10 @@ BugColumn.propTypes = {
   tree: PropTypes.string.isRequired,
   location: PropTypes.shape({}),
   graphData: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.shape({}),
-    ),
+    PropTypes.arrayOf(PropTypes.shape({})),
     PropTypes.shape({}),
   ]),
-  tableData: PropTypes.arrayOf(
-    PropTypes.shape({}),
-  ),
+  tableData: PropTypes.arrayOf(PropTypes.shape({})),
   updateAppState: PropTypes.func.isRequired,
 };
 

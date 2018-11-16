@@ -32,10 +32,14 @@ class TabsPanel extends React.Component {
     // This fires every time the props change.  But we only want to figure out the new default
     // tab when we get a new job.  However, the job could change, then later, the perf details fetch
     // returns.  So we need to check for a change in the size of the perfJobDetail too.
-    if (state.jobId !== selectedJob.id || state.perfJobDetailSize !== perfJobDetail.length) {
+    if (
+      state.jobId !== selectedJob.id ||
+      state.perfJobDetailSize !== perfJobDetail.length
+    ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
         getStatus(selectedJob),
-        !!perfJobDetail.length, showAutoclassifyTab,
+        !!perfJobDetail.length,
+        showAutoclassifyTab,
       );
 
       return {
@@ -62,28 +66,45 @@ class TabsPanel extends React.Component {
     const { tabIndex, showAutoclassifyTab } = this.state;
     const { perfJobDetail } = this.props;
     const nextIndex = tabIndex + 1;
-    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length, showAutoclassifyTab).length;
+    const tabCount = TabsPanel.getTabNames(
+      !!perfJobDetail.length,
+      showAutoclassifyTab,
+    ).length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   }
 
   static getDefaultTabIndex(status, showPerf, showAutoclassify) {
     let idx = 0;
     const tabNames = TabsPanel.getTabNames(showPerf, showAutoclassify);
-    const tabIndexes = tabNames.reduce((acc, name) => ({ ...acc, [name]: idx++ }), {});
+    const tabIndexes = tabNames.reduce(
+      (acc, name) => ({ ...acc, [name]: idx++ }),
+      {},
+    );
 
     let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
     if (['busted', 'testfailed', 'exception'].includes(status)) {
-      tabIndex = showAutoclassify ? tabIndexes.autoclassify : tabIndexes.failure;
+      tabIndex = showAutoclassify
+        ? tabIndexes.autoclassify
+        : tabIndexes.failure;
     }
     return tabIndex;
   }
 
   static getTabNames(showPerf, showAutoclassify) {
     return [
-      'details', 'failure', 'autoclassify', 'annotations', 'similar', 'perf',
-    ].filter(name => (
-      !((name === 'autoclassify' && !showAutoclassify) || (name === 'perf' && !showPerf))
-    ));
+      'details',
+      'failure',
+      'autoclassify',
+      'annotations',
+      'similar',
+      'perf',
+    ].filter(
+      name =>
+        !(
+          (name === 'autoclassify' && !showAutoclassify) ||
+          (name === 'perf' && !showPerf)
+        ),
+    );
   }
 
   setTabIndex(tabIndex) {
@@ -92,10 +113,25 @@ class TabsPanel extends React.Component {
 
   render() {
     const {
-      jobDetails, jobLogUrls, logParseStatus, suggestions, errors, user, bugs,
-      bugSuggestionsLoading, perfJobDetail, repoName, jobRevision,
-      classifications, togglePinBoardVisibility, isPinBoardVisible, pinnedJobs,
-      classificationMap, logViewerFullUrl, reftestUrl, clearSelectedJob,
+      jobDetails,
+      jobLogUrls,
+      logParseStatus,
+      suggestions,
+      errors,
+      user,
+      bugs,
+      bugSuggestionsLoading,
+      perfJobDetail,
+      repoName,
+      jobRevision,
+      classifications,
+      togglePinBoardVisibility,
+      isPinBoardVisible,
+      pinnedJobs,
+      classificationMap,
+      logViewerFullUrl,
+      reftestUrl,
+      clearSelectedJob,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -116,30 +152,50 @@ class TabsPanel extends React.Component {
               <Tab>Similar Jobs</Tab>
               {!!perfJobDetail.length && <Tab>Performance</Tab>}
             </span>
-            <span id="tab-header-buttons" className="details-panel-controls pull-right">
+            <span
+              id="tab-header-buttons"
+              className="details-panel-controls pull-right"
+            >
               <span
                 id="pinboard-btn"
                 className="btn pinboard-btn-text"
                 onClick={togglePinBoardVisibility}
-                title={isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'}
-              >PinBoard
-                {!!countPinnedJobs && <div
-                  id="pin-count-group"
-                  title={`You have ${countPinnedJobs} job${countPinnedJobs > 1 ? 's' : ''} pinned`}
-                  className={`${countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''}`}
-                >
+                title={
+                  isPinBoardVisible ? 'Close the pinboard' : 'Open the pinboard'
+                }
+              >
+                PinBoard
+                {!!countPinnedJobs && (
                   <div
-                    className={`pin-count-text ${countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''}`}
-                  >{countPinnedJobs}</div>
-                </div>}
+                    id="pin-count-group"
+                    title={`You have ${countPinnedJobs} job${
+                      countPinnedJobs > 1 ? 's' : ''
+                    } pinned`}
+                    className={`${
+                      countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''
+                    }`}
+                  >
+                    <div
+                      className={`pin-count-text ${
+                        countPinnedJobs > 99 ? 'pin-count-group-3-digit' : ''
+                      }`}
+                    >
+                      {countPinnedJobs}
+                    </div>
+                  </div>
+                )}
                 <span
-                  className={`fa ${isPinBoardVisible ? 'fa-angle-down' : 'fa-angle-up'}`}
+                  className={`fa ${
+                    isPinBoardVisible ? 'fa-angle-down' : 'fa-angle-up'
+                  }`}
                 />
               </span>
               <span
                 onClick={() => clearSelectedJob(countPinnedJobs)}
                 className="btn details-panel-close-btn"
-              ><span className="fa fa-times" /></span>
+              >
+                <span className="fa fa-times" />
+              </span>
             </span>
           </TabList>
           <TabPanel>
@@ -156,15 +212,17 @@ class TabsPanel extends React.Component {
               reftestUrl={reftestUrl}
             />
           </TabPanel>
-          {showAutoclassifyTab && <TabPanel>
-            <AutoclassifyTab
-              hasLogs={!!jobLogUrls.length}
-              logsParsed={logParseStatus !== 'pending'}
-              logParseStatus={logParseStatus}
-              user={user}
-              repoName={repoName}
-            />
-          </TabPanel>}
+          {showAutoclassifyTab && (
+            <TabPanel>
+              <AutoclassifyTab
+                hasLogs={!!jobLogUrls.length}
+                logsParsed={logParseStatus !== 'pending'}
+                logParseStatus={logParseStatus}
+                user={user}
+                repoName={repoName}
+              />
+            </TabPanel>
+          )}
           <TabPanel>
             <AnnotationsTab
               classificationMap={classificationMap}
@@ -178,13 +236,15 @@ class TabsPanel extends React.Component {
               classificationMap={classificationMap}
             />
           </TabPanel>
-          {!!perfJobDetail.length && <TabPanel>
-            <PerformanceTab
-              repoName={repoName}
-              perfJobDetail={perfJobDetail}
-              revision={jobRevision}
-            />
-          </TabPanel>}
+          {!!perfJobDetail.length && (
+            <TabPanel>
+              <PerformanceTab
+                repoName={repoName}
+                perfJobDetail={perfJobDetail}
+                revision={jobRevision}
+              />
+            </TabPanel>
+          )}
         </Tabs>
       </div>
     );

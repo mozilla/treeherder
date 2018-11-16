@@ -7,11 +7,8 @@ import { getBugUrl } from '../../../../helpers/url';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
-
 function BugListItem(props) {
-  const {
-    bug, suggestion, bugClassName, title, selectedJob, addBug,
-  } = props;
+  const { bug, suggestion, bugClassName, title, selectedJob, addBug } = props;
   const bugUrl = getBugUrl(bug.id);
 
   return (
@@ -29,7 +26,8 @@ function BugListItem(props) {
         target="_blank"
         rel="noopener noreferrer"
         title={title}
-      >{bug.id}
+      >
+        {bug.id}
         <Highlighter
           className={`${bugClassName} ml-1`}
           searchWords={getSearchWords(suggestion.search)}

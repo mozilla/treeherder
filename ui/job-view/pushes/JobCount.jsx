@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 
 export default function JobCount(props) {
   const { className, title, onClick, count } = props;
-  const classes = [className, 'btn group-btn btn-xs job-group-count filter-shown'];
+  const classes = [
+    className,
+    'btn group-btn btn-xs job-group-count filter-shown',
+  ];
 
   return (
-    <button
-      className={classes.join(' ')}
-      title={title}
-      onClick={onClick}
-    >{count}</button>
+    <button className={classes.join(' ')} title={title} onClick={onClick}>
+      {count}
+    </button>
   );
 }
 

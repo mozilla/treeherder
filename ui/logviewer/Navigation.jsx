@@ -9,7 +9,12 @@ const getShadingClass = result => `result-status-shading-${result}`;
 export default class Navigation extends React.PureComponent {
   render() {
     const {
-      jobExists, result, jobError, jobUrl, rawLogUrl, reftestUrl,
+      jobExists,
+      result,
+      jobError,
+      jobUrl,
+      rawLogUrl,
+      reftestUrl,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
@@ -19,21 +24,18 @@ export default class Navigation extends React.PureComponent {
           <span id="lv-logo">
             <LogoMenu menuText="Logviewer" />
           </span>
-          {jobExists
-            ? (
-              <span className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}>
-                <strong>Result: </strong>
-                {result}
+          {jobExists ? (
+            <span className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}>
+              <strong>Result: </strong>
+              {result}
+            </span>
+          ) : (
+            <span className="alert-danger">
+              <span title="The job does not exist or has expired">
+                {`Unavailable: ${jobError}`}
               </span>
-            ) : (
-              <span className="alert-danger">
-                <span
-                  title="The job does not exist or has expired"
-                >
-                  {`Unavailable: ${jobError}`}
-                </span>
-              </span>
-            )}
+            </span>
+          )}
           {!!jobUrl && (
             <span>
               <a

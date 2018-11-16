@@ -6,7 +6,11 @@ import Highlighter from 'react-highlight-words';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { isReftest } from '../../../../helpers/job';
-import { getBugUrl, getLogViewerUrl, getReftestUrl } from '../../../../helpers/url';
+import {
+  getBugUrl,
+  getLogViewerUrl,
+  getReftestUrl,
+} from '../../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import { thEvents } from '../../../../helpers/constants';
 import { getAllUrlParams } from '../../../../helpers/location';
@@ -81,52 +85,77 @@ class LineOption extends React.Component {
     return (
       <div className="classification-option">
         <span className="classification-icon">
-          {option.isBest ?
-            <span className="fa fa-star-o" title="Autoclassifier best match" /> :
-            <span className="classification-no-icon">&nbsp;</span>}
+          {option.isBest ? (
+            <span className="fa fa-star-o" title="Autoclassifier best match" />
+          ) : (
+            <span className="classification-no-icon">&nbsp;</span>
+          )}
         </span>
 
         <FormGroup check>
           <Label check>
-            {!(option.type === 'classifiedFailure' && !option.bugNumber) && <Input
-              type="radio"
-              value={option}
-              id={option.id}
-              checked={selectedOption.id === option.id}
-              name={errorLine.id}
-              onChange={() => onOptionChange(option)}
-              className={canClassify ? '' : 'hidden'}
-            />}
-            {!!option.bugNumber && <span className="line-option-text">
-              {(!canClassify || selectedJob.id in pinnedJobs) &&
-                <button
-                  className="btn btn-xs btn-light-bordered"
-                  onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
-                  title="add to list of bugs to associate with all pinned jobs"
-                ><i className="fa fa-thumb-tack" /></button>}
-              {!!option.bugResolution &&
-                <span className="classification-bug-resolution"> [{option.bugResolution}] </span>}
-              <a
-                href={getBugUrl(option.bugNumber)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >{option.bugNumber} -
-                <Highlighter
-                  searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
-                  textToHighlight={option.bugSummary}
-                  caseSensitive
-                  highlightTag="strong"
-                />
-              </a>
-              <span> [ {Number.parseFloat(option.score).toPrecision(2)} ]</span>
-            </span>}
+            {!(option.type === 'classifiedFailure' && !option.bugNumber) && (
+              <Input
+                type="radio"
+                value={option}
+                id={option.id}
+                checked={selectedOption.id === option.id}
+                name={errorLine.id}
+                onChange={() => onOptionChange(option)}
+                className={canClassify ? '' : 'hidden'}
+              />
+            )}
+            {!!option.bugNumber && (
+              <span className="line-option-text">
+                {(!canClassify || selectedJob.id in pinnedJobs) && (
+                  <button
+                    className="btn btn-xs btn-light-bordered"
+                    onClick={() =>
+                      addBug({ id: option.bugNumber }, selectedJob)
+                    }
+                    title="add to list of bugs to associate with all pinned jobs"
+                  >
+                    <i className="fa fa-thumb-tack" />
+                  </button>
+                )}
+                {!!option.bugResolution && (
+                  <span className="classification-bug-resolution">
+                    {' '}
+                    [{option.bugResolution}]{' '}
+                  </span>
+                )}
+                <a
+                  href={getBugUrl(option.bugNumber)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {option.bugNumber} -
+                  <Highlighter
+                    searchWords={getSearchWords(
+                      errorLine.data.bug_suggestions.search,
+                    )}
+                    textToHighlight={option.bugSummary}
+                    caseSensitive
+                    highlightTag="strong"
+                  />
+                </a>
+                <span>
+                  {' '}
+                  [ {Number.parseFloat(option.score).toPrecision(2)} ]
+                </span>
+              </span>
+            )}
 
-            {option.type === 'classifiedFailure' && !option.bugNumber && <span>
-              Autoclassified failure with no associated bug number
-            </span>}
+            {option.type === 'classifiedFailure' && !option.bugNumber && (
+              <span>Autoclassified failure with no associated bug number</span>
+            )}
 
-            {option.type === 'manual' &&
-              <div className={`line-option-text manual-bug ${!canClassify ? 'hidden' : ''}`}>
+            {option.type === 'manual' && (
+              <div
+                className={`line-option-text manual-bug ${
+                  !canClassify ? 'hidden' : ''
+                }`}
+              >
                 Other bug:
                 <Input
                   className="manual-bug-input"
@@ -135,62 +164,83 @@ class LineOption extends React.Component {
                   size="7"
                   placeholder="Number"
                   value={manualBugNumber}
-                  onChange={evt => onManualBugNumberChange(option, evt.target.value)}
+                  onChange={evt =>
+                    onManualBugNumberChange(option, evt.target.value)
+                  }
                 />
                 <a
                   className="btn btn-xs btn-light-bordered btn-file-bug"
                   onClick={() => this.fileBug()}
                   title="File a bug for this failure"
-                ><i className="fa fa-bug" /></a>
+                >
+                  <i className="fa fa-bug" />
+                </a>
+                {option.id === 'manual' && !!option.manualBugNumber && (
+                  <a
+                    href={getBugUrl(option.manualBugNumber)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    [view]
+                  </a>
+                )}
+              </div>
+            )}
 
-                {option.id === 'manual' && !!option.manualBugNumber &&
-                <a
-                  href={getBugUrl(option.manualBugNumber)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >[view]</a>}
-              </div>}
-
-            {option.type === 'ignore' && <span
-              className={`line-option-text ignore ${canClassify ? '' : 'hidden'}`}
-            >Ignore line
-              <Select
-                value={ignoreAlways}
-                clearable={false}
-                classNamePrefix="ignore-option"
-                onChange={onIgnoreAlwaysChange}
-                bsSize="small"
-                options={[
-                  { value: false, label: 'Here only' },
-                  { value: true, label: 'For future classifications' },
-                ]}
-              />
-            </span>}
+            {option.type === 'ignore' && (
+              <span
+                className={`line-option-text ignore ${
+                  canClassify ? '' : 'hidden'
+                }`}
+              >
+                Ignore line
+                <Select
+                  value={ignoreAlways}
+                  clearable={false}
+                  classNamePrefix="ignore-option"
+                  onChange={onIgnoreAlwaysChange}
+                  bsSize="small"
+                  options={[
+                    { value: false, label: 'Here only' },
+                    { value: true, label: 'For future classifications' },
+                  ]}
+                />
+              </span>
+            )}
           </Label>
         </FormGroup>
 
-        {option.type === 'classifiedFailure' && <div className="classification-matchers">
-          Matched by:
-          {option.matches && option.matches.map(match => (<span key={match.matcher_name}>
-            {match.matcher_name} ({match.score})
-          </span>))}
-        </div>}
-        {isBugFilerOpen && <BugFiler
-          isOpen={isBugFilerOpen}
-          toggle={this.toggleBugFiler}
-          suggestion={errorLine.data.bug_suggestions}
-          suggestions={[errorLine.data.bug_suggestions]}
-          fullLog={logUrl}
-          parsedLog={`${window.location.origin}/${getLogViewerUrl(selectedJob.id, repoName)}`}
-          reftestUrl={isReftest(selectedJob) ? getReftestUrl(logUrl) : ''}
-          successCallback={this.bugFilerCallback}
-          jobGroupName={selectedJob.job_group_name}
-        />}
+        {option.type === 'classifiedFailure' && (
+          <div className="classification-matchers">
+            Matched by:
+            {option.matches &&
+              option.matches.map(match => (
+                <span key={match.matcher_name}>
+                  {match.matcher_name} ({match.score})
+                </span>
+              ))}
+          </div>
+        )}
+        {isBugFilerOpen && (
+          <BugFiler
+            isOpen={isBugFilerOpen}
+            toggle={this.toggleBugFiler}
+            suggestion={errorLine.data.bug_suggestions}
+            suggestions={[errorLine.data.bug_suggestions]}
+            fullLog={logUrl}
+            parsedLog={`${window.location.origin}/${getLogViewerUrl(
+              selectedJob.id,
+              repoName,
+            )}`}
+            reftestUrl={isReftest(selectedJob) ? getReftestUrl(logUrl) : ''}
+            successCallback={this.bugFilerCallback}
+            jobGroupName={selectedJob.job_group_name}
+          />
+        )}
       </div>
     );
   }
 }
-
 
 LineOption.propTypes = {
   selectedJob: PropTypes.object.isRequired,

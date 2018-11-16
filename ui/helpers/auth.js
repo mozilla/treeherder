@@ -8,12 +8,14 @@ export const webAuth = new WebAuth({
   domain: 'auth.mozilla.auth0.com',
   responseType: 'id_token token',
   audience: 'login.taskcluster.net',
-  redirectUri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
+  redirectUri: `${window.location.protocol}//${
+    window.location.host
+  }${loginCallbackUrl}`,
   scope: 'taskcluster-credentials openid profile email',
 });
 
-export const userSessionFromAuthResult = (authResult) => {
-  const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + Date.now());
+export const userSessionFromAuthResult = authResult => {
+  const expiresAt = JSON.stringify(authResult.expiresIn * 1000 + Date.now());
   const userSession = {
     idToken: authResult.idToken,
     accessToken: authResult.accessToken,
@@ -31,7 +33,7 @@ export const userSessionFromAuthResult = (authResult) => {
 };
 
 // Wrapper around webAuth's renewAuth
-export const renew = () => (
+export const renew = () =>
   new Promise((resolve, reject) => {
     webAuth.renewAuth({}, (error, authResult) => {
       if (error) {
@@ -40,11 +42,10 @@ export const renew = () => (
 
       return resolve(authResult);
     });
-  })
-);
+  });
 
 // Wrapper around webAuth's parseHash
-export const parseHash = options => (
+export const parseHash = options =>
   new Promise((resolve, reject) => {
     webAuth.parseHash(options, (error, authResult) => {
       if (error) {
@@ -53,7 +54,11 @@ export const parseHash = options => (
 
       return resolve(authResult);
     });
-  })
-);
+  });
 
-export const loggedOutUser = { isStaff: false, username: '', email: '', isLoggedIn: false };
+export const loggedOutUser = {
+  isStaff: false,
+  username: '',
+  email: '',
+  isLoggedIn: false,
+};

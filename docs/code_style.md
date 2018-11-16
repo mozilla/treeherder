@@ -34,9 +34,18 @@ to reduce the line length guess-work when adding imports, even though it's not t
 UI
 --
 
-We use the [Airbnb](https://github.com/airbnb/javascript) style guide for Javascript and validate it with ESlint (see Validating Javascript in the [Installation section](installation.html#validating-javascript)). For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as much as possible before adding custom CSS to a style sheet. Any custom style that can be made reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.
+We use Prettier for JS/JSX formatting and the [Airbnb](https://github.com/airbnb/javascript)
+guide for non-style related best practices. Both are validated using ESlint (see Validating
+Javascript in the [Installation section](installation.html#validating-javascript)).
+
+We recommend that you [add Prettier to your editor/IDE](https://prettier.io/docs/en/editors.html)
+and enable "format on save" for the most seamless development workflow.
 
 Imports in JS/JSX must be ordered like so (with newlines between each group):
 1. external modules (eg `'react'`)
 2. modules from a parent directory (eg `'../foo'`)
 3. "sibling" modules from the same or a sibling's directory (eg `'./bar'` or './bar/baz')
+
+For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as
+much as possible before adding custom CSS to a style sheet. Any custom style that can be made
+reusable should be named generically and stored in the ``ui/css/treeherder-global.css`` file.

@@ -42,7 +42,9 @@ class SelectedJobClass extends React.Component {
     this.setSelectedJob = this.setSelectedJob.bind(this);
     this.clearSelectedJob = this.clearSelectedJob.bind(this);
     this.changeSelectedJob = this.changeSelectedJob.bind(this);
-    this.noMoreUnclassifiedFailures = this.noMoreUnclassifiedFailures.bind(this);
+    this.noMoreUnclassifiedFailures = this.noMoreUnclassifiedFailures.bind(
+      this,
+    );
     this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
 
     // TODO: this.value needs to now get the bound versions of the functions.
@@ -88,7 +90,10 @@ class SelectedJobClass extends React.Component {
     const selectedJobIdStr = getUrlParam('selectedJob');
     const selectedJobId = parseInt(selectedJobIdStr, 10);
 
-    if (selectedJobIdStr && (!selectedJob || selectedJob.id !== selectedJobId)) {
+    if (
+      selectedJobIdStr &&
+      (!selectedJob || selectedJob.id !== selectedJobId)
+    ) {
       const selectedJob = jobMap[selectedJobIdStr];
 
       // select the job in question
@@ -98,30 +103,37 @@ class SelectedJobClass extends React.Component {
         setUrlParam('selectedJob');
         // If the ``selectedJob`` was not mapped, then we need to notify
         // the user it's not in the range of the current result set list.
-        JobModel.get(repoName, selectedJobId).then((job) => {
-          PushModel.get(job.push_id).then(async (resp) => {
-            if (resp.ok) {
-              const push = await resp.json();
-              const newPushUrl = getJobsUrl({ repo: repoName, revision: push.revision, selectedJob: selectedJobId });
+        JobModel.get(repoName, selectedJobId)
+          .then(job => {
+            PushModel.get(job.push_id).then(async resp => {
+              if (resp.ok) {
+                const push = await resp.json();
+                const newPushUrl = getJobsUrl({
+                  repo: repoName,
+                  revision: push.revision,
+                  selectedJob: selectedJobId,
+                });
 
-              // the job exists, but isn't in any loaded push.
-              // provide a message and link to load the right push
-              notify(
-                `Selected job id: ${selectedJobId} not within current push range.`,
-                'danger',
-                { sticky: true, linkText: 'Load push', url: newPushUrl });
-            } else {
-              throw Error(`Unable to find push with id ${job.push_id} for selected job`);
-            }
+                // the job exists, but isn't in any loaded push.
+                // provide a message and link to load the right push
+                notify(
+                  `Selected job id: ${selectedJobId} not within current push range.`,
+                  'danger',
+                  { sticky: true, linkText: 'Load push', url: newPushUrl },
+                );
+              } else {
+                throw Error(
+                  `Unable to find push with id ${job.push_id} for selected job`,
+                );
+              }
+            });
+          })
+          .catch(error => {
+            // the job wasn't found in the db.  Either never existed,
+            // or was expired and deleted.
+            this.clearSelectedJob();
+            notify(`Selected Job - ${error}`, 'danger', { sticky: true });
           });
-        }).catch((error) => {
-          // the job wasn't found in the db.  Either never existed,
-          // or was expired and deleted.
-          this.clearSelectedJob();
-          notify(`Selected Job - ${error}`,
-            'danger',
-            { sticky: true });
-        });
       }
     } else if (!selectedJobIdStr && selectedJob) {
       this.setValue({ selectedJob: null });
@@ -193,13 +205,15 @@ class SelectedJobClass extends React.Component {
 
   changeSelectedJob(direction, unclassifiedOnly) {
     const { pinnedJobs } = this.props;
-    const jobNavSelector = unclassifiedOnly ?
-      thJobNavSelectors.UNCLASSIFIED_FAILURES : thJobNavSelectors.ALL_JOBS;
+    const jobNavSelector = unclassifiedOnly
+      ? thJobNavSelectors.UNCLASSIFIED_FAILURES
+      : thJobNavSelectors.ALL_JOBS;
     // Get the appropriate next index based on the direction and current job
     // selection (if any).  Must wrap end to end.
-    const getIndex = direction === 'next' ?
-      (idx, jobs) => (idx + 1 > jobs.length - 1 ? 0 : idx + 1) :
-      (idx, jobs) => (idx - 1 < 0 ? jobs.length - 1 : idx - 1);
+    const getIndex =
+      direction === 'next'
+        ? (idx, jobs) => (idx + 1 > jobs.length - 1 ? 0 : idx + 1)
+        : (idx, jobs) => (idx - 1 < 0 ? jobs.length - 1 : idx - 1);
 
     // TODO: (bug 1434679) Move from using jquery here to find the next/prev
     // component.  This could perhaps be done either with:
@@ -257,7 +271,8 @@ class SelectedJobClass extends React.Component {
     // a btn.
     // This will exclude the JobDetails and navbars.
     const globalContent = document.getElementById('th-global-content');
-    const isEligible = globalContent.contains(target) &&
+    const isEligible =
+      globalContent.contains(target) &&
       target.tagName !== 'A' &&
       !intersection(target.classList, ['btn', 'dropdown-item']).length;
 
@@ -278,7 +293,6 @@ class SelectedJobClass extends React.Component {
       </SelectedJobContext.Provider>
     );
   }
-
 }
 
 SelectedJobClass.propTypes = {
@@ -289,7 +303,9 @@ SelectedJobClass.propTypes = {
   children: PropTypes.object.isRequired,
 };
 
-export const SelectedJob = withNotifications(withPushes(withPinnedJobs(SelectedJobClass)));
+export const SelectedJob = withNotifications(
+  withPushes(withPinnedJobs(SelectedJobClass)),
+);
 
 export function withSelectedJob(Component) {
   return function SelectedJobComponent(props) {

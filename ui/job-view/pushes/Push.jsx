@@ -2,7 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sortBy from 'lodash/sortBy';
 
-import { thEvents, thOptionOrder, thPlatformMap } from '../../helpers/constants';
+import {
+  thEvents,
+  thOptionOrder,
+  thPlatformMap,
+} from '../../helpers/constants';
 import { withPushes } from '../context/Pushes';
 import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams } from '../../helpers/location';
@@ -64,20 +68,32 @@ class Push extends React.Component {
   }
 
   getJobCount(jobList) {
-    return jobList.reduce((memo, job) => (
-      job.result !== 'superseded' ? { ...memo, [job.state]: memo[job.state] + 1 } : memo
-      ), { running: 0, pending: 0, completed: 0 },
+    return jobList.reduce(
+      (memo, job) =>
+        job.result !== 'superseded'
+          ? { ...memo, [job.state]: memo[job.state] + 1 }
+          : memo,
+      { running: 0, pending: 0, completed: 0 },
     );
   }
 
   getJobGroupInfo(job) {
     const {
-      job_group_name: name, job_group_symbol,
-      platform, platform_option, tier, push_id,
+      job_group_name: name,
+      job_group_symbol,
+      platform,
+      platform_option,
+      tier,
+      push_id,
     } = job;
     const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
     const mapKey = getGroupMapKey(
-      push_id, symbol, tier, platform, platform_option);
+      push_id,
+      symbol,
+      tier,
+      platform,
+      platform_option,
+    );
 
     return { name, tier, symbol, mapKey };
   }
@@ -87,7 +103,9 @@ class Push extends React.Component {
     const percentComplete = getPercentComplete(this.state.jobCounts);
     const title = `[${allUnclassifiedFailureCount}] ${repoName}`;
 
-    document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(push.revisions)}`;
+    document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
+      push.revisions,
+    )}`;
   }
 
   handleApplyNewJobs(event) {
@@ -132,7 +150,9 @@ class Push extends React.Component {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       const newJobList = [...existingJobs, ...jobs];
-      const platforms = this.sortGroupedJobs(this.groupJobByPlatform(newJobList));
+      const platforms = this.sortGroupedJobs(
+        this.groupJobByPlatform(newJobList),
+      );
       const jobCounts = this.getJobCount(newJobList);
 
       this.setState({
@@ -156,12 +176,13 @@ class Push extends React.Component {
     if (jobList.length === 0) {
       return platforms;
     }
-    jobList.forEach((job) => {
+    jobList.forEach(job => {
       // search for the right platform
       const platformName = thPlatformMap[job.platform] || job.platform;
-      let platform = platforms.find(platform =>
-        platformName === platform.name &&
-        job.platform_option === platform.option,
+      let platform = platforms.find(
+        platform =>
+          platformName === platform.name &&
+          job.platform_option === platform.option,
       );
       if (platform === undefined) {
         platform = {
@@ -174,9 +195,9 @@ class Push extends React.Component {
 
       const groupInfo = this.getJobGroupInfo(job);
       // search for the right group
-      let group = platform.groups.find(group =>
-        groupInfo.symbol === group.symbol &&
-        groupInfo.tier === group.tier,
+      let group = platform.groups.find(
+        group =>
+          groupInfo.symbol === group.symbol && groupInfo.tier === group.tier,
       );
       if (group === undefined) {
         group = { ...groupInfo, jobs: [] };
@@ -188,21 +209,26 @@ class Push extends React.Component {
   }
 
   sortGroupedJobs(platforms) {
-    platforms.forEach((platform) => {
-      platform.groups.forEach((group) => {
-        group.jobs = sortBy(group.jobs, job => (
+    platforms.forEach(platform => {
+      platform.groups.forEach(group => {
+        group.jobs = sortBy(group.jobs, job =>
           // Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
           // So this will pad the numeric portion with 0s like R001, R010, etc.
-          job.job_type_symbol.replace(/([\D]*)([\d]*)/g,
-            (matcher, s1, s2) => (s2 !== '' ? s1 + `00${s2}`.slice(-3) : matcher))
-        ));
+          job.job_type_symbol.replace(/([\D]*)([\d]*)/g, (matcher, s1, s2) =>
+            s2 !== '' ? s1 + `00${s2}`.slice(-3) : matcher,
+          ),
+        );
       });
-      platform.groups.sort((a, b) => a.symbol.length + a.tier - b.symbol.length - b.tier);
+      platform.groups.sort(
+        (a, b) => a.symbol.length + a.tier - b.symbol.length - b.tier,
+      );
     });
-    platforms.sort((a, b) => (
-      (platformArray.indexOf(a.name) * 100 + (thOptionOrder[a.option] || 10)) -
-      (platformArray.indexOf(b.name) * 100 + (thOptionOrder[b.option] || 10))
-    ));
+    platforms.sort(
+      (a, b) =>
+        platformArray.indexOf(a.name) * 100 +
+        (thOptionOrder[a.option] || 10) -
+        (platformArray.indexOf(b.name) * 100 + (thOptionOrder[b.option] || 10)),
+    );
     return platforms;
   }
 
@@ -219,10 +245,17 @@ class Push extends React.Component {
   showUpdateNotifications(prevState) {
     const { watched, jobCounts } = this.state;
     const {
-      repoName, notificationSupported, push: { revision, id: pushId }, notify,
+      repoName,
+      notificationSupported,
+      push: { revision, id: pushId },
+      notify,
     } = this.props;
 
-    if (!notificationSupported || Notification.permission !== 'granted' || watched === 'none') {
+    if (
+      !notificationSupported ||
+      Notification.permission !== 'granted' ||
+      watched === 'none'
+    ) {
       return;
     }
 
@@ -249,11 +282,11 @@ class Push extends React.Component {
           tag: pushId,
         });
 
-        notification.onerror = (event) => {
+        notification.onerror = event => {
           notify(`${event.target.title}: ${event.target.body}`, 'danger');
         };
 
-        notification.onclick = (event) => {
+        notification.onclick = event => {
           if (this.container) {
             this.container.scrollIntoView();
             event.target.close();
@@ -268,10 +301,12 @@ class Push extends React.Component {
 
     try {
       const decisionTaskId = await getGeckoDecisionTaskId(push.id, repoName);
-      const jobList = await RunnableJobModel.getList(repoName, { decision_task_id: decisionTaskId });
+      const jobList = await RunnableJobModel.getList(repoName, {
+        decision_task_id: decisionTaskId,
+      });
       const { id } = push;
 
-      jobList.forEach((job) => {
+      jobList.forEach(job => {
         job.push_id = id;
         job.id = escapeId(job.push_id + job.ref_data_name);
       });
@@ -281,7 +316,10 @@ class Push extends React.Component {
       this.mapPushJobs(jobList, true);
       this.setState({ runnableVisible: jobList.length > 0 });
     } catch (error) {
-      notify(`Error fetching runnable jobs: Failed to fetch task ID (${error})`, 'danger');
+      notify(
+        `Error fetching runnable jobs: Failed to fetch task ID (${error})`,
+        'danger',
+      );
     }
   }
 
@@ -289,11 +327,14 @@ class Push extends React.Component {
     const { jobList } = this.state;
     const newJobList = jobList.filter(job => job.state !== 'runnable');
 
-    this.setState({
-      runnableVisible: false,
-      selectedRunnableJobs: [],
-      jobList: newJobList,
-    }, () => this.mapPushJobs(newJobList));
+    this.setState(
+      {
+        runnableVisible: false,
+        selectedRunnableJobs: [],
+        jobList: newJobList,
+      },
+      () => this.mapPushJobs(newJobList),
+    );
   }
 
   async cycleWatchState() {
@@ -303,7 +344,8 @@ class Push extends React.Component {
       return;
     }
 
-    let next = watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
+    let next =
+      watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
 
     if (next !== 'none' && Notification.permission !== 'granted') {
       const result = await Notification.requestPermission();
@@ -319,13 +361,24 @@ class Push extends React.Component {
 
   render() {
     const {
-      push, isLoggedIn, repoName, currentRepo, duplicateJobsVisible,
-      filterModel, notificationSupported, getAllShownJobs, groupCountsExpanded,
+      push,
+      isLoggedIn,
+      repoName,
+      currentRepo,
+      duplicateJobsVisible,
+      filterModel,
+      notificationSupported,
+      getAllShownJobs,
+      groupCountsExpanded,
       isOnlyRevision,
     } = this.props;
     const {
-      watched, runnableVisible, pushGroupState,
-      platforms, jobCounts, selectedRunnableJobs,
+      watched,
+      runnableVisible,
+      pushGroupState,
+      platforms,
+      jobCounts,
+      selectedRunnableJobs,
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
 
@@ -334,7 +387,12 @@ class Push extends React.Component {
     }
 
     return (
-      <div className="push" ref={(ref) => { this.container = ref; }}>
+      <div
+        className="push"
+        ref={ref => {
+          this.container = ref;
+        }}
+      >
         <PushHeader
           push={push}
           pushId={id}
@@ -357,12 +415,7 @@ class Push extends React.Component {
         />
         <div className="push-body-divider" />
         <div className="row push clearfix">
-          {currentRepo &&
-            <RevisionList
-              push={push}
-              repo={currentRepo}
-            />
-          }
+          {currentRepo && <RevisionList push={push} repo={currentRepo} />}
           <span className="job-list job-list-pad col-7">
             <PushJobs
               push={push}

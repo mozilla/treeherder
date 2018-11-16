@@ -56,19 +56,27 @@ class PushActionMenu extends React.PureComponent {
   triggerMissingJobs() {
     const { getGeckoDecisionTaskId, notify } = this.props;
 
-    if (!window.confirm(`This will trigger all missing jobs for revision ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
+    if (
+      !window.confirm(
+        `This will trigger all missing jobs for revision ${
+          this.revision
+        }!\n\nClick "OK" if you want to proceed.`,
+      )
+    ) {
       return;
     }
 
     getGeckoDecisionTaskId(this.pushId)
-      .then((decisionTaskID) => {
+      .then(decisionTaskID => {
         PushModel.triggerMissingJobs(decisionTaskID)
-          .then((msg) => {
+          .then(msg => {
             notify(msg, 'success');
-          }).catch((e) => {
+          })
+          .catch(e => {
             notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
-      }).catch((e) => {
+      })
+      .catch(e => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
@@ -76,24 +84,38 @@ class PushActionMenu extends React.PureComponent {
   triggerAllTalosJobs() {
     const { getGeckoDecisionTaskId, notify } = this.props;
 
-    if (!window.confirm(`This will trigger all Talos jobs for revision  ${this.revision}!\n\nClick "OK" if you want to proceed.`)) {
+    if (
+      !window.confirm(
+        `This will trigger all Talos jobs for revision  ${
+          this.revision
+        }!\n\nClick "OK" if you want to proceed.`,
+      )
+    ) {
       return;
     }
 
-    let times = parseInt(window.prompt('Enter number of instances to have for each talos job', 6), 10);
+    let times = parseInt(
+      window.prompt('Enter number of instances to have for each talos job', 6),
+      10,
+    );
     while (times < 1 || times > 6 || Number.isNaN(times)) {
-      times = window.prompt('We only allow instances of each talos job to be between 1 to 6 times. Enter again', 6);
+      times = window.prompt(
+        'We only allow instances of each talos job to be between 1 to 6 times. Enter again',
+        6,
+      );
     }
 
     getGeckoDecisionTaskId(this.pushId)
-      .then((decisionTaskID) => {
+      .then(decisionTaskID => {
         PushModel.triggerAllTalosJobs(times, decisionTaskID)
-          .then((msg) => {
+          .then(msg => {
             notify(msg, 'success');
-          }).catch((e) => {
+          })
+          .catch(e => {
             notify(formatTaskclusterError(e), 'danger', { sticky: true });
           });
-      }).catch((e) => {
+      })
+      .catch(e => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   }
@@ -105,9 +127,20 @@ class PushActionMenu extends React.PureComponent {
   }
 
   render() {
-    const { isLoggedIn, repoName, revision, runnableVisible,
-            hideRunnableJobs, showRunnableJobs, pushId } = this.props;
-    const { topOfRangeUrl, bottomOfRangeUrl, customJobActionsShowing } = this.state;
+    const {
+      isLoggedIn,
+      repoName,
+      revision,
+      runnableVisible,
+      hideRunnableJobs,
+      showRunnableJobs,
+      pushId,
+    } = this.props;
+    const {
+      topOfRangeUrl,
+      bottomOfRangeUrl,
+      customJobActionsShowing,
+    } = this.state;
 
     return (
       <span className="btn-group dropdown" dropdown="true">
@@ -124,57 +157,96 @@ class PushActionMenu extends React.PureComponent {
         </button>
 
         <ul className="dropdown-menu pull-right">
-          {runnableVisible ?
+          {runnableVisible ? (
             <li
               title="Hide Runnable Jobs"
               className="dropdown-item"
               onClick={hideRunnableJobs}
-            >Hide Runnable Jobs</li> :
+            >
+              Hide Runnable Jobs
+            </li>
+          ) : (
             <li
-              title={isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'}
-              className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
+              title={
+                isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
+              }
+              className={
+                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+              }
               onClick={showRunnableJobs}
-            >Add new jobs</li>
-          }
-          {this.triggerMissingRepos.includes(repoName) &&
+            >
+              Add new jobs
+            </li>
+          )}
+          {this.triggerMissingRepos.includes(repoName) && (
             <li
-              title={isLoggedIn ? 'Trigger all jobs that were optimized away' : 'Must be logged in'}
-              className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
+              title={
+                isLoggedIn
+                  ? 'Trigger all jobs that were optimized away'
+                  : 'Must be logged in'
+              }
+              className={
+                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+              }
               onClick={() => this.triggerMissingJobs(revision)}
-            >Trigger missing jobs</li>
-          }
+            >
+              Trigger missing jobs
+            </li>
+          )}
           <li
-            title={isLoggedIn ? 'Trigger all talos performance tests' : 'Must be logged in'}
+            title={
+              isLoggedIn
+                ? 'Trigger all talos performance tests'
+                : 'Must be logged in'
+            }
             className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
             onClick={() => this.triggerAllTalosJobs(revision)}
-          >Trigger all Talos jobs</li>
-          <li><a
-            target="_blank"
-            rel="noopener noreferrer"
-            className="dropdown-item"
-            href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${repoName}`}
-            title="Use Bugherder to mark the bugs in this push"
-          >Mark with Bugherder</a></li>
+          >
+            Trigger all Talos jobs
+          </li>
+          <li>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              className="dropdown-item"
+              href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${repoName}`}
+              title="Use Bugherder to mark the bugs in this push"
+            >
+              Mark with Bugherder
+            </a>
+          </li>
           <li
             className="dropdown-item"
             onClick={this.toggleCustomJobActions}
             title="View/Edit/Submit Action tasks for this push"
-          >Custom Push Action...</li>
-          <li><a
-            className="dropdown-item top-of-range-menu-item"
-            href={topOfRangeUrl}
-          >Set as top of range</a></li>
-          <li><a
-            className="dropdown-item bottom-of-range-menu-item"
-            href={bottomOfRangeUrl}
-          >Set as bottom of range</a></li>
+          >
+            Custom Push Action...
+          </li>
+          <li>
+            <a
+              className="dropdown-item top-of-range-menu-item"
+              href={topOfRangeUrl}
+            >
+              Set as top of range
+            </a>
+          </li>
+          <li>
+            <a
+              className="dropdown-item bottom-of-range-menu-item"
+              href={bottomOfRangeUrl}
+            >
+              Set as bottom of range
+            </a>
+          </li>
         </ul>
-        {customJobActionsShowing && <CustomJobActions
-          job={null}
-          pushId={pushId}
-          isLoggedIn={isLoggedIn}
-          toggle={this.toggleCustomJobActions}
-        />}
+        {customJobActionsShowing && (
+          <CustomJobActions
+            job={null}
+            pushId={pushId}
+            isLoggedIn={isLoggedIn}
+            toggle={this.toggleCustomJobActions}
+          />
+        )}
       </span>
     );
   }

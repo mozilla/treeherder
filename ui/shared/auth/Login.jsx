@@ -26,7 +26,7 @@ class Login extends React.Component {
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
 
-    window.addEventListener('storage', (e) => {
+    window.addEventListener('storage', e => {
       if (e.key === 'user') {
         const oldUser = JSON.parse(e.oldValue);
         const newUser = JSON.parse(e.newValue);
@@ -45,7 +45,7 @@ class Login extends React.Component {
     });
 
     // Ask the back-end if a user is logged in on page load
-    UserModel.get().then(async (currentUser) => {
+    UserModel.get().then(async currentUser => {
       if (currentUser.email && localStorage.getItem('userSession')) {
         this.setLoggedIn(currentUser);
       } else {
@@ -88,15 +88,14 @@ class Login extends React.Component {
   logout() {
     const { notify } = this.props;
 
-    fetch(getApiUrl('/auth/logout/'))
-      .then(async (resp) => {
-        if (resp.ok) {
-          this.setLoggedOut();
-        } else {
-          const msg = await resp.text();
-          notify(`Logout failed: ${msg}`, 'danger', { sticky: true });
-        }
-      });
+    fetch(getApiUrl('/auth/logout/')).then(async resp => {
+      if (resp.ok) {
+        this.setLoggedOut();
+      } else {
+        const msg = await resp.text();
+        notify(`Logout failed: ${msg}`, 'danger', { sticky: true });
+      }
+    });
   }
 
   render() {
@@ -104,34 +103,42 @@ class Login extends React.Component {
 
     return (
       <React.Fragment>
-        {user.isLoggedIn && <span className="dropdown">
-          <button
-            id="logoutLabel"
-            title={`Logged in as: ${user.email}`}
-            data-toggle="dropdown"
-            className="btn btn-view-nav"
-          >
-            <div className="dropdown-toggle">
-              <div className="nav-user-icon">
-                <span className="fa fa-user pull-left" />
+        {user.isLoggedIn && (
+          <span className="dropdown">
+            <button
+              id="logoutLabel"
+              title={`Logged in as: ${user.email}`}
+              data-toggle="dropdown"
+              className="btn btn-view-nav"
+            >
+              <div className="dropdown-toggle">
+                <div className="nav-user-icon">
+                  <span className="fa fa-user pull-left" />
+                </div>
+                <div className="nav-user-name">
+                  <span>{user.fullName}</span>
+                </div>
               </div>
-              <div className="nav-user-name">
-                <span>{user.fullName}</span>
-              </div>
-            </div>
-          </button>
-          <ul
-            className="dropdown-menu nav-dropdown-menu-right"
-            role="menu"
-            aria-labelledby="logoutLabel"
-          >
-            <li><a onClick={this.logout} className="dropdown-item">Logout</a></li>
-          </ul>
-        </span>}
-        {!user.isLoggedIn && <span
-          className="btn nav-login-btn"
-          onClick={this.login}
-        > Login / Register</span>}
+            </button>
+            <ul
+              className="dropdown-menu nav-dropdown-menu-right"
+              role="menu"
+              aria-labelledby="logoutLabel"
+            >
+              <li>
+                <a onClick={this.logout} className="dropdown-item">
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </span>
+        )}
+        {!user.isLoggedIn && (
+          <span className="btn nav-login-btn" onClick={this.login}>
+            {' '}
+            Login / Register
+          </span>
+        )}
       </React.Fragment>
     );
   }

@@ -18,8 +18,13 @@ PlatformName.propTypes = {
 
 export default function Platform(props) {
   const {
-    platform, repoName, filterPlatformCb, filterModel, pushGroupState,
-    duplicateJobsVisible, groupCountsExpanded,
+    platform,
+    repoName,
+    filterPlatformCb,
+    filterModel,
+    pushGroupState,
+    duplicateJobsVisible,
+    groupCountsExpanded,
   } = props;
   const { title, groups, id } = platform;
 

@@ -25,7 +25,11 @@ export default function LogoMenu(props) {
       </button>
       <ul className="dropdown-menu" role="menu" aria-labelledby="th-logo">
         {menuChoices.map(choice => (
-          <li key={choice.text}><a href={choice.url} className="dropdown-item">{choice.text}</a></li>
+          <li key={choice.text}>
+            <a href={choice.url} className="dropdown-item">
+              {choice.text}
+            </a>
+          </li>
         ))}
       </ul>
     </span>

@@ -11,15 +11,28 @@ import StatusPanel from './StatusPanel';
 class SummaryPanel extends React.PureComponent {
   render() {
     const {
-      repoName, selectedJob, latestClassification, bugs, jobLogUrls,
-      jobDetailLoading, logViewerUrl, logViewerFullUrl,
-      logParseStatus, user, currentRepo, classificationMap,
+      repoName,
+      selectedJob,
+      latestClassification,
+      bugs,
+      jobLogUrls,
+      jobDetailLoading,
+      logViewerUrl,
+      logViewerFullUrl,
+      logParseStatus,
+      user,
+      currentRepo,
+      classificationMap,
     } = this.props;
 
-    const logStatus = [{
-      title: 'Log parsing status',
-      value: !jobLogUrls.length ? 'No logs' : jobLogUrls.map(log => log.parse_status).join(', '),
-    }];
+    const logStatus = [
+      {
+        title: 'Log parsing status',
+        value: !jobLogUrls.length
+          ? 'No logs'
+          : jobLogUrls.map(log => log.parse_status).join(', '),
+      },
+    ];
 
     return (
       <div id="summary-panel">
@@ -34,28 +47,26 @@ class SummaryPanel extends React.PureComponent {
         />
         <div id="summary-panel-content">
           <div>
-            {jobDetailLoading &&
+            {jobDetailLoading && (
               <div className="overlay">
                 <div>
                   <span className="fa fa-spinner fa-pulse th-spinner-lg" />
                 </div>
               </div>
-            }
+            )}
 
             <ul className="list-unstyled">
-              {latestClassification &&
+              {latestClassification && (
                 <ClassificationsPanel
                   job={selectedJob}
                   classification={latestClassification}
                   classificationMap={classificationMap}
                   bugs={bugs}
                   currentRepo={currentRepo}
-                />}
+                />
+              )}
               <StatusPanel />
-              <JobInfo
-                job={selectedJob}
-                extraFields={logStatus}
-              />
+              <JobInfo job={selectedJob} extraFields={logStatus} />
             </ul>
           </div>
         </div>

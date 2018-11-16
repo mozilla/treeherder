@@ -10,7 +10,9 @@ import {
   arraysEqual,
   matchesDefaults,
   thFieldChoices,
-  thMatchType, thFilterDefaults, deprecated_thFilterPrefix,
+  thMatchType,
+  thFilterDefaults,
+  deprecated_thFilterPrefix,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 
@@ -23,7 +25,9 @@ export default class FilterModel {
     this.resetNonFieldFilters = this.resetNonFieldFilters.bind(this);
     this.setOnlySuperseded = this.setOnlySuperseded.bind(this);
     this.clearNonStatusFilters = this.clearNonStatusFilters.bind(this);
-    this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(this);
+    this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(
+      this,
+    );
     this.toggleInProgress = this.toggleInProgress.bind(this);
   }
 
@@ -32,14 +36,18 @@ export default class FilterModel {
     // This handles the transition from our old url params to this newer, more
     // terse version.
     // Also remove usage of the 'filter-' prefix.
-    const groupedValues = [...getAllUrlParams().entries()].reduce((acc, [urlField, urlValue]) => {
-      const field = urlField.replace(deprecated_thFilterPrefix, '');
-      const value = field === 'author' ? [urlValue] : urlValue.toLowerCase().split(/,| /);
+    const groupedValues = [...getAllUrlParams().entries()].reduce(
+      (acc, [urlField, urlValue]) => {
+        const field = urlField.replace(deprecated_thFilterPrefix, '');
+        const value =
+          field === 'author' ? [urlValue] : urlValue.toLowerCase().split(/,| /);
 
-      return field in acc ?
-        { ...acc, [field]: [...acc[field], ...value] } :
-        { ...acc, [field]: value };
-    }, {});
+        return field in acc
+          ? { ...acc, [field]: [...acc[field], ...value] }
+          : { ...acc, [field]: value };
+      },
+      {},
+    );
 
     return { ...cloneDeep(thFilterDefaults), ...groupedValues };
   }
@@ -49,10 +57,13 @@ export default class FilterModel {
     // ensure the repo param is always set
     const params = { repo: thDefaultRepo, ...this.urlParams };
 
-    return Object.entries(params).reduce((acc, [field, value]) => (
-      value.length && !matchesDefaults(field, value) ?
-        { ...acc, [field]: value } : acc
-    ), {});
+    return Object.entries(params).reduce(
+      (acc, [field, value]) =>
+        value.length && !matchesDefaults(field, value)
+          ? { ...acc, [field]: value }
+          : acc,
+      {},
+    );
   }
 
   addFilter(field, value) {
@@ -60,7 +71,9 @@ export default class FilterModel {
 
     if (currentValue) {
       // set the value to an array
-      const newQsVal = !Array.isArray(currentValue) ? [currentValue] : currentValue;
+      const newQsVal = !Array.isArray(currentValue)
+        ? [currentValue]
+        : currentValue;
       newQsVal.push(value);
       this.urlParams[field] = [...new Set(newQsVal)];
     } else {
@@ -75,7 +88,9 @@ export default class FilterModel {
       const currentValue = this.urlParams[field];
 
       if (currentValue && currentValue.length) {
-        this.urlParams[field] = currentValue.filter(filterValue => (filterValue !== value));
+        this.urlParams[field] = currentValue.filter(
+          filterValue => filterValue !== value,
+        );
       }
     } else {
       delete this.urlParams[field];
@@ -102,7 +117,9 @@ export default class FilterModel {
   }
 
   toggleFilter(field, value) {
-    const action = !this.urlParams[field].includes(value) ? this.addFilter : this.removeFilter;
+    const action = !this.urlParams[field].includes(value)
+      ? this.addFilter
+      : this.removeFilter;
     action(field, value);
   }
 
@@ -116,10 +133,12 @@ export default class FilterModel {
    */
   toggleResultStatuses(resultStatuses) {
     const currentResultStatuses = this.urlParams.resultStatus;
-    const allOn = resultStatuses.every(rs => currentResultStatuses.includes(rs));
-    this.urlParams.resultStatus = allOn ?
-      currentResultStatuses.filter(rs => !resultStatuses.includes(rs)) :
-      [...new Set([...resultStatuses, ...currentResultStatuses])];
+    const allOn = resultStatuses.every(rs =>
+      currentResultStatuses.includes(rs),
+    );
+    this.urlParams.resultStatus = allOn
+      ? currentResultStatuses.filter(rs => !resultStatuses.includes(rs))
+      : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
     this.push();
   }
@@ -209,7 +228,6 @@ export default class FilterModel {
         jobFieldValue = String(jobFieldValue).toLowerCase();
 
         switch (thFieldChoices[field].matchType) {
-
           case thMatchType.substr:
             // at least ONE filter value must be a substring of this job's field.
             if (!values.some(val => jobFieldValue.includes(val))) {
@@ -245,7 +263,9 @@ export default class FilterModel {
    */
   _getJobFieldValue(job, field) {
     if (field === 'platform') {
-      return `${thPlatformMap[job.platform] || job.platform} ${job.platform_option}`;
+      return `${thPlatformMap[job.platform] || job.platform} ${
+        job.platform_option
+      }`;
     }
 
     if (field === 'searchStr') {
@@ -259,7 +279,9 @@ export default class FilterModel {
    * check if we're in the state of showing only unclassified failures
    */
   _isUnclassifiedFailures() {
-    return arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
-      arraysEqual(this.urlParams.classifiedState, ['unclassified']);
+    return (
+      arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
+      arraysEqual(this.urlParams.classifiedState, ['unclassified'])
+    );
   }
 }
