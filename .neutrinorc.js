@@ -39,6 +39,7 @@ module.exports = {
         title: 'Intermittent Failures View',
       },
     },
+    output: '.build/',
     tests: 'tests/ui/',
   },
   use: [

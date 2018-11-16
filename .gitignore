@@ -22,9 +22,9 @@ npm-error.log
 \#*
 
 # Treeherder-specific
-_build/
-build/
-treeherder/static/
+.build/
+.build-docs/
+.django-static/
 
 # Celery
 celerybeat-schedule
