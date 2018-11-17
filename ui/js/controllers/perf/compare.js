@@ -7,8 +7,6 @@ import metricsgraphics from 'metrics-graphics';
 import perf from '../../perf';
 import { endpoints } from '../../../perfherder/constants';
 import {
-  phCompareDefaultOriginalRepo,
-  phCompareDefaultNewRepo,
   phTimeRanges,
   compareDefaultTimeRange,
 } from '../../../helpers/constants';
@@ -20,126 +18,6 @@ import { getCounterMap, getInterval, validateQueryParams, getResultsMap,
 import { getApiUrl } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 
-perf.controller('CompareChooserCtrl', [
-    '$state', '$stateParams', '$scope', '$q',
-    'localStorageService',
-    function CompareChooserCtrl($state, $stateParams, $scope, $q,
-                                localStorageService) {
-        RepositoryModel.getList().then((projects) => {
-            $scope.projects = projects;
-            $scope.originalTipList = [];
-            $scope.newTipList = [];
-            $scope.revisionComparison = false;
-
-            const getParameter = function (paramName, defaultValue) {
-                if ($stateParams[paramName]) {
-                    return $stateParams[paramName];
-                }
-
-                if (localStorageService.get(paramName)) {
-                    return localStorageService.get(paramName);
-                }
-                return defaultValue;
-            };
-
-            $scope.originalProject = projects.find(project =>
-                project.name === getParameter('originalProject', phCompareDefaultOriginalRepo),
-            ) || projects[0];
-            $scope.newProject = projects.find(project =>
-                project.name === getParameter('newProject', phCompareDefaultNewRepo),
-            ) || projects[0];
-
-            $scope.originalRevision = getParameter('originalRevision', '');
-            $scope.newRevision = getParameter('newRevision', '');
-
-            const getRevisionTips = function (projectName, list) {
-                // due to we push the revision data into list,
-                // so we need clear the data before we push new data into it.
-                list.splice(0, list.length);
-                PushModel.getList({ repo: projectName }).then(async (response) => {
-                    const { results } = await response.json();
-
-                    results.forEach(function (revisionSet) {
-                        list.push({
-                            revision: revisionSet.revision,
-                            author: revisionSet.author,
-                        });
-                    });
-                    $scope.$apply();
-                });
-            };
-
-            $scope.updateOriginalRevisionTips = function () {
-                getRevisionTips($scope.originalProject.name, $scope.originalTipList);
-            };
-            $scope.updateNewRevisionTips = function () {
-                getRevisionTips($scope.newProject.name, $scope.newTipList);
-            };
-            $scope.updateOriginalRevisionTips();
-            $scope.updateNewRevisionTips();
-
-            $scope.getOriginalTipRevision = function (tip) {
-                $scope.originalRevision = tip;
-            };
-
-            $scope.getNewTipRevision = function (tip) {
-                $scope.newRevision = tip;
-            };
-
-            $scope.runCompare = function () {
-                const revisionPromises = [];
-                if ($scope.revisionComparison) {
-                    revisionPromises.push(PushModel.getList({
-                        repo: $scope.originalProject.name,
-                        revision: $scope.originalRevision,
-                    }).then((resp) => {
-                        if (resp.ok) {
-                            $scope.originalRevisionError = undefined;
-                        } else {
-                            $scope.originalRevisionError = resp.statusText;
-                        }
-                        $scope.$apply();
-                    }));
-                }
-
-                revisionPromises.push(PushModel.getList({
-                  repo: $scope.newProject.name,
-                  revision: $scope.newRevision,
-                }).then((resp) => {
-                    if (resp.ok) {
-                        $scope.newRevisionError = undefined;
-                    } else {
-                        $scope.newRevisionError = resp.statusText;
-                    }
-                    $scope.$apply();
-                }));
-
-                $q.all(revisionPromises).then(function () {
-                    localStorageService.set('originalProject', $scope.originalProject.name, 'sessionStorage');
-                    localStorageService.set('originalRevision', $scope.originalRevision, 'sessionStorage');
-                    localStorageService.set('newProject', $scope.newProject.name, 'sessionStorage');
-                    localStorageService.set('newRevision', $scope.newRevision, 'sessionStorage');
-                    if ($scope.originalRevisionError === undefined && $scope.newRevisionError === undefined) {
-                        if ($scope.revisionComparison) {
-                            $state.go('compare', {
-                                originalProject: $scope.originalProject.name,
-                                originalRevision: $scope.originalRevision,
-                                newProject: $scope.newProject.name,
-                                newRevision: $scope.newRevision,
-                            });
-                        } else {
-                            $state.go('compare', {
-                                originalProject: $scope.originalProject.name,
-                                newProject: $scope.newProject.name,
-                                newRevision: $scope.newRevision,
-                                selectedTimeRange: compareDefaultTimeRange,
-                            });
-                        }
-                    }
-                });
-            };
-        });
-    }]);
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',

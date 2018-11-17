@@ -250,11 +250,6 @@ export const thEvents = {
   applyNewJobs: 'apply-new-jobs-EVT',
 };
 
-// TODO remove these two consts
-export const phCompareDefaultOriginalRepo = 'mozilla-central';
-
-export const phCompareDefaultNewRepo = 'try';
-
 export const phTimeRanges = [
   { value: 86400, text: 'Last day' },
   { value: 86400 * 2, text: 'Last 2 days' },

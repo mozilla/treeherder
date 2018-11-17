@@ -14,10 +14,6 @@ import { prettyErrorMessages, errorMessageClass } from '../intermittent-failures
 import ErrorBoundary from '../shared/ErrorBoundary';
 
 // TODO remove $stateParams and $state after switching to react router
-
-// TODO:
-// error messages based on failureStatus for SelectorCard
-// remove controller and partial (also from perfapp)
 export default class CompareSelectorView extends React.Component {
   constructor(props) {
     super(props);
