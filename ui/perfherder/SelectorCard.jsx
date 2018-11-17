@@ -7,6 +7,7 @@ import { Col, Card, CardHeader, CardText, CardBody, DropdownItem, Input,
 
 import { getProjectUrl, createQueryParams, resultsetEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
+import { processErrorMessage } from '../intermittent-failures/helpers';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {
@@ -38,10 +39,15 @@ export default class SelectorCard extends React.Component {
       full: true,
       count: 10,
     };
-
     const url = `${getProjectUrl(resultsetEndpoint, selectedRepo)}${createQueryParams(params)}`;
     const { data, failureStatus } = await getData(url);
-    this.setState({ data, failureStatus });
+
+    if (failureStatus) {
+      const errorMessages = `Error with resultset API, ${processErrorMessage(data, failureStatus)}`;
+      this.props.updateState({ errorMessages });
+    } else {
+      this.setState({ data, failureStatus });
+    }
   }
 
   toggle(dropdown) {
@@ -93,7 +99,7 @@ export default class SelectorCard extends React.Component {
   }
 
   render() {
-    const { buttonDropdownOpen, inputDropdownOpen, checkboxSelected, data, failureStatus, invalidInput } = this.state;
+    const { buttonDropdownOpen, inputDropdownOpen, checkboxSelected, data, invalidInput } = this.state;
     const { selectedRepo, updateState, projects, title, text, checkbox, selectedRevision, revisionState } = this.props;
 
     return (

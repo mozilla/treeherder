@@ -127,11 +127,11 @@ export default class CompareSelectorView extends React.Component {
     const { originalProject, newProject, projects, originalRevision, newRevision, data, failureStatus, errorMessages, disableButton } = this.state;
     return (
       <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
-        <div className="mx-auto">
-          <ErrorBoundary
-            errorClasses={errorMessageClass}
-            message={prettyErrorMessages.default}
-          >
+        <ErrorBoundary
+          errorClasses={errorMessageClass}
+          message={prettyErrorMessages.default}
+        >
+          <div className="mx-auto">
             <Row className="justify-content-center">
               <Col sm="8" className="text-center">
                 {(failureStatus || errorMessages.length > 0) &&
@@ -172,8 +172,8 @@ export default class CompareSelectorView extends React.Component {
                 </Button>
               </Col>
             </Row>
-          </ErrorBoundary>
-        </div>
+          </div>
+        </ErrorBoundary>
       </Container>
     );
   }
