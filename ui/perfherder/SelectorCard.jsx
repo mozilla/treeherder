@@ -14,7 +14,7 @@ export default class SelectorCard extends React.Component {
     this.state = {
       buttonDropdownOpen: false,
       inputDropdownOpen: false,
-      checkboxSelected: this.props.selectedRevision !== '',
+      checkboxSelected: this.props.queryParam,
       inputValue: '',
       data: {},
       failureStatus: null,
@@ -186,10 +186,12 @@ SelectorCard.propTypes = {
   title: PropTypes.string.isRequired,
   text: PropTypes.string,
   checkbox: PropTypes.bool,
+  queryParam: PropTypes.string,
 };
 
 SelectorCard.defaultProps = {
   projects: [],
   text: null,
   checkbox: false,
+  queryParam: undefined,
 };

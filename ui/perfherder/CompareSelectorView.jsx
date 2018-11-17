@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular';
 import { Container, Col, Row, Button } from 'reactstrap';
 
 import perf from '../js/perf';
-import { getApiUrl, repoEndpoint } from '../helpers/url';
+import { getApiUrl, repoEndpoint, getProjectUrl, createQueryParams, resultsetEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
 import ErrorMessages from '../intermittent-failures/ErrorMessages';
 
@@ -13,38 +13,89 @@ import { compareDefaultTimeRange } from '../helpers/constants';
 import { prettyErrorMessages, errorMessageClass } from '../intermittent-failures/constants';
 import ErrorBoundary from '../shared/ErrorBoundary';
 
+// TODO remove $stateParams and $state after switching to react router
+
 // TODO:
 // error messages based on failureStatus for SelectorCard
 // remove controller and partial (also from perfapp)
-// validate query params (new and original revisions)
 export default class CompareSelectorView extends React.Component {
   constructor(props) {
     super(props);
 
-    // TODO remove $stateParams and $state after switching to react router
-    this.default = this.props.$stateParams;
-
     this.state = {
       projects: [],
       failureStatus: null,
-      originalProject: this.default.originalProject || 'mozilla-central',
-      newProject: this.default.newProject || 'try',
-      originalRevision: this.default.originalRevision || '',
-      newRevision: this.default.newRevision || '',
+      originalProject: 'mozilla-central',
+      newProject: 'try',
+      originalRevision: '',
+      newRevision: '',
       errorMessages: [],
       disableButton: true,
     };
     this.updateState = this.updateState.bind(this);
     this.submitData = this.submitData.bind(this);
+    this.validateQueryParams = this.validateQueryParams.bind(this);
+    this.validateProject = this.validateProject.bind(this);
+    this.validateRevision = this.validateRevision.bind(this);
   }
 
   async componentDidMount() {
     const { data, failureMessage } = await getData(getApiUrl(repoEndpoint));
     this.updateState({ projects: data, failureMessage });
+    this.validateQueryParams();
   }
 
   updateState(state) {
     this.setState(state);
+  }
+
+  validateQueryParams() {
+    const { originalProject, newProject, originalRevision, newRevision } = this.props.$stateParams;
+
+    if (originalProject) {
+      this.validateProject('originalProject', originalProject);
+    }
+
+    if (newProject) {
+      this.validateProject('newProject', newProject);
+    }
+
+    if (newRevision) {
+      this.validateRevision('newRevision', newRevision, newProject || this.state.newProject);
+    }
+
+    if (originalRevision) {
+      this.validateRevision('originalRevision', originalRevision, originalProject || this.state.originalProject);
+    }
+
+  }
+
+  validateProject(projectName, project) {
+    const { projects, errorMessages } = this.state;
+    let updates = {};
+    const validProject = projects.find(item => item.name === project);
+
+    if (validProject) {
+      updates = { [projectName]: project };
+    } else {
+      updates = { errorMessages: [...errorMessages, `The ${projectName} query param ${project} is invalid`] };
+    }
+    this.setState(updates);
+  }
+
+  async validateRevision(revisionName, revision, project) {
+    const { errorMessages } = this.state;
+    let updates = {};
+
+    const url = `${getProjectUrl(resultsetEndpoint, project)}${createQueryParams({ revision })}`;
+    const { data, failureStatus } = await getData(url);
+
+    if (failureStatus || data.meta.count === 0) {
+      updates = { errorMessages: [...errorMessages, `The ${revisionName} query param ${revision} is invalid`] };
+    } else {
+      updates = { [revisionName]: revision };
+    }
+    this.setState(updates);
   }
 
   submitData() {
@@ -102,6 +153,7 @@ export default class CompareSelectorView extends React.Component {
                 projectState="originalProject"
                 revisionState="originalRevision"
                 selectedRevision={originalRevision}
+                queryParam={this.props.$stateParams.originalRevision}
               />
               <SelectorCard
                 projects={projects}
@@ -128,7 +180,12 @@ export default class CompareSelectorView extends React.Component {
 }
 
 CompareSelectorView.propTypes = {
-  $stateParams: PropTypes.shape({}).isRequired,
+  $stateParams: PropTypes.shape({
+    newRevision: PropTypes.string,
+    originalRevision: PropTypes.string,
+    newProject: PropTypes.string,
+    originalProject: PropTypes.string,
+  }).isRequired,
   $state: PropTypes.shape({}).isRequired,
 };
 
