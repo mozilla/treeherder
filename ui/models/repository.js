@@ -18,7 +18,7 @@ export default class RepositoryModel {
   }
 
   static getList() {
-    return fetch(uri)
+    return fetch(getApiUrl(repoEndpoint))
       .then(resp => resp.json())
       .then(repos => repos.map(datum => new RepositoryModel(datum)));
   }

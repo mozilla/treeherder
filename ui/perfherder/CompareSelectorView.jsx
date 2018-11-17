@@ -4,14 +4,23 @@ import { react2angular } from 'react2angular';
 import { Container, Col, Row, Button } from 'reactstrap';
 
 import perf from '../js/perf';
-import { getApiUrl, repoEndpoint, getProjectUrl, createQueryParams, resultsetEndpoint } from '../helpers/url';
+import {
+  getApiUrl,
+  repoEndpoint,
+  getProjectUrl,
+  createQueryParams,
+  resultsetEndpoint,
+} from '../helpers/url';
 import { getData } from '../helpers/http';
 import ErrorMessages from '../intermittent-failures/ErrorMessages';
+import { compareDefaultTimeRange } from '../helpers/constants';
+import {
+  prettyErrorMessages,
+  errorMessageClass,
+} from '../intermittent-failures/constants';
+import ErrorBoundary from '../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';
-import { compareDefaultTimeRange } from '../helpers/constants';
-import { prettyErrorMessages, errorMessageClass } from '../intermittent-failures/constants';
-import ErrorBoundary from '../shared/ErrorBoundary';
 
 // TODO remove $stateParams and $state after switching to react router
 export default class CompareSelectorView extends React.Component {
@@ -46,7 +55,12 @@ export default class CompareSelectorView extends React.Component {
   }
 
   validateQueryParams() {
-    const { originalProject, newProject, originalRevision, newRevision } = this.props.$stateParams;
+    const {
+      originalProject,
+      newProject,
+      originalRevision,
+      newRevision,
+    } = this.props.$stateParams;
 
     if (originalProject) {
       this.validateProject('originalProject', originalProject);
@@ -57,13 +71,20 @@ export default class CompareSelectorView extends React.Component {
     }
 
     if (newRevision) {
-      this.validateRevision('newRevision', newRevision, newProject || this.state.newProject);
+      this.validateRevision(
+        'newRevision',
+        newRevision,
+        newProject || this.state.newProject,
+      );
     }
 
     if (originalRevision) {
-      this.validateRevision('originalRevision', originalRevision, originalProject || this.state.originalProject);
+      this.validateRevision(
+        'originalRevision',
+        originalRevision,
+        originalProject || this.state.originalProject,
+      );
     }
-
   }
 
   validateProject(projectName, project) {
@@ -74,7 +95,12 @@ export default class CompareSelectorView extends React.Component {
     if (validProject) {
       updates = { [projectName]: project };
     } else {
-      updates = { errorMessages: [...errorMessages, `The ${projectName} query param ${project} is invalid`] };
+      updates = {
+        errorMessages: [
+          ...errorMessages,
+          `The ${projectName} query param ${project} is invalid`,
+        ],
+      };
     }
     this.setState(updates);
   }
@@ -83,11 +109,19 @@ export default class CompareSelectorView extends React.Component {
     const { errorMessages } = this.state;
     let updates = {};
 
-    const url = `${getProjectUrl(resultsetEndpoint, project)}${createQueryParams({ revision })}`;
+    const url = `${getProjectUrl(
+      resultsetEndpoint,
+      project,
+    )}${createQueryParams({ revision })}`;
     const { data, failureStatus } = await getData(url);
 
     if (failureStatus || data.meta.count === 0) {
-      updates = { errorMessages: [...errorMessages, `The ${revisionName} query param ${revision} is invalid`] };
+      updates = {
+        errorMessages: [
+          ...errorMessages,
+          `The ${revisionName} query param ${revision} is invalid`,
+        ],
+      };
     } else {
       updates = { [revisionName]: revision };
     }
@@ -95,7 +129,12 @@ export default class CompareSelectorView extends React.Component {
   }
 
   submitData() {
-    const { originalProject, newProject, originalRevision, newRevision } = this.state;
+    const {
+      originalProject,
+      newProject,
+      originalRevision,
+      newRevision,
+    } = this.state;
     const { $state } = this.props;
 
     if (newRevision === '') {
@@ -120,9 +159,22 @@ export default class CompareSelectorView extends React.Component {
   }
 
   render() {
-    const { originalProject, newProject, projects, originalRevision, newRevision, data, failureStatus, errorMessages, disableButton } = this.state;
+    const {
+      originalProject,
+      newProject,
+      projects,
+      originalRevision,
+      newRevision,
+      data,
+      failureStatus,
+      errorMessages,
+      disableButton,
+    } = this.state;
     return (
-      <Container fluid style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}>
+      <Container
+        fluid
+        style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}
+      >
         <ErrorBoundary
           errorClasses={errorMessageClass}
           message={prettyErrorMessages.default}
@@ -130,12 +182,13 @@ export default class CompareSelectorView extends React.Component {
           <div className="mx-auto">
             <Row className="justify-content-center">
               <Col sm="8" className="text-center">
-                {(failureStatus || errorMessages.length > 0) &&
+                {(failureStatus || errorMessages.length > 0) && (
                   <ErrorMessages
                     failureMessage={data}
                     failureStatus={failureStatus}
                     errorMessages={errorMessages}
-                  />}
+                  />
+                )}
               </Col>
             </Row>
             <Row className="justify-content-center">
@@ -163,7 +216,13 @@ export default class CompareSelectorView extends React.Component {
             </Row>
             <Row className="justify-content-center">
               <Col sm="8" className="text-right px-1">
-                <Button color="info" className="mt-2 mx-auto" onClick={newRevision !== '' && disableButton ? '' : this.submitData}>
+                <Button
+                  color="info"
+                  className="mt-2 mx-auto"
+                  onClick={
+                    newRevision !== '' && disableButton ? '' : this.submitData
+                  }
+                >
                   Compare
                 </Button>
               </Col>
@@ -185,4 +244,7 @@ CompareSelectorView.propTypes = {
   $state: PropTypes.shape({}).isRequired,
 };
 
-perf.component('compareSelectorView', react2angular(CompareSelectorView, [], ['$stateParams', '$state']));
+perf.component(
+  'compareSelectorView',
+  react2angular(CompareSelectorView, [], ['$stateParams', '$state']),
+);

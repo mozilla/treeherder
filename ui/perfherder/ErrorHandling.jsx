@@ -1,8 +1,9 @@
 import React from 'react';
 import { Alert } from 'reactstrap';
+
 import { processErrorMessage } from '../intermittent-failures/helpers';
 
-const withErrorHandling = (WrappedComponent) => {
+const withErrorHandling = WrappedComponent => {
   class ErrorHandling extends React.Component {
     constructor(props) {
       super(props);
@@ -14,7 +15,9 @@ const withErrorHandling = (WrappedComponent) => {
     }
 
     updateMessages({ failureMessage, failureStatus, errorMessages }) {
-      const messages = errorMessages.length ? errorMessages : processErrorMessage(failureMessage, failureStatus);
+      const messages = errorMessages.length
+        ? errorMessages
+        : processErrorMessage(failureMessage, failureStatus);
       this.setState({ messages });
     }
 

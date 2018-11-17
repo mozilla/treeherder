@@ -3,7 +3,11 @@ import { slugid } from 'taskcluster-client-web';
 import { thMaxPushFetchSize } from '../helpers/constants';
 import { getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
-import { createQueryParams, getProjectUrl } from '../helpers/url';
+import {
+  createQueryParams,
+  getProjectUrl,
+  resultsetEndpoint,
+} from '../helpers/url';
 
 import JobModel from './job';
 import TaskclusterModel from './taskcluster';
@@ -51,7 +55,9 @@ export default class PushModel {
       params.count = thMaxPushFetchSize;
     }
     return fetch(
-      `${getProjectUrl(uri_base, repoName)}${createQueryParams(params)}`,
+      `${getProjectUrl(resultsetEndpoint, repoName)}${createQueryParams(
+        params,
+      )}`,
     );
   }
 
