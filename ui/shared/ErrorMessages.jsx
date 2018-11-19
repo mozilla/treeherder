@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 
-import { processErrorMessage } from './helpers';
+import { processErrorMessage } from '../helpers/errorMessage';
 
 const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
   const messages = errorMessages.length

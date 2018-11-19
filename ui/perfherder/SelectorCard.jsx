@@ -25,7 +25,7 @@ import {
   resultsetEndpoint,
 } from '../helpers/url';
 import { getData } from '../helpers/http';
-import { processErrorMessage } from '../intermittent-failures/helpers';
+import { processErrorMessage } from '../helpers/errorMessage';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {
@@ -47,6 +47,8 @@ export default class SelectorCard extends React.Component {
   }
 
   async componentDidMount() {
+    // by default revisions are only needed for the 'New' component dropdown
+    // so we'll fetch revisions for the 'Base' component only as needed
     if (this.props.revisionState === 'newRevision') {
       this.fetchRevisions(this.props.selectedRepo);
     }
@@ -238,7 +240,7 @@ export default class SelectorCard extends React.Component {
                             key={item.id}
                             onClick={event =>
                               this.updateRevision(
-                                event.target.innerText.split(' ')[1],
+                                event.target.innerText.split(' ')[0],
                               )
                             }
                           >
@@ -248,7 +250,7 @@ export default class SelectorCard extends React.Component {
                                 selectedRevision === item.revision ? '' : 'hide'
                               }`}
                             />
-                            {`${item.author} ${item.revision}`}
+                            {`${item.revision} ${item.author}`}
                           </DropdownItem>
                         ))}
                       </DropdownMenu>

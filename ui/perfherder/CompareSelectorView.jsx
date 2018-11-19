@@ -12,12 +12,12 @@ import {
   resultsetEndpoint,
 } from '../helpers/url';
 import { getData } from '../helpers/http';
-import ErrorMessages from '../intermittent-failures/ErrorMessages';
-import { compareDefaultTimeRange } from '../helpers/constants';
+import ErrorMessages from '../shared/ErrorMessages';
 import {
+  compareDefaultTimeRange,
   prettyErrorMessages,
   errorMessageClass,
-} from '../intermittent-failures/constants';
+} from '../helpers/constants';
 import ErrorBoundary from '../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';
@@ -37,7 +37,6 @@ export default class CompareSelectorView extends React.Component {
       errorMessages: [],
       disableButton: true,
     };
-    this.updateState = this.updateState.bind(this);
     this.submitData = this.submitData.bind(this);
     this.validateQueryParams = this.validateQueryParams.bind(this);
     this.validateProject = this.validateProject.bind(this);
@@ -45,13 +44,9 @@ export default class CompareSelectorView extends React.Component {
   }
 
   async componentDidMount() {
-    const { data, failureMessage } = await getData(getApiUrl(repoEndpoint));
-    this.updateState({ projects: data, failureMessage });
+    const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
+    this.setState({ projects: data, failureStatus });
     this.validateQueryParams();
-  }
-
-  updateState(state) {
-    this.setState(state);
   }
 
   validateQueryParams() {
@@ -194,7 +189,7 @@ export default class CompareSelectorView extends React.Component {
             <Row className="justify-content-center">
               <SelectorCard
                 projects={projects}
-                updateState={this.updateState}
+                updateState={updates => this.setState(updates)}
                 selectedRepo={originalProject}
                 title="Base"
                 checkbox
@@ -206,7 +201,7 @@ export default class CompareSelectorView extends React.Component {
               />
               <SelectorCard
                 projects={projects}
-                updateState={this.updateState}
+                updateState={updates => this.setState(updates)}
                 selectedRepo={newProject}
                 title="New"
                 projectState="newProject"

@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import Icon from 'react-fontawesome';
 
 import ErrorBoundary from '../shared/ErrorBoundary';
+import ErrorMessages from '../shared/ErrorMessages';
+import { prettyErrorMessages, errorMessageClass } from '../helpers/constants';
 
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
-import ErrorMessages from './ErrorMessages';
-import { prettyErrorMessages, errorMessageClass } from './constants';
 
 const Layout = props => {
   const {
