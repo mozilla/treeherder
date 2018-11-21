@@ -7,7 +7,7 @@ import { processErrorMessage } from '../helpers/errorMessage';
 const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
   const messages = errorMessages.length
     ? errorMessages
-    : processErrorMessage(failureMessage, failureStatus);
+    : [processErrorMessage(failureMessage, failureStatus)];
 
   return (
     <div>
@@ -27,12 +27,14 @@ ErrorMessages.propTypes = {
   ]),
   failureStatus: PropTypes.number,
   errorMessages: PropTypes.array,
+  prettyErrorMessages: PropTypes.shape({}),
 };
 
 ErrorMessages.defaultProps = {
   failureMessage: null,
   failureStatus: null,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
+  prettyErrorMessages: null,
 };
 
 export default ErrorMessages;

@@ -5,7 +5,7 @@ import Icon from 'react-fontawesome';
 
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ErrorMessages from '../shared/ErrorMessages';
-import { prettyErrorMessages, errorMessageClass } from '../helpers/constants';
+import { genericErrorMessage, errorMessageClass } from '../helpers/constants';
 
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
@@ -62,7 +62,7 @@ const Layout = props => {
       {header}
       <ErrorBoundary
         errorClasses={errorMessageClass}
-        message={prettyErrorMessages.default}
+        message={genericErrorMessage}
       >
         {graphOneData && graphTwoData && (
           <GraphsContainer
@@ -76,7 +76,7 @@ const Layout = props => {
 
       <ErrorBoundary
         errorClasses={errorMessageClass}
-        message={prettyErrorMessages.default}
+        message={genericErrorMessage}
       >
         {table}
       </ErrorBoundary>

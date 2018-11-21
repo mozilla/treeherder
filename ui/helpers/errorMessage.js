@@ -1,5 +1,3 @@
-import { prettyErrorMessages } from './constants';
-
 /**
 This object contains a few constants and helper functions related to error
 message handling.
@@ -46,24 +44,11 @@ export const formatTaskclusterError = function formatTaskclusterError(e) {
   return `${TC_ERROR_PREFIX}${errorMessage}`;
 };
 
-export const processErrorMessage = function processErrorMessage(
-  errorMessage,
-  status,
-) {
-  const messages = [];
-
+export const processErrorMessage = function processErrorMessage(error, status) {
   if (status === 503) {
-    return [prettyErrorMessages.status503];
+    return 'There was a problem retrieving the data. Please try again in a minute.';
   }
 
-  if (Object.keys(errorMessage).length > 0) {
-    for (const [key, value] of Object.entries(errorMessage)) {
-      if (prettyErrorMessages[key]) {
-        messages.push(prettyErrorMessages[key]);
-      } else {
-        messages.push(`${key}: ${value}`);
-      }
-    }
-  }
-  return messages || [prettyErrorMessages.default];
+  const key = Object.keys(error);
+  return `${key}: ${error[key]}`;
 };

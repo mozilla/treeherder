@@ -19,13 +19,9 @@ import {
   InputGroupButtonDropdown,
 } from 'reactstrap';
 
-import {
-  getProjectUrl,
-  createQueryParams,
-  resultsetEndpoint,
-} from '../helpers/url';
+import { getProjectUrl, createQueryParams, pushEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
-import { processErrorMessage } from '../helpers/errorMessage';
+import { genericErrorMessage } from '../helpers/constants';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {
@@ -60,17 +56,13 @@ export default class SelectorCard extends React.Component {
       count: 10,
     };
     const url = `${getProjectUrl(
-      resultsetEndpoint,
+      pushEndpoint,
       selectedRepo,
     )}${createQueryParams(params)}`;
     const { data, failureStatus } = await getData(url);
 
     if (failureStatus) {
-      const errorMessages = `Error with resultset API, ${processErrorMessage(
-        data,
-        failureStatus,
-      )}`;
-      this.props.updateState({ errorMessages });
+      this.props.updateState({ errorMessages: genericErrorMessage });
     } else {
       this.setState({ data, failureStatus });
     }
@@ -106,7 +98,7 @@ export default class SelectorCard extends React.Component {
 
     if (value.length >= 40) {
       const url = `${getProjectUrl(
-        resultsetEndpoint,
+        pushEndpoint,
         this.props.selectedRepo,
       )}${createQueryParams({ revision: value })}`;
       const { data, failureStatus } = await getData(url);

@@ -1,7 +1,5 @@
 import moment from 'moment';
 
-import { prettyErrorMessages } from '../helpers/constants';
-
 // be sure to wrap date arg in a moment()
 export const ISODate = function formatISODate(date) {
   return date.format('YYYY-MM-DD');
@@ -100,16 +98,18 @@ export const validateQueryParams = function validateQueryParams(
   const dateFormat = /\d{4}[-]\d{2}[-]\d{2}/;
 
   if (!params.tree) {
-    messages.push(prettyErrorMessages.tree_ui);
+    messages.push(
+      'tree is required and must be a valid repository or repository group.',
+    );
   }
   if (!params.startday || params.startday.search(dateFormat) === -1) {
-    messages.push(prettyErrorMessages.startday);
+    messages.push('startday is required and must be in YYYY-MM-DD format.');
   }
   if (!params.endday || params.endday.search(dateFormat) === -1) {
-    messages.push(prettyErrorMessages.endday);
+    messages.push('endday is required and must be in YYYY-MM-DD format.');
   }
   if (bugRequired && (!params.bug || Number.isNaN(params.bug))) {
-    messages.push(prettyErrorMessages.bug_ui);
+    messages.push('bug is required and must be a valid integer.');
   }
   return messages;
 };

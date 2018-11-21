@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row, Button } from 'reactstrap';
 
 import perf from '../js/perf';
@@ -9,13 +9,13 @@ import {
   repoEndpoint,
   getProjectUrl,
   createQueryParams,
-  resultsetEndpoint,
+  pushEndpoint,
 } from '../helpers/url';
 import { getData } from '../helpers/http';
 import ErrorMessages from '../shared/ErrorMessages';
 import {
   compareDefaultTimeRange,
-  prettyErrorMessages,
+  genericErrorMessage,
   errorMessageClass,
 } from '../helpers/constants';
 import ErrorBoundary from '../shared/ErrorBoundary';
@@ -93,7 +93,7 @@ export default class CompareSelectorView extends React.Component {
       updates = {
         errorMessages: [
           ...errorMessages,
-          `The ${projectName} query param ${project} is invalid`,
+          `${projectName} must be a valid project.`,
         ],
       };
     }
@@ -104,17 +104,16 @@ export default class CompareSelectorView extends React.Component {
     const { errorMessages } = this.state;
     let updates = {};
 
-    const url = `${getProjectUrl(
-      resultsetEndpoint,
-      project,
-    )}${createQueryParams({ revision })}`;
+    const url = `${getProjectUrl(pushEndpoint, project)}${createQueryParams({
+      revision,
+    })}`;
     const { data, failureStatus } = await getData(url);
 
     if (failureStatus || data.meta.count === 0) {
       updates = {
         errorMessages: [
           ...errorMessages,
-          `The ${revisionName} query param ${revision} is invalid`,
+          `${revisionName} must be a valid revision.`,
         ],
       };
     } else {
@@ -172,7 +171,7 @@ export default class CompareSelectorView extends React.Component {
       >
         <ErrorBoundary
           errorClasses={errorMessageClass}
-          message={prettyErrorMessages.default}
+          message={genericErrorMessage}
         >
           <div className="mx-auto">
             <Row className="justify-content-center">
