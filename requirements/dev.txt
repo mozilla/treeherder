@@ -14,9 +14,9 @@ responses==0.10.4 \
     --hash=sha256:b9b31d9b1fcf6d48aea044c9fdd3d04199f6d227b0650c15d2566b0135bc1ed7 \
     --hash=sha256:16ad4a7a914f20792111157adf09c63a8dc37699c57d1ad20dbc281a4f5743fb
 
-django-extensions==2.1.3 \
-    --hash=sha256:30cb6a8c7d6f75a55edf0c0c4491bd98f8264ae1616ce105f9cecac4387edd07 \
-    --hash=sha256:4ad86a7a5e84f1c77db030761ae87a600647250c652030a2b71a16e87f3a3d62
+django-extensions==2.1.4 \
+    --hash=sha256:a76a61566f1c8d96acc7bcf765080b8e91367a25a2c6f8c5bddd574493839180 \
+    --hash=sha256:8317a3fe479b1ba3e3a04ecf33fb8d6ccf09bb18f30eab64e34c40a593741d26
 
 pytest-selenium==1.14.0 \
     --hash=sha256:c8500762082bf5b7fbb9fc37c2794a6cff6d5ebc50ede67eb29409e17461ea2f \
