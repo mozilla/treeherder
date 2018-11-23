@@ -13,10 +13,21 @@ import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
 import { endpoints } from '../../../perfherder/constants';
+import {
+    alertIsOfState,
+    createAlert,
+    findPushIdNeighbours,
+    getAlertStatusText,
+    getAlertSummaries,
+    getAlertSummaryStatusText,
+    nudgeAlert,
+} from '../../../perfherder/helpers';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   thDefaultRepo,
   phTimeRanges,
+  phAlertStatusMap,
+  phAlertSummaryStatusMap,
   phDefaultTimeRangeValue,
   phDefaultFramework,
   thPerformanceBranches,
@@ -29,9 +40,9 @@ import { getData } from '../../../helpers/http';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
-    '$window', '$q', '$timeout', 'PhAlerts',
+    '$window', '$q', '$timeout',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
-        $uibModal, $window, $q, $timeout, PhAlerts) {
+        $uibModal, $window, $q, $timeout) {
         var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
             'red', 'green', 'blue', 'orange', 'purple'];
 
@@ -50,7 +61,7 @@ perf.controller('GraphsCtrl', [
 
         $scope.createAlert = function (dataPoint) {
             $scope.creatingAlert = true;
-            PhAlerts.createAlert(dataPoint)
+            createAlert(dataPoint)
             .then(alertSummaryId => refreshGraphData(alertSummaryId, dataPoint))
             .then(() => {
                 $scope.creatingAlert = false;
@@ -61,9 +72,9 @@ perf.controller('GraphsCtrl', [
             $scope.nudgingAlert = true;
 
             const resultSetData = dataPoint.series.flotSeries.resultSetData;
-            const towardsDataPoint = PhAlerts.findPushIdNeighbours(dataPoint, resultSetData, direction);
+            const towardsDataPoint = findPushIdNeighbours(dataPoint, resultSetData, direction);
 
-            PhAlerts.nudgeAlert(dataPoint, towardsDataPoint)
+            nudgeAlert(dataPoint, towardsDataPoint)
                 .then(alertSummaryId => refreshGraphData(alertSummaryId, dataPoint),
                       (error) => {
                           $scope.nudgingAlert = false;
@@ -75,7 +86,7 @@ perf.controller('GraphsCtrl', [
         };
 
         function refreshGraphData(alertSummaryId, dataPoint) {
-            return PhAlerts.getAlertSummaries({
+            return getAlertSummaries({
                 signatureId: dataPoint.series.id,
                 repository: dataPoint.project.id,
             }).then(function (alertSummaryData) {
@@ -657,7 +668,7 @@ perf.controller('GraphsCtrl', [
                     series.relatedAlertSummaries = [];
                     var repo = $rootScope.repos.find(repo =>
                         repo.name === series.projectName);
-                    return PhAlerts.getAlertSummaries({
+                    return getAlertSummaries({
                         signatureId: series.id,
                         repository: repo.id }).then(function (data) {
                             series.relatedAlertSummaries = data.results;
@@ -764,6 +775,17 @@ perf.controller('GraphsCtrl', [
             hideTooltip();
             highlightDataPoints();
         };
+
+        // Alert functions
+        $scope.phAlertStatusMap = phAlertStatusMap;
+
+        $scope.getAlertStatusText = getAlertStatusText;
+        $scope.alertIsOfState = alertIsOfState;
+
+        // AlertSummary functions
+        $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
+
+        $scope.getAlertSummaryStatusText = getAlertSummaryStatusText;
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
