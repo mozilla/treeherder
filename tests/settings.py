@@ -6,8 +6,8 @@ KEY_PREFIX = 'test'
 TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 
 # this makes celery calls synchronous, useful for unit testing
-CELERY_ALWAYS_EAGER = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
 
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"

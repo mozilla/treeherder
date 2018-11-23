@@ -263,7 +263,7 @@ AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
 AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
 
 # Celery
-CELERY_QUEUES = [
+CELERY_TASK_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     # queue for failed jobs/logs
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
@@ -284,38 +284,31 @@ CELERY_QUEUES = [
 ]
 
 # Celery broker setup
-BROKER_URL = env('BROKER_URL')
+CELERY_BROKER_URL = env('BROKER_URL')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
-# rather than relying on `BROKER_URL` having `amqps://` or `?ssl=` set.
+# rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
 # This is required since CloudAMQP's automatically defined URL uses neither.
-if connection_should_use_tls(BROKER_URL):
-    BROKER_USE_SSL = True
+if connection_should_use_tls(CELERY_BROKER_URL):
+    CELERY_BROKER_USE_SSL = True
 
 # Recommended by CloudAMQP:
 # https://www.cloudamqp.com/docs/celery.html
-BROKER_CONNECTION_TIMEOUT = 30
-BROKER_HEARTBEAT = None
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_EVENT_QUEUE_EXPIRES = 60
-CELERY_IGNORE_RESULT = True
-CELERY_RESULT_BACKEND = None
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_SEND_EVENTS = False
-CELERY_TASK_SERIALIZER = 'json'
+# Raise timeout from default of 4s, in case of Linux DNS timeouts etc.
+CELERY_BROKER_CONNECTION_TIMEOUT = 30
+# Disable heartbeats since CloudAMQP uses TCP keep-alive instead.
+CELERY_BROKER_HEARTBEAT = None
 
 # default value when no task routing info is specified
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
+CELERY_TASK_DEFAULT_QUEUE = 'default'
 
 # Default celery time limits in seconds. The gap between the soft and hard time limit
 # is to give the New Relic agent time to report the `SoftTimeLimitExceeded` exception.
-# NB: The per-task `soft_time_limit` must always be lower than `CELERYD_TASK_TIME_LIMIT`.
-CELERYD_TASK_SOFT_TIME_LIMIT = 15 * 60
-CELERYD_TASK_TIME_LIMIT = CELERYD_TASK_SOFT_TIME_LIMIT + 30
+# NB: The per-task `soft_time_limit` must always be lower than `CELERY_TASK_TIME_LIMIT`.
+CELERY_TASK_SOFT_TIME_LIMIT = 15 * 60
+CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 30
 
-CELERYBEAT_SCHEDULE = {
+CELERY_BEAT_SCHEDULE = {
     # this is just a failsafe in case the Pulse ingestion misses something
     'fetch-push-logs-every-5-minutes': {
         'task': 'fetch-push-logs',
