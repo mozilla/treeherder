@@ -477,22 +477,38 @@ const _initializeAlerts = (alertSummary, optionCollectionMap) => {
     .map(alertData => Alert(alertData, optionCollectionMap));
 };
 
-const AlertSummary = (alertSummaryData, optionCollectionMap) => {
+const constructAlertSummary = (
+  alertSummaryData,
+  optionCollectionMap,
+  issueTrackers,
+) => {
+  const alertSummaryState = { ...alertSummaryData, issueTrackers };
+  _initializeAlerts(alertSummaryState, optionCollectionMap);
+  return alertSummaryState;
+};
+
+export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
   if (issueTrackers === undefined) {
-    getData(getApiUrl(endpoints.issueTrackers)).then(
+    return getData(getApiUrl(endpoints.issueTrackers)).then(
       ({ data: issueTrackerList }) => {
         issueTrackers = issueTrackerList;
+        return constructAlertSummary(
+          alertSummaryData,
+          optionCollectionMap,
+          issueTrackers,
+        );
       },
     );
   }
 
-  const alertSummaryState = { ...alertSummaryData, issueTrackers };
-  _initializeAlerts(alertSummaryState, optionCollectionMap);
-
-  return alertSummaryState;
+  return constructAlertSummary(
+    alertSummaryData,
+    optionCollectionMap,
+    issueTrackers,
+  );
 };
 
-export const modifyAlertSummary = (alertSummary, modification) =>
+const modifyAlertSummary = (alertSummary, modification) =>
   update(
     getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
     modification,
@@ -508,9 +524,8 @@ const updateAlertSummaryStatus = (alertSummary, newStatus) =>
     alertSummary.status = newStatus.id;
   });
 
-export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) => {
+export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) =>
   updateAlertSummaryStatus(alertSummary, phAlertSummaryStatus);
-};
 
 export const getIssueTrackerUrl = alertSummary => {
   if (!alertSummary.bug_number) {
@@ -778,5 +793,3 @@ export const nudgeAlert = (dataPoint, towardsDataPoint) => {
   const alertId = dataPoint.alert.id;
   return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
 };
-
-export { AlertSummary };

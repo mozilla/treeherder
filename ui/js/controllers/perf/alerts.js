@@ -10,6 +10,7 @@ import { endpoints } from '../../../perfherder/constants';
 import {
     alertIsOfState,
     alertSummaryIsOfState,
+    alertSummaryMarkAs,
     assignBug,
     editingNotes,
     getAlertStatusText,
@@ -345,6 +346,7 @@ perf.controller('AlertsCtrl', [
         $scope.unlinkBug = function (alertSummary) {
             unassignBug(alertSummary).then(function () {
                 updateAlertVisibility();
+                $scope.$digest();
             });
         };
         $scope.markAlertsDownstream = function (alertSummary) {
@@ -563,7 +565,6 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.resetSummaryTitle = function () {
-            $scope.summaryTitle.promise.cancel();
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
@@ -618,6 +619,11 @@ perf.controller('AlertsCtrl', [
         $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
 
         $scope.alertSummaryIsOfState = alertSummaryIsOfState;
+        $scope.alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) => {
+            alertSummaryMarkAs(alertSummary, phAlertSummaryStatus).then(() => {
+                $scope.$digest();
+            });
+        };
         $scope.getAlertSummaryStatusText = getAlertSummaryStatusText;
         $scope.getIssueTrackerUrl = getIssueTrackerUrl;
         $scope.getTextualSummary = getTextualSummary;

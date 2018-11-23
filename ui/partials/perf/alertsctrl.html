@@ -95,19 +95,19 @@
               </a>
             </li>
             <li role="menuitem" ng-show="user.isStaff" ng-if="isResolved(alertSummary)">
-              <a ng-click="alertSummary.markInvestigating()" class="dropdown-item">Re-open</a>
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.INVESTIGATING)" class="dropdown-item">Re-open</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX))">
-              <a ng-click="alertSummary.markWontfix()" class="dropdown-item">Mark as "won't fix"</a>
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.WONTFIX)" class="dropdown-item">Mark as "won't fix"</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT))">
-              <a ng-click="alertSummary.markBackedout()" class="dropdown-item">Mark as backed out</a>
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.BACKEDOUT)" class="dropdown-item">Mark as backed out</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
                 ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.FIXED))">
-              <a ng-click="alertSummary.markFixed()" class="dropdown-item">Mark as fixed</a>
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.FIXED)" class="dropdown-item">Mark as fixed</a>
             </li>
           </ul>
         </div>
