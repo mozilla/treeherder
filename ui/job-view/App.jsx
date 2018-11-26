@@ -147,6 +147,10 @@ class App extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
+
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   }
 
   static getSplitterDimensions(hasSelectedJob) {
