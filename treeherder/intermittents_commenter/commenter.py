@@ -30,8 +30,7 @@ class Commenter(object):
        and priority status as need; if in dry_run, comments will be output
        to stdout rather than submitting to bugzilla."""
 
-    # weekly mode determined by whether the day is Monday (0)
-    def __init__(self, weekly_mode=datetime.weekday(date.today()) == 0, dry_run=False):
+    def __init__(self, weekly_mode, dry_run=False):
         self.weekly_mode = weekly_mode
         self.dry_run = dry_run
         self.session = self.new_request()
@@ -322,7 +321,7 @@ class Commenter(object):
         bugs_list = []
         bug_ids_length = len(bug_ids)
 
-        while bug_ids_length >= min:
+        while bug_ids_length >= min and bug_ids_length > 0:
             data = self.fetch_bug_details(bug_ids[min:max])
             if data:
                 bugs_list += data
