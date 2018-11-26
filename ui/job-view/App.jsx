@@ -70,6 +70,8 @@ class App extends React.Component {
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
     };
+
+    this.setUser = this.setUser.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -239,12 +241,6 @@ class App extends React.Component {
       showShortCuts,
     } = this.state;
 
-    // TODO: Move this to the constructor.  We are hitting some issues where
-    // this function is not yet bound, so we are not getting logged in, even
-    // when the user IS logged in.  Placing this here ensures the we can't
-    // render when this function is not bound.
-    // See Bug 1480166
-    this.setUser = this.setUser.bind(this);
     // SplitPane will adjust the CSS height of the top component, but not the
     // bottom component.  So the scrollbars won't work in the DetailsPanel when
     // we resize.  Therefore, we must calculate the new

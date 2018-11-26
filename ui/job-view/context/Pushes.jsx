@@ -120,6 +120,7 @@ export class PushesClass extends React.Component {
       clearInterval(this.pushIntervalId);
       this.pushIntervalId = null;
     }
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setValue(newState, callback) {

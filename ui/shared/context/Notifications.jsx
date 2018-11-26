@@ -30,16 +30,9 @@ export class Notifications extends React.Component {
     this.clearOnScreenNotifications = this.clearOnScreenNotifications.bind(
       this,
     );
+    this.handleStorageEvent = this.handleStorageEvent.bind(this);
 
-    this.unlistenStorage = window.addEventListener('storage', e => {
-      if (e.key === 'notifications') {
-        this.setValue({
-          storedNotifications: JSON.parse(
-            localStorage.getItem('notifications') || '[]',
-          ),
-        });
-      }
-    });
+    window.addEventListener('storage', this.handleStorageEvent);
 
     this.value = {
       ...this.state,
@@ -51,12 +44,22 @@ export class Notifications extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unlistenStorage();
+    window.removeEventListener('storage', this.handleStorageEvent);
   }
 
   setValue(newState, callback) {
     this.value = { ...this.value, ...newState };
     this.setState(newState, callback);
+  }
+
+  handleStorageEvent(e) {
+    if (e.key === 'notifications') {
+      this.setValue({
+        storedNotifications: JSON.parse(
+          localStorage.getItem('notifications') || '[]',
+        ),
+      });
+    }
   }
 
   notify(message, severity, opts) {

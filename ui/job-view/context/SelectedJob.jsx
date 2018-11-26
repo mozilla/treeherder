@@ -47,6 +47,7 @@ class SelectedJobClass extends React.Component {
     );
     this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
 
+    window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     // TODO: this.value needs to now get the bound versions of the functions.
     // But when we move the function binding to the constructors, we won't
     // have to re-do this in componentDidMount.
@@ -64,8 +65,6 @@ class SelectedJobClass extends React.Component {
     if (jobsLoaded !== prevProps.jobsLoaded) {
       this.setSelectedJobFromQueryString();
     }
-
-    window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
   }
 
   componentWillUnmount() {
