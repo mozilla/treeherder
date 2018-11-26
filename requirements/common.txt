@@ -213,8 +213,9 @@ djangorestframework-filters==0.10.2.post0 \
     --hash=sha256:4097ebb90d50d6c79fb8f9b20bc2481374a69bda7528b50e99c324536f4baad9 \
     --hash=sha256:00afb9b405179ded02eadf769ee6cfbbbf098e103e4cc9bca853d5713704a316
 
-django-redis==4.10.0 \
-    --hash=sha256:f46115577063d00a890867c6964ba096057f07cb756e78e0503b89cd18e4e083
+django-redis==4.9.0 \
+    --hash=sha256:a90343c33a816073b735f0bed878eaeec4f83b75fcc0dce2432189b8ea130424 \
+    --hash=sha256:15b47faef6aefaa3f47135a2aeb67372da300e4a4cf06809c66ab392686a2155
 
 # Required by django-redis
 redis==3.0.1 \
