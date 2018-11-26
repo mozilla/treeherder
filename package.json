@@ -14,8 +14,8 @@
     "d3": "5.7.0"
   },
   "dependencies": {
-    "@neutrinojs/copy": "9.0.0-beta.1",
-    "@neutrinojs/react": "9.0.0-beta.1",
+    "@neutrinojs/copy": "9.0.0-rc.0",
+    "@neutrinojs/react": "9.0.0-rc.0",
     "@types/angular": "*",
     "@types/prop-types": "*",
     "@types/react": "*",
@@ -42,7 +42,7 @@
     "metrics-graphics": "2.15.6",
     "moment": "2.22.2",
     "mousetrap": "1.6.2",
-    "neutrino": "9.0.0-beta.1",
+    "neutrino": "9.0.0-rc.0",
     "ng-text-truncate-2": "1.0.1",
     "numeral": "2.0.6",
     "popper.js": "1.14.5",
@@ -73,7 +73,7 @@
     "webpack-cli": "3.1.2"
   },
   "devDependencies": {
-    "@neutrinojs/eslint": "9.0.0-beta.1",
+    "@neutrinojs/eslint": "9.0.0-rc.0",
     "angular-mocks": "1.7.5",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.7.0",
