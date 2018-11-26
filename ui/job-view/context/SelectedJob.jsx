@@ -39,24 +39,7 @@ class SelectedJobClass extends React.Component {
   }
 
   componentDidMount() {
-    this.setSelectedJob = this.setSelectedJob.bind(this);
-    this.clearSelectedJob = this.clearSelectedJob.bind(this);
-    this.changeSelectedJob = this.changeSelectedJob.bind(this);
-    this.noMoreUnclassifiedFailures = this.noMoreUnclassifiedFailures.bind(
-      this,
-    );
-    this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
-
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-    // TODO: this.value needs to now get the bound versions of the functions.
-    // But when we move the function binding to the constructors, we won't
-    // have to re-do this in componentDidMount.
-    this.value = {
-      ...this.state,
-      setSelectedJob: this.setSelectedJob,
-      clearSelectedJob: this.clearSelectedJob,
-      changeSelectedJob: this.changeSelectedJob,
-    };
   }
 
   componentDidUpdate(prevProps) {
@@ -139,7 +122,7 @@ class SelectedJobClass extends React.Component {
     }
   }
 
-  setSelectedJob(job, timeout = 0) {
+  setSelectedJob = (job, timeout = 0) => {
     const { selectedJob } = this.state;
 
     if (selectedJob) {
@@ -174,9 +157,9 @@ class SelectedJobClass extends React.Component {
         this.jobChangedTimeout = null;
       });
     }, timeout);
-  }
+  };
 
-  clearSelectedJob() {
+  clearSelectedJob = () => {
     const { pinnedJobs } = this.props;
 
     if (!Object.keys(pinnedJobs).length) {
@@ -185,24 +168,24 @@ class SelectedJobClass extends React.Component {
       const selected = findSelectedInstance();
       if (selected) selected.setSelected(false);
     }
-  }
+  };
 
-  handleApplyNewJobs(event) {
+  handleApplyNewJobs = event => {
     const { updatedSelectedJob } = event.detail;
 
     if (updatedSelectedJob) {
       this.setSelectedJob(updatedSelectedJob);
     }
-  }
+  };
 
-  noMoreUnclassifiedFailures() {
+  noMoreUnclassifiedFailures = () => {
     const { pinnedJobs, notify } = this.props;
 
     notify('No unclassified failures to select.');
     this.clearSelectedJob(Object.keys(pinnedJobs).length);
-  }
+  };
 
-  changeSelectedJob(direction, unclassifiedOnly) {
+  changeSelectedJob = (direction, unclassifiedOnly) => {
     const { pinnedJobs } = this.props;
     const jobNavSelector = unclassifiedOnly
       ? thJobNavSelectors.UNCLASSIFIED_FAILURES
@@ -263,7 +246,7 @@ class SelectedJobClass extends React.Component {
     if ($('.selected-job').css('display') === 'none') {
       this.clearSelectedJob(Object.keys(pinnedJobs).length);
     }
-  }
+  };
 
   clearIfEligibleTarget(target) {
     // Target must be within the "push" area, but not be a dropdown-item or
