@@ -61,13 +61,22 @@ class DetailsPanel extends React.Component {
 
     if (selectedJob && prevProps.selectedJob) {
       const {
+        id: prevId,
         state: prevState,
         result: prevResult,
         failure_classification_id: prevFci,
       } = prevProps.selectedJob;
-      const { state, result, failure_classification_id: fci } = selectedJob;
+      const { id, state, result, failure_classification_id: fci } = selectedJob;
 
-      if (prevState !== state || prevResult !== result || prevFci !== fci) {
+      // Check the id in case the user switched to a new job.
+      // But also check some of the fields of the selected job,
+      // in case they have changed due to polling.
+      if (
+        prevId !== id ||
+        prevState !== state ||
+        prevResult !== result ||
+        prevFci !== fci
+      ) {
         this.selectJob();
       }
     } else if (selectedJob && selectedJob !== prevProps.selectedJob) {
