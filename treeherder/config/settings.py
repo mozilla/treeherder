@@ -7,7 +7,6 @@ from os.path import (abspath,
                      join)
 
 import environ
-from celery.schedules import crontab
 from furl import furl
 from kombu import (Exchange,
                    Queue)
@@ -282,7 +281,6 @@ CELERY_QUEUES = [
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
-    Queue('intermittents_commenter', Exchange('default'), routing_key='intermittents_commenter'),
 ]
 
 # Celery broker setup
@@ -334,23 +332,6 @@ CELERYBEAT_SCHEDULE = {
         'options': {
             'queue': "seta_analyze_failures"
         }
-    },
-    'daily-intermittents-commenter': {
-        # Executes every morning at 6 a.m. UTC except monday
-        'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=6, day_of_week='tuesday-sunday'),
-        'options': {
-            'queue': 'intermittents_commenter'
-        },
-    },
-    'weekly-intermittents-commenter': {
-        # Executes every monday morning at 7 a.m. UTC
-        'task': 'intermittents-commenter',
-        'schedule': crontab(minute=0, hour=7, day_of_week='monday'),
-        'kwargs': {'weekly_mode': True},
-        'options': {
-            'queue': 'intermittents_commenter'
-        },
     },
 }
 
