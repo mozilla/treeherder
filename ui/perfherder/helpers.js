@@ -466,24 +466,27 @@ export const toggleStar = alert => {
 
 let issueTrackers; // will cache on first AlertSummary call
 
-const _initializeAlerts = (alertSummary, optionCollectionMap) => {
+const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // this function converts the representation returned by the perfherder
   // api into a representation more suited for display in the UI
 
   // just treat related (reassigned or downstream) alerts as one
   // big block -- we'll display in the UI depending on their content
-  alertSummary.alerts = alertSummary.alerts
+  alertSummary.alerts
     .concat(alertSummary.related_alerts)
     .map(alertData => Alert(alertData, optionCollectionMap));
-};
 
 const constructAlertSummary = (
   alertSummaryData,
   optionCollectionMap,
   issueTrackers,
 ) => {
-  const alertSummaryState = { ...alertSummaryData, issueTrackers };
-  _initializeAlerts(alertSummaryState, optionCollectionMap);
+  const alertSummaryState = {
+    ...alertSummaryData,
+    issueTrackers,
+    alerts: getInitializedAlerts(alertSummaryData, optionCollectionMap),
+  };
+
   return alertSummaryState;
 };
 
@@ -615,7 +618,10 @@ export const refreshAlertSummary = alertSummary =>
     ({ data }) =>
       OptionCollectionModel.getMap().then(optionCollectionMap => {
         Object.assign(alertSummary, data);
-        _initializeAlerts(alertSummary, optionCollectionMap);
+        alertSummary.alerts = getInitializedAlerts(
+          alertSummary,
+          optionCollectionMap,
+        );
       }),
   );
 
