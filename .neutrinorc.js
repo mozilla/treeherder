@@ -47,9 +47,6 @@ module.exports = {
       '@neutrinojs/eslint',
       {
         eslint: {
-          // Treat ESLint errors as warnings so they don't block the webpack build.
-          // Remove if/when changed in @neutrinojs/eslint.
-          emitWarning: true,
           // We manage our lint config in .eslintrc.js instead of here.
           useEslintrc: true,
         },
@@ -61,8 +58,6 @@ module.exports = {
         devServer: {
           historyApiFallback: false,
           open: !process.env.MOZ_HEADLESS,
-          // Remove when enabled by default (https://github.com/neutrinojs/neutrino/issues/1131).
-          overlay: true,
           proxy: {
             // Proxy any paths not recognised by webpack to the specified backend.
             '*': {
