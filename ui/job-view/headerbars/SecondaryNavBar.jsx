@@ -49,7 +49,7 @@ class SecondaryNavBar extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('onhashchange', this.handleUrlChanges, false);
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setSearchStr(ev) {

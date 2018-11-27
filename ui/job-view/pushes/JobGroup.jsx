@@ -52,6 +52,10 @@ export class JobGroupComponent extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.toggleExpanded = this.toggleExpanded.bind(this);
+  }
+
   setExpanded(isExpanded) {
     this.setState({ expanded: isExpanded });
   }
@@ -134,8 +138,6 @@ export class JobGroupComponent extends React.Component {
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
-
-    this.toggleExpanded = this.toggleExpanded.bind(this);
 
     return (
       <span className="platform-group" data-group-key={groupMapKey}>

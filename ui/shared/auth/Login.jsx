@@ -25,24 +25,9 @@ class Login extends React.Component {
   componentDidMount() {
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
+    this.handleStorageEvent = this.handleStorageEvent.bind(this);
 
-    window.addEventListener('storage', e => {
-      if (e.key === 'user') {
-        const oldUser = JSON.parse(e.oldValue);
-        const newUser = JSON.parse(e.newValue);
-
-        if (!!newUser && newUser.email && !isEqual(newUser, oldUser)) {
-          // User was saved to local storage. Use it.
-          this.setLoggedIn(newUser);
-        } else if (newUser && !newUser.email) {
-          // Show the user as logged out in all other opened tabs
-          this.setLoggedOut();
-        }
-      } else if (e.key === 'userSession') {
-        // used when a different tab updates userSession,
-        taskcluster.updateAgent();
-      }
-    });
+    window.addEventListener('storage', this.handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
     UserModel.get().then(async currentUser => {
@@ -52,6 +37,10 @@ class Login extends React.Component {
         this.setLoggedOut();
       }
     });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('storage', this.handleStorageEvent);
   }
 
   setLoggedIn(newUser) {
@@ -74,6 +63,24 @@ class Login extends React.Component {
     // logging out will not trigger a storage event since localStorage is being set by the same window
     taskcluster.updateAgent();
     setUser(loggedOutUser);
+  }
+
+  handleStorageEvent(e) {
+    if (e.key === 'user') {
+      const oldUser = JSON.parse(e.oldValue);
+      const newUser = JSON.parse(e.newValue);
+
+      if (!!newUser && newUser.email && !isEqual(newUser, oldUser)) {
+        // User was saved to local storage. Use it.
+        this.setLoggedIn(newUser);
+      } else if (newUser && !newUser.email) {
+        // Show the user as logged out in all other opened tabs
+        this.setLoggedOut();
+      }
+    } else if (e.key === 'userSession') {
+      // used when a different tab updates userSession,
+      taskcluster.updateAgent();
+    }
   }
 
   /**
