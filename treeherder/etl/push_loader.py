@@ -136,10 +136,10 @@ class GithubPushTransformer(GithubTransformer):
     #     version:1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
+    COMPARE_API_URL = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
+        push_url = self.COMPARE_API_URL.format(
             self.message_body["organization"],
             self.message_body["repository"],
             self.message_body["details"]["event.base.sha"],
@@ -174,7 +174,7 @@ class GithubPullRequestTransformer(GithubTransformer):
     #     "version": 1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/pulls/{}/commits"
+    COMMITS_LIST_API_URL = "https://api.github.com/repos/{}/{}/pulls/{}/commits"
 
     def get_branch(self):
         """
@@ -183,7 +183,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         return "pull request"
 
     def transform(self, repository):
-        pr_url = self.URL_BASE.format(
+        pr_url = self.COMMITS_LIST_API_URL.format(
             self.message_body["organization"],
             self.message_body["repository"],
             self.message_body["details"]["event.pullNumber"]
