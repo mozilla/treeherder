@@ -69,6 +69,8 @@ class GithubTransformer:
         "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
     }
 
+    EVENTS_API_URL = "https://api.github.com/repos/{}/{}/events"
+
     def __init__(self, message_body):
         self.message_body = message_body
         self.repo_url = message_body["details"]["event.head.repo.url"].replace(".git", "")
@@ -91,13 +93,20 @@ class GithubTransformer:
         params.update(self.CREDENTIALS)
 
         logger.info("Fetching push details: %s", url)
-
         commits = self.get_cleaned_commits(fetch_json(url, params))
+
+        url = self.EVENTS_API_URL.format(
+            self.message_body["organization"],
+            self.message_body["repository"],
+        )
+        logger.info("Fetching github event details: %s", url)
+        event = self.find_event(fetch_json(url, params))
+
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
             "push_timestamp": to_timestamp(
-                head_commit["commit"]["author"]["date"]),
+                event["created_at"] if event else head_commit["commit"]["author"]["date"]),
             "author": head_commit["commit"]["author"]["email"],
         }
 
@@ -150,6 +159,17 @@ class GithubPushTransformer(GithubTransformer):
     def get_cleaned_commits(self, compare):
         return compare["commits"]
 
+    def find_event(self, events):
+        details = self.message_body["details"]
+        for event in events:
+            if (
+                event["type"] == "PushEvent" and
+                event["payload"]["ref"] == details["event.head.ref"] and
+                event["payload"]["after"] == details["event.head.sha"] and
+                event["payload"]["before"] == details["event.base.sha"]
+            ):
+                return event
+
 
 class GithubPullRequestTransformer(GithubTransformer):
     # {
@@ -193,6 +213,17 @@ class GithubPullRequestTransformer(GithubTransformer):
 
     def get_cleaned_commits(self, commits):
         return list(reversed(commits))
+
+    def find_event(self, events):
+        details = self.message_body["details"]
+        for event in events:
+            if (
+                event["type"] == "PullRequestEvent" and
+                event["payload"]["action"] == self.message_body["action"] and
+                event["payload"]["number"] == details["event.pullNumber"] and
+                event["payload"]["pull_request"]["head"]["sha"] == details["event.head.sha"]
+            ):
+                return event
 
 
 class HgPushTransformer:

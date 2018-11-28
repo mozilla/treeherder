@@ -1,5 +1,5 @@
 {
-  "organization": "mozilla-services",
+  "organization": "mozilla",
   "details": {
     "event.type": "push",
     "event.base.repo.branch": "master",
