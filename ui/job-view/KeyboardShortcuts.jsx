@@ -33,19 +33,6 @@ const keyMap = {
 
 class KeyboardShortcuts extends React.Component {
   componentDidMount() {
-    this.addRelatedBug = this.addRelatedBug.bind(this);
-    this.pinEditComment = this.pinEditComment.bind(this);
-    this.quickFilter = this.quickFilter.bind(this);
-    this.clearFilter = this.clearFilter.bind(this);
-    this.openLogviewer = this.openLogviewer.bind(this);
-    this.jobRetrigger = this.jobRetrigger.bind(this);
-    this.selectNextTab = this.selectNextTab.bind(this);
-    this.clearPinboard = this.clearPinboard.bind(this);
-    this.pinJob = this.pinJob.bind(this);
-    this.clearScreen = this.clearScreen.bind(this);
-    this.saveClassification = this.saveClassification.bind(this);
-    this.deleteClassification = this.deleteClassification.bind(this);
-
     // HotKeys requires focus be a component inside itself to work
     // TODO: We may not need this if we wrap <body> with HotKeys.
     document.getElementById('keyboard-shortcuts').focus();
@@ -57,7 +44,7 @@ class KeyboardShortcuts extends React.Component {
 
   // close any notifications, if they exist.  If not, then close any
   // open panels and selected job
-  clearScreen() {
+  clearScreen = () => {
     const {
       clearSelectedJob,
       showOnScreenShortcuts,
@@ -71,23 +58,23 @@ class KeyboardShortcuts extends React.Component {
       clearSelectedJob();
       showOnScreenShortcuts(false);
     }
-  }
+  };
 
   /**
    * Details Panel Shortcuts
    */
 
   // pin selected job to pinboard
-  pinJob() {
+  pinJob = () => {
     const { selectedJob, pinJob } = this.props;
 
     if (selectedJob) {
       pinJob(selectedJob);
     }
-  }
+  };
 
   // pin selected job to pinboard and add a related bug
-  addRelatedBug() {
+  addRelatedBug = () => {
     const { selectedJob, pinJob } = this.props;
 
     if (selectedJob) {
@@ -95,43 +82,43 @@ class KeyboardShortcuts extends React.Component {
       document.getElementById('add-related-bug-button').click();
       document.getElementById('related-bug-input').focus();
     }
-  }
+  };
 
   // pin selected job to pinboard and enter classification
-  pinEditComment() {
+  pinEditComment = () => {
     const { selectedJob, pinJob } = this.props;
 
     if (selectedJob) {
       pinJob(selectedJob);
       document.getElementById('classification-comment').focus();
     }
-  }
+  };
 
   // clear the PinBoard
-  clearPinboard() {
+  clearPinboard = () => {
     this.props.unPinAll();
-  }
+  };
 
-  saveClassification() {
+  saveClassification = () => {
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
-  }
+  };
 
   // delete classification and related bugs
-  deleteClassification() {
+  deleteClassification = () => {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.deleteClassification));
     }
-  }
+  };
 
   // open the logviewer for the selected job
-  openLogviewer() {
+  openLogviewer = () => {
     window.dispatchEvent(new CustomEvent(thEvents.openLogviewer));
-  }
+  };
 
   // retrigger selected job
-  jobRetrigger() {
+  jobRetrigger = () => {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
@@ -141,32 +128,32 @@ class KeyboardShortcuts extends React.Component {
         }),
       );
     }
-  }
+  };
 
   // select next job tab
-  selectNextTab() {
+  selectNextTab = () => {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
       window.dispatchEvent(new CustomEvent(thEvents.selectNextTab));
     }
-  }
+  };
 
   /**
    * Filter and Help Shortcuts
    */
 
   // enter a quick filter
-  quickFilter() {
+  quickFilter = () => {
     document.getElementById('quick-filter').focus();
-  }
+  };
 
   // clear the quick filter field
-  clearFilter() {
+  clearFilter = () => {
     const { filterModel } = this.props;
 
     filterModel.removeFilter('searchStr');
-  }
+  };
 
   doKey(ev, callback) {
     const element = ev.target;

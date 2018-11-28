@@ -34,11 +34,6 @@ class CustomJobActions extends React.PureComponent {
   componentDidMount() {
     const { getGeckoDecisionTaskId, pushId, job } = this.props;
 
-    this.updateSelectedAction = this.updateSelectedAction.bind(this);
-    this.onChangeAction = this.onChangeAction.bind(this);
-    this.close = this.close.bind(this);
-    this.triggerAction = this.triggerAction.bind(this);
-
     getGeckoDecisionTaskId(pushId).then(decisionTaskId => {
       TaskclusterModel.load(decisionTaskId, job).then(results => {
         const {
@@ -68,18 +63,18 @@ class CustomJobActions extends React.PureComponent {
     });
   }
 
-  onChangeAction(actionOption) {
+  onChangeAction = actionOption => {
     if (actionOption.value) {
       this.setState({ selectedActionOption: actionOption });
       this.updateSelectedAction(actionOption.value);
     }
-  }
+  };
 
   onChangePayload(payload) {
     this.setState({ payload });
   }
 
-  updateSelectedAction(action) {
+  updateSelectedAction = action => {
     const { ajv } = this.state;
 
     if (action.schema) {
@@ -91,9 +86,9 @@ class CustomJobActions extends React.PureComponent {
     } else {
       this.setState({ schema: null, payload: null, validate: null });
     }
-  }
+  };
 
-  triggerAction() {
+  triggerAction = () => {
     this.setState({ triggering: true });
     const {
       ajv,
@@ -160,9 +155,9 @@ class CustomJobActions extends React.PureComponent {
         this.close();
       },
     );
-  }
+  };
 
-  close() {
+  close = () => {
     // prevent closing of dialog while we're triggering
     const { triggering } = this.state;
     const { toggle } = this.props;
@@ -170,7 +165,7 @@ class CustomJobActions extends React.PureComponent {
     if (!triggering) {
       toggle();
     }
-  }
+  };
 
   render() {
     const { isLoggedIn, toggle } = this.props;

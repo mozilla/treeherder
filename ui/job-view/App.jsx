@@ -84,12 +84,6 @@ class App extends React.Component {
   componentDidMount() {
     const { repoName } = this.state;
 
-    this.toggleFieldFilterVisible = this.toggleFieldFilterVisible.bind(this);
-    this.updateDimensions = this.updateDimensions.bind(this);
-    this.setCurrentRepoTreeStatus = this.setCurrentRepoTreeStatus.bind(this);
-    this.handleUrlChanges = this.handleUrlChanges.bind(this);
-    this.showOnScreenShortcuts = this.showOnScreenShortcuts.bind(this);
-
     RepositoryModel.getList().then(repos => {
       const currentRepo =
         repos.find(repo => repo.name === repoName) || this.state.currentRepo;
@@ -172,21 +166,21 @@ class App extends React.Component {
     this.setState({ user });
   }
 
-  setCurrentRepoTreeStatus(status) {
+  setCurrentRepoTreeStatus = status => {
     const link = document.head.querySelector('link[rel="shortcut icon"]');
 
     link.href = thFavicons[status] || thFavicons.open;
-  }
+  };
 
-  // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
-  showOnScreenShortcuts(show) {
-    const { showShortCuts } = this.state;
-    const newValue = typeof show === 'boolean' ? show : !showShortCuts;
+  toggleFieldFilterVisible = () => {
+    this.setState({ isFieldFilterVisible: !this.state.isFieldFilterVisible });
+  };
 
-    this.setState({ showShortCuts: newValue });
-  }
+  updateDimensions = () => {
+    this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
+  };
 
-  handleUrlChanges() {
+  handleUrlChanges = () => {
     const filterModel = new FilterModel();
     const urlParams = getAllUrlParams();
 
@@ -197,7 +191,15 @@ class App extends React.Component {
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
     });
-  }
+  };
+
+  // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
+  showOnScreenShortcuts = show => {
+    const { showShortCuts } = this.state;
+    const newValue = typeof show === 'boolean' ? show : !showShortCuts;
+
+    this.setState({ showShortCuts: newValue });
+  };
 
   fetchDeployedRevision() {
     return fetch(deployedRevisionUrl).then(resp => resp.text());
@@ -207,14 +209,6 @@ class App extends React.Component {
     if (window.confirm('Reload the page to pick up Treeherder updates?')) {
       window.location.reload(true);
     }
-  }
-
-  toggleFieldFilterVisible() {
-    this.setState({ isFieldFilterVisible: !this.state.isFieldFilterVisible });
-  }
-
-  updateDimensions() {
-    this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
   }
 
   handleSplitChange(latestSplitSize) {
