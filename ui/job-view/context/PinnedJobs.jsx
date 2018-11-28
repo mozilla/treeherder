@@ -29,42 +29,16 @@ export class PinnedJobsClass extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.pinJob = this.pinJob.bind(this);
-    this.unPinJob = this.unPinJob.bind(this);
-    this.pinJobs = this.pinJobs.bind(this);
-    this.addBug = this.addBug.bind(this);
-    this.removeBug = this.removeBug.bind(this);
-    this.unPinAll = this.unPinAll.bind(this);
-    this.togglePinJob = this.togglePinJob.bind(this);
-    this.setPinBoardVisible = this.setPinBoardVisible.bind(this);
-
-    // TODO: this.value needs to now get the bound versions of the functions.
-    // But when we move the function binding to the constructors, we won't
-    // have to re-do this in componentDidMount.
-    this.value = {
-      ...this.state,
-      setPinBoardVisible: this.setPinBoardVisible,
-      togglePinJob: this.togglePinJob,
-      pinJob: this.pinJob,
-      unPinJob: this.unPinJob,
-      pinJobs: this.pinJobs,
-      unPinAll: this.unPinAll,
-      addBug: this.addBug,
-      removeBug: this.removeBug,
-    };
-  }
-
   setValue(newState, callback) {
     this.value = { ...this.value, ...newState };
     this.setState(newState, callback);
   }
 
-  setPinBoardVisible(isPinBoardVisible) {
+  setPinBoardVisible = isPinBoardVisible => {
     this.setValue({ isPinBoardVisible });
-  }
+  };
 
-  pinJob(job, callback) {
+  pinJob = (job, callback) => {
     const { pinnedJobs } = this.state;
     const { notify } = this.props;
 
@@ -82,16 +56,16 @@ export class PinnedJobsClass extends React.Component {
     } else {
       notify(COUNT_ERROR, 'danger');
     }
-  }
+  };
 
-  unPinJob(job) {
+  unPinJob = job => {
     const { pinnedJobs } = this.state;
 
     delete pinnedJobs[job.id];
     this.setValue({ pinnedJobs: { ...pinnedJobs } });
-  }
+  };
 
-  pinJobs(jobsToPin) {
+  pinJobs = jobsToPin => {
     const { pinnedJobs } = this.state;
     const { notify } = this.props;
     const spaceRemaining = MAX_SIZE - Object.keys(pinnedJobs).length;
@@ -116,9 +90,9 @@ export class PinnedJobsClass extends React.Component {
         }
       },
     );
-  }
+  };
 
-  addBug(bug, job) {
+  addBug = (bug, job) => {
     const { pinnedJobBugs } = this.state;
 
     pinnedJobBugs[bug.id] = bug;
@@ -126,23 +100,23 @@ export class PinnedJobsClass extends React.Component {
     if (job) {
       this.pinJob(job);
     }
-  }
+  };
 
-  removeBug(id) {
+  removeBug = id => {
     const { pinnedJobBugs } = this.state;
 
     delete pinnedJobBugs[id];
     this.setValue({ pinnedJobBugs: { ...pinnedJobBugs } });
-  }
+  };
 
-  unPinAll() {
+  unPinAll = () => {
     this.setValue({
       pinnedJobs: {},
       pinnedJobBugs: {},
     });
-  }
+  };
 
-  togglePinJob(job) {
+  togglePinJob = job => {
     const { pinnedJobs } = this.state;
 
     if (pinnedJobs[job.id]) {
@@ -150,7 +124,7 @@ export class PinnedJobsClass extends React.Component {
     } else {
       this.pinJob(job);
     }
-  }
+  };
 
   pulsePinCount() {
     const jobEl = document.getElementById('pin-count-group');

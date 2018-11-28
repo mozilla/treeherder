@@ -68,43 +68,6 @@ export class PushesClass extends React.Component {
   }
 
   componentDidMount() {
-    this.setValue = this.setValue.bind(this);
-    this.updateJobMap = this.updateJobMap.bind(this);
-    this.getAllShownJobs = this.getAllShownJobs.bind(this);
-    this.fetchPushes = this.fetchPushes.bind(this);
-    this.recalculateUnclassifiedCounts = this.recalculateUnclassifiedCounts.bind(
-      this,
-    );
-    this.setRevisionTips = this.setRevisionTips.bind(this);
-    this.addPushes = this.addPushes.bind(this);
-    this.getPush = this.getPush.bind(this);
-    this.updateUrlFromchange = this.updateUrlFromchange.bind(this);
-    this.getNextPushes = this.getNextPushes.bind(this);
-    this.handleUrlChanges = this.handleUrlChanges.bind(this);
-    this.getGeckoDecisionJob = this.getGeckoDecisionJob.bind(this);
-    this.getGeckoDecisionTaskId = this.getGeckoDecisionTaskId.bind(this);
-    this.getLastModifiedJobTime = this.getLastModifiedJobTime.bind(this);
-    this.poll = this.poll.bind(this);
-
-    // TODO: this.value needs to now get the bound versions of the functions.
-    // But when we move the function binding to the constructors, we won't
-    // have to re-do this in componentDidMount.
-    this.value = {
-      ...this.state,
-      updateJobMap: this.updateJobMap,
-      getAllShownJobs: this.getAllShownJobs,
-      fetchPushes: this.fetchPushes,
-      recalculateUnclassifiedCounts: this.recalculateUnclassifiedCounts,
-      setRevisionTips: this.setRevisionTips,
-      addPushes: this.addPushes,
-      getPush: this.getPush,
-      updateUrlFromchange: this.updateUrlFromchange,
-      getNextPushes: this.getNextPushes,
-      handleUrlChanges: this.handleUrlChanges,
-      getGeckoDecisionJob: this.getGeckoDecisionJob,
-      getGeckoDecisionTaskId: this.getGeckoDecisionTaskId,
-    };
-
     window.addEventListener('hashchange', this.handleUrlChanges, false);
 
     // get our first set of resultsets
@@ -123,10 +86,10 @@ export class PushesClass extends React.Component {
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
-  setValue(newState, callback) {
+  setValue = (newState, callback) => {
     this.value = { ...this.value, ...newState };
     this.setState(newState, callback);
-  }
+  };
 
   getNewReloadTriggerParams() {
     const params = parseQueryParams(getQueryString());
@@ -137,16 +100,16 @@ export class PushesClass extends React.Component {
     );
   }
 
-  getAllShownJobs(pushId) {
+  getAllShownJobs = pushId => {
     const { jobMap } = this.state;
     const jobList = Object.values(jobMap);
 
     return pushId
       ? jobList.filter(job => job.push_id === pushId && job.visible)
       : jobList.filter(job => job.visible);
-  }
+  };
 
-  setRevisionTips() {
+  setRevisionTips = () => {
     const { pushList } = this.state;
 
     this.setValue({
@@ -156,15 +119,15 @@ export class PushesClass extends React.Component {
         title: push.revisions[0].comments.split('\n')[0],
       })),
     });
-  }
+  };
 
-  getPush(pushId) {
+  getPush = pushId => {
     const { pushList } = this.state;
 
     return pushList.find(push => pushId === push.id);
-  }
+  };
 
-  getNextPushes(count) {
+  getNextPushes = count => {
     const params = getAllUrlParams();
 
     this.setValue({ loadingPushes: true });
@@ -186,9 +149,9 @@ export class PushesClass extends React.Component {
       setUrlParam('startdate', null);
     }
     this.fetchPushes(count).then(this.updateUrlFromchange);
-  }
+  };
 
-  getGeckoDecisionJob(pushId) {
+  getGeckoDecisionJob = pushId => {
     const { jobMap } = this.state;
 
     return Object.values(jobMap).find(
@@ -198,9 +161,9 @@ export class PushesClass extends React.Component {
         job.state === 'completed' &&
         job.job_type_symbol === 'D',
     );
-  }
+  };
 
-  getGeckoDecisionTaskId(pushId, repoName) {
+  getGeckoDecisionTaskId = (pushId, repoName) => {
     const decisionTask = this.getGeckoDecisionJob(pushId);
     if (decisionTask) {
       return JobModel.get(repoName, decisionTask.id).then(job => {
@@ -215,9 +178,9 @@ export class PushesClass extends React.Component {
 
     // no decision task, we fail
     return Promise.reject('No decision task');
-  }
+  };
 
-  getLastModifiedJobTime() {
+  getLastModifiedJobTime = () => {
     const { jobMap } = this.state;
     const latest =
       max(
@@ -226,9 +189,9 @@ export class PushesClass extends React.Component {
 
     latest.setSeconds(latest.getSeconds() - 3);
     return latest;
-  }
+  };
 
-  poll() {
+  poll = () => {
     this.pushIntervalId = setInterval(() => {
       const { notify } = this.props;
       const { pushList } = this.state;
@@ -264,7 +227,7 @@ export class PushesClass extends React.Component {
         });
       }
     }, pushPollInterval);
-  }
+  };
 
   // reload the page if certain params were changed in the URL.  For
   // others, such as filtering, just re-filter without reload.
@@ -274,7 +237,7 @@ export class PushesClass extends React.Component {
   // otherwise trigger a page reload.  This is useful for a param that
   // is being changed by code in a specific situation as opposed to when
   // the user manually edits the URL location bar.
-  handleUrlChanges() {
+  handleUrlChanges = () => {
     const { cachedReloadTriggerParams } = this.state;
     const newReloadTriggerParams = this.getNewReloadTriggerParams();
     // if we are just setting the repo to the default because none was
@@ -297,13 +260,13 @@ export class PushesClass extends React.Component {
     this.skipNextPageReload = false;
 
     this.recalculateUnclassifiedCounts();
-  }
+  };
 
   /**
    * Get the next batch of pushes based on our current offset.
    * @param count How many to fetch
    */
-  fetchPushes(count) {
+  fetchPushes = count => {
     const { notify } = this.props;
     const { oldestPushTimestamp } = this.state;
     // const isAppend = (repoData.pushes.length > 0);
@@ -333,9 +296,9 @@ export class PushesClass extends React.Component {
         }
       })
       .then(() => this.setValue({ loadingPushes: false }));
-  }
+  };
 
-  addPushes(data) {
+  addPushes = data => {
     const { pushList } = this.state;
 
     if (data.results.length > 0) {
@@ -352,7 +315,60 @@ export class PushesClass extends React.Component {
         this.setRevisionTips(),
       );
     }
-  }
+  };
+
+  updateUrlFromchange = () => {
+    // since we fetched more pushes, we need to persist the push state in the URL.
+    const { pushList } = this.state;
+    const updatedLastRevision = pushList[pushList.length - 1].revision;
+
+    if (getUrlParam('fromchange') !== updatedLastRevision) {
+      this.skipNextPageReload = true;
+      setUrlParam('fromchange', updatedLastRevision);
+    }
+  };
+
+  /**
+   * Loops through the map of unclassified failures and checks if it is
+   * within the enabled tiers and if the job should be shown. This essentially
+   * gives us the difference in unclassified failures and, of those jobs, the
+   * ones that have been filtered out
+   */
+  recalculateUnclassifiedCounts = () => {
+    const { jobMap } = this.state;
+    const { filterModel } = this.props;
+    const tiers = filterModel.urlParams.tier || [];
+    let allUnclassifiedFailureCount = 0;
+    let filteredUnclassifiedFailureCount = 0;
+
+    Object.values(jobMap).forEach(job => {
+      if (isUnclassifiedFailure(job)) {
+        if (tiers.includes(String(job.tier))) {
+          if (filterModel.showJob(job)) {
+            filteredUnclassifiedFailureCount++;
+          }
+          allUnclassifiedFailureCount++;
+        }
+      }
+    });
+    this.setValue({
+      allUnclassifiedFailureCount,
+      filteredUnclassifiedFailureCount,
+    });
+  };
+
+  updateJobMap = jobList => {
+    const { jobMap, pushList } = this.state;
+
+    if (jobList.length) {
+      // lodash ``keyBy`` is significantly faster than doing a ``reduce``
+      this.setValue({
+        jobMap: { ...jobMap, ...keyBy(jobList, 'id') },
+        jobsLoaded: pushList.every(push => push.jobsLoaded),
+        pushList: [...pushList],
+      });
+    }
+  };
 
   async fetchNewJobs() {
     const { pushList } = this.state;
@@ -380,59 +396,6 @@ export class PushesClass extends React.Component {
         detail: { jobs, updatedSelectedJob },
       }),
     );
-  }
-
-  updateUrlFromchange() {
-    // since we fetched more pushes, we need to persist the push state in the URL.
-    const { pushList } = this.state;
-    const updatedLastRevision = pushList[pushList.length - 1].revision;
-
-    if (getUrlParam('fromchange') !== updatedLastRevision) {
-      this.skipNextPageReload = true;
-      setUrlParam('fromchange', updatedLastRevision);
-    }
-  }
-
-  /**
-   * Loops through the map of unclassified failures and checks if it is
-   * within the enabled tiers and if the job should be shown. This essentially
-   * gives us the difference in unclassified failures and, of those jobs, the
-   * ones that have been filtered out
-   */
-  recalculateUnclassifiedCounts() {
-    const { jobMap } = this.state;
-    const { filterModel } = this.props;
-    const tiers = filterModel.urlParams.tier || [];
-    let allUnclassifiedFailureCount = 0;
-    let filteredUnclassifiedFailureCount = 0;
-
-    Object.values(jobMap).forEach(job => {
-      if (isUnclassifiedFailure(job)) {
-        if (tiers.includes(String(job.tier))) {
-          if (filterModel.showJob(job)) {
-            filteredUnclassifiedFailureCount++;
-          }
-          allUnclassifiedFailureCount++;
-        }
-      }
-    });
-    this.setValue({
-      allUnclassifiedFailureCount,
-      filteredUnclassifiedFailureCount,
-    });
-  }
-
-  updateJobMap(jobList) {
-    const { jobMap, pushList } = this.state;
-
-    if (jobList.length) {
-      // lodash ``keyBy`` is significantly faster than doing a ``reduce``
-      this.setValue({
-        jobMap: { ...jobMap, ...keyBy(jobList, 'id') },
-        jobsLoaded: pushList.every(push => push.jobsLoaded),
-        pushList: [...pushList],
-      });
-    }
   }
 
   render() {
