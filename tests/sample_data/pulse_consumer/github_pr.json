@@ -17,5 +17,13 @@
     "event.head.user.email": "test_treeherder@noreply.github.com"
   },
   "repository": "test_treeherder",
-  "version": 1
+  "version": 1,
+  "body": {
+    "sender": {
+      "login": "camd"
+    },
+    "pull_request": {
+      "updated_at": "2016-07-26T21:46:19Z"
+    }
+  }
 }
