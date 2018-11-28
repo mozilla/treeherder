@@ -74,13 +74,6 @@ class PushHeader extends React.PureComponent {
     this.pushDateStr = toDateStr(pushTimestamp);
   }
 
-  componentDidMount() {
-    this.triggerNewJobs = this.triggerNewJobs.bind(this);
-    this.pinAllShownJobs = this.pinAllShownJobs.bind(this);
-    this.cancelAllJobs = this.cancelAllJobs.bind(this);
-    this.togglePushCollapsed = this.togglePushCollapsed.bind(this);
-  }
-
   getLinkParams() {
     const { filterModel } = this.props;
 
@@ -91,7 +84,7 @@ class PushHeader extends React.PureComponent {
     );
   }
 
-  triggerNewJobs() {
+  triggerNewJobs = () => {
     const {
       isLoggedIn,
       pushId,
@@ -128,9 +121,9 @@ class PushHeader extends React.PureComponent {
     } else {
       notify('Must be logged in to trigger a job', 'danger');
     }
-  }
+  };
 
-  cancelAllJobs() {
+  cancelAllJobs = () => {
     const { notify, repoName } = this.props;
 
     if (
@@ -144,9 +137,9 @@ class PushHeader extends React.PureComponent {
 
       JobModel.cancelAll(push.id, repoName, getGeckoDecisionTaskId, notify);
     }
-  }
+  };
 
-  pinAllShownJobs() {
+  pinAllShownJobs = () => {
     const {
       selectedJob,
       setSelectedJob,
@@ -168,9 +161,9 @@ class PushHeader extends React.PureComponent {
     } else {
       notify('No jobs available to pin', 'danger');
     }
-  }
+  };
 
-  togglePushCollapsed() {
+  togglePushCollapsed = () => {
     const { push, collapsed } = this.props;
     const pushId = `${push.id}`;
     const collapsedPushesParam = getUrlParam('collapsedPushes');
@@ -187,7 +180,7 @@ class PushHeader extends React.PureComponent {
       'collapsedPushes',
       collapsedPushes.size ? Array.from(collapsedPushes) : null,
     );
-  }
+  };
 
   render() {
     const {

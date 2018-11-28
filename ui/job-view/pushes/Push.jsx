@@ -44,17 +44,6 @@ class Push extends React.Component {
   }
 
   componentDidMount() {
-    this.showRunnableJobs = this.showRunnableJobs.bind(this);
-    this.hideRunnableJobs = this.hideRunnableJobs.bind(this);
-    this.toggleSelectedRunnableJob = this.toggleSelectedRunnableJob.bind(this);
-    this.expandAllPushGroups = this.expandAllPushGroups.bind(this);
-    this.fetchJobs = this.fetchJobs.bind(this);
-    this.groupJobByPlatform = this.groupJobByPlatform.bind(this);
-    this.sortGroupedJobs = this.sortGroupedJobs.bind(this);
-    this.mapPushJobs = this.mapPushJobs.bind(this);
-    this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
-    this.handleUrlChange = this.handleUrlChange.bind(this);
-
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
@@ -116,14 +105,14 @@ class Push extends React.Component {
     )}`;
   }
 
-  handleUrlChange() {
+  handleUrlChange = () => {
     const { push } = this.props;
     const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
     this.setState({ collapsed: collapsedPushes.includes(push.id) });
-  }
+  };
 
-  handleApplyNewJobs(event) {
+  handleApplyNewJobs = event => {
     const { push } = this.props;
     const { jobs } = event.detail;
     const jobList = jobs[push.id];
@@ -131,9 +120,9 @@ class Push extends React.Component {
     if (jobList) {
       this.mapPushJobs(jobList);
     }
-  }
+  };
 
-  toggleSelectedRunnableJob(buildername) {
+  toggleSelectedRunnableJob = buildername => {
     const { selectedRunnableJobs } = this.state;
     const jobIndex = selectedRunnableJobs.indexOf(buildername);
 
@@ -144,16 +133,16 @@ class Push extends React.Component {
     }
     this.setState({ selectedRunnableJobs: [...selectedRunnableJobs] });
     return selectedRunnableJobs;
-  }
+  };
 
-  async fetchJobs() {
+  fetchJobs = async () => {
     const { push } = this.props;
     const jobs = await PushModel.getJobs(push.id);
 
     this.mapPushJobs(jobs);
-  }
+  };
 
-  mapPushJobs(jobs, skipJobMap) {
+  mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
 
     // whether or not we got any jobs for this push, the operation to fetch
@@ -180,12 +169,12 @@ class Push extends React.Component {
       }
       recalculateUnclassifiedCounts();
     }
-  }
+  };
 
   /*
    * Convert a flat list of jobs into a structure grouped by platform and job_group.
    */
-  groupJobByPlatform(jobList) {
+  groupJobByPlatform = jobList => {
     const platforms = [];
 
     if (jobList.length === 0) {
@@ -221,9 +210,9 @@ class Push extends React.Component {
       group.jobs.push(job);
     });
     return platforms;
-  }
+  };
 
-  sortGroupedJobs(platforms) {
+  sortGroupedJobs = platforms => {
     platforms.forEach(platform => {
       platform.groups.forEach(group => {
         group.jobs = sortBy(group.jobs, job =>
@@ -245,9 +234,9 @@ class Push extends React.Component {
         (platformArray.indexOf(b.name) * 100 + (thOptionOrder[b.option] || 10)),
     );
     return platforms;
-  }
+  };
 
-  expandAllPushGroups(callback) {
+  expandAllPushGroups = callback => {
     // This sets the group state once, then unsets it in the callback.  This
     // has the result of triggering an expand on all the groups, but then
     // gives control back to each group to decide to expand or not.
@@ -255,9 +244,9 @@ class Push extends React.Component {
       this.setState({ pushGroupState: 'collapsed' });
       callback();
     });
-  }
+  };
 
-  showUpdateNotifications(prevState) {
+  showUpdateNotifications = prevState => {
     const { watched, jobCounts } = this.state;
     const {
       repoName,
@@ -309,9 +298,9 @@ class Push extends React.Component {
         };
       }
     }
-  }
+  };
 
-  async showRunnableJobs() {
+  showRunnableJobs = async () => {
     const { push, repoName, getGeckoDecisionTaskId, notify } = this.props;
 
     try {
@@ -336,9 +325,9 @@ class Push extends React.Component {
         'danger',
       );
     }
-  }
+  };
 
-  hideRunnableJobs() {
+  hideRunnableJobs = () => {
     const { jobList } = this.state;
     const newJobList = jobList.filter(job => job.state !== 'runnable');
 
@@ -350,9 +339,9 @@ class Push extends React.Component {
       },
       () => this.mapPushJobs(newJobList),
     );
-  }
+  };
 
-  async cycleWatchState() {
+  cycleWatchState = async () => {
     const { notify } = this.props;
 
     if (!this.props.notificationSupported) {
@@ -372,7 +361,7 @@ class Push extends React.Component {
       }
     }
     this.setState({ watched: next });
-  }
+  };
 
   render() {
     const {
@@ -424,7 +413,7 @@ class Push extends React.Component {
           runnableVisible={runnableVisible}
           showRunnableJobs={this.showRunnableJobs}
           hideRunnableJobs={this.hideRunnableJobs}
-          cycleWatchState={() => this.cycleWatchState()}
+          cycleWatchState={this.cycleWatchState}
           expandAllPushGroups={this.expandAllPushGroups}
           collapsed={collapsed}
           getAllShownJobs={getAllShownJobs}
