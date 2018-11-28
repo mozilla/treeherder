@@ -758,13 +758,17 @@ export const getAlertSummaries = options => {
   }
 
   return OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(href).then(({ data }) => ({
-      results: data.results.map(alertSummaryData =>
-        AlertSummary(alertSummaryData, optionCollectionMap),
-      ),
-      next: data.next,
-      count: data.count,
-    })),
+    getData(href).then(({ data }) =>
+      Promise.all(
+        data.results.map(alertSummaryData =>
+          AlertSummary(alertSummaryData, optionCollectionMap),
+        ),
+      ).then(alertSummaries => ({
+        results: alertSummaries,
+        next: data.next,
+        count: data.count,
+      })),
+    ),
   );
 };
 
