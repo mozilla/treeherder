@@ -27,14 +27,12 @@ ErrorMessages.propTypes = {
   ]),
   failureStatus: PropTypes.number,
   errorMessages: PropTypes.array,
-  prettyErrorMessages: PropTypes.shape({}),
 };
 
 ErrorMessages.defaultProps = {
   failureMessage: null,
   failureStatus: null,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
-  prettyErrorMessages: null,
 };
 
 export default ErrorMessages;
