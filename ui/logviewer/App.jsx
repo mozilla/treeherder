@@ -243,10 +243,7 @@ class App extends React.PureComponent {
                 onLoad={() => this.scrollHighlightToTop(highlight)}
                 highlightLineClassName="yellow-highlight"
                 rowHeight={13}
-                containerStyle={{
-                  marginBottom: '3em',
-                  overflow: 'auto hidden',
-                }}
+                extraLines={3}
               />
             </div>
           </div>
