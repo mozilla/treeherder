@@ -27,11 +27,6 @@ class PushActionMenu extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.triggerMissingJobs = this.triggerMissingJobs.bind(this);
-    this.triggerAllTalosJobs = this.triggerAllTalosJobs.bind(this);
-    this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
-    this.handleUrlChanges = this.handleUrlChanges.bind(this);
-
     window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
@@ -46,14 +41,14 @@ class PushActionMenu extends React.PureComponent {
     return `${url}&${param}=${revision}`;
   }
 
-  handleUrlChanges() {
+  handleUrlChanges = () => {
     this.setState({
       topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
       bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
     });
-  }
+  };
 
-  triggerMissingJobs() {
+  triggerMissingJobs = () => {
     const { getGeckoDecisionTaskId, notify } = this.props;
 
     if (
@@ -79,9 +74,9 @@ class PushActionMenu extends React.PureComponent {
       .catch(e => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
-  }
+  };
 
-  triggerAllTalosJobs() {
+  triggerAllTalosJobs = () => {
     const { getGeckoDecisionTaskId, notify } = this.props;
 
     if (
@@ -118,13 +113,13 @@ class PushActionMenu extends React.PureComponent {
       .catch(e => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
-  }
+  };
 
-  toggleCustomJobActions() {
+  toggleCustomJobActions = () => {
     const { customJobActionsShowing } = this.state;
 
     this.setState({ customJobActionsShowing: !customJobActionsShowing });
-  }
+  };
 
   render() {
     const {

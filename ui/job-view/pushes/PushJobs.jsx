@@ -77,13 +77,7 @@ class PushJobs extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.selectJob = this.selectJob.bind(this);
-    this.filterPlatformCallback = this.filterPlatformCallback.bind(this);
-    this.onMouseDown = this.onMouseDown.bind(this);
-  }
-
-  onMouseDown(ev) {
+  onMouseDown = ev => {
     const { selectedJob, togglePinJob } = this.props;
     const jobInstance = findInstance(ev.target);
 
@@ -105,9 +99,9 @@ class PushJobs extends React.Component {
         this.selectJob(job, ev.target); // Left click
       }
     }
-  }
+  };
 
-  selectJob(job, el) {
+  selectJob = (job, el) => {
     const { setSelectedJob, selectedJob } = this.props;
     if (selectedJob) {
       const selected = findSelectedInstance();
@@ -118,9 +112,9 @@ class PushJobs extends React.Component {
       jobInstance.setSelected(true);
     }
     setSelectedJob(job);
-  }
+  };
 
-  handleLogViewerClick(jobId) {
+  handleLogViewerClick = jobId => {
     // Open logviewer in a new window
     const { repoName } = this.props;
     JobModel.get(repoName, jobId).then(data => {
@@ -130,16 +124,16 @@ class PushJobs extends React.Component {
         );
       }
     });
-  }
+  };
 
-  handleRunnableClick(jobInstance) {
+  handleRunnableClick = jobInstance => {
     const { toggleSelectedRunnableJob } = this.props;
 
     toggleSelectedRunnableJob(jobInstance.props.job.ref_data_name);
     jobInstance.toggleRunnableSelected();
-  }
+  };
 
-  filterPlatformCallback(platform, selectedJobId) {
+  filterPlatformCallback = (platform, selectedJobId) => {
     const { push, filterModel, runnableVisible } = this.props;
     const { filteredPlatforms } = this.state;
 
@@ -155,7 +149,7 @@ class PushJobs extends React.Component {
     if (filteredPlatforms.length) {
       this.setState({ filteredPlatforms: [...filteredPlatforms] });
     }
-  }
+  };
 
   render() {
     const filteredPlatforms = this.state.filteredPlatforms || [];
