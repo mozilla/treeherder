@@ -107,7 +107,7 @@ class GithubTransformer:
             "revision": head_commit["sha"],
             "push_timestamp": to_timestamp(
                 event["created_at"] if event else head_commit["commit"]["author"]["date"]),
-            "author": head_commit["commit"]["author"]["email"],
+            "author": "@" + self.message_body["body"]["sender"]["login"],
         }
 
         revisions = []
