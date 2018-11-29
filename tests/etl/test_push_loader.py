@@ -58,24 +58,6 @@ def mock_github_pr_commits(activate_responses):
 
 
 @pytest.fixture
-def mock_github_push_compare(activate_responses):
-    tests_folder = os.path.dirname(os.path.dirname(__file__))
-    path = os.path.join(
-        tests_folder,
-        "sample_data/pulse_consumer",
-        "github_push_compare.json"
-    )
-    with open(path) as f:
-        mocked_content = f.read()
-    responses.add(responses.GET,
-                  "https://api.github.com/repos/mozilla/test_treeherder/compare/"
-                  "71c02dbb26cb60beee94bac433086bc540c9d6d4..."
-                  "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
-                  body=mocked_content, status=200, match_querystring=False,
-                  content_type='application/json')
-
-
-@pytest.fixture
 def mock_github_events(activate_responses):
     tests_folder = os.path.dirname(os.path.dirname(__file__))
     path = os.path.join(
@@ -128,7 +110,7 @@ def test_ingest_github_pull_request(test_repository, github_pr, transformed_gith
 
 
 def test_ingest_github_push(test_repository, github_push, transformed_github_push,
-                            mock_github_push_compare, mock_github_events):
+                            mock_github_events):
     xformer = GithubPushTransformer(github_push)
     push = xformer.transform(test_repository.name)
     assert transformed_github_push == push
