@@ -69,8 +69,6 @@ class GithubTransformer:
         "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
     }
 
-    EVENTS_API_URL = "https://api.github.com/repos/{}/{}/events"
-
     def __init__(self, message_body):
         self.message_body = message_body
         self.repo_url = message_body["details"]["event.head.repo.url"].replace(".git", "")
@@ -93,39 +91,15 @@ class GithubTransformer:
         params.update(self.CREDENTIALS)
 
         logger.info("Fetching push details: %s", url)
-        commits = self.get_cleaned_commits(fetch_json(url, params))
+        revisions, push_timestamp = self.revisions_and_timestamp(fetch_json(url, params))
 
-        url = self.EVENTS_API_URL.format(
-            self.message_body["organization"],
-            self.message_body["repository"],
-        )
-        logger.info("Fetching github event details: %s", url)
-        event = self.find_event(fetch_json(url, params))
-
-        head_commit = commits[-1]
         push = {
             "revision": self.message_body["details"]["event.head.sha"],
-            "push_timestamp": to_timestamp(
-                event["created_at"] if event else head_commit["commit"]["author"]["date"]),
+            "push_timestamp": push_timestamp,
             "author": "@" + self.message_body["body"]["sender"]["login"],
+            "revisions": revisions,
         }
-
-        revisions = []
-        for commit in commits:
-            revisions.append({
-                "comment": commit["commit"]["message"],
-                "author": u"{} <{}>".format(
-                    commit["commit"]["author"]["name"],
-                    commit["commit"]["author"]["email"]),
-                "revision": commit["sha"]
-            })
-
-        push["revisions"] = revisions
         return push
-
-    def get_cleaned_commits(self, commits):
-        """Allow a subclass to change the order of the commits"""
-        return commits
 
 
 class GithubPushTransformer(GithubTransformer):
@@ -145,21 +119,27 @@ class GithubPushTransformer(GithubTransformer):
     #     version:1
     # }
 
-    COMPARE_API_URL = "https://api.github.com/repos/{}/{}/compare/{}...{}"
+    EVENTS_API_URL = "https://api.github.com/repos/{}/{}/events"
 
     def transform(self, repository):
-        push_url = self.COMPARE_API_URL.format(
+        push_url = self.EVENTS_API_URL.format(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
-            self.message_body["details"]["event.head.sha"],
         )
         return self.fetch_push(push_url, repository)
 
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
+    def revisions_and_timestamp(self, events):
+        revisions = [
+            {
+                "comment": commit["message"],
+                "author": u"{} <{}>".format(
+                    commit["author"]["name"],
+                    commit["author"]["email"]),
+                "revision": commit["id"]
+            }
+            for commit in self.message_body["body"]["commits"]
+        ]
 
-    def find_event(self, events):
         details = self.message_body["details"]
         for event in events:
             if (
@@ -168,7 +148,13 @@ class GithubPushTransformer(GithubTransformer):
                 event["payload"]["after"] == details["event.head.sha"] and
                 event["payload"]["before"] == details["event.base.sha"]
             ):
-                return event
+                timestamp = to_timestamp(event["created_at"])
+                break
+        else:
+            # Couldn't find the corresponding event, use the commit's date as a best approximation
+            timestamp = to_timestamp(self.message_body["body"]["head_commit"]["timestamp"])
+
+        return revisions, timestamp
 
 
 class GithubPullRequestTransformer(GithubTransformer):
@@ -211,19 +197,19 @@ class GithubPullRequestTransformer(GithubTransformer):
 
         return self.fetch_push(pr_url, repository)
 
-    def get_cleaned_commits(self, commits):
-        return list(reversed(commits))
-
-    def find_event(self, events):
-        details = self.message_body["details"]
-        for event in events:
-            if (
-                event["type"] == "PullRequestEvent" and
-                event["payload"]["action"] == self.message_body["action"] and
-                event["payload"]["number"] == details["event.pullNumber"] and
-                event["payload"]["pull_request"]["head"]["sha"] == details["event.head.sha"]
-            ):
-                return event
+    def revisions_and_timestamp(self, commits):
+        revisions = [
+            {
+                "comment": commit["commit"]["message"],
+                "author": u"{} <{}>".format(
+                    commit["commit"]["author"]["name"],
+                    commit["commit"]["author"]["email"]),
+                "revision": commit["sha"]
+            }
+            for commit in reversed(commits)
+        ]
+        timestamp = to_timestamp(self.message_body["body"]["pull_request"]["updated_at"])
+        return revisions, timestamp
 
 
 class HgPushTransformer:
