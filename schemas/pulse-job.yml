@@ -64,21 +64,20 @@ properties:
         required: [kind, project, revision]
 
       - type: "object"
-        title: "Github Pull Request"
+        title: "Github push or pull request"
         additionalProperties: false
         properties:
           kind:
             type: "string"
             enum: ['github.com']
           owner:
-            description: |
-              This could be the organization or the individual git username
-              depending on who owns the repo.
+            description: Unused
             type: "string"
             pattern: "^[\\w-]+$"
             minLength: 1
             maxLength: 50
           project:
+            description: "The repository name as known to Treeherder"
             type: "string"
             pattern: "^[\\w-]+$"
             minLength: 1
