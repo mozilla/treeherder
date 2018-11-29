@@ -191,6 +191,9 @@ class GithubPullRequestTransformer(GithubTransformer):
 
         return self.fetch_push(pr_url, repository)
 
+    def get_cleaned_commits(self, commits):
+        return list(reversed(commits))
+
 
 class HgPushTransformer:
     # {
