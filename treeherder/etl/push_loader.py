@@ -104,7 +104,7 @@ class GithubTransformer:
 
         head_commit = commits[-1]
         push = {
-            "revision": head_commit["sha"],
+            "revision": self.message_body["details"]["event.head.sha"],
             "push_timestamp": to_timestamp(
                 event["created_at"] if event else head_commit["commit"]["author"]["date"]),
             "author": "@" + self.message_body["body"]["sender"]["login"],
