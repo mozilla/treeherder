@@ -1,6 +1,6 @@
 import chunk from 'lodash/chunk';
 
-import { getApiUrl, createQueryParams } from '../helpers/url';
+import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
 import PerfSeriesModel from '../models/perfSeries';
 import { phTimeRanges } from '../helpers/constants';
@@ -278,7 +278,7 @@ export const validateQueryParams = async function validateQueryParams(params) {
     if (!newSignature) errors.push('Missing input: newSignature');
   }
 
-  const { data, failureStatus } = await getData(getApiUrl('/repository/'));
+  const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
 
   if (
     !failureStatus &&

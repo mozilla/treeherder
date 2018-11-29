@@ -254,10 +254,6 @@ export const thEvents = {
   applyNewJobs: 'apply-new-jobs-EVT',
 };
 
-export const phCompareDefaultOriginalRepo = 'mozilla-central';
-
-export const phCompareDefaultNewRepo = 'try';
-
 export const phTimeRanges = [
   { value: 86400, text: 'Last day' },
   { value: 86400 * 2, text: 'Last 2 days' },
@@ -306,8 +302,12 @@ export const phAlertStatusMap = {
   CONFIRMING: { id: 5, text: 'confirming' },
 };
 
-export const phCompareBaseLineDefaultTimeRange = 86400 * 2;
+export const compareDefaultTimeRange = 86400 * 2;
 
 export const thBugSuggestionLimit = 20;
 
 export const thMaxPushFetchSize = 100;
+
+export const errorMessageClass = 'text-danger py-4 d-block text-center';
+
+export const genericErrorMessage = 'Something went wrong';

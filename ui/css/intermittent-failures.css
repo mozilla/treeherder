@@ -78,10 +78,6 @@ input {
   font-size: 14px;
 }
 
-.hide {
-  visibility: hidden;
-}
-
 .tooltip > .tooltip-inner {
   background-color: lightgray;
   color: black;

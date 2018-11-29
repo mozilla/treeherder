@@ -43,3 +43,12 @@ export const formatTaskclusterError = function formatTaskclusterError(e) {
 
   return `${TC_ERROR_PREFIX}${errorMessage}`;
 };
+
+export const processErrorMessage = function processErrorMessage(error, status) {
+  if (status === 503) {
+    return 'There was a problem retrieving the data. Please try again in a minute.';
+  }
+
+  const key = Object.keys(error);
+  return `${key}: ${error[key]}`;
+};

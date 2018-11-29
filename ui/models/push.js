@@ -3,12 +3,10 @@ import { slugid } from 'taskcluster-client-web';
 import { thMaxPushFetchSize } from '../helpers/constants';
 import { getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
-import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { createQueryParams, getProjectUrl, pushEndpoint } from '../helpers/url';
 
 import JobModel from './job';
 import TaskclusterModel from './taskcluster';
-
-const uri_base = '/resultset/';
 
 const convertDates = function convertDates(locationParams) {
   // support date ranges.  we must convert the strings to a timezone
@@ -53,13 +51,13 @@ export default class PushModel {
       params.count = thMaxPushFetchSize;
     }
     return fetch(
-      `${getProjectUrl(uri_base, repoName)}${createQueryParams(params)}`,
+      `${getProjectUrl(pushEndpoint, repoName)}${createQueryParams(params)}`,
     );
   }
 
   static get(pk, options = {}) {
     const repoName = options.repo || getUrlParam('repo');
-    return fetch(getProjectUrl(`${uri_base}${pk}/`, repoName));
+    return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
   }
 
   static getJobs(pushIds, options = {}) {

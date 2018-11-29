@@ -1,6 +1,4 @@
-import { getApiUrl } from '../helpers/url';
-
-const uri = getApiUrl('/repository/');
+import { getApiUrl, repoEndpoint } from '../helpers/url';
 
 export default class RepositoryModel {
   constructor(props) {
@@ -20,7 +18,7 @@ export default class RepositoryModel {
   }
 
   static getList() {
-    return fetch(uri)
+    return fetch(getApiUrl(repoEndpoint))
       .then(resp => resp.json())
       .then(repos => repos.map(datum => new RepositoryModel(datum)));
   }
