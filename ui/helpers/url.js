@@ -24,6 +24,10 @@ export const pushEndpoint = '/resultset/';
 
 export const repoEndpoint = '/repository/';
 
+export const getRunnableJobsURL = function getRunnableJobsURL(decisionTaskId) {
+  return `https://queue.taskcluster.net/v1/task/${decisionTaskId}/runs/0/artifacts/public/runnable-jobs.json`;
+};
+
 export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
   return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
 };
