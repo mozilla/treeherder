@@ -1,8 +1,12 @@
+import decimal
+
 import six
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import (exceptions,
                             serializers)
 
+from treeherder.model import models
 from treeherder.perf.models import (IssueTracker,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -146,3 +150,49 @@ class IssueTrackerSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueTracker
         fields = ['id', 'text', 'issueTrackerUrl']
+
+
+class PerformanceQueryParamsSerializer(serializers.Serializer):
+    startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    revision = serializers.CharField(required=False, allow_null=True, default=None)
+    repository = serializers.CharField()
+    framework = serializers.ListField(child=serializers.IntegerField())
+    interval = serializers.IntegerField(required=False, allow_null=True, default=None)
+    parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
+    no_subtests = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if data['revision'] is None and (data['startday'] is None or data['endday'] is None):
+            raise serializers.ValidationError('Required: revision or startday and endday.')
+
+        return data
+
+    def validate_repository(self, repository):
+        try:
+            models.Repository.objects.get(name=repository)
+
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError('{} does not exist.'.format(repository))
+
+        return repository
+
+
+class PerformanceRevisionSerializer(serializers.ModelSerializer):
+    platform = serializers.CharField(source="platform__platform")
+    values = serializers.ListField(child=serializers.DecimalField(
+        rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False))
+    name = serializers.SerializerMethodField()
+    parent_signature = serializers.CharField(source="parent_signature__signature_hash")
+
+    class Meta:
+        model = PerformanceSignature
+        fields = ['id', 'framework_id', 'signature_hash', 'platform', 'test',
+                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature']
+
+    def get_name(self, value):
+        test = value['test']
+        suite = value['suite']
+        test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+        return '{} {} {}'.format(test_suite, value['option_collection__option__name'],
+                                 value['extra_options'])

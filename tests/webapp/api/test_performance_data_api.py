@@ -375,3 +375,34 @@ def test_filter_data_by_signature(client, test_repository, test_perf_signature,
             assert len(resp.data[signature.signature_hash]) == 1
             assert resp.data[signature.signature_hash][0]['signature_id'] == signature.id
             assert resp.data[signature.signature_hash][0]['value'] == float(i)
+
+
+def test_perf_by_revision(client, test_perf_signature, test_perf_data):
+
+    query_params1 = '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
+        test_perf_signature.repository.name, test_perf_signature.framework_id, test_perf_data[0].push_id)
+
+    query_params2 = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2018-07-01T23%3A28%3A29&endday=2018-12-31T23%3A28%3A29'.format(
+                    test_perf_signature.repository.name, test_perf_signature.framework_id)
+
+    expected = [{
+        u'id': test_perf_signature.id,
+        u'framework_id': test_perf_signature.framework_id,
+        u'signature_hash': test_perf_signature.signature_hash,
+        u'platform': test_perf_signature.platform.platform,
+        u'test': test_perf_signature.test,
+        u'lower_is_better': test_perf_signature.lower_is_better,
+        u'has_subtests': test_perf_signature.has_subtests,
+        u'values': [test_perf_data[0].value],
+        u'name': 'mysuite mytest opt e10s opt',
+        u'parent_signature': None
+    }]
+
+    resp1 = client.get(reverse('perf-by-revision') + query_params1)
+    assert resp1.status_code == 200
+    assert resp1.json() == expected
+
+    expected[0]['values'] = [item.value for item in test_perf_data]
+    resp2 = client.get(reverse('perf-by-revision') + query_params2)
+    assert resp2.status_code == 200
+    assert resp2.json() == expected

@@ -139,4 +139,5 @@ urlpatterns = [
     url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
     url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
+    url(r'^perfbyrevision/$', performance_data.PerformanceByRevision.as_view(), name='perf-by-revision'),
 ]
