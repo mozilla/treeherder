@@ -56,15 +56,4 @@ module.exports = {
       },
     ],
   },
-  overrides: [
-    {
-      // Exclude our legacy JS from prettier since it will be rewritten when converted to React.
-      // This directory is already ignored in .prettierignore but have to repeat here due to:
-      // https://github.com/prettier/eslint-plugin-prettier/issues/126
-      files: ['ui/js/**'],
-      rules: {
-        'prettier/prettier': 'off',
-      },
-    },
-  ],
 };
