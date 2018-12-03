@@ -44,7 +44,7 @@
       </div>
       <div class="alert-summary-title">
         <a class="anchor" href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
-          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{alertSummary.getTitle()}} <span class="fa fa-external-link icon-superscript"/>
+          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{getTitle(alertSummary)}} <span class="fa fa-external-link icon-superscript"/>
         </a>
         <br/>
         {{alertSummary.resultSetMetadata.dateStr}}
@@ -59,7 +59,7 @@
           </ul>
         </span>
         <span ng-show="alertSummary.bug_number"> ·
-          <a ng-href="{{alertSummary.getIssueTrackerUrl()}}" target="_blank" rel="noopener">
+          <a ng-href="{{getIssueTrackerUrl(alertSummary)}}" target="_blank" rel="noopener">
             Bug {{alertSummary.bug_number}}
           </a>
         </span>
@@ -73,7 +73,7 @@
       <div class="alert-summary-header-element alert-summary-date">
         <div class="btn-group" uib-dropdown>
           <button id="status-dropdown" class="btn btn-link status-dropdown" uib-dropdown-toggle data-toggle="dropdown">
-{{alertSummary.getStatusText()}}
+{{getAlertSummaryStatusText(alertSummary)}}
           </button>
           <ul class="uib-dropdown-menu" uib-dropdown-menu aria-labelledby="status-dropdown">
             <li role="menuitem">
@@ -94,20 +94,20 @@
                 <span ng-if="alertSummary.notes">Edit notes</span>
               </a>
             </li>
-            <li role="menuitem" ng-show="user.isStaff" ng-if="alertSummary.isResolved()">
-              <a ng-click="alertSummary.markInvestigating()" class="dropdown-item">Re-open</a>
+            <li role="menuitem" ng-show="user.isStaff" ng-if="isResolved(alertSummary)">
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.INVESTIGATING)" class="dropdown-item">Re-open</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
-                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isWontfix())">
-              <a ng-click="alertSummary.markWontfix()" class="dropdown-item">Mark as "won't fix"</a>
+                ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX))">
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.WONTFIX)" class="dropdown-item">Mark as "won't fix"</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
-                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isBackedout())">
-              <a ng-click="alertSummary.markBackedout()" class="dropdown-item">Mark as backed out</a>
+                ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT))">
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.BACKEDOUT)" class="dropdown-item">Mark as backed out</a>
             </li>
             <li role="menuitem" ng-show="user.isStaff"
-                ng-if="alertSummary.isInvestigating() || (alertSummary.isResolved() && !alertSummary.isFixed())">
-              <a ng-click="alertSummary.markFixed()" class="dropdown-item">Mark as fixed</a>
+                ng-if="alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.INVESTIGATING) || (isResolved(alertSummary) && !alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.FIXED))">
+              <a ng-click="alertSummaryMarkAs(alertSummary, phAlertSummaryStatusMap.FIXED)" class="dropdown-item">Mark as fixed</a>
             </li>
           </ul>
         </div>
@@ -123,15 +123,15 @@
           <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
              ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
              ng-disabled="!user.isStaff"
-             ng-click="alert.toggleStar()">
+             ng-click="toggleStar(alert)">
           </a>
         </td>
         <td class="alert-title">
-          <span ng-class="{'alert-strike': alert.isInvalid() || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
-                uib-tooltip="{{ !alert.isUntriaged() ? (alert.classifier_email ?  'Classified by ' + alert.classifier_email : 'Classified automatically') : ''}}">
+          <span ng-class="{'alert-strike': alertIsOfState(alert, phAlertStatusMap.INVALID) || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
+                uib-tooltip="{{ !alertIsOfState(alert, phAlertStatusMap.UNTRIAGED) ? (alert.classifier_email ?  'Classified by ' + alert.classifier_email : 'Classified automatically') : ''}}">
             {{alert.title}}
           </span>
-          &nbsp;(<span ng-class="{'alert-invalid': alert.isInvalid(), 'alert-untriaged': alert.isUntriaged()}">{{alert.getStatusText()}}</span><span ng-show="alert.related_summary_id">
+          &nbsp;(<span ng-class="{'alert-invalid': alertIsOfState(alert, phAlertStatusMap.INVALID), 'alert-untriaged': alertIsOfState(alert, phAlertStatusMap.UNTRIAGED)}">{{getAlertStatusText(alert)}}</span><span ng-show="alert.related_summary_id">
             <!-- Reassigned or downstream *to* another alert -->
             <span ng-if="alert.related_summary_id !== alertSummary.id">
               to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank" rel="noopener">alert #{{alert.related_summary_id}}</a>
@@ -142,9 +142,9 @@
             </span>
           </span>)&nbsp;&nbsp;
           <span class="result-links">
-            <a href="{{alert.getGraphsURL(alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank" rel="noopener">graph</a>
+            <a href="{{getGraphsURL(alert, alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank" rel="noopener">graph</a>
             <span ng-if="alert.series_signature.has_subtests"> · </span>
-            <a ng-if="alert.series_signature.has_subtests" href="{{alert.getSubtestsURL(alertSummary)}}" target="_blank" rel="noopener">subtests</a>
+            <a ng-if="alert.series_signature.has_subtests" href="{{getSubtestsURL(alert, alertSummary)}}" target="_blank" rel="noopener">subtests</a>
           </span>
         </td>
         <td class="alert-value">{{alert.prev_value|number}}</td>

@@ -1,11 +1,23 @@
 import chunk from 'lodash/chunk';
+import numeral from 'numeral';
+import sortBy from 'lodash/sortBy';
 
 import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
-import { getData } from '../helpers/http';
-import PerfSeriesModel from '../models/perfSeries';
-import { phTimeRanges } from '../helpers/constants';
+import { create, getData, update } from '../helpers/http';
+import PerfSeriesModel, {
+  getSeriesName,
+  getTestName,
+} from '../models/perfSeries';
+import OptionCollectionModel from '../models/optionCollection';
+import {
+  phAlertStatusMap,
+  phAlertSummaryStatusMap,
+  phFrameworksWithRelatedBranches,
+  phTimeRanges,
+  thPerformanceBranches,
+} from '../helpers/constants';
 
-import { tValueCareMin, tValueConfidence } from './constants';
+import { endpoints, tValueCareMin, tValueConfidence } from './constants';
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;
@@ -376,4 +388,418 @@ export const getGraphsLink = function getGraphsLink(
   }
 
   return `perf.html#/graphs${createQueryParams(params)}`;
+};
+
+// old PhAlerts' inner workings
+const Alert = (alertData, optionCollectionMap) => ({
+  ...alertData,
+  title: getSeriesName(alertData.series_signature, optionCollectionMap),
+});
+
+export const getAlertStatusText = alert =>
+  Object.values(phAlertStatusMap).find(status => status.id === alert.status)
+    .text;
+
+export const getGraphsURL = (
+  alert,
+  timeRange,
+  alertRepository,
+  performanceFrameworkId,
+) => {
+  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${
+    alert.series_signature.id
+  },1`;
+
+  // automatically add related branches (we take advantage of
+  // the otherwise rather useless signature hash to avoid having to fetch this
+  // information from the server)
+  if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
+    const branches =
+      alertRepository === 'mozilla-beta'
+        ? ['mozilla-inbound']
+        : thPerformanceBranches.filter(branch => branch !== alertRepository);
+    url += branches
+      .map(
+        branch =>
+          `&series=${branch},${alert.series_signature.signature_hash},0`,
+      )
+      .join('');
+  }
+
+  return url;
+};
+
+export const getSubtestsURL = (alert, alertSummary) => {
+  const endpoint = '#/comparesubtest';
+  const urlParameters = {
+    framework: alertSummary.framework,
+    originalProject: alertSummary.repository,
+    originalSignature: alert.series_signature.signature_hash,
+    newProject: alertSummary.repository,
+    newSignature: alert.series_signature.signature_hash,
+  };
+  if (alertSummary.prevResultSetMetadata) {
+    urlParameters.originalRevision =
+      alertSummary.prevResultSetMetadata.revision;
+  }
+  if (alertSummary.prevResultSetMetadata) {
+    urlParameters.newRevision = alertSummary.resultSetMetadata.revision;
+  }
+
+  return `${endpoint}${createQueryParams(urlParameters)}`;
+};
+
+const modifyAlert = (alert, modification) =>
+  update(getApiUrl(`/performance/alert/${alert.id}/`), modification);
+
+export const alertIsOfState = (alert, phAlertStatus) =>
+  alert.status === phAlertStatus.id;
+
+export const toggleStar = alert => {
+  const toggledStar = !alert.starred;
+  modifyAlert(alert, {
+    starred: toggledStar,
+  }).then(() => {
+    alert.starred = toggledStar;
+  });
+};
+
+let issueTrackers; // will cache on first AlertSummary call
+
+const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
+  // this function converts the representation returned by the perfherder
+  // api into a representation more suited for display in the UI
+
+  // just treat related (reassigned or downstream) alerts as one
+  // big block -- we'll display in the UI depending on their content
+  alertSummary.alerts
+    .concat(alertSummary.related_alerts)
+    .map(alertData => Alert(alertData, optionCollectionMap));
+
+const constructAlertSummary = (
+  alertSummaryData,
+  optionCollectionMap,
+  issueTrackers,
+) => {
+  const alertSummaryState = {
+    ...alertSummaryData,
+    issueTrackers,
+    alerts: getInitializedAlerts(alertSummaryData, optionCollectionMap),
+  };
+
+  return alertSummaryState;
+};
+
+export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
+  if (issueTrackers === undefined) {
+    return getData(getApiUrl(endpoints.issueTrackers)).then(
+      ({ data: issueTrackerList }) => {
+        issueTrackers = issueTrackerList;
+        return constructAlertSummary(
+          alertSummaryData,
+          optionCollectionMap,
+          issueTrackers,
+        );
+      },
+    );
+  }
+
+  return constructAlertSummary(
+    alertSummaryData,
+    optionCollectionMap,
+    issueTrackers,
+  );
+};
+
+const modifyAlertSummary = (alertSummary, modification) =>
+  update(
+    getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
+    modification,
+  );
+
+export const alertSummaryIsOfState = (alertSummary, phAlertSummaryStatus) =>
+  alertSummary.status === phAlertSummaryStatus.id;
+
+const updateAlertSummaryStatus = (alertSummary, newStatus) =>
+  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+    status: newStatus.id,
+  }).then(() => {
+    alertSummary.status = newStatus.id;
+  });
+
+export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) =>
+  updateAlertSummaryStatus(alertSummary, phAlertSummaryStatus);
+
+export const getIssueTrackerUrl = alertSummary => {
+  if (!alertSummary.bug_number) {
+    return;
+  }
+  if (alertSummary.issue_tracker) {
+    const { issueTrackerUrl } = alertSummary.issueTrackers.find(
+      tracker => tracker.id === alertSummary.issue_tracker,
+    );
+    return issueTrackerUrl + alertSummary.bug_number;
+  }
+};
+
+export const getTextualSummary = (alertSummary, copySummary) => {
+  let resultStr = '';
+  const improved = sortBy(
+    alertSummary.alerts.filter(alert => !alert.is_regression && alert.visible),
+    'amount_pct',
+  ).reverse();
+  const regressed = sortBy(
+    alertSummary.alerts.filter(
+      alert =>
+        alert.is_regression &&
+        alert.visible &&
+        !alertIsOfState(alert, phAlertStatusMap.INVALID),
+    ),
+    'amount_pct',
+  ).reverse();
+
+  const getMaximumAlertLength = alertList =>
+    Math.max(...alertList.map(alert => alert.title.length));
+
+  const formatAlert = (alert, alertList) => {
+    const numFormat = '0,0.00';
+
+    const amountPct = alert.amount_pct.toFixed(0).padStart(3);
+    const title = alert.title.padEnd(getMaximumAlertLength(alertList) + 5);
+    const prevValue = numeral(alert.prev_value).format(numFormat);
+    const newValue = numeral(alert.new_value).format(numFormat);
+
+    return `${amountPct}%  ${title}${prevValue} -> ${newValue}`;
+  };
+
+  const formatAlertBulk = alerts =>
+    alerts.map(alert => formatAlert(alert, alerts)).join('\n');
+
+  // add summary header if getting text for clipboard only
+  if (copySummary) {
+    const lastUpdated = new Date(alertSummary.last_updated);
+    resultStr += `== Change summary for alert #${
+      alertSummary.id
+    } (as of ${lastUpdated.toUTCString()}) ==\n`;
+  }
+  if (regressed.length > 0) {
+    // add a newline if we displayed the header
+    if (copySummary) {
+      resultStr += '\n';
+    }
+    const formattedRegressions = formatAlertBulk(regressed);
+    resultStr += `Regressions:\n\n${formattedRegressions}\n`;
+  }
+  if (improved.length > 0) {
+    // Add a newline if we displayed some regressions
+    if (resultStr.length > 0) {
+      resultStr += '\n';
+    }
+    const formattedImprovements = formatAlertBulk(improved);
+    resultStr += `Improvements:\n\n${formattedImprovements}\n`;
+  }
+  // include link to alert if getting text for clipboard only
+  if (copySummary) {
+    const alertLink = `${window.location.origin}/perf.html#/alerts?id=${
+      alertSummary.id
+    }`;
+    resultStr += `\nFor up to date results, see: ${alertLink}`;
+  }
+  return resultStr;
+};
+
+export const isResolved = alertSummary =>
+  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.FIXED) ||
+  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX) ||
+  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT);
+
+export const refreshAlertSummary = alertSummary =>
+  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
+    ({ data }) =>
+      OptionCollectionModel.getMap().then(optionCollectionMap => {
+        Object.assign(alertSummary, data);
+        alertSummary.alerts = getInitializedAlerts(
+          alertSummary,
+          optionCollectionMap,
+        );
+      }),
+  );
+
+export const getTitle = alertSummary => {
+  let title;
+
+  // we should never include downstream alerts in the description
+  let alertsInSummary = alertSummary.alerts.filter(
+    alert =>
+      alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
+      alert.summary_id === alertSummary.id,
+  );
+
+  // figure out if there are any regressions -- if there are,
+  // the summary should only incorporate those. if there
+  // aren't, then use all of them (that aren't downstream,
+  // see above)
+  const regressions = alertsInSummary.filter(alert => alert.is_regression);
+  if (regressions.length > 0) {
+    alertsInSummary = regressions;
+  }
+
+  if (alertsInSummary.length > 1) {
+    title = `${Math.min(
+      ...alertsInSummary.map(alert => alert.amount_pct),
+    )} - ${Math.max(...alertsInSummary.map(alert => alert.amount_pct))}%`;
+  } else if (alertsInSummary.length === 1) {
+    title = `${alertsInSummary[0].amount_pct}%`;
+  } else {
+    title = 'Empty alert';
+  }
+
+  // add test info
+  const testInfo = [
+    ...new Set(alertsInSummary.map(a => getTestName(a.series_signature))),
+  ]
+    .sort()
+    .join(' / ');
+  title += ` ${testInfo}`;
+  // add platform info
+  const platformInfo = [
+    ...new Set(alertsInSummary.map(a => a.series_signature.machine_platform)),
+  ]
+    .sort()
+    .join(', ');
+  title += ` (${platformInfo})`;
+  return title;
+};
+
+export const assignBug = (alertSummary, taskNumber, issueTrackerId) =>
+  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+    bug_number: taskNumber,
+    issue_tracker: issueTrackerId,
+  }).then(() => refreshAlertSummary(alertSummary));
+
+export const unassignBug = alertSummary =>
+  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+    bug_number: null,
+  }).then(() => refreshAlertSummary(alertSummary));
+
+export const modifySelectedAlerts = (alertSummary, modification) => {
+  alertSummary.allSelected = false;
+
+  return Promise.all(
+    alertSummary.alerts
+      .filter(alert => alert.selected)
+      .map(selectedAlert => {
+        selectedAlert.selected = false;
+        return modifyAlert(selectedAlert, modification);
+      }),
+  );
+};
+
+export const getAlertSummaryStatusText = alertSummary =>
+  Object.values(phAlertSummaryStatusMap).find(
+    status => status.id === alertSummary.status,
+  ).text;
+
+export const saveNotes = alertSummary =>
+  modifyAlertSummary(alertSummary, { notes: alertSummary.notes }).then(() => {
+    alertSummary.originalNotes = alertSummary.notes;
+    alertSummary.notesChanged = false;
+  });
+
+export const editingNotes = alertSummary => {
+  alertSummary.notesChanged = alertSummary.notes !== alertSummary.originalNotes;
+};
+
+export const getAlertSummary = id =>
+  OptionCollectionModel.getMap().then(optionCollectionMap =>
+    getData(getApiUrl(`/performance/alertsummary/${id}/`)).then(({ data }) =>
+      AlertSummary(data, optionCollectionMap),
+    ),
+  );
+
+export const getAlertSummaryTitle = id =>
+  getAlertSummary(id).then(alertSummary => getTitle(alertSummary));
+
+export const getAlertSummaries = options => {
+  let { href } = options;
+  if (!options || !options.href) {
+    href = getApiUrl('/performance/alertsummary/');
+
+    // add filter parameters for status and framework
+    const params = [];
+    if (
+      options &&
+      options.statusFilter !== undefined &&
+      options.statusFilter !== -1
+    ) {
+      params[params.length] = `status=${options.statusFilter}`;
+    }
+    if (options && options.frameworkFilter !== undefined) {
+      params[params.length] = `framework=${options.frameworkFilter}`;
+    }
+    if (options && options.signatureId !== undefined) {
+      params[params.length] = `alerts__series_signature=${options.signatureId}`;
+    }
+    if (options && options.seriesSignature !== undefined) {
+      params[params.length] = `alerts__series_signature__signature_hash=${
+        options.seriesSignature
+      }`;
+    }
+    if (options && options.repository !== undefined) {
+      params[params.length] = `repository=${options.repository}`;
+    }
+    if (options && options.page !== undefined) {
+      params[params.length] = `page=${options.page}`;
+    }
+
+    if (params.length) {
+      href += `?${params.join('&')}`;
+    }
+  }
+
+  return OptionCollectionModel.getMap().then(optionCollectionMap =>
+    getData(href).then(({ data }) =>
+      Promise.all(
+        data.results.map(alertSummaryData =>
+          AlertSummary(alertSummaryData, optionCollectionMap),
+        ),
+      ).then(alertSummaries => ({
+        results: alertSummaries,
+        next: data.next,
+        count: data.count,
+      })),
+    ),
+  );
+};
+
+export const createAlert = data =>
+  create(getApiUrl('/performance/alertsummary/'), {
+    repository_id: data.project.id,
+    framework_id: data.series.frameworkId,
+    push_id: data.resultSetId,
+    prev_push_id: data.prevResultSetId,
+  }).then(({ data }) => {
+    const newAlertSummaryId = data.alert_summary_id;
+    return create(getApiUrl('/performance/alert/'), {
+      summary_id: newAlertSummaryId,
+      signature_id: data.series.id,
+    }).then(() => newAlertSummaryId);
+  });
+
+export const findPushIdNeighbours = (dataPoint, resultSetData, direction) => {
+  const pushId = dataPoint.resultSetId;
+  const pushIdIndex =
+    direction === 'left'
+      ? resultSetData.indexOf(pushId)
+      : resultSetData.lastIndexOf(pushId);
+  const relativePos = direction === 'left' ? -1 : 1;
+  return {
+    push_id: resultSetData[pushIdIndex + relativePos],
+    prev_push_id: resultSetData[pushIdIndex + (relativePos - 1)],
+  };
+};
+
+export const nudgeAlert = (dataPoint, towardsDataPoint) => {
+  const alertId = dataPoint.alert.id;
+  return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
 };

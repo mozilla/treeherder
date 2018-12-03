@@ -24,7 +24,6 @@ import './js/perf';
 
 // Perf JS
 import './js/filters';
-import './js/models/perf/alerts';
 import './js/controllers/perf/compare';
 import './js/controllers/perf/graphs';
 import './js/controllers/perf/alerts';

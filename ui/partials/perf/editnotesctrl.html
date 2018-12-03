@@ -10,7 +10,7 @@
       <textarea
           class="form-control"
           ng-model="alertSummaryCopy.notes"
-          ng-change="alertSummaryCopy.editingNotes()"
+          ng-change="editingNotes(alertSummaryCopy)"
           ng-disabled="modifying"
           name="editableNotes"
           placeholder="{{placeholder}}"

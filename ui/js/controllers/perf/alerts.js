@@ -7,6 +7,29 @@ import angular from 'angular';
 
 import perf from '../../perf';
 import { endpoints } from '../../../perfherder/constants';
+import {
+    alertIsOfState,
+    alertSummaryIsOfState,
+    alertSummaryMarkAs,
+    assignBug,
+    editingNotes,
+    getAlertStatusText,
+    getAlertSummaries,
+    getAlertSummary,
+    getAlertSummaryTitle,
+    getAlertSummaryStatusText,
+    getGraphsURL,
+    getIssueTrackerUrl,
+    getSubtestsURL,
+    getTextualSummary,
+    getTitle,
+    isResolved,
+    modifySelectedAlerts,
+    refreshAlertSummary,
+    saveNotes,
+    toggleStar,
+    unassignBug,
+} from '../../../perfherder/helpers';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
 import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
@@ -36,12 +59,12 @@ perf.factory('PhBugs', [
                         revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
                         alertHref: window.location.origin + '/perf.html#/alerts?id=' +
                             alertSummary.id,
-                        alertSummary: alertSummary.getTextualSummary(),
+                        alertSummary: getTextualSummary(alertSummary),
                     });
                     const pushDate = dateFilter(
                         alertSummary.resultSetMetadata.push_timestamp * 1000,
                         'EEE MMM d yyyy');
-                    const bugTitle = alertSummary.getTitle() +
+                    const bugTitle = getTitle(alertSummary) +
                         ' regression on push ' +
                         alertSummary.resultSetMetadata.revision + ' (' +
                         pushDate + ')';
@@ -84,7 +107,7 @@ perf.controller(
                 const selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
 
                 $scope.modifying = true;
-                alertSummary.assignBug(newId, selectedIssueTracker.id).then(function () {
+                assignBug(alertSummary, newId, selectedIssueTracker.id).then(function () {
                     $scope.modifying = false;
                     $uibModalInstance.close('assigned');
                 });
@@ -107,9 +130,12 @@ perf.controller(
             $scope.error = false;
             $scope.alertSummaryCopy = angular.copy(alertSummary);
 
+            // AlertSummary function
+            $scope.editingNotes = editingNotes;
+
             $scope.saveChanges = function () {
                 $scope.modifying = true;
-                $scope.alertSummaryCopy.saveNotes().then(function () {
+                saveNotes($scope.alertSummaryCopy).then(function () {
                     merge(alertSummary, $scope.alertSummaryCopy);
                     $scope.modifying = false;
                     $scope.error = false;
@@ -143,14 +169,14 @@ perf.controller(
                 const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
-                alertSummary.modifySelectedAlerts({
+                modifySelectedAlerts(alertSummary, {
                     status: phAlertStatusMap.DOWNSTREAM.id,
                     related_summary_id: newId,
                 }).then(() => {
                         const summariesToUpdate = [alertSummary].concat(
                             allAlertSummaries.find(alertSummary =>
                                 alertSummary.id === newId) || []);
-                        $q.all(summariesToUpdate.map(alertSummary => alertSummary.update(),
+                        $q.all(summariesToUpdate.map(alertSummary => refreshAlertSummary(alertSummary),
                       )).then(() => $uibModalInstance.close('downstreamed'));
                     });
             };
@@ -178,7 +204,7 @@ perf.controller(
                     $scope.modifyAlert.newId.$modelValue);
 
                 // FIXME: validate that new summary id is on same repository?
-                alertSummary.modifySelectedAlerts({
+                modifySelectedAlerts(alertSummary, {
                     status: phAlertStatusMap.REASSIGNED.id,
                     related_summary_id: newId,
                 }).then(function () {
@@ -186,7 +212,7 @@ perf.controller(
                     const summariesToUpdate = [alertSummary].concat(
                         allAlertSummaries.find(alertSummary =>
                           alertSummary.id === newId) || []);
-                    $q.all(summariesToUpdate.map(alertSummary => alertSummary.update(),
+                    $q.all(summariesToUpdate.map(alertSummary => refreshAlertSummary(alertSummary),
                   )).then(() => $uibModalInstance.close('downstreamed'));
                 });
             };
@@ -202,9 +228,9 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'PhAlerts', 'PhBugs', 'dateFilter', 'clipboard',
+    'PhBugs', 'dateFilter', 'clipboard',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q, $uibModal,
-                        PhAlerts, PhBugs, dateFilter, clipboard) {
+                        PhBugs, dateFilter, clipboard) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {
@@ -229,13 +255,6 @@ perf.controller('AlertsCtrl', [
         // can filter by alert statuses or just show everything
         $scope.statuses = Object.values(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({ id: -1, text: 'all' });
-
-        $scope.changeAlertSummaryStatus = function (alertSummary, open) {
-            PhAlerts.changeAlertSummaryStatus(
-                alertSummary.id, open).then(function () {
-                    alertSummary.is_open = open;
-                });
-        };
 
         function updateAlertVisibility() {
             $scope.alertSummaries.forEach(function (alertSummary) {
@@ -283,10 +302,10 @@ perf.controller('AlertsCtrl', [
             return alerts.map(alert => alert.selected).some(x => x);
         };
         $scope.anySelectedAndTriaged = function (alerts) {
-            return alerts.map(alert => !alert.isUntriaged() && alert.selected).some(x => x);
+            return alerts.map(alert => !alertIsOfState(alert, phAlertStatusMap.UNTRIAGED) && alert.selected).some(x => x);
         };
         $scope.allSelectedAreConfirming = function (alerts) {
-            return alerts.filter(alert => alert.selected).map(alert => alert.isConfirming()).every(x => x);
+            return alerts.filter(alert => alert.selected).map(alert => alertIsOfState(alert, phAlertStatusMap.CONFIRMING)).every(x => x);
         };
         $scope.selectNoneOrSelectAll = function (alertSummary) {
             // if some are not selected, then select all if checked
@@ -304,7 +323,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.copyTextToClipboard = function (alertSummary) {
-            clipboard.copyText(alertSummary.getTextualSummary(true));
+            clipboard.copyText(getTextualSummary(alertSummary, true));
         };
 
         $scope.fileBug = function (alertSummary) {
@@ -325,8 +344,9 @@ perf.controller('AlertsCtrl', [
             });
         };
         $scope.unlinkBug = function (alertSummary) {
-            alertSummary.unassignBug().then(function () {
+            unassignBug(alertSummary).then(function () {
                 updateAlertVisibility();
+                $scope.$digest();
             });
         };
         $scope.markAlertsDownstream = function (alertSummary) {
@@ -365,12 +385,13 @@ perf.controller('AlertsCtrl', [
         };
 
         function updateAlertSummary(alertSummary) {
-            alertSummary.update().then(function () {
+            refreshAlertSummary(alertSummary).then(function () {
                 updateAlertVisibility();
+                $scope.$digest();
             });
         }
         $scope.markAlertsConfirming = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
+            modifySelectedAlerts(alertSummary, {
                 status: phAlertStatusMap.CONFIRMING.id,
             }).then(
                 function () {
@@ -378,7 +399,7 @@ perf.controller('AlertsCtrl', [
                 });
         };
         $scope.markAlertsAcknowledged = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
+            modifySelectedAlerts(alertSummary, {
                 status: phAlertStatusMap.ACKNOWLEDGED.id,
             }).then(
                 function () {
@@ -386,7 +407,7 @@ perf.controller('AlertsCtrl', [
                 });
         };
         $scope.markAlertsInvalid = function (alertSummary) {
-            alertSummary.modifySelectedAlerts({
+            modifySelectedAlerts(alertSummary, {
                 status: phAlertStatusMap.INVALID.id,
             }).then(
                 function () {
@@ -403,7 +424,7 @@ perf.controller('AlertsCtrl', [
                         alertSummary.id === alert.related_summary_id)),
                 )).filter(alertSummary => alertSummary !== undefined));
 
-            alertSummary.modifySelectedAlerts({
+            modifySelectedAlerts(alertSummary, {
                 status: phAlertStatusMap.UNTRIAGED.id,
                 related_summary_id: null,
             }).then(
@@ -508,7 +529,7 @@ perf.controller('AlertsCtrl', [
         }
 
         $scope.getMoreAlertSummaries = function () {
-            PhAlerts.getAlertSummaries({ href: $scope.getMoreAlertSummariesHref }).then(
+            getAlertSummaries({ href: $scope.getMoreAlertSummariesHref }).then(
                 function (data) {
                     addAlertSummaries(data.results, data.next);
                 });
@@ -518,7 +539,7 @@ perf.controller('AlertsCtrl', [
         $scope.alertSummaryCurrentPage = 1;
         $scope.alertSummaryPageSize = 10;
         $scope.getAlertSummariesPage = function () {
-            PhAlerts.getAlertSummaries({
+            getAlertSummaries({
                 page: $scope.alertSummaryCurrentPage,
                 statusFilter: $scope.filterOptions.status.id,
                 frameworkFilter: $scope.filterOptions.framework.id,
@@ -536,7 +557,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.getSummaryTitle = function (id) {
-            $scope.summaryTitle.promise = PhAlerts.getAlertSummaryTitle(id);
+            $scope.summaryTitle.promise = getAlertSummaryTitle(id);
             $scope.summaryTitle.promise.then(
                 function (summaryTitle) {
                     $scope.summaryTitle.html = '<p>' + summaryTitle + '</p>';
@@ -544,7 +565,6 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.resetSummaryTitle = function () {
-            $scope.summaryTitle.promise.cancel();
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
@@ -572,7 +592,7 @@ perf.controller('AlertsCtrl', [
                 // if the status or framework filter changed (and we're not looking
                 // at an individual summary), we should reload everything
                 $scope.alertSummaries = undefined;
-                PhAlerts.getAlertSummaries({
+                getAlertSummaries({
                     statusFilter: $scope.filterOptions.status.id,
                     frameworkFilter: $scope.filterOptions.framework.id,
                 }).then(
@@ -585,6 +605,30 @@ perf.controller('AlertsCtrl', [
                 updateAlertVisibility();
             }
         };
+
+        // Alert functions
+        $scope.phAlertStatusMap = phAlertStatusMap;
+
+        $scope.getAlertStatusText = getAlertStatusText;
+        $scope.getGraphsURL = getGraphsURL;
+        $scope.getSubtestsURL = getSubtestsURL;
+        $scope.alertIsOfState = alertIsOfState;
+        $scope.toggleStar = toggleStar;
+
+        // AlertSummary functions
+        $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
+
+        $scope.alertSummaryIsOfState = alertSummaryIsOfState;
+        $scope.alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) => {
+            alertSummaryMarkAs(alertSummary, phAlertSummaryStatus).then(() => {
+                $scope.$digest();
+            });
+        };
+        $scope.getAlertSummaryStatusText = getAlertSummaryStatusText;
+        $scope.getIssueTrackerUrl = getIssueTrackerUrl;
+        $scope.getTextualSummary = getTextualSummary;
+        $scope.getTitle = getTitle;
+        $scope.isResolved = isResolved;
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
@@ -612,12 +656,12 @@ perf.controller('AlertsCtrl', [
                 }
                 if ($stateParams.id) {
                     $scope.alertId = $stateParams.id;
-                    PhAlerts.getAlertSummary($stateParams.id).then(
+                    getAlertSummary($stateParams.id).then(
                         function (data) {
                             addAlertSummaries([data], null);
                         });
                 } else {
-                    PhAlerts.getAlertSummaries({
+                    getAlertSummaries({
                         statusFilter: $scope.filterOptions.status.id,
                         frameworkFilter: $scope.filterOptions.framework.id,
                         page: $scope.filterOptions.page,
