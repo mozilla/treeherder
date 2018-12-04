@@ -137,14 +137,6 @@ AnnotationsTable.propTypes = {
 };
 
 class AnnotationsTab extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.deleteBug = this.deleteBug.bind(this);
-    this.deleteClassification = this.deleteClassification.bind(this);
-    this.onDeleteClassification = this.onDeleteClassification.bind(this);
-  }
-
   componentDidMount() {
     window.addEventListener(
       thEvents.deleteClassification,
@@ -159,7 +151,7 @@ class AnnotationsTab extends React.Component {
     );
   }
 
-  onDeleteClassification() {
+  onDeleteClassification = () => {
     const { classifications, bugs, notify } = this.props;
 
     if (classifications.length) {
@@ -171,9 +163,9 @@ class AnnotationsTab extends React.Component {
     } else {
       notify('No classification on this job to delete', 'warning');
     }
-  }
+  };
 
-  deleteClassification(classification) {
+  deleteClassification = classification => {
     const { selectedJob, recalculateUnclassifiedCounts, notify } = this.props;
 
     selectedJob.failure_classification_id = 1;
@@ -190,9 +182,9 @@ class AnnotationsTab extends React.Component {
         notify('Classification deletion failed', 'danger', { sticky: true });
       },
     );
-  }
+  };
 
-  deleteBug(bug) {
+  deleteBug = bug => {
     const { notify } = this.props;
 
     bug.destroy().then(
@@ -209,7 +201,7 @@ class AnnotationsTab extends React.Component {
         });
       },
     );
-  }
+  };
 
   render() {
     const { classifications, classificationMap, bugs } = this.props;

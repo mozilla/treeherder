@@ -28,16 +28,6 @@ class PinBoard extends React.Component {
   }
 
   componentDidMount() {
-    this.bugNumberKeyPress = this.bugNumberKeyPress.bind(this);
-    this.save = this.save.bind(this);
-    this.handleRelatedBugDocumentClick = this.handleRelatedBugDocumentClick.bind(
-      this,
-    );
-    this.handleRelatedBugEscape = this.handleRelatedBugEscape.bind(this);
-    this.unPinAll = this.unPinAll.bind(this);
-    this.retriggerAllPinnedJobs = this.retriggerAllPinnedJobs.bind(this);
-    this.pasteSHA = this.pasteSHA.bind(this);
-
     window.addEventListener(thEvents.saveClassification, this.save);
   }
 
@@ -53,7 +43,7 @@ class PinBoard extends React.Component {
     this.setState({ failureClassificationComment: evt.target.value });
   }
 
-  unPinAll() {
+  unPinAll = () => {
     this.props.unPinAll();
     this.setState({
       failureClassificationId: 4,
@@ -61,9 +51,9 @@ class PinBoard extends React.Component {
       enteringBugNumber: false,
       newBugNumber: null,
     });
-  }
+  };
 
-  save() {
+  save = () => {
     const {
       isLoggedIn,
       pinnedJobs,
@@ -110,9 +100,9 @@ class PinBoard extends React.Component {
       // or Firefox on Mac works fine though.
       document.getElementById('keyboard-shortcuts').focus();
     }
-  }
+  };
 
-  createNewClassification() {
+  createNewClassification = () => {
     const { email } = this.props;
     const {
       failureClassificationId,
@@ -124,9 +114,9 @@ class PinBoard extends React.Component {
       who: email,
       failure_classification_id: failureClassificationId,
     });
-  }
+  };
 
-  saveClassification(job) {
+  saveClassification = job => {
     const { recalculateUnclassifiedCounts, notify } = this.props;
     const classification = this.createNewClassification();
 
@@ -152,9 +142,9 @@ class PinBoard extends React.Component {
           notify(formatModelError(response, message), 'danger');
         });
     }
-  }
+  };
 
-  saveBugs(job) {
+  saveBugs = job => {
     const { pinnedJobBugs, notify } = this.props;
 
     Object.values(pinnedJobBugs).forEach(bug => {
@@ -179,20 +169,20 @@ class PinBoard extends React.Component {
           notify(formatModelError(response, message), 'danger');
         });
     });
-  }
+  };
 
   // If the pasted data is (or looks like) a 12 or 40 char SHA,
   // or if the pasted data is an hg.m.o url, automatically select
   // the 'fixed by commit' classification type
-  pasteSHA(evt) {
+  pasteSHA = evt => {
     const pastedData = evt.clipboardData.getData('text');
 
     if (isSHAorCommit(pastedData)) {
       this.setState({ failureClassificationId: 2 });
     }
-  }
+  };
 
-  cancelAllPinnedJobsTitle() {
+  cancelAllPinnedJobsTitle = () => {
     if (!this.props.isLoggedIn) {
       return 'Not logged in';
     }
@@ -202,17 +192,17 @@ class PinBoard extends React.Component {
     }
 
     return 'Cancel all the pinned jobs';
-  }
+  };
 
-  canCancelAllPinnedJobs() {
+  canCancelAllPinnedJobs = () => {
     const cancellableJobs = Object.values(this.props.pinnedJobs).filter(
       job => job.state === 'pending' || job.state === 'running',
     );
 
     return this.props.isLoggedIn && cancellableJobs.length > 0;
-  }
+  };
 
-  cancelAllPinnedJobs() {
+  cancelAllPinnedJobs = () => {
     const { getGeckoDecisionTaskId, notify, repoName } = this.props;
 
     if (
@@ -223,9 +213,9 @@ class PinBoard extends React.Component {
       JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
       this.unPinAll();
     }
-  }
+  };
 
-  canSaveClassifications() {
+  canSaveClassifications = () => {
     const { pinnedJobBugs, isLoggedIn, currentRepo } = this.props;
     const {
       failureClassificationId,
@@ -244,10 +234,10 @@ class PinBoard extends React.Component {
         (failureClassificationId === 2 &&
           failureClassificationComment.length > 7))
     );
-  }
+  };
 
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
-  pinboardIsDirty() {
+  pinboardIsDirty = () => {
     const {
       failureClassificationId,
       failureClassificationComment,
@@ -258,10 +248,10 @@ class PinBoard extends React.Component {
       !!Object.keys(this.props.pinnedJobBugs).length ||
       failureClassificationId !== 4
     );
-  }
+  };
 
   // Dynamic btn/anchor title for classification save
-  saveUITitle(category) {
+  saveUITitle = category => {
     let title = '';
 
     if (!this.props.isLoggedIn) {
@@ -290,30 +280,26 @@ class PinBoard extends React.Component {
       title = title.replace(/^./, l => l.toUpperCase());
     }
     return title;
-  }
+  };
 
-  hasPinnedJobs() {
-    return !!Object.keys(this.props.pinnedJobs).length;
-  }
+  hasPinnedJobs = () => !!Object.keys(this.props.pinnedJobs).length;
 
-  hasPinnedJobBugs() {
-    return !!Object.keys(this.props.pinnedJobBugs).length;
-  }
+  hasPinnedJobBugs = () => !!Object.keys(this.props.pinnedJobBugs).length;
 
-  handleRelatedBugDocumentClick(event) {
+  handleRelatedBugDocumentClick = event => {
     if (!event.target.classList.contains('add-related-bugs-input')) {
       this.saveEnteredBugNumber();
       document.removeEventListener('click', this.handleRelatedBugDocumentClick);
     }
-  }
+  };
 
-  handleRelatedBugEscape(event) {
+  handleRelatedBugEscape = event => {
     if (event.key === 'Escape') {
       this.toggleEnterBugNumber(false);
     }
-  }
+  };
 
-  toggleEnterBugNumber(tf) {
+  toggleEnterBugNumber = tf => {
     this.setState(
       {
         enteringBugNumber: tf,
@@ -340,13 +326,11 @@ class PinBoard extends React.Component {
         }
       },
     );
-  }
+  };
 
-  isNumber(text) {
-    return !text || /^[0-9]*$/.test(text);
-  }
+  isNumber = text => !text || /^[0-9]*$/.test(text);
 
-  saveEnteredBugNumber() {
+  saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
 
     if (enteringBugNumber) {
@@ -358,9 +342,9 @@ class PinBoard extends React.Component {
         return true;
       }
     }
-  }
+  };
 
-  bugNumberKeyPress(ev) {
+  bugNumberKeyPress = ev => {
     if (ev.key === 'Enter') {
       this.saveEnteredBugNumber(ev.target.value);
       if (ev.ctrlKey) {
@@ -369,9 +353,9 @@ class PinBoard extends React.Component {
       }
       ev.preventDefault();
     }
-  }
+  };
 
-  retriggerAllPinnedJobs() {
+  retriggerAllPinnedJobs = () => {
     const { getGeckoDecisionTaskId, notify, repoName } = this.props;
 
     JobModel.retrigger(
@@ -380,7 +364,7 @@ class PinBoard extends React.Component {
       getGeckoDecisionTaskId,
       notify,
     );
-  }
+  };
 
   render() {
     const {

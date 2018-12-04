@@ -48,8 +48,6 @@ class DetailsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.updateClassifications = this.updateClassifications.bind(this);
-
     window.addEventListener(
       thEvents.classificationChanged,
       this.updateClassifications,
@@ -91,13 +89,13 @@ class DetailsPanel extends React.Component {
     );
   }
 
-  togglePinBoardVisibility() {
+  togglePinBoardVisibility = () => {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
 
     setPinBoardVisible(!isPinBoardVisible);
-  }
+  };
 
-  loadBugSuggestions() {
+  loadBugSuggestions = () => {
     const { repoName, selectedJob } = this.props;
 
     if (!selectedJob) {
@@ -142,9 +140,9 @@ class DetailsPanel extends React.Component {
 
       this.setState({ bugSuggestionsLoading: false, suggestions });
     });
-  }
+  };
 
-  async updateClassifications() {
+  updateClassifications = async () => {
     const { selectedJob } = this.props;
     const classifications = await JobClassificationModel.getList({
       job_id: selectedJob.id,
@@ -152,7 +150,7 @@ class DetailsPanel extends React.Component {
     const bugs = await BugJobMapModel.getList({ job_id: selectedJob.id });
 
     this.setState({ classifications, bugs });
-  }
+  };
 
   selectJob() {
     const { repoName, selectedJob, getPush } = this.props;

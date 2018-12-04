@@ -36,18 +36,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
-    // TODO: Once we're not using ng-react any longer and
-    // are hosted completely in React, then try moving this
-    // .bind code to the constructor.
-    this.toggleSelect = this.toggleSelect.bind(this);
-    this.setErrorLineInput = this.setErrorLineInput.bind(this);
-    this.onToggleEditable = this.onToggleEditable.bind(this);
-    this.onIgnore = this.onIgnore.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.onSaveAll = this.onSaveAll.bind(this);
-    this.onPin = this.onPin.bind(this);
-    this.save = this.save.bind(this);
-
     // Load the data here
     if (this.props.selectedJob.id) {
       this.fetchErrorData();
@@ -64,59 +52,59 @@ class AutoclassifyTab extends React.Component {
   /**
    * Save all pending lines
    */
-  onSaveAll(pendingLines) {
+  onSaveAll = pendingLines => {
     const pending = pendingLines || Array.from(this.state.inputByLine.values());
     this.save(pending).then(() => {
       this.setState({ selectedLineIds: new Set() });
     });
-  }
+  };
 
   /**
    * Save all selected lines
    */
-  onSave() {
+  onSave = () => {
     this.save(this.getSelectedLines());
-  }
+  };
 
   /**
    * Ignore selected lines
    */
-  onIgnore() {
+  onIgnore = () => {
     window.dispatchEvent(new CustomEvent(thEvents.autoclassifyIgnore));
-  }
+  };
 
   /**
    * Pin selected job to the pinBoard
    */
-  onPin() {
+  onPin = () => {
     // TODO: consider whether this should add bugs or mark all lines as ignored
     this.props.pinJob(this.props.selectedJob);
-  }
+  };
 
-  onToggleEditable() {
+  onToggleEditable = () => {
     const { selectedLineIds, editableLineIds } = this.state;
     const selectedIds = Array.from(selectedLineIds);
     const editable = selectedIds.some(id => !editableLineIds.has(id));
 
     this.setEditable(selectedIds, editable);
-  }
+  };
 
-  getPendingLines() {
+  getPendingLines = () => {
     const { errorLines } = this.state;
 
     return errorLines.filter(line => !line.verified);
-  }
+  };
 
-  getSelectedLines() {
+  getSelectedLines = () => {
     const { selectedLineIds, inputByLine } = this.state;
 
     return Array.from(selectedLineIds).reduce((lines, id) => {
       const settings = inputByLine.get(id);
       return settings ? [...lines, settings] : lines;
     }, []);
-  }
+  };
 
-  getLoadStatusText() {
+  getLoadStatusText = () => {
     switch (this.state.loadStatus) {
       case 'job_pending':
         return 'Job not complete, please wait';
@@ -137,9 +125,9 @@ class AutoclassifyTab extends React.Component {
       default:
         return `Unexpected status: ${this.state.loadStatus}`;
     }
-  }
+  };
 
-  setEditable(lineIds, editable) {
+  setEditable = (lineIds, editable) => {
     const { editableLineIds } = this.state;
     const f = editable
       ? lineId => editableLineIds.add(lineId)
@@ -147,19 +135,19 @@ class AutoclassifyTab extends React.Component {
 
     lineIds.forEach(f);
     this.setState({ editableLineIds });
-  }
+  };
 
-  setErrorLineInput(id, input) {
+  setErrorLineInput = (id, input) => {
     const { inputByLine } = this.state;
 
     inputByLine.set(id, input);
     this.setState({ inputByLine });
-  }
+  };
 
   /**
    * Get TextLogerror data from the API
    */
-  async fetchErrorData() {
+  fetchErrorData = async () => {
     const { selectedJob } = this.props;
 
     this.setState(
@@ -194,13 +182,13 @@ class AutoclassifyTab extends React.Component {
         }
       },
     );
-  }
+  };
 
   /**
    * Test if it is possible to save a specific line.
    * @param {number} lineId - Line id to test.
    */
-  canSave(lineId) {
+  canSave = lineId => {
     const { inputByLine, canClassify } = this.state;
     const settings = inputByLine.get(lineId);
 
@@ -218,12 +206,12 @@ class AutoclassifyTab extends React.Component {
       return true;
     }
     return !!(settings.classifiedFailureId || settings.bugNumber);
-  }
+  };
 
   /**
    * Test if it is possible to save all in a list of lines.
    */
-  canSaveAll() {
+  canSaveAll = () => {
     const pendingLines = this.getPendingLines();
 
     return (
@@ -231,14 +219,14 @@ class AutoclassifyTab extends React.Component {
       !!pendingLines.length &&
       pendingLines.every(line => this.canSave(line.id))
     );
-  }
+  };
 
   /**
    * Update and mark verified the classification of a list of lines on
    * the server.
    * @param {number[]} lines - Lines to test.
    */
-  save(lines) {
+  save = lines => {
     if (!Object.keys(lines).length) {
       return Promise.reject('No lines to save');
     }
@@ -270,13 +258,13 @@ class AutoclassifyTab extends React.Component {
           : `${prefix}${err.statusText} - ${err.data.detail}`;
         notify(msg, 'danger', { sticky: true });
       });
-  }
+  };
 
   /**
    * Toggle the selection of a ErrorLine, if the click didn't happen on an interactive
    * element child of that line.
    */
-  toggleSelect(event, errorLine) {
+  toggleSelect = (event, errorLine) => {
     const elem = $(event.target);
     const { selectedLineIds } = this.state;
     const interactive = new Set(['INPUT', 'BUTTON', 'TEXTAREA', 'A']);
@@ -297,7 +285,7 @@ class AutoclassifyTab extends React.Component {
     } else {
       this.setState({ selectedLineIds: new Set([errorLine.id]) });
     }
-  }
+  };
 
   render() {
     const { user, repoName, selectedJob } = this.props;

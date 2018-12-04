@@ -52,9 +52,6 @@ class TabsPanel extends React.Component {
   }
 
   componentDidMount() {
-    this.setTabIndex = this.setTabIndex.bind(this);
-    this.onSelectNextTab = this.onSelectNextTab.bind(this);
-
     window.addEventListener(thEvents.selectNextTab, this.onSelectNextTab);
   }
 
@@ -62,7 +59,7 @@ class TabsPanel extends React.Component {
     window.removeEventListener(thEvents.selectNextTab, this.onSelectNextTab);
   }
 
-  onSelectNextTab() {
+  onSelectNextTab = () => {
     const { tabIndex, showAutoclassifyTab } = this.state;
     const { perfJobDetail } = this.props;
     const nextIndex = tabIndex + 1;
@@ -71,7 +68,7 @@ class TabsPanel extends React.Component {
       showAutoclassifyTab,
     ).length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
-  }
+  };
 
   static getDefaultTabIndex(status, showPerf, showAutoclassify) {
     let idx = 0;
@@ -107,9 +104,9 @@ class TabsPanel extends React.Component {
     );
   }
 
-  setTabIndex(tabIndex) {
+  setTabIndex = tabIndex => {
     this.setState({ tabIndex });
-  }
+  };
 
   render() {
     const {

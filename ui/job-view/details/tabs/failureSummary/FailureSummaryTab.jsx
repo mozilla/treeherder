@@ -21,12 +21,7 @@ class FailureSummaryTab extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.toggleBugFiler = this.toggleBugFiler.bind(this);
-    this.bugFilerCallback = this.bugFilerCallback.bind(this);
-  }
-
-  fileBug(suggestion) {
+  fileBug = suggestion => {
     const { selectedJob, pinJob } = this.props;
 
     pinJob(selectedJob);
@@ -34,20 +29,20 @@ class FailureSummaryTab extends React.Component {
       isBugFilerOpen: true,
       suggestion,
     });
-  }
+  };
 
-  toggleBugFiler() {
+  toggleBugFiler = () => {
     this.setState({ isBugFilerOpen: !this.state.isBugFilerOpen });
-  }
+  };
 
-  bugFilerCallback(data) {
+  bugFilerCallback = data => {
     const { addBug } = this.props;
 
     addBug({ id: data.success });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
     window.open(getBugUrl(data.success));
-  }
+  };
 
   render() {
     const {

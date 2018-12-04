@@ -26,13 +26,6 @@ class ActionBar extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.toggleCustomJobActions = this.toggleCustomJobActions.bind(this);
-    this.createGeckoProfile = this.createGeckoProfile.bind(this);
-    this.createInteractiveTask = this.createInteractiveTask.bind(this);
-    this.onOpenLogviewer = this.onOpenLogviewer.bind(this);
-    this.onRetriggerJob = this.onRetriggerJob.bind(this);
-    this.retriggerJob = this.retriggerJob.bind(this);
-
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
@@ -42,12 +35,12 @@ class ActionBar extends React.PureComponent {
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
-  onRetriggerJob(event) {
+  onRetriggerJob = event => {
     this.retriggerJob([event.detail.job]);
-  }
+  };
 
   // Open the logviewer and provide notifications if it isn't available
-  onOpenLogviewer() {
+  onOpenLogviewer = () => {
     const { logParseStatus, notify } = this.props;
 
     switch (logParseStatus) {
@@ -63,14 +56,14 @@ class ActionBar extends React.PureComponent {
       case 'parsed':
         $('.logviewer-btn')[0].click();
     }
-  }
+  };
 
-  canCancel() {
+  canCancel = () => {
     const { selectedJob } = this.props;
     return selectedJob.state === 'pending' || selectedJob.state === 'running';
-  }
+  };
 
-  createGeckoProfile() {
+  createGeckoProfile = () => {
     const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
     if (!user.isLoggedIn) {
       return notify('Must be logged in to create a gecko profile', 'danger');
@@ -113,9 +106,9 @@ class ActionBar extends React.PureComponent {
         );
       }),
     );
-  }
+  };
 
-  retriggerJob(jobs) {
+  retriggerJob = jobs => {
     const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
     const jobIds = jobs.map(({ id }) => id);
 
@@ -132,9 +125,9 @@ class ActionBar extends React.PureComponent {
     });
 
     JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify);
-  }
+  };
 
-  backfillJob() {
+  backfillJob = () => {
     const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
 
     if (!this.canBackfill()) {
@@ -187,16 +180,16 @@ class ActionBar extends React.PureComponent {
     } else {
       notify('Unable to backfill this job type!', 'danger', { sticky: true });
     }
-  }
+  };
 
   // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
-  canBackfill() {
+  canBackfill = () => {
     const { user, isTryRepo } = this.props;
 
     return user.isLoggedIn && !isTryRepo;
-  }
+  };
 
-  backfillButtonTitle() {
+  backfillButtonTitle = () => {
     const { user, isTryRepo } = this.props;
     let title = '';
 
@@ -218,9 +211,9 @@ class ActionBar extends React.PureComponent {
       title = title.replace(/^./, l => l.toUpperCase());
     }
     return title;
-  }
+  };
 
-  async createInteractiveTask() {
+  createInteractiveTask = async () => {
     const {
       user,
       selectedJob,
@@ -265,9 +258,9 @@ class ActionBar extends React.PureComponent {
       // notification box.
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
-  }
+  };
 
-  cancelJobs(jobs) {
+  cancelJobs = jobs => {
     const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
     const jobIds = jobs
       .filter(({ state }) => state === 'pending' || state === 'running')
@@ -278,17 +271,17 @@ class ActionBar extends React.PureComponent {
     }
 
     JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
-  }
+  };
 
-  cancelJob() {
+  cancelJob = () => {
     this.cancelJobs([this.props.selectedJob]);
-  }
+  };
 
-  toggleCustomJobActions() {
+  toggleCustomJobActions = () => {
     const { customJobActionsShowing } = this.state;
 
     this.setState({ customJobActionsShowing: !customJobActionsShowing });
-  }
+  };
 
   render() {
     const {

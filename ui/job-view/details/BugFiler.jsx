@@ -157,13 +157,6 @@ export class BugFilerClass extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.submitFiler = this.submitFiler.bind(this);
-    this.findProduct = this.findProduct.bind(this);
-    this.productSearchEnter = this.productSearchEnter.bind(this);
-    this.toggleTooltip = this.toggleTooltip.bind(this);
-  }
-
   getUnhelpfulSummaryReason(summary) {
     const { suggestion } = this.props;
     const searchTerms = suggestion.search_terms;
@@ -205,7 +198,7 @@ export class BugFilerClass extends React.Component {
   /**
    *  'enter' from the product search input should initiate the search
    */
-  productSearchEnter(ev) {
+  productSearchEnter = ev => {
     const { keyCode, target } = ev;
 
     this.setState({ productSearch: target.value }, () => {
@@ -213,12 +206,12 @@ export class BugFilerClass extends React.Component {
         this.findProduct();
       }
     });
-  }
+  };
 
   /*
    *  Attempt to find a good product/component for this failure
    */
-  async findProduct() {
+  findProduct = async () => {
     const { jobGroupName } = this.props;
     const { productSearch, parsedSummary } = this.state;
 
@@ -340,21 +333,21 @@ export class BugFilerClass extends React.Component {
       selectedProduct: newSuggestedProducts[0],
       searching: false,
     });
-  }
+  };
 
-  toggleCheckedLogLink(link) {
+  toggleCheckedLogLink = link => {
     const { checkedLogLinks } = this.state;
     const newCheckedLogLinks = checkedLogLinks.includes(link)
       ? checkedLogLinks.filter(item => item !== link)
       : [...checkedLogLinks, link];
 
     this.setState({ checkedLogLinks: newCheckedLogLinks });
-  }
+  };
 
   /*
    *  Actually send the gathered information to bugzilla.
    */
-  async submitFiler() {
+  submitFiler = async () => {
     const {
       summary,
       selectedProduct,
@@ -454,9 +447,9 @@ export class BugFilerClass extends React.Component {
     } catch (e) {
       notify(`Error filing bug: ${e.toString()}`, 'danger', { sticky: true });
     }
-  }
+  };
 
-  submitFailure(source, status, statusText, data) {
+  submitFailure = (source, status, statusText, data) => {
     const { notify } = this.props;
 
     let failureString = `${source} returned status ${status}(${statusText})`;
@@ -468,14 +461,14 @@ export class BugFilerClass extends React.Component {
         '\n\nAuthentication failed. Has your Treeherder session expired?';
     }
     notify(failureString, 'danger', { sticky: true });
-  }
+  };
 
-  toggleTooltip(key) {
+  toggleTooltip = key => {
     const { tooltipOpen } = this.state;
     this.setState({
       tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] },
     });
-  }
+  };
 
   render() {
     const {

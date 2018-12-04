@@ -30,24 +30,18 @@ class LineOption extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.fileBug = this.fileBug.bind(this);
-    this.toggleBugFiler = this.toggleBugFiler.bind(this);
-    this.bugFilerCallback = this.bugFilerCallback.bind(this);
-  }
-
-  fileBug() {
+  fileBug = () => {
     const { selectedOption, optionModel } = this.props;
 
     selectedOption.id = optionModel.id;
     this.setState({ isBugFilerOpen: true });
-  }
+  };
 
-  toggleBugFiler() {
+  toggleBugFiler = () => {
     this.setState({ isBugFilerOpen: !this.state.isBugFilerOpen });
-  }
+  };
 
-  bugFilerCallback(data) {
+  bugFilerCallback = data => {
     const { addBug, onManualBugNumberChange, optionModel } = this.props;
     const bugId = data.success;
 
@@ -56,7 +50,7 @@ class LineOption extends React.Component {
     // Open the newly filed bug in a new tab or window for further editing
     window.open(getBugUrl(bugId));
     onManualBugNumberChange(optionModel, `${bugId}`);
-  }
+  };
 
   render() {
     const {
