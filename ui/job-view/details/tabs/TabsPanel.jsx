@@ -214,13 +214,7 @@ class TabsPanel extends React.Component {
           </TabPanel>
           {showAutoclassifyTab && (
             <TabPanel>
-              <AutoclassifyTab
-                hasLogs={!!jobLogUrls.length}
-                logsParsed={logParseStatus !== 'pending'}
-                logParseStatus={logParseStatus}
-                user={user}
-                repoName={repoName}
-              />
+              <AutoclassifyTab user={user} repoName={repoName} />
             </TabPanel>
           )}
           <TabPanel>

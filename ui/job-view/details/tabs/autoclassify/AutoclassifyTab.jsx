@@ -25,7 +25,6 @@ class AutoclassifyTab extends React.Component {
       // Map between line id and input selected in the UI
       inputByLine: new Map(),
       // Autoclassify status when the panel last loaded
-      autoclassifyStatusOnLoad: null,
       canClassify: false,
     };
   }
@@ -42,7 +41,6 @@ class AutoclassifyTab extends React.Component {
     // .bind code to the constructor.
     this.toggleSelect = this.toggleSelect.bind(this);
     this.setErrorLineInput = this.setErrorLineInput.bind(this);
-    this.jobChanged = this.jobChanged.bind(this);
     this.onToggleEditable = this.onToggleEditable.bind(this);
     this.onIgnore = this.onIgnore.bind(this);
     this.onSave = this.onSave.bind(this);
@@ -171,7 +169,6 @@ class AutoclassifyTab extends React.Component {
         selectedLineIds: new Set(),
         editableLineIds: new Set(),
         inputByLine: new Map(),
-        autoclassifyStatusOnLoad: null,
       },
       async () => {
         if (selectedJob.id) {
@@ -276,50 +273,6 @@ class AutoclassifyTab extends React.Component {
   }
 
   /**
-   * Update the panel for a new job selection
-   */
-  jobChanged() {
-    const {
-      autoclassifyStatus,
-      hasLogs,
-      logsParsed,
-      logParseStatus,
-      selectedJob,
-    } = this.props;
-    const { loadStatus, autoclassifyStatusOnLoad } = this.state;
-
-    let newLoadStatus = 'loading';
-    if (selectedJob.state === 'pending' || selectedJob.state === 'running') {
-      newLoadStatus = 'job_pending';
-    } else if (!logsParsed || autoclassifyStatus === 'pending') {
-      newLoadStatus = 'pending';
-    } else if (logParseStatus === 'failed') {
-      newLoadStatus = 'failed';
-    } else if (!hasLogs) {
-      newLoadStatus = 'no_logs';
-    } else if (
-      autoclassifyStatusOnLoad === null ||
-      autoclassifyStatusOnLoad === 'cross_referenced'
-    ) {
-      if (loadStatus !== 'ready') {
-        newLoadStatus = 'loading';
-      }
-      this.fetchErrorData()
-        .then(data => this.buildLines(data))
-        .catch(() => {
-          this.setState({ loadStatus: 'error' });
-        });
-    }
-
-    this.setState({
-      loadStatus: newLoadStatus,
-      selectedLineIds: new Set(),
-      inputByLine: new Map(),
-      autoclassifyStatusOnLoad: null,
-    });
-  }
-
-  /**
    * Toggle the selection of a ErrorLine, if the click didn't happen on an interactive
    * element child of that line.
    */
@@ -347,7 +300,7 @@ class AutoclassifyTab extends React.Component {
   }
 
   render() {
-    const { autoclassifyStatus, user, repoName } = this.props;
+    const { user, repoName, selectedJob } = this.props;
     const {
       errorLines,
       loadStatus,
@@ -364,8 +317,7 @@ class AutoclassifyTab extends React.Component {
       <React.Fragment>
         {canClassify && (
           <AutoclassifyToolbar
-            loadStatus={loadStatus}
-            autoclassifyStatus={autoclassifyStatus}
+            autoclassifyStatus={selectedJob.autoclassify_status || 'pending'}
             user={user}
             hasSelection={!!selectedLineIds.size}
             canSave={canSave}
@@ -418,19 +370,9 @@ class AutoclassifyTab extends React.Component {
 AutoclassifyTab.propTypes = {
   user: PropTypes.object.isRequired,
   selectedJob: PropTypes.object.isRequired,
-  hasLogs: PropTypes.bool.isRequired,
   pinJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
-  autoclassifyStatus: PropTypes.string,
-  logsParsed: PropTypes.bool,
-  logParseStatus: PropTypes.string,
-};
-
-AutoclassifyTab.defaultProps = {
-  autoclassifyStatus: 'pending',
-  logsParsed: false,
-  logParseStatus: 'pending',
 };
 
 export default withNotifications(
