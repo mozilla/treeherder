@@ -23,25 +23,18 @@ export default class ActiveFilters extends React.Component {
     return { fieldChoices };
   }
 
-  componentDidMount() {
-    this.addNewFieldFilter = this.addNewFieldFilter.bind(this);
-    this.setNewFilterValue = this.setNewFilterValue.bind(this);
-    this.setNewFilterField = this.setNewFilterField.bind(this);
-    this.clearNewFieldFilter = this.clearNewFieldFilter.bind(this);
-  }
-
-  setNewFilterField(field) {
+  setNewFilterField = field => {
     const { fieldChoices } = this.state;
     this.setState({
       newFilterField: field,
       newFilterMatchType: fieldChoices[field].matchType,
       newFilterChoices: fieldChoices[field].choices,
     });
-  }
+  };
 
-  setNewFilterValue(value) {
+  setNewFilterValue = value => {
     this.setState({ newFilterValue: value });
-  }
+  };
 
   getFilterValue(field, value) {
     const { fieldChoices } = this.state;
@@ -53,7 +46,7 @@ export default class ActiveFilters extends React.Component {
       : value;
   }
 
-  addNewFieldFilter() {
+  addNewFieldFilter = () => {
     const { filterModel } = this.props;
     const { newFilterField, newFilterValue } = this.state;
 
@@ -61,10 +54,10 @@ export default class ActiveFilters extends React.Component {
       filterModel.addFilter(newFilterField, newFilterValue);
       this.clearNewFieldFilter();
     }
-  }
+  };
 
   // Clear the values and close the input form group
-  clearNewFieldFilter() {
+  clearNewFieldFilter = () => {
     this.setState({
       newFilterField: '',
       newFilterMatchType: '',
@@ -72,7 +65,7 @@ export default class ActiveFilters extends React.Component {
       newFilterChoices: [],
     });
     this.props.toggleFieldFilterVisible();
-  }
+  };
 
   render() {
     const { isFieldFilterVisible, filterModel, filterBarFilters } = this.props;

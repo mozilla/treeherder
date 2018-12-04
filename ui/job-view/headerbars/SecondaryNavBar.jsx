@@ -36,14 +36,6 @@ class SecondaryNavBar extends React.Component {
   }
 
   componentDidMount() {
-    this.toggleGroupState = this.toggleGroupState.bind(this);
-    this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(
-      this,
-    );
-    this.clearFilterBox = this.clearFilterBox.bind(this);
-    this.unwatchRepo = this.unwatchRepo.bind(this);
-    this.handleUrlChanges = this.handleUrlChanges.bind(this);
-
     window.addEventListener('hashchange', this.handleUrlChanges, false);
     this.loadWatchedRepos();
   }
@@ -56,13 +48,13 @@ class SecondaryNavBar extends React.Component {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges() {
+  handleUrlChanges = () => {
     this.setState({
       searchQueryStr: getSearchStrFromUrl(),
     });
-  }
+  };
 
-  search(ev) {
+  search = ev => {
     const { filterModel } = this.props;
     const { value } = ev.target;
 
@@ -74,9 +66,9 @@ class SecondaryNavBar extends React.Component {
       }
       ev.target.parentElement.focus();
     }
-  }
+  };
 
-  isFilterOn(filter) {
+  isFilterOn = filter => {
     const { filterModel } = this.props;
     const { resultStatus } = filterModel.urlParams;
 
@@ -84,13 +76,13 @@ class SecondaryNavBar extends React.Component {
       return thFilterGroups[filter].some(val => resultStatus.includes(val));
     }
     return resultStatus.includes(filter);
-  }
+  };
 
   /**
    * Handle toggling one of the individual result status filter chicklets
    * on the nav bar
    */
-  toggleResultStatusFilterChicklet(filter) {
+  toggleResultStatusFilterChicklet = filter => {
     const { filterModel } = this.props;
     const filterValues =
       filter in thFilterGroups
@@ -98,39 +90,39 @@ class SecondaryNavBar extends React.Component {
         : [filter];
 
     filterModel.toggleResultStatuses(filterValues);
-  }
+  };
 
-  toggleShowDuplicateJobs() {
+  toggleShowDuplicateJobs = () => {
     const { duplicateJobsVisible } = this.props;
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
     setUrlParam('duplicate_jobs', duplicateJobs);
-  }
+  };
 
-  toggleGroupState() {
+  toggleGroupState = () => {
     const { groupCountsExpanded } = this.props;
     const groupState = groupCountsExpanded ? null : 'expanded';
 
     setUrlParam('group_state', groupState);
-  }
+  };
 
-  toggleUnclassifiedFailures() {
+  toggleUnclassifiedFailures = () => {
     const { filterModel } = this.props;
 
     filterModel.toggleUnclassifiedFailures();
-  }
+  };
 
-  clearFilterBox() {
+  clearFilterBox = () => {
     const { filterModel } = this.props;
 
     filterModel.removeFilter('searchStr');
-  }
+  };
 
-  unwatchRepo(name) {
+  unwatchRepo = name => {
     const { watchedRepoNames } = this.state;
 
     this.saveWatchedRepos(watchedRepoNames.filter(repo => repo !== name));
-  }
+  };
 
   loadWatchedRepos() {
     const { repoName } = this.state;
