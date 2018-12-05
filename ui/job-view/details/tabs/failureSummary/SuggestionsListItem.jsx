@@ -11,13 +11,11 @@ export default class SuggestionsListItem extends React.Component {
     this.state = {
       suggestionShowMore: false,
     };
-
-    this.clickShowMore = this.clickShowMore.bind(this);
   }
 
-  clickShowMore() {
+  clickShowMore = () => {
     this.setState({ suggestionShowMore: !this.state.suggestionShowMore });
-  }
+  };
 
   render() {
     const { suggestion, toggleBugFiler } = this.props;

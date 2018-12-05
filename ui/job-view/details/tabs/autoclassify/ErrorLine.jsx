@@ -55,10 +55,6 @@ class ErrorLine extends React.Component {
   }
 
   componentDidMount() {
-    this.onOptionChange = this.onOptionChange.bind(this);
-    this.onManualBugNumberChange = this.onManualBugNumberChange.bind(this);
-    this.onEventIgnore = this.onEventIgnore.bind(this);
-
     window.addEventListener(thEvents.autoclassifyIgnore, this.onEventIgnore);
   }
 
@@ -70,7 +66,7 @@ class ErrorLine extends React.Component {
    * Select the ignore option, and toggle the ignoreAlways setting if it's
    * already selected
    */
-  onEventIgnore() {
+  onEventIgnore = () => {
     const { isSelected, errorLine } = this.props;
     const { selectedOption } = this.state;
     const id = `${errorLine.id}-ignore`;
@@ -85,18 +81,18 @@ class ErrorLine extends React.Component {
       selectedOption.ignoreAlways = !selectedOption.ignoreAlways;
       this.onOptionChange(selectedOption);
     }
-  }
+  };
 
   /**
    * Update data about the currently selected option in response to
    * a selection in the UI
    */
-  onOptionChange(option) {
+  onOptionChange = option => {
     this.initOption(option);
     this.setState({ selectedOption: { ...option } });
-  }
+  };
 
-  onManualBugNumberChange(option, bugNumber) {
+  onManualBugNumberChange = (option, bugNumber) => {
     // ensure numbers only
     const digits = bugNumber.replace(/\D/, '');
 
@@ -104,7 +100,7 @@ class ErrorLine extends React.Component {
       option.manualBugNumber = parseInt(digits, 10);
     }
     this.onOptionChange(option);
-  }
+  };
 
   onIgnoreAlwaysChange(option, newValue) {
     option.ignoreAlways = newValue.value;
@@ -341,13 +337,11 @@ class ErrorLine extends React.Component {
       new Map(),
     );
 
-    const matchFunc = cf_id =>
+    return cf_id =>
       matchesByCF.get(cf_id).map(match => ({
         matcher: match.matcher_name,
         score: match.score,
       }));
-
-    return matchFunc.bind(this);
   }
 
   initOption(option) {
