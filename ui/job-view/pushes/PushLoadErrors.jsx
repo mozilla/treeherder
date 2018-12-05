@@ -45,7 +45,7 @@ function PushLoadErrors(props) {
             </span>
           </div>
         )}
-      {!loadingPushes && !isRevision(revision) && currentRepo.url && (
+      {!loadingPushes && revision && !isRevision(revision) && currentRepo.url && (
         <div className="push-body unknown-message-body">
           This is an invalid or unknown revision. Please change it, or click
           <a href={`${uiJobsUrlBase}?${urlParams.toString()}`}> here</a> to
