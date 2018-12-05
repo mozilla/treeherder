@@ -38,7 +38,7 @@ export default function PrimaryNavBar(props) {
               <InfraMenu />
               <ReposMenu repos={repos} />
               <TiersMenu filterModel={filterModel} />
-              <FiltersMenu filterModel={filterModel} />
+              <FiltersMenu filterModel={filterModel} user={user} />
               <HelpMenu />
               <Login user={user} setUser={setUser} />
             </span>

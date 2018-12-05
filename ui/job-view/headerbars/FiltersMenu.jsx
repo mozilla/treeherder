@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { thAllResultStatuses } from '../../helpers/constants';
+import { getJobsUrl } from '../../helpers/url';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
@@ -17,6 +18,7 @@ function FiltersMenu(props) {
     getAllShownJobs,
     selectedJob,
     setSelectedJob,
+    user,
   } = props;
   const {
     urlParams: { resultStatus, classifiedState },
@@ -30,6 +32,7 @@ function FiltersMenu(props) {
       setSelectedJob(shownJobs[0]);
     }
   };
+  const { email } = user;
 
   return (
     <span>
@@ -104,6 +107,9 @@ function FiltersMenu(props) {
           >
             Superseded only
           </li>
+          <li title={`Show only pushes for ${email}`} className="dropdown-item">
+            <a href={getJobsUrl({ author: email })}>My pushes only</a>
+          </li>
           <li
             title="Reset to default status filters"
             className="dropdown-item"
@@ -123,6 +129,7 @@ FiltersMenu.propTypes = {
   setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
+  user: PropTypes.object.isRequired,
 };
 
 FiltersMenu.defaultProps = {
