@@ -1,14 +1,16 @@
 import React from 'react';
 import { hot } from 'react-hot-loader';
 import SplitPane from 'react-split-pane';
+import pick from 'lodash/pick';
+import isEqual from 'lodash/isEqual';
 
 import { thFavicons } from '../helpers/constants';
 import { Notifications } from '../shared/context/Notifications';
 import NotificationList from '../shared/NotificationList';
 import ShortcutTable from '../shared/ShortcutTable';
-import { matchesDefaults } from '../helpers/filter';
+import { allFilterParams, matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
-import { deployedRevisionUrl } from '../helpers/url';
+import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
@@ -178,17 +180,32 @@ class App extends React.Component {
     this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
   };
 
-  handleUrlChanges = () => {
-    const filterModel = new FilterModel();
+  handleUrlChanges = ev => {
+    const { newURL, oldURL } = ev;
+    const oldFilters = pick(
+      parseQueryParams(oldURL.split('?')[1]),
+      allFilterParams,
+    );
+    const newFilters = pick(
+      parseQueryParams(newURL.split('?')[1]),
+      allFilterParams,
+    );
     const urlParams = getAllUrlParams();
-
-    this.setState({
-      filterModel,
-      serverChanged: false,
+    // We only want to set state if any of these or the filter values have changed
+    const newState = {
       hasSelectedJob: getAllUrlParams().has('selectedJob'),
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
-    });
+    };
+    const oldState = pick(this.state, Object.keys(newState));
+
+    // Only re-create the FilterModel if url params that affect it have changed.
+    if (!isEqual(oldFilters, newFilters)) {
+      this.setState({ filterModel: new FilterModel() });
+    }
+    if (!isEqual(newState, oldState)) {
+      this.setState(newState);
+    }
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
