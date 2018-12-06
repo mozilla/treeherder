@@ -1317,5 +1317,20 @@
         "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
         "expire_performance_data": false
     }
+},
+{
+    "pk": 102,
+    "model": "model.repository",
+    "fields": {
+        "dvcs_type": "git",
+        "name": "servo-prs",
+        "url": "https://github.com/servo/servo",
+        "branch": "pull request",
+        "active_status": "active",
+        "codebase": "servo",
+        "repository_group": 10,
+        "description": "The Servo Parallel Browser Engine − pull requests",
+        "expire_performance_data": false
+    }
 }
 ]
