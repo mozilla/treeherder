@@ -52,7 +52,7 @@ class Push extends React.Component {
     }
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-    window.addEventListener('hashchange', this.handleUrlChange);
+    window.addEventListener('hashchange', this.handleUrlChanges);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -61,7 +61,7 @@ class Push extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-    window.removeEventListener('hashchange', this.handleUrlChange);
+    window.removeEventListener('hashchange', this.handleUrlChanges);
   }
 
   getJobCount(jobList) {
@@ -105,7 +105,7 @@ class Push extends React.Component {
     )}`;
   }
 
-  handleUrlChange = () => {
+  handleUrlChanges = () => {
     const { push } = this.props;
     const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
