@@ -1,5 +1,6 @@
 import logging
 
+import newrelic.agent
 import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -33,7 +34,16 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     except requests.exceptions.HTTPError as e:
         logger.info('HTTPError %s when getting uncompressed taskgraph at %s',
                     e.response.status_code, tc_graph_url)
+        # TODO: Remove this fallback once all .gz artifacts have expired
         logger.info('Attempting to fall back to the compressed taskgraph...')
+        newrelic.agent.record_custom_event(
+            "runnable_jobs_fallback",
+            {
+                "message": "runnable-jobs.json artifact not found, falling back to gz version",
+                "project": project,
+                "url": tc_graph_url
+            }
+        )
         tc_graph = _taskcluster_runnable_jobs_gz(tc_graph_url + ".gz")
 
     for label, node in iteritems(tc_graph):
