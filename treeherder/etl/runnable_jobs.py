@@ -1,5 +1,6 @@
 import logging
 
+import newrelic.agent
 import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -9,7 +10,7 @@ from treeherder.etl.common import fetch_json
 
 logger = logging.getLogger(__name__)
 
-RUNNABLE_JOBS_URL = 'https://public-artifacts.taskcluster.net/{task_id}/0/public/runnable-jobs.json.gz'
+RUNNABLE_JOBS_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/runs/0/artifacts/public/runnable-jobs.json'
 TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
 
 
@@ -26,16 +27,24 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
     validate = URLValidator()
     try:
         validate(tc_graph_url)
-        # `force_gzip_encoding` works around Taskcluster not setting `Content-Encoding: gzip`:
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1423215
-        tc_graph = fetch_json(tc_graph_url, force_gzip_decompression=True)
+        tc_graph = fetch_json(tc_graph_url)
     except ValidationError:
         logger.warning('Failed to validate %s', tc_graph_url)
         return []
     except requests.exceptions.HTTPError as e:
-        logger.info('HTTPError %s when getting taskgraph at %s',
+        logger.info('HTTPError %s when getting uncompressed taskgraph at %s',
                     e.response.status_code, tc_graph_url)
-        return []
+        # TODO: Remove this fallback once all .gz artifacts have expired
+        logger.info('Attempting to fall back to the compressed taskgraph...')
+        newrelic.agent.record_custom_event(
+            "runnable_jobs_fallback",
+            {
+                "message": "runnable-jobs.json artifact not found, falling back to gz version",
+                "project": project,
+                "url": tc_graph_url
+            }
+        )
+        tc_graph = _taskcluster_runnable_jobs_gz(tc_graph_url + ".gz")
 
     for label, node in iteritems(tc_graph):
         ret.append({
@@ -53,6 +62,21 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
         })
 
     return ret
+
+
+def _taskcluster_runnable_jobs_gz(tc_graph_url):
+    try:
+        # `force_gzip_encoding` works around Taskcluster not setting `Content-Encoding: gzip`:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1423215
+        tc_graph = fetch_json(tc_graph_url, force_gzip_decompression=True)
+    except ValidationError:
+        logger.warning('Failed to validate %s', tc_graph_url)
+        return []
+    except requests.exceptions.HTTPError as e:
+        logger.info('HTTPError %s when getting taskgraph at %s',
+                    e.response.status_code, tc_graph_url)
+        return []
+    return tc_graph
 
 
 def list_runnable_jobs(project, decision_task_id=None):
