@@ -57,8 +57,6 @@ export default class WatchedRepo extends React.Component {
   }
 
   componentDidMount() {
-    this.updateTreeStatus = this.updateTreeStatus.bind(this);
-
     this.updateTreeStatus();
     // update the TreeStatus every 2 minutes
     this.treeStatusIntervalId = setInterval(
@@ -71,7 +69,7 @@ export default class WatchedRepo extends React.Component {
     clearInterval(this.treeStatusIntervalId);
   }
 
-  updateTreeStatus() {
+  updateTreeStatus = () => {
     const { repo, repoName, setCurrentRepoTreeStatus } = this.props;
     const watchedRepoName = repo.name;
 
@@ -89,7 +87,7 @@ export default class WatchedRepo extends React.Component {
         statusInfo: statusInfoMap[treeStatus.status],
       });
     });
-  }
+  };
 
   render() {
     const { repoName, unwatchRepo, repo } = this.props;

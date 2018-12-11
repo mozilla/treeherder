@@ -70,8 +70,6 @@ class App extends React.Component {
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
     };
-
-    this.setUser = this.setUser.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -162,9 +160,9 @@ class App extends React.Component {
     };
   }
 
-  setUser(user) {
+  setUser = user => {
     this.setState({ user });
-  }
+  };
 
   setCurrentRepoTreeStatus = status => {
     const link = document.head.querySelector('link[rel="shortcut icon"]');
