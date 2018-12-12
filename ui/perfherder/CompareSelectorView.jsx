@@ -37,10 +37,6 @@ export default class CompareSelectorView extends React.Component {
       errorMessages: [],
       disableButton: true,
     };
-    this.submitData = this.submitData.bind(this);
-    this.validateQueryParams = this.validateQueryParams.bind(this);
-    this.validateProject = this.validateProject.bind(this);
-    this.validateRevision = this.validateRevision.bind(this);
   }
 
   async componentDidMount() {
@@ -49,7 +45,7 @@ export default class CompareSelectorView extends React.Component {
     this.validateQueryParams();
   }
 
-  validateQueryParams() {
+  validateQueryParams = () => {
     const {
       originalProject,
       newProject,
@@ -80,9 +76,9 @@ export default class CompareSelectorView extends React.Component {
         originalProject || this.state.originalProject,
       );
     }
-  }
+  };
 
-  validateProject(projectName, project) {
+  validateProject = (projectName, project) => {
     const { projects, errorMessages } = this.state;
     let updates = {};
     const validProject = projects.find(item => item.name === project);
@@ -98,9 +94,9 @@ export default class CompareSelectorView extends React.Component {
       };
     }
     this.setState(updates);
-  }
+  };
 
-  async validateRevision(revisionName, revision, project) {
+  validateRevision = async (revisionName, revision, project) => {
     const { errorMessages } = this.state;
     let updates = {};
 
@@ -120,9 +116,9 @@ export default class CompareSelectorView extends React.Component {
       updates = { [revisionName]: revision };
     }
     this.setState(updates);
-  }
+  };
 
-  submitData() {
+  submitData = () => {
     const {
       originalProject,
       newProject,
@@ -150,7 +146,7 @@ export default class CompareSelectorView extends React.Component {
         selectedTimeRange: compareDefaultTimeRange,
       });
     }
-  }
+  };
 
   render() {
     const {

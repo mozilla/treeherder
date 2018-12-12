@@ -22,14 +22,6 @@ const withView = defaultState => WrappedComponent =>
     constructor(props) {
       super(props);
 
-      this.updateData = this.updateData.bind(this);
-      this.setQueryParams = this.setQueryParams.bind(this);
-      this.checkQueryValidation = this.checkQueryValidation.bind(this);
-      this.getTableData = this.getTableData.bind(this);
-      this.getGraphData = this.getGraphData.bind(this);
-      this.updateState = this.updateState.bind(this);
-      this.getBugDetails = this.getBugDetails.bind(this);
-
       this.default = this.props.location.state || defaultState;
       this.state = {
         errorMessages: [],
@@ -64,7 +56,7 @@ const withView = defaultState => WrappedComponent =>
       }
     }
 
-    setQueryParams() {
+    setQueryParams = () => {
       const { location, history } = this.props;
       const { startday, endday, tree, bug } = this.state;
       const params = { startday, endday, tree };
@@ -87,16 +79,16 @@ const withView = defaultState => WrappedComponent =>
         this.getGraphData(createApiUrl(graphsEndpoint, params));
         this.getTableData(createApiUrl(defaultState.endpoint, params));
       }
-    }
+    };
 
-    async getBugDetails(url) {
+    getBugDetails = async url => {
       const { data, failureStatus } = await getData(url);
       if (!failureStatus && data.bugs.length === 1) {
         this.setState({ summary: data.bugs[0].summary });
       }
-    }
+    };
 
-    async getTableData(url) {
+    getTableData = async url => {
       this.setState({ tableFailureStatus: null, isFetchingTable: true });
       const { data, failureStatus } = await getData(url);
       let mergedData = null;
@@ -112,9 +104,9 @@ const withView = defaultState => WrappedComponent =>
         tableFailureStatus: failureStatus,
         isFetchingTable: false,
       });
-    }
+    };
 
-    async getGraphData(url) {
+    getGraphData = async url => {
       this.setState({ graphFailureStatus: null, isFetchingGraphs: true });
       const { data, failureStatus } = await getData(url);
       this.setState({
@@ -122,9 +114,9 @@ const withView = defaultState => WrappedComponent =>
         graphFailureStatus: failureStatus,
         isFetchingGraphs: false,
       });
-    }
+    };
 
-    async batchBugRequests(bugIds) {
+    batchBugRequests = async bugIds => {
       const urlParams = {
         include_fields: 'id,status,summary,whiteboard',
       };
@@ -148,9 +140,9 @@ const withView = defaultState => WrappedComponent =>
         bugsList = [...bugsList, ...result.data.bugs];
       }
       return bugsList;
-    }
+    };
 
-    updateState(updatedObj) {
+    updateState = updatedObj => {
       this.setState(updatedObj, () => {
         const { startday, endday, tree, bug } = this.state;
         const params = { startday, endday, tree };
@@ -171,9 +163,9 @@ const withView = defaultState => WrappedComponent =>
           this.props.location,
         );
       });
-    }
+    };
 
-    updateData(params, urlChanged = false) {
+    updateData = (params, urlChanged = false) => {
       const { mainGraphData, mainTableData } = this.props;
 
       if (mainGraphData && mainTableData && !urlChanged) {
@@ -188,9 +180,9 @@ const withView = defaultState => WrappedComponent =>
           bugzillaBugsApi('bug', { include_fields: 'summary', id: params.bug }),
         );
       }
-    }
+    };
 
-    checkQueryValidation(params, urlChanged = false) {
+    checkQueryValidation = (params, urlChanged = false) => {
       const { errorMessages, initialParamsSet, summary } = this.state;
       const messages = validateQueryParams(
         params,
@@ -215,7 +207,7 @@ const withView = defaultState => WrappedComponent =>
         this.setState({ ...updates, ...params });
         this.updateData(params, urlChanged);
       }
-    }
+    };
 
     render() {
       const updateState = { updateState: this.updateState };

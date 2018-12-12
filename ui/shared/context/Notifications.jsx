@@ -23,36 +23,19 @@ export class Notifications extends React.Component {
   }
 
   componentDidMount() {
-    this.notify = this.notify.bind(this);
-    this.removeNotification = this.removeNotification.bind(this);
-    this.shift = this.shift.bind(this);
-    this.clearStoredNotifications = this.clearStoredNotifications.bind(this);
-    this.clearOnScreenNotifications = this.clearOnScreenNotifications.bind(
-      this,
-    );
-    this.handleStorageEvent = this.handleStorageEvent.bind(this);
-
     window.addEventListener('storage', this.handleStorageEvent);
-
-    this.value = {
-      ...this.state,
-      notify: this.notify,
-      removeNotification: this.removeNotification,
-      clearStoredNotifications: this.clearStoredNotifications,
-      clearOnScreenNotifications: this.clearOnScreenNotifications,
-    };
   }
 
   componentWillUnmount() {
     window.removeEventListener('storage', this.handleStorageEvent);
   }
 
-  setValue(newState, callback) {
+  setValue = (newState, callback) => {
     this.value = { ...this.value, ...newState };
     this.setState(newState, callback);
-  }
+  };
 
-  handleStorageEvent(e) {
+  handleStorageEvent = e => {
     if (e.key === 'notifications') {
       this.setValue({
         storedNotifications: JSON.parse(
@@ -60,9 +43,9 @@ export class Notifications extends React.Component {
         ),
       });
     }
-  }
+  };
 
-  notify(message, severity, opts) {
+  notify = (message, severity, opts) => {
     opts = opts || {};
     severity = severity || 'info';
     const { notifications, storedNotifications } = this.state;
@@ -89,12 +72,12 @@ export class Notifications extends React.Component {
         }
       },
     );
-  }
+  };
 
   /*
    * remove an arbitrary element from the notifications queue
    */
-  removeNotification(index, delay = 0) {
+  removeNotification = (index, delay = 0) => {
     const { notifications } = this.state;
 
     notifications.splice(index, 1);
@@ -102,30 +85,30 @@ export class Notifications extends React.Component {
       () => this.setValue({ notifications: [...notifications] }),
       delay,
     );
-  }
+  };
 
   /*
    * Delete the first non-sticky element from the notifications queue
    */
-  shift(delay) {
+  shift = delay => {
     const { notifications } = this.state;
 
     this.removeNotification(notifications.findIndex(n => !n.sticky), delay);
-  }
+  };
 
   /*
    * Clear the list of stored notifications
    */
-  clearStoredNotifications() {
+  clearStoredNotifications = () => {
     const storedNotifications = [];
 
     localStorage.setItem('notifications', storedNotifications);
     this.setValue({ storedNotifications });
-  }
+  };
 
-  clearOnScreenNotifications() {
+  clearOnScreenNotifications = () => {
     this.setValue({ notifications: [] });
-  }
+  };
 
   render() {
     return (

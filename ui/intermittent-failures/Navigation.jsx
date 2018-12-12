@@ -15,13 +15,11 @@ export default class Navigation extends React.Component {
   constructor(props) {
     super(props);
     this.state = { isOpen: false };
-
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     this.setState({ isOpen: !this.state.isOpen });
-  }
+  };
 
   render() {
     const { updateState, tree } = this.props;

@@ -35,11 +35,6 @@ export default class SelectorCard extends React.Component {
       failureStatus: null,
       invalidInput: false,
     };
-    this.toggle = this.toggle.bind(this);
-    this.fetchRevisions = this.fetchRevisions.bind(this);
-    this.validateInput = this.validateInput.bind(this);
-    this.compareRevisions = this.compareRevisions.bind(this);
-    this.updateRevision = this.updateRevision.bind(this);
   }
 
   async componentDidMount() {
@@ -50,7 +45,7 @@ export default class SelectorCard extends React.Component {
     }
   }
 
-  async fetchRevisions(selectedRepo) {
+  fetchRevisions = async selectedRepo => {
     const params = {
       full: true,
       count: 10,
@@ -66,28 +61,28 @@ export default class SelectorCard extends React.Component {
     } else {
       this.setState({ data, failureStatus });
     }
-  }
+  };
 
-  toggle(dropdown) {
+  toggle = dropdown => {
     this.setState({
       [dropdown]: !this.state[dropdown],
     });
-  }
+  };
 
-  updateData(selectedRepo) {
+  updateData = selectedRepo => {
     const { updateState, projectState } = this.props;
     this.fetchRevisions(selectedRepo);
     updateState({ [projectState]: selectedRepo });
-  }
+  };
 
-  compareRevisions() {
+  compareRevisions = () => {
     this.toggle('checkboxSelected');
     if (!this.state.data.results) {
       this.fetchRevisions(this.props.selectedRepo);
     }
-  }
+  };
 
-  async validateInput(value) {
+  validateInput = async value => {
     const { updateState } = this.props;
 
     if (value.length < 40 && value !== '') {
@@ -112,9 +107,9 @@ export default class SelectorCard extends React.Component {
     if (this.state.invalidInput) {
       this.setState({ invalidInput: false });
     }
-  }
+  };
 
-  updateRevision(value) {
+  updateRevision = value => {
     const { updateState, revisionState } = this.props;
 
     this.setState({ invalidInput: false });
@@ -123,7 +118,7 @@ export default class SelectorCard extends React.Component {
       errorMessages: [],
       disableButton: false,
     });
-  }
+  };
 
   render() {
     const {

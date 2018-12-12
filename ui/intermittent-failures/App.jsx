@@ -8,7 +8,6 @@ import BugDetailsView from './BugDetailsView';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.updateAppState = this.updateAppState.bind(this);
 
     // keep track of the mainviews graph and table data so the API won't be
     // called again when navigating back from bugdetailsview.
@@ -18,9 +17,9 @@ class App extends React.Component {
     };
   }
 
-  updateAppState(state) {
+  updateAppState = state => {
     this.setState(state);
-  }
+  };
 
   render() {
     return (

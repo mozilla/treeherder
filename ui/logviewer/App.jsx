@@ -54,10 +54,6 @@ class App extends React.PureComponent {
       jobId: queryString.get('job_id'),
       jobUrl: null,
     };
-
-    this.setSelectedLine = this.setSelectedLine.bind(this);
-    this.onHighlight = this.onHighlight.bind(this);
-    this.scrollHighlightToTop = this.scrollHighlightToTop.bind(this);
   }
 
   componentDidMount() {
@@ -130,7 +126,7 @@ class App extends React.PureComponent {
     });
   }
 
-  onHighlight(range) {
+  onHighlight = range => {
     const { highlight } = this.state;
     const { _start, _end, size } = range;
     // We can't use null to represent "no highlight", due to:
@@ -145,24 +141,24 @@ class App extends React.PureComponent {
     if (!isEqual(newHighlight, highlight)) {
       this.setSelectedLine(newHighlight);
     }
-  }
+  };
 
-  setSelectedLine(highlight, scrollToTop) {
+  setSelectedLine = (highlight, scrollToTop) => {
     this.setState({ highlight }, () => {
       this.updateQuery({ highlight });
       if (highlight && scrollToTop) {
         this.scrollHighlightToTop(highlight);
       }
     });
-  }
+  };
 
-  scrollHighlightToTop(highlight) {
+  scrollHighlightToTop = highlight => {
     const lineAtTop = highlight && highlight[0] > 7 ? highlight[0] - 7 : 0;
 
     this.scrollToLine(`a[id="${lineAtTop}"]`, 100);
-  }
+  };
 
-  scrollToLine(selector, time, iteration = 0) {
+  scrollToLine = (selector, time, iteration = 0) => {
     const line = document.querySelector(selector);
 
     if (line !== null) {
@@ -172,9 +168,9 @@ class App extends React.PureComponent {
     if (iteration < 10) {
       setTimeout(() => this.scrollToLine(selector, time, iteration + 1), time);
     }
-  }
+  };
 
-  updateQuery() {
+  updateQuery = () => {
     const { highlight } = this.state;
 
     if (highlight < 1) {
@@ -184,7 +180,7 @@ class App extends React.PureComponent {
     } else {
       setUrlParam('lineNumber', highlight[0]);
     }
-  }
+  };
 
   render() {
     const {

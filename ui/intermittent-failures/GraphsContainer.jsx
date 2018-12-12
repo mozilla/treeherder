@@ -11,12 +11,11 @@ export default class GraphsContainer extends React.Component {
     this.state = {
       showGraphTwo: false,
     };
-    this.toggleGraph = this.toggleGraph.bind(this);
   }
 
-  toggleGraph() {
+  toggleGraph = () => {
     this.setState({ showGraphTwo: !this.state.showGraphTwo });
-  }
+  };
 
   render() {
     const { graphOneData, graphTwoData, children } = this.props;
