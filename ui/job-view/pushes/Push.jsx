@@ -8,7 +8,7 @@ import {
   thPlatformMap,
 } from '../../helpers/constants';
 import { withPushes } from '../context/Pushes';
-import { escapeId, getGroupMapKey } from '../../helpers/aggregateId';
+import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
@@ -307,13 +307,9 @@ class Push extends React.Component {
       const decisionTaskId = await getGeckoDecisionTaskId(push.id, repoName);
       const jobList = await RunnableJobModel.getList(repoName, {
         decision_task_id: decisionTaskId,
+        push_id: push.id,
       });
-      const { id } = push;
 
-      jobList.forEach(job => {
-        job.push_id = id;
-        job.id = escapeId(job.push_id + job.ref_data_name);
-      });
       if (jobList.length === 0) {
         notify('No new jobs available');
       }
