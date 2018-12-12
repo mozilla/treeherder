@@ -393,7 +393,9 @@ export const getGraphsLink = function getGraphsLink(
 // old PhAlerts' inner workings
 const Alert = (alertData, optionCollectionMap) => ({
   ...alertData,
-  title: getSeriesName(alertData.series_signature, optionCollectionMap),
+  title: getSeriesName(alertData.series_signature, optionCollectionMap, {
+    includePlatformInName: true,
+  }),
 });
 
 export const getAlertStatusText = alert =>
