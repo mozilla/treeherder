@@ -15,6 +15,7 @@ class retryable_task(object):
     """Wrapper around a celery task to add conditional task retrying."""
 
     NON_RETRYABLE_EXCEPTIONS = (
+        IndexError,
         IntegrityError,
         jsonschema.ValidationError,
         KeyError,
