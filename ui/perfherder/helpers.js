@@ -1,5 +1,5 @@
 import numeral from 'numeral';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash-es';
 
 import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
 import { create, getData, update } from '../helpers/http';

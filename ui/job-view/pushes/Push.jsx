@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import sortBy from 'lodash/sortBy';
+import { sortBy } from 'lodash-es';
 
 import {
   thEvents,

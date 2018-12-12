@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import countBy from 'lodash/countBy';
+import { countBy } from 'lodash-es';
 
 import { withSelectedJob } from '../context/SelectedJob';
 import { thFailureResults } from '../../helpers/constants';

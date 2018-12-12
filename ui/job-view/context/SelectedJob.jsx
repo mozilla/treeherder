@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import intersection from 'lodash/intersection';
+import { intersection } from 'lodash-es';
 import $ from 'jquery';
 
 import { thEvents, thJobNavSelectors } from '../../helpers/constants';

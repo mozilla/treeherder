@@ -1,7 +1,7 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'lodash-es';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { isReftest } from '../helpers/job';

@@ -1,4 +1,4 @@
-import defaults from 'lodash/defaults';
+import { defaults } from 'lodash-es';
 import jsone from 'json-e';
 import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';

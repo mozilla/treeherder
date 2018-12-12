@@ -4,10 +4,7 @@
 // to let/const won't break anything.
 
 import $ from 'jquery';
-import map from 'lodash/map';
-import sortBy from 'lodash/sortBy';
-import countBy from 'lodash/countBy';
-import remove from 'lodash/remove';
+import { map, sortBy, countBy, remove } from 'lodash-es';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
 

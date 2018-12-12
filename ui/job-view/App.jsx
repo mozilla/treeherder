@@ -1,8 +1,7 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
-import pick from 'lodash/pick';
-import isEqual from 'lodash/isEqual';
+import { pick, isEqual } from 'lodash-es';
 
 import { thFavicons } from '../helpers/constants';
 import { Notifications } from '../shared/context/Notifications';

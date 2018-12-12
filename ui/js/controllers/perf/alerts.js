@@ -1,8 +1,6 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
 /* eslint-disable func-names, object-shorthand, prefer-destructuring, prefer-template, radix */
-import merge from 'lodash/merge';
-import defaults from 'lodash/defaults';
-import set from 'lodash/set';
+import { merge, defaults, set } from 'lodash-es';
 import angular from 'angular';
 
 import perf from '../../perf';

@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import pick from 'lodash/pick';
-import keyBy from 'lodash/keyBy';
-import isEqual from 'lodash/isEqual';
-import max from 'lodash/max';
+import { pick, keyBy, isEqual, max } from 'lodash-es';
 
 import {
   thDefaultRepo,

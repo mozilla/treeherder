@@ -18,6 +18,10 @@ webpackConfig.node.Buffer = true;
 webpackConfig.optimization.splitChunks = false;
 webpackConfig.optimization.runtimeChunk = false;
 
+// Work around karma-webpack internals resolving to the wrong version of lodash
+// when aliasing it to lodash-es in .neutrinorc.js.
+delete webpackConfig.resolve.alias.lodash;
+
 module.exports = config => {
   config.set({
     plugins: ['karma-webpack', 'karma-firefox-launcher', 'karma-jasmine'],

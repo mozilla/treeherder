@@ -1,6 +1,6 @@
 /* eslint-disable jest/prefer-to-have-length */
 import React from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import { cloneDeep } from 'lodash-es';
 import { mount } from 'enzyme';
 
 import { JobGroupComponent } from '../../../../ui/job-view/pushes/JobGroup';

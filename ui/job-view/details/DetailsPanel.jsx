@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import chunk from 'lodash/chunk';
+import { chunk } from 'lodash-es';
 
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';

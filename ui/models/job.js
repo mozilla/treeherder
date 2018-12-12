@@ -1,5 +1,5 @@
 import { slugid } from 'taskcluster-client-web';
-import groupBy from 'lodash/groupBy';
+import { groupBy } from 'lodash-es';
 
 import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams } from '../helpers/url';

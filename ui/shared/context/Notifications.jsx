@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import findLastIndex from 'lodash/findLastIndex';
+import { findLastIndex } from 'lodash-es';
 
 export const NotificationsContext = React.createContext({});
 const maxTransientNotifications = 5;

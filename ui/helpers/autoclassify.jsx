@@ -1,4 +1,4 @@
-import countBy from 'lodash/countBy';
+import { countBy } from 'lodash-es';
 import React from 'react';
 
 export const stringOverlap = function stringOverlap(str1, str2) {
