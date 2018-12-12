@@ -118,7 +118,6 @@ Layout.propTypes = {
 Layout.defaultProps = {
   graphOneData: null,
   graphTwoData: null,
-  dateOptions: null,
   tableFailureStatus: null,
   graphFailureStatus: null,
   isFetchingTable: null,

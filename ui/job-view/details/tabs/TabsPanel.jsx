@@ -255,6 +255,7 @@ TabsPanel.propTypes = {
   clearSelectedJob: PropTypes.func.isRequired,
   perfJobDetail: PropTypes.array,
   suggestions: PropTypes.array,
+  selectedJob: PropTypes.object,
   jobRevision: PropTypes.string,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
