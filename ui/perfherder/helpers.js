@@ -780,13 +780,15 @@ export const createAlert = data =>
     framework_id: data.series.frameworkId,
     push_id: data.resultSetId,
     prev_push_id: data.prevResultSetId,
-  }).then(({ data }) => {
-    const newAlertSummaryId = data.alert_summary_id;
-    return create(getApiUrl('/performance/alert/'), {
-      summary_id: newAlertSummaryId,
-      signature_id: data.series.id,
-    }).then(() => newAlertSummaryId);
-  });
+  })
+    .then(response => response.json())
+    .then(response => {
+      const newAlertSummaryId = response.alert_summary_id;
+      return create(getApiUrl('/performance/alert/'), {
+        summary_id: newAlertSummaryId,
+        signature_id: data.series.id,
+      }).then(() => newAlertSummaryId);
+    });
 
 export const findPushIdNeighbours = (dataPoint, resultSetData, direction) => {
   const pushId = dataPoint.resultSetId;
