@@ -92,7 +92,6 @@ const BugDetailsView = props => {
       {...props}
       graphOneData={graphOneData}
       graphTwoData={graphTwoData}
-      dateOptions
       header={
         <React.Fragment>
           <Row>

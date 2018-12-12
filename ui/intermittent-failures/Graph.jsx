@@ -77,7 +77,5 @@ Graph.propTypes = {
 };
 
 Graph.defaultProps = {
-  graphOneData: null,
-  graphTwoData: null,
   data: null,
 };
