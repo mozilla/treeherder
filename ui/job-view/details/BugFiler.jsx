@@ -212,7 +212,7 @@ export class BugFilerClass extends React.Component {
    *  Attempt to find a good product/component for this failure
    */
   findProduct = async () => {
-    const { jobGroupName } = this.props;
+    const { jobGroupName, notify } = this.props;
     const { productSearch, parsedSummary } = this.state;
 
     let possibleFilename = null;
@@ -242,8 +242,8 @@ export class BugFilerClass extends React.Component {
       if (failurePath.includes('TEST-UNEXPECTED-')) {
         // eslint-disable-next-line prefer-destructuring
         failurePath = parsedSummary[0][1];
-        possibleFilename = findFilename(failurePath);
       }
+      possibleFilename = findFilename(failurePath);
 
       const lowerJobGroupName = jobGroupName.toLowerCase();
       // Try to fix up file paths for some job types.
@@ -257,7 +257,7 @@ export class BugFilerClass extends React.Component {
       if (lowerJobGroupName.includes('web platform')) {
         failurePath = failurePath.startsWith('mozilla/tests')
           ? `testing/web-platform/${failurePath}`
-          : `testing/web-platform/tests/${failurePath}`;
+          : `testing/web-platform/tests${failurePath}`;
       }
 
       // Search mercurial's moz.build metadata to find products/components
@@ -265,7 +265,13 @@ export class BugFilerClass extends React.Component {
         `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`,
       ).then(resp =>
         resp.json().then(firstRequest => {
+          if (firstRequest.error) {
+            notify(
+              'Unable to infer product/component via metadata. Please manually search for a product.',
+            );
+          }
           if (
+            firstRequest.data &&
             firstRequest.data.aggregate &&
             firstRequest.data.aggregate.recommended_bug_component
           ) {
@@ -275,7 +281,11 @@ export class BugFilerClass extends React.Component {
           }
 
           // Make an attempt to find the file path via a dxr file search
-          if (suggestedProductsSet.size === 0 && possibleFilename.length > 4) {
+          if (
+            suggestedProductsSet.size === 0 &&
+            possibleFilename &&
+            possibleFilename.length > 4
+          ) {
             const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${possibleFilename}&redirect=false&limit=5`;
             // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
             fetch(dxrlink, { headers: { Accept: 'application/json' } }).then(
@@ -360,7 +370,6 @@ export class BugFilerClass extends React.Component {
       crashSignatures,
     } = this.state;
     const { toggle, successCallback, notify } = this.props;
-    const [product, component] = selectedProduct.split(' :: ');
 
     if (!selectedProduct) {
       notify(
@@ -369,6 +378,7 @@ export class BugFilerClass extends React.Component {
       );
       return;
     }
+    const [product, component] = selectedProduct.split(' :: ');
 
     if (summary.length > 255) {
       notify(
@@ -513,7 +523,7 @@ export class BugFilerClass extends React.Component {
                     this.setState({ productSearch: evt.target.value })
                   }
                   type="text"
-                  placeholder="Firefox"
+                  placeholder="e.g. Firefox, Toolkit, Testing"
                   className="flex-fill flex-grow-1"
                 />
                 <Tooltip
