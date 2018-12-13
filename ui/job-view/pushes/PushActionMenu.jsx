@@ -126,6 +126,7 @@ class PushActionMenu extends React.PureComponent {
       runnableVisible,
       hideRunnableJobs,
       showRunnableJobs,
+      showFuzzyJobs,
       pushId,
     } = this.props;
     const {
@@ -168,6 +169,21 @@ class PushActionMenu extends React.PureComponent {
               onClick={showRunnableJobs}
             >
               Add new jobs
+            </li>
+          )}
+          {true && (
+            <li
+              title={
+                isLoggedIn
+                  ? 'Add new jobs to this push via fuzzy search'
+                  : 'Must be logged in'
+              }
+              className={
+                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+              }
+              onClick={showFuzzyJobs}
+            >
+              Add new jobs (fuzzy)
             </li>
           )}
           {triggerMissingRepos.includes(repoName) && (
@@ -263,6 +279,7 @@ PushActionMenu.propTypes = {
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
+  showFuzzyJobs: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };

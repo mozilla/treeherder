@@ -19,6 +19,7 @@ import '../css/treeherder-job-buttons.css';
 import '../css/treeherder-resultsets.css';
 import '../css/treeherder-pinboard.css';
 import '../css/treeherder-bugfiler.css';
+import '../css/treeherder-fuzzyfinder.css';
 import '../css/treeherder-loading-overlay.css';
 
 import App from './App';
