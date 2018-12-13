@@ -22,7 +22,7 @@ class PushLoader(object):
             newrelic.agent.add_custom_parameter("url", transformer.repo_url)
             newrelic.agent.add_custom_parameter("branch", transformer.branch)
             repo = Repository.objects.get(url=transformer.repo_url,
-                                          branch=transformer.branch,
+                                          branch__regex="(^|,)%s($|,)" % transformer.branch,
                                           active_status="active")
             newrelic.agent.add_custom_parameter("repository", repo.name)
 
