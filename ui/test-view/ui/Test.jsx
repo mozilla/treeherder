@@ -20,12 +20,7 @@ const mapStateToProps = ({ groups }) => ({
 });
 
 class BugCountComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
+  onClick = () => {
     store.dispatch(
       actions.groups.fetchBugsSingleTest(
         this.props.test,
@@ -39,7 +34,7 @@ class BugCountComponent extends React.Component {
         this.props.expanded || {},
       ),
     );
-  }
+  };
 
   render() {
     return (
@@ -125,12 +120,7 @@ Platform.propTypes = {
 // TODO: Move `TestComponent` into its own file.
 // eslint-disable-next-line react/no-multi-comp
 class TestComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
+  onClick = () => {
     store.dispatch(
       actions.groups.fetchBugsSingleTest(
         this.props.test,
@@ -144,7 +134,7 @@ class TestComponent extends React.Component {
         this.props.expanded || {},
       ),
     );
-  }
+  };
 
   renderExpanded() {
     return (

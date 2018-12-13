@@ -8,26 +8,23 @@ export default class BugLogColumn extends React.Component {
   constructor(props) {
     super(props);
 
-    this.updateTarget = this.updateTarget.bind(this);
-    this.toggle = this.toggle.bind(this);
-
     this.state = {
       tooltipOpen: false,
       target: null,
     };
   }
 
-  updateTarget(target) {
+  updateTarget = target => {
     if (!this.state.target) {
       this.setState({ target });
     }
-  }
+  };
 
-  toggle() {
+  toggle = () => {
     this.setState({
       tooltipOpen: !this.state.tooltipOpen,
     });
-  }
+  };
 
   render() {
     const { value, original } = this.props;

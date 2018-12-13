@@ -15,47 +15,44 @@ export default class DateRangePicker extends React.Component {
       from: undefined,
       to: undefined,
     };
-    this.fromChange = this.fromChange.bind(this);
-    this.toChange = this.toChange.bind(this);
-    this.updateData = this.updateData.bind(this);
   }
 
   componentWillUnmount() {
     clearTimeout(this.timeout);
   }
 
-  focusTo() {
+  focusTo = () => {
     this.timeout = setTimeout(() => this.to.getInput().focus(), 0);
-  }
+  };
 
-  showFromMonth() {
+  showFromMonth = () => {
     const { from } = this.state;
     if (!from) {
       return;
     }
     this.to.getDayPicker().showMonth(from);
-  }
+  };
 
-  fromChange(from) {
+  fromChange = from => {
     this.setState({ from }, () => {
       if (!this.state.to) {
         this.focusTo();
       }
     });
-  }
+  };
 
-  toChange(to) {
+  toChange = to => {
     this.setState({ to }, this.showFromMonth);
-  }
+  };
 
-  updateData() {
+  updateData = () => {
     const { from, to } = this.state;
 
     const startday = ISODate(moment(from));
     const endday = ISODate(moment(to));
 
     this.props.updateState({ startday, endday });
-  }
+  };
 
   render() {
     const { from, to } = this.state;

@@ -23,10 +23,6 @@ class Login extends React.Component {
   }
 
   componentDidMount() {
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
-    this.handleStorageEvent = this.handleStorageEvent.bind(this);
-
     window.addEventListener('storage', this.handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
@@ -43,7 +39,7 @@ class Login extends React.Component {
     window.removeEventListener('storage', this.handleStorageEvent);
   }
 
-  setLoggedIn(newUser) {
+  setLoggedIn = newUser => {
     const { setUser } = this.props;
     const userSession = JSON.parse(localStorage.getItem('userSession'));
     newUser.isLoggedIn = true;
@@ -54,18 +50,18 @@ class Login extends React.Component {
     if (userSession && userSession.renewAfter) {
       this.authService.resetRenewalTimer();
     }
-  }
+  };
 
-  setLoggedOut() {
+  setLoggedOut = () => {
     const { setUser } = this.props;
 
     this.authService.logout();
     // logging out will not trigger a storage event since localStorage is being set by the same window
     taskcluster.updateAgent();
     setUser(loggedOutUser);
-  }
+  };
 
-  handleStorageEvent(e) {
+  handleStorageEvent = e => {
     if (e.key === 'user') {
       const oldUser = JSON.parse(e.oldValue);
       const newUser = JSON.parse(e.newValue);
@@ -81,18 +77,18 @@ class Login extends React.Component {
       // used when a different tab updates userSession,
       taskcluster.updateAgent();
     }
-  }
+  };
 
   /**
    * Opens a new tab to handle authentication, which will get closed
    * if it's successful.
    */
-  login() {
+  login = () => {
     // Intentionally not using `noopener` since `window.opener` used in LoginCallback.
     window.open(loginCallbackUrl, '_blank');
-  }
+  };
 
-  logout() {
+  logout = () => {
     const { notify } = this.props;
 
     fetch(getApiUrl('/auth/logout/')).then(async resp => {
@@ -103,7 +99,7 @@ class Login extends React.Component {
         notify(`Logout failed: ${msg}`, 'danger', { sticky: true });
       }
     });
-  }
+  };
 
   render() {
     const { user } = this.props;

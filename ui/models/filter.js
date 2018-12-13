@@ -19,16 +19,6 @@ import { getAllUrlParams } from '../helpers/location';
 export default class FilterModel {
   constructor() {
     this.urlParams = FilterModel.getUrlParamsWithDefaults();
-
-    this.addFilter = this.addFilter.bind(this);
-    this.removeFilter = this.removeFilter.bind(this);
-    this.resetNonFieldFilters = this.resetNonFieldFilters.bind(this);
-    this.setOnlySuperseded = this.setOnlySuperseded.bind(this);
-    this.clearNonStatusFilters = this.clearNonStatusFilters.bind(this);
-    this.toggleUnclassifiedFailures = this.toggleUnclassifiedFailures.bind(
-      this,
-    );
-    this.toggleInProgress = this.toggleInProgress.bind(this);
   }
 
   static getUrlParamsWithDefaults() {
@@ -53,7 +43,7 @@ export default class FilterModel {
   }
 
   // If a param matches the defaults, then don't include it.
-  getUrlParamsWithoutDefaults() {
+  getUrlParamsWithoutDefaults = () => {
     // ensure the repo param is always set
     const params = { repo: thDefaultRepo, ...this.urlParams };
 
@@ -64,9 +54,9 @@ export default class FilterModel {
           : acc,
       {},
     );
-  }
+  };
 
-  addFilter(field, value) {
+  addFilter = (field, value) => {
     const currentValue = this.urlParams[field];
 
     if (currentValue) {
@@ -80,10 +70,10 @@ export default class FilterModel {
       this.urlParams[field] = [value];
     }
     this.push();
-  }
+  };
 
   // Also used for non-filter params
-  removeFilter(field, value) {
+  removeFilter = (field, value) => {
     if (value) {
       const currentValue = this.urlParams[field];
 
@@ -96,42 +86,41 @@ export default class FilterModel {
       delete this.urlParams[field];
     }
     this.push();
-  }
+  };
 
-  getFilterQueryString() {
-    return new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
-  }
+  getFilterQueryString = () =>
+    new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
 
   /**
    * Push all the url params to the url.  Components listening for hashchange
    * will get updates.
    */
-  push() {
+  push = () => {
     window.location.hash = `#/jobs?${this.getFilterQueryString()}`;
-  }
+  };
 
-  setOnlySuperseded() {
+  setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';
     this.urlParams.classifiedState = [...thFilterDefaults.classifiedState];
     this.push();
-  }
+  };
 
-  toggleFilter(field, value) {
+  toggleFilter = (field, value) => {
     const action = !this.urlParams[field].includes(value)
       ? this.addFilter
       : this.removeFilter;
     action(field, value);
-  }
+  };
 
-  toggleInProgress() {
+  toggleInProgress = () => {
     this.toggleResultStatuses(['pending', 'running']);
-  }
+  };
 
   /**
    * If none or only some of the statuses here are on, then set them all to on.
    * If they ARE all on, then set them to off.
    */
-  toggleResultStatuses(resultStatuses) {
+  toggleResultStatuses = resultStatuses => {
     const currentResultStatuses = this.urlParams.resultStatus;
     const allOn = resultStatuses.every(rs =>
       currentResultStatuses.includes(rs),
@@ -141,13 +130,13 @@ export default class FilterModel {
       : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
     this.push();
-  }
+  };
 
-  toggleClassifiedFilter(classifiedState) {
+  toggleClassifiedFilter = classifiedState => {
     this.toggleFilter('classifiedState', classifiedState);
-  }
+  };
 
-  toggleUnclassifiedFailures() {
+  toggleUnclassifiedFailures = () => {
     if (this._isUnclassifiedFailures()) {
       this.resetNonFieldFilters();
     } else {
@@ -155,39 +144,39 @@ export default class FilterModel {
       this.urlParams.classifiedState = ['unclassified'];
       this.push();
     }
-  }
+  };
 
-  replaceFilter(field, value) {
+  replaceFilter = (field, value) => {
     this.urlParams[field] = !Array.isArray(value) ? [value] : value;
     this.push();
-  }
+  };
 
-  clearNonStatusFilters() {
+  clearNonStatusFilters = () => {
     const { repo, resultStatus, classifiedState } = this.urlParams;
 
     this.urlParams = { repo, resultStatus, classifiedState };
     this.push();
-  }
+  };
 
   /**
    * reset the non-field (checkbox in the ui) filters to the default state
    * so the user sees everything.  Doesn't affect the field filters.  This
    * is used to undo the call to ``setOnlyUnclassifiedFailures``.
    */
-  resetNonFieldFilters() {
+  resetNonFieldFilters = () => {
     const { resultStatus, classifiedState } = thFilterDefaults;
 
     this.urlParams.resultStatus = [...resultStatus];
     this.urlParams.classifiedState = [...classifiedState];
     this.push();
-  }
+  };
 
   /**
    * Whether or not this job should be shown based on the current filters.
    *
    * @param job - the job we are checking against the filters
    */
-  showJob(job) {
+  showJob = job => {
     // when runnable jobs have been added to a resultset, they should be
     // shown regardless of settings for classified or result state
     const status = getStatus(job);
@@ -203,9 +192,9 @@ export default class FilterModel {
     // runnable or not, we still want to apply the field filters like
     // for symbol, platform, search str, etc...
     return this._checkFieldFilters(job);
-  }
+  };
 
-  _checkClassifiedStateFilters(job) {
+  _checkClassifiedStateFilters = job => {
     const { classifiedState } = this.urlParams;
     const isJobClassified = isClassified(job);
 
@@ -215,10 +204,10 @@ export default class FilterModel {
     // If the filters say not to include classified, but it IS
     // classified, then return false, otherwise, true.
     return !(!classifiedState.includes('classified') && isJobClassified);
-  }
+  };
 
-  _checkFieldFilters(job) {
-    return Object.entries(this.urlParams).every(([field, values]) => {
+  _checkFieldFilters = job =>
+    Object.entries(this.urlParams).every(([field, values]) => {
       let jobFieldValue = this._getJobFieldValue(job, field);
 
       // If ``job`` does not have this field, then don't filter.
@@ -253,7 +242,6 @@ export default class FilterModel {
       }
       return true;
     });
-  }
 
   /**
    * Get the field from the job.  In most cases, this is very simple.  But
@@ -261,7 +249,7 @@ export default class FilterModel {
    * shows to the user as a different string than what is stored in the job
    * object.
    */
-  _getJobFieldValue(job, field) {
+  _getJobFieldValue = (job, field) => {
     if (field === 'platform') {
       return `${thPlatformMap[job.platform] || job.platform} ${
         job.platform_option
@@ -273,15 +261,12 @@ export default class FilterModel {
       return job.getSearchStr();
     }
     return job[field];
-  }
+  };
 
   /**
    * check if we're in the state of showing only unclassified failures
    */
-  _isUnclassifiedFailures() {
-    return (
-      arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
-      arraysEqual(this.urlParams.classifiedState, ['unclassified'])
-    );
-  }
+  _isUnclassifiedFailures = () =>
+    arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
+    arraysEqual(this.urlParams.classifiedState, ['unclassified']);
 }

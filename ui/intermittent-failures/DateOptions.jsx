@@ -14,17 +14,15 @@ export default class DateOptions extends React.Component {
       dropdownOpen: false,
       dateRange: '',
     };
-    this.toggle = this.toggle.bind(this);
-    this.updateDateRange = this.updateDateRange.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen,
     });
-  }
+  };
 
-  updateDateRange(dateRange) {
+  updateDateRange = dateRange => {
     this.setState({ dateRange });
     if (dateRange === 'custom range') {
       return;
@@ -45,7 +43,7 @@ export default class DateOptions extends React.Component {
     );
     const endday = ISODate(moment().utc());
     this.props.updateState({ startday, endday });
-  }
+  };
 
   render() {
     const { updateState } = this.props;
