@@ -11,7 +11,6 @@ export default class RunnableJobModel {
   static async getList(repoName, params) {
     let uri = getRunnableJobsURL(params.decision_task_id);
     let rawJobs = await fetch(uri).then(response => response.json());
-    const jobList = [];
 
     // TODO: Remove this fallback once the gz artifacts expire
     if (rawJobs.code === 'ResourceNotFound') {
@@ -24,23 +23,23 @@ export default class RunnableJobModel {
       return rawJobs;
     }
 
-    Object.entries(rawJobs).forEach(([key, value]) => {
-      jobList.push({
-        build_platform: value.platform || '',
-        build_system_type: 'taskcluster',
-        job_group_name: value.groupName || '',
-        job_group_symbol: value.groupSymbol || '',
-        job_type_name: key,
-        job_type_symbol: value.symbol,
-        platform: value.platform || '',
-        platform_option: Object.keys(value.collection).join(' '),
-        ref_data_name: key,
-        state: 'runnable',
-        result: 'runnable',
-        push_id: params.push_id,
-        id: escapeId(params.push_id + key),
-      });
-    });
-    return jobList;
+    return Object.entries(rawJobs).map(
+      ([key, value]) =>
+        new JobModel({
+          build_platform: value.platform || '',
+          build_system_type: 'taskcluster',
+          job_group_name: value.groupName || '',
+          job_group_symbol: value.groupSymbol || '',
+          job_type_name: key,
+          job_type_symbol: value.symbol,
+          platform: value.platform || '',
+          platform_option: Object.keys(value.collection).join(' '),
+          ref_data_name: key,
+          state: 'runnable',
+          result: 'runnable',
+          push_id: params.push_id,
+          id: escapeId(params.push_id + key),
+        }),
+    );
   }
 }
