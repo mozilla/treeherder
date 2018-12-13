@@ -1,0 +1,12 @@
+/*
+ * Fuzzy runnable job finder
+ */
+
+.fuzzy-modal .modal-body #addJobsGroup option.selected::before {
+  content: '• ';
+  color: red;
+}
+
+div.fuzzybuttons {
+  margin-bottom: 3px;
+}

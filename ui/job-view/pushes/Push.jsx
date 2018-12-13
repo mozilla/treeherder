@@ -16,6 +16,7 @@ import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
 
+import FuzzyJobFinder from './FuzzyJobFinder';
 import { Revision } from './Revision';
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
@@ -32,6 +33,7 @@ class Push extends React.Component {
     const collapsedPushes = getUrlParam('collapsedPushes') || '';
 
     this.state = {
+      fuzzyModal: false,
       platforms: [],
       jobList: [],
       runnableVisible: false,
@@ -337,6 +339,54 @@ class Push extends React.Component {
     );
   };
 
+  showFuzzyJobs = async () => {
+    const { push, repoName, getGeckoDecisionTaskId, notify } = this.props;
+    const createRegExp = (str, opts) =>
+      new RegExp(str.raw[0].replace(/\s/gm, ''), opts || '');
+    const excludedJobNames = createRegExp`
+      (balrog|beetmover|bouncer-locations-firefox|build-docker-image|build-(.+)-nightly|
+      build-(.+)-upload-symbols|checksums|cron-bouncer|dmd|fetch|google-play-strings|
+      push-to-release|mar-signing|nightly|packages|release-bouncer|release-early|
+      release-final|release-secondary|release-snap|release-source|release-update|
+      repackage-l10n|repo-update|searchfox|sign-and-push|test-(.+)-devedition|
+      test-linux(32|64)(-asan|-pgo|-qr)?\/(opt|debug)-jittest|test-macosx64-ccov|
+      test-verify|test-windows10-64-ux|toolchain|upload-generated-sources)`;
+
+    try {
+      const decisionTaskId = await getGeckoDecisionTaskId(push.id, repoName);
+
+      notify('Fetching runnable jobs... This could take a while...');
+      let fuzzyJobList = await RunnableJobModel.getList(repoName, {
+        decision_task_id: decisionTaskId,
+      });
+      fuzzyJobList = [
+        ...new Set(
+          fuzzyJobList.map(job => {
+            const obj = {};
+            obj.name = job.job_type_name;
+            obj.symbol = job.job_type_symbol;
+            obj.groupsymbol = job.job_group_symbol;
+            return obj;
+          }),
+        ),
+      ].sort((a, b) => (a.name > b.name ? 1 : -1));
+      const filteredFuzzyList = fuzzyJobList.filter(
+        job => job.name.search(excludedJobNames) < 0,
+      );
+      this.setState({
+        fuzzyJobList,
+        filteredFuzzyList,
+        decisionTaskId,
+      });
+      this.toggleFuzzyModal();
+    } catch (error) {
+      notify(
+        `Error fetching runnable jobs: Failed to fetch task ID (${error})`,
+        'danger',
+      );
+    }
+  };
+
   cycleWatchState = async () => {
     const { notify } = this.props;
     const { watched } = this.state;
@@ -359,6 +409,13 @@ class Push extends React.Component {
     this.setState({ watched: next });
   };
 
+  toggleFuzzyModal = async () => {
+    this.setState(prevState => ({
+      fuzzyModal: !prevState.fuzzyModal,
+      jobList: prevState.jobList,
+    }));
+  };
+
   render() {
     const {
       push,
@@ -373,6 +430,10 @@ class Push extends React.Component {
       isOnlyRevision,
     } = this.props;
     const {
+      fuzzyJobList,
+      fuzzyModal,
+      filteredFuzzyList,
+      decisionTaskId,
       watched,
       runnableVisible,
       pushGroupState,
@@ -395,6 +456,15 @@ class Push extends React.Component {
           this.container = ref;
         }}
       >
+        <FuzzyJobFinder
+          isOpen={fuzzyModal}
+          toggle={this.toggleFuzzyModal}
+          jobList={fuzzyJobList}
+          filteredJobList={filteredFuzzyList}
+          className="fuzzy-modal"
+          pushId={id}
+          decisionTaskId={decisionTaskId}
+        />
         <PushHeader
           push={push}
           pushId={id}
@@ -409,6 +479,7 @@ class Push extends React.Component {
           runnableVisible={runnableVisible}
           showRunnableJobs={this.showRunnableJobs}
           hideRunnableJobs={this.hideRunnableJobs}
+          showFuzzyJobs={this.showFuzzyJobs}
           cycleWatchState={this.cycleWatchState}
           expandAllPushGroups={this.expandAllPushGroups}
           collapsed={collapsed}

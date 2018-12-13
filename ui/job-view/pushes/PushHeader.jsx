@@ -229,6 +229,7 @@ class PushHeader extends React.Component {
       watchState,
       showRunnableJobs,
       hideRunnableJobs,
+      showFuzzyJobs,
       cycleWatchState,
       notificationSupported,
       selectedRunnableJobs,
@@ -341,6 +342,7 @@ class PushHeader extends React.Component {
               pushId={pushId}
               showRunnableJobs={showRunnableJobs}
               hideRunnableJobs={hideRunnableJobs}
+              showFuzzyJobs={showFuzzyJobs}
             />
           </span>
         </div>
@@ -360,6 +362,7 @@ PushHeader.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
+  showFuzzyJobs: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
