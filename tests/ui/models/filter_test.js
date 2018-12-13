@@ -1,4 +1,4 @@
-import FilterModel from '../../../../ui/models/filter';
+import FilterModel from '../../../ui/models/filter';
 
 describe('FilterModel', () => {
   const oldHash = window.location.hash;

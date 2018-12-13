@@ -11,6 +11,8 @@ module.exports = {
         'plugin:prettier/recommended',
     // Disable React-related AirBnB style rules.
     'prettier/react',
+    'plugin:jest/recommended',
+    'plugin:jest/style',
   ],
   parser: 'babel-eslint',
   settings: {

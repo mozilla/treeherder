@@ -74,6 +74,8 @@ describe('Revision list component', () => {
     const wrapper = mount(
       <RevisionList repo={mockData.repo} push={mockData.push} />,
     );
+    // BROKEN: Fix when converting this test to Jest
+    // eslint-disable-next-line jest/prefer-to-have-length
     expect(wrapper.find(Revision).length).toEqual(mockData.push.revision_count);
   });
 
@@ -83,7 +85,7 @@ describe('Revision list component', () => {
     const wrapper = mount(
       <RevisionList repo={mockData.repo} push={mockData.push} />,
     );
-    expect(wrapper.find(MoreRevisionsLink).length).toEqual(1);
+    expect(wrapper.find(MoreRevisionsLink)).toHaveLength(1);
   });
 });
 
@@ -141,7 +143,7 @@ describe('Revision item component', () => {
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
     const initials = wrapper.find('.user-push-initials');
-    expect(initials.length).toEqual(1);
+    expect(initials).toHaveLength(1);
     expect(initials.text()).toEqual('AB');
   });
 
@@ -162,14 +164,14 @@ describe('Revision item component', () => {
     let wrapper = mount(
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
-    expect(wrapper.find({ 'data-tags': 'backout' }).length).toEqual(1);
+    expect(wrapper.find({ 'data-tags': 'backout' })).toHaveLength(1);
 
     mockData.revision.comments =
       'Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure';
     wrapper = mount(
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
-    expect(wrapper.find({ 'data-tags': 'backout' }).length).toEqual(1);
+    expect(wrapper.find({ 'data-tags': 'backout' })).toHaveLength(1);
   });
 });
 
@@ -183,7 +185,7 @@ describe('More revisions link component', () => {
 
   it('has an external link icon', () => {
     const wrapper = mount(<MoreRevisionsLink href="http://more.link" />);
-    expect(wrapper.find('i.fa.fa-external-link-square').length).toEqual(1);
+    expect(wrapper.find('i.fa.fa-external-link-square')).toHaveLength(1);
   });
 });
 
