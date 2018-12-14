@@ -34,6 +34,7 @@ export default class SelectorCard extends React.Component {
       data: {},
       failureStatus: null,
       invalidInput: false,
+      disabled: false,
     };
   }
 
@@ -46,6 +47,12 @@ export default class SelectorCard extends React.Component {
   }
 
   fetchRevisions = async selectedRepo => {
+    // if a user selects a new project/repo, we don't want them to
+    // be able to select revisions until that new data has returned
+    if (Object.keys(this.state.data) !== 0) {
+      this.setState({ disabled: true });
+    }
+
     const params = {
       full: true,
       count: 10,
@@ -59,7 +66,7 @@ export default class SelectorCard extends React.Component {
     if (failureStatus) {
       this.props.updateState({ errorMessages: genericErrorMessage });
     } else {
-      this.setState({ data, failureStatus });
+      this.setState({ data, failureStatus, disabled: false });
     }
   };
 
@@ -127,6 +134,7 @@ export default class SelectorCard extends React.Component {
       checkboxSelected,
       data,
       invalidInput,
+      disabled,
     } = this.state;
     const {
       selectedRepo,
@@ -217,7 +225,7 @@ export default class SelectorCard extends React.Component {
                     isOpen={inputDropdownOpen}
                     toggle={() => this.toggle('inputDropdownOpen')}
                   >
-                    <DropdownToggle caret outline>
+                    <DropdownToggle caret outline disabled={disabled}>
                       Recent
                     </DropdownToggle>
                     {!!data.results && data.results.length > 0 && (
