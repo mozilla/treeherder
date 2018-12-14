@@ -126,6 +126,15 @@ def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push,
 
 
 @pytest.mark.django_db
+def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits):
+    """Test graceful handling of an unknown HG repo"""
+    hg_push["payload"]["repo_url"] = "https://hg.mozilla.org/mozilla-central"
+    assert Push.objects.count() == 0
+    PushLoader().process(hg_push, "exchange/hgpushes/v1")
+    assert Push.objects.count() == 1
+
+
+@pytest.mark.django_db
 def test_ingest_hg_push_bad_repo(hg_push):
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://bad.repo.com"
