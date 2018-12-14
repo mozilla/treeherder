@@ -1310,7 +1310,7 @@
         "dvcs_type": "git",
         "name": "servo-try-taskcluster",
         "url": "https://github.com/servo/servo",
-        "branch": "try-taskcluster",
+        "branch": "(disabled, use servo-try instead)",
         "active_status": "active",
         "codebase": "servo",
         "repository_group": 10,
