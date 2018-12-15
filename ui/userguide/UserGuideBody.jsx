@@ -79,7 +79,10 @@ const UserGuideBody = function UserGuideBody() {
                   {notations.map(({ classes, explanation, text }) => (
                     <tr key={classes}>
                       <th className="superseded">
-                        <button className={`btn ug-btn ${classes}`}>
+                        <button
+                          type="button"
+                          className={`btn ug-btn ${classes}`}
+                        >
                           {text || 'Th'}
                         </button>
                       </th>

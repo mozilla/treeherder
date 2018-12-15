@@ -30,6 +30,7 @@ export default function ReposMenu(props) {
       <span className="dropdown">
         <button
           id="repoLabel"
+          type="button"
           title="Watch a repo"
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn dropdown-toggle"

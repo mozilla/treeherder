@@ -15,6 +15,7 @@ function BugListItem(props) {
     <li>
       <button
         className="btn btn-xs btn-light-bordered"
+        type="button"
         onClick={() => addBug(bug, selectedJob)}
         title="add to list of bugs to associate with all pinned jobs"
       >

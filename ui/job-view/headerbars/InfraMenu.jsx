@@ -5,6 +5,7 @@ export default function InfraMenu() {
     <span className="dropdown">
       <button
         id="infraLabel"
+        type="button"
         title="Infrastructure status"
         data-toggle="dropdown"
         className="btn btn-view-nav nav-menu-btn dropdown-toggle"

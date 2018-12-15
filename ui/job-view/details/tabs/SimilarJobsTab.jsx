@@ -183,6 +183,7 @@ class SimilarJobsTab extends React.Component {
                       className={`btn btn-similar-jobs btn-xs ${button_class(
                         similarJob,
                       )}`}
+                      type="button"
                     >
                       {similarJob.job_type_symbol}
                       {similarJob.failure_classification_id > 1 && (
@@ -210,6 +211,7 @@ class SimilarJobsTab extends React.Component {
           {hasNextPage && (
             <button
               className="btn btn-light-bordered btn-sm link-style"
+              type="button"
               onClick={this.showNext}
             >
               Show previous jobs

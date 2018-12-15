@@ -48,6 +48,7 @@ export default class AutoclassifyToolbar extends React.Component {
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
+          type="button"
           title="Pin job for bustage"
           onClick={onPin}
         >
@@ -56,6 +57,7 @@ export default class AutoclassifyToolbar extends React.Component {
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
+          type="button"
           title={this.getButtonTitle(
             hasSelection,
             'Edit selected lines',
@@ -69,6 +71,7 @@ export default class AutoclassifyToolbar extends React.Component {
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
+          type="button"
           title={this.getButtonTitle(
             hasSelection,
             'Ignore selected lines',
@@ -82,6 +85,7 @@ export default class AutoclassifyToolbar extends React.Component {
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
+          type="button"
           title={this.getButtonTitle(canSave, 'Save', 'Nothing selected')}
           onClick={onSave}
           disabled={!canSave}
@@ -91,6 +95,7 @@ export default class AutoclassifyToolbar extends React.Component {
 
         <button
           className="btn btn-view-nav btn-sm nav-menu-btn"
+          type="button"
           title={this.getButtonTitle(
             canSaveAll,
             'Save All',

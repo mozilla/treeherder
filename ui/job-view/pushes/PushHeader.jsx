@@ -243,6 +243,7 @@ class PushHeader extends React.PureComponent {
           <span className="push-buttons">
             {jobCounts.pending + jobCounts.running > 0 && (
               <button
+                type="button"
                 className="btn btn-sm btn-push watch-commit-btn"
                 disabled={!notificationSupported}
                 title={
@@ -267,6 +268,7 @@ class PushHeader extends React.PureComponent {
             </a>
             {isLoggedIn && (
               <button
+                type="button"
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
                 onClick={this.cancelAllJobs}
@@ -275,6 +277,7 @@ class PushHeader extends React.PureComponent {
               </button>
             )}
             <button
+              type="button"
               className="btn btn-sm btn-push pin-all-jobs-btn"
               title="Pin all available jobs in this push"
               aria-label="Pin all available jobs in this push"
@@ -284,6 +287,7 @@ class PushHeader extends React.PureComponent {
             </button>
             {!!selectedRunnableJobs.length && runnableVisible && (
               <button
+                type="button"
                 className="btn btn-sm btn-push trigger-new-jobs-btn"
                 title="Trigger new jobs"
                 onClick={this.triggerNewJobs}

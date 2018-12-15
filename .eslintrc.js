@@ -44,7 +44,6 @@ module.exports = {
     'no-shadow': 'off',
     'no-underscore-dangle': 'off',
     'prefer-promise-reject-errors': 'off',
-    'react/button-has-type': 'off',
     'react/destructuring-assignment': 'off',
     'react/forbid-prop-types': 'off',
     'react/no-access-state-in-setstate': 'off',

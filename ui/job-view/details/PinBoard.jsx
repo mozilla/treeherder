@@ -565,6 +565,7 @@ class PinBoard extends React.Component {
                     ? 'disabled'
                     : ''
                 }`}
+                type="button"
                 title={this.saveUITitle('classification')}
                 onClick={this.save}
               >

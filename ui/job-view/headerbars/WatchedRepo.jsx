@@ -121,6 +121,7 @@ export default class WatchedRepo extends React.Component {
         {watchedRepo !== repoName && (
           <button
             className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
+            type="button"
             onClick={() => unwatchRepo(watchedRepo)}
             title={`Unwatch ${watchedRepo}`}
           >

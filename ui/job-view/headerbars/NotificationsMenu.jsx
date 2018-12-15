@@ -24,6 +24,7 @@ class NotificationsMenu extends React.Component {
       <span className="dropdown">
         <button
           id="notificationLabel"
+          type="button"
           title="Recent notifications"
           aria-label="Recent notifications"
           data-toggle="dropdown"
@@ -45,6 +46,7 @@ class NotificationsMenu extends React.Component {
             Recent notifications
             {!!storedNotifications.length && (
               <button
+                type="button"
                 className="btn btn-xs btn-light-bordered notification-dropdown-btn"
                 title="Clear all notifications"
                 onClick={clearStoredNotifications}

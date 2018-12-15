@@ -110,6 +110,7 @@ class Login extends React.Component {
           <span className="dropdown">
             <button
               id="logoutLabel"
+              type="button"
               title={`Logged in as: ${user.email}`}
               data-toggle="dropdown"
               className="btn btn-view-nav"
