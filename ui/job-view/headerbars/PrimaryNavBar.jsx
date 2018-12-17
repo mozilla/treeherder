@@ -13,50 +13,52 @@ import FiltersMenu from './FiltersMenu';
 import HelpMenu from './HelpMenu';
 import SecondaryNavBar from './SecondaryNavBar';
 
-export default function PrimaryNavBar(props) {
-  const {
-    user,
-    setUser,
-    repos,
-    updateButtonClick,
-    serverChanged,
-    filterModel,
-    setCurrentRepoTreeStatus,
-    duplicateJobsVisible,
-    groupCountsExpanded,
-    toggleFieldFilterVisible,
-  } = props;
+export default class PrimaryNavBar extends React.PureComponent {
+  render() {
+    const {
+      user,
+      setUser,
+      repos,
+      updateButtonClick,
+      serverChanged,
+      filterModel,
+      setCurrentRepoTreeStatus,
+      duplicateJobsVisible,
+      groupCountsExpanded,
+      toggleFieldFilterVisible,
+    } = this.props;
 
-  return (
-    <div id="global-navbar-container">
-      <div id="th-global-top-nav-panel">
-        <nav id="th-global-navbar" className="navbar navbar-dark">
-          <div id="th-global-navbar-top">
-            <LogoMenu menuText="Treeherder" menuImage={Logo} />
-            <span className="navbar-right">
-              <NotificationsMenu />
-              <InfraMenu />
-              <ReposMenu repos={repos} />
-              <TiersMenu filterModel={filterModel} />
-              <FiltersMenu filterModel={filterModel} user={user} />
-              <HelpMenu />
-              <Login user={user} setUser={setUser} />
-            </span>
-          </div>
-          <SecondaryNavBar
-            updateButtonClick={updateButtonClick}
-            serverChanged={serverChanged}
-            filterModel={filterModel}
-            repos={repos}
-            setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
-            duplicateJobsVisible={duplicateJobsVisible}
-            groupCountsExpanded={groupCountsExpanded}
-            toggleFieldFilterVisible={toggleFieldFilterVisible}
-          />
-        </nav>
+    return (
+      <div id="global-navbar-container">
+        <div id="th-global-top-nav-panel">
+          <nav id="th-global-navbar" className="navbar navbar-dark">
+            <div id="th-global-navbar-top">
+              <LogoMenu menuText="Treeherder" menuImage={Logo} />
+              <span className="navbar-right">
+                <NotificationsMenu />
+                <InfraMenu />
+                <ReposMenu repos={repos} />
+                <TiersMenu filterModel={filterModel} />
+                <FiltersMenu filterModel={filterModel} user={user} />
+                <HelpMenu />
+                <Login user={user} setUser={setUser} />
+              </span>
+            </div>
+            <SecondaryNavBar
+              updateButtonClick={updateButtonClick}
+              serverChanged={serverChanged}
+              filterModel={filterModel}
+              repos={repos}
+              setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
+              duplicateJobsVisible={duplicateJobsVisible}
+              groupCountsExpanded={groupCountsExpanded}
+              toggleFieldFilterVisible={toggleFieldFilterVisible}
+            />
+          </nav>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 PrimaryNavBar.propTypes = {

@@ -18,7 +18,7 @@ const getSearchStrFromUrl = function getSearchStrFromUrl() {
   return searchStr ? searchStr.replace(/,/g, ' ') : '';
 };
 
-class SecondaryNavBar extends React.Component {
+class SecondaryNavBar extends React.PureComponent {
   constructor(props) {
     super(props);
 
