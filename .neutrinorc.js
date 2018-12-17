@@ -36,6 +36,7 @@ module.exports = {
       },
       'intermittent-failures': {
         entry: 'intermittent-failures/index.jsx',
+        favicon: 'ui/img/tree_open.png',
         title: 'Intermittent Failures View',
       },
     },
