@@ -1,10 +1,11 @@
 import React from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 import { mount } from 'enzyme';
 
 import { JobGroupComponent } from '../../../../ui/job-view/pushes/JobGroup';
 import FilterModel from '../../../../ui/models/filter';
-
-const { getJSONFixture } = window;
+import mappedGroupFixture from '../../mock/mappedGroup';
+import mappedGroupDupsFixture from '../../mock/mappedGroupDups';
 
 describe('JobGroup component', () => {
   let countGroup;
@@ -14,9 +15,8 @@ describe('JobGroup component', () => {
   const pushGroupState = 'collapsed';
 
   beforeEach(() => {
-    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
-    countGroup = getJSONFixture('mappedGroup.json');
-    dupGroup = getJSONFixture('mappedGroupDups.json');
+    countGroup = cloneDeep(mappedGroupFixture);
+    dupGroup = cloneDeep(mappedGroupDupsFixture);
   });
 
   /*
