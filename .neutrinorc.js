@@ -119,7 +119,7 @@ module.exports = {
         patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
       },
     ],
-    '@neutrinojs/jest',
+    process.env.NODE_ENV === 'test' && '@neutrinojs/jest',
     neutrino => {
       neutrino.config
         .plugin('provide')
