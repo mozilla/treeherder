@@ -2,15 +2,12 @@ import * as fetchMock from 'fetch-mock';
 
 import JobModel from '../../../../ui/models/job';
 import { getProjectUrl } from '../../../../ui/helpers/url';
-
-const { getJSONFixture } = window;
+import jobListFixtureOne from '../../mock/job_list/job_1';
+import paginatedJobListFixtureOne from '../../mock/job_list/pagination/page_1';
+import paginatedJobListFixtureTwo from '../../mock/job_list/pagination/page_2';
 
 describe('JobModel', () => {
   const repoName = 'mozilla-inbound';
-
-  beforeEach(() => {
-    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
-  });
 
   afterEach(() => {
     fetchMock.reset();
@@ -18,10 +15,7 @@ describe('JobModel', () => {
 
   describe('getList', () => {
     beforeEach(() => {
-      fetchMock.get(
-        getProjectUrl('/jobs/'),
-        getJSONFixture('job_list/job_1.json'),
-      );
+      fetchMock.get(getProjectUrl('/jobs/'), jobListFixtureOne);
     });
 
     it('should return a promise', () => {
@@ -34,11 +28,11 @@ describe('JobModel', () => {
     beforeEach(() => {
       fetchMock.get(
         getProjectUrl('/jobs/?count=2'),
-        getJSONFixture('job_list/pagination/page_1.json'),
+        paginatedJobListFixtureOne,
       );
       fetchMock.get(
         getProjectUrl('/jobs/?count=2&offset=2'),
-        getJSONFixture('job_list/pagination/page_2.json'),
+        paginatedJobListFixtureTwo,
       );
     });
 

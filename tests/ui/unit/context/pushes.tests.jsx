@@ -5,18 +5,17 @@ import { mount } from 'enzyme';
 import { getProjectUrl } from '../../../../ui/helpers/url';
 import { PushesClass } from '../../../../ui/job-view/context/Pushes';
 import FilterModel from '../../../../ui/models/filter';
-
-const { getJSONFixture } = window;
+import pushListFixture from '../../mock/push_list';
+import jobListFixtureOne from '../../mock/job_list/job_1';
+import jobListFixtureTwo from '../../mock/job_list/job_2';
 
 describe('Pushes context', () => {
   const repoName = 'mozilla-inbound';
 
   beforeEach(() => {
-    jasmine.getJSONFixtures().fixturesPath = 'base/tests/ui/mock';
-
     fetchMock.get(
       getProjectUrl('/resultset/?full=true&count=10', repoName),
-      getJSONFixture('push_list.json'),
+      pushListFixture,
     );
 
     fetchMock.get(
@@ -24,7 +23,7 @@ describe('Pushes context', () => {
         '/jobs/?return_type=list&count=2000&result_set_id=1',
         repoName,
       ),
-      getJSONFixture('job_list/job_1.json'),
+      jobListFixtureOne,
     );
 
     fetchMock.get(
@@ -32,7 +31,7 @@ describe('Pushes context', () => {
         '/jobs/?return_type=list&count=2000&result_set_id=2',
         repoName,
       ),
-      getJSONFixture('job_list/job_2.json'),
+      jobListFixtureTwo,
     );
   });
 
