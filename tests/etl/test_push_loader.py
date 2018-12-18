@@ -126,6 +126,15 @@ def test_ingest_hg_push(test_repository, hg_push, transformed_hg_push,
 
 
 @pytest.mark.django_db
+def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits):
+    """Test graceful handling of an unknown HG repo"""
+    hg_push["payload"]["repo_url"] = "https://hg.mozilla.org/mozilla-central"
+    assert Push.objects.count() == 0
+    PushLoader().process(hg_push, "exchange/hgpushes/v1")
+    assert Push.objects.count() == 1
+
+
+@pytest.mark.django_db
 def test_ingest_hg_push_bad_repo(hg_push):
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://bad.repo.com"
@@ -139,3 +148,22 @@ def test_ingest_github_push_bad_repo(github_push):
     github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
     PushLoader().process(github_push, "exchange/taskcluster-github/v1/push")
     assert Push.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("branch, expected_pushes", [
+    ("master", 1),
+    ("bar", 1),
+    ("baz", 0),
+    ("foo", 1),
+])
+def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push,
+                                                     test_repository, mock_github_push_compare):
+    """Test a repository accepting pushes for multiple branches"""
+    test_repository.url = "https://github.com/mozilla/test_treeherder"
+    test_repository.branch = "master,foo,bar"
+    test_repository.save()
+    github_push["details"]["event.base.repo.branch"] = branch
+    assert Push.objects.count() == 0
+    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push")
+    assert Push.objects.count() == expected_pushes

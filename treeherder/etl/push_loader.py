@@ -21,9 +21,12 @@ class PushLoader(object):
         try:
             newrelic.agent.add_custom_parameter("url", transformer.repo_url)
             newrelic.agent.add_custom_parameter("branch", transformer.branch)
-            repo = Repository.objects.get(url=transformer.repo_url,
-                                          branch=transformer.branch,
-                                          active_status="active")
+            repos = Repository.objects
+            if transformer.branch:
+                repos = repos.filter(branch__regex="(^|,)%s($|,)" % transformer.branch)
+            else:
+                repos = repos.filter(branch=None)
+            repo = repos.get(url=transformer.repo_url, active_status="active")
             newrelic.agent.add_custom_parameter("repository", repo.name)
 
         except ObjectDoesNotExist:
