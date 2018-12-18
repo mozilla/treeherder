@@ -14,7 +14,7 @@ class Base(Page):
         _root_locator = (By.ID, 'th-global-navbar')
         _app_menu_locator = (By.ID, 'th-logo')
         _app_logo_locator = (By.CSS_SELECTOR, '#th-logo img')
-        _switch_app_locator = (By.CSS_SELECTOR, '#th-logo + ul > li a')
+        _switch_app_locator = (By.CSS_SELECTOR, '#th-logo + div > button a')
 
         @property
         def active_app(self):
