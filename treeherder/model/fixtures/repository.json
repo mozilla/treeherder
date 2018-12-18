@@ -1311,7 +1311,7 @@
         "name": "servo-try-taskcluster",
         "url": "https://github.com/servo/servo",
         "branch": "(disabled, use servo-try instead)",
-        "active_status": "active",
+        "active_status": "onhold",
         "codebase": "servo",
         "repository_group": 10,
         "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
