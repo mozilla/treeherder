@@ -44,6 +44,7 @@ function StaticLineOption(props) {
           {(!canClassify || selectedJob.id in pinnedJobs) && (
             <button
               className="btn btn-xs btn-light-bordered"
+              type="button"
               onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
               title="add to list of bugs to associate with all pinned jobs"
             >

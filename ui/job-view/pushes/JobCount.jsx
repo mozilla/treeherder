@@ -9,7 +9,12 @@ export default function JobCount(props) {
   ];
 
   return (
-    <button className={classes.join(' ')} title={title} onClick={onClick}>
+    <button
+      type="button"
+      className={classes.join(' ')}
+      title={title}
+      onClick={onClick}
+    >
       {count}
     </button>
   );

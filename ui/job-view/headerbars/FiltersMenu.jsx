@@ -39,6 +39,7 @@ function FiltersMenu(props) {
       <span className="dropdown">
         <button
           id="filterLabel"
+          type="button"
           title="Set filters"
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn dropdown-toggle"

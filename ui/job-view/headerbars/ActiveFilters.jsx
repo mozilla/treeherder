@@ -196,7 +196,7 @@ export default class ActiveFilters extends React.Component {
                   add
                 </button>
                 <button
-                  type="reset"
+                  type="button"
                   className="btn btn-light-bordered btn-sm"
                   onClick={this.clearNewFieldFilter}
                 >

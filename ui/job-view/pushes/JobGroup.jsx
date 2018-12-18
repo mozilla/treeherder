@@ -14,7 +14,7 @@ const GroupSymbol = function GroupSymbol(props) {
   const { symbol, tier, toggleExpanded } = props;
 
   return (
-    <button className="btn group-symbol" onClick={toggleExpanded}>
+    <button type="button" className="btn group-symbol" onClick={toggleExpanded}>
       {symbol}
       {tier !== 1 && <span className="small text-muted">[tier {tier}]</span>}
     </button>

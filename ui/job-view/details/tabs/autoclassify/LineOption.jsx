@@ -104,6 +104,7 @@ class LineOption extends React.Component {
                 {(!canClassify || selectedJob.id in pinnedJobs) && (
                   <button
                     className="btn btn-xs btn-light-bordered"
+                    type="button"
                     onClick={() =>
                       addBug({ id: option.bugNumber }, selectedJob)
                     }

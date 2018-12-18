@@ -51,6 +51,7 @@ export default function HelpMenu() {
     <span id="help-menu" className="dropdown">
       <button
         id="helpLabel"
+        type="button"
         title="Treeherder help"
         aria-label="Treeherder help"
         data-toggle="dropdown"

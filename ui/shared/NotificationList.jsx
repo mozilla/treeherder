@@ -38,6 +38,7 @@ class NotificationList extends React.Component {
               )}
               {notification.sticky && (
                 <button
+                  type="button"
                   onClick={() => removeNotification(idx)}
                   className="close"
                 >

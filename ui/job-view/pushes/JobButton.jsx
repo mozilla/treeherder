@@ -120,7 +120,11 @@ export default class JobButtonComponent extends React.Component {
     }
 
     attributes.className = classes.join(' ');
-    return <button {...attributes}>{job_type_symbol}</button>;
+    return (
+      <button type="button" {...attributes}>
+        {job_type_symbol}
+      </button>
+    );
   }
 }
 
