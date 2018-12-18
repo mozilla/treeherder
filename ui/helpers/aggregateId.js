@@ -12,6 +12,6 @@ export const getPlatformRowId = (
 export const getPushTableId = (repoName, pushId, revision) =>
   escapeId(`${repoName}${pushId}${revision}`);
 
-export const getGroupMapKey = (grSymbol, grTier, plName, plOpt) =>
+export const getGroupMapKey = (pushId, grSymbol, grTier, plName, plOpt) =>
   // Build string key for groupMap entries
-  escapeId(`${grSymbol}${grTier}${plName}${plOpt}`);
+  escapeId(`${pushId}${grSymbol}${grTier}${plName}${plOpt}`);

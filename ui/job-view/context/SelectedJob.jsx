@@ -129,14 +129,15 @@ class SelectedJobClass extends React.Component {
       const selected = findSelectedInstance();
       if (selected) selected.setSelected(false);
     }
-    const group = findGroupInstance(job);
-    if (group) {
-      group.setExpanded(true);
-    }
     const newSelectedElement = findJobInstance(job.id, true);
     if (newSelectedElement) {
       newSelectedElement.setSelected(true);
     } else {
+      const group = findGroupInstance(job);
+      if (group) {
+        group.setExpanded(true);
+      }
+
       // If the job is in a group count, then the job element won't exist, but
       // its group will.  We can try scrolling to that.
       const groupEl = findGroupElement(job);
