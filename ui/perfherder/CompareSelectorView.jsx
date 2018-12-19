@@ -53,6 +53,13 @@ export default class CompareSelectorView extends React.Component {
       newRevision,
     } = this.props.$stateParams;
 
+    const { errorMessages } = this.state;
+
+    // reset
+    if (errorMessages.length > 0) {
+      this.setState({ errorMessages: [] });
+    }
+
     if (originalProject) {
       this.validateProject('originalProject', originalProject);
     }
@@ -75,6 +82,10 @@ export default class CompareSelectorView extends React.Component {
         originalRevision,
         originalProject || this.state.originalProject,
       );
+    }
+
+    if (errorMessages.length === 0) {
+      this.setState({ disableButton: false });
     }
   };
 
@@ -210,7 +221,7 @@ export default class CompareSelectorView extends React.Component {
                   color="info"
                   className="mt-2 mx-auto"
                   onClick={
-                    newRevision !== '' && disableButton ? '' : this.submitData
+                    newRevision !== '' && disableButton ? null : this.submitData
                   }
                 >
                   Compare
