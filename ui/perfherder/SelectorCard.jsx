@@ -89,33 +89,6 @@ export default class SelectorCard extends React.Component {
     }
   };
 
-  validateInput = async value => {
-    const { updateState } = this.props;
-
-    if (value.length < 40 && value !== '') {
-      return this.setState({
-        invalidInput: 'Revision must be at least 40 characters',
-      });
-    }
-
-    if (value.length >= 40) {
-      const url = `${getProjectUrl(
-        pushEndpoint,
-        this.props.selectedRepo,
-      )}${createQueryParams({ revision: value })}`;
-      const { data, failureStatus } = await getData(url);
-
-      if (failureStatus || data.meta.count === 0) {
-        return this.setState({ invalidInput: 'Invalid revision' });
-      }
-      updateState({ disableButton: false });
-    }
-    // reset if value is valid but previous value wasn't
-    if (this.state.invalidInput) {
-      this.setState({ invalidInput: false });
-    }
-  };
-
   updateRevision = value => {
     const { updateState, revisionState } = this.props;
 
@@ -214,10 +187,9 @@ export default class SelectorCard extends React.Component {
                       updateState({
                         [revisionState]: event.target.value,
                         errorMessages: [],
-                        disableButton: true,
+                        disableButton: false,
                       })
                     }
-                    onBlur={event => this.validateInput(event.target.value)}
                     onFocus={() => this.setState({ invalidInput: false })}
                   />
                   <InputGroupButtonDropdown
