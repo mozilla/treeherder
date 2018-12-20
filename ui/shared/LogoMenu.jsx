@@ -30,7 +30,7 @@ export default class LogoMenu extends React.Component {
   }
 
   render() {
-    const { menuText, menuImage } = this.props;
+    const { menuText, menuImage, colorClass } = this.props;
 
     const menuChoices = choices.filter(choice => choice.text !== menuText);
     return (
@@ -44,15 +44,13 @@ export default class LogoMenu extends React.Component {
           {menuImage ? (
             <img src={menuImage} alt={menuText} />
           ) : (
-            <span className="lightorange">{menuText}</span>
+            <span className={colorClass}>{menuText}</span>
           )}
         </DropdownToggle>
         <DropdownMenu>
           {menuChoices.map(choice => (
-            <DropdownItem key={choice.text}>
-              <a href={choice.url} className="dropdown-item">
-                {choice.text}
-              </a>
+            <DropdownItem key={choice.text} tag="a" href={choice.url}>
+              {choice.text}
             </DropdownItem>
           ))}
         </DropdownMenu>
@@ -64,8 +62,10 @@ export default class LogoMenu extends React.Component {
 LogoMenu.propTypes = {
   menuText: PropTypes.string.isRequired,
   menuImage: PropTypes.string,
+  colorClass: PropTypes.string,
 };
 
 LogoMenu.defaultProps = {
   menuImage: null,
+  colorClass: 'white',
 };

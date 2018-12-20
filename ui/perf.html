@@ -14,17 +14,7 @@
   <nav id="th-global-navbar" class="navbar navbar-inverse" role="navigation" ng-cloak>
     <div id="th-global-navbar-top" class="navbar navbar-collapse">
       <span class="navbar-left">
-        <span class="dropdown">
-          <button id="th-logo"
-                  title="Treeherder services" role="button"
-                  class="btn btn-view-nav dropdown-toggle"
-                  data-toggle="dropdown">Perfherder
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="perf-logo">
-            <li><a href="/#/jobs?repo=mozilla-inbound" class="dropdown-item">Treeherder</a></li>
-            <li><a href="/intermittent-failures.html/" class="dropdown-item">Intermittent Failures View</a></li>
-          </ul>
-        </span>
+        <logo-menu menu-text="'Perfherder'"></logo-menu>
         <a ng-class="{active: $state.includes('graphs')}" class="btn btn-view-nav" ui-sref="graphs">Graphs</a>
         <a ng-class="{active: $state.current.name.startsWith('compare')}" class="btn btn-view-nav" ui-sref="comparechooser">Compare</a>
         <a ng-class="{active: $state.current.name.indexOf('alerts') >= 0}" class="btn btn-view-nav" ui-sref="alerts({id: null, status: null, framework: null, filter: null, hideImprovements: null, hideDwnToInv: 1})">Alerts</a>
