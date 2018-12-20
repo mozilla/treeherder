@@ -73,20 +73,36 @@ export default class WatchedRepo extends React.Component {
     const { repo, repoName, setCurrentRepoTreeStatus } = this.props;
     const watchedRepoName = repo.name;
 
-    TreeStatusModel.get(watchedRepoName).then(data => {
-      const treeStatus = data.result;
-
-      if (watchedRepoName === repoName) {
-        setCurrentRepoTreeStatus(treeStatus.status);
-      }
-
+    // Treestatus only supports hg repos.
+    // Instead of fetching 404 responses, assume other dvcs types are unsupported
+    if (repo.dvcs_type !== 'hg') {
       this.setState({
-        status: treeStatus.status,
-        reason: treeStatus.reason,
-        messageOfTheDay: treeStatus.message_of_the_day,
-        statusInfo: statusInfoMap[treeStatus.status],
+        status: 'unsupported',
+        reason: '',
+        messageOfTheDay: '',
+        statusInfo: statusInfoMap.unsupported,
       });
-    });
+      clearInterval(this.treeStatusIntervalId);
+    } else {
+      TreeStatusModel.get(watchedRepoName).then(data => {
+        const treeStatus = data.result;
+
+        if (watchedRepoName === repoName) {
+          setCurrentRepoTreeStatus(treeStatus.status);
+        }
+
+        this.setState({
+          status: treeStatus.status,
+          reason: treeStatus.reason,
+          messageOfTheDay: treeStatus.message_of_the_day,
+          statusInfo: statusInfoMap[treeStatus.status],
+        });
+
+        if (treeStatus.status === 'unsupported') {
+          clearInterval(this.treeStatusIntervalId);
+        }
+      });
+    }
   };
 
   render() {
