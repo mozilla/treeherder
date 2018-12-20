@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import {
+  UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from 'reactstrap';
 
 import { loggedOutUser } from '../../helpers/auth';
 import taskcluster from '../../helpers/taskcluster';
@@ -105,45 +112,40 @@ class Login extends React.Component {
     const { user } = this.props;
 
     return (
-      <React.Fragment>
+      <span id="auth-menu">
         {user.isLoggedIn && (
-          <span className="dropdown">
-            <button
+          <UncontrolledButtonDropdown>
+            <DropdownToggle
+              caret
               id="logoutLabel"
-              type="button"
               title={`Logged in as: ${user.email}`}
-              data-toggle="dropdown"
-              className="btn btn-view-nav"
+              className="btn-view-nav"
             >
-              <div className="dropdown-toggle">
-                <div className="nav-user-icon">
-                  <span className="fa fa-user pull-left" />
-                </div>
-                <div className="nav-user-name">
-                  <span>{user.fullName}</span>
-                </div>
+              <div className="nav-user-icon">
+                <span className="fa fa-user pull-left" />
               </div>
-            </button>
-            <ul
-              className="dropdown-menu nav-dropdown-menu-right"
-              role="menu"
-              aria-labelledby="logoutLabel"
-            >
-              <li>
-                <a onClick={this.logout} className="dropdown-item">
-                  Logout
-                </a>
-              </li>
-            </ul>
-          </span>
+              <div className="nav-user-name">
+                <span>{user.fullName}</span>
+              </div>
+            </DropdownToggle>
+            <DropdownMenu aria-labelledby="logoutLabel">
+              <DropdownItem onClick={this.logout}>
+                <span className="dropdown-item">
+                  <span className="fa fa-times-circle" /> Logout
+                </span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledButtonDropdown>
         )}
         {!user.isLoggedIn && (
-          <span className="btn nav-login-btn" onClick={this.login}>
-            {' '}
-            Login / Register
-          </span>
+          <Button
+            className="btn btn-view-nav nav-login-btn"
+            onClick={this.login}
+          >
+            <span className="fa fa-user-plus" /> Login / Register
+          </Button>
         )}
-      </React.Fragment>
+      </span>
     );
   }
 }
