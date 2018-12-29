@@ -19,7 +19,7 @@ Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for 
 #### Installation
 The steps to run Treeherder are provided [here](https://treeherder.readthedocs.io/installation.html).
 
-The steps to run only the UI are provided [here](https://treeherder.readthedocs.io/ui/installation.html).
+The steps to run only the UI are provided [here](https://treeherder.readthedocs.io/installation.html#ui-development).
 
 
 #### Links
