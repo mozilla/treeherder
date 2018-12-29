@@ -4046,10 +4046,10 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "^2.0.0"
 
-fetch-mock@7.2.5:
-  version "7.2.5"
-  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-7.2.5.tgz#4682f51b9fa74d790e10a471066cb22f3ff84d48"
-  integrity sha512-ZdlNxw2xFE2VuGikqWYBcshbfMtWM0k7zWevYgjrFuTiJ1+S7+xjRMxDG1cy45xkpEcqzZAAeqL+uDL5qLZV7g==
+fetch-mock@7.2.8:
+  version "7.2.8"
+  resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-7.2.8.tgz#b83b84c144b37eb6bcecc8e6334b784951452ec6"
+  integrity sha512-1l9oDwU3XjaJqYGXHRqqlP6DEwGdf2eiFcrBwHRgbjuA+kR/u2A+aXn8/AdpzqDQYEdSZk+LgZcIsacgMKJT/g==
   dependencies:
     babel-polyfill "^6.26.0"
     glob-to-regexp "^0.4.0"
