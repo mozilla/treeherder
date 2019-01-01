@@ -1,6 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
 /* eslint-disable func-names, object-shorthand, prefer-arrow-callback, prefer-destructuring, prefer-template, radix */
-import isEqual from 'lodash/isEqual';
 import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';
 
@@ -13,9 +12,8 @@ import {
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
-import { getCounterMap, getInterval, validateQueryParams, getResultsMap,
-    getGraphsLink } from '../../../perfherder/helpers';
-import { getApiUrl } from '../../../helpers/url';
+import { getCounterMap, getInterval, validateQueryParams, getGraphsLink } from '../../../perfherder/helpers';
+import { getApiUrl, createApiUrl, perfByRevisionEndpoint } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 
 
@@ -25,6 +23,7 @@ perf.controller('CompareResultsCtrl', [
     function CompareResultsCtrl($state, $stateParams, $scope,
                                 $httpParamSerializer, $q) {
         function displayResults(rawResultsMap, newRawResultsMap) {
+
             $scope.compareResults = {};
             $scope.titles = {};
             if ($scope.originalRevision) {
@@ -46,15 +45,13 @@ perf.controller('CompareResultsCtrl', [
                     if (Object.keys($scope.newStddevVariance).indexOf(platform) < 0) {
                         $scope.newStddevVariance[platform] = { values: [], lowerIsBetter: true, frameworkID: $scope.filterOptions.framework.id };
                     }
-
-                    const oldSig = Object.keys(rawResultsMap).find(sig =>
-                        rawResultsMap[sig].name === testName && rawResultsMap[sig].platform === platform,
+                    const oldResults = rawResultsMap.find(sig =>
+                        sig.name === testName && sig.platform === platform
                     );
-                    const newSig = Object.keys(newRawResultsMap).find(sig =>
-                        newRawResultsMap[sig].name === testName && newRawResultsMap[sig].platform === platform,
+                    const newResults = newRawResultsMap.find(sig =>
+                        sig.name === testName && sig.platform === platform
                     );
-
-                    const cmap = getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
+                    const cmap = getCounterMap(testName, oldResults, newResults);
                     if (cmap.isEmpty) {
                         return;
                     }
@@ -70,9 +67,7 @@ perf.controller('CompareResultsCtrl', [
                         }
                     }
                     cmap.links = [];
-
-                    const hasSubtests = ((rawResultsMap[oldSig] && rawResultsMap[oldSig].hasSubtests) ||
-                                         (newRawResultsMap[newSig] && newRawResultsMap[newSig].hasSubtests));
+                    const hasSubtests = ((oldResults && oldResults.has_subtests) || (newResults && newResults.has_subtests));
 
                     if ($scope.originalRevision) {
                         if (hasSubtests) {
@@ -82,8 +77,8 @@ perf.controller('CompareResultsCtrl', [
                                 originalRevision: $scope.originalRevision,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                originalSignature: oldSig,
-                                newSignature: newSig,
+                                originalSignature: oldResults ? oldResults.signature_hash : null,
+                                newSignature: oldResults ? newResults.signature_hash : null,
                                 framework: $scope.filterOptions.framework.id,
                             });
                             cmap.links.push({
@@ -97,7 +92,7 @@ perf.controller('CompareResultsCtrl', [
                             href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
-                                    signature: oldSig,
+                                    signature: oldResults.signature_hash,
                                     frameworkId: $scope.filterOptions.framework.id,
                                 })),
                                 [$scope.originalResultSet, $scope.newResultSet]),
@@ -109,8 +104,8 @@ perf.controller('CompareResultsCtrl', [
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                originalSignature: oldSig,
-                                newSignature: newSig,
+                                originalSignature: oldResults ? oldResults.signature_hash : null,
+                                newSignature: newResults ? newResults.signature_hash : null,
                                 framework: $scope.filterOptions.framework.id,
                                 selectedTimeRange: $scope.selectedTimeRange.value,
                             });
@@ -125,7 +120,7 @@ perf.controller('CompareResultsCtrl', [
                             href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
-                                    signature: oldSig,
+                                    signature: oldResults.signature_hash,
                                     frameworkId: $scope.filterOptions.framework.id,
                                 })),
                                 [$scope.newResultSet], $scope.selectedTimeRange.value),
@@ -162,105 +157,48 @@ perf.controller('CompareResultsCtrl', [
             $scope.$apply();
         }
 
-        function load() {
+        const createQueryParams = (repository, interval) => ({
+            repository,
+            framework: $scope.filterOptions.framework.id,
+            interval,
+            no_subtests: true,
+        });
+
+        async function load() {
             $scope.dataLoading = true;
             $scope.testList = [];
             $scope.platformList = [];
+            let originalParams;
+            let interval;
 
             if ($scope.originalRevision) {
-                const timeRange = getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
-                // Optimization - if old/new branches are the same collect data in one pass
-                const resultSetIds = (isEqual($scope.originalProject, $scope.newProject)) ?
-                      [$scope.originalResultSet.id, $scope.newResultSet.id] : [$scope.originalResultSet.id];
-
-                PerfSeriesModel.getSeriesList($scope.originalProject.name, {
-                    interval: timeRange,
-                    subtests: 0,
-                    framework: $scope.filterOptions.framework.id,
-                }).then((originalSeriesList) => {
-                    $scope.platformList = [...new Set(
-                        originalSeriesList.map(series => series.platform))];
-                    $scope.testList = [...new Set(
-                        originalSeriesList.map(series => series.name))];
-                    return getResultsMap($scope.originalProject.name,
-                                                   originalSeriesList,
-                                                   { push_id: resultSetIds });
-                }).then((resultMaps) => {
-                    const originalResultsMap = resultMaps[$scope.originalResultSet.id] || {};
-                    const newResultsMap = resultMaps[$scope.newResultSet.id] || {};
-
-                    // Optimization - we collected all data in a single pass
-                    if (isEqual($scope.originalProject, $scope.newProject)) {
-                        $scope.dataLoading = false;
-                        displayResults(originalResultsMap, newResultsMap);
-                        return;
-                    }
-
-                    PerfSeriesModel.getSeriesList($scope.newProject.name, {
-                        interval: timeRange,
-                        subtests: 0,
-                        framework: $scope.filterOptions.framework.id,
-                    }).then((newSeriesList) => {
-                        $scope.platformList = [...new Set([
-                            ...$scope.platformList,
-                            ...new Set(newSeriesList.map(series => series.platform)),
-                        ])];
-                        $scope.testList = [...new Set([
-                            ...$scope.testList,
-                            ...new Set(newSeriesList.map(series => series.name)),
-                        ])];
-                        return getResultsMap($scope.newProject.name,
-                                                       newSeriesList,
-                                                       { push_id: [$scope.newResultSet.id] });
-                    }).then((resultMaps) => {
-                        $scope.dataLoading = false;
-                        displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id] || {});
-                    });
-                });
+                interval = getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
+                originalParams = createQueryParams($scope.originalProject.name, interval);
+                originalParams.revision = $scope.originalResultSet.id;
             } else {
-                // using a range of data for baseline comparison
-                PerfSeriesModel.getSeriesList($scope.originalProject.name, {
-                    interval: $scope.selectedTimeRange.value,
-                    subtests: 0,
-                    framework: $scope.filterOptions.framework.id,
-                }).then((originalSeriesList) => {
-                    $scope.platformList = [...new Set(originalSeriesList.map(series => series.platform))];
-                    $scope.testList = [...new Set(originalSeriesList.map(series => series.name))];
-                    const startDateMs = ($scope.newResultSet.push_timestamp -
-                                         $scope.selectedTimeRange.value) * 1000;
-                    const endDateMs = $scope.newResultSet.push_timestamp * 1000;
-                    return getResultsMap(
-                        $scope.originalProject.name, originalSeriesList, {
-                            start_date: new Date(startDateMs).toISOString().slice(0, -5),
-                            end_date: new Date(endDateMs).toISOString().slice(0, -5),
-                        });
-                }).then((originalResultsMap) => {
-                    PerfSeriesModel.getSeriesList($scope.newProject.name, {
-                        interval: $scope.selectedTimeRange.value,
-                        subtests: 0,
-                        framework: $scope.filterOptions.framework.id,
-                    }).then((newSeriesList) => {
-                        $scope.platformList = [...new Set([
-                            ...$scope.platformList,
-                            ...new Set(newSeriesList.map(series => series.platform)),
-                        ])];
-                        $scope.testList = [...new Set([
-                            ...$scope.testList,
-                            ...new Set(newSeriesList.map(series => series.name)),
-                        ])];
-                        return getResultsMap($scope.newProject.name,
-                                                       newSeriesList,
-                                                       { push_id: [$scope.newResultSet.id] });
-                    }).then((resultMaps) => {
-                        $scope.dataLoading = false;
-                        const newResult = resultMaps[$scope.newResultSet.id];
-                        if (newResult) {
-                          displayResults(originalResultsMap, newResult);
-                        }
-                        $scope.$apply();
-                    });
-                });
+                interval = $scope.selectedTimeRange.value;
+                const startDateMs = ($scope.newResultSet.push_timestamp - interval) * 1000;
+                const endDateMs = $scope.newResultSet.push_timestamp * 1000;
+                
+                originalParams = createQueryParams($scope.originalProject.name, interval);
+                originalParams.startday = new Date(startDateMs).toISOString().slice(0, -5);
+                originalParams.endday = new Date(endDateMs).toISOString().slice(0, -5);
             }
+
+            const newParams = createQueryParams($scope.newProject.name, interval);
+            newParams.revision = $scope.newResultSet.id;
+
+            const [originalResults, newResults] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
+                getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
+                
+            $scope.dataLoading = false;
+
+            const data = [...originalResults.data, ...newResults.data];
+            $scope.platformList = [...new Set(data.map(item => item.platform))];
+            $scope.testList = [...new Set(data.map(item => item.name))];
+
+            return displayResults(originalResults.data, newResults.data);
+            
         }
         // TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
@@ -414,12 +352,13 @@ perf.controller('CompareSubtestResultsCtrl', [
         }
 
         function displayResults(rawResultsMap, newRawResultsMap) {
+
             $scope.compareResults = {};
             $scope.titles = {};
 
-            const testName = $scope.testList[0];
+            const testName = $scope.subtestTitle;
 
-            $scope.titles[testName] = $scope.platformList[0] + ': ' + testName;
+            $scope.titles[testName] = `${$scope.platformList[0]}: ${testName}`;
             $scope.compareResults[testName] = [];
 
             $scope.subtestTitle = $scope.titles[testName];
@@ -435,9 +374,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                     let tempsig;
                     // If no data for a given platform, or test, display N/A in table
                     if (resultsMap) {
-                        tempsig = Object.keys(resultsMap).find(sig =>
-                            resultsMap[sig].name === page,
-                        );
+                        tempsig = resultsMap.find(sig => sig.test === page);
                     } else {
                         tempsig = 'undefined';
                         resultsMap = {};
@@ -445,14 +382,14 @@ perf.controller('CompareSubtestResultsCtrl', [
                     }
                     mapsigs.push(tempsig);
                 });
-                const oldSig = mapsigs[0];
-                const newSig = mapsigs[1];
+                const oldData = mapsigs[0];
+                const newData = mapsigs[1];
 
-                const cmap = getCounterMap(testName, rawResultsMap[oldSig], newRawResultsMap[newSig]);
-                if (oldSig === $scope.originalSignature ||
-                    oldSig === $scope.newSignature ||
-                    newSig === $scope.originalSignature ||
-                    newSig === $scope.newSignature) {
+                const cmap = getCounterMap(testName, oldData, newData);
+                if (oldData.parent_signature === $scope.originalSignature ||
+                    oldData.parent_signature === $scope.newSignature ||
+                    newData.parent_signature === $scope.originalSignature ||
+                    newData.parent_signature === $scope.newSignature) {
                     cmap.highlightedTest = true;
                 }
 
@@ -476,7 +413,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: oldSig,
+                            signature: oldData.signature_hash,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.originalResultSet, $scope.newResultSet]),
                     }];
@@ -489,8 +426,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 newProject: $scope.newProject.name,
                                 originalRevision: $scope.originalRevision,
                                 newRevision: $scope.newRevision,
-                                originalSubtestSignature: oldSig,
-                                newSubtestSignature: newSig,
+                                originalSubtestSignature: oldData.signature_hash,
+                                newSubtestSignature: newData.signature_hash,
                             }),
                         });
                     }
@@ -502,7 +439,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: oldSig,
+                            signature: oldData.signature_hash,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.newResultSet], $scope.selectedTimeRange.value),
                     }];
@@ -523,6 +460,57 @@ perf.controller('CompareSubtestResultsCtrl', [
             // call $apply explicitly so we don't have to worry about when promises
             // get resolved (see bug 1470600)
             $scope.$apply();
+        }
+
+        async function fetchData() {
+            const createQueryParams = (parent_signature, repository) => ({
+                parent_signature,
+                framework: $scope.filterOptions.framework,
+                repository,
+            });
+            
+            const originalParams = createQueryParams($scope.originalSignature, $scope.originalProject.name);
+            let results;
+            let newResults;
+            let originalResults;
+
+            if ($scope.originalRevision) {
+                originalParams.revision = $scope.originalResultSet.id;
+            } else {
+                // TODO create a helper for the startday and endday since this is also used in compare view
+                const startDateMs = ($scope.newResultSet.push_timestamp -
+                    $scope.selectedTimeRange.value) * 1000;
+                const endDateMs = $scope.newResultSet.push_timestamp * 1000;
+
+                originalParams.startday = new Date(startDateMs).toISOString().slice(0, -5);
+                originalParams.endday = new Date(endDateMs).toISOString().slice(0, -5);
+            }
+
+            // Is there ever a use case where originalSignature is provided but newSignature isn't?
+            if ($scope.newSignature) {
+                const newParams = createQueryParams($scope.newSignature, $scope.newProject.name);
+                newParams.revision = $scope.newResultSet.id;
+
+                [{ data: originalResults}, { data: newResults }] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
+                    getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
+                
+                $scope.dataLoading = false;
+
+                results = [...originalResults, ...newResults];    
+            } else {
+                ({ data: originalResults } = await getData(createApiUrl(perfByRevisionEndpoint, originalParams)));
+                $scope.dataLoading = false;
+                results = originalResults;
+            }
+
+            const subtestName = results[0].name.split(' ');
+            subtestName.splice(1, 1);
+            $scope.subtestTitle = subtestName.join(' ');
+
+            $scope.pageList = [...new Set(results.map(subtest => subtest.test))];
+            $scope.platformList = [...new Set(results.map(subtest => subtest.platform))];
+
+            return displayResults(originalResults, newResults || {});
         }
 
         $scope.dataLoading = true;
@@ -564,16 +552,6 @@ perf.controller('CompareSubtestResultsCtrl', [
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
                     return;
-                }
-
-                let resultSetIds;
-                if ($scope.originalRevision) {
-                    resultSetIds = [$scope.originalResultSet.id];
-
-                    // Optimization - if old/new branches are the same collect data in one pass
-                    if (isEqual($scope.originalProject, $scope.newProject)) {
-                        resultSetIds.push($scope.newResultSet.id);
-                    }
                 }
 
                 $scope.filterOptions = {
@@ -624,158 +602,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                         selectedTimeRange: $scope.selectedTimeRange.value,
                     });
                 };
-                if ($scope.originalRevision) {
-                    $q.all([
-                        PerfSeriesModel.getSeriesList(
-                            $scope.originalProject.name, {
-                                signature: $scope.originalSignature,
-                                framework: $scope.filterOptions.framework,
-                            }).then(function (originalSeries) {
-                                $scope.testList = [originalSeries[0].name];
-                                return undefined;
-                            }),
-                        PerfSeriesModel.getSeriesList(
-                            $scope.originalProject.name,
-                            {
-                                parent_signature: $scope.originalSignature,
-                                framework: $scope.filterOptions.framework,
-                            }).then(function (originalSubtestList) {
-                                $scope.pageList = originalSubtestList.map(subtest => subtest.name);
-                                $scope.platformList = [...new Set(originalSubtestList.map(subtest => subtest.platform))];
-                                return getResultsMap($scope.originalProject.name,
-                                    originalSubtestList,
-                                    { push_id: resultSetIds });
-                            }),
-                    ]).then(function (results) {
-                        const originalSeriesMap = results[1][$scope.originalResultSet.id] || {};
-                        const newSeriesMap = results[1][$scope.newResultSet.id] || {};
-                        [originalSeriesMap, newSeriesMap].forEach(function (seriesMap) {
-                            // If there is no data for a given signature, handle it gracefully
-                            if (seriesMap) {
-                                Object.keys(seriesMap).forEach(function (series) {
-                                    if ($scope.pageList.indexOf(seriesMap[series].name) === -1) {
-                                        $scope.pageList.push(seriesMap[series].name);
-                                    }
-                                });
-                            }
-                        });
 
-                        // if original and new project are same, we should
-                        // have collected all data in a single pass
-                        if (isEqual($scope.originalProject, $scope.newProject)) {
-                            $scope.dataLoading = false;
-                            displayResults(originalSeriesMap, newSeriesMap);
-                            return;
-                        }
-
-                        if ($scope.newSignature) {
-                            PerfSeriesModel.getSeriesList(
-                            $scope.newProject.name, {
-                                parent_signature: $scope.newSignature,
-                                framework: $scope.filterOptions.framework,
-                            }).then((newSeriesList) => {
-                                $scope.platformList = [...new Set([
-                                    ...$scope.platformList,
-                                    ...newSeriesList.map(series => series.platform),
-                                ])];
-                                $scope.testList = [...new Set([
-                                    ...$scope.testList,
-                                    ...newSeriesList.map(series => series.name),
-                                ])];
-
-                                return getResultsMap($scope.newProject.name,
-                                    newSeriesList,
-                                    { push_id: [$scope.newResultSet.id] });
-                            }).then(function (newSeriesMaps) {
-                                let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
-                                // There is a chance that we haven't received data for the given signature/resultSet yet
-                                if (newSeriesMap) {
-                                    Object.keys(newSeriesMap).forEach(function (series) {
-                                        if ($scope.pageList.indexOf(newSeriesMap[series].name) === -1) {
-                                            $scope.pageList.push(newSeriesMap[series].name);
-                                        }
-                                    });
-                                } else {
-                                    newSeriesMap = {};
-                                }
-                                $scope.dataLoading = false;
-                                displayResults(originalSeriesMap, newSeriesMap);
-                            });
-                        } else {
-                            $scope.dataLoading = false;
-                            displayResults(originalSeriesMap, {});
-                        }
-                    });
-                } else {
-                    $q.all([
-                        PerfSeriesModel.getSeriesList(
-                            $scope.originalProject.name, {
-                                signature: $scope.originalSignature,
-                                framework: $scope.filterOptions.framework,
-                            }).then(function (originalSeries) {
-                                $scope.testList = [originalSeries[0].name];
-                                return undefined;
-                            }),
-                        PerfSeriesModel.getSeriesList(
-                            $scope.originalProject.name,
-                            {
-                                parent_signature: $scope.originalSignature,
-                                framework: $scope.filterOptions.framework,
-                            }).then(function (originalSubtestList) {
-                                $scope.pageList = originalSubtestList.map(subtest => subtest.name);
-                                $scope.platformList = [...new Set(originalSubtestList.map(subtest => subtest.platform))];
-                                const startDateMs = ($scope.newResultSet.push_timestamp -
-                                                     $scope.selectedTimeRange.value) * 1000;
-                                const endDateMs = $scope.newResultSet.push_timestamp * 1000;
-                                return getResultsMap(
-                                    $scope.originalProject.name,
-                                    originalSubtestList, {
-                                        start_date: new Date(startDateMs).toISOString().slice(0, -5),
-                                        end_date: new Date(endDateMs).toISOString().slice(0, -5),
-                                    });
-                            }),
-                    ]).then(
-                        function (originalResults) {
-                            const originalSeriesMap = originalResults[1];
-                            if ($scope.newSignature) {
-                                PerfSeriesModel.getSeriesList(
-                                $scope.newProject.name, {
-                                    parent_signature: $scope.newSignature,
-                                    framework: $scope.filterOptions.framework,
-                                }).then(function (newSeriesList) {
-                                    $scope.platformList = [...new Set([
-                                        ...$scope.platformList,
-                                        ...newSeriesList.map(series => series.platform),
-                                    ])];
-                                    $scope.testList = [...new Set([
-                                        ...$scope.testList,
-                                        ...newSeriesList.map(series => series.name),
-                                    ])];
-
-                                    return getResultsMap($scope.newProject.name,
-                                        newSeriesList,
-                                        { push_id: [$scope.newResultSet.id] });
-                                }).then(function (newSeriesMaps) {
-                                    let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
-                                    // There is a chance that we haven't received data for the given signature/resultSet yet
-                                    if (newSeriesMap) {
-                                        Object.keys(newSeriesMap).forEach(function (series) {
-                                            if ($scope.pageList.indexOf(newSeriesMap[series].name) === -1) {
-                                                $scope.pageList.push(newSeriesMap[series].name);
-                                            }
-                                        });
-                                    } else {
-                                        newSeriesMap = {};
-                                    }
-                                    $scope.dataLoading = false;
-                                    displayResults(originalSeriesMap, newSeriesMap);
-                                });
-                            } else {
-                                $scope.dataLoading = false;
-                                displayResults(originalSeriesMap, {});
-                            }
-                        });
-                }
+                fetchData()
             });
         });
     }]);
