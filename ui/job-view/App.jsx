@@ -1,5 +1,5 @@
 import React from 'react';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
@@ -366,4 +366,4 @@ class App extends React.Component {
   }
 }
 
-export default hot(module)(App);
+export default hot(App);

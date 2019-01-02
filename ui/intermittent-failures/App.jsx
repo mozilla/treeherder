@@ -1,6 +1,6 @@
 import React from 'react';
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
@@ -62,4 +62,4 @@ class App extends React.Component {
   }
 }
 
-export default hot(module)(App);
+export default hot(App);
