@@ -1,5 +1,5 @@
 import React from 'react';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 
 import UserGuideHeader from './UserGuideHeader';
 import UserGuideBody from './UserGuideBody';
@@ -15,4 +15,4 @@ const App = () => (
   </div>
 );
 
-export default hot(module)(App);
+export default hot(App);
