@@ -380,7 +380,7 @@ def test_filter_data_by_signature(client, test_repository, test_perf_signature,
 def test_perf_by_revision(client, test_perf_signature, test_perf_data):
 
     query_params1 = '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
-        test_perf_signature.repository.name, test_perf_signature.framework_id, test_perf_data[0].push_id)
+        test_perf_signature.repository.name, test_perf_signature.framework_id, test_perf_data[0].push.revision)
 
     query_params2 = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2018-07-01T23%3A28%3A29&endday=2018-12-31T23%3A28%3A29'.format(
                     test_perf_signature.repository.name, test_perf_signature.framework_id)

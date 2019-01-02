@@ -174,7 +174,7 @@ perf.controller('CompareResultsCtrl', [
             if ($scope.originalRevision) {
                 interval = getInterval($scope.originalResultSet.push_timestamp, $scope.newResultSet.push_timestamp);
                 originalParams = createQueryParams($scope.originalProject.name, interval);
-                originalParams.revision = $scope.originalResultSet.id;
+                originalParams.revision = $scope.originalResultSet.revision;
             } else {
                 interval = $scope.selectedTimeRange.value;
                 const startDateMs = ($scope.newResultSet.push_timestamp - interval) * 1000;
@@ -186,7 +186,7 @@ perf.controller('CompareResultsCtrl', [
             }
 
             const newParams = createQueryParams($scope.newProject.name, interval);
-            newParams.revision = $scope.newResultSet.id;
+            newParams.revision = $scope.newResultSet.revision;
 
             const [originalResults, newResults] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
                 getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
@@ -475,7 +475,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             let originalResults;
 
             if ($scope.originalRevision) {
-                originalParams.revision = $scope.originalResultSet.id;
+                originalParams.revision = $scope.originalResultSet.revision;
             } else {
                 // TODO create a helper for the startday and endday since this is also used in compare view
                 const startDateMs = ($scope.newResultSet.push_timestamp -
@@ -489,7 +489,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             // Is there ever a use case where originalSignature is provided but newSignature isn't?
             if ($scope.newSignature) {
                 const newParams = createQueryParams($scope.newSignature, $scope.newProject.name);
-                newParams.revision = $scope.newResultSet.id;
+                newParams.revision = $scope.newResultSet.revision;
 
                 [{ data: originalResults}, { data: newResults }] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
                     getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
