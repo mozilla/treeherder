@@ -54,8 +54,10 @@ export const getJobBtnClass = function getJobBtnClass(job) {
 };
 
 export const isReftest = function isReftest(job) {
-  return [job.job_group_name, job.job_type_name].some(name =>
-    name.toLowerCase().includes('reftest'),
+  return (
+    [job.job_group_name, job.job_type_name].some(name =>
+      name.toLowerCase().includes('reftest'),
+    ) || job.job_type_symbol.includes('wrench')
   );
 };
 
