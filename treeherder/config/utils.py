@@ -19,7 +19,7 @@ def get_tls_redis_url(redis_url):
     to wrap the connection with TLS.
 
     Will convert 'redis://h:PASSWORD@INSTANCE.compute-1.amazonaws.com:8409'
-          ...to: 'rediss://h:PASSWORD@INSTANCE.compute-1.amazonaws.com:8410'
+          ...to: 'rediss://h:PASSWORD@INSTANCE.compute-1.amazonaws.com:8410?ssl_cert_reqs=none'
 
     See:
     https://devcenter.heroku.com/articles/securing-heroku-redis#connecting-directly-to-stunnel
@@ -27,4 +27,8 @@ def get_tls_redis_url(redis_url):
     url = furl(redis_url)
     url.port += 1
     url.scheme += 's'
+    # Disable TLS certificate validation (restoring the behaviour of the older redis-py 2.x),
+    # since for now Heroku Redis uses self-signed certificates:
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=1510000
+    url.args['ssl_cert_reqs'] = 'none'
     return str(url)
