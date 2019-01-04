@@ -194,5 +194,5 @@ class PerformanceRevisionSerializer(serializers.ModelSerializer):
         test = value['test']
         suite = value['suite']
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-        return '{} {} {}'.format(test_suite, value['option_collection__option__name'],
+        return '{} {} {}'.format(test_suite, value['option_name'],
                                  value['extra_options'])

@@ -18,6 +18,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (IssueTracker,
+                                    OptionCollection,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
@@ -459,11 +460,11 @@ class PerformanceByRevision(generics.ListAPIView):
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
                                                    int(time.time() - int(interval))))
 
-        signature_ids = signature_data.values_list('id', flat=True)
-
         self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
-                                               'signature_hash', 'platform__platform', 'test', 'option_collection__option__name',
+                                               'signature_hash', 'platform__platform', 'test', 'option_collection_id',
                                                'parent_signature__signature_hash'))
+
+        signature_ids = [item['id'] for item in list(self.queryset)]
 
         data = (PerformanceDatum.objects.select_related('push', 'repository')
                                 .filter(signature_id__in=signature_ids, repository__name=repository))
@@ -475,6 +476,10 @@ class PerformanceByRevision(generics.ListAPIView):
 
         values = data.values_list('signature_id', 'value')
 
+        # more efficient than creating a join on option_collection and option
+        option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
+        option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+
         grouped_values = defaultdict(list)
         for signature_id, value in values:
             if value is not None:
@@ -483,6 +488,7 @@ class PerformanceByRevision(generics.ListAPIView):
         # name field is created in the serializer
         for item in self.queryset:
             item['values'] = grouped_values.get(item['id'], [])
+            item['option_name'] = option_collection_map[item['option_collection_id']]
 
         serializer = self.get_serializer(self.queryset, many=True)
         return Response(data=serializer.data)
