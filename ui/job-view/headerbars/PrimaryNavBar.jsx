@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 
 import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
@@ -13,7 +14,17 @@ import FiltersMenu from './FiltersMenu';
 import HelpMenu from './HelpMenu';
 import SecondaryNavBar from './SecondaryNavBar';
 
-export default class PrimaryNavBar extends React.PureComponent {
+export default class PrimaryNavBar extends React.Component {
+  shouldComponentUpdate(prevProps) {
+    const { filterModel, repos, user } = this.props;
+
+    return (
+      prevProps.filterModel !== filterModel ||
+      !isEqual(prevProps.user, user) ||
+      !isEqual(prevProps.repos, repos)
+    );
+  }
+
   render() {
     const {
       user,
