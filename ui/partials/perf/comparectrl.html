@@ -10,11 +10,11 @@
     <div id="subtest-summary" ng-if="!dataLoading && !errors.length">
       <h1>Perfherder Compare Revisions</h1>
       <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
-      <div class="alert alert-warning" role="alert" ng-if="testNoResults">
+      <div class="alert alert-warning" role="alert" id="testsNoResults" ng-if="testNoResults">
         <strong>tests with no results:</strong>
         {{testNoResults}}
       </div>
-      <div class="alert alert-warning" role="alert" ng-if="testsTooVariable.length > 1 && filterOptions.showOnlyNoise">
+      <div class="alert alert-warning" role="alert" id="testsTooMuchNoise" ng-if="testsTooVariable.length > 1 && filterOptions.showOnlyNoise">
           <strong>Tests with too much noise to be considered in the noise metric:</strong>
               <table>
                   <tr ng-repeat="tname in testsTooVariable">
