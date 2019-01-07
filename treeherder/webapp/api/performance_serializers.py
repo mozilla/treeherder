@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import (exceptions,
                             serializers)
 
-from treeherder.model import models
+from treeherder.model.models import Repository
 from treeherder.perf.models import (IssueTracker,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -170,7 +170,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
 
     def validate_repository(self, repository):
         try:
-            models.Repository.objects.get(name=repository)
+            Repository.objects.get(name=repository)
 
         except ObjectDoesNotExist:
             raise serializers.ValidationError('{} does not exist.'.format(repository))

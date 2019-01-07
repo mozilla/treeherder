@@ -386,16 +386,16 @@ def test_perf_by_revision(client, test_perf_signature, test_perf_data):
                     test_perf_signature.repository.name, test_perf_signature.framework_id)
 
     expected = [{
-        u'id': test_perf_signature.id,
-        u'framework_id': test_perf_signature.framework_id,
-        u'signature_hash': test_perf_signature.signature_hash,
-        u'platform': test_perf_signature.platform.platform,
-        u'test': test_perf_signature.test,
-        u'lower_is_better': test_perf_signature.lower_is_better,
-        u'has_subtests': test_perf_signature.has_subtests,
-        u'values': [test_perf_data[0].value],
-        u'name': 'mysuite mytest opt e10s opt',
-        u'parent_signature': None
+        'id': test_perf_signature.id,
+        'framework_id': test_perf_signature.framework_id,
+        'signature_hash': test_perf_signature.signature_hash,
+        'platform': test_perf_signature.platform.platform,
+        'test': test_perf_signature.test,
+        'lower_is_better': test_perf_signature.lower_is_better,
+        'has_subtests': test_perf_signature.has_subtests,
+        'values': [test_perf_data[0].value],
+        'name': 'mysuite mytest opt e10s opt',
+        'parent_signature': None
     }]
 
     resp1 = client.get(reverse('perf-by-revision') + query_params1)
