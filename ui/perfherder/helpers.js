@@ -778,21 +778,23 @@ export const getAlertSummaries = async options => {
   };
 };
 
-export const createAlert = data =>
-  create(getApiUrl('/performance/alertsummary/'), {
+export const createAlert = async data => {
+  let response = await create(getApiUrl('/performance/alertsummary/'), {
     repository_id: data.project.id,
     framework_id: data.series.frameworkId,
     push_id: data.resultSetId,
     prev_push_id: data.prevResultSetId,
-  })
-    .then(response => response.json())
-    .then(response => {
-      const newAlertSummaryId = response.alert_summary_id;
-      return create(getApiUrl('/performance/alert/'), {
-        summary_id: newAlertSummaryId,
-        signature_id: data.series.id,
-      }).then(() => newAlertSummaryId);
-    });
+  });
+  response = await response.json();
+
+  const newAlertSummaryId = response.alert_summary_id;
+  await create(getApiUrl('/performance/alert/'), {
+    summary_id: newAlertSummaryId,
+    signature_id: data.series.id,
+  });
+
+  return newAlertSummaryId;
+};
 
 export const findPushIdNeighbours = (dataPoint, resultSetData, direction) => {
   const pushId = dataPoint.resultSetId;

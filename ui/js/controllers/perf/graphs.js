@@ -59,13 +59,12 @@ perf.controller('GraphsCtrl', [
         $scope.showToolTipTimeout = null;
         $scope.seriesList = [];
 
-        $scope.createAlert = function (dataPoint) {
+        $scope.createAlert = async dataPoint => {
             $scope.creatingAlert = true;
-            createAlert(dataPoint)
-            .then(alertSummaryId => refreshGraphData(alertSummaryId, dataPoint))
-            .then(() => {
-                $scope.creatingAlert = false;
-            });
+
+            const alertSummaryId = await createAlert(dataPoint);
+            await refreshGraphData(alertSummaryId, dataPoint);
+            $scope.creatingAlert = false;
         };
 
         $scope.nudgeAlert = (dataPoint, direction) => {
