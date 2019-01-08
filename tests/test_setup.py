@@ -12,7 +12,7 @@ def test_block_unmocked_requests():
     """Ensure the `block_unmocked_requests` fixture prevents requests from hitting the network."""
     url = 'https://example.com'
 
-    with pytest.raises(RuntimeError, message='Tests must mock all HTTP requests!'):
+    with pytest.raises(RuntimeError, match='Tests must mock all HTTP requests!'):
         fetch_text(url)
 
     with responses.RequestsMock() as rsps:
