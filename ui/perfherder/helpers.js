@@ -615,17 +615,15 @@ export const isResolved = alertSummary =>
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX) ||
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT);
 
-export const refreshAlertSummary = alertSummary =>
-  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
-    ({ data }) =>
-      OptionCollectionModel.getMap().then(optionCollectionMap => {
-        Object.assign(alertSummary, data);
-        alertSummary.alerts = getInitializedAlerts(
-          alertSummary,
-          optionCollectionMap,
-        );
-      }),
+export const refreshAlertSummary = async alertSummary => {
+  const { data } = await getData(
+    getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
   );
+  const optionCollectionMap = await OptionCollectionModel.getMap();
+
+  Object.assign(alertSummary, data);
+  alertSummary.alerts = getInitializedAlerts(alertSummary, optionCollectionMap);
+};
 
 export const getTitle = alertSummary => {
   let title;
