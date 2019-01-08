@@ -528,27 +528,20 @@ perf.controller('AlertsCtrl', [
             });
         }
 
-        $scope.getMoreAlertSummaries = function () {
-            getAlertSummaries({ href: $scope.getMoreAlertSummariesHref }).then(
-                function (data) {
-                    addAlertSummaries(data.results, data.next);
-                });
-        };
-
         $scope.alertSummaryCount = 0;
         $scope.alertSummaryCurrentPage = 1;
         $scope.alertSummaryPageSize = 10;
-        $scope.getAlertSummariesPage = function () {
-            getAlertSummaries({
+        $scope.getAlertSummariesPage = async () => {
+            const data = await getAlertSummaries({
                 page: $scope.alertSummaryCurrentPage,
                 statusFilter: $scope.filterOptions.status.id,
                 frameworkFilter: $scope.filterOptions.framework.id,
-            }).then(function (data) {
-                $scope.alertSummaries = undefined;
-                addAlertSummaries(data.results, data.next);
-                $scope.alertSummaryCount = data.count;
-                $state.go('.', { page: $scope.alertSummaryCurrentPage }, { notify: false });
             });
+
+            $scope.alertSummaries = undefined;
+            addAlertSummaries(data.results, data.next);
+            $scope.alertSummaryCount = data.count;
+            $state.go('.', { page: $scope.alertSummaryCurrentPage }, { notify: false });
         };
 
         $scope.summaryTitle = {
@@ -564,7 +557,7 @@ perf.controller('AlertsCtrl', [
             $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
-        $scope.filtersUpdated = function () {
+        $scope.filtersUpdated = async () => {
             const statusFilterChanged = (parseInt($state.params.status) !==
                                        $scope.filterOptions.status.id);
             const frameworkFilterChanged = (parseInt($state.params.framework) !==
@@ -588,15 +581,14 @@ perf.controller('AlertsCtrl', [
                 // if the status or framework filter changed (and we're not looking
                 // at an individual summary), we should reload everything
                 $scope.alertSummaries = undefined;
-                getAlertSummaries({
+                const data = await getAlertSummaries({
                     statusFilter: $scope.filterOptions.status.id,
                     frameworkFilter: $scope.filterOptions.framework.id,
-                }).then(
-                    function (data) {
-                        addAlertSummaries(data.results, data.next);
-                        $scope.alertSummaryCount = data.count;
-                        $scope.alertSummaryCurrentPage = 1;
-                    });
+                });
+
+                addAlertSummaries(data.results, data.next);
+                $scope.alertSummaryCount = data.count;
+                $scope.alertSummaryCurrentPage = 1;
             } else {
                 updateAlertVisibility();
             }
@@ -632,7 +624,7 @@ perf.controller('AlertsCtrl', [
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
-            })]).then(async function () {
+            })]).then(async () => {
                 $scope.filterOptions = {
                     status: $scope.statuses.find(status =>
                         status.id === parseInt($stateParams.status),
@@ -655,16 +647,15 @@ perf.controller('AlertsCtrl', [
                     const data = await getAlertSummary($stateParams.id);
                     addAlertSummaries([data], null);
                 } else {
-                    getAlertSummaries({
+                    const data = await getAlertSummaries({
                         statusFilter: $scope.filterOptions.status.id,
                         frameworkFilter: $scope.filterOptions.framework.id,
                         page: $scope.filterOptions.page,
-                    }).then(
-                        function (data) {
-                            addAlertSummaries(data.results, data.next);
-                            $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
-                            $scope.alertSummaryCount = data.count;
-                        });
+                    });
+
+                    addAlertSummaries(data.results, data.next);
+                    $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
+                    $scope.alertSummaryCount = data.count;
                 }
             });
         });

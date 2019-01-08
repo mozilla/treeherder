@@ -726,7 +726,7 @@ export const getAlertSummaryTitle = async id => {
   return getTitle(alertSummary);
 };
 
-export const getAlertSummaries = options => {
+export const getAlertSummaries = async options => {
   let { href } = options;
   if (!options || !options.href) {
     href = getApiUrl('/performance/alertsummary/');
@@ -763,19 +763,19 @@ export const getAlertSummaries = options => {
     }
   }
 
-  return OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(href).then(({ data }) =>
-      Promise.all(
-        data.results.map(alertSummaryData =>
-          AlertSummary(alertSummaryData, optionCollectionMap),
-        ),
-      ).then(alertSummaries => ({
-        results: alertSummaries,
-        next: data.next,
-        count: data.count,
-      })),
+  const optionCollectionMap = await OptionCollectionModel.getMap();
+  const { data } = await getData(href);
+  const alertSummaries = await Promise.all(
+    data.results.map(alertSummaryData =>
+      AlertSummary(alertSummaryData, optionCollectionMap),
     ),
   );
+
+  return {
+    results: alertSummaries,
+    next: data.next,
+    count: data.count,
+  };
 };
 
 export const createAlert = data =>
