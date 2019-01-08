@@ -133,19 +133,20 @@ perf.controller(
             // AlertSummary function
             $scope.editingNotes = editingNotes;
 
-            $scope.saveChanges = function () {
+            $scope.saveChanges = async function () {
                 $scope.modifying = true;
-                saveNotes($scope.alertSummaryCopy).then(function () {
+                try {
+                    await saveNotes($scope.alertSummaryCopy);
+
                     merge(alertSummary, $scope.alertSummaryCopy);
                     $scope.modifying = false;
                     $scope.error = false;
 
                     $uibModalInstance.close();
-                }, function () {
+                } catch(e) {
                     $scope.error = true;
                     $scope.modifying = false;
-                },
-                );
+                }
             };
 
             $scope.cancel = function () {

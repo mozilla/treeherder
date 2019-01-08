@@ -704,11 +704,11 @@ export const getAlertSummaryStatusText = alertSummary =>
     status => status.id === alertSummary.status,
   ).text;
 
-export const saveNotes = alertSummary =>
-  modifyAlertSummary(alertSummary, { notes: alertSummary.notes }).then(() => {
-    alertSummary.originalNotes = alertSummary.notes;
-    alertSummary.notesChanged = false;
-  });
+export const saveNotes = async alertSummary => {
+  await modifyAlertSummary(alertSummary, { notes: alertSummary.notes });
+  alertSummary.originalNotes = alertSummary.notes;
+  alertSummary.notesChanged = false;
+};
 
 export const editingNotes = alertSummary => {
   alertSummary.notesChanged = alertSummary.notes !== alertSummary.originalNotes;
