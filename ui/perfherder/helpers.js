@@ -492,16 +492,10 @@ const constructAlertSummary = (
 
 export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
   if (issueTrackers === undefined) {
-    return getData(getApiUrl(endpoints.issueTrackers)).then(
-      ({ data: issueTrackerList }) => {
-        issueTrackers = issueTrackerList;
-        return constructAlertSummary(
-          alertSummaryData,
-          optionCollectionMap,
-          issueTrackers,
-        );
-      },
+    const { data: issueTrackerList } = await getData(
+      getApiUrl(endpoints.issueTrackers),
     );
+    issueTrackers = issueTrackerList;
   }
 
   return constructAlertSummary(
