@@ -100,17 +100,17 @@ perf.controller(
                 }
             });
 
-            $scope.update = function () {
+            $scope.update = async function () {
                 const newId = parseInt(
                     $scope.modifyAlert.newId.$modelValue);
 
                 const selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
 
                 $scope.modifying = true;
-                assignBug(alertSummary, newId, selectedIssueTracker.id).then(function () {
-                    $scope.modifying = false;
-                    $uibModalInstance.close('assigned');
-                });
+
+                await assignBug(alertSummary, newId, selectedIssueTracker.id);
+                $scope.modifying = false;
+                $uibModalInstance.close('assigned');
             };
 
             $scope.cancel = function () {

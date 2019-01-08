@@ -671,11 +671,13 @@ export const getTitle = alertSummary => {
   return title;
 };
 
-export const assignBug = (alertSummary, taskNumber, issueTrackerId) =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+export const assignBug = async (alertSummary, taskNumber, issueTrackerId) => {
+  await update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     bug_number: taskNumber,
     issue_tracker: issueTrackerId,
-  }).then(() => refreshAlertSummary(alertSummary));
+  });
+  await refreshAlertSummary(alertSummary);
+};
 
 export const unassignBug = alertSummary =>
   update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
