@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -66,12 +67,21 @@ PushCounts.propTypes = {
   completed: PropTypes.number.isRequired,
 };
 
-class PushHeader extends React.PureComponent {
+class PushHeader extends React.Component {
   constructor(props) {
     super(props);
     const { pushTimestamp } = this.props;
 
     this.pushDateStr = toDateStr(pushTimestamp);
+  }
+
+  shouldComponentUpdate(prevProps) {
+    const { jobCounts, watchState } = this.props;
+
+    return (
+      !isEqual(prevProps.jobCounts, jobCounts) ||
+      prevProps.watchState !== watchState
+    );
   }
 
   getLinkParams() {
