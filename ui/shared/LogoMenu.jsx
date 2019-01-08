@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  ButtonDropdown,
+  UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
@@ -13,28 +13,13 @@ const choices = [
   { url: '/intermittent-failures.html', text: 'Intermittent Failures View' },
 ];
 
-export default class LogoMenu extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      dropdownOpen: false,
-    };
-  }
-
-  toggle() {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
-  }
-
+export default class LogoMenu extends React.PureComponent {
   render() {
     const { menuText, menuImage, colorClass } = this.props;
 
     const menuChoices = choices.filter(choice => choice.text !== menuText);
     return (
-      <ButtonDropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+      <UncontrolledDropdown>
         <DropdownToggle
           className="btn-view-nav"
           id="th-logo"
@@ -54,7 +39,7 @@ export default class LogoMenu extends React.Component {
             </DropdownItem>
           ))}
         </DropdownMenu>
-      </ButtonDropdown>
+      </UncontrolledDropdown>
     );
   }
 }
