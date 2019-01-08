@@ -610,10 +610,9 @@ perf.controller('AlertsCtrl', [
         $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
 
         $scope.alertSummaryIsOfState = alertSummaryIsOfState;
-        $scope.alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) => {
-            alertSummaryMarkAs(alertSummary, phAlertSummaryStatus).then(() => {
-                $scope.$digest();
-            });
+        $scope.alertSummaryMarkAs = async (alertSummary, phAlertSummaryStatus) => {
+            await alertSummaryMarkAs(alertSummary, phAlertSummaryStatus);
+            $scope.$digest();
         };
         $scope.getAlertSummaryStatusText = getAlertSummaryStatusText;
         $scope.getIssueTrackerUrl = getIssueTrackerUrl;

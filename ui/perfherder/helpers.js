@@ -514,15 +514,16 @@ const modifyAlertSummary = (alertSummary, modification) =>
 export const alertSummaryIsOfState = (alertSummary, phAlertSummaryStatus) =>
   alertSummary.status === phAlertSummaryStatus.id;
 
-const updateAlertSummaryStatus = (alertSummary, newStatus) =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
-    status: newStatus.id,
-  }).then(() => {
-    alertSummary.status = newStatus.id;
+export const alertSummaryMarkAs = async (
+  alertSummary,
+  phAlertSummaryStatus,
+) => {
+  await update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+    status: phAlertSummaryStatus.id,
   });
 
-export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) =>
-  updateAlertSummaryStatus(alertSummary, phAlertSummaryStatus);
+  alertSummary.status = phAlertSummaryStatus.id;
+};
 
 export const getIssueTrackerUrl = alertSummary => {
   if (!alertSummary.bug_number) {
