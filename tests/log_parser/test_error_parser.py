@@ -22,6 +22,8 @@ ERROR_TEST_CASES = (
     "[taskcluster-vcs:error] Could not extract archive",
     "[test_linux.sh:error] could not download zip file",
     "14:15:32     INFO -  REFTEST ERROR | file:///Z:/task_1491573689/build/tests/reftest/tests/layout/reftests/w3c-css/submitted/text3/text-justify-inter-character-001.html | application timed out after 330 seconds with no output",
+    "[task 2018-12-07T01:19:47.410Z] bash: fork: Resource temporarily unavailable",
+    "[task 2019-01-07T09:43:24.098Z] C:\\mozilla-build\\msys\\bin\\bash.exe: *** Couldn't reserve space for cygwin's heap, Win32 error 0",
 )
 
 NON_ERROR_TEST_CASES = (

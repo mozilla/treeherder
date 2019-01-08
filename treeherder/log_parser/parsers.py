@@ -369,6 +369,8 @@ class ErrorParser(ParserBase):
         "wget: unable ",
         "TEST-VALGRIND-ERROR",
         "[  FAILED  ] ",
+        "bash.exe: *** ",
+        "bash: fork: Resource temporarily unavailable",
     )
 
     RE_ERR_MATCH = re.compile((
