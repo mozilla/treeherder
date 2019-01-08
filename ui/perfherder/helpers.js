@@ -455,13 +455,13 @@ const modifyAlert = (alert, modification) =>
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
 
-export const toggleStar = alert => {
+export const toggleStar = async alert => {
   const toggledStar = !alert.starred;
-  modifyAlert(alert, {
+  await modifyAlert(alert, {
     starred: toggledStar,
-  }).then(() => {
-    alert.starred = toggledStar;
   });
+
+  alert.starred = toggledStar;
 };
 
 let issueTrackers; // will cache on first AlertSummary call

@@ -601,7 +601,10 @@ perf.controller('AlertsCtrl', [
         $scope.getGraphsURL = getGraphsURL;
         $scope.getSubtestsURL = getSubtestsURL;
         $scope.alertIsOfState = alertIsOfState;
-        $scope.toggleStar = toggleStar;
+        $scope.toggleStar = async alert => {
+            await toggleStar(alert);
+            $scope.$digest();
+        };
 
         // AlertSummary functions
         $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
