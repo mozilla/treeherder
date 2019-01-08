@@ -3,6 +3,7 @@ import { Row, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import Icon from 'react-fontawesome';
 import ReactTable from 'react-table';
+import PropTypes from 'prop-types';
 
 import { bugDetailsEndpoint, getJobsUrl } from '../helpers/url';
 
@@ -155,6 +156,33 @@ const BugDetailsView = props => {
       datePicker={<DateOptions updateState={updateState} />}
     />
   );
+};
+
+BugDetailsView.propTypes = {
+  location: PropTypes.shape({}).isRequired,
+  tree: PropTypes.string.isRequired,
+  updateAppState: PropTypes.func,
+  updateState: PropTypes.func.isRequired,
+  startday: PropTypes.string.isRequired,
+  endday: PropTypes.string.isRequired,
+  tableData: PropTypes.arrayOf(PropTypes.shape({})),
+  graphData: PropTypes.arrayOf(PropTypes.shape({})),
+  initialParamsSet: PropTypes.bool.isRequired,
+  bug: PropTypes.number.isRequired,
+  summary: PropTypes.string.isRequired,
+  errorMessages: PropTypes.arrayOf(PropTypes.string),
+  lastLocation: PropTypes.shape({}).isRequired,
+  tableFailureStatus: PropTypes.string,
+  graphFailureStatus: PropTypes.string,
+};
+
+BugDetailsView.defaultProps = {
+  graphData: [],
+  tableData: [],
+  errorMessages: [],
+  tableFailureStatus: null,
+  graphFailureStatus: null,
+  updateAppState: null,
 };
 
 const defaultState = {

@@ -17,7 +17,7 @@ import {
   formatBugs,
 } from './helpers';
 
-const withView = defaultState => WrappedComponent =>
+const withView = defaultState => WrappedComponent => {
   class View extends React.Component {
     constructor(props) {
       super(props);
@@ -214,13 +214,24 @@ const withView = defaultState => WrappedComponent =>
       const newProps = { ...this.props, ...this.state, ...updateState };
       return <WrappedComponent {...newProps} />;
     }
+  }
+
+  View.propTypes = {
+    history: PropTypes.shape({}).isRequired,
+    location: PropTypes.shape({
+      search: PropTypes.string,
+      state: PropTypes.shape({}),
+    }).isRequired,
+    mainGraphData: PropTypes.arrayOf(PropTypes.shape({})),
+    mainTableData: PropTypes.arrayOf(PropTypes.shape({})),
   };
 
-withView.propTypes = {
-  history: PropTypes.shape({}).isRequired,
-  location: PropTypes.shape({
-    search: PropTypes.string,
-  }).isRequired,
+  View.defaultProps = {
+    mainGraphData: null,
+    mainTableData: null,
+  };
+
+  return View;
 };
 
 export default withView;

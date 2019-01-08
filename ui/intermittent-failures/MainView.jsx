@@ -143,6 +143,20 @@ const MainView = props => {
 
 MainView.propTypes = {
   location: PropTypes.shape({}).isRequired,
+  tree: PropTypes.string.isRequired,
+  updateAppState: PropTypes.func,
+  updateState: PropTypes.func.isRequired,
+  startday: PropTypes.string.isRequired,
+  endday: PropTypes.string.isRequired,
+  tableData: PropTypes.arrayOf(PropTypes.shape({})),
+  graphData: PropTypes.arrayOf(PropTypes.shape({})),
+  initialParamsSet: PropTypes.bool.isRequired,
+};
+
+MainView.defaultProps = {
+  graphData: [],
+  tableData: [],
+  updateAppState: null,
 };
 
 const defaultState = {
