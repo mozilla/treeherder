@@ -183,8 +183,8 @@ perf.controller('CompareResultsCtrl', [
                     $scope.testList = [...new Set(
                         originalSeriesList.map(series => series.name))];
                     return getResultsMap($scope.originalProject.name,
-                                                   originalSeriesList,
-                                                   { push_id: resultSetIds });
+                                         originalSeriesList,
+                                         { push_id: resultSetIds });
                 }).then((resultMaps) => {
                     const originalResultsMap = resultMaps[$scope.originalResultSet.id] || {};
                     const newResultsMap = resultMaps[$scope.newResultSet.id] || {};
@@ -210,8 +210,8 @@ perf.controller('CompareResultsCtrl', [
                             ...new Set(newSeriesList.map(series => series.name)),
                         ])];
                         return getResultsMap($scope.newProject.name,
-                                                       newSeriesList,
-                                                       { push_id: [$scope.newResultSet.id] });
+                                             newSeriesList,
+                                             { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
                         $scope.dataLoading = false;
                         displayResults(originalResultsMap, resultMaps[$scope.newResultSet.id] || {});
@@ -249,8 +249,8 @@ perf.controller('CompareResultsCtrl', [
                             ...new Set(newSeriesList.map(series => series.name)),
                         ])];
                         return getResultsMap($scope.newProject.name,
-                                                       newSeriesList,
-                                                       { push_id: [$scope.newResultSet.id] });
+                                             newSeriesList,
+                                             { push_id: [$scope.newResultSet.id] });
                     }).then((resultMaps) => {
                         $scope.dataLoading = false;
                         const newResult = resultMaps[$scope.newResultSet.id];
@@ -643,8 +643,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 $scope.pageList = originalSubtestList.map(subtest => subtest.name);
                                 $scope.platformList = [...new Set(originalSubtestList.map(subtest => subtest.platform))];
                                 return getResultsMap($scope.originalProject.name,
-                                    originalSubtestList,
-                                    { push_id: resultSetIds });
+                                                     originalSubtestList,
+                                                     { push_id: resultSetIds });
                             }),
                     ]).then(function (results) {
                         const originalSeriesMap = results[1][$scope.originalResultSet.id] || {};
@@ -684,8 +684,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 ])];
 
                                 return getResultsMap($scope.newProject.name,
-                                    newSeriesList,
-                                    { push_id: [$scope.newResultSet.id] });
+                                                     newSeriesList,
+                                                     { push_id: [$scope.newResultSet.id] });
                             }).then(function (newSeriesMaps) {
                                 let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                 // There is a chance that we haven't received data for the given signature/resultSet yet
@@ -729,7 +729,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 const endDateMs = $scope.newResultSet.push_timestamp * 1000;
                                 return getResultsMap(
                                     $scope.originalProject.name,
-                                    originalSubtestList, {
+                                    originalSubtestList,
+                                    {
                                         start_date: new Date(startDateMs).toISOString().slice(0, -5),
                                         end_date: new Date(endDateMs).toISOString().slice(0, -5),
                                     });
@@ -753,8 +754,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                     ])];
 
                                     return getResultsMap($scope.newProject.name,
-                                        newSeriesList,
-                                        { push_id: [$scope.newResultSet.id] });
+                                                         newSeriesList,
+                                                         { push_id: [$scope.newResultSet.id] });
                                 }).then(function (newSeriesMaps) {
                                     let newSeriesMap = newSeriesMaps[$scope.newResultSet.id];
                                     // There is a chance that we haven't received data for the given signature/resultSet yet

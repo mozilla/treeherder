@@ -316,44 +316,42 @@ const getResultMapEntry = (datum, resultsMap, params) => {
   return resultsMap;
 };
 
-export const getResultsMap = function getResultsMap(
-  projectName,
-  seriesList,
-  params,
-) {
+export const getResultsMap = async (projectName, seriesList, params) => {
   const resultsMap = {};
 
-  return Promise.all(
-    chunk(seriesList, 150).map(seriesChunk =>
-      PerfSeriesModel.getSeriesData(projectName, {
+  await Promise.all(
+    chunk(seriesList, 150).map(async seriesChunk => {
+      const seriesData = await PerfSeriesModel.getSeriesData(projectName, {
         signature_id: seriesChunk.map(series => series.id),
         framework: [...new Set(seriesChunk.map(series => series.frameworkId))],
         ...params,
-      }).then(seriesData => {
-        // Aggregates data from a single group of values and returns an object containing
-        // description (name/platform) and values; these are later processed in getCounterMap.
-        for (const [signatureHash, data] of Object.entries(seriesData)) {
-          const signature = seriesList.find(
-            series => series.signature === signatureHash,
-          );
+      });
 
-          if (signature) {
-            data.forEach(datum => {
-              const entry = getResultMapEntry(datum, resultsMap, params);
-              if (!entry[signatureHash]) {
-                entry[signatureHash] = {
-                  ...signature,
-                  values: [datum.value],
-                };
-              } else {
-                entry[signatureHash].values.push(datum.value);
-              }
-            });
-          }
+      // Aggregates data from a single group of values and returns an object containing
+      // description (name/platform) and values; these are later processed in getCounterMap.
+      for (const [signatureHash, data] of Object.entries(seriesData)) {
+        const signature = seriesList.find(
+          series => series.signature === signatureHash,
+        );
+
+        if (signature) {
+          data.forEach(datum => {
+            const entry = getResultMapEntry(datum, resultsMap, params);
+            if (!entry[signatureHash]) {
+              entry[signatureHash] = {
+                ...signature,
+                values: [datum.value],
+              };
+            } else {
+              entry[signatureHash].values.push(datum.value);
+            }
+          });
         }
-      }),
-    ),
-  ).then(() => resultsMap);
+      }
+    }),
+  );
+
+  return resultsMap;
 };
 
 export const getGraphsLink = function getGraphsLink(
