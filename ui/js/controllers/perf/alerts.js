@@ -343,11 +343,10 @@ perf.controller('AlertsCtrl', [
                 updateAlertVisibility();
             });
         };
-        $scope.unlinkBug = function (alertSummary) {
-            unassignBug(alertSummary).then(function () {
-                updateAlertVisibility();
-                $scope.$digest();
-            });
+        $scope.unlinkBug = async function (alertSummary) {
+            await unassignBug(alertSummary);
+            updateAlertVisibility();
+            $scope.$digest();
         };
         $scope.markAlertsDownstream = function (alertSummary) {
             $uibModal.open({

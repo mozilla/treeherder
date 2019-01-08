@@ -679,10 +679,12 @@ export const assignBug = async (alertSummary, taskNumber, issueTrackerId) => {
   await refreshAlertSummary(alertSummary);
 };
 
-export const unassignBug = alertSummary =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
+export const unassignBug = async alertSummary => {
+  await update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     bug_number: null,
-  }).then(() => refreshAlertSummary(alertSummary));
+  });
+  await refreshAlertSummary(alertSummary);
+};
 
 export const modifySelectedAlerts = (alertSummary, modification) => {
   alertSummary.allSelected = false;
