@@ -714,12 +714,12 @@ export const editingNotes = alertSummary => {
   alertSummary.notesChanged = alertSummary.notes !== alertSummary.originalNotes;
 };
 
-export const getAlertSummary = id =>
-  OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(getApiUrl(`/performance/alertsummary/${id}/`)).then(({ data }) =>
-      AlertSummary(data, optionCollectionMap),
-    ),
-  );
+export const getAlertSummary = async id => {
+  const optionCollectionMap = await OptionCollectionModel.getMap();
+  const { data } = await getData(getApiUrl(`/performance/alertsummary/${id}/`));
+
+  return AlertSummary(data, optionCollectionMap);
+};
 
 export const getAlertSummaryTitle = id =>
   getAlertSummary(id).then(alertSummary => getTitle(alertSummary));

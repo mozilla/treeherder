@@ -636,7 +636,7 @@ perf.controller('AlertsCtrl', [
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
-            })]).then(function () {
+            })]).then(async function () {
                 $scope.filterOptions = {
                     status: $scope.statuses.find(status =>
                         status.id === parseInt($stateParams.status),
@@ -656,10 +656,8 @@ perf.controller('AlertsCtrl', [
                 }
                 if ($stateParams.id) {
                     $scope.alertId = $stateParams.id;
-                    getAlertSummary($stateParams.id).then(
-                        function (data) {
-                            addAlertSummaries([data], null);
-                        });
+                    const data = await getAlertSummary($stateParams.id);
+                    addAlertSummaries([data], null);
                 } else {
                     getAlertSummaries({
                         statusFilter: $scope.filterOptions.status.id,
