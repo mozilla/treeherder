@@ -669,14 +669,14 @@ export const assignBug = async (alertSummary, taskNumber, issueTrackerId) => {
     bug_number: taskNumber,
     issue_tracker: issueTrackerId,
   });
-  await refreshAlertSummary(alertSummary);
+  return refreshAlertSummary(alertSummary);
 };
 
 export const unassignBug = async alertSummary => {
   await update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     bug_number: null,
   });
-  await refreshAlertSummary(alertSummary);
+  return refreshAlertSummary(alertSummary);
 };
 
 export const modifySelectedAlerts = (alertSummary, modification) => {
