@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "engines": {
     "node": "11.6.0",
-    "yarn": "1.12.3"
+    "yarn": "1.13.0"
   },
   "resolutions": {
     "d3": "5.7.0"
