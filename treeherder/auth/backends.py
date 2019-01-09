@@ -77,6 +77,9 @@ class AuthBackend(object):
             return "github/" + email
         elif "google" in subject:
             return "google/" + email
+        # Firefox account
+        elif "oauth2" in subject:
+            return "oauth2/" + email
         else:
             raise AuthenticationFailed("Unrecognized identity")
 
