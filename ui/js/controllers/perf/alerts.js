@@ -622,46 +622,47 @@ perf.controller('AlertsCtrl', [
         $scope.getTitle = getTitle;
         $scope.isResolved = isResolved;
 
-        RepositoryModel.getList().then((repos) => {
+        RepositoryModel.getList().then(async repos => {
             $rootScope.repos = repos;
-            $q.all([getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
+
+            await $q.all([getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
-            })]).then(async () => {
-                $scope.filterOptions = {
-                    status: $scope.statuses.find(status =>
-                        status.id === parseInt($stateParams.status),
-                    ) || $scope.statuses[0],
-                    framework: $scope.frameworks.find(fw =>
-                        fw.id === parseInt($stateParams.framework),
-                    ) || $scope.frameworks[0],
-                    filter: $stateParams.filter || '',
-                    hideImprovements: $stateParams.hideImprovements !== undefined &&
-                    parseInt($stateParams.hideImprovements),
-                    hideDwnToInv: $stateParams.hideDwnToInv !== undefined &&
-                    parseInt($stateParams.hideDwnToInv),
-                    page: $stateParams.page || 1,
-                };
-                if ($stateParams.hideDwnToInv) {
-                    $scope.filterOptions.hideDwnToInv = true;
-                }
-                if ($stateParams.id) {
-                    $scope.alertId = $stateParams.id;
-                    const data = await getAlertSummary($stateParams.id);
-                    addAlertSummaries([data], null);
-                } else {
-                    const data = await getAlertSummaries({
-                        statusFilter: $scope.filterOptions.status.id,
-                        frameworkFilter: $scope.filterOptions.framework.id,
-                        page: $scope.filterOptions.page,
-                    });
+            })]);
 
-                    addAlertSummaries(data.results, data.next);
-                    $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
-                    $scope.alertSummaryCount = data.count;
-                }
-            });
+            $scope.filterOptions = {
+                status: $scope.statuses.find(status =>
+                    status.id === parseInt($stateParams.status),
+                ) || $scope.statuses[0],
+                framework: $scope.frameworks.find(fw =>
+                    fw.id === parseInt($stateParams.framework),
+                ) || $scope.frameworks[0],
+                filter: $stateParams.filter || '',
+                hideImprovements: $stateParams.hideImprovements !== undefined &&
+                parseInt($stateParams.hideImprovements),
+                hideDwnToInv: $stateParams.hideDwnToInv !== undefined &&
+                parseInt($stateParams.hideDwnToInv),
+                page: $stateParams.page || 1,
+            };
+            if ($stateParams.hideDwnToInv) {
+                $scope.filterOptions.hideDwnToInv = true;
+            }
+            if ($stateParams.id) {
+                $scope.alertId = $stateParams.id;
+                const data = await getAlertSummary($stateParams.id);
+                addAlertSummaries([data], null);
+            } else {
+                const data = await getAlertSummaries({
+                    statusFilter: $scope.filterOptions.status.id,
+                    frameworkFilter: $scope.filterOptions.framework.id,
+                    page: $scope.filterOptions.page,
+                });
+
+                addAlertSummaries(data.results, data.next);
+                $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
+                $scope.alertSummaryCount = data.count;
+            }
         });
     },
 ]);
