@@ -12,7 +12,11 @@
       <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
       <div class="alert alert-warning" role="alert" ng-if="testNoResults">
         <strong>tests with no results:</strong>
-        {{testNoResults}}
+        <p class="notes-preview bg-light rounded mt-2"
+           ng-text-truncate="testNoResults"
+           ng-tt-chars-threshold="250"
+           ng-tt-more-label="Show"
+           ng-tt-less-label="Hide"></p>
       </div>
       <div class="alert alert-warning" role="alert" ng-if="testsTooVariable.length > 1 && filterOptions.showOnlyNoise">
           <strong>Tests with too much noise to be considered in the noise metric:</strong>
