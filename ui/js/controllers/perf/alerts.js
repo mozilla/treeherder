@@ -545,12 +545,16 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.summaryTitle = {
-            html: '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>'
+            html: '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>',
+            promise: null,
         };
 
-        $scope.getSummaryTitle = async id => {
-            const summaryTitle = await getAlertSummaryTitle(id);
-            $scope.summaryTitle.html = '<p>' + summaryTitle + '</p>';
+        $scope.getSummaryTitle = function (id) {
+            $scope.summaryTitle.promise = getAlertSummaryTitle(id);
+            $scope.summaryTitle.promise.then(
+                function (summaryTitle) {
+                    $scope.summaryTitle.html = '<p>' + summaryTitle + '</p>';
+                });
         };
 
         $scope.resetSummaryTitle = function () {

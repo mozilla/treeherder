@@ -714,10 +714,8 @@ export const getAlertSummary = async id => {
   return AlertSummary(data, optionCollectionMap);
 };
 
-export const getAlertSummaryTitle = async id => {
-  const alertSummary = await getAlertSummary(id);
-  return getTitle(alertSummary);
-};
+export const getAlertSummaryTitle = id =>
+  getAlertSummary(id).then(alertSummary => getTitle(alertSummary));
 
 export const getAlertSummaries = async options => {
   let { href } = options;
