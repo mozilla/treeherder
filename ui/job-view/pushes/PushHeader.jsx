@@ -76,11 +76,17 @@ class PushHeader extends React.Component {
   }
 
   shouldComponentUpdate(prevProps) {
-    const { jobCounts, watchState } = this.props;
+    const {
+      jobCounts: prevJobCounts,
+      watchState: prevWatchState,
+      isLoggedIn: prevIsLoggedIn,
+    } = prevProps;
+    const { jobCounts, watchState, isLoggedIn } = this.props;
 
     return (
-      !isEqual(prevProps.jobCounts, jobCounts) ||
-      prevProps.watchState !== watchState
+      !isEqual(prevJobCounts, jobCounts) ||
+      prevWatchState !== watchState ||
+      prevIsLoggedIn !== isLoggedIn
     );
   }
 
