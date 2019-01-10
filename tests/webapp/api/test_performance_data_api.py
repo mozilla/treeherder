@@ -377,7 +377,7 @@ def test_filter_data_by_signature(client, test_repository, test_perf_signature,
             assert resp.data[signature.signature_hash][0]['value'] == float(i)
 
 
-def test_perf_by_revision(client, test_perf_signature, test_perf_data):
+def test_perf_summary(client, test_perf_signature, test_perf_data):
 
     query_params1 = '?repository={}&framework={}&interval=172800&no_subtests=true&revision={}'.format(
         test_perf_signature.repository.name, test_perf_signature.framework_id, test_perf_data[0].push.revision)
@@ -386,7 +386,7 @@ def test_perf_by_revision(client, test_perf_signature, test_perf_data):
                     test_perf_signature.repository.name, test_perf_signature.framework_id)
 
     expected = [{
-        'id': test_perf_signature.id,
+        'signature_id': test_perf_signature.id,
         'framework_id': test_perf_signature.framework_id,
         'signature_hash': test_perf_signature.signature_hash,
         'platform': test_perf_signature.platform.platform,
@@ -398,11 +398,11 @@ def test_perf_by_revision(client, test_perf_signature, test_perf_data):
         'parent_signature': None
     }]
 
-    resp1 = client.get(reverse('perf-by-revision') + query_params1)
+    resp1 = client.get(reverse('performance-summary') + query_params1)
     assert resp1.status_code == 200
     assert resp1.json() == expected
 
     expected[0]['values'] = [item.value for item in test_perf_data]
-    resp2 = client.get(reverse('perf-by-revision') + query_params2)
+    resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected

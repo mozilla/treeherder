@@ -13,7 +13,7 @@ import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
 import { getCounterMap, getInterval, validateQueryParams, getGraphsLink } from '../../../perfherder/helpers';
-import { getApiUrl, createApiUrl, perfByRevisionEndpoint } from '../../../helpers/url';
+import { getApiUrl, createApiUrl, perfSummaryEndpoint } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 
 
@@ -92,7 +92,7 @@ perf.controller('CompareResultsCtrl', [
                             href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
-                                    signature: oldResults.signature_hash,
+                                    signature: !oldResults ? newResults.signature_hash : oldResults.signature_hash,
                                     frameworkId: $scope.filterOptions.framework.id,
                                 })),
                                 [$scope.originalResultSet, $scope.newResultSet]),
@@ -114,13 +114,12 @@ perf.controller('CompareResultsCtrl', [
                                 href: detailsLink,
                             });
                         }
-
                         cmap.links.push({
                             title: 'graph',
                             href: getGraphsLink([...new Set(
                                 [$scope.originalProject, $scope.newProject])].map(project => ({
                                     projectName: project.name,
-                                    signature: oldResults.signature_hash,
+                                    signature: !oldResults ? newResults.signature_hash : oldResults.signature_hash,
                                     frameworkId: $scope.filterOptions.framework.id,
                                 })),
                                 [$scope.newResultSet], $scope.selectedTimeRange.value),
@@ -188,8 +187,8 @@ perf.controller('CompareResultsCtrl', [
             const newParams = createQueryParams($scope.newProject.name, interval);
             newParams.revision = $scope.newResultSet.revision;
 
-            const [originalResults, newResults] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
-                getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
+            const [originalResults, newResults] = await Promise.all([getData(createApiUrl(perfSummaryEndpoint, originalParams)),
+                getData(createApiUrl(perfSummaryEndpoint, newParams))]);
                 
             $scope.dataLoading = false;
 
@@ -197,8 +196,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.platformList = [...new Set(data.map(item => item.platform))];
             $scope.testList = [...new Set(data.map(item => item.name))];
 
-            return displayResults(originalResults.data, newResults.data);
-            
+            return displayResults(originalResults.data, newResults.data);    
         }
         // TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
@@ -413,7 +411,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: oldData.signature_hash,
+                            signature: !oldData ? newData.signature_hash : oldData.signature_hash,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.originalResultSet, $scope.newResultSet]),
                     }];
@@ -426,8 +424,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 newProject: $scope.newProject.name,
                                 originalRevision: $scope.originalRevision,
                                 newRevision: $scope.newRevision,
-                                originalSubtestSignature: oldData.signature_hash,
-                                newSubtestSignature: newData.signature_hash,
+                                originalSubtestSignature: oldData ? oldData.signature_hash : null,
+                                newSubtestSignature: newData ? newData.signature_hash: null,
                             }),
                         });
                     }
@@ -439,7 +437,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: oldData.signature_hash,
+                            signature: !oldData ? newData.signature_hash : oldData.signature_hash,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.newResultSet], $scope.selectedTimeRange.value),
                     }];
@@ -470,9 +468,6 @@ perf.controller('CompareSubtestResultsCtrl', [
             });
             
             const originalParams = createQueryParams($scope.originalSignature, $scope.originalProject.name);
-            let results;
-            let newResults;
-            let originalResults;
 
             if ($scope.originalRevision) {
                 originalParams.revision = $scope.originalResultSet.revision;
@@ -486,22 +481,15 @@ perf.controller('CompareSubtestResultsCtrl', [
                 originalParams.endday = new Date(endDateMs).toISOString().slice(0, -5);
             }
 
-            // Is there ever a use case where originalSignature is provided but newSignature isn't?
-            if ($scope.newSignature) {
-                const newParams = createQueryParams($scope.newSignature, $scope.newProject.name);
-                newParams.revision = $scope.newResultSet.revision;
+            const newParams = createQueryParams($scope.newSignature, $scope.newProject.name);
+            newParams.revision = $scope.newResultSet.revision;
 
-                [{ data: originalResults}, { data: newResults }] = await Promise.all([getData(createApiUrl(perfByRevisionEndpoint, originalParams)),
-                    getData(createApiUrl(perfByRevisionEndpoint, newParams))]);
-                
-                $scope.dataLoading = false;
+            const [originalResults, newResults] = await Promise.all([getData(createApiUrl(perfSummaryEndpoint, originalParams)),
+                getData(createApiUrl(perfSummaryEndpoint, newParams))]);
+            
+            $scope.dataLoading = false;
 
-                results = [...originalResults, ...newResults];    
-            } else {
-                ({ data: originalResults } = await getData(createApiUrl(perfByRevisionEndpoint, originalParams)));
-                $scope.dataLoading = false;
-                results = originalResults;
-            }
+            const results = [...originalResults.data, ...newResults.data];    
 
             const subtestName = results[0].name.split(' ');
             subtestName.splice(1, 1);
@@ -510,7 +498,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.pageList = [...new Set(results.map(subtest => subtest.test))];
             $scope.platformList = [...new Set(results.map(subtest => subtest.platform))];
 
-            return displayResults(originalResults, newResults || {});
+            return displayResults(originalResults.data, newResults.data);
         }
 
         $scope.dataLoading = true;

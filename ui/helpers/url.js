@@ -24,7 +24,7 @@ export const pushEndpoint = '/resultset/';
 
 export const repoEndpoint = '/repository/';
 
-export const perfByRevisionEndpoint = 'perfbyrevision/';
+export const perfSummaryEndpoint = 'performance/summary/';
 
 export const getRunnableJobsURL = function getRunnableJobsURL(decisionTaskId) {
   return `https://queue.taskcluster.net/v1/task/${decisionTaskId}/runs/0/artifacts/public/runnable-jobs.json`;

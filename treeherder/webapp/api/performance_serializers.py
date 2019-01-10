@@ -178,16 +178,17 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
         return repository
 
 
-class PerformanceRevisionSerializer(serializers.ModelSerializer):
+class PerformanceSummarySerializer(serializers.ModelSerializer):
     platform = serializers.CharField(source="platform__platform")
     values = serializers.ListField(child=serializers.DecimalField(
         rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False))
     name = serializers.SerializerMethodField()
     parent_signature = serializers.CharField(source="parent_signature__signature_hash")
+    signature_id = serializers.IntegerField(source="id")
 
     class Meta:
         model = PerformanceSignature
-        fields = ['id', 'framework_id', 'signature_hash', 'platform', 'test',
+        fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test',
                   'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature']
 
     def get_name(self, value):

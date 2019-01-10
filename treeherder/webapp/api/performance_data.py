@@ -34,7 +34,7 @@ from .performance_serializers import (IssueTrackerSerializer,
                                       PerformanceBugTemplateSerializer,
                                       PerformanceFrameworkSerializer,
                                       PerformanceQueryParamsSerializer,
-                                      PerformanceRevisionSerializer)
+                                      PerformanceSummarySerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -429,9 +429,9 @@ class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = 'id'
 
 
-class PerformanceByRevision(generics.ListAPIView):
+class PerformanceSummary(generics.ListAPIView):
 
-    serializer_class = PerformanceRevisionSerializer
+    serializer_class = PerformanceSummarySerializer
     queryset = None
 
     def list(self, request):
@@ -443,7 +443,7 @@ class PerformanceByRevision(generics.ListAPIView):
         startday = query_params.validated_data['startday']
         endday = query_params.validated_data['endday']
         revision = query_params.validated_data['revision']
-        repository = query_params.validated_data['repository']
+        repository_name = query_params.validated_data['repository']
         interval = query_params.validated_data['interval']
         frameworks = query_params.validated_data['framework']
         parent_signature = query_params.validated_data['parent_signature']
@@ -451,7 +451,7 @@ class PerformanceByRevision(generics.ListAPIView):
 
         signature_data = (PerformanceSignature.objects
                                               .select_related('framework', 'repository', 'platform', 'push')
-                                              .filter(repository__name=repository, framework__in=frameworks,
+                                              .filter(repository__name=repository_name, framework__in=frameworks,
                                                       parent_signature__isnull=no_subtests))
         if parent_signature:
             signature_data = signature_data.filter(parent_signature__signature_hash=parent_signature)
@@ -467,21 +467,19 @@ class PerformanceByRevision(generics.ListAPIView):
         signature_ids = [item['id'] for item in list(self.queryset)]
 
         data = (PerformanceDatum.objects.select_related('push', 'repository')
-                                .filter(signature_id__in=signature_ids, repository__name=repository))
+                                .filter(signature_id__in=signature_ids, repository__name=repository_name))
 
         if revision:
             data = data.filter(push__revision=revision)
         else:
             data = data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
-        values = data.values_list('signature_id', 'value')
-
         # more efficient than creating a join on option_collection and option
         option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
         option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
 
         grouped_values = defaultdict(list)
-        for signature_id, value in values:
+        for signature_id, value in data.values_list('signature_id', 'value'):
             if value is not None:
                 grouped_values[signature_id].append(value)
 
