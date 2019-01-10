@@ -8,6 +8,8 @@ import {
   DropdownToggle,
 } from 'reactstrap';
 
+import LogoMenu from '../shared/LogoMenu';
+
 import DropdownMenuItems from './DropdownMenuItems';
 import { treeOptions } from './constants';
 
@@ -25,7 +27,10 @@ export default class Navigation extends React.Component {
     const { updateState, tree } = this.props;
     return (
       <Navbar expand fixed="top" className="top-navbar">
-        <span className="lightorange">Intermittent Failures View </span>
+        <LogoMenu
+          menuText="Intermittent Failures View"
+          colorClass="lightorange"
+        />
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav navbar />
           <UncontrolledDropdown>

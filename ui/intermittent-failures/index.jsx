@@ -5,6 +5,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'react-table/react-table.css';
 
 import '../css/treeherder-global.css';
+import '../css/treeherder-navbar.css';
 import '../css/intermittent-failures.css';
 import App from './App';
 

@@ -1,46 +1,56 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+} from 'reactstrap';
 
 const choices = [
   { url: '/', text: 'Treeherder' },
   { url: '/perf.html', text: 'Perfherder' },
-  { url: '/intermittent-failures.html', text: 'Intermittent Failures' },
+  { url: '/intermittent-failures.html', text: 'Intermittent Failures View' },
 ];
 
-export default function LogoMenu(props) {
-  const { menuText, menuImage } = props;
+export default class LogoMenu extends React.PureComponent {
+  render() {
+    const { menuText, menuImage, colorClass } = this.props;
 
-  const menuChoices = choices.filter(choice => choice.text !== menuText);
-
-  return (
-    <span className="dropdown">
-      <button
-        id="th-logo"
-        title="Treeherder services"
-        data-toggle="dropdown"
-        className="btn btn-view-nav dropdown-toggle"
-        type="button"
-      >
-        <img src={menuImage} alt={menuText} />
-      </button>
-      <ul className="dropdown-menu" role="menu" aria-labelledby="th-logo">
-        {menuChoices.map(choice => (
-          <li key={choice.text}>
-            <a href={choice.url} className="dropdown-item">
+    const menuChoices = choices.filter(choice => choice.text !== menuText);
+    return (
+      <UncontrolledDropdown>
+        <DropdownToggle
+          className="btn-view-nav"
+          id="th-logo"
+          caret
+          title="Treeherder services"
+        >
+          {menuImage ? (
+            <img src={menuImage} alt={menuText} />
+          ) : (
+            <span className={colorClass}>{menuText}</span>
+          )}
+        </DropdownToggle>
+        <DropdownMenu>
+          {menuChoices.map(choice => (
+            <DropdownItem key={choice.text} tag="a" href={choice.url}>
               {choice.text}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </span>
-  );
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    );
+  }
 }
 
 LogoMenu.propTypes = {
   menuText: PropTypes.string.isRequired,
   menuImage: PropTypes.string,
+  colorClass: PropTypes.string,
 };
 
 LogoMenu.defaultProps = {
   menuImage: null,
+  colorClass: 'white',
 };

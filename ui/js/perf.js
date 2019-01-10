@@ -6,6 +6,7 @@ import 'ng-text-truncate-2';
 import { react2angular } from 'react2angular/index.es2015';
 
 import Login from '../shared/auth/Login';
+import LogoMenu from '../shared/LogoMenu';
 
 import treeherderModule from './treeherder';
 
@@ -18,5 +19,6 @@ const perf = angular.module('perf', [
 ]);
 
 perf.component('login', react2angular(Login, ['user', 'setUser'], []));
+perf.component('logoMenu', react2angular(LogoMenu, ['menuText'], []));
 
 export default perf;
