@@ -132,7 +132,7 @@ class Push(models.Model):
     the changesets that were part of the push
     '''
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    revision = models.CharField(max_length=40)
+    revision = models.CharField(max_length=40, db_index=True)
     author = models.CharField(max_length=150)
     time = models.DateTimeField(db_index=True)
 

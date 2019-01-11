@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db import transaction
 from rest_framework import (exceptions,
                             filters,
+                            generics,
                             pagination,
                             viewsets)
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
 from treeherder.perf.models import (IssueTracker,
+                                    OptionCollection,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
@@ -30,7 +32,9 @@ from .performance_serializers import (IssueTrackerSerializer,
                                       PerformanceAlertSerializer,
                                       PerformanceAlertSummarySerializer,
                                       PerformanceBugTemplateSerializer,
-                                      PerformanceFrameworkSerializer)
+                                      PerformanceFrameworkSerializer,
+                                      PerformanceQueryParamsSerializer,
+                                      PerformanceSummarySerializer)
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -423,3 +427,67 @@ class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IssueTrackerSerializer
     filter_backends = [filters.OrderingFilter]
     ordering = 'id'
+
+
+class PerformanceSummary(generics.ListAPIView):
+
+    serializer_class = PerformanceSummarySerializer
+    queryset = None
+
+    def list(self, request):
+        query_params = PerformanceQueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+        startday = query_params.validated_data['startday']
+        endday = query_params.validated_data['endday']
+        revision = query_params.validated_data['revision']
+        repository_name = query_params.validated_data['repository']
+        interval = query_params.validated_data['interval']
+        frameworks = query_params.validated_data['framework']
+        parent_signature = query_params.validated_data['parent_signature']
+        no_subtests = query_params.validated_data['no_subtests']
+
+        signature_data = (PerformanceSignature.objects
+                                              .select_related('framework', 'repository', 'platform', 'push')
+                                              .filter(repository__name=repository_name, framework__in=frameworks,
+                                                      parent_signature__isnull=no_subtests))
+        if parent_signature:
+            signature_data = signature_data.filter(parent_signature_id=parent_signature)
+
+        if interval:
+            signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
+                                                   int(time.time() - int(interval))))
+
+        # TODO signature_hash is being returned for legacy support - should be removed at some point
+        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
+                                               'signature_hash', 'platform__platform', 'test', 'option_collection_id',
+                                               'parent_signature_id'))
+
+        signature_ids = [item['id'] for item in list(self.queryset)]
+
+        data = (PerformanceDatum.objects.select_related('push', 'repository')
+                                .filter(signature_id__in=signature_ids, repository__name=repository_name))
+
+        if revision:
+            data = data.filter(push__revision=revision)
+        else:
+            data = data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
+
+        # more efficient than creating a join on option_collection and option
+        option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
+        option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+
+        grouped_values = defaultdict(list)
+        for signature_id, value in data.values_list('signature_id', 'value'):
+            if value is not None:
+                grouped_values[signature_id].append(value)
+
+        # name field is created in the serializer
+        for item in self.queryset:
+            item['values'] = grouped_values.get(item['id'], [])
+            item['option_name'] = option_collection_map[item['option_collection_id']]
+
+        serializer = self.get_serializer(self.queryset, many=True)
+        return Response(data=serializer.data)

@@ -1,13 +1,9 @@
-import chunk from 'lodash/chunk';
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
 import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
 import { create, getData, update } from '../helpers/http';
-import PerfSeriesModel, {
-  getSeriesName,
-  getTestName,
-} from '../models/perfSeries';
+import { getSeriesName, getTestName } from '../models/perfSeries';
 import OptionCollectionModel from '../models/optionCollection';
 import {
   phAlertStatusMap,
@@ -200,12 +196,13 @@ export const getCounterMap = function getCounterMap(
     return cmap; // No comparison, just display for one side.
   }
 
-  cmap.frameworkId = originalData.frameworkId;
+  cmap.frameworkId = originalData.framework_id;
   // Normally tests are "lower is better", can be over-ridden with a series option
   cmap.delta = cmap.newValue - cmap.originalValue;
+
   cmap.newIsBetter =
-    (originalData.lowerIsBetter && cmap.delta < 0) ||
-    (!originalData.lowerIsBetter && cmap.delta > 0);
+    (originalData.lower_is_better && cmap.delta < 0) ||
+    (!originalData.lower_is_better && cmap.delta > 0);
 
   cmap.deltaPercentage = calcPercentOf(cmap.delta, cmap.originalValue);
   // arbitrary scale from 0-20% multiplied by 5, capped
@@ -304,56 +301,6 @@ export const validateQueryParams = async function validateQueryParams(params) {
   }
 
   return errors;
-};
-
-const getResultMapEntry = (datum, resultsMap, params) => {
-  if (params.push_id) {
-    if (!resultsMap[datum.push_id]) {
-      resultsMap[datum.push_id] = {};
-    }
-    return resultsMap[datum.push_id];
-  }
-  return resultsMap;
-};
-
-export const getResultsMap = function getResultsMap(
-  projectName,
-  seriesList,
-  params,
-) {
-  const resultsMap = {};
-
-  return Promise.all(
-    chunk(seriesList, 150).map(seriesChunk =>
-      PerfSeriesModel.getSeriesData(projectName, {
-        signature_id: seriesChunk.map(series => series.id),
-        framework: [...new Set(seriesChunk.map(series => series.frameworkId))],
-        ...params,
-      }).then(seriesData => {
-        // Aggregates data from a single group of values and returns an object containing
-        // description (name/platform) and values; these are later processed in getCounterMap.
-        for (const [signatureHash, data] of Object.entries(seriesData)) {
-          const signature = seriesList.find(
-            series => series.signature === signatureHash,
-          );
-
-          if (signature) {
-            data.forEach(datum => {
-              const entry = getResultMapEntry(datum, resultsMap, params);
-              if (!entry[signatureHash]) {
-                entry[signatureHash] = {
-                  ...signature,
-                  values: [datum.value],
-                };
-              } else {
-                entry[signatureHash].values.push(datum.value);
-              }
-            });
-          }
-        }
-      }),
-    ),
-  ).then(() => resultsMap);
 };
 
 export const getGraphsLink = function getGraphsLink(
