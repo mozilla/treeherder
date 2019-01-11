@@ -454,15 +454,16 @@ class PerformanceSummary(generics.ListAPIView):
                                               .filter(repository__name=repository_name, framework__in=frameworks,
                                                       parent_signature__isnull=no_subtests))
         if parent_signature:
-            signature_data = signature_data.filter(parent_signature__signature_hash=parent_signature)
+            signature_data = signature_data.filter(parent_signature_id=parent_signature)
 
         if interval:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
                                                    int(time.time() - int(interval))))
 
+        # TODO signature_hash is being returned for legacy support - should be removed at some point
         self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
                                                'signature_hash', 'platform__platform', 'test', 'option_collection_id',
-                                               'parent_signature__signature_hash'))
+                                               'parent_signature_id'))
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 

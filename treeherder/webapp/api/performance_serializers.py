@@ -183,7 +183,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     values = serializers.ListField(child=serializers.DecimalField(
         rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False))
     name = serializers.SerializerMethodField()
-    parent_signature = serializers.CharField(source="parent_signature__signature_hash")
+    parent_signature = serializers.CharField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
 
     class Meta:

@@ -77,8 +77,8 @@ perf.controller('CompareResultsCtrl', [
                                 originalRevision: $scope.originalRevision,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                originalSignature: oldResults ? oldResults.signature_hash : null,
-                                newSignature: oldResults ? newResults.signature_hash : null,
+                                originalSignature: oldResults ? oldResults.signature_id : null,
+                                newSignature: oldResults ? newResults.signature_id : null,
                                 framework: $scope.filterOptions.framework.id,
                             });
                             cmap.links.push({
@@ -104,8 +104,8 @@ perf.controller('CompareResultsCtrl', [
                                 originalProject: $scope.originalProject.name,
                                 newProject: $scope.newProject.name,
                                 newRevision: $scope.newRevision,
-                                originalSignature: oldResults ? oldResults.signature_hash : null,
-                                newSignature: newResults ? newResults.signature_hash : null,
+                                originalSignature: oldResults ? oldResults.signature_id : null,
+                                newSignature: newResults ? newResults.signature_id : null,
                                 framework: $scope.filterOptions.framework.id,
                                 selectedTimeRange: $scope.selectedTimeRange.value,
                             });
