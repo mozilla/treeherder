@@ -9,7 +9,8 @@
     {{$ctrl.originalProject.name}} - {{$ctrl.selectedTimeRange.text}}
   </li>
   <li class="list-inline-item">
-    <strong>New</strong> - <a href="{{$ctrl.newRevision | getRevisionUrl:$ctrl.newProject.name}}">{{$ctrl.newRevision | limitTo: 12}}</a> ({{$ctrl.newProject.name}}) - {{$ctrl.newResultSet.author}} -
+    <strong>New</strong> - <a href="{{$ctrl.newRevision | getRevisionUrl:$ctrl.newProject.name}}">{{$ctrl.newRevision | limitTo: 12}}</a> ({{$ctrl.newProject.name}}) - {{$ctrl.newResultSet.author}}
     <span>{{$ctrl.newResultSet.comments}}</span>
   </li>
 </ul>
+

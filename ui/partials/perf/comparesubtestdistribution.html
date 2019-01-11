@@ -5,6 +5,8 @@
     </div>
     <div ng-show="!dataLoading">
    	  <h2>{{platform}}: {{testName}} replicate distribution</h2>
+       <revision-information-old original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information-old>
+
        <revision-information original-project="originalProject" original-revision="originalRevision" original-result-set="originalResultSet" new-project="newProject" new-revision="newRevision" new-result-set="newResultSet" selected-time-range="selectedTimeRange"></revision-information>
        &nbsp;&nbsp;
        <div ng-show="!(originalReplicateError && newReplicateError)"> 

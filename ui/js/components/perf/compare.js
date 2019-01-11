@@ -78,7 +78,7 @@ treeherder.component('phAverage', {
     },
 });
 
-treeherder.component('revisionInformation', {
+treeherder.component('revisionInformationOld', {
     template: revisionDescribeTemplate,
     bindings: {
         originalProject: '<',
