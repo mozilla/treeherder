@@ -7,7 +7,6 @@ import perf from '../js/perf';
 import {
   getApiUrl,
   repoEndpoint,
-  getProjectUrl,
   createQueryParams,
   pushEndpoint,
 } from '../helpers/url';
@@ -18,6 +17,7 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../helpers/constants';
+import { getProjectUrl } from '../helpers/location';
 import ErrorBoundary from '../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';

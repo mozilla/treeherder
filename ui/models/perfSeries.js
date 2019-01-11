@@ -1,6 +1,7 @@
 import queryString from 'query-string';
 
-import { getApiUrl, getProjectUrl } from '../helpers/url';
+import { getProjectUrl } from '../helpers/location';
+import { getApiUrl } from '../helpers/url';
 
 import OptionCollectionModel from './optionCollection';
 

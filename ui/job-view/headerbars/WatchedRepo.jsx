@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
-import { getRepoUrl } from '../../helpers/url';
+import { getRepoUrl } from '../../helpers/location';
 
 const statusInfoMap = {
   open: {

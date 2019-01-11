@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thEvents } from '../../../../helpers/constants';
-import { getProjectJobUrl } from '../../../../helpers/url';
+import { getProjectJobUrl } from '../../../../helpers/location';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';

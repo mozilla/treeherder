@@ -1,4 +1,4 @@
-import { getProjectJobUrl } from '../helpers/url';
+import { getProjectJobUrl } from '../helpers/location';
 
 export default class BugSuggestionsModel {
   static get(jobId) {

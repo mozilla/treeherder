@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getInspectTaskUrl, getJobSearchStrHref } from '../helpers/url';
-import { getSearchStr } from '../helpers/job';
+import { getInspectTaskUrl } from '../helpers/url';
+import { getSearchStr, getJobSearchStrHref } from '../helpers/job';
 import { toDateStr } from '../helpers/display';
 
 const getTimeFields = function getTimeFields(job) {

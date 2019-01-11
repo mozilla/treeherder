@@ -1,9 +1,9 @@
 import { slugid } from 'taskcluster-client-web';
 
 import { thMaxPushFetchSize } from '../helpers/constants';
-import { getUrlParam } from '../helpers/location';
+import { getProjectUrl, getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
-import { createQueryParams, getProjectUrl, pushEndpoint } from '../helpers/url';
+import { createQueryParams, pushEndpoint } from '../helpers/url';
 
 import JobModel from './job';
 import TaskclusterModel from './taskcluster';

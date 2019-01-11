@@ -1,4 +1,5 @@
-import { getProjectUrl, getRunnableJobsURL } from '../helpers/url';
+import { getProjectUrl } from '../helpers/location';
+import { getRunnableJobsURL } from '../helpers/url';
 import { escapeId } from '../helpers/aggregateId';
 
 import JobModel from './job';
