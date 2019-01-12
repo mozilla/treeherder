@@ -7784,10 +7784,10 @@ react-fontawesome@1.6.1:
   dependencies:
     prop-types "^15.5.6"
 
-react-highlight-words@0.15.1:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/react-highlight-words/-/react-highlight-words-0.15.1.tgz#278bcfe85e0e412ce7927a931f342366b40c3cfe"
-  integrity sha512-mE83O927uJk3wtiXk46R0sw29Fa/LLmE6ZYuXLlN46YKqxtueWjW+gytV0j9XdjqS86ryd22Ugm0yKURaOhihg==
+react-highlight-words@0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/react-highlight-words/-/react-highlight-words-0.16.0.tgz#4b4b9824e3d2b98789d3e3b3aedb5e961ae1b7cf"
+  integrity sha512-q34TwCSJOL+5pVDv6LUj3amaoyXdNDwd7zRqVAvceOrO9g1haWLAglK6WkGLMNUa3PFN8EgGedLg/k8Gpndxqg==
   dependencies:
     highlight-words-core "^1.2.0"
     memoize-one "^4.0.0"
