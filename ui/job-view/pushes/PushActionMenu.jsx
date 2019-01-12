@@ -8,20 +8,18 @@ import PushModel from '../../models/push';
 import { withPushes } from '../context/Pushes';
 import { withNotifications } from '../../shared/context/Notifications';
 
+// Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
+const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+
 class PushActionMenu extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.revision = this.props.revision;
-    this.pushId = this.props.pushId;
-    this.repoName = this.props.repoName;
-
-    // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
-    this.triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+    const { revision } = this.props;
 
     this.state = {
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
+      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
       customJobActionsShowing: false,
     };
   }
@@ -42,26 +40,26 @@ class PushActionMenu extends React.PureComponent {
   }
 
   handleUrlChanges = () => {
+    const { revision } = this.props;
+
     this.setState({
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', this.revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', this.revision),
+      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
+      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
     });
   };
 
   triggerMissingJobs = () => {
-    const { getGeckoDecisionTaskId, notify } = this.props;
+    const { getGeckoDecisionTaskId, notify, revision, pushId } = this.props;
 
     if (
       !window.confirm(
-        `This will trigger all missing jobs for revision ${
-          this.revision
-        }!\n\nClick "OK" if you want to proceed.`,
+        `This will trigger all missing jobs for revision ${revision}!\n\nClick "OK" if you want to proceed.`,
       )
     ) {
       return;
     }
 
-    getGeckoDecisionTaskId(this.pushId)
+    getGeckoDecisionTaskId(pushId)
       .then(decisionTaskID => {
         PushModel.triggerMissingJobs(decisionTaskID)
           .then(msg => {
@@ -77,13 +75,11 @@ class PushActionMenu extends React.PureComponent {
   };
 
   triggerAllTalosJobs = () => {
-    const { getGeckoDecisionTaskId, notify } = this.props;
+    const { getGeckoDecisionTaskId, notify, revision, pushId } = this.props;
 
     if (
       !window.confirm(
-        `This will trigger all Talos jobs for revision  ${
-          this.revision
-        }!\n\nClick "OK" if you want to proceed.`,
+        `This will trigger all Talos jobs for revision  ${revision}!\n\nClick "OK" if you want to proceed.`,
       )
     ) {
       return;
@@ -100,7 +96,7 @@ class PushActionMenu extends React.PureComponent {
       );
     }
 
-    getGeckoDecisionTaskId(this.pushId)
+    getGeckoDecisionTaskId(pushId)
       .then(decisionTaskID => {
         PushModel.triggerAllTalosJobs(times, decisionTaskID)
           .then(msg => {
@@ -173,7 +169,7 @@ class PushActionMenu extends React.PureComponent {
               Add new jobs
             </li>
           )}
-          {this.triggerMissingRepos.includes(repoName) && (
+          {triggerMissingRepos.includes(repoName) && (
             <li
               title={
                 isLoggedIn

@@ -37,6 +37,7 @@ export class PushesClass extends React.Component {
     super(props);
 
     this.skipNextPageReload = false;
+    this.cachedReloadTriggerParams = this.getNewReloadTriggerParams();
 
     this.state = {
       pushList: [],
@@ -46,7 +47,6 @@ export class PushesClass extends React.Component {
       loadingPushes: true,
       oldestPushTimestamp: null,
       latestJobTimestamp: null,
-      cachedReloadTriggerParams: this.getNewReloadTriggerParams(),
       allUnclassifiedFailureCount: 0,
       filteredUnclassifiedFailureCount: 0,
     };
@@ -238,23 +238,22 @@ export class PushesClass extends React.Component {
   // is being changed by code in a specific situation as opposed to when
   // the user manually edits the URL location bar.
   handleUrlChanges = () => {
-    const { cachedReloadTriggerParams } = this.state;
     const newReloadTriggerParams = this.getNewReloadTriggerParams();
     // if we are just setting the repo to the default because none was
     // set initially, then don't reload the page.
     const defaulting =
       newReloadTriggerParams.repo === thDefaultRepo &&
-      !cachedReloadTriggerParams.repo;
+      !this.cachedReloadTriggerParams.repo;
 
     if (
       !defaulting &&
-      cachedReloadTriggerParams &&
-      !isEqual(newReloadTriggerParams, cachedReloadTriggerParams) &&
+      this.cachedReloadTriggerParams &&
+      !isEqual(newReloadTriggerParams, this.cachedReloadTriggerParams) &&
       !this.skipNextPageReload
     ) {
       window.location.reload();
     } else {
-      this.setState({ cachedReloadTriggerParams: newReloadTriggerParams });
+      this.cachedReloadTriggerParams = newReloadTriggerParams;
     }
 
     this.skipNextPageReload = false;
