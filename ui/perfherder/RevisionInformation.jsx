@@ -13,15 +13,19 @@ function specificRevisionDetails(
   resultSet,
   selectedTimeRange = null,
 ) {
+  const revisionUrl = getRevisionUrl(revision, project.name);
+  const truncatedRevision = revision.substring(0, 12);
   let baselineOrNew = isBaseline ? 'Base' : 'New';
   if (selectedTimeRange) baselineOrNew = 'Base';
 
   return (
     <React.Fragment>
       <strong>{baselineOrNew}</strong> -&nbsp;
-      <a href={getRevisionUrl(revision, project.name)}>
-        {revision.substring(0, 12)}
-      </a>
+      {revisionUrl ? (
+        <a href={revisionUrl}>{truncatedRevision}</a>
+      ) : (
+        truncatedRevision
+      )}
       &nbsp;({project.name}) - {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
       {resultSet ? <span>{resultSet.comments}</span> : ''}
     </React.Fragment>
