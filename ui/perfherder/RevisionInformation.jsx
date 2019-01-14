@@ -7,7 +7,7 @@ import perf from '../js/perf';
 
 import { getRevisionUrl } from './helpers';
 
-function specificRevisionDetails(
+function getRevisionSpecificDetails(
   revision,
   project,
   isBaseline,
@@ -27,7 +27,8 @@ function specificRevisionDetails(
       ) : (
         truncatedRevision
       )}
-      &nbsp;({project.name}) - {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
+      &nbsp;({project.name}) -&nbsp;
+      {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
       {resultSet ? <span>{resultSet.comments}</span> : ''}
     </React.Fragment>
   );
@@ -48,7 +49,7 @@ export default function RevisionInformation(props) {
     <ListGroup className="d-inline push-information">
       {originalRevision && (
         <ListGroupItem className="d-inline border-0">
-          {specificRevisionDetails(
+          {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
             true,
@@ -58,7 +59,7 @@ export default function RevisionInformation(props) {
       )}
       {selectedTimeRange && (
         <ListGroupItem className="d-inline border-0">
-          {specificRevisionDetails(
+          {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
             true,
@@ -68,7 +69,12 @@ export default function RevisionInformation(props) {
         </ListGroupItem>
       )}
       <ListGroupItem className="d-inline border-0">
-        {specificRevisionDetails(newRevision, newProject, false, newResultSet)}
+        {getRevisionSpecificDetails(
+          newRevision,
+          newProject,
+          false,
+          newResultSet,
+        )}
       </ListGroupItem>
     </ListGroup>
   );
