@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
+import { ListGroup, ListGroupItem } from 'reactstrap';
 
 import perf from '../js/perf';
 
@@ -44,19 +45,19 @@ export default function RevisionInformation(props) {
   } = props;
 
   return (
-    <ul className="list-inline push-information">
+    <ListGroup className="d-inline push-information">
       {originalRevision && (
-        <li className="list-inline-item">
+        <ListGroupItem className="d-inline border-0">
           {specificRevisionDetails(
             originalRevision,
             originalProject,
             true,
             originalResultSet,
           )}
-        </li>
+        </ListGroupItem>
       )}
       {selectedTimeRange && (
-        <li className="list-inline-item">
+        <ListGroupItem className="d-inline border-0">
           {specificRevisionDetails(
             originalRevision,
             originalProject,
@@ -64,12 +65,12 @@ export default function RevisionInformation(props) {
             null,
             selectedTimeRange,
           )}
-        </li>
+        </ListGroupItem>
       )}
-      <li className="list-inline-item">
+      <ListGroupItem className="d-inline border-0">
         {specificRevisionDetails(newRevision, newProject, false, newResultSet)}
-      </li>
-    </ul>
+      </ListGroupItem>
+    </ListGroup>
   );
 }
 
