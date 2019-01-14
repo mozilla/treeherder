@@ -6,6 +6,28 @@ import perf from '../js/perf';
 
 import { getRevisionUrl } from './helpers';
 
+function specificRevisionDetails(
+  revision,
+  project,
+  isBaseline,
+  resultSet,
+  selectedTimeRange = null,
+) {
+  let baselineOrNew = isBaseline ? 'Base' : 'New';
+  if (selectedTimeRange) baselineOrNew = 'Base';
+
+  return (
+    <li className="list-inline-item">
+      <strong>{baselineOrNew}</strong> -&nbsp;
+      <a href={getRevisionUrl(revision, project.name)}>
+        {revision.substring(0, 12)}
+      </a>
+      &nbsp;({project.name}) - {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
+      {resultSet ? <span>{resultSet.comments}</span> : ''}
+    </li>
+  );
+}
+
 export default function RevisionInformation(props) {
   const {
     originalProject,
@@ -19,33 +41,22 @@ export default function RevisionInformation(props) {
 
   return (
     <ul className="list-inline push-information">
-      {originalRevision && (
-        <li className="list-inline-item">
-          <strong>Base</strong> -&nbsp;
-          <a href={getRevisionUrl(originalRevision, originalProject.name)}>
-            {originalRevision.substring(0, 12)}
-          </a>
-          &nbsp;({originalProject.name}) - {originalResultSet.author} -
-          <span>{originalResultSet.comments}</span>
-        </li>
-      )}
-      {selectedTimeRange && (
-        <li className="list-inline-item">
-          <strong>Base</strong> -
-          <a href={getRevisionUrl(originalRevision, originalProject.name)}>
-            {originalRevision.substring(0, 12)}
-          </a>
-          &nbsp;({originalProject.name}) - {selectedTimeRange.text}
-        </li>
-      )}
-      <li className="list-inline-item">
-        <strong>New</strong> -&nbsp;
-        <a href={getRevisionUrl(newRevision, newProject.name)}>
-          {newRevision.substring(0, 12)}
-        </a>
-        &nbsp;({newProject.name}) - {newResultSet.author}
-        <span>{newResultSet.comments}</span>
-      </li>
+      {originalRevision &&
+        specificRevisionDetails(
+          originalRevision,
+          originalProject,
+          true,
+          originalResultSet,
+        )}
+      {selectedTimeRange &&
+        specificRevisionDetails(
+          originalRevision,
+          originalProject,
+          true,
+          null,
+          selectedTimeRange,
+        )}
+      {specificRevisionDetails(newRevision, newProject, false, newResultSet)}
     </ul>
   );
 }
