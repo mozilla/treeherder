@@ -21,7 +21,7 @@
     "@types/react": "*",
     "@types/react-dom": "*",
     "@uirouter/angularjs": "0.4.3",
-    "ajv": "6.6.2",
+    "ajv": "6.7.0",
     "angular": "1.7.5",
     "angular-clipboard": "1.6.2",
     "angular1-ui-bootstrap4": "2.4.22",
