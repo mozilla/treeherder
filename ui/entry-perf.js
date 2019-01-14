@@ -60,6 +60,7 @@ import './js/components/loading';
 import './js/perfapp';
 import './perfherder/CompareSelectorView';
 import './perfherder/RevisionInformation';
+import './perfherder/CompareTableControls';
 
 config.showMissingIcons = true;
 
