@@ -17,14 +17,14 @@ function specificRevisionDetails(
   if (selectedTimeRange) baselineOrNew = 'Base';
 
   return (
-    <li className="list-inline-item">
+    <React.Fragment>
       <strong>{baselineOrNew}</strong> -&nbsp;
       <a href={getRevisionUrl(revision, project.name)}>
         {revision.substring(0, 12)}
       </a>
       &nbsp;({project.name}) - {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
       {resultSet ? <span>{resultSet.comments}</span> : ''}
-    </li>
+    </React.Fragment>
   );
 }
 
@@ -41,22 +41,30 @@ export default function RevisionInformation(props) {
 
   return (
     <ul className="list-inline push-information">
-      {originalRevision &&
-        specificRevisionDetails(
-          originalRevision,
-          originalProject,
-          true,
-          originalResultSet,
-        )}
-      {selectedTimeRange &&
-        specificRevisionDetails(
-          originalRevision,
-          originalProject,
-          true,
-          null,
-          selectedTimeRange,
-        )}
-      {specificRevisionDetails(newRevision, newProject, false, newResultSet)}
+      {originalRevision && (
+        <li className="list-inline-item">
+          {specificRevisionDetails(
+            originalRevision,
+            originalProject,
+            true,
+            originalResultSet,
+          )}
+        </li>
+      )}
+      {selectedTimeRange && (
+        <li className="list-inline-item">
+          {specificRevisionDetails(
+            originalRevision,
+            originalProject,
+            true,
+            null,
+            selectedTimeRange,
+          )}
+        </li>
+      )}
+      <li className="list-inline-item">
+        {specificRevisionDetails(newRevision, newProject, false, newResultSet)}
+      </li>
     </ul>
   );
 }
