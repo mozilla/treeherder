@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getRepoUrl } from '../../helpers/url';
+import { getRepoUrl } from '../../helpers/location';
 
 const GROUP_ORDER = [
   'development',

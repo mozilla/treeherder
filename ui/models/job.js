@@ -1,6 +1,7 @@
 import { thPlatformMap } from '../helpers/constants';
-import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { createQueryParams } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
+import { getProjectUrl } from '../helpers/location';
 
 import TaskclusterModel from './taskcluster';
 

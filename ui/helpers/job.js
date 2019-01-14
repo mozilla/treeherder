@@ -2,6 +2,8 @@ import $ from 'jquery';
 
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
+import { getAllUrlParams } from './location';
+import { uiJobsUrlBase } from './url';
 
 const btnClasses = {
   busted: 'btn-red',
@@ -190,6 +192,13 @@ export const getSearchStr = function getSearchStr(job) {
     .filter(item => typeof item !== 'undefined')
     .join(' ')
     .toLowerCase();
+};
+
+export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
+  const params = getAllUrlParams();
+  params.set('searchStr', jobSearchStr.split(' '));
+
+  return `${uiJobsUrlBase}?${params.toString()}`;
 };
 
 export const getHoverText = function getHoverText(job) {

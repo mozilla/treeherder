@@ -8,7 +8,8 @@ import createHistory from 'history/createBrowserHistory';
 import createDebounce from 'redux-debounce';
 
 import { thPlatformMap } from '../../helpers/constants';
-import { getServiceUrl, getProjectUrl } from '../../helpers/url';
+import { getProjectUrl } from '../../helpers/location';
+import { getServiceUrl } from '../../helpers/url';
 
 import * as groupsStore from './modules/groups';
 

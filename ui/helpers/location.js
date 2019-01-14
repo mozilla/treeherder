@@ -1,5 +1,5 @@
 import { thDefaultRepo } from './constants';
-import { createQueryParams } from './url';
+import { createQueryParams, getApiUrl, uiJobsUrlBase } from './url';
 
 export const getQueryString = function getQueryString() {
   return window.location.hash.split('?')[1];
@@ -34,4 +34,28 @@ export const setUrlParam = function setUrlParam(
     params.delete(field);
   }
   setLocation(params, hashPrefix);
+};
+
+export const getRepoUrl = function getRepoUrl(newRepoName) {
+  const params = getAllUrlParams();
+
+  params.delete('selectedJob');
+  params.delete('fromchange');
+  params.delete('tochange');
+  params.delete('revision');
+  params.set('repo', newRepoName);
+  return `${uiJobsUrlBase}?${params.toString()}`;
+};
+
+// Take the repoName, if passed in.  If not, then try to find it on the
+// URL.  If not there, then try m-i and hope for the best.  The caller may
+// not actually need a repo if they're trying to get a job by ``id``.
+export const getProjectUrl = function getProjectUrl(uri, repoName) {
+  const repo = repoName || getRepo();
+
+  return getApiUrl(`/project/${repo}${uri}`);
+};
+
+export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
+  return getProjectUrl(`/jobs/${jobId}${url}`);
 };

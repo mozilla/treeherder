@@ -1,5 +1,3 @@
-import { getAllUrlParams, getRepo } from './location';
-
 export const uiJobsUrlBase = '/#/jobs';
 
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
@@ -79,26 +77,6 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
   return `https://perf-html.io/from-url/${encodeURIComponent(url)}`;
 };
 
-// Take the repoName, if passed in.  If not, then try to find it on the
-// URL.  If not there, then try m-i and hope for the best.  The caller may
-// not actually need a repo if they're trying to get a job by ``id``.
-export const getProjectUrl = function getProjectUrl(uri, repoName) {
-  const repo = repoName || getRepo();
-
-  return getApiUrl(`/project/${repo}${uri}`);
-};
-
-export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
-  return getProjectUrl(`/jobs/${jobId}${url}`);
-};
-
-export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
-  const params = getAllUrlParams();
-  params.set('searchStr', jobSearchStr.split(' '));
-
-  return `${uiJobsUrlBase}?${params.toString()}`;
-};
-
 // This takes a plain object, rather than a URLSearchParams object.
 export const getJobsUrl = function getJobsUrl(params) {
   return `${uiJobsUrlBase}${createQueryParams(params)}`;
@@ -127,15 +105,4 @@ export const createApiUrl = function createApiUrl(api, params) {
 export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   const query = createQueryParams(params);
   return `${bzBaseUrl}rest/${api}${query}`;
-};
-
-export const getRepoUrl = function getRepoUrl(newRepoName) {
-  const params = getAllUrlParams();
-
-  params.delete('selectedJob');
-  params.delete('fromchange');
-  params.delete('tochange');
-  params.delete('revision');
-  params.set('repo', newRepoName);
-  return `${uiJobsUrlBase}?${params.toString()}`;
 };

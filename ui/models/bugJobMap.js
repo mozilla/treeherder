@@ -1,5 +1,6 @@
-import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { createQueryParams } from '../helpers/url';
 import { destroy, create } from '../helpers/http';
+import { getProjectUrl } from '../helpers/location';
 
 const uri = getProjectUrl('/bug-job-map/');
 

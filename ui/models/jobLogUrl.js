@@ -1,4 +1,5 @@
-import { createQueryParams, getProjectUrl } from '../helpers/url';
+import { getProjectUrl } from '../helpers/location';
+import { createQueryParams } from '../helpers/url';
 
 const uri = getProjectUrl('/job-log-url/');
 

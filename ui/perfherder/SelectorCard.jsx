@@ -19,9 +19,10 @@ import {
   InputGroupButtonDropdown,
 } from 'reactstrap';
 
-import { getProjectUrl, createQueryParams, pushEndpoint } from '../helpers/url';
+import { createQueryParams, pushEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
 import { genericErrorMessage } from '../helpers/constants';
+import { getProjectUrl } from '../helpers/location';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {

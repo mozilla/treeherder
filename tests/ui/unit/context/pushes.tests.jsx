@@ -2,7 +2,7 @@ import React from 'react';
 import * as fetchMock from 'fetch-mock';
 import { mount } from 'enzyme';
 
-import { getProjectUrl } from '../../../../ui/helpers/url';
+import { getProjectUrl } from '../../../../ui/helpers/location';
 import { PushesClass } from '../../../../ui/job-view/context/Pushes';
 import FilterModel from '../../../../ui/models/filter';
 import pushListFixture from '../../mock/push_list';
