@@ -6,55 +6,48 @@ import perf from '../js/perf';
 
 import { getRevisionUrl } from './helpers';
 
-export default class RevisionInformation extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+export default function RevisionInformation(props) {
+  const {
+    originalProject,
+    originalRevision,
+    newProject,
+    newRevision,
+    originalResultSet,
+    newResultSet,
+    selectedTimeRange,
+  } = props;
 
-  render() {
-    const {
-      originalProject,
-      originalRevision,
-      newProject,
-      newRevision,
-      originalResultSet,
-      newResultSet,
-      selectedTimeRange,
-    } = this.props;
-
-    return (
-      <ul className="list-inline push-information">
-        {originalRevision && (
-          <li className="list-inline-item">
-            <strong>Base</strong> -&nbsp;
-            <a href={getRevisionUrl(originalRevision, originalProject.name)}>
-              {originalRevision.substring(0, 12)}
-            </a>
-            &nbsp;({originalProject.name}) - {originalResultSet.author} -
-            <span>{originalResultSet.comments}</span>
-          </li>
-        )}
-        {selectedTimeRange && (
-          <li className="list-inline-item">
-            <strong>Base</strong> -
-            <a href={getRevisionUrl(originalRevision, originalProject.name)}>
-              {originalRevision.substring(0, 12)}
-            </a>
-            &nbsp;({originalProject.name}) - {selectedTimeRange.text}
-          </li>
-        )}
+  return (
+    <ul className="list-inline push-information">
+      {originalRevision && (
         <li className="list-inline-item">
-          <strong>New</strong> -&nbsp;
-          <a href={getRevisionUrl(newRevision, newProject.name)}>
-            {newRevision.substring(0, 12)}
+          <strong>Base</strong> -&nbsp;
+          <a href={getRevisionUrl(originalRevision, originalProject.name)}>
+            {originalRevision.substring(0, 12)}
           </a>
-          &nbsp;({newProject.name}) - {newResultSet.author}
-          <span>{newResultSet.comments}</span>
+          &nbsp;({originalProject.name}) - {originalResultSet.author} -
+          <span>{originalResultSet.comments}</span>
         </li>
-      </ul>
-    );
-  }
+      )}
+      {selectedTimeRange && (
+        <li className="list-inline-item">
+          <strong>Base</strong> -
+          <a href={getRevisionUrl(originalRevision, originalProject.name)}>
+            {originalRevision.substring(0, 12)}
+          </a>
+          &nbsp;({originalProject.name}) - {selectedTimeRange.text}
+        </li>
+      )}
+      <li className="list-inline-item">
+        <strong>New</strong> -&nbsp;
+        <a href={getRevisionUrl(newRevision, newProject.name)}>
+          {newRevision.substring(0, 12)}
+        </a>
+        &nbsp;({newProject.name}) - {newResultSet.author}
+        <span>{newResultSet.comments}</span>
+      </li>
+    </ul>
+  );
 }
 
 RevisionInformation.propTypes = {
