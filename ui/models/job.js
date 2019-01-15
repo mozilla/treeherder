@@ -1,3 +1,5 @@
+import { slugid } from 'taskcluster-client-web';
+
 import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
@@ -118,35 +120,46 @@ export default class JobModel {
     try {
       notify(`Attempting to retrigger ${jobTerm} via actions.json`, 'info');
 
+      const uniquePerPushJobs = {};
+
       /* eslint-disable no-await-in-loop */
       for (const id of jobIds) {
         const job = await JobModel.get(repoName, id);
+
+        if (!uniquePerPushJobs[job.push_id]) {
+          uniquePerPushJobs[job.push_id] = [];
+        }
+        uniquePerPushJobs[job.push_id].push(job.job_type_name);
+      }
+
+      /* eslint-disable no-await-in-loop */
+      for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         const decisionTaskId = await getGeckoDecisionTaskId(
-          job.push_id,
+          Number(key),
           repoName,
         );
-        const results = await TaskclusterModel.load(decisionTaskId, job);
-        const retriggerTask = results.actions.find(
-          result => result.name === 'retrigger',
-        );
 
-        try {
+        TaskclusterModel.load(decisionTaskId).then(async results => {
+          const actionTaskId = slugid();
+          const addNewJobsTask = results.actions.find(
+            action => action.name === 'add-new-jobs',
+          );
+
           await TaskclusterModel.submit({
-            action: retriggerTask,
+            action: addNewJobsTask,
+            actionTaskId,
             decisionTaskId,
-            taskId: results.originalTaskId,
-            input: {},
+            taskId: null,
+            task: null,
+            input: { tasks: value },
             staticActionVariables: results.staticActionVariables,
-          });
-        } catch (e) {
-          // The full message is too large to fit in a Treeherder
-          // notification box.
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        }
+          }).then(() =>
+            notify(
+              `Request sent to retrigger new jobs via actions.json (${actionTaskId})`,
+            ),
+          );
+        });
       }
-      /* eslint-enable no-await-in-loop */
-
-      notify(`Request sent to retrigger ${jobTerm} via action.json`, 'success');
     } catch (e) {
       notify(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
     }
