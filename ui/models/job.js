@@ -1,4 +1,5 @@
 import { slugid } from 'taskcluster-client-web';
+import groupBy from 'lodash/groupBy';
 
 import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams } from '../helpers/url';
@@ -118,50 +119,36 @@ export default class JobModel {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
-      notify(`Attempting to retrigger ${jobTerm} via actions.json`, 'info');
+      notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
-      const uniquePerPushJobs = {};
-
-      /* eslint-disable no-await-in-loop */
-      for (const id of jobIds) {
-        const job = await JobModel.get(repoName, id);
-
-        if (!uniquePerPushJobs[job.push_id]) {
-          uniquePerPushJobs[job.push_id] = [];
-        }
-        uniquePerPushJobs[job.push_id].push(job.job_type_name);
-      }
-
-      /* eslint-disable no-await-in-loop */
+      const jobs = await JobModel.getList(repoName, { id__in: jobIds.join() });
+      const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
-        const decisionTaskId = await getGeckoDecisionTaskId(
-          Number(key),
-          repoName,
-        );
+        getGeckoDecisionTaskId(Number(key), repoName).then(decisionTaskId => {
+          TaskclusterModel.load(decisionTaskId).then(async results => {
+            const actionTaskId = slugid();
+            const addNewJobsTask = results.actions.find(
+              action => action.name === 'add-new-jobs',
+            );
 
-        TaskclusterModel.load(decisionTaskId).then(async results => {
-          const actionTaskId = slugid();
-          const addNewJobsTask = results.actions.find(
-            action => action.name === 'add-new-jobs',
-          );
-
-          await TaskclusterModel.submit({
-            action: addNewJobsTask,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: { tasks: value },
-            staticActionVariables: results.staticActionVariables,
-          }).then(() =>
-            notify(
-              `Request sent to retrigger new jobs via actions.json (${actionTaskId})`,
-            ),
-          );
+            await TaskclusterModel.submit({
+              action: addNewJobsTask,
+              actionTaskId,
+              decisionTaskId,
+              taskId: null,
+              task: null,
+              input: { tasks: value.map(job => job.job_type_name) },
+              staticActionVariables: results.staticActionVariables,
+            }).then(() =>
+              notify(
+                `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
+              ),
+            );
+          });
         });
       }
     } catch (e) {
-      notify(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
+      notify(`Unable to retrigger/add ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 
