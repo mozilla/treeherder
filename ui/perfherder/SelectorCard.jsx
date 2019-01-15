@@ -102,6 +102,9 @@ export default class SelectorCard extends React.Component {
 
   updateRevisions = selectedRepo => {
     const { updateState, projectState } = this.props;
+    // reset invalidProject from query param validation
+    // in case user resets project via dropdown instead
+    // of updating the query param
     if (this.state.invalidProject) {
       this.setState({ invalidProject: false });
     }

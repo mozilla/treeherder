@@ -12,7 +12,6 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../helpers/constants';
-import { getProjectUrl } from '../helpers/location';
 import ErrorBoundary from '../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';
