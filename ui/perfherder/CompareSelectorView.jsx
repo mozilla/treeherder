@@ -4,12 +4,7 @@ import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row, Button } from 'reactstrap';
 
 import perf from '../js/perf';
-import {
-  getApiUrl,
-  repoEndpoint,
-  createQueryParams,
-  pushEndpoint,
-} from '../helpers/url';
+import { getApiUrl, repoEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
 import ErrorMessages from '../shared/ErrorMessages';
 import {
@@ -17,7 +12,6 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../helpers/constants';
-import { getProjectUrl } from '../helpers/location';
 import ErrorBoundary from '../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';
@@ -26,108 +20,24 @@ import SelectorCard from './SelectorCard';
 export default class CompareSelectorView extends React.Component {
   constructor(props) {
     super(props);
-
+    this.queryParams = this.props.$stateParams;
     this.state = {
       projects: [],
       failureStatus: null,
-      originalProject: 'mozilla-central',
-      newProject: 'try',
-      originalRevision: '',
-      newRevision: '',
+      originalProject: this.queryParams.originalProject || 'mozilla-central',
+      newProject: this.queryParams.newProject || 'try',
+      originalRevision: this.queryParams.originalRevision || '',
+      newRevision: this.queryParams.newRevision || '',
       errorMessages: [],
       disableButton: true,
+      missingRevision: false,
     };
   }
 
   async componentDidMount() {
     const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
     this.setState({ projects: data, failureStatus });
-    this.validateQueryParams();
   }
-
-  validateQueryParams = () => {
-    const {
-      originalProject,
-      newProject,
-      originalRevision,
-      newRevision,
-    } = this.props.$stateParams;
-
-    const { errorMessages } = this.state;
-
-    // reset
-    if (errorMessages.length > 0) {
-      this.setState({ errorMessages: [] });
-    }
-
-    if (originalProject) {
-      this.validateProject('originalProject', originalProject);
-    }
-
-    if (newProject) {
-      this.validateProject('newProject', newProject);
-    }
-
-    if (newRevision) {
-      this.validateRevision(
-        'newRevision',
-        newRevision,
-        newProject || this.state.newProject,
-      );
-    }
-
-    if (originalRevision) {
-      this.validateRevision(
-        'originalRevision',
-        originalRevision,
-        originalProject || this.state.originalProject,
-      );
-    }
-
-    if (errorMessages.length === 0) {
-      this.setState({ disableButton: false });
-    }
-  };
-
-  validateProject = (projectName, project) => {
-    const { projects, errorMessages } = this.state;
-    let updates = {};
-    const validProject = projects.find(item => item.name === project);
-
-    if (validProject) {
-      updates = { [projectName]: project };
-    } else {
-      updates = {
-        errorMessages: [
-          ...errorMessages,
-          `${projectName} must be a valid project.`,
-        ],
-      };
-    }
-    this.setState(updates);
-  };
-
-  validateRevision = async (revisionName, revision, project) => {
-    const { errorMessages } = this.state;
-    let updates = {};
-
-    const url = `${getProjectUrl(pushEndpoint, project)}${createQueryParams({
-      revision,
-    })}`;
-    const { data, failureStatus } = await getData(url);
-
-    if (failureStatus || data.meta.count === 0) {
-      updates = {
-        errorMessages: [
-          ...errorMessages,
-          `${revisionName} must be a valid revision.`,
-        ],
-      };
-    } else {
-      updates = { [revisionName]: revision };
-    }
-    this.setState(updates);
-  };
 
   submitData = () => {
     const {
@@ -139,7 +49,7 @@ export default class CompareSelectorView extends React.Component {
     const { $state } = this.props;
 
     if (newRevision === '') {
-      return this.setState({ errorMessages: ['New revision is required'] });
+      return this.setState({ missingRevision: 'Revision is required' });
     }
 
     if (originalRevision !== '') {
@@ -170,7 +80,9 @@ export default class CompareSelectorView extends React.Component {
       failureStatus,
       errorMessages,
       disableButton,
+      missingRevision,
     } = this.state;
+
     return (
       <Container
         fluid
@@ -192,29 +104,34 @@ export default class CompareSelectorView extends React.Component {
                 )}
               </Col>
             </Row>
-            <Row className="justify-content-center">
-              <SelectorCard
-                projects={projects}
-                updateState={updates => this.setState(updates)}
-                selectedRepo={originalProject}
-                title="Base"
-                checkbox
-                text="By default, Perfherder will compare against performance data gathered over the last 2 days from when new revision was pushed"
-                projectState="originalProject"
-                revisionState="originalRevision"
-                selectedRevision={originalRevision}
-                queryParam={this.props.$stateParams.originalRevision}
-              />
-              <SelectorCard
-                projects={projects}
-                updateState={updates => this.setState(updates)}
-                selectedRepo={newProject}
-                title="New"
-                projectState="newProject"
-                revisionState="newRevision"
-                selectedRevision={newRevision}
-              />
-            </Row>
+            {projects.length > 0 && (
+              <Row className="justify-content-center">
+                <SelectorCard
+                  projects={projects}
+                  updateState={updates => this.setState(updates)}
+                  selectedRepo={originalProject}
+                  title="Base"
+                  checkbox
+                  text="By default, Perfherder will compare against performance data gathered over the last 2 days from when new revision was pushed"
+                  projectState="originalProject"
+                  revisionState="originalRevision"
+                  selectedRevision={originalRevision}
+                  queryParam={this.props.$stateParams.originalRevision}
+                  errorMessages={errorMessages}
+                />
+                <SelectorCard
+                  projects={projects}
+                  updateState={updates => this.setState(updates)}
+                  selectedRepo={newProject}
+                  title="New"
+                  projectState="newProject"
+                  revisionState="newRevision"
+                  selectedRevision={newRevision}
+                  errorMessages={errorMessages}
+                  missingRevision={missingRevision}
+                />
+              </Row>
+            )}
             <Row className="justify-content-center">
               <Col sm="8" className="text-right px-1">
                 <Button
