@@ -4,8 +4,7 @@ import { react2angular } from 'react2angular/index.es2015';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
 import perf from '../js/perf';
-
-import { getRevisionUrl } from './helpers';
+import { getJobsUrl } from '../helpers/url';
 
 function getRevisionSpecificDetails(
   revision,
@@ -14,16 +13,16 @@ function getRevisionSpecificDetails(
   resultSet,
   selectedTimeRange = null,
 ) {
-  const revisionUrl = getRevisionUrl(revision, project.name);
   const truncatedRevision = revision.substring(0, 12);
-  let baselineOrNew = isBaseline ? 'Base' : 'New';
-  if (selectedTimeRange) baselineOrNew = 'Base';
+  const baselineOrNew = isBaseline || selectedTimeRange ? 'Base' : 'New';
 
   return (
     <React.Fragment>
       <strong>{baselineOrNew}</strong> -&nbsp;
-      {revisionUrl ? (
-        <a href={revisionUrl}>{truncatedRevision}</a>
+      {revision ? (
+        <a href={getJobsUrl({ repo: project.name, revision })}>
+          {truncatedRevision}
+        </a>
       ) : (
         truncatedRevision
       )}

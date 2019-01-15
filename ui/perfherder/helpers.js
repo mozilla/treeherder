@@ -1,12 +1,7 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
-import {
-  getApiUrl,
-  getJobsUrl,
-  createQueryParams,
-  repoEndpoint,
-} from '../helpers/url';
+import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
 import { create, getData, update } from '../helpers/http';
 import { getSeriesName, getTestName } from '../models/perfSeries';
 import OptionCollectionModel from '../models/optionCollection';
@@ -759,6 +754,3 @@ export const nudgeAlert = (dataPoint, towardsDataPoint) => {
   const alertId = dataPoint.alert.id;
   return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
 };
-
-export const getRevisionUrl = (revision, projectName) =>
-  revision ? getJobsUrl({ repo: projectName, revision }) : '';
