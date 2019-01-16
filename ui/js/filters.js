@@ -2,18 +2,11 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 import numeral from 'numeral';
 
-import { getJobsUrl } from '../helpers/url';
+import { getRevisionUrl } from '../helpers/url';
 
 import treeherder from './treeherder';
 
-treeherder.filter('getRevisionUrl', function () {
-    return function (revision, projectName) {
-        if (revision) {
-            return getJobsUrl({ repo: projectName, revision });
-        }
-        return '';
-    };
-});
+treeherder.filter('getRevisionUrl', () => getRevisionUrl);
 
 treeherder.filter('displayNumber', ['$filter', function ($filter) {
     return function (input) {
