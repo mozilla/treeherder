@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { loggedOutUser } from '../../helpers/auth';
 import taskcluster from '../../helpers/taskcluster';
@@ -116,12 +118,10 @@ class Login extends React.Component {
               className="btn btn-view-nav"
             >
               <div className="dropdown-toggle">
-                <div className="nav-user-icon">
-                  <span className="fa fa-user pull-left" />
-                </div>
-                <div className="nav-user-name">
-                  <span>{user.fullName}</span>
-                </div>
+                <span className="nav-user-icon mr-1 rounded">
+                  <FontAwesomeIcon icon={faUser} size="xs" />
+                </span>
+                <span>{user.fullName}</span>
               </div>
             </button>
             <ul

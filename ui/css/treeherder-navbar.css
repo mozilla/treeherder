@@ -93,11 +93,7 @@ label.dropdown-item {
 }
 
 .nav-user-icon {
-  display: inline-block;
-  margin-right: 4px;
-  padding: 3px 4px;
-  vertical-align: text-bottom;
-  border-radius: 1px;
+  padding: 1px 3px 2px 4px;
   background: linear-gradient(#44adf3, #287cc2);
 }
 
@@ -105,10 +101,6 @@ label.dropdown-item {
   margin: 0 auto;
   font-size: 12px;
   color: #fff;
-}
-
-.nav-user-name {
-  display: inline-block;
 }
 
 .nav-login-btn {
