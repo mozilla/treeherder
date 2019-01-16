@@ -31,4 +31,3 @@ import './js/components/perf/compare';
 import './js/components/loading';
 import './js/perfapp';
 import './perfherder/CompareSelectorView';
-import './perfherder/RevisionInformation';
