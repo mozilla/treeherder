@@ -106,6 +106,3 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
   const query = createQueryParams(params);
   return `${bzBaseUrl}rest/${api}${query}`;
 };
-
-export const getRevisionUrl = (revision, projectName) =>
-  revision ? getJobsUrl({ repo: projectName, revision }) : '';
