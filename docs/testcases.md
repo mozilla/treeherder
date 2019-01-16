@@ -17,7 +17,11 @@ Treeherder logo > Perfherder
 
 **Expected**: Perfherder loads displaying its initial Graph page.
 
-Perfherder logo > Treeherder
+Perfherder logo > Intermittent Failures View
+
+**Expected**: IFV loads (this may timeout and show an error instead of failure data)
+
+Intermittent Failures View logo > Treeherder
 
 **Expected**: Treeherder loads again, displaying pushes per step 1.
 
@@ -41,7 +45,7 @@ Select a completed-failed Talos job.
 
 Select a Running job.
 
-**Expected**: The Failure summary tab should load.
+**Expected**: The (empty) Failure summary tab should load.
 
 Pin a job
 ---------
@@ -74,6 +78,10 @@ If a Bug suggestion is present in the failure summary:
 
 Pinboard > Right hand dropdown menu > Clear all
 
+**Expected**:
+* The job should be removed from the Pinboard
+* The bug number should be cleared from the bug classification field
+
 Similar jobs tab
 ----------------
 Select a job, select the Similar jobs tab, wait several seconds.
@@ -93,16 +101,15 @@ Job details pane
 Select any job and confirm the following loads in the bottom left pane:
 
 * Job:
-* Machine name: (test this link)
-* Build: (test this link)
+* Task: (test this link)
+* Machine name: (test this link) (this may not exist for taskcluster jobs)
+* Build: (test this link) (this may not be a link for taskcluster jobs)
 * Job name:
 * Requested:
-* Started:
-* Ended:
+* Started: (only present for jobs in either running or completed states)
+* Ended: (only present for jobs in a completed state)
 * Duration:
 * Log parsing status:
-
-(Note: Backfill job will eventually be moved to the Action bar in bug 1187394).
 
 **Expected**: Values load, are visible and correct, and links are valid.
 
@@ -194,13 +201,13 @@ Click on another failure line in the failed step.
 
 **Expected**: The log should scroll to that failure line.
 
-Click on 'show successful steps'.
+Click on 'show successful steps'. (DELETE ME? I can't find this on a failing mochitest log)
 
-**Expected**: Green successful step bars should appear in the top right panel.
+**Expected**: Green successful step bars should appear in the top right panel. (DELETE ME? I can't find this on a failing mochitest log)
 
-Click on a successful step.
+Click on a successful step. (DELETE ME? I can't find this on a failing mochitest log)
 
-**Expected**: The log contents should scroll to the -- Start -- line for that step.
+**Expected**: The log contents should scroll to the -- Start -- line for that step. (DELETE ME? I can't find this on a failing mochitest log)
 
 Thumbwheel/scroll/swipe downwards or upwards.
 
@@ -361,7 +368,6 @@ Click on the 'Graph' link for a sub-compare row if it exists.
 
 All keyboard shortcuts
 ----------------------
-Note: Listed "Toggle in-progress" shortcut 'i' is known not to be working at this time.
 Check all keyboard shortcut functionality as listed in the [userguide].
 
 **Expected**: Each shortcut should work as expected.
