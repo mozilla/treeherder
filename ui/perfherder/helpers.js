@@ -382,7 +382,6 @@ export const getGraphsURL = (
 
 export const getSubtestsURL = (alert, alertSummary) => {
   const endpoint = '#/comparesubtest';
-
   const urlParameters = {
     framework: alertSummary.framework,
     originalProject: alertSummary.repository,
