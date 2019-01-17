@@ -454,7 +454,7 @@ class PerformanceSummary(generics.ListAPIView):
                                               .filter(repository__name=repository_name, framework__in=frameworks,
                                                       parent_signature__isnull=no_subtests))
         if parent_signature:
-            signature_data = signature_data.filter(parent_signature_id=parent_signature)
+            signature_data = signature_data.filter(parent_signature__signature_hash=parent_signature)
 
         if interval:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
