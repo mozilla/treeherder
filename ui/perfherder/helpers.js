@@ -338,6 +338,8 @@ export const getGraphsLink = function getGraphsLink(
 };
 
 // old PhAlerts' inner workings
+// TODO change all usage of signature_hash to signature.id
+// for originalSignature and newSignature query params
 const Alert = (alertData, optionCollectionMap) => ({
   ...alertData,
   title: getSeriesName(alertData.series_signature, optionCollectionMap, {
@@ -383,9 +385,9 @@ export const getSubtestsURL = (alert, alertSummary) => {
   const urlParameters = {
     framework: alertSummary.framework,
     originalProject: alertSummary.repository,
-    originalSignature: alert.series_signature.signature_hash,
+    originalSignature: alert.series_signature.id,
     newProject: alertSummary.repository,
-    newSignature: alert.series_signature.signature_hash,
+    newSignature: alert.series_signature.id,
   };
   if (alertSummary.prevResultSetMetadata) {
     urlParameters.originalRevision =
