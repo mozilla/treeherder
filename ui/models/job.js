@@ -123,6 +123,7 @@ export default class JobModel {
 
       const jobs = await JobModel.getList(repoName, { id__in: jobIds.join() });
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
+
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         getGeckoDecisionTaskId(Number(key), repoName).then(decisionTaskId => {
           TaskclusterModel.load(decisionTaskId).then(async results => {
