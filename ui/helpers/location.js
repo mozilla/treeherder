@@ -43,6 +43,7 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   params.delete('fromchange');
   params.delete('tochange');
   params.delete('revision');
+  params.delete('author');
   params.set('repo', newRepoName);
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
