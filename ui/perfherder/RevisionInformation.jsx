@@ -11,7 +11,7 @@ function getRevisionSpecificDetails(
   project,
   isBaseline,
   resultSet,
-  selectedTimeRange = null,
+  selectedTimeRange = undefined,
 ) {
   const truncatedRevision = revision.substring(0, 12);
   const baselineOrNew = isBaseline || selectedTimeRange ? 'Base' : 'New';
@@ -81,17 +81,19 @@ export default function RevisionInformation(props) {
 
 RevisionInformation.propTypes = {
   originalProject: PropTypes.object,
-  originalRevision: PropTypes.string.isRequired,
+  originalRevision: PropTypes.string,
   newProject: PropTypes.object,
-  newRevision: PropTypes.string.isRequired,
+  newRevision: PropTypes.string,
   originalResultSet: PropTypes.object,
   newResultSet: PropTypes.object,
-  selectedTimeRange: PropTypes.number,
+  selectedTimeRange: PropTypes.object,
 };
 
 RevisionInformation.defaultProps = {
   originalProject: {},
+  originalRevision: '',
   newProject: {},
+  newRevision: '',
   originalResultSet: {},
   newResultSet: {},
   selectedTimeRange: undefined,
