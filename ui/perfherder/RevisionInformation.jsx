@@ -27,7 +27,8 @@ function getRevisionSpecificDetails(
         truncatedRevision
       )}
       &nbsp;({project.name}) -&nbsp;
-      {resultSet ? resultSet.author : selectedTimeRange.text} -&nbsp;
+      {resultSet ? resultSet.author : selectedTimeRange.text}
+      {isBaseline && ' - '}
       {resultSet ? <span>{resultSet.comments}</span> : ''}
     </React.Fragment>
   );
@@ -45,9 +46,9 @@ export default function RevisionInformation(props) {
   } = props;
 
   return (
-    <ListGroup className="d-inline push-information">
+    <ListGroup className="d-inline push-information m-0">
       {originalRevision && (
-        <ListGroupItem className="d-inline border-0">
+        <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
@@ -57,7 +58,7 @@ export default function RevisionInformation(props) {
         </ListGroupItem>
       )}
       {selectedTimeRange && (
-        <ListGroupItem className="d-inline border-0">
+        <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
             originalRevision,
             originalProject,
@@ -67,14 +68,16 @@ export default function RevisionInformation(props) {
           )}
         </ListGroupItem>
       )}
-      <ListGroupItem className="d-inline border-0">
-        {getRevisionSpecificDetails(
-          newRevision,
-          newProject,
-          false,
-          newResultSet,
-        )}
-      </ListGroupItem>
+      {newRevision && (
+        <ListGroupItem className="d-inline border-0 p-0">
+          {getRevisionSpecificDetails(
+            newRevision,
+            newProject,
+            false,
+            newResultSet,
+          )}
+        </ListGroupItem>
+      )}
     </ListGroup>
   );
 }
