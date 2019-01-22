@@ -98,6 +98,8 @@
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
+    "format": "node ./node_modules/prettier/bin-prettier.js --write \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "node ./node_modules/prettier/bin-prettier.js --check \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "heroku-postbuild": "yarn build",
     "lint": "node ./node_modules/eslint/bin/eslint.js --cache --report-unused-disable-directives --max-warnings 0 --format codeframe --ext js,jsx \".*.js\" \"*.js\" ui/ tests/ui/",
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
