@@ -1,4 +1,4 @@
-"$schema": http://json-schema.org/draft-04/schema#
+'$schema': http://json-schema.org/draft-04/schema#
 type: object
 properties:
   blob:
@@ -37,29 +37,39 @@ properties:
                   format: date-time
                 result:
                   type: string
-                  enum: [busted, testfailed, exception, success, canceled, unknown, retry, skipped]
+                  enum:
+                    [
+                      busted,
+                      testfailed,
+                      exception,
+                      success,
+                      canceled,
+                      unknown,
+                      retry,
+                      skipped,
+                    ]
               required:
-              - errors
-              - name
-              - started
-              - started_linenumber
-              - finished_linenumber
-              - finished
-              - result
+                - errors
+                - name
+                - started
+                - started_linenumber
+                - finished_linenumber
+                - finished
+                - result
               additionalProperties: false
             additionalItems: false
           errors_truncated:
             type: boolean
         additionalProperties: false
         required:
-        - steps
-        - errors_truncated
+          - steps
+          - errors_truncated
       logurl:
         type: string
     additionalProperties: false
     required:
-    - step_data
-    - logurl
+      - step_data
+      - logurl
   type:
     type: string
   name:
@@ -68,6 +78,6 @@ properties:
     type: integer
 additionalProperties: false
 required:
-- blob
-- type
-- name
+  - blob
+  - type
+  - name

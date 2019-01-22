@@ -3,10 +3,9 @@ dist: xenial
 group: edge
 matrix:
   include:
-
     - env: js-tests
       language: node_js
-      node_js: "11"
+      node_js: '11'
       cache:
         directories:
           - node_modules
@@ -21,7 +20,7 @@ matrix:
 
     - env: python2-linters
       language: python
-      python: "2.7.15"
+      python: '2.7.15'
       cache:
         directories:
           - ${HOME}/venv
@@ -37,7 +36,7 @@ matrix:
 
     - env: python2-tests-main
       language: python
-      python: "2.7.15"
+      python: '2.7.15'
       cache:
         directories:
           - ${HOME}/venv
@@ -56,7 +55,7 @@ matrix:
 
     - env: python2-tests-selenium
       language: python
-      python: "2.7.15"
+      python: '2.7.15'
       cache:
         directories:
           - ${HOME}/venv
@@ -74,7 +73,7 @@ matrix:
 
     - env: python3-smoketest
       language: python
-      python: "3.6.5"
+      python: '3.6.5'
       cache:
         directories:
           - ${HOME}/venv
