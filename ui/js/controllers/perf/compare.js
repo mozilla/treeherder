@@ -384,8 +384,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                 const newData = mapsigs[1];
 
                 const cmap = getCounterMap(testName, oldData, newData);
-                if (oldData.parent_signature === $scope.originalSignature ||
-                    oldData.parent_signature === $scope.newSignature ||
+                if ((oldData && oldData.parent_signature === $scope.originalSignature) ||
+                    (oldData && oldData.parent_signature === $scope.newSignature) ||
                     newData.parent_signature === $scope.originalSignature ||
                     newData.parent_signature === $scope.newSignature) {
                     cmap.highlightedTest = true;
