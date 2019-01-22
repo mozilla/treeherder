@@ -1,8 +1,6 @@
-Backend tasks
-==========================
+# Backend tasks
 
-Running the tests
------------------
+## Running the tests
 
 You can run flake8, isort and the pytest suite inside the Vagrant VM, using:
 
@@ -14,7 +12,7 @@ Note: The Selenium tests will be skipped unless `yarn build` has been manually r
 
 Or for more control, run each tool individually:
 
-* [pytest](https://docs.pytest.org/en/stable/):
+- [pytest](https://docs.pytest.org/en/stable/):
 
   ```bash
   vagrant ~/treeherder$ pytest tests/
@@ -38,15 +36,15 @@ Or for more control, run each tool individually:
   vagrant ~/treeherder$ pytest tests/selenium/ --html report.html
   ```
 
-* [flake8](https://flake8.readthedocs.io/):
+- [flake8](https://flake8.readthedocs.io/):
 
   ```bash
   vagrant ~/treeherder$ flake8
   ```
 
-  NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see ``requirements/dev.txt``).
+  NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see `requirements/dev.txt`).
 
-* [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.html#python-imports)):
+- [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.html#python-imports)):
 
   To run interactively:
 
@@ -62,15 +60,13 @@ Or for more control, run each tool individually:
 
   NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
-Hide Jobs with Tiers
---------------------
+## Hide Jobs with Tiers
 
-To hide jobs we use the job's ``tier`` setting.  Jobs with ``tier`` of 3 are
-hidden by default.  For TaskCluster, edit the task definition to include the
-``tier`` setting in the Treeherder section.
+To hide jobs we use the job's `tier` setting. Jobs with `tier` of 3 are
+hidden by default. For TaskCluster, edit the task definition to include the
+`tier` setting in the Treeherder section.
 
-Connecting to Services Running inside Vagrant
----------------------------------------------
+## Connecting to Services Running inside Vagrant
 
 Treeherder uses various services to function, eg MySQL, Elasticsearch, etc.
 At times it can be useful to connect to them from outside the Vagrant VM.
@@ -80,10 +76,9 @@ These allow one to connect to services running inside a Vagrant VM.
 
 In the below example we're mapping VM port 3306 (MySQL's default port) to host port 3308.
 
-  ```ruby
-  config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
-  ```
-
+```ruby
+config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+```
 
 ```eval_rst
 .. note::
@@ -93,27 +88,24 @@ In the below example we're mapping VM port 3306 (MySQL's default port) to host p
 
 With MySQL exposed at port 3308 you can connect to it from your host OS with the following credentials:
 
-* host: `localhost`
-* port: `3308`
-* user: `root`
-* password: leave blank
-
+- host: `localhost`
+- port: `3308`
+- user: `root`
+- password: leave blank
 
 Other services running inside the VM, such as Elasticsearch, can be accessed in the same way.
 
-
-[client Git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
+[client git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
 [client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
 [bug 1236965]: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965
 
-Releasing a new version of the Python client
---------------------------------------------
+## Releasing a new version of the Python client
 
-* Determine whether the patch, minor or major version should be bumped, by
+- Determine whether the patch, minor or major version should be bumped, by
   inspecting the [client Git log].
-* File a separate bug for the version bump.
-* Open a PR to update the version listed in [client.py].
-* Use Twine to publish **both** the sdist and the wheel to PyPI, by running
+- File a separate bug for the version bump.
+- Open a PR to update the version listed in [client.py].
+- Use Twine to publish **both** the sdist and the wheel to PyPI, by running
   the following from the root of the Treeherder repository:
 
   ```bash
@@ -124,6 +116,6 @@ Releasing a new version of the Python client
   > twine upload dist/*
   ```
 
-* File a ``Release Engineering::Buildduty`` bug requesting that the sdist
+- File a `Release Engineering::Buildduty` bug requesting that the sdist
   and wheel releases (plus any new dependent packages) be added to the
   internal PyPI mirror. For an example, see [bug 1236965].

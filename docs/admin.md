@@ -1,8 +1,6 @@
-Administrating Treeherder
-=========================
+# Administrating Treeherder
 
-Direct database access
-----------------------
+## Direct database access
 
 For cases where the REST API just isn't enough, a 3rd-party
 application might want to connect directly to the Treeherder

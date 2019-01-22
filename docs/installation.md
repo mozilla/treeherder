@@ -1,30 +1,26 @@
-Installation
-============
+# Installation
 
-Prerequisites
--------------
+## Prerequisites
 
-* If you are new to Mozilla or the A-Team, read the [A-Team Bootcamp].
-* Install [Git]
-* Clone the [treeherder repo] from GitHub.
+- If you are new to Mozilla or the A-Team, read the [A-Team Bootcamp].
+- Install [Git]
+- Clone the [treeherder repo] from GitHub.
 
 If you only want to hack on the frontend, see the UI Development section below. If you want to hack on the backend or work full-stack, see the [Server and Full-stack Development](#server-and-full-stack-development) section.
 
-UI Development
-==============
+# UI Development
 
 To get started:
 
-* Install [Node.js] and [Yarn] (see [package.json] for known compatible versions, listed under `engines`).
-* Run ``yarn install`` to install all dependencies.
+- Install [Node.js] and [Yarn] (see [package.json] for known compatible versions, listed under `engines`).
+- Run `yarn install` to install all dependencies.
 
-Running the standalone development server
------------------------------------------
+## Running the standalone development server
 
 The default development server runs the unminified UI and fetches data from the
 production site. You do not need to set up the Vagrant VM unless making backend changes.
- 
-* Start the development server by running:
+
+- Start the development server by running:
 
   ```bash
   $ yarn start
@@ -36,7 +32,7 @@ production site. You do not need to set up the Vagrant VM unless making backend 
   Any action you take, such as classifying a job, will affect the live production front-end of Treeherder so we recommend developing against `stage` (details below) unless there's something data-specific that must be addressed on production.
 ```
 
-* The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: <http://localhost:5000> to see the UI.
+- The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: <http://localhost:5000> to see the UI.
 
   To run the unminified UI with data from the staging site instead of the production site, type:
 
@@ -50,10 +46,9 @@ production site. You do not need to set up the Vagrant VM unless making backend 
   $ BACKEND=<url> yarn start
   ```
 
-  This will run the unminified UI using ``<url>`` as the service domain.
+  This will run the unminified UI using `<url>` as the service domain.
 
-Validating JavaScript
----------------------
+## Validating JavaScript
 
 We run our JavaScript code in the frontend through [ESLint] to ensure
 that new code has a consistent style and doesn't suffer from common
@@ -75,16 +70,15 @@ $ yarn lint --fix
 
 See the [code style](code_style.html#ui) section for more details.
 
-Running the unit tests
-----------------------
+## Running the unit tests
 
 Currently, most of the unit tests for the UI are run with [Karma] and [Jasmine]. However, we are
-migrating from [Karma] to [Jest].  So new tests should be written in [Jest].  React components are tested with [enzyme].   
+migrating from [Karma] to [Jest]. So new tests should be written in [Jest]. React components are tested with [enzyme].
 
 To run the tests:
 
-* If you haven't already done so, install local dependencies by running ``yarn install`` from the project root.
-* Then run ``yarn test`` to execute the tests (both Karma and Jest tests will be run).
+- If you haven't already done so, install local dependencies by running `yarn install` from the project root.
+- Then run `yarn test` to execute the tests (both Karma and Jest tests will be run).
 
 While working on the frontend, you may wish to watch JavaScript files and re-run tests
 automatically when files change. To do this, you may run one of the following commands:
@@ -101,19 +95,16 @@ $ yarn jest:watch
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
 
-
-Server and Full-stack Development
-=================================
+# Server and Full-stack Development
 
 To get started:
 
-* Install [Virtualbox] and [Vagrant] (latest versions recommended).
-* Linux only: An nfsd server is required. You can install this on Ubuntu by running `apt-get install nfs-common nfs-kernel-server`
+- Install [Virtualbox] and [Vagrant] (latest versions recommended).
+- Linux only: An nfsd server is required. You can install this on Ubuntu by running `apt-get install nfs-common nfs-kernel-server`
 
-Setting up Vagrant
-------------------
+## Setting up Vagrant
 
-* Open a shell, cd into the root of the Treeherder repository, and type:
+- Open a shell, cd into the root of the Treeherder repository, and type:
 
   ```bash
   > vagrant up --provision
@@ -123,13 +114,13 @@ Setting up Vagrant
   complete, depending on your network performance. If you experience
   any errors, see the [troubleshooting page](troubleshooting.md).
 
-  It is *very important* that the provisioning process complete successfully before
+  It is _very important_ that the provisioning process complete successfully before
   trying to interact with your test instance of treeherder: some things might
   superficially seem to work a partially configured machine, but
-  it is almost guaranteed that some things *will break* in
+  it is almost guaranteed that some things _will break_ in
   hard-to-diagnose ways if vagrant provision is not run to completion.
 
-* Once the virtual machine is set up, connect to it using:
+- Once the virtual machine is set up, connect to it using:
 
   ```bash
   > vagrant ssh
@@ -137,16 +128,15 @@ Setting up Vagrant
 
   A python virtual environment will be activated on login, and the working directory will be the treeherder source directory shared from the host machine.
 
-* For the full list of available Vagrant commands (for example, suspending the VM when you are finished for the day),
+- For the full list of available Vagrant commands (for example, suspending the VM when you are finished for the day),
   see their [command line documentation](https://www.vagrantup.com/docs/cli/).
 
-* If you just wish to [run the tests](common_tasks.html#running-the-tests),
+- If you just wish to [run the tests](common_tasks.html#running-the-tests),
   you can stop now without performing the remaining steps.
 
-Starting a local Treeherder instance
-------------------------------------
+## Starting a local Treeherder instance
 
-* Start a gunicorn instance inside the Vagrant VM, to serve the static UI and API requests:
+- Start a gunicorn instance inside the Vagrant VM, to serve the static UI and API requests:
 
   ```bash
   vagrant ~/treeherder$ ./bin/run_gunicorn
@@ -160,7 +150,7 @@ Starting a local Treeherder instance
 
   this is more convenient because it automatically refreshes every time there's a change in the code.
 
-* You must also start the UI dev server. Open a new terminal window and ``vagrant ssh`` to
+- You must also start the UI dev server. Open a new terminal window and `vagrant ssh` to
   the VM again, then run the following:
 
   ```bash
@@ -169,13 +159,13 @@ Starting a local Treeherder instance
 
   This will build the UI code and keep watching for new changes.
 
-* Visit <http://localhost:5000> in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
+- Visit <http://localhost:5000> in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
 
-Building the minified UI with Vagrant
--------------------------------------
+## Building the minified UI with Vagrant
+
 If you would like to view the minified production version of the UI with Vagrant, follow this step:
 
-* Run the build task (either outside or inside of the Vagrant machine):
+- Run the build task (either outside or inside of the Vagrant machine):
 
   ```bash
   $ yarn build
@@ -184,13 +174,12 @@ If you would like to view the minified production version of the UI with Vagrant
 Once the build is complete, the minified version of the UI will now be accessible at
 <http://localhost:8000> (NB: port 8000, unlike above).
 
-Validating JavaScript
----------------------
+## Validating JavaScript
 
 We run our JavaScript code in the frontend through [eslint] to ensure
 that new code has a consistent style and doesn't suffer from common
 errors. Eslint will run automatically when you build the JavaScript code
-or run the  development server. A production build will fail if your code
+or run the development server. A production build will fail if your code
 does not match the style requirements.
 
 To run eslint by itself, you may run the lint task:
@@ -199,12 +188,11 @@ To run eslint by itself, you may run the lint task:
 $ yarn lint
 ```
 
-Running the ingestion tasks
----------------------------
+## Running the ingestion tasks
 
 Ingestion tasks populate the database with version control push logs, queued/running/completed jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
 
-* Start up a celery worker to process async tasks:
+- Start up a celery worker to process async tasks:
 
   ```bash
   vagrant ~/treeherder$ celery -A treeherder worker -B --concurrency 5
@@ -213,10 +201,9 @@ Ingestion tasks populate the database with version control push logs, queued/run
   The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
   You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
-* Then in a new terminal window, run `vagrant ssh` again, and follow the steps from the [loading pulse data](pulseload.md) page.
+- Then in a new terminal window, run `vagrant ssh` again, and follow the steps from the [loading pulse data](pulseload.md) page.
 
-Ingesting a single push (at a time)
------------------------------------
+## Ingesting a single push (at a time)
 
 ```eval_rst
 .. warning::
@@ -238,8 +225,7 @@ vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
 the last four hours) on mozilla-inbound.
 
-Ingesting a range of pushes
----------------------------
+## Ingesting a range of pushes
 
 It is also possible to ingest the last N pushes for a repository:
 
@@ -250,22 +236,20 @@ vagrant ~/treeherder$ ./manage.py ingest_push mozilla-central --last-n-pushes 10
 In this mode, only the pushlog data will be ingested: additional results
 associated with the pushes will not. This mode is useful to seed pushes so
 they are visible on the web interface and so you can easily copy and paste
-changesets from the web interface into subsequent ``ingest_push`` commands.
-
+changesets from the web interface into subsequent `ingest_push` commands.
 
 Continue to **Working with the Server** section after looking at the [Code Style](code_style.md) doc.
 
-
-[A-Team Bootcamp]: https://ateam-bootcamp.readthedocs.io
-[Git]: https://git-scm.com
-[Vagrant]: https://www.vagrantup.com
-[Virtualbox]: https://www.virtualbox.org
+[a-team bootcamp]: https://ateam-bootcamp.readthedocs.io
+[git]: https://git-scm.com
+[vagrant]: https://www.vagrantup.com
+[virtualbox]: https://www.virtualbox.org
 [treeherder repo]: https://github.com/mozilla/treeherder
-[Karma]: http://karma-runner.github.io/0.8/config/configuration-file.html
-[Jest]: https://jestjs.io/docs/en/tutorial-react
-[Node.js]: https://nodejs.org/en/download/current/
-[Yarn]: https://yarnpkg.com/en/docs/install
+[karma]: http://karma-runner.github.io/0.8/config/configuration-file.html
+[jest]: https://jestjs.io/docs/en/tutorial-react
+[node.js]: https://nodejs.org/en/download/current/
+[yarn]: https://yarnpkg.com/en/docs/install
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
-[ESLint]: https://eslint.org
-[Jasmine]: https://jasmine.github.io/
+[eslint]: https://eslint.org
+[jasmine]: https://jasmine.github.io/
 [enzyme]: http://airbnb.io/enzyme/
