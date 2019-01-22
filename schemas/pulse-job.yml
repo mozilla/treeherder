@@ -1,126 +1,126 @@
-$schema: "http://json-schema.org/draft-06/schema#"
-title: "Job Definition"
+$schema: 'http://json-schema.org/draft-06/schema#'
+title: 'Job Definition'
 description: |
   Definition of a single job that can be added to Treeherder
   Project is determined by the routing key, so we don't need to specify it here.
-type: "object"
+type: 'object'
 properties:
   taskId:
-    title: "Task ID"
+    title: 'Task ID'
     description: |
       This could just be what was formerly submitted as a job_guid in the
       REST API.
-    type: "string"
-    pattern: "^[A-Za-z0-9/+-]+$"
+    type: 'string'
+    pattern: '^[A-Za-z0-9/+-]+$'
     minLength: 1
     maxLength: 50
   retryId:
-    title: "Retry ID"
+    title: 'Retry ID'
     description: |
       The infrastructure retry iteration on this job.  The number of times this
       job has been retried by the infrastructure.
       If it's the 1st time running, then it should be 0. If this is the first
       retry, it will be 1, etc.
-    type: "integer"
+    type: 'integer'
     default: 0
     minimum: 0
 
   isRetried:
     description: True indicates this job has been retried.
-    type: "boolean"
+    type: 'boolean'
 
   buildSystem:
     description: |
       The name of the build system that initiated this content, eg "taskcluster".
-    type: "string"
+    type: 'string'
     pattern: "^[\\w-]+$"
     minLength: 1
     maxLength: 25
 
   origin:
     oneOf:
-      - type: "object"
+      - type: 'object'
         description: |
           PREFERRED: An HG job that only has a revision.  This is for all
           jobs going forward.
         additionalProperties: false
-        title: "HG Push"
+        title: 'HG Push'
         properties:
           kind:
-            type: "string"
+            type: 'string'
             enum: ['hg.mozilla.org']
           project:
-            type: "string"
+            type: 'string'
             pattern: "^[\\w-]+$"
             minLength: 1
             maxLength: 50
           revision:
-            type: "string"
-            pattern: "^[0-9a-f]+$"
+            type: 'string'
+            pattern: '^[0-9a-f]+$'
             minLength: 40
             maxLength: 40
           pushLogID:
-            type: "integer"
+            type: 'integer'
         required: [kind, project, revision]
 
-      - type: "object"
-        title: "Github push or pull request"
+      - type: 'object'
+        title: 'Github push or pull request'
         additionalProperties: false
         properties:
           kind:
-            type: "string"
+            type: 'string'
             enum: ['github.com']
           owner:
             description: Unused
-            type: "string"
+            type: 'string'
             pattern: "^[\\w-]+$"
             minLength: 1
             maxLength: 50
           project:
-            description: "The repository name as known to Treeherder"
-            type: "string"
+            description: 'The repository name as known to Treeherder'
+            type: 'string'
             pattern: "^[\\w-]+$"
             minLength: 1
             maxLength: 50
           revision:
-            type: "string"
+            type: 'string'
             minLength: 40
             maxLength: 40
           pullRequestID:
-            type: "integer"
+            type: 'integer'
         required: [kind, project, revision]
 
   display:
-    type: "object"
+    type: 'object'
     additionalProperties: false
     properties:
       jobSymbol:
-        title: "Job Symbol"
-        type: "string"
+        title: 'Job Symbol'
+        type: 'string'
         minLength: 0
         maxLength: 25
       chunkId:
-        title: "Chunk ID"
-        type: "integer"
+        title: 'Chunk ID'
+        type: 'integer'
         minimum: 1
       chunkCount:
-        title: "Chunk Count"
-        type: "integer"
+        title: 'Chunk Count'
+        type: 'integer'
         minimum: 1
       groupSymbol:
-        title: "Group Symbol"
-        type: "string"
+        title: 'Group Symbol'
+        type: 'string'
         minLength: 1
         maxLength: 25
       # could do without these if we require job type and group to exist prior
       jobName:
-        title: "Job Name"
-        type: "string"
+        title: 'Job Name'
+        type: 'string'
         minLength: 1
         maxLength: 100
       groupName:
-        title: "Group Name"
-        type: "string"
+        title: 'Group Name'
+        type: 'string'
         minLength: 1
         maxLength: 100
     required:
@@ -128,22 +128,21 @@ properties:
       - jobSymbol
       - groupSymbol
 
-
   state:
-    title: "State"
+    title: 'State'
     description: |
       unscheduled: not yet scheduled
       pending: not yet started
       running: currently in progress
       completed: Job ran through to completion
-    type: "string"
+    type: 'string'
     enum:
       - unscheduled
       - pending
       - running
       - completed
   result:
-    title: "Result"
+    title: 'Result'
     description: |
       fail: A failure
       exception: An infrastructure error/exception
@@ -151,7 +150,7 @@ properties:
       canceled: The job was cancelled by a user
       unknown: When the job is not yet completed
       superseded: When a job has been superseded by another job
-    type: "string"
+    type: 'string'
     enum:
       - success
       - fail
@@ -160,42 +159,41 @@ properties:
       - superseded
       - unknown
   jobKind:
-    type: "string"
-    default: "other"
+    type: 'string'
+    default: 'other'
     enum:
       - build
       - test
       - other
   tier:
-    type: "integer"
+    type: 'integer'
     minimum: 1
     maximum: 3
 
   coalesced:
     description: The job guids that were coalesced to this job.
-    title: "Coalesced job GUID"
-    type: "array"
+    title: 'Coalesced job GUID'
+    type: 'array'
     items:
-      title: "Job GUID"
-      type: "string"
+      title: 'Job GUID'
+      type: 'string'
       pattern: "^[\\w/+-]+$"
       minLength: 1
       maxLength: 50
 
-
   # time data
   timeScheduled:
-    type: "string"
-    format: "date-time"
+    type: 'string'
+    format: 'date-time'
   timeStarted:
-    type: "string"
-    format: "date-time"
+    type: 'string'
+    format: 'date-time'
   timeCompleted:
-    type: "string"
-    format: "date-time"
+    type: 'string'
+    format: 'date-time'
 
   labels:
-    title: "Labels"
+    title: 'Labels'
     description: |
       Labels are a dimension of a platform.  The values here can vary wildly,
       so most strings are valid for this.  The list of labels that are used
@@ -211,10 +209,10 @@ properties:
         pgo    Profile Guided Optimization - Like opt, but runs with profiling, then builds again using that profiling
         asan   Address Sanitizer
         tsan   Thread Sanitizer Build
-    type: "array"
+    type: 'array'
     items:
-      title: "Label"
-      type: "string"
+      title: 'Label'
+      type: 'string'
       minLength: 1
       maxLength: 50
       pattern: "^[\\w-]+$"
@@ -222,8 +220,8 @@ properties:
   owner:
     description: |
       Description of who submitted the job: gaia | scheduler name | username | email
-    title: "Owner"
-    type: "string"
+    title: 'Owner'
+    type: 'string'
     minLength: 1
     maxLength: 50
   reason:
@@ -235,7 +233,7 @@ properties:
       - Self-serve: Requested by foo@example.com
       - The Nightly scheduler named 'b2g_mozilla-inbound periodic' triggered this build
       - unknown
-    type: "string"
+    type: 'string'
     minLength: 1
     maxLength: 125
   productName:
@@ -245,14 +243,14 @@ properties:
       -  'firefox'
       -  'taskcluster'
       -  'xulrunner'
-    type: "string"
+    type: 'string'
     minLength: 1
     maxLength: 125
 
   buildMachine:
-    $ref: "#/definitions/machine"
+    $ref: '#/definitions/machine'
   runMachine:
-    $ref: "#/definitions/machine"
+    $ref: '#/definitions/machine'
 
   jobInfo:
     description: |
@@ -269,7 +267,7 @@ properties:
       links:
         type: array
         items:
-          title: "Link"
+          title: 'Link'
           type: object
           description: |
             List of URLs shown as key/value pairs.  Shown as:
@@ -289,24 +287,24 @@ properties:
               maxLength: 70
           additionalProperties: false
           required:
-          - url
-          - linkText
-          - label
+            - url
+            - linkText
+            - label
     additionalProperties: false
 
   logs:
-    type: "array"
+    type: 'array'
     items:
-      title: "Log"
-      type: "object"
+      title: 'Log'
+      type: 'object'
       properties:
         url:
-          type: "string"
-          format: "uri"
+          type: 'string'
+          format: 'uri'
           minLength: 1
           maxLength: 255
         name:
-          type: "string"
+          type: 'string'
           minLength: 1
           maxLength: 50
         steps:
@@ -318,13 +316,13 @@ properties:
             submitted log.  If this value is submitted, Treeherder will
             consider the log already parsed and skip parsing.
           items:
-            title: "Step"
+            title: 'Step'
             type: object
             properties:
               errors:
                 type: array
                 items:
-                  title: "Error"
+                  title: 'Error'
                   type: object
                   properties:
                     line:
@@ -376,14 +374,13 @@ properties:
       required: [url, name]
 
   extra:
-    type: "object"
+    type: 'object'
     description: Extra information that Treeherder reads on a best-effort basis
   version:
-    type: "integer"
+    type: 'integer'
     description: Message version
     enum:
       - 1
-
 
 additionalProperties: false
 required:
@@ -397,25 +394,25 @@ required:
 
 definitions:
   machine:
-    type: "object"
+    type: 'object'
     properties:
       name:
-        type: "string"
+        type: 'string'
         pattern: "^[\\w-]+$"
         minLength: 1
         maxLength: 50
       platform:
-        type: "string"
+        type: 'string'
         pattern: "^[\\w-]+$"
         minLength: 1
         maxLength: 100
       os:
-        type: "string"
+        type: 'string'
         pattern: "^[\\w-]+$"
         minLength: 1
         maxLength: 25
       architecture:
-        type: "string"
+        type: 'string'
         pattern: "^[\\w-]+$"
         minLength: 1
         maxLength: 25
