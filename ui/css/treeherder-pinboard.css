@@ -30,8 +30,13 @@
 }
 
 @keyframes pin-count-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(3); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(3);
+  }
 }
 
 .pin-count-text {
@@ -82,7 +87,7 @@
   height: 100%;
   padding: 2px;
   overflow: auto;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .pinned-job {
@@ -118,7 +123,7 @@
   padding: 2px;
   overflow-x: hidden;
   color: black;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .add-related-bugs-icon {
@@ -140,8 +145,8 @@
   line-height: 12px;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }

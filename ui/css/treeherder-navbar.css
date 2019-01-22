@@ -3,133 +3,134 @@
  */
 
 #global-navbar-container {
-    background-color: #273038;
-    margin-bottom: 0;
-    flex: none;
+  background-color: #273038;
+  margin-bottom: 0;
+  flex: none;
 }
 
 #th-global-navbar-top {
-    padding-left: 0;
-    padding-top: 1px;
-    border-bottom: 1px solid black;
-    justify-content: space-between;
-    display: flex;
-    width: 100%;
-    background-color: #222;
+  padding-left: 0;
+  padding-top: 1px;
+  border-bottom: 1px solid black;
+  justify-content: space-between;
+  display: flex;
+  width: 100%;
+  background-color: #222;
 }
 
 .navbar {
-    padding: 0;
+  padding: 0;
 }
 
 #th-global-navbar-top .dropdown-menu {
-    top: inherit;
+  top: inherit;
 }
 
 .dropdown-menu {
-    min-width: inherit;
+  min-width: inherit;
 }
 
 .dropdown-menu > li > a {
-    font-weight: normal;
-    line-height: 1.42857143;
-    color: #333;
-    white-space: nowrap;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
 }
 
-.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
-    color: #262626;
-    text-decoration: none;
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  color: #262626;
+  text-decoration: none;
 }
 
 label.dropdown-item {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
-.dropdown-item input[type="checkbox"] {
-    margin-right: 5px;
+.dropdown-item input[type='checkbox'] {
+  margin-right: 5px;
 }
 
 #th-logo {
-    padding-left: 14px;
-    border-left: 0;
+  padding-left: 14px;
+  border-left: 0;
 }
 
 #th-logo img {
-    margin-top: -8px;
-    max-height: 18px;
+  margin-top: -8px;
+  max-height: 18px;
 }
 
 /*
  * Right hand upper navbar
  */
 
- .navbar-right {
-    display: flex;
-    justify-content: flex-end;
- }
+.navbar-right {
+  display: flex;
+  justify-content: flex-end;
+}
 
 .nav-menu-btn {
-    margin-right: -4px;
-    padding-left: 14px;
-    padding-right: 14px;
-    font-size: 13px;
+  margin-right: -4px;
+  padding-left: 14px;
+  padding-right: 14px;
+  font-size: 13px;
 }
 
 .nav-menu-btn:after {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .nav-help-btn {
-    margin-right: -4px;
-    padding-left: 12px;
-    padding-right: 8px;
+  margin-right: -4px;
+  padding-left: 12px;
+  padding-right: 8px;
 }
 
 .nav-help-icon {
-    font-size: 18px;
-    margin-right: 2px;
+  font-size: 18px;
+  margin-right: 2px;
 }
 
 .nav-user-icon {
-    display: inline-block;
-    margin-right: 4px;
-    padding: 3px 4px;
-    vertical-align: text-bottom;
-    border-radius: 1px;
-    background: linear-gradient(#44adf3, #287cc2);
+  display: inline-block;
+  margin-right: 4px;
+  padding: 3px 4px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  background: linear-gradient(#44adf3, #287cc2);
 }
 
 .nav-user-icon span:first-child {
-    margin: 0 auto;
-    font-size: 12px;
-    color: #fff;
+  margin: 0 auto;
+  font-size: 12px;
+  color: #fff;
 }
 
 .nav-user-name {
-    display: inline-block;
+  display: inline-block;
 }
 
 .nav-login-btn {
-    padding-left: 22px;
-    padding-right: 27px;
-    color: lightgrey;
-    cursor: pointer;
+  padding-left: 22px;
+  padding-right: 27px;
+  color: lightgrey;
+  cursor: pointer;
 }
 
 .nav-logged-in-btn {
-    padding-left: 14px;
-    padding-right: 14px;
+  padding-left: 14px;
+  padding-right: 14px;
 }
 
 .th-context-navbar {
-    background-color: #354048;
-    overflow: visible;
+  background-color: #354048;
+  overflow: visible;
 }
 
 login {
-    align-items: center;
-    display: flex;
+  align-items: center;
+  display: flex;
 }
 
 /*
@@ -137,56 +138,56 @@ login {
  */
 
 secondary-nav-bar {
-    width: 100%;
+  width: 100%;
 }
 
 .watched-repo-main-btn {
-    border-right: 0;
-    padding-right: 5px;
+  border-right: 0;
+  padding-right: 5px;
 }
 
 .watched-repo-main-btn:visited,
 .watched-repo-main-btn:link {
-    color: lightgrey;
+  color: lightgrey;
 }
 
 .watched-repo-info-btn {
-    padding-left: 6px;
-    padding-right: 9px;
-    border-right: 0;
+  padding-left: 6px;
+  padding-right: 9px;
+  border-right: 0;
 }
 
 .watched-repo-dropdown-item {
-    margin: 0 10px;
+  margin: 0 10px;
 }
 
 .watched-repo-dropdown-item > a {
-    white-space: normal;
+  white-space: normal;
 }
 
 .watched-repo-navbar {
-    overflow: visible;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    display: flex;
-    background-color: #354048;
+  overflow: visible;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  display: flex;
+  background-color: #354048;
 }
 
 .tree-closed {
-    color: rgb(161, 52, 53);
+  color: rgb(161, 52, 53);
 }
 
 .tree-open {
-    color: green;
+  color: green;
 }
 
 .tree-approval {
-    color: #fb9910;
+  color: #fb9910;
 }
 
 .tree-unavailable {
-    color: lightgray;
+  color: lightgray;
 }
 
 /*
@@ -194,67 +195,67 @@ secondary-nav-bar {
  */
 
 .group-state-nav-icon {
-    width: 7px;
-    display: inline-block;
+  width: 7px;
+  display: inline-block;
 }
 
 .btn-nav-filter {
-    padding: 7px 2px;
+  padding: 7px 2px;
 }
 
 #filter-chicklets .btn {
-    font-size: 14px;
-    padding: 3px 2px 2px 2px;
+  font-size: 14px;
+  padding: 3px 2px 2px 2px;
 }
 
 .btn.btn-view-nav.btn-orange-filter-chicklet,
 .btn.btn-view-nav.btn-orange-filter-chicklet:hover {
-    color: #dd6602;
+  color: #dd6602;
 }
 
 .btn.btn-view-nav.btn-red-filter-chicklet,
 .btn.btn-view-nav.btn-red-filter-chicklet:hover {
-    color: #c03a44;
+  color: #c03a44;
 }
 
 .btn.btn-view-nav.btn-purple-filter-chicklet,
 .btn.btn-view-nav.btn-purple-filter-chicklet:hover {
-    color: #77438d;
+  color: #77438d;
 }
 
 .btn.btn-view-nav.btn-green-filter-chicklet,
 .btn.btn-view-nav.btn-green:hover {
-    color: rgba(2, 130, 51, 0.75);
+  color: rgba(2, 130, 51, 0.75);
 }
 
 .btn.btn-view-nav.btn-dkblue-filter-chicklet,
 .btn.btn-view-nav.btn-dkblue-filter-chicklet:hover {
-    color: #3656ff;
+  color: #3656ff;
 }
 
 .btn.btn-view-nav.btn-pink-filter-chicklet,
 .btn.btn-view-nav.btn-pink-filter-chicklet:hover {
-    color: rgba(250, 115, 172, 0.82);
+  color: rgba(250, 115, 172, 0.82);
 }
 
 .btn.btn-view-nav.btn-ltblue-filter-chicklet,
 .btn.btn-view-nav.btn-ltblue-filter-chicklet:hover {
-    color: #81b8ed;
+  color: #81b8ed;
 }
 
 .btn.btn-view-nav.btn-ltgray-filter-chicklet,
 .btn.btn-view-nav.btn-ltgray-filter-chicklet:hover {
-    color: #e0e0e0;
+  color: #e0e0e0;
 }
 
 .btn.btn-view-nav.btn-dkgray-filter-chicklet,
 .btn.btn-view-nav.btn-dkgray-filter-chicklet:hover {
-    color: #7c7a7d;
+  color: #7c7a7d;
 }
 
 .btn.btn-view-nav.btn-black-filter-chicklet,
 .btn.btn-view-nav.btn-black-filter-chicklet:hover {
-    color: black;
+  color: black;
 }
 
 /*
@@ -262,37 +263,37 @@ secondary-nav-bar {
  */
 
 #quick-filter {
-    height: 28px;
-    width: 150px;
-    display: inherit;
-    transition: width 0.2s;
+  height: 28px;
+  width: 150px;
+  display: inherit;
+  transition: width 0.2s;
 }
 
 #quick-filter-parent {
-    position: relative;
+  position: relative;
 }
 
 @media (min-width: 850px) {
   #quick-filter:focus,
   #quick-filter:valid {
-      width: 300px !important;
-      padding-right: 20px;
+    width: 300px !important;
+    padding-right: 20px;
   }
 }
 
 #quick-filter:valid + #quick-filter-clear-button {
-    display: inherit;
+  display: inherit;
 }
 
 #quick-filter-clear-button {
-    color: #bababa;
-    font-size: 13px;
-    cursor: pointer;
-    position: relative;
-    display: none;
-    top: 1px;
-    right: 20px;
-    height: 16px;
+  color: #bababa;
+  font-size: 13px;
+  cursor: pointer;
+  position: relative;
+  display: none;
+  top: 1px;
+  right: 20px;
+  height: 16px;
 }
 
 /*
@@ -334,7 +335,8 @@ fieldset[disabled] .btn-unclassified-failures.active {
  * Navbar button customization
  */
 
-.btn-view-nav, .btn-view-nav:visited {
+.btn-view-nav,
+.btn-view-nav:visited {
   background-color: transparent;
   border-color: #373d40;
   color: lightgray;
@@ -407,7 +409,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
   }
 
   .btn-toggle-duplicate-jobs::after {
-    content: " Duplicates";
+    content: ' Duplicates';
   }
 }
 
@@ -445,32 +447,33 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #repo-dropdown {
-    min-width: 30rem;
-    max-height: 35rem;
-    overflow-x: hidden;
+  min-width: 30rem;
+  max-height: 35rem;
+  overflow-x: hidden;
 }
 
 .dropdown-menu li {
-    list-style: none;
+  list-style: none;
 }
 
 .dropdown-header {
-    font-size: 12px;
+  font-size: 12px;
 }
 
-.dropdown-link, .dropdown-link > a {
-    color: #212529cc;
-    padding-top: .5rem;
+.dropdown-link,
+.dropdown-link > a {
+  color: #212529cc;
+  padding-top: 0.5rem;
 }
 
 #infra-dropdown {
-    min-width: 21rem;
+  min-width: 21rem;
 }
 
 .checkbox-dropdown-menu .repogroup {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 .dropdown-item:hover {
-    background-color: #d3d3d34d;
+  background-color: #d3d3d34d;
 }

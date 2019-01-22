@@ -1,6 +1,6 @@
-
 body {
-  font-family: Arial Narrow, "PT Sans Narrow", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: Arial Narrow, 'PT Sans Narrow', 'Helvetica Neue', Helvetica,
+    Arial, sans-serif;
   text-rendering: optimizeLegibility;
   padding-top: 2.5rem;
 }
@@ -15,8 +15,9 @@ body {
   max-height: 18px;
 }
 
-input[type=text] {
-  font-family: Arial Narrow, "PT Sans Narrow", "Helvetica Neue", Helvetica, Arial, sans-serif;
+input[type='text'] {
+  font-family: Arial Narrow, 'PT Sans Narrow', 'Helvetica Neue', Helvetica,
+    Arial, sans-serif;
 }
 
 .nav-item {
@@ -25,18 +26,18 @@ input[type=text] {
 
 main .navbar-text {
   font-size: 1rem;
-  padding-top: .5rem;
-  margin-right: .5rem;
+  padding-top: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 main .navbar-text .badge {
   font-weight: 400;
-  font-size: .9rem;
-  margin-right: .1rem;
+  font-size: 0.9rem;
+  margin-right: 0.1rem;
 }
 
 main .navbar-text code {
-  font-size: .75rem;
+  font-size: 0.75rem;
   vertical-align: text-bottom;
   color: #5d707f;
   border: 1px solid #cdced0;
@@ -56,51 +57,61 @@ table caption {
 
 main .progress {
   border-radius: 0;
-  height: .5rem;
+  height: 0.5rem;
 }
 
-.badge-success, .bg-success, .btn-success {
-  background-color: #1d9862!important;
+.badge-success,
+.bg-success,
+.btn-success {
+  background-color: #1d9862 !important;
 }
 
-.badge-warning, .bg-warning, .btn-warning {
-  background-color: #d78236!important;
+.badge-warning,
+.bg-warning,
+.btn-warning {
+  background-color: #d78236 !important;
 }
 
-.badge-info, .bg-info, .btn-info {
-  background-color: #1d7dbb!important;
+.badge-info,
+.bg-info,
+.btn-info {
+  background-color: #1d7dbb !important;
 }
 
-.badge-secondary, .bg-secondary, .btn-secondary {
-  background-color: #5d707f!important;
+.badge-secondary,
+.bg-secondary,
+.btn-secondary {
+  background-color: #5d707f !important;
 }
 
-.badge-danger, .bg-danger, .btn-danger {
-  background-color: #db3737!important;
+.badge-danger,
+.bg-danger,
+.btn-danger {
+  background-color: #db3737 !important;
 }
 
 .btn-success {
-  border-color: #1d9862!important;
+  border-color: #1d9862 !important;
 }
 
 .btn-warning {
-  border-color: #d78236!important;
+  border-color: #d78236 !important;
 }
 
 .btn-info {
-  border-color: #1d7dbb!important;
+  border-color: #1d7dbb !important;
 }
 
 .btn-default {
-  border-color: #5d707f!important;
+  border-color: #5d707f !important;
 }
 
 .btn-danger {
-  border-color: #db3737!important;
+  border-color: #db3737 !important;
 }
 
 .badge-clear {
-  background-color: #fff!important;
+  background-color: #fff !important;
   color: #1d7dbb;
 }
 
@@ -119,7 +130,7 @@ main .progress {
 }
 
 .toggle-count .fa {
-  padding-right: .25em;
+  padding-right: 0.25em;
 }
 
 [disabled]:hover {
@@ -130,7 +141,7 @@ main .progress {
   cursor: pointer;
 }
 
-td.bug-count{
+td.bug-count {
   min-width: 8rem;
   font-size: 1rem;
   text-align: center;
@@ -140,19 +151,18 @@ td.bug-count{
 
 td.test-table {
   width: 100%;
-  font-size: .8rem;
+  font-size: 0.8rem;
   line-height: 1.6rem;
   border: none;
 }
 
 .platform-list {
-  margin-left: .25rem;
+  margin-left: 0.25rem;
 }
 
 .test-detail-list {
   margin: 1rem 0 1rem 1rem;
-  padding-left: .25rem;
-
+  padding-left: 0.25rem;
 }
 
 .bottom-separator {
@@ -173,7 +183,8 @@ td.test-table {
   background-color: #bdbdbd;
 }
 
-.platform a:link, .platform a:visited {
+.platform a:link,
+.platform a:visited {
   color: black;
 }
 
@@ -184,7 +195,7 @@ td.test-table {
 
 .classified {
   vertical-align: middle;
-  margin-right: .3rem;
+  margin-right: 0.3rem;
 }
 
 .classified-intermittent {

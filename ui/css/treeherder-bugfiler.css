@@ -2,9 +2,9 @@
  * Intermittent Bug Filer
  */
 #summaryLength {
-    font-size: large;
+  font-size: large;
 }
 
 #summary:invalid + span {
-    color: red;
+  color: red;
 }

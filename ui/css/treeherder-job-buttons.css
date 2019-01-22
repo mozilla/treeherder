@@ -25,7 +25,7 @@
 }
 
 .group-btn::before {
-  content: "+";
+  content: '+';
 }
 
 .group-btn.btn.job-group-count:hover {
@@ -53,13 +53,13 @@
 }
 
 .group-content::before {
-  content: "(";
+  content: '(';
   padding-left: 2px;
   padding-right: 2px;
 }
 
 .group-content::after {
-  content: ")";
+  content: ')';
   margin-right: 2px;
   padding-left: 2px;
 }
@@ -70,25 +70,25 @@
 }
 
 .runnable-job-btn {
-    display: none;
-    color: rgba(128, 128, 0, 0.5);
-    margin: 0 -2px 0 -1px;
-    background: transparent;
-    padding: 0 2px;
-    vertical-align: 0;
-    line-height: 1.32;
-    font-size: 12px;
-    border-radius: 0;
-    text-align: center;
-    white-space: nowrap;
+  display: none;
+  color: rgba(128, 128, 0, 0.5);
+  margin: 0 -2px 0 -1px;
+  background: transparent;
+  padding: 0 2px;
+  vertical-align: 0;
+  line-height: 1.32;
+  font-size: 12px;
+  border-radius: 0;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .runnable-job-btn-selected {
-    border: 1px solid;
-    padding: 0 -1px;
-    border-radius: 3px;
-    margin: 0 -2px 1px 0;
-    overflow: visible;
+  border: 1px solid;
+  padding: 0 -1px;
+  border-radius: 3px;
+  margin: 0 -2px 1px 0;
+  overflow: visible;
 }
 
 .selected-job {
@@ -176,7 +176,7 @@
   font-family: 'FontAwesome';
   font-weight: 400;
   line-height: 1;
-  content: "\f005";
+  content: '\f005';
   font-size: 75%;
   vertical-align: super;
 }
@@ -185,7 +185,7 @@
   font-family: 'FontAwesome';
   font-weight: 400;
   line-height: 1;
-  content: "\f006";
+  content: '\f006';
   font-size: 75%;
   vertical-align: super;
 }

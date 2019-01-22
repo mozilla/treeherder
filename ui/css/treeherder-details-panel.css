@@ -13,8 +13,12 @@ strong {
 }
 
 @keyframes details-panel-slide {
-  0% { transform: translateY(100%); }
-  100% { transform: translateY(0%); }
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
 }
 
 div#details-panel-content .navbar,
@@ -27,9 +31,9 @@ div#tabs-panel .tab-headers {
   min-height: 33px;
   min-width: initial;
   z-index: 100;
-  background-color: #252C33;
+  background-color: #252c33;
   border: 1px solid transparent;
-  color: #CED3D9;
+  color: #ced3d9;
   justify-content: space-between;
 }
 
@@ -76,13 +80,13 @@ div#details-panel-content .navbar-nav > li.active a:focus {
 }
 
 div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
-  border-right: 1px solid #42484F;
+  border-right: 1px solid #42484f;
 }
 
 .details-panel-navbar {
-  background-color: #252C33;
+  background-color: #252c33;
   border: 1px solid transparent;
-  color: #CED3D9;
+  color: #ced3d9;
   display: flex;
   flex-direction: row;
   z-index: 100;
@@ -102,7 +106,7 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   padding: 1px 15px;
   line-height: 30px;
   cursor: pointer;
-  color: #9FA3A5;
+  color: #9fa3a5;
 }
 
 #details-panel-content ul.tab-headers {
@@ -139,29 +143,26 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 
 .details-panel-navbar .navbar-nav > li > a,
 .details-panel-navbar .navbar-nav > li > .btn {
-  color: #9FA3A5;
+  color: #9fa3a5;
   padding: 4px 15px;
 }
 
 div#details-panel-content .navbar-nav > li > a:hover,
 div#details-panel-content .navbar-nav > li > a:focus,
 div#details-panel-content .navbar-nav > li > button:hover,
-div#details-panel-content .navbar-nav > li > button:focus
-{
-  background-color: #1E252B;
-  color: #D3D8DA;
+div#details-panel-content .navbar-nav > li > button:focus {
+  background-color: #1e252b;
+  color: #d3d8da;
 }
 
 div#details-panel-content .navbar-nav > li > a:active,
-div#details-panel-content .navbar-nav > li > button:active
-{
+div#details-panel-content .navbar-nav > li > button:active {
   background-color: #000;
 }
 
 div#details-panel-content .navbar-nav > li > a.disabled:active,
-div#details-panel-content .navbar-nav > li > button.disabled:active
-{
-  background-color: #1E252B;
+div#details-panel-content .navbar-nav > li > button.disabled:active {
+  background-color: #1e252b;
 }
 
 .details-panel-navbar .actionbar-nav {
@@ -174,13 +175,13 @@ div#details-panel-content .details-panel-navbar .navbar-nav > li.active a:focus,
 div#details-panel-content .details-panel-navbar > li.active a,
 div#details-panel-content .details-panel-navbar > li.active a:hover,
 div#details-panel-content .details-panel-navbar > li.active a:focus {
-  background-color: #1A4666;
-  color: #EEF0F2;
+  background-color: #1a4666;
+  color: #eef0f2;
 }
 
 .tab-header-tabs > li.selected-tab {
-  background-color: #1A4666;
-  color: #EEF0F2;
+  background-color: #1a4666;
+  color: #eef0f2;
 }
 
 .react-tabs {
@@ -232,8 +233,12 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
 }
 
 @keyframes action-bar-spin {
-  0% { transform: rotate(0turn); }
-  100% { transform: rotate(1turn); }
+  0% {
+    transform: rotate(0turn);
+  }
+  100% {
+    transform: rotate(1turn);
+  }
 }
 
 .actionbar-nav {
@@ -276,7 +281,7 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
 
 /* Remove the caret from the ellipses */
 #actionbar-menu-btn.dropdown-toggle::after {
-    display:none
+  display: none;
 }
 
 #job-details-actionbar #actionbar-menu-btn + ul > li {
@@ -527,10 +532,14 @@ div.similar-jobs .similar-job-detail-panel {
 
 div.similar-jobs .similar-job-detail-panel form {
   overflow: hidden;
-  background-color: #D3D3D3;
+  background-color: #d3d3d3;
 }
 
-div.similar-jobs .similar-job-detail-panel form .checkbox input[type="checkbox"] {
+div.similar-jobs
+  .similar-job-detail-panel
+  form
+  .checkbox
+  input[type='checkbox'] {
   margin-left: 0;
   position: relative;
 }
@@ -606,7 +615,7 @@ div.performance-panel {
   height: 14px;
   overflow: hidden;
   padding-left: 5px;
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .failure-line-message-expanded {
@@ -614,7 +623,7 @@ div.performance-panel {
   margin-bottom: 10px;
   overflow-x: auto;
   white-space: pre-wrap;
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 autoclassify-tab,
@@ -681,7 +690,7 @@ autoclassify-tab .controls button,
 .error-line .classification-line-detail {
   width: 100%;
   padding-top: 3px;
-  padding-bottom:3px;
+  padding-bottom: 3px;
   border-bottom: thin solid #eee;
 }
 
@@ -713,8 +722,8 @@ autoclassify-tab .controls button,
 
 .static-classification-option .classification-icon > *,
 .classification-option .classification-icon > * {
- margin-left: auto;
- margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .classification-option {

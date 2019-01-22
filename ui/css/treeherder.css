@@ -1,7 +1,7 @@
 #root {
   display: flex;
   flex-direction: column;
-  height: 100%
+  height: 100%;
 }
 
 .height-minus-navbars {
@@ -25,7 +25,7 @@
 
 .Resizer {
   background: #000;
-  opacity: .2;
+  opacity: 0.2;
   z-index: 1;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
