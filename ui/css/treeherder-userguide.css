@@ -1,17 +1,18 @@
 body {
-    overflow: auto;
+  overflow: auto;
 }
 
 #userguide {
-    padding: 10px;
+  padding: 10px;
 }
 
-#userguide.dt, #userguide.dd {
-    text-align: center;
+#userguide.dt,
+#userguide.dd {
+  text-align: center;
 }
 
 #userguide.panel {
-    padding: 5px;
+  padding: 5px;
 }
 
 /*
@@ -19,33 +20,33 @@ body {
  */
 
 .ug-btn {
-    margin: 2px;
-    border: 2px solid;
+  margin: 2px;
+  border: 2px solid;
 }
 
 .ug-btn-comment {
-    border: none;
-    background-color: #fff;
+  border: none;
+  background-color: #fff;
 }
 
 .ug-btn-orange {
-    border-color: #dd6602;
+  border-color: #dd6602;
 }
 
 .ug-btn-purple {
-    border-color: #6f0296;
+  border-color: #6f0296;
 }
 
 .ug-btn-red {
-    border-color: #a1020e;
+  border-color: #a1020e;
 }
 
 .ug-btn-yellow {
-    border-color: #fbd890;
+  border-color: #fbd890;
 }
 
 .ug-btn-bg {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 /*
@@ -53,21 +54,22 @@ body {
  */
 
 #ug-job-name {
-    color: #428bca;
+  color: #428bca;
 }
 
-#ug-raw-log-icon, #ug-logviewer-icon {
-    margin: 0 3px;
+#ug-raw-log-icon,
+#ug-logviewer-icon {
+  margin: 0 3px;
 }
 
 #ug-raw-log-icon {
-    font-size: 14px;
-    color: #666;
+  font-size: 14px;
+  color: #666;
 }
 
 #ug-logviewer-icon {
-    vertical-align: text-bottom;
-    width: 15px;
+  vertical-align: text-bottom;
+  width: 15px;
 }
 
 /*
@@ -75,8 +77,8 @@ body {
  */
 
 .ug-footer {
-    overflow: auto;
-    display: flex;
-    justify-content: space-between;
-    border-radius: 0 calc(.25rem - 1px);
+  overflow: auto;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 0 calc(0.25rem - 1px);
 }

@@ -3,58 +3,58 @@
 }
 
 .dropdown-menu {
-    top: inherit;
+  top: inherit;
 }
 
 .error-lines {
-    flex: 1;
-    overflow-y: auto;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .error-line:hover {
-    background-color: lightgrey;
+  background-color: lightgrey;
 }
 
 .error-line-text {
-    word-break: break-all;
+  word-break: break-all;
 }
 
 .job-data-panel {
-    overflow-y: auto;
-    flex: 1;
+  overflow-y: auto;
+  flex: 1;
 }
 
 #job-info label {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .run-data {
-    max-height: 250px;
+  max-height: 250px;
 }
 
 /* LazyLog styles */
 .react-lazylog {
-    font-family:monospace !important;
-    background:#f8f8f8 !important;
-    color:#333 !important;
-    font-size:12px !important;
+  font-family: monospace !important;
+  background: #f8f8f8 !important;
+  color: #333 !important;
+  font-size: 12px !important;
 }
 
 .react-lazylog div:hover {
-    background:transparent
+  background: transparent;
 }
 
 .react-lazylog a:hover {
-    background:#f8eec7;
-    color:#000;
+  background: #f8eec7;
+  color: #000;
 }
 
 .react-lazylog a {
-    color: #b9b9b9 !important;
-    margin: 0 !important;
+  color: #b9b9b9 !important;
+  margin: 0 !important;
 }
 
 .react-lazylog .yellow-highlight {
-    background: #f8eec7 !important;
-    color: #000 !important;
+  background: #f8eec7 !important;
+  color: #000 !important;
 }

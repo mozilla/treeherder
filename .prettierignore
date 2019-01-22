@@ -9,7 +9,6 @@ ui/partials/
 
 # Ignore Prettier-supported filetypes that we haven't yet converted to its style,
 # so that "format on save" doesn't try to format them when making unrelated changes.
-*.css
 *.json
 *.md
 *.yaml

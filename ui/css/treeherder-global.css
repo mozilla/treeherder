@@ -9,7 +9,8 @@
  * when adding new styles.
  */
 
-html, body {
+html,
+body {
   height: 100%;
   font-size: 14px;
   line-height: 1.42;
@@ -18,10 +19,11 @@ html, body {
 
 body {
   line-height: inherit;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a:visited, .link-style:visited {
+a:visited,
+.link-style:visited {
   color: purple;
 }
 
@@ -37,7 +39,8 @@ a {
   cursor: pointer;
 }
 
-.pagination, .panel-title a {
+.pagination,
+.panel-title a {
   cursor: pointer;
 }
 
@@ -60,8 +63,8 @@ a {
   justify-content: center;
 }
 
-input[type="checkbox"] {
-    margin-right: 5px;
+input[type='checkbox'] {
+  margin-right: 5px;
 }
 
 .dropdown-menu > li > a {
@@ -85,13 +88,13 @@ input[type="checkbox"] {
 /* For cases where the base Bootstrap 4 equivalent doesn't
    work, due to our special uses.*/
 .nav-dropdown-menu-right {
-    left: auto;
-    right: 0;
+  left: auto;
+  right: 0;
 }
 
 .form-control:focus {
-    border: 1px solid #ced4da;
-    box-shadow: none;
+  border: 1px solid #ced4da;
+  box-shadow: none;
 }
 
 /* Spacing for menus with adjacent icons */
@@ -170,7 +173,8 @@ input[type="checkbox"] {
   color: rgba(145, 164, 221, 0.3);
 }
 
-.pointable, .nav-tabs li {
+.pointable,
+.nav-tabs li {
   cursor: pointer;
 }
 
@@ -259,9 +263,9 @@ input[type="checkbox"] {
 }
 
 .btn-link {
-    font-weight: normal;
-    color: #337ab7;
-    border-radius: 0;
+  font-weight: normal;
+  color: #337ab7;
+  border-radius: 0;
 }
 
 .btn-xs {
@@ -281,28 +285,32 @@ input[type="checkbox"] {
 }
 
 .btn-primary-soft {
-    color: #fff;
-    background-color: #337ab7;
-    border-color: #2e6da4;
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4;
 }
 
 /*
  * Colors
  */
 
-.white, .white a {
+.white,
+.white a {
   color: white;
 }
 
-.xlightgray, .xlightgray a {
+.xlightgray,
+.xlightgray a {
   color: #e6e6e6;
 }
 
-.lightgray, .lightgray a {
+.lightgray,
+.lightgray a {
   color: lightgray;
 }
 
-.midgray, .midgray a {
+.midgray,
+.midgray a {
   color: gray;
 }
 
@@ -321,7 +329,7 @@ input[type="checkbox"] {
 kbd {
   display: inline-block;
   padding: 3px 5px;
-  font: 11px/10px Consolas,"Liberation Mono",Menlo,Courier,monospace;
+  font: 11px/10px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   color: #555;
   vertical-align: middle;
   background-color: #fcfcfc;
@@ -333,7 +341,7 @@ kbd {
 
 .queryparam {
   display: inline-block;
-  font: 12px Consolas,"Liberation Mono",Menlo,Courier,monospace;
+  font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   color: #555;
 }
 
@@ -348,7 +356,7 @@ kbd {
 }
 
 .help-block {
-    color: #737373;
+  color: #737373;
 }
 
 label {
@@ -370,7 +378,7 @@ h4 {
 .table-super-condensed tbody > tr > td,
 .table-super-condensed tfoot > tr > td {
   padding: 2px;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 
 .panel-spacing table {
@@ -450,5 +458,5 @@ h4 {
  */
 
 .pre {
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

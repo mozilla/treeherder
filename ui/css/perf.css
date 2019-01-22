@@ -4,23 +4,27 @@ section {
 }
 
 h1 {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .table {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .checkbox label {
-    font-weight: normal;
+  font-weight: normal;
 }
 
 .blink {
-animation: blink 1s ease-in-out infinite alternate;
+  animation: blink 1s ease-in-out infinite alternate;
 }
 @keyframes blink {
-from { opacity: 1; }
-to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .ph-horizontal-layout {
@@ -29,44 +33,55 @@ to { opacity: 0; }
 }
 
 #perf-logo {
-    padding: 15px;
-    border: none;
-    color: #555;
-    background: #f8f8f8;
+  padding: 15px;
+  border: none;
+  color: #555;
+  background: #f8f8f8;
 }
 
 login {
-    align-self: center;
+  align-self: center;
 }
 
-#graph-chooser { flex: none; width: 240px; padding: 8px; }
+#graph-chooser {
+  flex: none;
+  width: 240px;
+  padding: 8px;
+}
 
-#data-display { flex: auto; }
+#data-display {
+  flex: auto;
+}
 
-#graph { width: 100%; height: 300px; margin-bottom: 30px; cursor: crosshair; }
+#graph {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 30px;
+  cursor: crosshair;
+}
 
 .graph-legend-table {
-    table-layout: fixed;
+  table-layout: fixed;
 }
 
 .graph-legend-table tbody > tr > td {
-    padding: 0;
+  padding: 0;
 }
 
 .graph-legend {
-    padding: 8px 20px 8px 8px;
-    text-overflow: ellipsis;
-    font-size: 12px;
-    border-left: 10px solid;
+  padding: 8px 20px 8px 8px;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  border-left: 10px solid;
 }
 
 .graph-legend .series-inactive {
-  border-color: #D3D3D3;
-  color: #D3D3D3;
+  border-color: #d3d3d3;
+  color: #d3d3d3;
 }
 
 .graph-legend-table .close {
-    margin-right: 6px;
+  margin-right: 6px;
 }
 
 .graph-legend-table .show-hide-check {
@@ -75,50 +90,53 @@ login {
   margin-right: 6px;
 }
 
-.graph-right-padding { flex: none; width: 120px; }
+.graph-right-padding {
+  flex: none;
+  width: 120px;
+}
 
 #graph-tooltip {
-    position: absolute;
-    visibility: hidden;
-    pointer-events: none;
-    width: 280px;
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  width: 280px;
 }
 #graph-tooltip.locked {
-    pointer-events: auto;
+  pointer-events: auto;
 }
 #graph-tooltip .body {
-    display: block;
-    background: rgba(0,0,0,.75);
-    color: #fff;
-    border-radius: 5px;
-    padding: 10px 15px;
+  display: block;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px 15px;
 }
 #graph-tooltip.locked .body {
-    background: rgba(0,0,0,.9);
+  background: rgba(0, 0, 0, 0.9);
 }
 #graph-tooltip .body div {
-    margin-top: .5em;
+  margin-top: 0.5em;
 }
 #graph-tooltip .body div:first-child {
-    margin-top: .5em;
+  margin-top: 0.5em;
 }
 #graph-tooltip .body p {
-    margin: 0;
+  margin: 0;
 }
 #graph-tooltip .body p.small {
-    font-size: 10px;
-    color: #c0c0c0;
+  font-size: 10px;
+  color: #c0c0c0;
 }
 #graph-tooltip .body a {
-    color: #c9e2f2;
+  color: #c9e2f2;
 }
 #graph-tooltip .tip {
-    display: block;
-    height: 10px;
-    background: url("../img/tip.png") no-repeat center top;
+  display: block;
+  height: 10px;
+  background: url('../img/tip.png') no-repeat center top;
 }
 #graph-tooltip.locked .tip {
-    background-image: url("../img/tip-locked.png");
+  background-image: url('../img/tip-locked.png');
 }
 
 .graphchooser-close {
@@ -128,7 +146,7 @@ login {
 }
 
 .graphchooser-close:hover {
-    color: #fff;
+  color: #fff;
 }
 
 .reset-highlight-button {
@@ -147,13 +165,13 @@ login {
 }
 
 .subtest-header {
-  background-image: linear-gradient(to bottom, #EAEFF2, #D4DDE4);
-  color: #CCC;
+  background-image: linear-gradient(to bottom, #eaeff2, #d4dde4);
+  color: #ccc;
   font-weight: bold;
 }
 
 .subtest-header th {
-    padding: 5px;
+  padding: 5px;
 }
 
 .subtest-improvement {
@@ -173,22 +191,22 @@ login {
 }
 
 .subtest-empty {
-    display: none;
+  display: none;
 }
 
 .subtest-result button {
-    display: none;
+  display: none;
 }
 
 .subtest-result:hover button {
-    display: inline-block;
+  display: inline-block;
 }
 
 .graph-legend .signature {
-    display: inline-block;
-    max-width: 100px;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  display: inline-block;
+  max-width: 100px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 /* Test Chooser graph */
@@ -233,21 +251,21 @@ login {
 }
 
 .test-loading-placeholder {
-    width: 480px;
-    height: 120px;
+  width: 480px;
+  height: 120px;
 }
 
 /* Compare interface stuff */
 
 ph-compare-table hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .push-information {
-    font-size: 18px;
-    color: #777;
-    margin-left: -4px;
+  font-size: 18px;
+  color: #777;
+  margin-left: -4px;
 }
 
 .vertical-box {
@@ -298,90 +316,91 @@ ph-compare-table hr {
   box-shadow: none;
 }
 
-.compare-table td, th {
-    text-align: center;
-    cursor: default;
+.compare-table td,
+th {
+  text-align: center;
+  cursor: default;
 }
 
 .compare-table .test-title {
-    text-align: left;
+  text-align: left;
 }
 
 .compare-table .subtest-header > th {
-    color: transparent;
-    transition: color 150ms ease-in-out;
+  color: transparent;
+  transition: color 150ms ease-in-out;
 }
 
 .compare-table:first-child .subtest-header > th,
 .compare-table:hover .subtest-header > th,
 .compare-table .subtest-header > th.test-title {
-    color: #333;
+  color: #333;
 }
 
 .compare-table .subtest-header > th.test-title {
-    text-align: left;
+  text-align: left;
 }
 
 .compare-table tr:hover .detail-hint {
-    border-bottom: 1px dotted #777;
+  border-bottom: 1px dotted #777;
 }
 
 .compare-table .result-links span,
 .compare-table .result-links a {
-    color: transparent;
-    transition: color 150ms ease-in-out;
+  color: transparent;
+  transition: color 150ms ease-in-out;
 }
 
 .compare-table tr:hover .result-links span {
-    color: #333;
+  color: #333;
 }
 
 .compare-table tr:hover .result-links a {
-    color: #23527c;
+  color: #23527c;
 }
 
 .compare-table td.alert-labels a {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .compare-table tr:hover td.alert-labels a {
-    visibility: visible;
+  visibility: visible;
 }
 
 .compare-table .num-runs {
-    text-align: right;
+  text-align: right;
 }
 
 .compare-table .test-warning {
-    text-align: left;
+  text-align: left;
 }
 
 td.compare-improvement {
-  background-image: linear-gradient(to bottom, #80BB2E, #547D1C);
+  background-image: linear-gradient(to bottom, #80bb2e, #547d1c);
   color: white;
   font-weight: bold;
 }
 
 td.compare-regression {
-  background-image: linear-gradient(to bottom, #B20000, #940000);
+  background-image: linear-gradient(to bottom, #b20000, #940000);
   color: white;
   font-weight: bold;
 }
 
 td.compare-notsure {
-  background-image: linear-gradient(to bottom, #FF9500, #FFCB00);
+  background-image: linear-gradient(to bottom, #ff9500, #ffcb00);
 }
 
 span.compare-improvement {
-    color: #80BB2E;
+  color: #80bb2e;
 }
 
 span.compare-regression {
-    color: #B20000;
+  color: #b20000;
 }
 
 span.compare-notsure {
-    color: #FF9500;
+  color: #ff9500;
 }
 
 .bar {
@@ -404,23 +423,23 @@ span.compare-notsure {
 }
 
 .button-panel {
-    position: sticky;
-    bottom: 0;
-    z-index: 1030;
-    background-color: rgba(0,0,0,.2)
+  position: sticky;
+  bottom: 0;
+  z-index: 1030;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .alerts-container {
-    padding-left: 90px;
-    padding-right: 90px;
+  padding-left: 90px;
+  padding-right: 90px;
 }
 
 .alert-summary a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .alert-summary {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .alert-summary-heading {
@@ -431,27 +450,27 @@ span.compare-notsure {
 }
 
 .notes-preview {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .alert-summary-header-element {
-    flex: none;
-    padding: 8px;
+  flex: none;
+  padding: 8px;
 }
 
 .alert-summary-title {
-    flex: auto;
-    padding: 9px 4px;
-    line-height: 19px;
+  flex: auto;
+  padding: 9px 4px;
+  line-height: 19px;
 }
 
 .alert-summary-title .anchor {
-    color: #333;
-    font-weight: bold;
+  color: #333;
+  font-weight: bold;
 }
 
 .alert-summary-title .dropdown {
-    vertical-align: text-bottom;
+  vertical-align: text-bottom;
 }
 
 .alert-summary-title .icon-superscript {
@@ -466,74 +485,75 @@ span.compare-notsure {
 }
 
 .alert-summary .compare-table {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .alert-summary .card-body {
-    border-top: 1px solid #ddd;
-    padding: 15px;
+  border-top: 1px solid #ddd;
+  padding: 15px;
 }
 
 .alert-summary .card-body p {
-    margin: 0 0 10px;
+  margin: 0 0 10px;
 }
 
 .dropdown {
-    padding: 0;
-    vertical-align: inherit;
+  padding: 0;
+  vertical-align: inherit;
 }
 
 .dropdown .caret {
-    margin-left: 2px;
+  margin-left: 2px;
 }
 
 .alert-summary-date {
-    width: 160px;
-    text-align: right;
+  width: 160px;
+  text-align: right;
 }
 
 /* Table widths for alerts */
 td.alert-checkbox {
-    width: 30px;
-    padding: 8px;
+  width: 30px;
+  padding: 8px;
 }
 td.alert-labels {
-    width: 30px;
-    padding: 8px;
+  width: 30px;
+  padding: 8px;
 }
 td.alert-title {
-    text-align: left;
-    padding: 8px;
+  text-align: left;
+  padding: 8px;
 }
 td.alert-value {
-    width: 140px;
+  width: 140px;
 }
-td.alert-comparison { /* e.g. "<" */
-    width: 30px;
+td.alert-comparison {
+  /* e.g. "<" */
+  width: 30px;
 }
 td.alert-pct-difference {
-    width: 80px;
+  width: 80px;
 }
 td.alert-graphical-difference {
-    width: 120px;
+  width: 120px;
 }
 td.alert-confidence {
-    width: 100px;
+  width: 100px;
 }
 
 /* Various styles for individual alerts ("changes" in UI) */
 .alert-untriaged {
-    color: #3c763d;
+  color: #3c763d;
 }
 .alert-invalid {
-    color: #a94442;
+  color: #a94442;
 }
 .alert-strike {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .alert-selects .form-group {
-    margin-right: 6px;
+  margin-right: 6px;
 }
 
 .compare-table-tooltip .tooltip-inner {
@@ -550,27 +570,27 @@ td.alert-confidence {
   width: 35px;
   border: 1px solid white;
   align: center;
-  font-family: "Helvetica";
+  font-family: 'Helvetica';
   font-size: 11px;
 }
 
-.tooltip-table .distribution-column{
+.tooltip-table .distribution-column {
   width: 200px;
   border: 1px solid white;
 }
 
 .replicate-graph .mg-header {
-    font-family: "Helvetica";
-    font-size: 15px;
-    font-weight: bold;
+  font-family: 'Helvetica';
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .replicate-graph .mg-x-axis text {
-    font-size: 0;
+  font-size: 0;
 }
 
 .replicate-graph .mg-category-guides line {
-    stroke: #ffffff;
+  stroke: #ffffff;
 }
 
 /* The paginator in angular1-ui-bootstrap4 always tries to put chevrons
@@ -578,21 +598,21 @@ td.alert-confidence {
    The paginator SHOULD show the text of Next/Previous, but it's not, so this
    is a work-around.*/
 li.page-item .material-icons {
-    font-size: 0;
+  font-size: 0;
 }
 
 li.pagination-prev .material-icons::before {
-    content: "Previous";
-    font-size: 14px;
-    font-style: normal;
+  content: 'Previous';
+  font-size: 14px;
+  font-style: normal;
 }
 
 li.pagination-next .material-icons::before {
-    content: "Next";
-    font-size: 14px;
-    font-style: normal;
+  content: 'Next';
+  font-size: 14px;
+  font-style: normal;
 }
 
 .pagination {
-    margin: 20px 0;
+  margin: 20px 0;
 }

@@ -6,7 +6,8 @@ body {
   overflow-y: auto;
 }
 
-h1, .subheader {
+h1,
+.subheader {
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -43,26 +44,26 @@ h1, .subheader {
 }
 
 .bug-column-header {
-    text-align: left;
-    margin-left: 10px;
+  text-align: left;
+  margin-left: 10px;
 }
 
 .bug-column {
-    text-align: left;
-    margin-left: 5px;
+  text-align: left;
+  margin-left: 5px;
 }
 
 .bug-column .bug-details {
-    display: none;
+  display: none;
 }
 
 .bug-column:hover .bug-details {
-    display: initial;
+  display: initial;
 }
 
 /* overriding bootstrap default input style */
 input {
-  padding: .4em 1em;
+  padding: 0.4em 1em;
   border: 1.5px solid rgb(206, 212, 218);
   text-align: center;
   outline: none;
@@ -81,7 +82,7 @@ input {
 .tooltip > .tooltip-inner {
   background-color: lightgray;
   color: black;
-  font-size: 14px;  
+  font-size: 14px;
   border: 1px solid lightgray;
   max-width: 100% !important;
 }

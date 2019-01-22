@@ -60,7 +60,7 @@
 }
 
 .push-buttons > .btn,
-.push-buttons > .btn-group{
+.push-buttons > .btn-group {
   margin: 0 5px;
 }
 
@@ -72,8 +72,8 @@
 }
 
 .btn-push.btn:focus {
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
 .btn-push:hover {
@@ -98,7 +98,7 @@ th-action-button .btn-push {
   font-size: 14px;
 }
 
-.watch-commit-btn:not([data-watch-state="none"]) {
+.watch-commit-btn:not([data-watch-state='none']) {
   border: 1px solid;
   border-radius: 3px;
   overflow: visible;
@@ -142,13 +142,13 @@ th-action-button .btn-push {
   overflow: auto;
 }
 
-.revision[data-tags~="backout"] .revision-comment{
+.revision[data-tags~='backout'] .revision-comment {
   color: red;
 }
 
 .revision-holder > a {
   padding-top: 2px;
-  font: 11px "Lucida Console",Monaco,monospace;
+  font: 11px 'Lucida Console', Monaco, monospace;
 }
 
 .revision-holder {
