@@ -1,5 +1,4 @@
-Retrieving Data
-===============
+# Retrieving Data
 
 The [Python client](rest_api.html#python-client) also has some convenience
 methods to query the Treeherder API.

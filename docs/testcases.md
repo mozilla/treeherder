@@ -1,13 +1,13 @@
-Treeherder Test Cases
-=====================
+# Treeherder Test Cases
+
 These tests should be run prior to deploying code changes to the Treeherder production environment.
 
-Initial page load
------------------
+## Initial page load
+
 Load Treeherder. eg.
 
-* [stage](https://treeherder.allizom.org)
-* [production](https://treeherder.mozilla.org)
+- [stage](https://treeherder.allizom.org)
+- [production](https://treeherder.mozilla.org)
 
 Depending on your test requirement.
 
@@ -25,8 +25,8 @@ Intermittent Failures View logo > Treeherder
 
 **Expected**: Treeherder loads again, displaying pushes per step 1.
 
-Check Job details Tab selection
--------------------------------
+## Check Job details Tab selection
+
 Load Treeherder and select a completed/success job.
 
 **Expected**: The Job details tab should load by default.
@@ -47,8 +47,8 @@ Select a Running job.
 
 **Expected**: The (empty) Failure summary tab should load.
 
-Pin a job
----------
+## Pin a job
+
 Select a job, and click the 'pin' button in the lower navbar.
 
 **Expected**: Selected job pinned
@@ -61,29 +61,31 @@ Pinboard > Right hand menu dropdown > Clear all
 
 **Expected**: Both jobs are removed from the pinboard.
 
-Failure summary tab
--------------------
+## Failure summary tab
+
 Select a classified or unclassified failed job.
 
 **Expected**: Ensure the Failure summary tab loads by default.
 
 If a Bug suggestion is present in the failure summary:
 
-* Click on the bug description link
-* Click on the bug pin icon
+- Click on the bug description link
+- Click on the bug pin icon
 
 **Expected**:
-* Bug description link should load the correct BMO bug in a new tab
-* Pin should pin the job and add the bug to the bug classification field
+
+- Bug description link should load the correct BMO bug in a new tab
+- Pin should pin the job and add the bug to the bug classification field
 
 Pinboard > Right hand dropdown menu > Clear all
 
 **Expected**:
-* The job should be removed from the Pinboard
-* The bug number should be cleared from the bug classification field
 
-Similar jobs tab
-----------------
+- The job should be removed from the Pinboard
+- The bug number should be cleared from the bug classification field
+
+## Similar jobs tab
+
 Select a job, select the Similar jobs tab, wait several seconds.
 
 **Expected**: Recent jobs with matching symbols should load.
@@ -96,25 +98,25 @@ Scroll to the bottom of the Similar jobs tab, click 'Show previous jobs'.
 
 **Expected**: Additional, older jobs with matching symbols should load.
 
-Job details pane
-----------------
+## Job details pane
+
 Select any job and confirm the following loads in the bottom left pane:
 
-* Job:
-* Task: (test this link)
-* Machine name: (test this link) (this may not exist for taskcluster jobs)
-* Build: (test this link) (this may not be a link for taskcluster jobs)
-* Job name:
-* Requested:
-* Started: (only present for jobs in either running or completed states)
-* Ended: (only present for jobs in a completed state)
-* Duration:
-* Log parsing status:
+- Job:
+- Task: (test this link)
+- Machine name: (test this link) (this may not exist for taskcluster jobs)
+- Build: (test this link) (this may not be a link for taskcluster jobs)
+- Job name:
+- Requested:
+- Started: (only present for jobs in either running or completed states)
+- Ended: (only present for jobs in a completed state)
+- Duration:
+- Log parsing status:
 
 **Expected**: Values load, are visible and correct, and links are valid.
 
-Classify a job with associated bugs
------------------------------------
+## Classify a job with associated bugs
+
 Select and pin 3 jobs to the pinboard, select a classification type, add a classification comment and add bug 1164485. Select 'Save' in the pinboard.
 
 **Expected**: The jobs show with an asterisk in the job table, green notification banners appear confirming successful classification for each job.
@@ -131,8 +133,8 @@ Reload the page.
 
 **Expected**: The job should still be unclassified.
 
-Switch repos
-------------
+## Switch repos
+
 Click on the Repos menu, select a different repo.
 
 **Expected**: The new repo and its pushes should load.
@@ -141,14 +143,14 @@ Reverse the process, and switch back.
 
 **Expected**: The original repo and pushes should load.
 
-Toggle unclassified failures
-----------------------------
+## Toggle unclassified failures
+
 Load Treeherder and click on the "(n) unclassified" button in the top navbar.
 
 **Expected**: Only unclassified failures should be visible in the job table.
 
-Filters panel
--------------
+## Filters panel
+
 Click and open the 'Filters' menu panel in the top navbar, and turn off several job types in the panel.
 
 **Expected**: Job types turned off are suppressed in the job table.
@@ -161,8 +163,8 @@ Filters panel > Field Filters > click new. Add a new filter eg. Platform, Linux.
 
 **Expected**: Only Linux platforms should be visible in the job table.
 
-Filter by Job details name and signature
-----------------------------------------
+## Filter by Job details name and signature
+
 Select any job and in the lower left panel, click on the Job: keywords eg. "Linux x64 asan Mochitest Chrome"
 
 **Expected**: Ensure only jobs containing those keywords are visible.
@@ -171,8 +173,8 @@ Select any job and click on the adjacent "(sig)" signature link.
 
 **Expected**: Ensure only jobs using that unique signature SHA are visible.
 
-Pin all visible jobs in push
-----------------------------
+## Pin all visible jobs in push
+
 Click on the Pin 'all' pin-icon in the right hand side of any push bar.
 
 **Expected**: Up to a maximum of 500 jobs should be pinned, and a matching notification warning should appear if that limit is reached.
@@ -181,8 +183,8 @@ Click in the pinboard on the extreme right hand drop down menu, and select 'Clea
 
 **Expected**: All jobs should be removed from the pinboard.
 
-Login / Logout
---------------
+## Login / Logout
+
 Login via Taskcluster Auth.
 
 **Expected**: The login button should switch to a generic "Person" avatar, and the user email should appear on hover.
@@ -191,8 +193,8 @@ Logout
 
 **Expected**: The login button should switch back to "Login / Register".
 
-View the Logviewer
-------------------
+## View the Logviewer
+
 Select any failed job and click the 'Log' icon in the lower navbar.
 
 **Expected**: The Logviewer loads in a new tab, and it contains correct job and revision information in the top left corner, and it preloads and scrolls to the first failure line if one exists.
@@ -216,14 +218,14 @@ Select Treeherder from the nav menu.
 
 **Expected**: Treeherder should load in the same window.
 
-View the raw log
-----------------
+## View the raw log
+
 Select any completed job and click the raw log button in the lower navbar.
 
 **Expected**: The raw log for that job should load in a new tab.
 
-View pushes by Author
----------------------
+## View pushes by Author
+
 Click on the Author email (eg. ryanvm@gmail.com) in a push bar.
 
 **Expected**: Only pushes pushed by that Author should appear.
@@ -232,8 +234,8 @@ Get next 10| pushes via the main page footer.
 
 **Expected**: Only pushes from that Author should be added.
 
-View a single push
-------------------
+## View a single push
+
 Load Treeherder and click on the 'Date' on the left side of any push.
 
 **Expected**: Only that push should load, with an accompanying URL param "&revision=(SHA)"
@@ -242,8 +244,8 @@ Load Treeherder and click on the 'Date' on the left side of any push.
 
 **Expected**: Only newly started jobs for that same push (if any have occurred) should appear. No new pushes should load.
 
-Quick Filter input field
-------------------------
+## Quick Filter input field
+
 Click the 'Filter platforms & jobs' input field in the top navbar, aka. Quick Filter.
 
 **Expected**: Input field should expand in width for long input.
@@ -256,16 +258,16 @@ Click the grey (x) 'Clear this filter' icon the right hand side of the input fie
 
 **Expected**: Filter should be cleared and input should shrink to original width.
 
-Check push actions menu
------------------------
+## Check push actions menu
+
 From any push bar, select each entry in the far right dropdown that doesn't involve retriggers. eg:
 
 Mark with Bugherder
 
 **Expected**: Each should open without error or hanging.
 
-Get next 10|20|50 pushes
-------------------------
+## Get next 10|20|50 pushes
+
 Click on Get next 10| pushes.
 
 **Expected**: Ensure exactly 10 additional pushes were loaded.
@@ -278,8 +280,8 @@ View a single push via its Date link. Click Get next 10| pushes.
 
 **Expected**: Ensure the page loads the 10 prior pushes and the "tochange" and "fromchange" in the url appear correct.
 
-Filter pushes by URL fromchange, tochange
------------------------------------------
+## Filter pushes by URL fromchange, tochange
+
 See also the Treeherder [userguide] for URL Query String Parameters. Please test variants and perform exploratory testing as top/bottom of range is new functionality (Jun 3, 15')
 Navigate to the 2nd push loaded, from the push action menu select 'Set as top of range'.
 
@@ -297,8 +299,8 @@ Click Get Next | 10 in the page footer.
 
 **Expected**: Updates should only occur for the visible pushes. No new pushes should appear.
 
-Filter pushes by URL date range
--------------------------------
+## Filter pushes by URL date range
+
 See also the Treeherder [userguide] for URL Query String Parameters
 Add a revision range to the URL in the format, eg:
 
@@ -312,8 +314,8 @@ Warning: With the latest volume of jobs and pushes, anything greater than a sing
 
 **Expected**: pushes loaded should continue to honor that range.
 
-Perfherder Graphs
------------------
+## Perfherder Graphs
+
 Load Perfherder at eg.
 <https://treeherder.allizom.org/perf.html>
 
@@ -331,15 +333,15 @@ Change display range dropdown to 90 days (or other value)
 
 **Expected**: Ensure both series expand to that date range. Confirm the data which has expired beyond the 6 week data cycle still appears, but the SHA just will instead display "loading revision".
 
-No console errors throughout test run
--------------------------------------
+## No console errors throughout test run
+
 Ensure the browser console is error free during and after the test run.
 Open the console during the test run.
 
 **Expected**: No errors should appear in the console.
 
-Perfherder Compare
-------------------
+## Perfherder Compare
+
 Load Perfherder Compare at eg.
 <https://treeherder.allizom.org/perf.html#/comparechooser>
 
@@ -357,14 +359,14 @@ Click on the 'Graph' link for a sub-compare row if it exists.
 
 **Expected**: The plotted graph for that series should appear.
 
-All keyboard shortcuts
-----------------------
+## All keyboard shortcuts
+
 Check all keyboard shortcut functionality as listed in the [userguide].
 
 **Expected**: Each shortcut should work as expected.
 
-Job counts
-----------
+## Job counts
+
 In any push with job counts, click on the group button eg. B( ) to expand the count.
 
 **Expected**: Jobs should appear.

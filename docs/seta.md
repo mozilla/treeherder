@@ -1,5 +1,4 @@
-SETA
-====
+# SETA
 
 SETA finds the minimum set of jobs to run in order to catch all failures that our automation has found in the recent past on Firefox development repositories.
 There's one main API that SETA offers consumers (e.g. the Gecko decision task) in order to show which jobs are consider low value
@@ -18,45 +17,42 @@ weeks since we don't have historical data to determine how likely they're to cat
 
 In order to find open bugs for SETA visit list of [SETA bugs].
 
-[SETA bugs]: https://bugzilla.mozilla.org/buglist.cgi?product=Tree%20Management&component=Treeherder%3A%20SETA&resolution=---
+[seta bugs]: https://bugzilla.mozilla.org/buglist.cgi?product=Tree%20Management&component=Treeherder%3A%20SETA&resolution=---
 
-APIs
-----
+## APIs
 
-* `/api/project/{project}/seta/{version}/job-priorities/`
+- `/api/project/{project}/seta/{version}/job-priorities/`
 
-  * This is the API that consumers like the Gecko decision task will use
+  - This is the API that consumers like the Gecko decision task will use
 
-* `/api/project/{project}/seta/{version}/job-types/`
+- `/api/project/{project}/seta/{version}/job-types/`
 
-  * This API shows which jobs are defined for each project
+  - This API shows which jobs are defined for each project
 
-* `/api/seta/{version}/failures-fixed-by-commit/`
+- `/api/seta/{version}/failures-fixed-by-commit/`
 
-  * This API shows job failures that have been annotated with "fixed by commit"
+  - This API shows job failures that have been annotated with "fixed by commit"
 
-Local set up
-------------
+## Local set up
 
 After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and run the following commands in each:
 
-* 1st tab: ``./manage.py runserver``
-* 2nd tab: ``yarn start:local``
-* 3rd tab: ``./manage.py initialize_seta``
+- 1st tab: `./manage.py runserver`
+- 2nd tab: `yarn start:local`
+- 3rd tab: `./manage.py initialize_seta`
 
 Then try out the various APIs:
 
-* <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot>
-* <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster>
-* <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-types/>
-* <http://localhost:5000/api/seta/v1/failures-fixed-by-commit/>
+- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot>
+- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster>
+- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-types/>
+- <http://localhost:5000/api/seta/v1/failures-fixed-by-commit/>
 
-  * This one won't work until [bug 1389123] is fixed.
+  - This one won't work until [bug 1389123] is fixed.
 
 [bug 1389123]: https://bugzilla.mozilla.org/show_bug.cgi?id=1389123
 
-Maintenance
------------
+## Maintenance
 
 Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority)
 when adding new platforms (e.g. stylo).
@@ -78,13 +74,13 @@ heroku run --app treeherder-prod -- bash
 Sometimes, before you can adjust priorities of the jobs, you need to make sure they make it into the JobPriority table.
 In order to do so we need to:
 
-* Make sure the scheduling changes have made it into mozilla-inbound
+- Make sure the scheduling changes have made it into mozilla-inbound
 
-  * SETA uses mozilla-inbound as a reference for jobs for all trunk trees
+  - SETA uses mozilla-inbound as a reference for jobs for all trunk trees
 
-* Make sure the job shows up in the [runnable jobs API]
+- Make sure the job shows up in the [runnable jobs API]
 
-* Update the job priority table from the shell:
+- Update the job priority table from the shell:
 
   Open the Python shell using `./manage.py shell`, then enter:
 
@@ -106,4 +102,4 @@ In order to do so we need to:
   JobPriority.objects.filter(platform="windows7-32-stylo", expiration_date__isnull=False).update(expiration_date=None)
   ```
 
-[runnable jobs API]: https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/
+[runnable jobs api]: https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/
