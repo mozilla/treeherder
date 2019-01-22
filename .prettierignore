@@ -4,10 +4,12 @@
 # Ignore our legacy JS since it will be rewritten when converted to React.
 ui/js/
 
+# Ignore AngularJS HTML templates since they don't always parse correctly.
+ui/partials/
+
 # Ignore Prettier-supported filetypes that we haven't yet converted to its style,
 # so that "format on save" doesn't try to format them when making unrelated changes.
 *.css
-*.html
 *.json
 *.md
 *.yaml
