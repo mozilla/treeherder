@@ -3,7 +3,6 @@
 import treeherder from '../../treeherder';
 import compareTableTemplate from '../../../partials/perf/comparetable.html';
 import averageTemplate from '../../../partials/perf/average.html';
-import revisionDescribeTemplate from '../../../partials/perf/revisiondescribe.html';
 import compareErrorTemplate from '../../../partials/perf/comparerror.html';
 
 treeherder.component('phCompareTable', {
@@ -75,19 +74,6 @@ treeherder.component('phAverage', {
         stddev: '@',
         stddevpct: '@',
         replicates: '<',
-    },
-});
-
-treeherder.component('revisionInformation', {
-    template: revisionDescribeTemplate,
-    bindings: {
-        originalProject: '<',
-        originalRevision: '<',
-        newProject: '<',
-        newRevision: '<',
-        originalResultSet: '<',
-        newResultSet: '<',
-        selectedTimeRange: '<',
     },
 });
 
