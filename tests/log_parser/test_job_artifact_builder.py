@@ -27,7 +27,7 @@ def do_test(log):
     # import json
     # from tests.sampledata import SampleData
     # with open(SampleData().get_log_path("{0}.jobartifact.json".format(log)), "w") as f:
-    #     f.write(json.dumps(act, indent=4))
+    #     f.write(json.dumps(act, indent=2))
 
     # assert act == exp, diff(exp, act)
 
@@ -36,7 +36,7 @@ def do_test(log):
     for index, artifact in act.items():
         assert artifact == exp[index]
 
-    # assert act == exp#, json.dumps(act, indent=4)
+    # assert act == exp#, json.dumps(act, indent=2)
 
 
 def test_crashtest_passing():
