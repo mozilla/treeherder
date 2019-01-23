@@ -30,13 +30,13 @@ def do_test(log):
     # import json
     # from tests.sampledata import SampleData
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
-    #     f.write(json.dumps(act, indent=4))
+    #     f.write(json.dumps(act, indent=2))
 
     assert act == exp  # , diff(exp, act)
 
     # :: Use this assert when creating new tests and you want to get the actual
     # returned artifact:
-    # assert act == exp, json.dumps(act, indent=4)
+    # assert act == exp, json.dumps(act, indent=2)
 
 
 def test_crashtest_passing():
