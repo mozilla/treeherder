@@ -213,7 +213,7 @@
         },
         {
           "type": "json",
-          "blob": {"fee": "foo"},
+          "blob": { "fee": "foo" },
           "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
           "name": "Bug suggestions"
         }
@@ -264,7 +264,7 @@
       },
       "artifacts": [
         {
-          "blob": {"fee": "foo"},
+          "blob": { "fee": "foo" },
           "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
           "name": "quagmire",
           "type": "json"
