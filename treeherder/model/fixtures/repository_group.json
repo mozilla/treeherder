@@ -1,82 +1,82 @@
 [
-{
+  {
     "pk": 1,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "development",
-        "description": "Collection of repositories where code initially lands in the development process"
+      "name": "development",
+      "description": "Collection of repositories where code initially lands in the development process"
     }
-},
-{
+  },
+  {
     "pk": 2,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "release-stabilization",
-        "description": "Collection of repositories further along the release process"
+      "name": "release-stabilization",
+      "description": "Collection of repositories further along the release process"
     }
-},
-{
+  },
+  {
     "pk": 3,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "try",
-        "description": "Collection of repositories where patches are initially tested before officially landing"
+      "name": "try",
+      "description": "Collection of repositories where patches are initially tested before officially landing"
     }
-},
-{
+  },
+  {
     "pk": 4,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "taskcluster",
-        "description": "Collection of test repositories for taskcluster data"
+      "name": "taskcluster",
+      "description": "Collection of test repositories for taskcluster data"
     }
-},
-{
+  },
+  {
     "pk": 5,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "qa automation tests",
-        "description": "Collection of test repositories for the qa group"
+      "name": "qa automation tests",
+      "description": "Collection of test repositories for the qa group"
     }
-},
-{
+  },
+  {
     "pk": 6,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "project repositories",
-        "description": "Collection of repositories for project branches"
+      "name": "project repositories",
+      "description": "Collection of repositories for project branches"
     }
-},
-{
+  },
+  {
     "pk": 7,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "other",
-        "description": "Other repositories not falling under the above categories"
+      "name": "other",
+      "description": "Other repositories not falling under the above categories"
     }
-},
-{
+  },
+  {
     "pk": 8,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "comm-repositories",
-        "description": "Repositories for Seamonkey/Thunderbird development"
+      "name": "comm-repositories",
+      "description": "Repositories for Seamonkey/Thunderbird development"
     }
-},
-{
+  },
+  {
     "pk": 9,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "ci-admin",
-        "description": "Administration of Firefox CI"
+      "name": "ci-admin",
+      "description": "Administration of Firefox CI"
     }
-},
-{
+  },
+  {
     "pk": 10,
     "model": "model.repositorygroup",
     "fields": {
-        "name": "servo",
-        "description": "Branches of github.com/servo/servo"
+      "name": "servo",
+      "description": "Branches of github.com/servo/servo"
     }
-}
+  }
 ]

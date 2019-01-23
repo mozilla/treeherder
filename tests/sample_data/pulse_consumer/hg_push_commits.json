@@ -12,9 +12,7 @@
             "testing/web-platform/meta/IndexedDB/transaction-lifetime-empty.html.ini"
           ],
           "node": "16df582a3768ef56c1338b1c6b57d30820249a0d",
-          "parents": [
-            "ae327128aed16186be41d27e5cddb43f60133718"
-          ],
+          "parents": ["ae327128aed16186be41d27e5cddb43f60133718"],
           "tags": []
         },
         {
@@ -23,12 +21,8 @@
           "desc": "try: -b do -p win32,win64,linux64,linux,macosx64 -u web-platform-tests[Ubuntu,10.8,10.10,10.10.5,Windows XP,Windows 7,Windows 8] -t none\n\nMozReview-Commit-ID: 83PbEOQP2Nc\n",
           "files": [],
           "node": "2f77bc4f354d9ba67ea5270b2fc789f4b0521287",
-          "parents": [
-            "16df582a3768ef56c1338b1c6b57d30820249a0d"
-          ],
-          "tags": [
-            "tip"
-          ]
+          "parents": ["16df582a3768ef56c1338b1c6b57d30820249a0d"],
+          "tags": ["tip"]
         }
       ],
       "date": 1469830246,

@@ -102,9 +102,7 @@
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
-    "labels": [
-      "debug"
-    ],
+    "labels": ["debug"],
     "version": 1
   },
 
@@ -144,9 +142,7 @@
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
-    "labels": [
-      "debug"
-    ],
+    "labels": ["debug"],
     "version": 1
   },
 
@@ -238,13 +234,12 @@
     "extra": {
       "artifacts": [
         {
-          "blob": {"fee": "foo"},
+          "blob": { "fee": "foo" },
           "type": "json",
           "name": "Bug suggestions"
         }
       ]
     }
-
   },
   {
     "taskId": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
@@ -300,13 +295,11 @@
     "extra": {
       "artifacts": [
         {
-          "blob": {"fee": "foo"},
+          "blob": { "fee": "foo" },
           "type": "json",
           "name": "quagmire"
         }
       ]
     }
-
   }
-
 ]

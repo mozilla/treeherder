@@ -12,8 +12,6 @@
     "@types/react-dom",
     "@uirouter/angularjs"
   ],
-  "reviewers": [
-    "@mozilla/treeherder-admins"
-  ],
+  "reviewers": ["@mozilla/treeherder-admins"],
   "semanticCommits": false
 }
