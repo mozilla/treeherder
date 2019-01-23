@@ -195,20 +195,11 @@ View the Logviewer
 ------------------
 Select any failed job and click the 'Log' icon in the lower navbar.
 
-**Expected**: The Logviewer loads in a new tab, and it contains correct job and revision information in the top left corner, and it preloads to the first failure line if one exists.
+**Expected**: The Logviewer loads in a new tab, and it contains correct job and revision information in the top left corner, and it preloads and scrolls to the first failure line if one exists.
 
-Click on another failure line in the failed step.
+Click on another failure line.
 
 **Expected**: The log should scroll to that failure line.
-
-Click on 'show successful steps'. (DELETE ME? I can't find this on a failing mochitest log)
-
-**Expected**: Green successful step bars should appear in the top right panel. (DELETE ME? I can't find this on a failing mochitest log)
-
-Click on a successful step. (DELETE ME? I can't find this on a failing mochitest log)
-
-**Expected**: The log contents should scroll to the -- Start -- line for that step. (DELETE ME? I can't find this on a failing mochitest log)
-
 Thumbwheel/scroll/swipe downwards or upwards.
 
 **Expected**: The log should quickly load new chunks when encountering a log boundary.
