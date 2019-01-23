@@ -278,7 +278,7 @@
         "dvcs_type": "hg",
         "name": "cedar",
         "url": "https://hg.mozilla.org/projects/cedar",
-        "active_status": "onhold",
+        "active_status": "active",
         "codebase": "gecko",
         "repository_group": 6,
         "description": ""
