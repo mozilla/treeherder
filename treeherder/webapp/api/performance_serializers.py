@@ -174,9 +174,10 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     revision = serializers.CharField(required=False, allow_null=True, default=None)
     repository = serializers.CharField()
-    framework = serializers.ListField(child=serializers.IntegerField())
+    framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
+    signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
 
     def validate(self, data):
@@ -200,13 +201,15 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     values = serializers.ListField(child=serializers.DecimalField(
         rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False))
     name = serializers.SerializerMethodField()
+    suite = serializers.CharField()
     parent_signature = serializers.CharField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
+    job_ids = serializers.ListField(child=serializers.IntegerField())
 
     class Meta:
         model = PerformanceSignature
-        fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test',
-                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature']
+        fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
+                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids']
 
     def get_name(self, value):
         test = value['test']

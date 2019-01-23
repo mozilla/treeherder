@@ -61,7 +61,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 title: 'Compare Subtest Distribution',
                 template: compareSubtestDistributionTemplate,
                 url: '/comparesubtestdistribution?originalProject&newProject&originalRevision&newRevision&originalSubtestSignature?newSubtestSignature',
-                controller: 'CompareSubtestDistributionCtrl',
             });
         $urlRouterProvider.otherwise('/graphs');
     }]).run(['$rootScope', '$state', '$stateParams', function ($rootScope, $state, $stateParams) {
