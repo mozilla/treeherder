@@ -1,3 +1,6 @@
+import { slugid } from 'taskcluster-client-web';
+import groupBy from 'lodash/groupBy';
+
 import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
@@ -116,39 +119,37 @@ export default class JobModel {
     const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
 
     try {
-      notify(`Attempting to retrigger ${jobTerm} via actions.json`, 'info');
+      notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
-      /* eslint-disable no-await-in-loop */
-      for (const id of jobIds) {
-        const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await getGeckoDecisionTaskId(
-          job.push_id,
-          repoName,
-        );
-        const results = await TaskclusterModel.load(decisionTaskId, job);
-        const retriggerTask = results.actions.find(
-          result => result.name === 'retrigger',
-        );
+      const jobs = await JobModel.getList(repoName, { id__in: jobIds.join() });
+      const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
-        try {
-          await TaskclusterModel.submit({
-            action: retriggerTask,
-            decisionTaskId,
-            taskId: results.originalTaskId,
-            input: {},
-            staticActionVariables: results.staticActionVariables,
+      for (const [key, value] of Object.entries(uniquePerPushJobs)) {
+        getGeckoDecisionTaskId(Number(key), repoName).then(decisionTaskId => {
+          TaskclusterModel.load(decisionTaskId).then(async results => {
+            const actionTaskId = slugid();
+            const addNewJobsTask = results.actions.find(
+              action => action.name === 'add-new-jobs',
+            );
+
+            await TaskclusterModel.submit({
+              action: addNewJobsTask,
+              actionTaskId,
+              decisionTaskId,
+              taskId: null,
+              task: null,
+              input: { tasks: value.map(job => job.job_type_name) },
+              staticActionVariables: results.staticActionVariables,
+            }).then(() =>
+              notify(
+                `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
+              ),
+            );
           });
-        } catch (e) {
-          // The full message is too large to fit in a Treeherder
-          // notification box.
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        }
+        });
       }
-      /* eslint-enable no-await-in-loop */
-
-      notify(`Request sent to retrigger ${jobTerm} via action.json`, 'success');
     } catch (e) {
-      notify(`Unable to retrigger ${jobTerm}`, 'danger', { sticky: true });
+      notify(`Unable to retrigger/add ${jobTerm}`, 'danger', { sticky: true });
     }
   }
 
