@@ -70,16 +70,15 @@ describe('Revision list component', () => {
     };
   });
 
-  it('renders the correct number of revisions in a list', () => {
+  test('renders the correct number of revisions in a list', () => {
     const wrapper = mount(
       <RevisionList repo={mockData.repo} push={mockData.push} />,
     );
-    // BROKEN: Fix when converting this test to Jest
-    // eslint-disable-next-line jest/prefer-to-have-length
-    expect(wrapper.find(Revision).length).toEqual(mockData.push.revision_count);
+
+    expect(wrapper.find(Revision)).toHaveLength(mockData.push.revision_count);
   });
 
-  it('renders an "...and more" link if the revision count is higher than the max display count of 20', () => {
+  test('renders an "...and more" link if the revision count is higher than the max display count of 20', () => {
     mockData.push.revision_count = 21;
 
     const wrapper = mount(
@@ -125,7 +124,7 @@ describe('Revision item component', () => {
     };
   });
 
-  it('renders a linked revision', () => {
+  test('renders a linked revision', () => {
     const wrapper = mount(
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
@@ -138,7 +137,7 @@ describe('Revision item component', () => {
     );
   });
 
-  it("renders the contributors' initials", () => {
+  test("renders the contributors' initials", () => {
     const wrapper = mount(
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
@@ -147,7 +146,7 @@ describe('Revision item component', () => {
     expect(initials.text()).toEqual('AB');
   });
 
-  it('linkifies bug IDs in the comments', () => {
+  test('linkifies bug IDs in the comments', () => {
     const wrapper = mount(
       <Revision repo={mockData.repo} revision={mockData.revision} />,
     );
@@ -158,7 +157,7 @@ describe('Revision item component', () => {
     );
   });
 
-  it('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
+  test('marks the revision as backed out if the words "Back/Backed out" appear in the comments', () => {
     mockData.revision.comments =
       'Backed out changeset a6e2d96c1274 (bug 1322565) for eslint failure';
     let wrapper = mount(
@@ -176,14 +175,14 @@ describe('Revision item component', () => {
 });
 
 describe('More revisions link component', () => {
-  it('renders an "...and more" link', () => {
+  test('renders an "...and more" link', () => {
     const wrapper = mount(<MoreRevisionsLink href="http://more.link/" />);
     const link = wrapper.find('a');
     expect(link.props().href).toEqual('http://more.link/');
     expect(link.text()).toEqual('\u2026and more');
   });
 
-  it('has an external link icon', () => {
+  test('has an external link icon', () => {
     const wrapper = mount(<MoreRevisionsLink href="http://more.link" />);
     expect(wrapper.find('i.fa.fa-external-link-square')).toHaveLength(1);
   });
@@ -191,7 +190,7 @@ describe('More revisions link component', () => {
 
 describe('initials filter', () => {
   const email = 'foo@bar.baz';
-  it('initializes a one-word name', () => {
+  test('initializes a one-word name', () => {
     const name = 'Starscream';
     const initials = mount(
       <Initials title={`${name}: ${email}`} author={name} />,
@@ -201,7 +200,7 @@ describe('initials filter', () => {
     );
   });
 
-  it('initializes a two-word name', () => {
+  test('initializes a two-word name', () => {
     const name = 'Optimus Prime';
     const initials = mount(
       <Initials title={`${name}: ${email}`} author={name} />,
@@ -212,7 +211,7 @@ describe('initials filter', () => {
     );
   });
 
-  it('initializes a three-word name', () => {
+  test('initializes a three-word name', () => {
     const name = 'Some Other Transformer';
     const initials = mount(
       <Initials title={`${name}: ${email}`} author={name} />,
