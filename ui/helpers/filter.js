@@ -63,6 +63,7 @@ export const thFilterDefaults = {
 export const allFilterParams = [
   ...Object.keys(thFieldChoices),
   ...Object.keys(thFilterDefaults),
+  ...reloadOnChangeParameters,
 ];
 
 // compare 2 arrays, but ignore order
