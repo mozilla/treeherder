@@ -16,12 +16,22 @@ import SecondaryNavBar from './SecondaryNavBar';
 
 export default class PrimaryNavBar extends React.Component {
   shouldComponentUpdate(prevProps) {
-    const { filterModel, repos, user } = this.props;
+    const {
+      filterModel,
+      repos,
+      user,
+      serverChanged,
+      groupCountsExpanded,
+      duplicateJobsVisible,
+    } = this.props;
 
     return (
       prevProps.filterModel !== filterModel ||
       !isEqual(prevProps.user, user) ||
-      !isEqual(prevProps.repos, repos)
+      !isEqual(prevProps.repos, repos) ||
+      prevProps.serverChanged !== serverChanged ||
+      prevProps.groupCountsExpanded !== groupCountsExpanded ||
+      prevProps.duplicateJobsVisible !== duplicateJobsVisible
     );
   }
 
@@ -73,14 +83,14 @@ export default class PrimaryNavBar extends React.Component {
 }
 
 PrimaryNavBar.propTypes = {
+  updateButtonClick: PropTypes.func.isRequired,
+  setUser: PropTypes.func.isRequired,
+  setCurrentRepoTreeStatus: PropTypes.func.isRequired,
+  toggleFieldFilterVisible: PropTypes.func.isRequired,
   filterModel: PropTypes.object.isRequired,
   repos: PropTypes.array.isRequired,
-  updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
-  setUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
-  setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  toggleFieldFilterVisible: PropTypes.func.isRequired,
 };
