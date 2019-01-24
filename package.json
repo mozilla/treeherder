@@ -92,7 +92,7 @@
     "fetch-mock": "7.3.0",
     "jasmine-jquery": "2.1.1",
     "jest": "23.6.0",
-    "karma": "3.1.4",
+    "karma": "4.0.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "2.0.1",
     "karma-webpack": "4.0.0-rc.5",
