@@ -30,6 +30,10 @@ module.exports = {
         entry: 'test-view/index.jsx',
         title: 'Treeherder Test View',
       },
+      pushhealth: {
+        entry: 'push-health/index.jsx',
+        title: 'Push Health',
+      },
       perf: {
         entry: 'entry-perf.js',
         template: 'ui/perf.html',
