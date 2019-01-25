@@ -121,6 +121,11 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .details-panel-close-btn {
   padding-top: 3px;
   font-size: 12px;
+  color: unset; /* reset from bootstrap button class */
+}
+
+.details-panel-close-btn:hover {
+  color: unset; /* reset from bootstrap button class */
 }
 
 .perf-job-selected {
