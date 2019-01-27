@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable func-names, prefer-arrow-callback */
+/* eslint-disable func-names */
 import numeral from 'numeral';
 
 import { getRevisionUrl } from '../helpers/url';

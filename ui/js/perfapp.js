@@ -1,5 +1,5 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable func-names, prefer-arrow-callback */
+/* eslint-disable func-names */
 import alertsCtrlTemplate from '../partials/perf/alertsctrl.html';
 import graphsCtrlTemplate from '../partials/perf/graphsctrl.html';
 import compareCtrlTemplate from '../partials/perf/comparectrl.html';
