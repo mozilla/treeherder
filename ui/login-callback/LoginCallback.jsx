@@ -1,6 +1,7 @@
 import React from 'react';
-import Icon from 'react-fontawesome';
 import { hot } from 'react-hot-loader/root';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
@@ -63,7 +64,7 @@ class LoginCallback extends React.PureComponent {
       return (
         <div>
           <span>Logging in..&nbsp;</span>
-          <Icon name="spinner" spin />
+          <FontAwesomeIcon icon={faSpinner} spin />
         </div>
       );
     }
@@ -71,7 +72,7 @@ class LoginCallback extends React.PureComponent {
     return (
       <div>
         <span>Redirecting..&nbsp;</span>
-        <Icon name="spinner" spin />
+        <FontAwesomeIcon icon={faSpinner} spin />
       </div>
     );
   }

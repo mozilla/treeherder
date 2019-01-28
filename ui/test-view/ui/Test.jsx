@@ -1,9 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
 import { Badge } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBug,
+  faMinus,
+  faUnlink,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { store, actions } from '../redux/store';
 import { thPlatformMap } from '../../helpers/constants';
@@ -42,7 +48,10 @@ class BugCountComponent extends React.Component {
         {// TODO: Clean this up
         // eslint-disable-next-line no-nested-ternary
         this.props.test.bugs === undefined ? (
-          <Icon name="minus" title="Click to expand and fetch bugs" />
+          <FontAwesomeIcon
+            icon={faMinus}
+            title="Click to expand and fetch bugs"
+          />
         ) : Object.keys(this.props.test.bugs).length > 0 ? (
           Object.keys(this.props.test.bugs).length
         ) : (
@@ -75,14 +84,24 @@ class Platform extends React.Component {
         return;
       case 'intermittent':
         return (
-          <Icon name="bug" className="classified classified-intermittent" />
+          <FontAwesomeIcon
+            icon={faBug}
+            size="sm"
+            className="classified classified-intermittent"
+          />
         );
       case 'infra':
         return (
-          <Icon name="chain-broken" className="classified classified-infra" />
+          <FontAwesomeIcon
+            icon={faUnlink}
+            size="sm"
+            className="classified classified-infra"
+          />
         );
       default:
-        return <Icon name="star" className="classified" />;
+        return (
+          <FontAwesomeIcon icon={faStar} size="sm" className="classified" />
+        );
     }
   }
 

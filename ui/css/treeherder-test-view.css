@@ -129,10 +129,6 @@ main .progress {
   cursor: pointer;
 }
 
-.toggle-count .fa {
-  padding-right: 0.25em;
-}
-
 [disabled]:hover {
   cursor: not-allowed;
 }

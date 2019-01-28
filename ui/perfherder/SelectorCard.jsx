@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Icon from 'react-fontawesome';
 import {
   Col,
   Card,
@@ -18,6 +17,8 @@ import {
   InputGroup,
   InputGroupButtonDropdown,
 } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import { createQueryParams, pushEndpoint } from '../helpers/url';
 import { getData } from '../helpers/http';
@@ -230,9 +231,9 @@ export default class SelectorCard extends React.Component {
                         this.updateRevisions(event.target.innerText)
                       }
                     >
-                      <Icon
-                        name="check"
-                        className={`pr-1 ${
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        className={`mr-1 ${
                           selectedRepo === item.name ? '' : 'hide'
                         }`}
                       />
@@ -298,9 +299,9 @@ export default class SelectorCard extends React.Component {
                               )
                             }
                           >
-                            <Icon
-                              name="check"
-                              className={`pr-1 ${
+                            <FontAwesomeIcon
+                              icon={faCheck}
+                              className={`mr-1 ${
                                 selectedRevision === item.revision ? '' : 'hide'
                               }`}
                             />
