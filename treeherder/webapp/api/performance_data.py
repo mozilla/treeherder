@@ -244,7 +244,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
                 'signature_id': signature_id,
                 'job_id': job_id,
                 'push_id': push_id,
-                'push_revision': push__revision,
+                'revision': push__revision,
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
                 'value': round(value, 2)  # round to 2 decimal places
             })
