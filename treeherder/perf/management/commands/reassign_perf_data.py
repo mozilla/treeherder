@@ -36,16 +36,7 @@ class Command(BaseCommand):
         if len(from_signatures) != len(to_signatures):
             raise CommandError("Each old signature must have a corresponding new one")
 
-        for from_sign, to_sign in zip(from_signatures, to_signatures):
-            self.atomically_reassign_rows(
-                [PerformanceDatum, PerformanceAlert],
-                from_sign,
-                to_sign)
-
-    def atomically_reassign_rows(self, models, from_sign, to_sign):
-        """
-        :param models: table from which to reassign rows
-        """
         with transaction.atomic():
-            for model in models:
-                model.objects.filter(signature_id=from_sign).update(signature_id=to_sign)
+            for from_sign, to_sign in zip(from_signatures, to_signatures):
+                PerformanceDatum.objects.filter(signature_id=from_sign).update(signature_id=to_sign)
+                PerformanceAlert.objects.filter(series_signature_id=from_sign).update(series_signature_id=to_sign)
