@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { Badge } from 'reactstrap';
+import { Badge, Row, Col } from 'reactstrap';
 
 import { getJobsUrl } from '../helpers/url';
 
@@ -19,16 +19,16 @@ export default class TestFailure extends React.PureComponent {
     } = failure;
 
     return (
-      <div className="d-flex flex-column mt-2 mb-3 ml-2">
-        <div className="d-flex border-bottom border-secondary justify-content-between">
-          <span className="font-weight-bold pull-left">{testName}</span>
+      <Col className="mt-2 mb-3 ml-2">
+        <Row className="border-bottom border-secondary justify-content-between">
+          <span className="font-weight-bold">{testName}</span>
           <span>
             Line confidence:
             <Badge color="secondary" className="ml-2 mr-3">
               {confidence}
             </Badge>
           </span>
-        </div>
+        </Row>
         <div className="small">
           <a
             className="text-dark ml-3"
@@ -41,8 +41,8 @@ export default class TestFailure extends React.PureComponent {
             {classification}
           </span>
         </div>
-        <span className="small text-monospace mt-2 ml-3">{failureLine}</span>
-      </div>
+        <Row className="small text-monospace mt-2 ml-3">{failureLine}</Row>
+      </Col>
     );
   }
 }

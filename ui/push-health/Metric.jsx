@@ -5,7 +5,7 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Badge } from 'reactstrap';
+import { Badge, Row, Col } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
 import TestFailure from './TestFailure';
@@ -41,10 +41,10 @@ export default class Metric extends React.PureComponent {
 
     return (
       <td>
-        <div className="d-flex flex-row">
+        <Row>
           <div className={`bg-${resultColor} pr-2 mr-2`} />
-          <div className="d-flex flex-column w-100">
-            <div className="d-flex justify-content-between w-100">
+          <Col>
+            <Row className="justify-content-between">
               <div>
                 <span className="metric-name align-top font-weight-bold">
                   {name}
@@ -59,7 +59,7 @@ export default class Metric extends React.PureComponent {
                   {value}
                 </Badge>
               </span>
-            </div>
+            </Row>
             {detailsShowing && (
               <React.Fragment>
                 {failures &&
@@ -79,8 +79,8 @@ export default class Metric extends React.PureComponent {
                   ))}
               </React.Fragment>
             )}
-          </div>
-        </div>
+          </Col>
+        </Row>
       </td>
     );
   }
