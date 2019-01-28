@@ -127,7 +127,7 @@ module.exports = {
     process.env.NODE_ENV === 'test' && [
       '@neutrinojs/jest',
       {
-        setupTestFrameworkScriptFile: '<rootDir>/tests/ui/unit/test-setup.js',
+        setupFilesAfterEnv: ['<rootDir>/tests/ui/unit/test-setup.js'],
       },
     ],
     neutrino => {
