@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Container } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Table, Container, Spinner } from 'reactstrap';
 
+import ErrorMessages from '../shared/ErrorMessages';
 import { getJobsUrl } from '../helpers/url';
+import PushModel from '../models/push';
 
-import { healthData, resultColorMap } from './helpers';
+import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
 
@@ -21,6 +21,7 @@ export default class Health extends React.Component {
       revision: params.get('revision'),
       repo: params.get('repo'),
       healthData: null,
+      error: null,
     };
   }
 
@@ -40,12 +41,23 @@ export default class Health extends React.Component {
     this.setState({ user });
   };
 
-  updatePushHealth = () => {
-    this.setState({ healthData });
+  updatePushHealth = async () => {
+    const { repo, revision } = this.state;
+    const resp = await PushModel.getHealth(repo, revision);
+
+    if (resp.ok) {
+      const healthData = await resp.json();
+
+      this.setState({ healthData });
+    } else {
+      const error = await resp.text();
+
+      this.setState({ error });
+    }
   };
 
   render() {
-    const { healthData, user, repo, revision } = this.state;
+    const { healthData, user, repo, revision, error } = this.state;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
       : 'none';
@@ -54,7 +66,7 @@ export default class Health extends React.Component {
       <React.Fragment>
         <Navigation user={user} setUser={this.setUser} />
         <Container fluid>
-          {healthData ? (
+          {healthData && (
             <div className="d-flex flex-column">
               <h3 className="text-center">
                 <span className={`badge badge-xl mb-3 badge-${overallResult}`}>
@@ -86,11 +98,9 @@ export default class Health extends React.Component {
                 </tbody>
               </Table>
             </div>
-          ) : (
-            <div>
-              <FontAwesomeIcon icon={faSpinner} size="2x" spin />
-            </div>
           )}
+          {error && <ErrorMessages errorMessages={[error]} />}
+          {!error && !healthData && <Spinner />}
         </Container>
       </React.Fragment>
     );

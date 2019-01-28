@@ -194,4 +194,10 @@ export default class PushModel {
       }),
     );
   }
+
+  static getHealth(repoName, revision) {
+    return fetch(
+      getProjectUrl(`${pushEndpoint}health/?revision=${revision}`, repoName),
+    );
+  }
 }
