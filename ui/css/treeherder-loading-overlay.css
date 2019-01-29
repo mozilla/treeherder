@@ -21,7 +21,8 @@
   width: 100%;
 }
 
-.overlay > div > span {
+.overlay > div > span,
+.overlay > div > svg {
   position: absolute;
   top: 40%;
   left: 45%;

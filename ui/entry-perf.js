@@ -2,11 +2,39 @@
 
 // Vendor Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.css';
 import 'metrics-graphics/dist/metricsgraphics.css';
 
 // Vendor JS
 import 'bootstrap';
+import { library, dom, config } from '@fortawesome/fontawesome-svg-core';
+import {
+  faArrowAltCircleRight,
+  faClock,
+  faFileCode,
+  faFileWord,
+  faStar as faStarRegular,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faAngleDoubleLeft,
+  faAngleDoubleRight,
+  faBan,
+  faBug,
+  faCheck,
+  faChevronLeft,
+  faChevronRight,
+  faCode,
+  faExclamationCircle,
+  faExclamationTriangle,
+  faExternalLinkAlt,
+  faLevelDownAlt,
+  faPlus,
+  faQuestionCircle,
+  faSpinner,
+  faStar as faStarSolid,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+
 // The official 'flot' NPM package is out of date, so we're using 'jquery.flot'
 // instead, which is identical to https://github.com/flot/flot
 import 'jquery.flot';
@@ -32,3 +60,36 @@ import './js/components/loading';
 import './js/perfapp';
 import './perfherder/CompareSelectorView';
 import './perfherder/RevisionInformation';
+
+config.showMissingIcons = true;
+
+// TODO: Remove these as Perfherder components switch to using react-fontawesome.
+library.add(
+  faAngleDoubleLeft,
+  faAngleDoubleRight,
+  faArrowAltCircleRight,
+  faBan,
+  faBug,
+  faCheck,
+  faChevronLeft,
+  faChevronRight,
+  faClock,
+  faCode,
+  faExclamationCircle,
+  faExclamationTriangle,
+  faExternalLinkAlt,
+  faFileCode,
+  faFileWord,
+  faGithub,
+  faLevelDownAlt,
+  faPlus,
+  faQuestionCircle,
+  faSpinner,
+  faStarRegular,
+  faStarSolid,
+  faUser,
+);
+
+// Replace any existing <i> or <span> tags with <svg> and set up a MutationObserver
+// to continue doing this as the DOM changes. Remove once using react-fontawesome.
+dom.watch();
