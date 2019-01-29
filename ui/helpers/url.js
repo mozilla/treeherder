@@ -1,5 +1,7 @@
 export const uiJobsUrlBase = '/#/jobs';
 
+export const uiPushHealthBase = '/pushhealth.html';
+
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 
 export const hgBaseUrl = 'https://hg.mozilla.org/';
@@ -80,6 +82,11 @@ export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
 // This takes a plain object, rather than a URLSearchParams object.
 export const getJobsUrl = function getJobsUrl(params) {
   return `${uiJobsUrlBase}${createQueryParams(params)}`;
+};
+
+// This takes a plain object, rather than a URLSearchParams object.
+export const getPushHealthUrl = function getJobsUrl(params) {
+  return `${uiPushHealthBase}${createQueryParams(params)}`;
 };
 
 export const getCompareChooserUrl = function getCompareChooserUrl(params) {

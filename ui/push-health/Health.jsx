@@ -56,7 +56,7 @@ export default class Health extends React.Component {
         <Container fluid>
           {healthData ? (
             <div className="d-flex flex-column">
-              <h2 className="text-center">
+              <h3 className="text-center">
                 <span className={`badge badge-xl mb-3 badge-${overallResult}`}>
                   <a
                     href={getJobsUrl({ repo, revision })}
@@ -67,7 +67,7 @@ export default class Health extends React.Component {
                     {repo} - {revision}
                   </a>
                 </span>
-              </h2>
+              </h3>
               <Table size="sm">
                 <tbody>
                   {healthData.metrics.map(metric => (
@@ -77,6 +77,9 @@ export default class Health extends React.Component {
                         result={metric.result}
                         value={metric.value}
                         details={metric.details}
+                        failures={metric.failures}
+                        repo={repo}
+                        revision={revision}
                       />
                     </tr>
                   ))}

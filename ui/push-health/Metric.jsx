@@ -5,8 +5,10 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
+import { Badge, Row, Col } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
+import TestFailure from './TestFailure';
 
 export default class Metric extends React.PureComponent {
   constructor(props) {
@@ -25,41 +27,75 @@ export default class Metric extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const { result, name, value, details } = this.props;
+    const {
+      result,
+      name,
+      value,
+      details,
+      failures,
+      repo,
+      revision,
+    } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
     return (
       <td>
-        <div className="d-flex flex-row">
+        <Row>
           <div className={`bg-${resultColor} pr-2 mr-2`} />
-          <div>
-            <h3>
-              {name}
-              <span onClick={this.toggleDetails} className="btn btn-lg">
-                <FontAwesomeIcon icon={expandIcon} />
+          <Col>
+            <Row className="justify-content-between">
+              <div>
+                <span className="metric-name align-top font-weight-bold">
+                  {name}
+                </span>
+                <span onClick={this.toggleDetails} className="btn">
+                  <FontAwesomeIcon icon={expandIcon} />
+                </span>
+              </div>
+              <span>
+                Confidence:
+                <Badge color={resultColor} className="ml-1">
+                  {value}
+                </Badge>
               </span>
-            </h3>
+            </Row>
             {detailsShowing && (
               <React.Fragment>
-                <div>Confidence: {value}/10</div>
-                {details.map(detail => (
-                  <div key={detail} className="ml-3">
-                    {detail}
-                  </div>
-                ))}
+                {failures &&
+                  failures.map(failure => (
+                    <TestFailure
+                      key={failure.testName}
+                      failure={failure}
+                      repo={repo}
+                      revision={revision}
+                    />
+                  ))}
+                {details &&
+                  details.map(detail => (
+                    <div key={detail} className="ml-3">
+                      {detail}
+                    </div>
+                  ))}
               </React.Fragment>
             )}
-          </div>
-        </div>
+          </Col>
+        </Row>
       </td>
     );
   }
 }
 
 Metric.propTypes = {
+  repo: PropTypes.string.isRequired,
+  revision: PropTypes.string.isRequired,
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
   details: PropTypes.array.isRequired,
+  failures: PropTypes.array,
+};
+
+Metric.defaultProps = {
+  failures: null,
 };

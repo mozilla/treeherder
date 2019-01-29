@@ -12,6 +12,12 @@ export default class Navigation extends React.PureComponent {
     return (
       <Navbar dark color="dark">
         <LogoMenu menuText="Push Health" />
+        <span
+          title="This data is for UI prototyping purposes only"
+          className="text-white"
+        >
+          [---FAKE-DATA---]
+        </span>
         <Login user={user} setUser={setUser} />
       </Navbar>
     );

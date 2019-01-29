@@ -7,6 +7,7 @@ import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { withPushes } from '../context/Pushes';
 import { withNotifications } from '../../shared/context/Notifications';
+import { getPushHealthUrl } from '../../helpers/url';
 
 // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
 const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
@@ -227,6 +228,17 @@ class PushActionMenu extends React.PureComponent {
               href={bottomOfRangeUrl}
             >
               Set as bottom of range
+            </a>
+          </li>
+          <li className="dropdown-divider" />
+          <li>
+            <a
+              className="dropdown-item"
+              href={getPushHealthUrl({ repo: repoName, revision })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              DEMO: Push Health (fake data)
             </a>
           </li>
         </ul>
