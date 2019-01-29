@@ -18,7 +18,7 @@ export const deployedRevisionUrl = '/revision.txt';
 
 export const loginCallbackUrl = '/login.html';
 
-export const pushEndpoint = '/resultset/';
+export const pushEndpoint = '/push/';
 
 export const repoEndpoint = '/repository/';
 

@@ -14,7 +14,7 @@ describe('Pushes context', () => {
 
   beforeEach(() => {
     fetchMock.get(
-      getProjectUrl('/resultset/?full=true&count=10', repoName),
+      getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
     );
 
