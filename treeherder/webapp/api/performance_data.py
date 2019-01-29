@@ -236,14 +236,15 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         ret = defaultdict(list)
         values_list = datums.values_list(
             'id', 'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
-            'push_timestamp', 'value')
+            'push_timestamp', 'value', 'push__revision')
         for (id, signature_id, signature_hash, job_id, push_id,
-             push_timestamp, value) in values_list:
+             push_timestamp, value, push__revision) in values_list:
             ret[signature_hash].append({
                 'id': id,
                 'signature_id': signature_id,
                 'job_id': job_id,
                 'push_id': push_id,
+                'revision': push__revision,
                 'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
                 'value': round(value, 2)  # round to 2 decimal places
             })
