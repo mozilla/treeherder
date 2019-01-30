@@ -67,7 +67,7 @@
     "pk": 9,
     "model": "model.repositorygroup",
     "fields": {
-      "name": "ci-admin",
+      "name": "ci",
       "description": "Administration of Firefox CI"
     }
   },

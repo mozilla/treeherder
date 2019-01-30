@@ -1332,5 +1332,32 @@
       "description": "The Servo Parallel Browser Engine − pull requests",
       "expire_performance_data": false
     }
+  },
+  {
+    "pk": 103,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "taskgraph",
+      "url": "https://hg.mozilla.org/ci/taskgraph",
+      "active_status": "active",
+      "codebase": "taskgraph",
+      "repository_group": 9,
+      "description": "Tools for defining graphs fo taskclutser tasks"
+    }
+  },
+  {
+    "pk": 104,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "taskgraph-try",
+      "url": "https://hg.mozilla.org/ci/taskgraph-try",
+      "active_status": "active",
+      "codebase": "taskgraph",
+      "repository_group": 9,
+      "description": "Tools for defining graphs fo taskclutser tasks",
+      "is_try_repo": true
+    }
   }
 ]
