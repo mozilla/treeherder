@@ -103,26 +103,9 @@ label.dropdown-item {
   color: #fff;
 }
 
-.nav-login-btn {
-  padding-left: 22px;
-  padding-right: 27px;
-  color: lightgrey;
-  cursor: pointer;
-}
-
-.nav-logged-in-btn {
-  padding-left: 14px;
-  padding-right: 14px;
-}
-
 .th-context-navbar {
   background-color: #354048;
   overflow: visible;
-}
-
-login {
-  align-items: center;
-  display: flex;
 }
 
 /*

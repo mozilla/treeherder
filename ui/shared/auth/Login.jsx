@@ -138,7 +138,7 @@ class Login extends React.Component {
           </span>
         )}
         {!user.isLoggedIn && (
-          <span className="btn nav-login-btn" onClick={this.login}>
+          <span className="btn btn-view-nav nav-menu-btn" onClick={this.login}>
             {' '}
             Login / Register
           </span>
