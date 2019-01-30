@@ -20,8 +20,6 @@ class PinBoard extends React.Component {
     super(props);
 
     this.state = {
-      failureClassificationId: 4,
-      failureClassificationComment: '',
       enteringBugNumber: false,
       newBugNumber: null,
     };
@@ -35,19 +33,9 @@ class PinBoard extends React.Component {
     window.removeEventListener(thEvents.saveClassification, this.save);
   }
 
-  setClassificationId(evt) {
-    this.setState({ failureClassificationId: parseInt(evt.target.value, 10) });
-  }
-
-  setClassificationText(evt) {
-    this.setState({ failureClassificationComment: evt.target.value });
-  }
-
   unPinAll = () => {
     this.props.unPinAll();
     this.setState({
-      failureClassificationId: 4,
-      failureClassificationComment: '',
       enteringBugNumber: false,
       newBugNumber: null,
     });
@@ -87,8 +75,6 @@ class PinBoard extends React.Component {
         recalculateUnclassifiedCounts();
         this.unPinAll();
         this.setState({
-          failureClassificationId: 4,
-          failureClassificationComment: '',
           enteringBugNumber: false,
           newBugNumber: null,
         });
@@ -107,7 +93,7 @@ class PinBoard extends React.Component {
     const {
       failureClassificationId,
       failureClassificationComment,
-    } = this.state;
+    } = this.props;
 
     return new JobClassificationModel({
       text: failureClassificationComment,
@@ -178,7 +164,7 @@ class PinBoard extends React.Component {
     const pastedData = evt.clipboardData.getData('text');
 
     if (isSHAorCommit(pastedData)) {
-      this.setState({ failureClassificationId: 2 });
+      this.props.setClassificationId(2);
     }
   };
 
@@ -220,7 +206,7 @@ class PinBoard extends React.Component {
     const {
       failureClassificationId,
       failureClassificationComment,
-    } = this.state;
+    } = this.props;
 
     return (
       this.hasPinnedJobs() &&
@@ -241,7 +227,7 @@ class PinBoard extends React.Component {
     const {
       failureClassificationId,
       failureClassificationComment,
-    } = this.state;
+    } = this.props;
 
     return (
       failureClassificationComment !== '' ||
@@ -378,13 +364,12 @@ class PinBoard extends React.Component {
       removeBug,
       unPinJob,
       setSelectedJob,
-    } = this.props;
-    const {
+      setClassificationId,
+      setClassificationComment,
       failureClassificationId,
       failureClassificationComment,
-      enteringBugNumber,
-      newBugNumber,
-    } = this.state;
+    } = this.props;
+    const { enteringBugNumber, newBugNumber } = this.state;
     const selectedJobId = selectedJob ? selectedJob.id : null;
 
     return (
@@ -502,7 +487,9 @@ class PinBoard extends React.Component {
                   id="pinboard-classification-select"
                   className="classification-select"
                   value={failureClassificationId}
-                  onChange={evt => this.setClassificationId(evt)}
+                  onChange={evt =>
+                    setClassificationId(parseInt(evt.target.value, 10))
+                  }
                 >
                   {classificationTypes.map(opt => (
                     <option value={opt.id} key={opt.id}>
@@ -517,7 +504,7 @@ class PinBoard extends React.Component {
                   id="classification-comment"
                   type="text"
                   className="form-control add-classification-input"
-                  onChange={evt => this.setClassificationText(evt)}
+                  onChange={evt => setClassificationComment(evt.target.value)}
                   onPaste={this.pasteSHA}
                   placeholder="click to add comment"
                   value={failureClassificationComment}
@@ -530,7 +517,9 @@ class PinBoard extends React.Component {
                         className="classification-select"
                         type="select"
                         defaultValue={0}
-                        onChange={evt => this.setClassificationText(evt)}
+                        onChange={evt =>
+                          setClassificationComment(evt.target.value)
+                        }
                       >
                         <option value="0" disabled>
                           Choose a recent commit
@@ -640,11 +629,15 @@ PinBoard.propTypes = {
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
+  setClassificationId: PropTypes.func.isRequired,
+  setClassificationComment: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
+  failureClassificationId: PropTypes.number.isRequired,
+  failureClassificationComment: PropTypes.string.isRequired,
   selectedJob: PropTypes.object,
   email: PropTypes.string,
   revisionTips: PropTypes.array,
