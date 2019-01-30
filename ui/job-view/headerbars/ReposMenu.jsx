@@ -9,7 +9,7 @@ const GROUP_ORDER = [
   'project repositories',
   'comm-repositories',
   'qa automation tests',
-  'ci-admin',
+  'ci',
   'servo',
   'other',
 ];
