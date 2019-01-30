@@ -14,6 +14,8 @@ export class PinnedJobsClass extends React.Component {
     this.state = {
       pinnedJobs: {},
       pinnedJobBugs: {},
+      failureClassificationComment: '',
+      failureClassificationId: 4,
       isPinBoardVisible: false,
     };
     this.value = {
@@ -26,6 +28,8 @@ export class PinnedJobsClass extends React.Component {
       unPinAll: this.unPinAll,
       addBug: this.addBug,
       removeBug: this.removeBug,
+      setClassificationId: this.setClassificationId,
+      setClassificationComment: this.setClassificationComment,
     };
   }
 
@@ -33,6 +37,14 @@ export class PinnedJobsClass extends React.Component {
     this.value = { ...this.value, ...newState };
     this.setState(newState, callback);
   }
+
+  setClassificationId = id => {
+    this.setValue({ failureClassificationId: id });
+  };
+
+  setClassificationComment = text => {
+    this.setValue({ failureClassificationComment: text });
+  };
 
   setPinBoardVisible = isPinBoardVisible => {
     this.setValue({ isPinBoardVisible });
@@ -111,6 +123,8 @@ export class PinnedJobsClass extends React.Component {
 
   unPinAll = () => {
     this.setValue({
+      failureClassificationId: 4,
+      failureClassificationComment: '',
       pinnedJobs: {},
       pinnedJobBugs: {},
     });
@@ -171,6 +185,10 @@ export function withPinnedJobs(Component) {
             togglePinJob={context.togglePinJob}
             addBug={context.addBug}
             removeBug={context.removeBug}
+            failureClassificationId={context.failureClassificationId}
+            failureClassificationComment={context.failureClassificationComment}
+            setClassificationId={context.setClassificationId}
+            setClassificationComment={context.setClassificationComment}
           />
         )}
       </PinnedJobsContext.Consumer>
