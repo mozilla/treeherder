@@ -21,7 +21,8 @@ export default class Health extends React.Component {
       revision: params.get('revision'),
       repo: params.get('repo'),
       healthData: null,
-      error: null,
+      failureMessage: null,
+      failureStatus: null,
     };
   }
 
@@ -43,21 +44,23 @@ export default class Health extends React.Component {
 
   updatePushHealth = async () => {
     const { repo, revision } = this.state;
-    const resp = await PushModel.getHealth(repo, revision);
+    const { data, failureStatus } = await PushModel.getHealth(repo, revision);
+    const newState = !failureStatus
+      ? { healthData: data }
+      : { failureMessage: data, failureStatus };
 
-    if (resp.ok) {
-      const healthData = await resp.json();
-
-      this.setState({ healthData });
-    } else {
-      const error = await resp.text();
-
-      this.setState({ error });
-    }
+    this.setState(newState);
   };
 
   render() {
-    const { healthData, user, repo, revision, error } = this.state;
+    const {
+      healthData,
+      user,
+      repo,
+      revision,
+      failureMessage,
+      failureStatus,
+    } = this.state;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
       : 'none';
@@ -65,7 +68,7 @@ export default class Health extends React.Component {
     return (
       <React.Fragment>
         <Navigation user={user} setUser={this.setUser} />
-        <Container fluid>
+        <Container fluid className="mt-2">
           {healthData && (
             <div className="d-flex flex-column">
               <h3 className="text-center">
@@ -99,8 +102,13 @@ export default class Health extends React.Component {
               </Table>
             </div>
           )}
-          {error && <ErrorMessages errorMessages={[error]} />}
-          {!error && !healthData && <Spinner />}
+          {failureMessage && (
+            <ErrorMessages
+              failureMessage={failureMessage}
+              failureStatus={failureStatus}
+            />
+          )}
+          {!failureMessage && !healthData && <Spinner />}
         </Container>
       </React.Fragment>
     );

@@ -26,13 +26,13 @@ ErrorMessages.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]),
   failureStatus: PropTypes.number,
-  errorMessages: PropTypes.array,
+  errorMessages: PropTypes.arrayOf(PropTypes.string),
 };
 
 ErrorMessages.defaultProps = {
   failureMessage: null,
   failureStatus: null,
-  errorMessages: PropTypes.arrayOf(PropTypes.string),
+  errorMessages: [],
 };
 
 export default ErrorMessages;

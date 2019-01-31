@@ -1,6 +1,7 @@
 import { slugid } from 'taskcluster-client-web';
 
 import { thMaxPushFetchSize } from '../helpers/constants';
+import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
 import taskcluster from '../helpers/taskcluster';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
@@ -196,7 +197,7 @@ export default class PushModel {
   }
 
   static getHealth(repoName, revision) {
-    return fetch(
+    return getData(
       getProjectUrl(`${pushEndpoint}health/?revision=${revision}`, repoName),
     );
   }
