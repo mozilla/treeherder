@@ -1,4 +1,3 @@
-import copy
 import datetime
 import json
 
@@ -122,36 +121,6 @@ def test_push_list_single_long_revision(client, eleven_jobs_stored, test_reposit
             u'revisions_long_revision': u'45f8637cb9f78f19cb8463ff174e81756805d8cf'
         },
         u'repository': test_repository.name}
-    )
-
-
-def test_push_list_single_long_revision_stored_long(client, sample_push, test_repository):
-    """
-    test retrieving a push list with store long revision, filtered by a single long revision
-    """
-    long_revision = "21fb3eed1b5f3456789012345678901234567890"
-
-    # store a push with long revision
-    push = copy.deepcopy(sample_push[0])
-    push["revisions"][0]["revision"] = long_revision
-    store_push_data(test_repository, [push])
-
-    resp = client.get(
-        reverse("push-list", kwargs={"project": test_repository.name}),
-        {"revision": long_revision}
-    )
-    assert resp.status_code == 200
-    results = resp.json()['results']
-    meta = resp.json()['meta']
-    assert len(results) == 1
-    assert set([ph["revision"] for ph in results]) == {sample_push[0]['revision']}
-    assert(meta == {
-        'count': 1,
-        'revision': long_revision,
-        'filter_params': {
-            'revisions_long_revision': long_revision
-        },
-        'repository': test_repository.name}
     )
 
 

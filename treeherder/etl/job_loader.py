@@ -72,7 +72,10 @@ class JobLoader(object):
         filter_kwargs = {'repository': repository, revision_field: revision}
 
         if revision_field == 'revision__startswith':
-            newrelic.agent.record_exception(params={'error': 'Revision < 40 chars', 'job': pulse_job})
+            newrelic.agent.record_custom_event(
+                'short_revision_job_loader',
+                {'error': 'Revision <40 chars', 'revision': revision, 'job': pulse_job}
+            )
 
         if not Push.objects.filter(**filter_kwargs).exists():
             raise MissingPushException(
