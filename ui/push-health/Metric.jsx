@@ -5,7 +5,7 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Badge, Row, Col } from 'reactstrap';
+import { Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
 import TestFailure from './TestFailure';
@@ -45,11 +45,11 @@ export default class Metric extends React.PureComponent {
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">
-              <div>
+              <div onClick={this.toggleDetails} className="btn">
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>
-                <span onClick={this.toggleDetails} className="btn">
+                <span className="btn">
                   <FontAwesomeIcon icon={expandIcon} />
                 </span>
               </div>
@@ -60,25 +60,27 @@ export default class Metric extends React.PureComponent {
                 </Badge>
               </span>
             </Row>
-            {detailsShowing && (
-              <React.Fragment>
-                {failures &&
-                  failures.map(failure => (
-                    <TestFailure
-                      key={failure.testName}
-                      failure={failure}
-                      repo={repo}
-                      revision={revision}
-                    />
-                  ))}
-                {details &&
-                  details.map(detail => (
-                    <div key={detail} className="ml-3">
-                      {detail}
-                    </div>
-                  ))}
-              </React.Fragment>
-            )}
+            <Collapse isOpen={detailsShowing}>
+              <Card>
+                <CardBody>
+                  {failures &&
+                    failures.map(failure => (
+                      <TestFailure
+                        key={failure.testName}
+                        failure={failure}
+                        repo={repo}
+                        revision={revision}
+                      />
+                    ))}
+                  {details &&
+                    details.map(detail => (
+                      <div key={detail} className="ml-3">
+                        {detail}
+                      </div>
+                    ))}
+                </CardBody>
+              </Card>
+            </Collapse>
           </Col>
         </Row>
       </td>
