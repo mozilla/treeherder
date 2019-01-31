@@ -39,10 +39,6 @@ h1 {
   background: #f8f8f8;
 }
 
-login {
-  align-self: center;
-}
-
 #graph-chooser {
   flex: none;
   width: 240px;
