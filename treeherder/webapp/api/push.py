@@ -78,7 +78,9 @@ class PushViewSet(viewsets.ViewSet):
             elif param == 'revision':
                 # revision can be either the revision of the push itself, or
                 # any of the commits it refers to
-                pushes = pushes.filter(commits__revision__startswith=value)
+                revision_field = 'commits__revision__startswith' if len(value) < 40 else 'commits__revision'
+                filter_kwargs = {revision_field: value}
+                pushes = pushes.filter(**filter_kwargs)
                 rev_key = "revisions_long_revision" \
                           if len(meta['revision']) == 40 else "revisions_short_revision"
                 filter_params.update({rev_key: meta['revision']})

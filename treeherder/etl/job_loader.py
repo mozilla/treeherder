@@ -68,9 +68,13 @@ class JobLoader(object):
         # check the revision for this job has an existing push
         # If it doesn't, then except out so that the celery task will
         # retry till it DOES exist.
-        # TODO: Stop using startswith for improved performance as part of bug 1306707.
-        if not Push.objects.filter(repository=repository,
-                                   revision__startswith=revision).exists():
+        revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
+        filter_kwargs = {'repository': repository, revision_field: revision}
+
+        if revision_field == 'revision__startswith':
+            newrelic.agent.record_exception(params={'error': 'Revision < 40 chars', 'job': pulse_job})
+
+        if not Push.objects.filter(**filter_kwargs).exists():
             raise MissingPushException(
                 "No push found in {} for revision {}".format(
                     pulse_job["origin"]["project"],
@@ -126,7 +130,7 @@ class JobLoader(object):
 
         # add some taskcluster metadata if it's available
         # currently taskcluster doesn't pass the taskId directly, so we'll
-        # to derive it from the guid, where it is stored in uncompressed
+        # derive it from the guid, where it is stored in uncompressed
         # guid form of a slug (see: https://github.com/taskcluster/slugid)
         # FIXME: add support for processing the taskcluster information
         # properly, when it's available:

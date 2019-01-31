@@ -445,12 +445,12 @@ def store_job_data(repository, data):
             # job consumer, then the data will always be vetted with a
             # JSON schema before we get to this point.
             job = datum['job']
+            revision = datum['revision']
             superseded = datum.get('superseded', [])
 
-            # TODO: Stop using startswith for improved performance as part of bug 1306707.
-            push_id = Push.objects.values_list('id', flat=True).get(
-                repository=repository,
-                revision__startswith=datum['revision'])
+            revision_field = 'revision__startswith' if len(revision) < 40 else 'revision'
+            filter_kwargs = {'repository': repository, revision_field: revision}
+            push_id = Push.objects.values_list('id', flat=True).get(**filter_kwargs)
 
             # load job
             job_guid = _load_job(repository, job, push_id)
