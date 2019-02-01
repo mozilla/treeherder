@@ -45,10 +45,14 @@ export const formatTaskclusterError = function formatTaskclusterError(e) {
 };
 
 export const processErrorMessage = function processErrorMessage(error, status) {
-  if (status === 503) {
+  if (status >= 500) {
     return 'There was a problem retrieving the data. Please try again in a minute.';
   }
 
-  const key = Object.keys(error);
-  return `${key}: ${error[key]}`;
+  if (error instanceof Object) {
+    const key = Object.keys(error);
+
+    return `${key}: ${error[key]}`;
+  }
+  return error;
 };

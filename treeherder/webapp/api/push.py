@@ -177,3 +177,83 @@ class PushViewSet(viewsets.ViewSet):
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
         return Response(push.get_status())
+
+    @action(detail=False)
+    def health(self, request, project):
+        """
+        Return a calculated assessment of the health of this push.
+
+        TODO: Replace this static dummy data with real data.
+        """
+        revision = request.query_params.get('revision')
+
+        try:
+            push = Push.objects.get(revision=revision, repository__name=project)
+        except Push.DoesNotExist:
+            return Response("No push with revision: {0}".format(revision),
+                            status=HTTP_404_NOT_FOUND)
+        return Response({
+            'revision': revision,
+            'id': push.id,
+            'result': 'fail',
+            'metrics': [
+                {
+                    'name': 'Builds',
+                    'result': 'pass',
+                    'value': 10,
+                    'details': ['Wow, everything passed!'],
+                },
+                {
+                    'name': 'Linting',
+                    'result': 'pass',
+                    'value': 10,
+                    'details': ['Gosh, this code is really nicely formatted.'],
+                },
+                {
+                    'name': 'Tests',
+                    'result': 'fail',
+                    'value': 2,
+                    'failures': [
+                        {
+                            'testName': 'dom/tests/mochitest/fetch/test_fetch_cors_sw_reroute.html',
+                            'jobName': 'test-linux32/opt-mochitest-browser-chrome-e10s-4',
+                            'jobId': 223458405,
+                            'classification': 'intermittent',
+                            'failureLine':
+                                'REFTEST TEST-UNEXPECTED-FAIL | file:///builds/worker/workspace/build/tests/reftest/tests/layout/reftests/border-dotted/border-dashed-no-radius.html == file:///builds/worker/workspace/build/tests/reftest/tests/layout/reftests/border-dotted/masked.html | image comparison, max difference: 255, number of differing pixels: 54468',
+                            'confidence': 3,
+                        },
+                        {
+                            'testName':
+                                'browser/components/extensions/test/browser/test-oop-extensions/browser_ext_pageAction_context.js',
+                            'jobName': 'test-linux64/debug-mochitest-plain-headless-e10s-8',
+                            'jobId': 223458405,
+                            'classification': 'intermittent',
+                            'failureLine':
+                                "raptor-main TEST-UNEXPECTED-FAIL: test 'raptor-tp6-bing-firefox' timed out loading test page: https://www.bing.com/search?q=barack+obama",
+                            'confidence': 4,
+                        },
+                    ],
+                    'details': [
+                        'Ran some tests that did not go so well',
+                        'See [foo.bar.baz/mongo/rational/fee]',
+                    ],
+                },
+                {
+                    'name': 'Coverage',
+                    'result': 'indeterminate',
+                    'value': 5,
+                    'details': [
+                        'Covered 42% of the tests that are needed for feature ``foo``.',
+                        'Covered 100% of the tests that are needed for feature ``bar``.',
+                        'The ratio of people to cake is too many...',
+                    ],
+                },
+                {
+                    'name': 'Performance',
+                    'result': 'pass',
+                    'value': 10,
+                    'details': ['Ludicrous Speed'],
+                },
+            ],
+        })

@@ -49,6 +49,6 @@ export default class TestFailure extends React.PureComponent {
 
 TestFailure.propTypes = {
   failure: PropTypes.object.isRequired,
-  repo: PropTypes.object.isRequired,
-  revision: PropTypes.object.isRequired,
+  repo: PropTypes.string.isRequired,
+  revision: PropTypes.string.isRequired,
 };
