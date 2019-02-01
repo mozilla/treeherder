@@ -68,7 +68,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         assert requestdata['summary'] == u"Intermittent “summary”"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
-        assert requestdata['keywords'] == ["intermittent-failure"]
+        assert requestdata['keywords'] == ["intermittent-failure", "regression"]
         resp_body = {"id": 323}
         return(200, headers, json.dumps(resp_body))
 
@@ -89,7 +89,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
             "version": "4.0.17",
             "comment": u"Intermittent “description” string",
             "comment_tags": "treeherder",
-            "keywords": ["intermittent-failure"],
+            "keywords": ["intermittent-failure", "regression"],
         }
     )
     assert resp.status_code == 200
