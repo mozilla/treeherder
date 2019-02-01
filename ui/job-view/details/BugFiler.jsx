@@ -390,6 +390,7 @@ export class BugFilerClass extends React.Component {
 
     const descriptionStrings = [...checkedLogLinks, comment].join('\n\n');
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
+    keywords.push('regression');
     let severity = 'normal';
     const priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
