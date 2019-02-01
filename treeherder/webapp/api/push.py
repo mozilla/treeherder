@@ -1,5 +1,6 @@
 import datetime
 
+import newrelic.agent
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -50,20 +51,27 @@ class PushViewSet(viewsets.ViewSet):
 
         for (param, value) in iteritems(meta):
             if param == 'fromchange':
+                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
+                filter_kwargs = {revision_field: value}
                 frompush_time = Push.objects.values_list('time', flat=True).get(
-                    repository=repository, revision__startswith=value)
+                    **filter_kwargs)
                 pushes = pushes.filter(time__gte=frompush_time)
                 filter_params.update({
                     "push_timestamp__gte": to_timestamp(frompush_time)
                 })
+                self.report_if_short_revision(param, value)
 
             elif param == 'tochange':
+                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
+                filter_kwargs = {revision_field: value}
                 topush_time = Push.objects.values_list('time', flat=True).get(
-                    repository=repository, revision__startswith=value)
+                    **filter_kwargs)
                 pushes = pushes.filter(time__lte=topush_time)
                 filter_params.update({
                     "push_timestamp__lte": to_timestamp(topush_time)
                 })
+                self.report_if_short_revision(param, value)
+
             elif param == 'startdate':
                 pushes = pushes.filter(time__gte=to_datetime(value))
                 filter_params.update({
@@ -78,10 +86,13 @@ class PushViewSet(viewsets.ViewSet):
             elif param == 'revision':
                 # revision can be either the revision of the push itself, or
                 # any of the commits it refers to
-                pushes = pushes.filter(commits__revision__startswith=value)
+                revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
+                filter_kwargs = {revision_field: value}
+                pushes = pushes.filter(**filter_kwargs)
                 rev_key = "revisions_long_revision" \
                           if len(meta['revision']) == 40 else "revisions_short_revision"
                 filter_params.update({rev_key: meta['revision']})
+                self.report_if_short_revision(param, value)
 
         for param in ['push_timestamp__lt', 'push_timestamp__lte',
                       'push_timestamp__gt', 'push_timestamp__gte']:
@@ -257,3 +268,11 @@ class PushViewSet(viewsets.ViewSet):
                 },
             ],
         })
+
+    # TODO: Remove when we no longer support short revisions: Bug 1306707
+    def report_if_short_revision(self, param, revision):
+        if len(revision) < 40:
+            newrelic.agent.record_custom_event(
+                'short_revision_push_api',
+                {'error': 'Revision <40 chars', 'param': param, 'revision': revision}
+            )
