@@ -13,11 +13,6 @@ delete webpackConfig.entry;
 // Re-enable Buffer since Karma fails to work without it.
 webpackConfig.node.Buffer = true;
 
-// Work around karma-webpack hanging under webpack 4:
-// https://github.com/webpack-contrib/karma-webpack/issues/322
-webpackConfig.optimization.splitChunks = false;
-webpackConfig.optimization.runtimeChunk = false;
-
 module.exports = config => {
   config.set({
     plugins: ['karma-webpack', 'karma-firefox-launcher', 'karma-jasmine'],
