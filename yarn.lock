@@ -8136,10 +8136,10 @@ react-style-proptype@^3.0.0:
   dependencies:
     prop-types "^15.5.4"
 
-react-table@6.8.6:
-  version "6.8.6"
-  resolved "https://registry.yarnpkg.com/react-table/-/react-table-6.8.6.tgz#a0ad8b4839319052d5befc012603fb161e52ede3"
-  integrity sha1-oK2LSDkxkFLVvvwBJgP7Fh5S7eM=
+react-table@6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/react-table/-/react-table-6.9.0.tgz#de8190a1a3f32c5fa46697a6a6c640e984670f5d"
+  integrity sha512-sATtBTyXlQlqSaPayDv66e5JAS8zv1BmaCAm7UT8VzDD9Cvei90Lgx2Cn0HdGMh7BGDNUiVTSGRaNAzejs/Ohg==
   dependencies:
     classnames "^2.2.5"
 
