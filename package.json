@@ -14,9 +14,9 @@
     "d3": "5.8.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "1.2.13",
-    "@fortawesome/free-regular-svg-icons": "5.7.0",
-    "@fortawesome/free-solid-svg-icons": "5.7.0",
+    "@fortawesome/fontawesome-svg-core": "1.2.14",
+    "@fortawesome/free-regular-svg-icons": "5.7.1",
+    "@fortawesome/free-solid-svg-icons": "5.7.1",
     "@fortawesome/react-fontawesome": "0.1.4",
     "@neutrinojs/copy": "9.0.0-rc.0",
     "@neutrinojs/react": "9.0.0-rc.0",
