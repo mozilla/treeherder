@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
+import { faTree } from '@fortawesome/free-solid-svg-icons';
 
 import LogoMenu from '../shared/LogoMenu';
 
@@ -45,7 +48,10 @@ export default class Navigation extends React.PureComponent {
                 rel="noopener noreferrer"
                 href={jobUrl}
               >
-                <span className="fa fa-tree actionbtn-icon mr-1" />
+                <FontAwesomeIcon
+                  icon={faTree}
+                  className="actionbtn-icon mr-1"
+                />
                 <span>open Job</span>
               </a>
             </span>
@@ -58,7 +64,10 @@ export default class Navigation extends React.PureComponent {
               rel="noopener noreferrer"
               href={rawLogUrl}
             >
-              <span className="fa fa-file-text-o actionbtn-icon mr-1" />
+              <FontAwesomeIcon
+                icon={faFileAlt}
+                className="actionbtn-icon mr-1"
+              />
               <span>open raw log</span>
             </a>
           </span>
@@ -71,7 +80,10 @@ export default class Navigation extends React.PureComponent {
                 rel="noopener noreferrer"
                 href={reftestUrl}
               >
-                <span className="fa fa-bar-chart-o actionbtn-icon mr-1" />
+                <FontAwesomeIcon
+                  icon={faChartBar}
+                  className="actionbtn-icon mr-1"
+                />
                 <span>open analyser</span>
               </a>
             </span>
