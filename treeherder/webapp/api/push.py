@@ -52,7 +52,7 @@ class PushViewSet(viewsets.ViewSet):
         for (param, value) in iteritems(meta):
             if param == 'fromchange':
                 revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
-                filter_kwargs = {revision_field: value}
+                filter_kwargs = {revision_field: value, 'repository': repository}
                 frompush_time = Push.objects.values_list('time', flat=True).get(
                     **filter_kwargs)
                 pushes = pushes.filter(time__gte=frompush_time)
@@ -63,7 +63,7 @@ class PushViewSet(viewsets.ViewSet):
 
             elif param == 'tochange':
                 revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
-                filter_kwargs = {revision_field: value}
+                filter_kwargs = {revision_field: value, 'repository': repository}
                 topush_time = Push.objects.values_list('time', flat=True).get(
                     **filter_kwargs)
                 pushes = pushes.filter(time__lte=topush_time)
