@@ -1,7 +1,11 @@
 import React from 'react';
 import { Table, Progress } from 'reactstrap';
 import PropTypes from 'prop-types';
-import Icon from 'react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faExclamationTriangle,
+  faThumbsUp,
+} from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../shared/SimpleTooltip';
 
@@ -89,14 +93,14 @@ export default class CompareTable extends React.Component {
                     text={
                       <React.Fragment>
                         {(results.isRegression || results.isImprovement) && (
-                          <Icon
-                            name={
+                          <FontAwesomeIcon
+                            icon={
                               results.isRegression
-                                ? 'exclamation-triangle'
-                                : 'thumbs-up'
+                                ? faExclamationTriangle
+                                : faThumbsUp
                             }
                             className={this.getColorClass(results, 'text')}
-                            style={{ fontSize: '20px' }}
+                            size="lg"
                           />
                         )}
                         {`  ${displayNumber(results.deltaPercentage)}%`}
