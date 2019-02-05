@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.14",
+    "@fortawesome/free-brands-svg-icons": "5.7.1",
     "@fortawesome/free-regular-svg-icons": "5.7.1",
     "@fortawesome/free-solid-svg-icons": "5.7.1",
     "@fortawesome/react-fontawesome": "0.1.4",
@@ -54,7 +55,6 @@
     "react": "16.7.0",
     "react-day-picker": "7.2.4",
     "react-dom": "16.7.0",
-    "react-fontawesome": "1.6.1",
     "react-highlight-words": "0.16.0",
     "react-hot-loader": "4.6.5",
     "react-hotkeys": "1.1.4",

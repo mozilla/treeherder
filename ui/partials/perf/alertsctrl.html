@@ -44,7 +44,7 @@
       </div>
       <div class="alert-summary-title">
         <a class="anchor" href="#/alerts?id={{alertSummary.id}}" ng-class="{'alert-summary-title-invalid': alertSummary.status==4}">
-          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{getTitle(alertSummary)}} <span class="fa fa-external-link icon-superscript"/>
+          Alert #{{alertSummary.id}} - {{alertSummary.repository}} - {{getTitle(alertSummary)}} <span class="fas fa-external-link-alt icon-superscript"/>
         </a>
         <br/>
         {{alertSummary.resultSetMetadata.dateStr}}
@@ -121,9 +121,10 @@
         </td>
         <td class="alert-labels">
           <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
-             ng-class="{'fa fa-star visible': alert.starred, 'fa fa-star-o': !alert.starred}"
+             ng-class="{'visible': alert.starred}"
              ng-disabled="!user.isStaff"
              ng-click="toggleStar(alert)">
+             <i ng-class="{'fas fa-star': alert.starred, 'far fa-star': !alert.starred}"></i>
           </a>
         </td>
         <td class="alert-title">
@@ -190,7 +191,7 @@
             </span>
           </span>
           <span ng-if="alert.manually_created" uib-tooltip="Sheriff-created alert">
-            <span class="fa fa-user"/>
+            <span class="fas fa-user"></span>
           </span>
         </td>
       </tr>
@@ -218,25 +219,25 @@
           <button class="btn btn-light-bordered" role="button"
                   ng-if="!allSelectedAreConfirming(alertSummary.alerts)"
                   ng-click="markAlertsConfirming(alertSummary)" title="Retriggers & backfills are pending">
-            <span class="fa fa-clock-o"></span> Confirming
+            <span class="far fa-clock"></span> Confirming
           </button>
           <button class="btn btn-light-bordered" role="button"
                   ng-click="markAlertsAcknowledged(alertSummary)" title="Acknowledge selected alerts as valid">
-            <span class="fa fa-check"></span> Acknowledge
+            <span class="fas fa-check"></span> Acknowledge
           </button>
           <button class="btn btn-light-bordered" role="button"
                   ng-click="markAlertsInvalid(alertSummary)" title="Mark selected alerts as invalid">
-            <span class="fa fa-ban"></span> Mark invalid
+            <span class="fas fa-ban"></span> Mark invalid
           </button>
           <button class="btn btn-light-bordered" role="button"
                   ng-click="markAlertsDownstream(alertSummary)"
                   title="Mark selected alerts as downstream from an alert summary on another branch">
-            <span class="fa fa-level-down"></span> Mark downstream
+            <span class="fas fa-level-down-alt"></span> Mark downstream
           </button>
           <button class="btn btn-light-bordered" role="button"
                   ng-click="reassignAlerts(alertSummary)"
                   title="Reassign selected alerts to another alert summary on the same branch">
-            <span class="fa fa-arrow-circle-o-right"></span> Reassign
+            <span class="far fa-arrow-alt-circle-right"></span> Reassign
           </button>
         </span>
       </div>

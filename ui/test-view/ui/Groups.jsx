@@ -10,8 +10,9 @@ import {
   Table,
   Container,
 } from 'reactstrap';
-import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug, faSpinner, faUnlink } from '@fortawesome/free-solid-svg-icons';
 
 import { store, actions } from '../redux/store';
 
@@ -78,10 +79,18 @@ class Groups extends React.Component {
             <Row>
               <Col md={3} sm={12} xs={12} style={{ textAlign: 'right' }}>
                 Known intermittent failure&nbsp;&nbsp;
-                <Icon name="bug" style={{ color: '#d78236' }} />
+                <FontAwesomeIcon
+                  icon={faBug}
+                  size="sm"
+                  className="classified-intermittent"
+                />
                 <br />
                 Infrastructure issue&nbsp;&nbsp;
-                <Icon name="chain-broken" style={{ color: '#db3737' }} />
+                <FontAwesomeIcon
+                  icon={faUnlink}
+                  size="sm"
+                  className="classified-infra"
+                />
               </Col>
               <Col md={6} sm={12} xs={12}>
                 <FormGroup style={{ marginBottom: 0 }}>
@@ -157,7 +166,7 @@ class Groups extends React.Component {
                   colSpan={4}
                   style={{ textAlign: 'center', paddingTop: '2rem' }}
                 >
-                  <Icon name="spinner" size="2x" spin />
+                  <FontAwesomeIcon icon={faSpinner} size="2x" spin />
                 </td>
               </tr>
             </tbody>

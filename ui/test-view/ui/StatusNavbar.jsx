@@ -1,8 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Navbar, Nav, Badge } from 'reactstrap';
-import Icon from 'react-fontawesome';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheckSquare,
+  faIdCard,
+  faSquare,
+} from '@fortawesome/free-regular-svg-icons';
+import { faCode } from '@fortawesome/free-solid-svg-icons';
 
 import { store, actions } from '../redux/store';
 
@@ -41,13 +47,14 @@ class StatusNavbar extends React.Component {
       <Navbar expand>
         <Nav className="mr-auto">
           <span className="navbar-text">
-            <Icon name="code" /> Revision{' '}
+            <FontAwesomeIcon icon={faCode} size="sm" /> Revision{' '}
             <code className="push-revision">{push.revision}</code>
           </span>
 
           <span className="navbar-text">
             <span className="hidden-sm-down">&mdash;&nbsp;&nbsp;&nbsp;</span>
-            <Icon name="id-card-o" /> Author <code>{push.author}</code>
+            <FontAwesomeIcon icon={faIdCard} /> Author{' '}
+            <code>{push.author}</code>
           </span>
         </Nav>
 
@@ -60,7 +67,10 @@ class StatusNavbar extends React.Component {
           onClick={() => this.toggleHideClassified('infra')}
         >
           <Badge color="infra">
-            <Icon name={hideClassified.infra ? 'square-o' : 'check-square-o'} />
+            <FontAwesomeIcon
+              icon={hideClassified.infra ? faSquare : faCheckSquare}
+              pull="left"
+            />
             {counts.infra} Infra Tests
           </Badge>
         </span>
@@ -70,8 +80,9 @@ class StatusNavbar extends React.Component {
           onClick={() => this.toggleHideClassified('intermittent')}
         >
           <Badge color="intermittent">
-            <Icon
-              name={hideClassified.intermittent ? 'square-o' : 'check-square-o'}
+            <FontAwesomeIcon
+              icon={hideClassified.intermittent ? faSquare : faCheckSquare}
+              pull="left"
             />
             {counts.intermittent} Intermittent Tests
           </Badge>

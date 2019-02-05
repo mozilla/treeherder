@@ -1,9 +1,10 @@
 import React from 'react';
 import { Row, Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import Icon from 'react-fontawesome';
 import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 import { bugDetailsEndpoint, getJobsUrl } from '../helpers/url';
 
@@ -96,13 +97,11 @@ const BugDetailsView = props => {
       header={
         <React.Fragment>
           <Row>
-            <Col xs="12">
-              <span className="pull-left">
-                <Link to={lastLocation || '/'}>
-                  <Icon name="arrow-left" className="pr-1" />
-                  back
-                </Link>
-              </span>
+            <Col xs="12" className="text-left">
+              <Link to={lastLocation || '/'}>
+                <FontAwesomeIcon icon={faArrowLeft} className="mr-1" />
+                back
+              </Link>
             </Col>
           </Row>
           {!errorMessages.length && !tableFailureStatus && !graphFailureStatus && (

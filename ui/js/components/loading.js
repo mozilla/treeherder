@@ -7,7 +7,7 @@ treeherder.component('loading', {
     template: `
         <div ng-if="$ctrl.data" class="overlay">
             <div>
-                <span class="fa fa-spinner fa-pulse th-spinner-lg"></span>
+                <span class="fas fa-spinner fa-pulse th-spinner-lg"></span>
             </div>        
         </div>
     `,

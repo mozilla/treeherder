@@ -552,7 +552,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.summaryTitle = {
-            html: '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>',
+            html: '<i class="fas fa-spinner fa-pulse" aria-hidden="true"/>',
             promise: null,
         };
 
@@ -565,7 +565,7 @@ perf.controller('AlertsCtrl', [
         };
 
         $scope.resetSummaryTitle = function () {
-            $scope.summaryTitle.html = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"/>';
+            $scope.summaryTitle.html = '<i class="fas fa-spinner fa-pulse" aria-hidden="true"/>';
         };
 
         $scope.filtersUpdated = function () {
