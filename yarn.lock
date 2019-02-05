@@ -8123,10 +8123,10 @@ react-virtualized@^9.21.0:
     prop-types "^15.6.0"
     react-lifecycles-compat "^3.0.4"
 
-react2angular@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/react2angular/-/react2angular-4.0.4.tgz#501e75a7ca191c4af6f5582513c45a9ee0375602"
-  integrity sha1-UB51p8oZHEr29VglE8RanuA3VgI=
+react2angular@4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/react2angular/-/react2angular-4.0.5.tgz#145b5b2def0b305bec0e05e3e1ab8edf28c569ed"
+  integrity sha512-w9bM5xkbaZbSfVWdisFwhGrTIoj9g2qN1AyhfTgjmIbbgaNKH2IgDg6KslGLNktvqPA3dUO4KFyYwhiN1/XsQQ==
   dependencies:
     "@types/lodash.frompairs" "^4.0.3"
     angular ">=1.5"
