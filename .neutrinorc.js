@@ -128,6 +128,8 @@ module.exports = {
       '@neutrinojs/jest',
       {
         setupFilesAfterEnv: ['<rootDir>/tests/ui/unit/test-setup.js'],
+        // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
+        browser: true,
       },
     ],
     neutrino => {
