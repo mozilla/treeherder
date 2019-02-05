@@ -1253,7 +1253,7 @@
     "fields": {
       "dvcs_type": "hg",
       "name": "ci-admin",
-      "url": "https://hg.mozilla.org/build/ci-admin",
+      "url": "https://hg.mozilla.org/ci/ci-admin",
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
@@ -1266,7 +1266,7 @@
     "fields": {
       "dvcs_type": "hg",
       "name": "ci-configuration",
-      "url": "https://hg.mozilla.org/build/ci-configuration",
+      "url": "https://hg.mozilla.org/ci/ci-configuration",
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
