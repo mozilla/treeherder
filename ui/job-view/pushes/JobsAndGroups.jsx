@@ -45,7 +45,7 @@ export default class JobsAndGroups extends React.Component {
               filterModel={filterModel}
               repoName={repoName}
               visible={job.visible}
-              status={getStatus(job)}
+              resultStatus={getStatus(job)}
               failureClassificationId={job.failure_classification_id}
               filterPlatformCb={filterPlatformCb}
               platform={platform}
