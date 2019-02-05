@@ -9,10 +9,8 @@ Vagrant.require_version ">= 2.1.5"
 Vagrant.configure("2") do |config|
   # webpack-dev-server
   config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
-  # Django runserver/gunicorn
+  # Django runserver/gunicorn/mkdocs serve
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
-  # Docs dev server
-  config.vm.network "forwarded_port", guest: 8001, host: 8001, host_ip: "127.0.0.1"
   # MySQL
   config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
   # Elasticsearch

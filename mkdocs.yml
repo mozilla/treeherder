@@ -1,0 +1,49 @@
+docs_dir: 'docs'
+site_dir: '.build-docs'
+strict: true
+use_directory_urls: false
+
+site_name: 'Treeherder Docs'
+site_url: 'https://treeherder.readthedocs.io'
+repo_name: 'mozilla/treeherder'
+repo_url: 'https://github.com/mozilla/treeherder'
+
+# https://squidfunk.github.io/mkdocs-material/getting-started/#configuration
+theme:
+  name: 'material'
+
+# https://squidfunk.github.io/mkdocs-material/getting-started/#extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+  # Fixes fenced code blocks within lists.
+  - 'pymdownx.superfences':
+      disable_indented_code_blocks: True
+  # Allows index.md to include the repo root README.
+  - 'pymdownx.snippets':
+      check_paths: True
+  # Required so that 2 space indents within lists work the same as
+  # GitHub and Prettier's markdown implementation.
+  - mdx_truly_sane_lists
+
+# http://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
+nav:
+  - About: 'index.md'
+  - Getting Started:
+      - Installation: 'installation.md'
+      - Code Style: 'code_style.md'
+      - Common tasks: 'common_tasks.md'
+      - Backend tasks: 'backend_tasks.md'
+  - Working with the Server:
+      - Loading Pulse data: 'pulseload.md'
+      - SETA: 'seta.md'
+      - REST API: 'rest_api.md'
+      - Submitting Data: 'submitting_data.md'
+      - Retrieving Data: 'retrieving_data.md'
+      - Schema Validation: 'data_validation.md'
+      - Troubleshooting: 'troubleshooting.md'
+      - Treeherder Test Cases: 'testcases.md'
+      - Administrating Treeherder: 'admin.md'

@@ -44,7 +44,7 @@ Or for more control, run each tool individually:
 
   NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see `requirements/dev.txt`).
 
-- [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.html#python-imports)):
+- [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.md#python-imports)):
 
   To run interactively:
 
@@ -80,11 +80,9 @@ In the below example we're mapping VM port 3306 (MySQL's default port) to host p
 config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
 ```
 
-```eval_rst
-.. note::
-
+<!-- prettier-ignore -->
+!!! note
     Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the VM talking to it.
-```
 
 With MySQL exposed at port 3308 you can connect to it from your host OS with the following credentials:
 

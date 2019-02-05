@@ -8,14 +8,14 @@
 
 If you only want to hack on the frontend, see the UI Development section below. If you want to hack on the backend or work full-stack, see the [Server and Full-stack Development](#server-and-full-stack-development) section.
 
-# UI Development
+## UI Development
 
 To get started:
 
 - Install [Node.js] and [Yarn] (see [package.json] for known compatible versions, listed under `engines`).
 - Run `yarn install` to install all dependencies.
 
-## Running the standalone development server
+### Running the standalone development server
 
 The default development server runs the unminified UI and fetches data from the
 production site. You do not need to set up the Vagrant VM unless making backend changes.
@@ -26,11 +26,11 @@ production site. You do not need to set up the Vagrant VM unless making backend 
   $ yarn start
   ```
 
-```eval_rst
-.. note::
-
-  Any action you take, such as classifying a job, will affect the live production front-end of Treeherder so we recommend developing against `stage` (details below) unless there's something data-specific that must be addressed on production.
-```
+  <!-- prettier-ignore -->
+  !!! note
+      Any action you take, such as classifying a job, will affect the live production
+      front-end of Treeherder, so we recommend developing against `stage` (details below)
+      unless there's something data-specific that must be addressed on production.
 
 - The server will perform an initial build and then watch for new changes. Once the server is running, you can navigate to: <http://localhost:5000> to see the UI.
 
@@ -48,7 +48,7 @@ production site. You do not need to set up the Vagrant VM unless making backend 
 
   This will run the unminified UI using `<url>` as the service domain.
 
-## Validating JavaScript
+### Validating JavaScript
 
 We run our JavaScript code in the frontend through [ESLint] to ensure
 that new code has a consistent style and doesn't suffer from common
@@ -68,9 +68,9 @@ Or to automatically fix issues found (where possible):
 $ yarn lint --fix
 ```
 
-See the [code style](code_style.html#ui) section for more details.
+See the [code style](code_style.md#ui) section for more details.
 
-## Running the unit tests
+### Running the unit tests
 
 Currently, most of the unit tests for the UI are run with [Karma] and [Jasmine]. However, we are
 migrating from [Karma] to [Jest]. So new tests should be written in [Jest]. React components are tested with [enzyme].
@@ -95,14 +95,14 @@ $ yarn jest:watch
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
 
-# Server and Full-stack Development
+## Server and Full-stack Development
 
 To get started:
 
 - Install [Virtualbox] and [Vagrant] (latest versions recommended).
 - Linux only: An nfsd server is required. You can install this on Ubuntu by running `apt-get install nfs-common nfs-kernel-server`
 
-## Setting up Vagrant
+### Setting up Vagrant
 
 - Open a shell, cd into the root of the Treeherder repository, and type:
 
@@ -131,10 +131,10 @@ To get started:
 - For the full list of available Vagrant commands (for example, suspending the VM when you are finished for the day),
   see their [command line documentation](https://www.vagrantup.com/docs/cli/).
 
-- If you just wish to [run the tests](common_tasks.html#running-the-tests),
+- If you just wish to [run the tests](common_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
 
-## Starting a local Treeherder instance
+### Starting a local Treeherder instance
 
 - Start a gunicorn instance inside the Vagrant VM, to serve the static UI and API requests:
 
@@ -161,7 +161,7 @@ To get started:
 
 - Visit <http://localhost:5000> in your browser (NB: port has changed). Note: There will be no data to display until the ingestion tasks are run.
 
-## Building the minified UI with Vagrant
+### Building the minified UI with Vagrant
 
 If you would like to view the minified production version of the UI with Vagrant, follow this step:
 
@@ -174,21 +174,7 @@ If you would like to view the minified production version of the UI with Vagrant
 Once the build is complete, the minified version of the UI will now be accessible at
 <http://localhost:8000> (NB: port 8000, unlike above).
 
-## Validating JavaScript
-
-We run our JavaScript code in the frontend through [eslint] to ensure
-that new code has a consistent style and doesn't suffer from common
-errors. Eslint will run automatically when you build the JavaScript code
-or run the development server. A production build will fail if your code
-does not match the style requirements.
-
-To run eslint by itself, you may run the lint task:
-
-```bash
-$ yarn lint
-```
-
-## Running the ingestion tasks
+### Running the ingestion tasks
 
 Ingestion tasks populate the database with version control push logs, queued/running/completed jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
 
@@ -203,14 +189,14 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
 - Then in a new terminal window, run `vagrant ssh` again, and follow the steps from the [loading pulse data](pulseload.md) page.
 
-## Ingesting a single push (at a time)
+### Ingesting a single push (at a time)
 
-```eval_rst
-.. warning::
-  With the end of life of buildbot, this command is no longer able to ingest jobs.
-  For now after running it, you will need to manually follow the steps from the
-  :doc:`loading pulse data<pulseload>` page.
-```
+<!-- prettier-ignore -->
+!!! warning
+    With the end of life of buildbot, this command is no longer able to ingest jobs.
+
+    For now after running it, you will need to manually follow the steps from the
+    [loading pulse data](pulseload.md) page.
 
 Alternatively, instead of running a full ingestion task, you can process just
 the jobs associated with any single push generated in the last 4 hours
@@ -225,7 +211,7 @@ vagrant ~/treeherder$ ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
 If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
 the last four hours) on mozilla-inbound.
 
-## Ingesting a range of pushes
+### Ingesting a range of pushes
 
 It is also possible to ingest the last N pushes for a repository:
 

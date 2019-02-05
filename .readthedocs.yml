@@ -1,0 +1,7 @@
+# https://docs.readthedocs.io/en/latest/config-file/index.html
+version: 2
+python:
+  install:
+    - requirements: requirements/docs.txt
+mkdocs:
+  configuration: mkdocs.yml

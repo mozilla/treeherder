@@ -101,6 +101,9 @@ fi
 echo '-----> Running pip install'
 pip install --require-hashes -r requirements/common.txt -r requirements/dev.txt \
     | sed -e '/^Requirement already satisfied:/d'
+# Installing separately since we don't specify sub-deps and hashes for docs dependencies.
+pip install -r requirements/docs.txt \
+    | sed -e '/^Requirement already satisfied:/d'
 
 if [[ "$(geckodriver --version 2>&1)" != *"${GECKODRIVER_VERSION}"* ]]; then
     echo '-----> Installing geckodriver'
