@@ -1359,5 +1359,31 @@
       "description": "Tools for defining graphs fo taskclutser tasks",
       "is_try_repo": true
     }
+  },
+  {
+    "pk": 105,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "ci-admin-try",
+      "url": "https://hg.mozilla.org/ci/ci-admin-try",
+      "active_status": "active",
+      "codebase": "ci-admin",
+      "repository_group": 9,
+      "description": "Administrative scripts for Firefox CI"
+    }
+  },
+  {
+    "pk": 106,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "ci-configuration-try",
+      "url": "https://hg.mozilla.org/ci/ci-configuration-try",
+      "active_status": "active",
+      "codebase": "ci-admin",
+      "repository_group": 9,
+      "description": "Administrative configuration for Firefox CI"
+    }
   }
 ]
