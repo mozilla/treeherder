@@ -45,7 +45,7 @@ describe('JobGroup component', () => {
     ).toEqual('2');
   });
 
-  it('should show a job and count of 2 when expanded, then re-collapsed', () => {
+  test('should show a job and count of 2 when expanded, then re-collapsed', () => {
     const jobGroup = mount(
       <JobGroupComponent
         repoName={repoName}
@@ -69,7 +69,7 @@ describe('JobGroup component', () => {
     ).toEqual('2');
   });
 
-  it('should show jobs, not counts when expanded', () => {
+  test('should show jobs, not counts when expanded', () => {
     const jobGroup = mount(
       <JobGroupComponent
         repoName={repoName}
@@ -88,7 +88,7 @@ describe('JobGroup component', () => {
     expect(jobGroup.find('.job-btn').length).toEqual(3);
   });
 
-  it('should show jobs, not counts when globally expanded', () => {
+  test('should show jobs, not counts when globally expanded', () => {
     const groupCountsExpanded = true;
     const jobGroup = mount(
       <JobGroupComponent
@@ -107,7 +107,7 @@ describe('JobGroup component', () => {
     expect(jobGroup.find('.job-group-count').length).toEqual(0);
   });
 
-  it('should hide duplicates by default', () => {
+  test('should hide duplicates by default', () => {
     const jobGroup = mount(
       <JobGroupComponent
         repoName={repoName}
@@ -125,7 +125,7 @@ describe('JobGroup component', () => {
     expect(jobGroup.find('.job-btn').length).toEqual(1);
   });
 
-  it('should show 2 duplicates when set to show duplicates', () => {
+  test('should show 2 duplicates when set to show duplicates', () => {
     const duplicateJobsVisible = true;
     const jobGroup = mount(
       <JobGroupComponent
@@ -144,7 +144,7 @@ describe('JobGroup component', () => {
     expect(jobGroup.find('.job-btn').length).toEqual(2);
   });
 
-  it('should show 2 duplicates when globally set to show duplicates', () => {
+  test('should show 2 duplicates when globally set to show duplicates', () => {
     const duplicateJobsVisible = true;
     const jobGroup = mount(
       <JobGroupComponent
