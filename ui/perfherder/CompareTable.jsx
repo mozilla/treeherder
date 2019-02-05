@@ -17,9 +17,7 @@ export default class CompareTable extends React.Component {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
     if (type === 'background' && className === 'warning')
-      return `bg-${className} ${
-        className !== 'warning' ? 'text-white font-weight-bold' : null
-      }`;
+      return `bg-${className}`;
     if (type === 'text' && className) return `text-${className}`;
     return className;
   };
@@ -34,10 +32,7 @@ export default class CompareTable extends React.Component {
     return (
       <Table sz="small" className="compare-table mb-0" key={title || testName}>
         <thead>
-          <tr
-            style={{ backgroundColor: 'lightgrey' }}
-            className="subtest-header"
-          >
+          <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>{testName}</span>
             </th>

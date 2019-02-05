@@ -20,6 +20,13 @@ export default class InputFilter extends React.Component {
     this.setState({ input });
   };
 
+  handleKeyPress = event => {
+    const { input } = this.state;
+    if (event.key === 'Enter' && input) {
+      this.props.updateFilterText(input);
+    }
+  };
+
   render() {
     const { updateFilterText } = this.props;
     const { input } = this.state;
@@ -30,6 +37,7 @@ export default class InputFilter extends React.Component {
           placeholder="linux tp5o"
           onChange={this.updateInput}
           value={input}
+          onKeyPress={this.handleKeyPress}
         />
         <InputGroupAddon addonType="append">
           <Button onClick={() => updateFilterText(input)}>filter</Button>

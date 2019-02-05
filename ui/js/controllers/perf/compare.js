@@ -4,7 +4,7 @@ import difference from 'lodash/difference';
 import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
-import { endpoints } from '../../../perfherder/constants';
+import { endpoints, noiseMetricTitle } from '../../../perfherder/constants';
 import {
   phTimeRanges,
   compareDefaultTimeRange,
@@ -15,6 +15,7 @@ import PerfSeriesModel from '../../../models/perfSeries';
 import { getCounterMap, getInterval, validateQueryParams, getGraphsLink } from '../../../perfherder/helpers';
 import { getApiUrl, createApiUrl, perfSummaryEndpoint } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
+
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
@@ -134,7 +135,7 @@ perf.controller('CompareResultsCtrl', [
                 });
             });
 
-            const noiseMetricTestName = 'noise metric';
+            const noiseMetricTestName = noiseMetricTitle;
             $scope.platformList.forEach(function (platform) {
                 const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
                 if (cmap.isEmpty) {
@@ -467,7 +468,7 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             });
 
-            const noiseMetricTestName = 'noise metric';
+            const noiseMetricTestName = noiseMetricTitle;
             const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
                 cmap.name = testName;

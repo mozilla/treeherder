@@ -16,10 +16,11 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
     tooltipText = 'Only one run (consider more for greater confidence)';
   }
 
+  // we don't want to show the tooltip graph if there's only one value
+  // or the sum of all values is 0
   const notZeroSum =
-    replicates.length > 1
-      ? replicates.reduce((accumulator, current) => accumulator + current)
-      : false;
+    replicates.length > 1 &&
+    replicates.reduce((accumulator, current) => accumulator + current);
 
   return (
     <td>

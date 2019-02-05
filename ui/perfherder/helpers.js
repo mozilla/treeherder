@@ -13,7 +13,12 @@ import {
   thPerformanceBranches,
 } from '../helpers/constants';
 
-import { endpoints, tValueCareMin, tValueConfidence } from './constants';
+import {
+  endpoints,
+  tValueCareMin,
+  tValueConfidence,
+  noiseMetricTitle,
+} from './constants';
 
 export const displayNumber = input =>
   Number.isNaN(input) ? 'N/A' : input.toFixed(2);
@@ -97,7 +102,7 @@ const analyzeSet = (values, testName) => {
   let average;
   let stddev = 1;
 
-  if (testName === 'noise metric') {
+  if (testName === noiseMetricTitle) {
     average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
   } else {
     average = calcAverage(values);

@@ -103,7 +103,7 @@ const BugDetailsView = props => {
             }
             placement="left"
             tooltipText={
-              original.lines.length > 0 && (
+              original.lines.length && (
                 <ul>
                   {original.lines.map((line, index) => (
                     <li
