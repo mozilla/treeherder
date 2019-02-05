@@ -150,7 +150,7 @@ export class JobGroupComponent extends React.Component {
                   job={job}
                   filterModel={filterModel}
                   visible={job.visible}
-                  status={getStatus(job)}
+                  resultStatus={getStatus(job)}
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}

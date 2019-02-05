@@ -33,12 +33,12 @@ export default class JobButtonComponent extends React.Component {
    * shallow compare would allow.
    */
   shouldComponentUpdate(nextProps, nextState) {
-    const { visible, status, failureClassificationId } = this.props;
+    const { visible, resultStatus, failureClassificationId } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
 
     return (
       visible !== nextProps.visible ||
-      status !== nextProps.status ||
+      resultStatus !== nextProps.resultStatus ||
       failureClassificationId !== nextProps.failureClassificationId ||
       isSelected !== nextState.isSelected ||
       isRunnableSelected !== nextState.isRunnableSelected
@@ -69,7 +69,7 @@ export default class JobButtonComponent extends React.Component {
   }
 
   render() {
-    const { job } = this.props;
+    const { job, resultStatus } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
     const {
       state,
@@ -81,16 +81,12 @@ export default class JobButtonComponent extends React.Component {
       visible,
       id,
       job_type_symbol,
-      result,
     } = job;
 
     if (!visible) return null;
-    const resultStatus = state === 'completed' ? result : state;
     const runnable = state === 'runnable';
     const btnClass = getBtnClass(resultStatus, failure_classification_id);
-    // TODO: This is broken (bug 1504713)
-    // eslint-disable-next-line no-restricted-globals
-    let title = `${resultStatus} | ${job_type_name} - ${status}`;
+    let title = `${resultStatus} | ${job_type_name}`;
 
     if (state === 'completed') {
       const duration = Math.round((end_timestamp - start_timestamp) / 60);
@@ -133,7 +129,7 @@ JobButtonComponent.propTypes = {
   filterModel: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
-  status: PropTypes.string.isRequired,
+  resultStatus: PropTypes.string.isRequired,
   platform: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   failureClassificationId: PropTypes.number, // runnable jobs won't have this
