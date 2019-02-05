@@ -27,7 +27,7 @@
     "@types/react-dom": "*",
     "@uirouter/angularjs": "0.4.3",
     "ajv": "6.8.1",
-    "angular": "1.7.6",
+    "angular": "1.7.7",
     "angular-clipboard": "1.6.2",
     "angular1-ui-bootstrap4": "2.4.22",
     "auth0-js": "9.10.0",
@@ -78,7 +78,7 @@
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.0",
     "@neutrinojs/jest": "9.0.0-rc.0",
-    "angular-mocks": "1.7.6",
+    "angular-mocks": "1.7.7",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.8.0",
     "eslint": "5.13.0",

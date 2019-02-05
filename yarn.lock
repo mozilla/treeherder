@@ -1187,22 +1187,17 @@ angular-clipboard@1.6.2:
   resolved "https://registry.yarnpkg.com/angular-clipboard/-/angular-clipboard-1.6.2.tgz#4708e5a1dc94f3940ab89861ea1e19b26754154f"
   integrity sha512-T5kK6X6fFigLPd2szxW8ETEOLNW9z/9RqdlXtLAY7nakrI62BH8FGOxIes36tvAP/9numwokEWKVLy0WpNkB7w==
 
-angular-mocks@1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.6.tgz#dc291a5311caa0b5b1aaf94a375084c27b477c47"
-  integrity sha512-t3eQmuAZczdOVdOQj7muCBwH+MBNwd+/FaAsV1SNp+597EQVWABQwxI6KXE0k0ZlyJ5JbtkNIKU8kGAj1znxhw==
+angular-mocks@1.7.7:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.7.7.tgz#227feca8a7e9cc61c4680366db024d6563d4c6eb"
+  integrity sha512-EIUUAigjCgyk4Lqspf1iM0RItOPtlKoHlqDyrYsgVmMqj5xS41BDXIqedcMAFn6Lln5Qe9YDsGQ3ZHAAoX1SgA==
 
 angular1-ui-bootstrap4@2.4.22:
   version "2.4.22"
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
   integrity sha1-N4aXQFyVe5b5R/QjIvNmYM0/yI0=
 
-angular@1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.6.tgz#db3bd96e3305c870f6227b9b32a4d761880473da"
-  integrity sha512-QELpvuMIe1FTGniAkRz93O6A+di0yu88niDwcdzrSqtUHNtZMgtgFS4f7W/6Gugbuwej8Kyswlmymwdp8iPCWg==
-
-angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
+angular@1.7.7, angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
   version "1.7.7"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.7.tgz#26bd87693deadcbd5944610a7a0463fc79a18803"
   integrity sha512-MH3JEGd8y/EkNCKJ8EV6Ch0j9X0rZTta/QVIDpBWaIdfh85/e5KO8+ZKgvWIb02MQuiS20pDFmMFlv4ZaLcLWg==
