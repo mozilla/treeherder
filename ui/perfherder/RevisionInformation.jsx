@@ -95,11 +95,26 @@ RevisionInformation.propTypes = {
 RevisionInformation.defaultProps = {
   originalProject: {},
   originalRevision: '',
+  originalResultSet: {},
   newProject: {},
   newRevision: '',
-  originalResultSet: {},
   newResultSet: {},
   selectedTimeRange: undefined,
 };
 
-perf.component('revisionInformation', react2angular(RevisionInformation));
+perf.component(
+  'revisionInformation',
+  react2angular(
+    RevisionInformation,
+    [
+      'originalProject',
+      'originalRevision',
+      'originalResultSet',
+      'newProject',
+      'newRevision',
+      'newResultSet',
+      'selectedTimeRange',
+    ],
+    [],
+  ),
+);
