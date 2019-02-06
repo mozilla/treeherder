@@ -23,7 +23,7 @@ In addition:
   ```
 
 The quickest way to correct import style locally is to let isort make the changes for you - see
-[running the tests](common_tasks.html#running-the-tests).
+[running the tests](common_tasks.md#running-the-tests).
 
 Note: It's not possible to disable isort wrapping style checking, so for now we've chosen the
 most deterministic [wrapping mode](https://github.com/timothycrosley/isort#multi-line-output-modes)
@@ -33,7 +33,7 @@ to reduce the line length guess-work when adding imports, even though it's not t
 
 We use Prettier for JS/JSX formatting and the [Airbnb](https://github.com/airbnb/javascript)
 guide for non-style related best practices. Both are validated using ESlint (see Validating
-Javascript in the [Installation section](installation.html#validating-javascript)).
+Javascript in the [Installation section](installation.md#validating-javascript)).
 
 Prettier is also used to format JSON/CSS/HTML/Markdown/YAML. However these are not supported
 by ESLint, so instead are validated using Prettier's CLI. To manually check their formatting

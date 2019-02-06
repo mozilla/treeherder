@@ -7,10 +7,10 @@
 
   ```bash
   > pip install -r requirements/docs.txt
-  > make livehtml
+  > mkdocs serve
   ```
 
-- Visit <http://127.0.0.1:8001> to view the docs.
+- Visit <http://127.0.0.1:8000> to view the docs.
 - Source changes will result in automatic rebuilds and browser page reload.
 
 ## Updating package.json
@@ -37,4 +37,4 @@ To add a new repository, the following steps are needed:
 - Restart any running gunicorn/celery processes.
 
 For more information on adding a new GitHub repository, see
-[Adding a GitHub repository](submitting_data.html#adding-a-github-repository).
+[Adding a GitHub repository](submitting_data.md#adding-a-github-repository).

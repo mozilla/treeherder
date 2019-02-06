@@ -34,9 +34,9 @@ PULSE_URL="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
 
 ### 3. Read Pushes
 
-```eval_rst
-.. note:: Be sure your Vagrant environment is up-to-date.  Reload it and run ``vagrant provision`` if you're not sure.
-```
+<!-- prettier-ignore -->
+!!! note
+    Be sure your Vagrant environment is up-to-date.  Reload it and run ``vagrant provision`` if you're not sure.
 
 `ssh` into Vagrant, then set your config environment variable:
 
@@ -81,7 +81,7 @@ That's it! With those processes running, you will begin ingesting Treeherder
 data. To see the data, you will need to run the Treeherder UI and API.
 See [Running the unminified UI with Vagrant] for more info.
 
-[running the unminified ui with vagrant]: ui/installation.html#running-the-unminified-ui-with-vagrant
+[running the unminified ui with vagrant]: installation.md#server-and-full-stack-development
 
 ## Advanced Configuration
 
@@ -142,10 +142,14 @@ celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultset
 - The `store_pulse_jobs` queue will ingest all the jobs from the exchanges
   specified in `job_sources` (or `PULSE_JOB_SOURCES`).
 
-```eval_rst
-.. note:: Any job that comes from **Pulse** that does not have an associated push will be skipped.
-.. note:: It is slightly confusing to see ``store_pulse_resultsets`` there.  It is there for legacy reasons and will change to ``store_pulse_pushes`` at some point.
-```
+<!-- prettier-ignore -->
+!!! note
+    Any job that comes from Pulse that does not have an associated push will be skipped.
+
+<!-- prettier-ignore -->
+!!! note
+    It is slightly confusing to see ``store_pulse_resultsets`` there.  It is there
+    for legacy reasons and will change to ``store_pulse_pushes`` at some point.
 
 ## Posting Data
 

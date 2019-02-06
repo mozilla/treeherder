@@ -30,7 +30,7 @@ do one of the following:
 
 1. For GitHub repos: [Adding a GitHub Repository](#adding-a-github-repository)
 
-2. For Mercurial repos: [Add a new Mercurial repository](common_tasks.html#add-a-new-mercurial-repository)
+2. For Mercurial repos: [Add a new Mercurial repository](common_tasks.md#add-a-new-mercurial-repository)
 
 ## Using Pulse
 

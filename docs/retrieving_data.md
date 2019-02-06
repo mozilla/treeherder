@@ -1,6 +1,6 @@
 # Retrieving Data
 
-The [Python client](rest_api.html#python-client) also has some convenience
+The [Python client](rest_api.md#python-client) also has some convenience
 methods to query the Treeherder API.
 
 Here's a simple example which prints the start timestamp of all the
