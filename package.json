@@ -91,7 +91,7 @@
     "eslint-plugin-react": "7.12.4",
     "fetch-mock": "7.3.0",
     "jasmine-jquery": "2.1.1",
-    "jest": "24.0.0",
+    "jest": "24.1.0",
     "karma": "4.0.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "2.0.1",
