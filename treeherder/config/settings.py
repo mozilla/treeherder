@@ -246,13 +246,15 @@ SILENCED_SYSTEM_CHECKS = [
 # User Agents
 # User agents which will be blocked from making requests to the site.
 DISALLOWED_USER_AGENTS = (
+    re.compile(r'^Go-http-client/'),
+    # This was the old Go http package user agent prior to Go-http-client/*
+    # https://github.com/golang/go/commit/0d1ceef9452c495b6f6d60e578886689184e5e4b
+    re.compile(r'^Go 1.1 package http'),
     # Note: This intentionally does not match the command line curl
     # tool's default User Agent, only the library used by eg PHP.
     re.compile(r'^libcurl/'),
     re.compile(r'^Python-urllib/'),
     re.compile(r'^python-requests/'),
-    # ActiveData blocked for excessive API requests (bug 1289830)
-    re.compile(r'^ActiveData-ETL'),
 )
 
 
