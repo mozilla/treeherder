@@ -37,14 +37,14 @@
                 ng-change="timeRangeChanged(selectedTimeRange)">
         </select>
       </div>
-      <ph-compare-table
-         titles="titles"
-         test-list="testList"
-         compare-results="compareResults"
-         frameworks="frameworks"
-         filter-options="filterOptions"
-         filter-by-framework="1">
-      </ph-compare-table>
+      <compare-table-controls
+        compare-results="compareResults"
+        frameworks="frameworks"
+        filter-options="filterOptions"
+        filter-by-framework="1"
+        update-data="updateData"
+        update-noise-alert="updateNoiseAlert">
+      </compare-table-controls>
     </div>
   </div>
 </div>

@@ -7,7 +7,6 @@ import compareSubtestCtrlTemplate from '../partials/perf/comparesubtestctrl.html
 import compareChooserCtrlTemplate from '../partials/perf/comparechooserctrl.html';
 import compareSubtestDistributionTemplate from '../partials/perf/comparesubtestdistribution.html';
 import helpMenuTemplate from '../partials/perf/helpMenu.html';
-import tooltipGraphsTemplate from '../partials/perf/tooltipgraphs.html';
 
 import perf from './perf';
 
@@ -80,9 +79,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 window.document.title = $state.current.title;
             }
         });
-    }]).run(['$templateCache', ($templateCache) => {
-        // Templates used by ng-include have to be manually put in the template cache.
-        // Those used by directives should instead be imported at point of use.
-        $templateCache.put('partials/perf/helpMenu.html', helpMenuTemplate);
-        $templateCache.put('partials/perf/tooltipgraphs.html', tooltipGraphsTemplate);
-    }]);
+    // Templates used by ng-include have to be manually put in the template cache.
+    // Those used by directives should instead be imported at point of use.
+    }]).run(['$templateCache', ($templateCache) => $templateCache.put('partials/perf/helpMenu.html', helpMenuTemplate)]);

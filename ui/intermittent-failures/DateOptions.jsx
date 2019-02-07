@@ -3,9 +3,10 @@ import { ButtonDropdown, DropdownToggle } from 'reactstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 
+import DropdownMenuItems from '../shared/DropdownMenuItems';
+
 import DateRangePicker from './DateRangePicker';
 import { ISODate } from './helpers';
-import DropdownMenuItems from './DropdownMenuItems';
 
 export default class DateOptions extends React.Component {
   constructor(props) {

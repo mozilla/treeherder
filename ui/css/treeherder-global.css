@@ -309,6 +309,10 @@ input[type='checkbox'] {
   color: lightgray;
 }
 
+.bg-lightgray {
+  background-color: lightgray;
+}
+
 .midgray,
 .midgray a {
   color: gray;

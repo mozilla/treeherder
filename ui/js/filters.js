@@ -1,13 +1,18 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
 /* eslint-disable func-names */
-import numeral from 'numeral';
-
-import { getRevisionUrl } from '../helpers/url';
+import { getJobsUrl } from '../helpers/url';
 
 import treeherder from './treeherder';
 
-treeherder.filter('getRevisionUrl', () => getRevisionUrl);
-
+treeherder.filter('getRevisionUrl', function () {
+    return function (revision, projectName) {
+        if (revision) {
+            return getJobsUrl({ repo: projectName, revision });
+        }
+        return '';
+    };
+});
+// TODO replace usage with displayNumber in helpers file
 treeherder.filter('displayNumber', ['$filter', function ($filter) {
     return function (input) {
         if (Number.isNaN(input)) {
@@ -22,9 +27,4 @@ treeherder.filter('absoluteValue', function () {
     return function (input) {
         return Math.abs(input);
     };
-});
-
-treeherder.filter('abbreviatedNumber', function () {
-    return input =>
-        ((input.toString().length <= 5) ? input : numeral(input).format('0.0a'));
 });

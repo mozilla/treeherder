@@ -13,7 +13,15 @@ import {
   thPerformanceBranches,
 } from '../helpers/constants';
 
-import { endpoints, tValueCareMin, tValueConfidence } from './constants';
+import {
+  endpoints,
+  tValueCareMin,
+  tValueConfidence,
+  noiseMetricTitle,
+} from './constants';
+
+export const displayNumber = input =>
+  Number.isNaN(input) ? 'N/A' : input.toFixed(2);
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;
@@ -94,7 +102,7 @@ const analyzeSet = (values, testName) => {
   let average;
   let stddev = 1;
 
-  if (testName === 'Noise Metric') {
+  if (testName === noiseMetricTitle) {
     average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
   } else {
     average = calcAverage(values);
@@ -127,10 +135,10 @@ const getClassName = (newIsBetter, oldVal, newVal, absTValue) => {
   }
 
   if (absTValue < tValueConfidence) {
-    return newIsBetter ? '' : 'compare-notsure';
+    return newIsBetter ? '' : 'warning';
   }
 
-  return newIsBetter ? 'compare-improvement' : 'compare-regression';
+  return newIsBetter ? 'success' : 'danger';
 };
 
 // Aggregates two sets of values into a "comparison object" which is later used
@@ -237,8 +245,8 @@ export const getCounterMap = function getCounterMap(
     cmap.confidenceTextLong +=
       "A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).";
   }
-  cmap.isRegression = cmap.className === 'compare-regression';
-  cmap.isImprovement = cmap.className === 'compare-improvement';
+  cmap.isRegression = cmap.className === 'danger';
+  cmap.isImprovement = cmap.className === 'success';
   cmap.isMeaningful = cmap.className !== '';
 
   cmap.isComplete = cmap.originalRuns.length && cmap.newRuns.length;

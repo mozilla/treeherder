@@ -9,8 +9,8 @@ import {
 } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
+import DropdownMenuItems from '../shared/DropdownMenuItems';
 
-import DropdownMenuItems from './DropdownMenuItems';
 import { treeOptions } from './constants';
 
 export default class Navigation extends React.Component {

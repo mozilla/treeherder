@@ -160,34 +160,8 @@ h1 {
   cursor: crosshair;
 }
 
-.subtest-header {
-  background-image: linear-gradient(to bottom, #eaeff2, #d4dde4);
-  color: #ccc;
-  font-weight: bold;
-}
-
 .subtest-header th {
   padding: 5px;
-}
-
-.subtest-improvement {
-  background: green;
-  color: white;
-  font-weight: bold;
-}
-
-.subtest-regression {
-  background: red;
-  color: white;
-  font-weight: bold;
-}
-
-.subtest-highlighted {
-  font-weight: bold;
-}
-
-.subtest-empty {
-  display: none;
 }
 
 .subtest-result button {
@@ -253,11 +227,6 @@ h1 {
 
 /* Compare interface stuff */
 
-ph-compare-table hr {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
 .push-information {
   font-size: 18px;
   color: #777;
@@ -318,23 +287,15 @@ th {
   cursor: default;
 }
 
-.compare-table .test-title {
-  text-align: left;
-}
-
 .compare-table .subtest-header > th {
   color: transparent;
   transition: color 150ms ease-in-out;
 }
 
-.compare-table:first-child .subtest-header > th,
+.compare-table .subtest-header > th:first-child,
 .compare-table:hover .subtest-header > th,
-.compare-table .subtest-header > th.test-title {
+.compare-table {
   color: #333;
-}
-
-.compare-table .subtest-header > th.test-title {
-  text-align: left;
 }
 
 .compare-table tr:hover .detail-hint {
@@ -361,61 +322,6 @@ th {
 
 .compare-table tr:hover td.alert-labels a {
   visibility: visible;
-}
-
-.compare-table .num-runs {
-  text-align: right;
-}
-
-.compare-table .test-warning {
-  text-align: left;
-}
-
-td.compare-improvement {
-  background-image: linear-gradient(to bottom, #80bb2e, #547d1c);
-  color: white;
-  font-weight: bold;
-}
-
-td.compare-regression {
-  background-image: linear-gradient(to bottom, #b20000, #940000);
-  color: white;
-  font-weight: bold;
-}
-
-td.compare-notsure {
-  background-image: linear-gradient(to bottom, #ff9500, #ffcb00);
-}
-
-span.compare-improvement {
-  color: #80bb2e;
-}
-
-span.compare-regression {
-  color: #b20000;
-}
-
-span.compare-notsure {
-  color: #ff9500;
-}
-
-.bar {
-  height: 1em;
-  margin-top: 0.25em;
-  margin-bottom: 5px;
-  background-color: #bbb;
-}
-
-.bar-scale {
-  background-color: #eee;
-}
-
-.bar-improvement {
-  background-color: green;
-}
-
-.bar-regression {
-  background-color: red;
 }
 
 .button-panel {
@@ -552,8 +458,8 @@ td.alert-confidence {
   margin-right: 6px;
 }
 
-.compare-table-tooltip .tooltip-inner {
-  max-width: 280px;
+.compare-table-tooltip {
+  max-width: 335px;
 }
 
 .tooltip-table {
@@ -565,7 +471,7 @@ td.alert-confidence {
 .tooltip-table .value-column {
   width: 35px;
   border: 1px solid white;
-  align: center;
+  align-items: center;
   font-family: 'Helvetica';
   font-size: 11px;
 }
