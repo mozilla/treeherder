@@ -80,7 +80,7 @@
     "@neutrinojs/jest": "9.0.0-rc.0",
     "angular-mocks": "1.7.7",
     "enzyme": "3.8.0",
-    "enzyme-adapter-react-16": "1.8.0",
+    "enzyme-adapter-react-16": "1.9.1",
     "eslint": "5.13.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-config-prettier": "4.0.0",
