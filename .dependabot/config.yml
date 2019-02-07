@@ -9,3 +9,32 @@ update_configs:
     default_labels:
       - "dependencies"
       - "python"
+    ignored_updates:
+      # Celery/kombu/amqp/billiard must be updated all at the same time,
+      # and the update is blocked on resolving bug 1337717.
+      - match:
+          dependency_name: "celery"
+          version_requirement: "<4"
+      - match:
+          dependency_name: "kombu"
+          version_requirement: "<4"
+      - match:
+          dependency_name: "amqp"
+          version_requirement: "<2"
+      - match:
+          dependency_name: "billiard"
+          version_requirement: "<3.4"
+      # Django 2 requires Python 3 (bug 1426683)
+      - match:
+          dependency_name: "Django"
+          version_requirement: "<2"
+      # django-filter 2 requires Python 3 (bug 1489212)
+      - match:
+          # Bug 1426683
+          dependency_name: "django-filter"
+          version_requirement: "<2"
+      # Django 1.11 uses internals of mysqlclient that were removed in 1.3.14.
+      # Newer mysqlclient only works with Django 2+ (bug 1517253).
+      - match:
+          dependency_name: "mysqlclient"
+          version_requirement: "<1.3.14"
