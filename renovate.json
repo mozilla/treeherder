@@ -12,6 +12,7 @@
     "@types/react-dom",
     "@uirouter/angularjs"
   ],
-  "reviewers": ["@mozilla/treeherder-admins"],
+  "labels": ["dependencies", "javascript"],
+  "reviewers": ["sarah-clements"],
   "semanticCommits": false
 }
