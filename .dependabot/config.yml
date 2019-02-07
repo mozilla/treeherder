@@ -1,0 +1,11 @@
+# https://dependabot.com/blog/introducing-config-files/
+version: 1
+update_configs:
+  - package_manager: "python"
+    directory: "/requirements"
+    update_schedule: "live"
+    default_reviewers:
+      - "camd"
+    default_labels:
+      - "dependencies"
+      - "python"
