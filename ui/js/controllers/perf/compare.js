@@ -16,6 +16,16 @@ import { getCounterMap, getInterval, validateQueryParams, getGraphsLink } from '
 import { getApiUrl, createApiUrl, perfSummaryEndpoint } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 
+const createNoiseMetric = (cmap, name, compareResults) => {
+    cmap.name = name;
+    cmap.isNoiseMetric = true;
+
+    if (compareResults.has(noiseMetricTitle)) {
+        compareResults.get(noiseMetricTitle).push(cmap);
+    } else {
+        compareResults.set(noiseMetricTitle, [cmap]);                        
+    }
+}
 
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
@@ -135,26 +145,18 @@ perf.controller('CompareResultsCtrl', [
                 });
             });
 
-            const noiseMetricTestName = noiseMetricTitle;
             $scope.platformList.forEach(function (platform) {
-                const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
+                const cmap = getCounterMap(noiseMetricTitle, $scope.oldStddevVariance[platform], $scope.newStddevVariance[platform]);
                 if (cmap.isEmpty) {
                     return;
                 }
-                cmap.name = platform;
-                cmap.isNoiseMetric = true;
-
-                if ($scope.compareResults.has(noiseMetricTestName)) {
-                    $scope.compareResults.get(noiseMetricTestName).push(cmap);
-                } else {
-                    $scope.compareResults.set(noiseMetricTestName, [cmap]);                        
-                }
+                createNoiseMetric(cmap, platform, $scope.compareResults);              
             });
 
             // Remove the tests with no data, report them as well; not needed for subtests
             const resultsArr = Array.from($scope.compareResults.keys());
             $scope.testNoResults = difference($scope.testList, resultsArr).sort().join();
-            $scope.testList = resultsArr.sort().concat([noiseMetricTestName]);
+            $scope.testList = resultsArr.sort().concat([noiseMetricTitle]);
             $scope.compareResults = new Map([...$scope.compareResults.entries()].sort());
 
             // call $apply explicitly so we don't have to worry about when promises
@@ -468,13 +470,10 @@ perf.controller('CompareSubtestResultsCtrl', [
 
             });
 
-            const noiseMetricTestName = noiseMetricTitle;
-            const cmap = getCounterMap(noiseMetricTestName, $scope.oldStddevVariance, $scope.newStddevVariance);
+            const cmap = getCounterMap(noiseMetricTitle, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
-                cmap.name = testName;
-                cmap.isNoiseMetric = true;
-                $scope.compareResults.set(noiseMetricTestName, cmap);
-                $scope.titles[noiseMetricTestName] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTestName;
+                createNoiseMetric(cmap, testName, $scope.compareResults)
+                $scope.titles[noiseMetricTitle] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTitle;
             }
 
             // call $apply explicitly so we don't have to worry about when promises
