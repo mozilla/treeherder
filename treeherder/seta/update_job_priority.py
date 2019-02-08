@@ -12,12 +12,12 @@ Known bug:
 import datetime
 import logging
 
+from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
 from treeherder.seta.common import (job_priority_index,
                                     unique_key)
 from treeherder.seta.models import JobPriority
-from treeherder.seta.runnable_jobs import RunnableJobsClient
 from treeherder.seta.settings import (SETA_HIGH_VALUE_PRIORITY,
                                       SETA_LOW_VALUE_PRIORITY)
 
@@ -102,10 +102,7 @@ def _sanitize_data(runnable_jobs_data):
 def query_sanitized_data(repo_name='mozilla-inbound'):
     """Return sanitized jobs data based on runnable api. None if failed to obtain or no new data.
 
-     We need to find the latest gecko decision task ID (by querying the index [1][2])
-     in order to know which task ID to pass to the runnable api [3].
-
-     It stores the minimal sanitized data from runnable apis under ~/.mozilla/seta/<task_id>.json
+     We need to find the latest gecko decision task ID (by querying the index [1][2]).
 
      [1] https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision/
      [2] Index's data structure:
@@ -116,9 +113,8 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
         "data": {},
         "expires": "2017-10-06T18:30:18.428Z"
       }
-     [3] https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/?decision_task_id=Pp7ZxoH0SKyU6wnhX_Fp0g&format=json
     """
-    runnable_jobs = RunnableJobsClient().query_runnable_jobs(repo_name)
+    runnable_jobs = list_runnable_jobs(repo_name)
     return _sanitize_data(runnable_jobs)
 
 
