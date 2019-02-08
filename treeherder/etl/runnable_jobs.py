@@ -54,9 +54,7 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
 
 
 def list_runnable_jobs(project, decision_task_id=None):
-    results = _taskcluster_runnable_jobs(project, decision_task_id)
-
-    return dict(meta={"repository": project, "offset": 0, "count": len(results)}, results=results)
+    return _taskcluster_runnable_jobs(project, decision_task_id)
 
 
 def query_latest_gecko_decision_task_id(project):

@@ -22,7 +22,6 @@ def test_unique_key():
 
 
 def test_sanitize_data(runnable_jobs_data):
-    assert len(runnable_jobs_data['results']) == runnable_jobs_data['meta']['count']
     data = _sanitize_data(runnable_jobs_data)
     bb_jobs = 0
     tc_jobs = 0

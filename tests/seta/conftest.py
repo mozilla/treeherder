@@ -46,14 +46,7 @@ def runnable_jobs_data():
             }
         ]
 
-    return {
-        "meta": {
-            "count": len(runnable_jobs),
-            "offset": 0,
-            "repository": repository_name
-        },
-        "results": runnable_jobs
-    }
+    return runnable_jobs
 
 
 @pytest.fixture

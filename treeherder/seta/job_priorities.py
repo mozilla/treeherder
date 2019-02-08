@@ -80,7 +80,7 @@ class SETAJobPriorities(object):
         ignored_jobs = []
         ref_data_names = {}
 
-        runnable_jobs = list_runnable_jobs(project)['results']
+        runnable_jobs = list_runnable_jobs(project)
 
         for job in runnable_jobs:
             # get testtype e.g. web-platform-tests-4
