@@ -14,7 +14,6 @@ from treeherder.webapp.api import (auth,
                                    performance_data,
                                    push,
                                    refdata,
-                                   runnable_jobs,
                                    seta,
                                    text_log_error)
 
@@ -26,12 +25,6 @@ project_bound_router.register(
     r'jobs',
     jobs.JobsViewSet,
     base_name='jobs',
-)
-
-project_bound_router.register(
-    r'runnable_jobs',
-    runnable_jobs.RunnableJobsViewSet,
-    base_name='runnable_jobs',
 )
 
 project_bound_router.register(

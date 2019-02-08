@@ -78,8 +78,6 @@ In order to do so we need to:
 
   - SETA uses mozilla-inbound as a reference for jobs for all trunk trees
 
-- Make sure the job shows up in the [runnable jobs API]
-
 - Update the job priority table from the shell:
 
   Open the Python shell using `./manage.py shell`, then enter:
@@ -101,5 +99,3 @@ In order to do so we need to:
   JobPriority.objects.filter(platform="windows7-32-stylo", priority=1).update(priority=5);
   JobPriority.objects.filter(platform="windows7-32-stylo", expiration_date__isnull=False).update(expiration_date=None)
   ```
-
-[runnable jobs api]: https://treeherder.mozilla.org/api/project/mozilla-inbound/runnable_jobs/
