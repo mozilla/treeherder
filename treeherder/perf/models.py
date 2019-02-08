@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (Job,
                                      MachinePlatform,
@@ -204,7 +205,9 @@ class PerformanceAlertSummary(models.Model):
 
     notes = models.TextField(null=True, blank=True)
 
-    created = models.DateTimeField(db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    first_modified = models.DateTimeField(null=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -288,6 +291,10 @@ class PerformanceAlertSummary(models.Model):
 
         return PerformanceAlertSummary.DOWNSTREAM
 
+    def touch(self):
+        if self.first_modified is None:
+            self.first_modified = django_now()
+
     class Meta:
         db_table = "performance_alert_summary"
         unique_together = ('repository', 'framework', 'prev_push', 'push')
@@ -322,6 +329,11 @@ class PerformanceAlert(models.Model):
     is_regression = models.BooleanField()
     starred = models.BooleanField(default=False)
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
+
+    created = models.DateTimeField(auto_now_add=True)
+    first_modified = models.DateTimeField(null=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -379,6 +391,10 @@ class PerformanceAlert(models.Model):
         self.summary.update_status()
         if self.related_summary:
             self.related_summary.update_status()
+
+    def touch(self):
+        if self.first_modified is None:
+            self.first_modified = django_now()
 
     class Meta:
         db_table = "performance_alert"

@@ -79,6 +79,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
 
+    created = serializers.ReadOnlyField()
+
     def update(self, instance, validated_data):
         # ensure the related summary, if set, has the same repository and
         # framework as the original summary
@@ -97,6 +99,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                     "summary's framework ({})".format(
                         related_summary.framework,
                         instance.summary.framework))
+
+        instance.touch()
+
         return super().update(instance, validated_data)
 
     def get_classifier_email(self, performance_alert):
@@ -124,6 +129,11 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     prev_push_id = serializers.ReadOnlyField()
     push_id = serializers.ReadOnlyField()
     created = serializers.ReadOnlyField()
+
+    def update(self, instance, validated_data):
+        instance.touch()
+        return super(PerformanceAlertSummarySerializer, self).update(instance,
+                                                                     validated_data)
 
     class Meta:
         model = PerformanceAlertSummary

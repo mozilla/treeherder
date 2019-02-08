@@ -396,6 +396,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         if (not new_summary) and conflicting_alert:
             # discard nudged alert to use similar one instead
             alert.delete()
+
+            conflicting_alert.touch()
+            conflicting_alert.save()
         else:
             alert.summary = alert_summary
 
@@ -407,7 +410,11 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             alert.prev_value = alert_properties.prev_value
             alert.new_value = alert_properties.new_value
 
+            alert.touch()
             alert.save()
+
+        alert_summary.touch()
+        old_summary.touch()
 
         if old_summary.alerts.count() == 0:
             old_summary.delete()
