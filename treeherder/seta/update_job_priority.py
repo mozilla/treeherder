@@ -62,7 +62,7 @@ def _sanitize_data(runnable_jobs_data):
     """
     job_build_system_type = {}
     sanitized_list = []
-    for job in runnable_jobs_data['results']:
+    for job in runnable_jobs_data:
         if not valid_platform(job['platform']):
             logger.info('Invalid platform %s', job['platform'])
             continue
