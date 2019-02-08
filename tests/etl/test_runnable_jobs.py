@@ -43,7 +43,7 @@ def test_taskcluster_runnable_jobs(test_repository):
                   json=CONTENT1, match_querystring=True, status=200)
     responses.add(responses.GET, RUNNABLE_JOBS_URL,
                   json=RUNNABLE_JOBS_CONTENTS, match_querystring=True, status=200)
-    jobs_ret = _taskcluster_runnable_jobs(repo, None)
+    jobs_ret = _taskcluster_runnable_jobs(repo)
 
     assert len(jobs_ret) == 1
     test_job = jobs_ret[0]

@@ -13,30 +13,29 @@ RUNNABLE_JOBS_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/runs/0/arti
 TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
 
 
-def _taskcluster_runnable_jobs(project, decision_task_id):
-    ret = []
-    tc_graph = {}
-    if not decision_task_id:
-        decision_task_id = query_latest_gecko_decision_task_id(project)
+def _taskcluster_runnable_jobs(project):
+    decision_task_id = query_latest_gecko_decision_task_id(project)
     # Some trees (e.g. comm-central) don't have a decision task, which means there are no taskcluster runnable jobs
     if not decision_task_id:
-        return ret
+        return []
 
     tc_graph_url = RUNNABLE_JOBS_URL.format(task_id=decision_task_id)
     validate = URLValidator()
     try:
         validate(tc_graph_url)
-        tc_graph = fetch_json(tc_graph_url)
     except ValidationError:
         logger.warning('Failed to validate %s', tc_graph_url)
         return []
+
+    try:
+        tc_graph = fetch_json(tc_graph_url)
     except requests.exceptions.HTTPError as e:
         logger.info('HTTPError %s when getting taskgraph at %s',
                     e.response.status_code, tc_graph_url)
         return []
 
-    for label, node in iteritems(tc_graph):
-        ret.append({
+    return [
+        {
             'build_platform': node.get('platform', ''),
             'build_system_type': 'taskcluster',
             'job_group_name': node.get('groupName', ''),
@@ -48,13 +47,13 @@ def _taskcluster_runnable_jobs(project, decision_task_id):
             'ref_data_name': label,
             'state': 'runnable',
             'result': 'runnable',
-        })
+        }
+        for label, node in iteritems(tc_graph)
+    ]
 
-    return ret
 
-
-def list_runnable_jobs(project, decision_task_id=None):
-    return _taskcluster_runnable_jobs(project, decision_task_id)
+def list_runnable_jobs(project):
+    return _taskcluster_runnable_jobs(project)
 
 
 def query_latest_gecko_decision_task_id(project):
