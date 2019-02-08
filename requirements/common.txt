@@ -86,7 +86,9 @@ pytz==2018.9 \
     --hash=sha256:d5f05e487007e29e03409f9398d074e158d920d36eb82eaf66fb1136b0c5374c
 
 # Required by kombu
-amqp==1.4.9 --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908
+amqp==2.4.1 \
+    --hash=sha256:16056c952e8029ce8db097edf0d7c2fe2ba9de15d30ba08aee2c5221273d8e23 \
+    --hash=sha256:6816eed27521293ee03aa9ace300a07215b11fee4e845588a9b863a7ba30addb
 anyjson==0.3.3 --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
 
 # Required by mozlog
