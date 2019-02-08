@@ -208,7 +208,7 @@ perf.controller('CompareResultsCtrl', [
         // TODO: duplicated in comparesubtestctrl
         function verifyRevision(project, revision, rsid) {
 
-            return PushModel.getList({ repo: project.name, revision })
+            return PushModel.getList({ repo: project.name, commit_revision: revision })
                 .then(async (resp) => {
                     if (resp.ok) {
                         const { results } = await resp.json();
@@ -351,7 +351,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                                        $httpParamSerializer) {
          // TODO: duplicated from comparectrl
         function verifyRevision(project, revision, rsid) {
-            return PushModel.getList({ repo: project.name, revision })
+            return PushModel.getList({ repo: project.name, commit_revision: revision })
                 .then(async (resp) => {
                    const { results } = await resp.json();
                    const resultSet = results[0];
@@ -634,7 +634,7 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
         const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
             const replicateData = {};
 
-            return PushModel.getList({ repo: project, revision })
+            return PushModel.getList({ repo: project, commit_revision: revision })
                 .then(async (resp) => {
                     const { results } = await resp.json();
                     replicateData.resultSet = results[0];

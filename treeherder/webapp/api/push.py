@@ -34,7 +34,7 @@ class PushViewSet(viewsets.ViewSet):
         meta = {}
 
         # support ranges for date as well as revisions(changes) like old tbpl
-        for param in ["fromchange", "tochange", "startdate", "enddate", "revision"]:
+        for param in ["fromchange", "tochange", "startdate", "enddate", "revision", "commit_revision"]:
             v = filter_params.get(param, None)
             if v:
                 del filter_params[param]
@@ -84,14 +84,18 @@ class PushViewSet(viewsets.ViewSet):
                     "push_timestamp__lt": to_timestamp(real_end_date)
                 })
             elif param == 'revision':
-                # revision can be either the revision of the push itself, or
-                # any of the commits it refers to
+                # revision must be the tip revision of the push itself
                 revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
                 filter_kwargs = {revision_field: value}
                 pushes = pushes.filter(**filter_kwargs)
                 rev_key = "revisions_long_revision" \
                           if len(meta['revision']) == 40 else "revisions_short_revision"
                 filter_params.update({rev_key: meta['revision']})
+                self.report_if_short_revision(param, value)
+            elif param == 'commit_revision':
+                # revision can be either the revision of the push itself, or
+                # any of the commits it refers to
+                pushes = pushes.filter(commits__revision=value)
                 self.report_if_short_revision(param, value)
 
         for param in ['push_timestamp__lt', 'push_timestamp__lte',

@@ -159,7 +159,7 @@ export default class SelectorCard extends React.Component {
       const url = `${getProjectUrl(
         pushEndpoint,
         selectedRepo,
-      )}${createQueryParams({ revision: value })}`;
+      )}${createQueryParams({ commit_revision: value })}`;
 
       const { data: revisions, failureStatus } = await getData(url);
 
