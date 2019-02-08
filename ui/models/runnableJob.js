@@ -1,4 +1,3 @@
-import { getProjectUrl } from '../helpers/location';
 import { getRunnableJobsURL } from '../helpers/url';
 import { escapeId } from '../helpers/aggregateId';
 
@@ -10,19 +9,8 @@ export default class RunnableJobModel {
   }
 
   static async getList(repoName, params) {
-    let uri = getRunnableJobsURL(params.decision_task_id);
-    let rawJobs = await fetch(uri).then(response => response.json());
-
-    // TODO: Remove this fallback once the gz artifacts expire
-    if (rawJobs.code === 'ResourceNotFound') {
-      uri = getProjectUrl('/runnable_jobs/');
-      rawJobs = await JobModel.getList(repoName, params, { uri });
-      rawJobs.forEach(job => {
-        job.push_id = params.push_id;
-        job.id = escapeId(params.push_id + job.ref_data_name);
-      });
-      return rawJobs;
-    }
+    const uri = getRunnableJobsURL(params.decision_task_id);
+    const rawJobs = await fetch(uri).then(response => response.json());
 
     return Object.entries(rawJobs).map(
       ([key, value]) =>
