@@ -4,7 +4,6 @@ import pytest
 from mock import patch
 
 from treeherder.seta.models import JobPriority
-from treeherder.seta.runnable_jobs import RunnableJobsClient
 from treeherder.seta.update_job_priority import (_initialize_values,
                                                  _sanitize_data,
                                                  _unique_key,
@@ -37,9 +36,9 @@ def test_sanitize_data(runnable_jobs_data):
     assert tc_jobs == 2
 
 
-@patch.object(RunnableJobsClient, 'query_runnable_jobs')
-def test_query_sanitized_data(query_runnable_jobs, runnable_jobs_data, sanitized_data):
-    query_runnable_jobs.return_value = runnable_jobs_data
+@patch('treeherder.seta.update_job_priority.list_runnable_jobs')
+def test_query_sanitized_data(list_runnable_jobs, runnable_jobs_data, sanitized_data):
+    list_runnable_jobs.return_value = runnable_jobs_data
     data = query_sanitized_data()
     assert data == sanitized_data
 
