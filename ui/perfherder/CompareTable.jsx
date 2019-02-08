@@ -28,9 +28,9 @@ export default class CompareTable extends React.Component {
     )}% ${improvement ? 'better' : 'worse'})`;
 
   render() {
-    const { data, testName, title } = this.props;
+    const { data, testName } = this.props;
     return (
-      <Table sz="small" className="compare-table mb-0" key={title || testName}>
+      <Table sz="small" className="compare-table mb-0" key={testName}>
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
@@ -188,10 +188,8 @@ export default class CompareTable extends React.Component {
 CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
-  title: PropTypes.shape({}),
 };
 
 CompareTable.defaultProps = {
   data: null,
-  title: null,
 };
