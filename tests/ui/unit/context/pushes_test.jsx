@@ -1,5 +1,5 @@
 import React from 'react';
-import * as fetchMock from 'fetch-mock';
+import { fetchMock } from 'fetch-mock';
 import { mount } from 'enzyme';
 
 import { getProjectUrl } from '../../../../ui/helpers/location';
@@ -13,12 +13,12 @@ describe('Pushes context', () => {
   const repoName = 'mozilla-inbound';
 
   beforeEach(() => {
-    fetchMock.get(
+    fetchMock.mock(
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
     );
 
-    fetchMock.get(
+    fetchMock.mock(
       getProjectUrl(
         '/jobs/?return_type=list&count=2000&result_set_id=1',
         repoName,
@@ -26,7 +26,7 @@ describe('Pushes context', () => {
       jobListFixtureOne,
     );
 
-    fetchMock.get(
+    fetchMock.mock(
       getProjectUrl(
         '/jobs/?return_type=list&count=2000&result_set_id=2',
         repoName,
@@ -42,7 +42,7 @@ describe('Pushes context', () => {
   /*
         Tests Pushes context
      */
-  it('should have 2 pushes', async () => {
+  test('should have 2 pushes', async () => {
     const pushes = mount(
       <PushesClass filterModel={new FilterModel()} notify={() => {}}>
         <div />
@@ -52,7 +52,7 @@ describe('Pushes context', () => {
     expect(pushes.state('pushList')).toHaveLength(2);
   });
 
-  it('should have id of 1 in current repo', async () => {
+  test('should have id of 1 in current repo', async () => {
     const pushes = mount(
       <PushesClass filterModel={new FilterModel()} notify={() => {}}>
         <div />
