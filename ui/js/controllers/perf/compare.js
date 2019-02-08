@@ -473,7 +473,6 @@ perf.controller('CompareSubtestResultsCtrl', [
             const cmap = getCounterMap(noiseMetricTitle, $scope.oldStddevVariance, $scope.newStddevVariance);
             if (!cmap.isEmpty) {
                 createNoiseMetric(cmap, testName, $scope.compareResults)
-                $scope.titles[noiseMetricTitle] = $scope.platformList[0] + ': ' + testName + ' : ' + noiseMetricTitle;
             }
 
             // call $apply explicitly so we don't have to worry about when promises
