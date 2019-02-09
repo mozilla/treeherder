@@ -155,7 +155,7 @@ def _load_job(repository, job_datum, push_id):
              machine_platform.architecture,
              job_group.name, job_group.symbol, job_type.name,
              job_type.symbol, option_collection_hash,
-             reference_data_name])))
+             reference_data_name])).encode('utf-8'))
     signature_hash = sh.hexdigest()
 
     # Should be the buildername in the case of buildbot (if not provided
