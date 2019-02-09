@@ -347,7 +347,7 @@ class OptionCollection(models.Model):
         options = sorted(list(options))
         sha_hash = sha1()
         # equivalent to loop over the options and call sha_hash.update()
-        sha_hash.update(''.join(options))
+        sha_hash.update(''.join(options).encode('utf-8'))
         return sha_hash.hexdigest()
 
     class Meta:
