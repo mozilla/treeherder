@@ -2,6 +2,7 @@ import copy
 
 import pytest
 from django.urls import reverse
+from first import first
 
 from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceAlert,
@@ -441,8 +442,8 @@ def link_alert_summary_in_perf_data(test_perf_data, test_perf_alert,
                                     perf_datum_id):
     assert perf_datum_id > 0
 
-    perf_datum = filter(lambda tpd: tpd.id == perf_datum_id, test_perf_data)[0]
-    prev_perf_datum = filter(lambda tpd: tpd.id == perf_datum_id-1, test_perf_data)[0]
+    perf_datum = first(test_perf_data, key=lambda tpd: tpd.id == perf_datum_id)
+    prev_perf_datum = first(test_perf_data, key=lambda tpd: tpd.id == perf_datum_id-1)
 
     # adjust relations
     alert_summary = test_perf_alert.summary
