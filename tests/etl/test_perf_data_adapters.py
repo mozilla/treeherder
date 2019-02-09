@@ -236,6 +236,8 @@ def test_load_generic_data(test_repository,
 
     summary_signature = PerformanceSignature.objects.get(
         suite=perf_datum['suites'][0]['name'], test='')
+    # Ensure we don't inadvertently change the way we generate signature hashes.
+    assert summary_signature.signature_hash == 'f451f0c9000a7f99e5dc2f05792bfdb0e11d0cac'
     subtest_signatures = PerformanceSignature.objects.filter(
         parent_signature=summary_signature).values_list('signature_hash', flat=True)
     assert len(subtest_signatures) == 3

@@ -17,6 +17,11 @@ def test_ingest_single_sample_job(test_repository, failure_classifications,
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
+    assert Job.objects.count() == 1
+    job = Job.objects.get(id=1)
+    # Ensure we don't inadvertently change the way we generate job-related hashes.
+    assert job.option_collection_hash == '32faaecac742100f7753f0c1d0aa0add01b4046b'
+    assert job.signature.signature == '4dabe44cc898e585228c43ea21337a9b00f5ddf7'
 
 
 def test_ingest_all_sample_jobs(test_repository, failure_classifications,
