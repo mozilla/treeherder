@@ -15,10 +15,10 @@ export default class CompareTableControls extends React.Component {
     super(props);
 
     this.state = {
-      newIsBetter: this.convertParams('showOnlyComparable'),
-      isMeaningful: this.convertParams('showOnlyImportant'),
-      isConfident: this.convertParams('showOnlyConfident'),
-      isNoiseMetric: this.convertParams('showOnlyNoise'),
+      hideUncomparable: this.convertParams('showOnlyComparable'),
+      showImportant: this.convertParams('showOnlyImportant'),
+      hideUncertain: this.convertParams('showOnlyConfident'),
+      showNoise: this.convertParams('showOnlyNoise'),
       results: new Map(),
       filterText: '',
     };
@@ -63,7 +63,7 @@ export default class CompareTableControls extends React.Component {
     // TODO create callback to update queryParams with filter change if not undefined
     this.setState({ [filter]: !this.state[filter] }, () => {
       // TODO noise panel might be best moved into this table (displayed beneath controls)
-      if (filter === 'isNoiseMetric') {
+      if (filter === 'showNoise') {
         this.props.updateNoiseAlert();
       }
       this.updateFilteredResults();
@@ -73,22 +73,19 @@ export default class CompareTableControls extends React.Component {
   filterResult = (testName, result) => {
     const {
       filterText,
-      isMeaningful,
-      isConfident,
-      isNoiseMetric,
-      newIsBetter,
+      showImportant,
+      hideUncertain,
+      showNoise,
+      hideUncomparable,
     } = this.state;
 
     const matchesFilters =
-      result.isMeaningful === isMeaningful &&
-      'newIsBetter' in result &&
-      result.isConfident === isConfident &&
-      result.isNoiseMetric === isNoiseMetric;
+      (!showImportant || result.isMeaningful) &&
+      (!hideUncomparable || 'newIsBetter' in result) &&
+      (!hideUncertain || result.isConfident) &&
+      (!showNoise || result.isNoiseMetric);
 
     if (!filterText) return matchesFilters;
-
-    const filtersSelected =
-      newIsBetter || isMeaningful || isConfident || isNoiseMetric;
 
     const words = filterText
       .split(' ')
@@ -99,24 +96,24 @@ export default class CompareTableControls extends React.Component {
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
-    return regex.test(text) && (matchesFilters || !filtersSelected);
+    return regex.test(text) && matchesFilters;
   };
 
   updateFilteredResults = () => {
     const {
       filterText,
-      newIsBetter,
-      isMeaningful,
-      isConfident,
-      isNoiseMetric,
+      hideUncomparable,
+      showImportant,
+      hideUncertain,
+      showNoise,
     } = this.state;
 
     if (
       !filterText &&
-      !newIsBetter &&
-      !isMeaningful &&
-      !isConfident &&
-      !isNoiseMetric
+      !hideUncomparable &&
+      !showImportant &&
+      !hideUncertain &&
+      !showNoise
     ) {
       return this.setState({ results: this.props.compareResults });
     }
@@ -141,10 +138,10 @@ export default class CompareTableControls extends React.Component {
   render() {
     const { filterByFramework, frameworks, titles, filterOptions } = this.props;
     const {
-      newIsBetter,
-      isConfident,
-      isMeaningful,
-      isNoiseMetric,
+      hideUncomparable,
+      hideUncertain,
+      showImportant,
+      showNoise,
       results,
     } = this.state;
 
@@ -175,8 +172,8 @@ export default class CompareTableControls extends React.Component {
                 <Button
                   color="info"
                   outline
-                  onClick={() => this.updateFilter('newIsBetter')}
-                  active={newIsBetter}
+                  onClick={() => this.updateFilter('hideUncomparable')}
+                  active={hideUncomparable}
                 >
                   Hide uncomparable results
                 </Button>
@@ -190,8 +187,8 @@ export default class CompareTableControls extends React.Component {
                 <Button
                   color="info"
                   outline
-                  onClick={() => this.updateFilter('isMeaningful')}
-                  active={isMeaningful}
+                  onClick={() => this.updateFilter('showImportant')}
+                  active={showImportant}
                 >
                   Show only important changes
                 </Button>
@@ -205,8 +202,8 @@ export default class CompareTableControls extends React.Component {
                 <Button
                   color="info"
                   outline
-                  onClick={() => this.updateFilter('isConfident')}
-                  active={isConfident}
+                  onClick={() => this.updateFilter('hideUncertain')}
+                  active={hideUncertain}
                 >
                   Hide uncertain results
                 </Button>
@@ -220,8 +217,8 @@ export default class CompareTableControls extends React.Component {
                 <Button
                   color="info"
                   outline
-                  onClick={() => this.updateFilter('isNoiseMetric')}
-                  active={isNoiseMetric}
+                  onClick={() => this.updateFilter('showNoise')}
+                  active={showNoise}
                 >
                   Show only noise
                 </Button>
