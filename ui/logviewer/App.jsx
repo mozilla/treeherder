@@ -231,7 +231,6 @@ class App extends React.PureComponent {
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
-                stream
                 scrollToLine={highlight ? highlight[0] : 0}
                 highlight={highlight}
                 selectableLines
