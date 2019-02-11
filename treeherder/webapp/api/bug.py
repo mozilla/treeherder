@@ -56,7 +56,9 @@ class BugJobMapViewSet(viewsets.ViewSet):
 
     def list(self, request, project):
         try:
-            job_ids = map(int, request.query_params.getlist('job_id'))
+            # Casting to list since Python 3's `map` returns an iterator,
+            # which would hide any ValueError until used by the ORM below.
+            job_ids = list(map(int, request.query_params.getlist('job_id')))
         except ValueError:
             return Response({"message": "Valid job_id required"},
                             status=400)
