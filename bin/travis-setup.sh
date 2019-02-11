@@ -18,7 +18,7 @@ setup_services() {
     echo '-----> Installing RabbitMQ'
     sudo apt-get install --no-install-recommends rabbitmq-server
 
-    ELASTICSEARCH_VERSION="6.2.4"
+    ELASTICSEARCH_VERSION="6.6.0"
     if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
         echo '-----> Installing Elasticsearch'
         curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb"
