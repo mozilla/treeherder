@@ -52,7 +52,7 @@ fi
 
 echo '-----> Installing/updating APT packages'
 sudo -E apt-get -yqq update
-sudo -E apt-get -yqq dist-upgrade
+sudo -E apt-get -yqq -o 'Dpkg::Options::=--force-confnew' dist-upgrade
 # libdbus-glib-1-2, libgtk-3.0 and libxt6 are required by Firefox
 # gcc and libmysqlclient-dev are required by mysqlclient
 # openjdk-8-jre-headless is required by Elasticsearch
