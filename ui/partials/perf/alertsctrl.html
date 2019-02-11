@@ -150,7 +150,7 @@
         </td>
         <td class="alert-value">{{alert.prev_value|number}}</td>
         <td class="alert-comparison">
-          <span ng-class="{'compare-improvement': !alert.is_regression, 'compare-regression': alert.is_regression}">
+          <span ng-class="{'text-success': !alert.is_regression, 'text-danger': alert.is_regression}">
             <span ng-if="alert.prev_value < alert.new_value">
               &lt;
             </span>
@@ -162,6 +162,7 @@
         <td class="alert-value">{{alert.new_value|number}}</td>
         <td class="alert-pct-difference"><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
         <td class="alert-graphical-difference">
+          <!-- TODO replace with progress bar (in CompareTable component) and remove custom classes -->
           <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
                uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
             <div class="bar bar-scale"
