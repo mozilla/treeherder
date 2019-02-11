@@ -167,15 +167,17 @@ export default class CompareTable extends React.Component {
                 ) : null}
               </td>
               <td className="text-right">
-                <SimpleTooltip
-                  textClass="detail-hint"
-                  text={`${results.originalRuns.length} / ${
-                    results.newRuns.length
-                  }`}
-                  tooltipText={`${results.originalRuns.length} base / ${
-                    results.newRuns.length
-                  } new`}
-                />
+                {results.originalRuns && (
+                  <SimpleTooltip
+                    textClass="detail-hint"
+                    text={`${results.originalRuns.length} / ${
+                      results.newRuns.length
+                    }`}
+                    tooltipText={`${results.originalRuns.length} base / ${
+                      results.newRuns.length
+                    } new`}
+                  />
+                )}
               </td>
             </tr>
           ))}
