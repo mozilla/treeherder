@@ -79,8 +79,6 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
 
-    created = serializers.ReadOnlyField()
-
     def update(self, instance, validated_data):
         # ensure the related summary, if set, has the same repository and
         # framework as the original summary
@@ -100,7 +98,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                         related_summary.framework,
                         instance.summary.framework))
 
-        instance.touch()
+        instance.timestamp_first_triage()
 
         return super().update(instance, validated_data)
 
@@ -131,7 +129,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     created = serializers.ReadOnlyField()
 
     def update(self, instance, validated_data):
-        instance.touch()
+        instance.timestamp_first_triage()
         return super(PerformanceAlertSummarySerializer, self).update(instance,
                                                                      validated_data)
 

@@ -18,6 +18,7 @@ from treeherder.model.models import (Commit,
                                      Push,
                                      TextLogErrorMetadata,
                                      User)
+from treeherder.perf.models import PerformanceDatum
 from treeherder.services.pulse.exchange import get_exchange
 
 
@@ -679,3 +680,21 @@ def test_run_data(bug_data):
         'test_runs': test_runs,
         'push_time': time
     }
+
+
+@pytest.fixture
+def generate_enough_perf_datum(test_repository, test_perf_signature):
+    # generate enough data for a proper alert to be generated (with enough
+    # extra data on both sides to make sure we're using the proper values
+    # to generate the actual alert)
+    for (push_id, job_id, value) in zip([1] * 30 + [2] * 30,
+                                        range(1, 61),
+                                        [1] * 30 + [2] * 30):
+        # push_id == result_set_id == timestamp for purposes of this test
+        push = Push.objects.get(id=push_id)
+        PerformanceDatum.objects.create(repository=test_repository,
+                                        result_set_id=push_id,
+                                        push_id=push_id,
+                                        signature=test_perf_signature,
+                                        value=value,
+                                        push_timestamp=push.time)

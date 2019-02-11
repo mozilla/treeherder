@@ -323,6 +323,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
+        # import pdb; pdb.set_trace()
         data = request.data
         if 'summary_id' not in data or 'signature_id' not in data:
             return Response({"message": "Summary and signature ids necessary "
@@ -347,6 +348,8 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 'new_value': alert_properties.new_value,
                 't_value': 1000
             })
+        alert.timestamp_first_triage().save()
+
         return Response({"alert_id": alert.id})
 
     def calculate_alert_properties(self, alert_summary, series_signature):
@@ -397,8 +400,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             # discard nudged alert to use similar one instead
             alert.delete()
 
-            conflicting_alert.touch()
-            conflicting_alert.save()
+            conflicting_alert.timestamp_first_triage().save()
         else:
             alert.summary = alert_summary
 
@@ -409,12 +411,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             alert.amount_abs = alert_properties.delta
             alert.prev_value = alert_properties.prev_value
             alert.new_value = alert_properties.new_value
+            alert.manually_created = True
 
-            alert.touch()
-            alert.save()
-
-        alert_summary.touch()
-        old_summary.touch()
+            alert.timestamp_first_triage().save()
 
         if old_summary.alerts.count() == 0:
             old_summary.delete()

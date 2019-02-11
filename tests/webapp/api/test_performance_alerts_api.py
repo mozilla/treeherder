@@ -1,13 +1,13 @@
 import copy
+from datetime import timedelta
 
 import pytest
 from django.urls import reverse
+from django.utils.timezone import now as django_now
 from first import first
 
-from treeherder.model.models import Push
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
-                                    PerformanceDatum,
                                     PerformanceFramework)
 
 
@@ -152,24 +152,8 @@ def alert_create_post_blob(test_perf_alert_summary, test_perf_signature):
     }
 
 
-def test_alerts_post(client, test_repository, test_perf_signature,
-                     test_perf_alert_summary, alert_create_post_blob,
-                     test_user, test_sheriff):
-
-    # generate enough data for a proper alert to be generated (with enough
-    # extra data on both sides to make sure we're using the proper values
-    # to generate the actual alert)
-    for (push_id, job_id, value) in zip([1]*30 + [2]*30,
-                                        range(1, 61),
-                                        [1]*30 + [2]*30):
-        # push_id == result_set_id == timestamp for purposes of this test
-        push = Push.objects.get(id=push_id)
-        PerformanceDatum.objects.create(repository=test_repository,
-                                        result_set_id=push_id,
-                                        push_id=push_id,
-                                        signature=test_perf_signature,
-                                        value=value,
-                                        push_timestamp=push.time)
+def test_alerts_post(client, alert_create_post_blob,
+                     test_user, test_sheriff, generate_enough_perf_datum):
 
     # verify that we fail if not authenticated
     resp = client.post(reverse('performance-alerts-list'),
@@ -435,6 +419,120 @@ def test_nudge_recalculates_alert_properties(client,
 
     new_alert_properties = _get_alert_properties(test_perf_alert)
     assert new_alert_properties == [400.0, 20.0, 5.0, 25.0, 20.0]
+
+
+def test_timestamps_on_alert_and_summaries_inside_code(test_perf_alert_summary,
+                                                       test_perf_signature,
+                                                       test_perf_signature_2):
+    new_alert = PerformanceAlert.objects.create(summary=test_perf_alert_summary,
+                                                series_signature=test_perf_signature,
+                                                is_regression=True,
+                                                amount_pct=10,
+                                                amount_abs=10,
+                                                prev_value=10,
+                                                new_value=11,
+                                                t_value=10)
+    assert new_alert.created <= new_alert.last_updated
+    assert new_alert.first_triaged is None
+
+    # update increases last_updated,
+    # but created and first_triaged remain the same
+    previous_create = new_alert.created
+    previous_update = new_alert.last_updated
+    new_alert.starred = True
+    new_alert.save()
+
+    assert previous_create == new_alert.created
+    assert previous_update < new_alert.last_updated
+    assert new_alert.first_triaged is None  # non-human interaction doesn't update this field
+
+    # parent summary aggregates first_triaged from child alerts
+    parent_summary = new_alert.summary
+    assert parent_summary.first_triaged is None
+
+    sibling_alert = PerformanceAlert.objects.create(summary=test_perf_alert_summary,
+                                                    series_signature=test_perf_signature_2,
+                                                    is_regression=False,
+                                                    amount_pct=20,
+                                                    amount_abs=20,
+                                                    prev_value=20,
+                                                    new_value=21,
+                                                    t_value=20)
+    sibling_alert.first_triaged = oldest_alert = django_now()
+    new_alert.first_triaged = django_now()
+    new_alert.save()
+    sibling_alert.save()
+
+    assert parent_summary.first_triaged == oldest_alert
+
+    # parent summary's first_triaged remains the oldest
+    parent_summary.first_triaged = oldest_interaction = django_now() - timedelta(days=10)
+
+    new_alert.first_triaged = django_now()
+    new_alert.save()  # to trigger aggregation on parent
+
+    assert parent_summary.first_triaged == oldest_interaction
+
+
+def test_timestamps_on_manual_created_alert_via_their_endpoints(client, alert_create_post_blob, test_sheriff,
+                                                                generate_enough_perf_datum):
+    # created <= last_updated, created <= first_triaged
+    # BUT manually_created is True
+    client.force_authenticate(user=test_sheriff)
+    resp = client.post(reverse('performance-alerts-list'),
+                       alert_create_post_blob)
+    assert resp.status_code == 200
+
+    manual_alert_id = resp.json()['alert_id']
+    manual_alert = PerformanceAlert.objects.get(pk=manual_alert_id)
+    assert manual_alert.manually_created is True
+
+    assert manual_alert.created <= manual_alert.last_updated
+    assert manual_alert.first_triaged is not None
+    assert manual_alert.created <= manual_alert.first_triaged
+
+
+def test_timestamps_on_alert_via_endpoints(client, test_sheriff, test_perf_alert):
+    # updating autogenerated alert:
+    # created doesn't change, last_updated & first_triaged update
+    old_created = test_perf_alert.created
+    old_last_updated = test_perf_alert.last_updated
+
+    client.force_authenticate(user=test_sheriff)
+    resp = client.put(reverse('performance-alerts-list') + '1/',
+                      {'starred': True})
+    assert resp.status_code == 200
+    test_perf_alert.refresh_from_db()
+
+    assert test_perf_alert.created == old_created
+    assert test_perf_alert.first_triaged is not None
+    assert test_perf_alert.created < test_perf_alert.first_triaged
+    assert test_perf_alert.last_updated > old_last_updated
+
+    old_first_triaged = test_perf_alert.first_triaged
+    old_last_updated = test_perf_alert.last_updated
+
+    # updating alert multiple times:
+    # keeps first_triaged the same
+    client.force_authenticate(user=test_sheriff)
+    resp = client.put(reverse('performance-alerts-list') + '1/',
+                      {'status': PerformanceAlert.CONFIRMING})
+    assert resp.status_code == 200
+    test_perf_alert.refresh_from_db()
+
+    assert test_perf_alert.first_triaged == old_first_triaged
+    assert test_perf_alert.last_updated > old_last_updated
+
+    # does this cover the downstream/reassgin use case?
+    # do timestamps update on both alert summaries?
+
+
+def test_timestamps_on_alert_and_summaries_via_nudging():
+    # nudging existing autogenerated alert: created remains the same, last_updated updaees, first_triaged updates
+    # nudging it again: first_triaged remains the same
+
+    # for each alert, check the alert summary also
+    pass
 
 
 # utils

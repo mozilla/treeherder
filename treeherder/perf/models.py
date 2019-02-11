@@ -206,7 +206,7 @@ class PerformanceAlertSummary(models.Model):
     notes = models.TextField(null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    first_modified = models.DateTimeField(null=True)
+    first_modified = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(auto_now=True)
 
     UNTRIAGED = 0
@@ -239,14 +239,32 @@ class PerformanceAlertSummary(models.Model):
                                       default=1)  # Bugzilla
 
     def update_status(self):
-        autodetermined_status = self.autodetermine_status()
+        own_alerts = PerformanceAlert.objects.filter(summary=self)
+        alerts = (own_alerts | PerformanceAlert.objects.filter(related_summary=self))
+        should_save = False
+
+        autodetermined_status = self.autodetermine_status(alerts)
         if autodetermined_status != self.status:
             self.status = autodetermined_status
+            should_save = True
+
+        # aggregate first_triaged field of own child alerts
+        first_triaged_stamps = [alert.first_triaged for alert in own_alerts
+                                if alert.first_triaged is not None] or [None]
+
+        oldest_first_triaged = min(first_triaged_stamps)
+        if oldest_first_triaged is not None:
+            if self.first_triaged is None or self.first_triaged > oldest_first_triaged:
+                self.first_triaged = oldest_first_triaged
+                should_save = True
+
+        if should_save:
             self.save()
 
-    def autodetermine_status(self):
-        alerts = (PerformanceAlert.objects.filter(summary=self) |
-                  PerformanceAlert.objects.filter(related_summary=self))
+    def autodetermine_status(self, alerts):
+        """
+        :param alerts: all child alerts, both owned and reassigned/downstreamed ones
+        """
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
@@ -291,9 +309,11 @@ class PerformanceAlertSummary(models.Model):
 
         return PerformanceAlertSummary.DOWNSTREAM
 
-    def touch(self):
-        if self.first_modified is None:
-            self.first_modified = django_now()
+    def timestamp_first_triage(self):
+        # called for summary specific updates (e.g. notes, bug linking)
+        if self.first_triaged is None:
+            self.first_triaged = django_now()
+        return self
 
     class Meta:
         db_table = "performance_alert_summary"
@@ -331,9 +351,10 @@ class PerformanceAlert(models.Model):
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
     created = models.DateTimeField(auto_now_add=True)
-    first_modified = models.DateTimeField(null=True)
+    # time when human user 1st interacted with alert
+    # IMPORTANT: workers & automated scripts mustn't update this! Dont' assign this outside setter method!
+    first_triaged = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(auto_now=True)
-
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -392,9 +413,10 @@ class PerformanceAlert(models.Model):
         if self.related_summary:
             self.related_summary.update_status()
 
-    def touch(self):
-        if self.first_modified is None:
-            self.first_modified = django_now()
+    def timestamp_first_triage(self):
+        if self.first_triaged is None:
+            self.first_triaged = django_now()
+        return self
 
     class Meta:
         db_table = "performance_alert"
