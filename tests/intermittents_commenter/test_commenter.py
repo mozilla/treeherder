@@ -37,7 +37,6 @@ def test_intermittents_commenter(bug_data):
                     status=200))
 
     resp = process.fetch_bug_details(bug_data['bug_id'])
-    assert responses.calls[0].request.url == url
     assert resp == content['bugs']
 
     comment_params = process.generate_bug_changes(startday, endday, alt_startday, alt_endday)
