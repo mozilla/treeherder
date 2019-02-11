@@ -20,7 +20,8 @@ GECKODRIVER_VERSION="0.24.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="18.0"
 # Keep in sync with the version pre-installed on Travis.
-SHELLCHECK_VERSION="0.4.7"
+# https://github.com/travis-ci/travis-cookbooks/blob/9595f0a5316a2bc9b15f1e8a07e58cd07b97167c/cookbooks/travis_build_environment/attributes/default.rb#L267-L270
+SHELLCHECK_VERSION="0.6.0"
 
 # Suppress prompts during apt-get invocations.
 export DEBIAN_FRONTEND=noninteractive
