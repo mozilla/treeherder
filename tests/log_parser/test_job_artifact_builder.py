@@ -1,9 +1,13 @@
+import pytest
 import responses
+from six import PY3
 
 from tests import test_utils
 from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotJobArtifactBuilder
+
+pytestmark = pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 
 
 @responses.activate

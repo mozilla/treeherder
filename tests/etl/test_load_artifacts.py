@@ -2,14 +2,10 @@ from __future__ import unicode_literals
 
 import json
 
-import pytest
-
 from treeherder.etl.artifact import store_job_artifacts
 from treeherder.model.models import (JobDetail,
                                      TextLogError,
                                      TextLogStep)
-
-xfail = pytest.mark.xfail
 
 
 def test_load_long_job_details(test_job):

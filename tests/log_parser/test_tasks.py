@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import pytest
+from six import PY3
 
 from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
@@ -27,6 +28,7 @@ def jobs_with_local_log(activate_responses):
     return [job]
 
 
+@pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_push):
     """
     check that 2 job_artifacts get inserted when running a parse_log task for
@@ -47,6 +49,7 @@ def test_parse_log(test_repository, failure_classifications, jobs_with_local_log
     print(JobDetail.objects.count() == 4)
 
 
+@pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 def test_create_error_summary(failure_classifications,
                               jobs_with_local_log, sample_push,
                               test_repository):

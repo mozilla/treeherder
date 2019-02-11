@@ -71,9 +71,9 @@ matrix:
         # https://docs.python.org/2/using/cmdline.html#cmdoption-3
         - python -3 -m pytest tests/selenium/ --driver Firefox
 
-    - env: python3-smoketest
+    - env: python3-main
       language: python
-      python: '3.6.5'
+      python: '3.7.2'
       cache:
         directories:
           - ${HOME}/venv
@@ -83,11 +83,27 @@ matrix:
         - mysql -u root -e 'create database test_treeherder;'
       script:
         - pip check
+        - python lints/queuelint.py
         - flake8 --show-source
+        - isort --check-only --diff --quiet
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' ./manage.py check --deploy --fail-level WARNING
-        # Remove these once we get the roughly equivalent pytest sanity tests working under Python 3.
-        - ./manage.py migrate
-        - ./manage.py makemigrations --check
+        - pytest tests/ --runslow --ignore=tests/selenium/
+
+    - env: python3-tests-selenium
+      language: python
+      python: '3.7.2'
+      cache:
+        directories:
+          - ${HOME}/venv
+          - node_modules
+      install:
+        - nvm install 11
+        - source ./bin/travis-setup.sh services python_env geckodriver js_env
+      before_script:
+        # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
+        - yarn build
+      script:
+        - pytest tests/selenium/ --driver Firefox
 
 notifications:
   email:
