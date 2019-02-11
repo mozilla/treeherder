@@ -57,13 +57,14 @@ TableAverage.propTypes = {
   value: PropTypes.number,
   stddev: PropTypes.number,
   stddevpct: PropTypes.number,
-  replicates: PropTypes.arrayOf(PropTypes.number).isRequired,
+  replicates: PropTypes.arrayOf(PropTypes.number),
 };
 
 TableAverage.defaultProps = {
   value: PropTypes.null,
   stddev: PropTypes.null,
   stddevpct: PropTypes.null,
+  replicates: [],
 };
 
 export default TableAverage;
