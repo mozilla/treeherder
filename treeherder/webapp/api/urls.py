@@ -34,12 +34,6 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'resultset',
-    push.PushViewSet,
-    base_name='resultset',
-)
-
-project_bound_router.register(
     r'push',
     push.PushViewSet,
     base_name='push',
