@@ -96,12 +96,12 @@ def test_load_non_ascii_textlog_errors(test_job):
                         'errors': [
                             {
                                 # non-ascii character
-                                "line": '07:51:28  WARNING - \U000000c3'.encode('utf-8'),
+                                "line": '07:51:28  WARNING - \U000000c3',
                                 "linenumber": 1587
                             },
                             {
                                 # astral character (i.e. higher than ucs2)
-                                "line": '07:51:29  WARNING - \U0001d400'.encode('utf-8'),
+                                "line": '07:51:29  WARNING - \U0001d400',
                                 "linenumber": 1588
                             }
                         ]
