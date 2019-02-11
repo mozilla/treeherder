@@ -412,6 +412,25 @@ th {
   width: 160px;
   text-align: right;
 }
+/* TODO replace with bootstrap colors */
+.bar {
+  height: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 5px;
+  background-color: #bbb;
+}
+
+.bar-scale {
+  background-color: #eee;
+}
+
+.bar-improvement {
+  background-color: green;
+}
+
+.bar-regression {
+  background-color: red;
+}
 
 /* Table widths for alerts */
 td.alert-checkbox {
