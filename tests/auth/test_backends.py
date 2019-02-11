@@ -5,6 +5,7 @@ import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
+from six import PY3
 
 from treeherder.auth.backends import (AuthBackend,
                                       AuthenticationFailed)
@@ -35,16 +36,17 @@ def test_get_username_from_userinfo(user_info, exp_username, exp_exception):
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     ('exp_username', 'email', 'exp_create_user'),
-    [('email/user@foo.com',
-      'user@foo.com',
-      True),
-     ('email/emailaddressexceeding30chars@foo.com',
-      'emailaddressexceeding30chars@foo.com',
-      True),
-     ('email/foo@bar.net',
-      'foo@bar.net',
-      False),
-     ])
+    [
+        ('email/user@foo.com', 'user@foo.com', True),
+        ('email/emailaddressexceeding30chars@foo.com', 'emailaddressexceeding30chars@foo.com', True),
+        pytest.param(
+            'email/foo@bar.net', 'foo@bar.net', False,
+            marks=pytest.mark.xfail(
+                PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)'
+            )
+        ),
+    ]
+)
 def test_existing_email_create_user(test_user, client, monkeypatch, exp_username, email, exp_create_user):
     """
     Test whether a user was created or not, despite an existing user with

@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
+from six import PY3
 
 from treeherder.auth.backends import AuthBackend
 from treeherder.model.models import User
@@ -47,6 +48,7 @@ def test_post_no_auth():
 
 # Auth Login and Logout Tests
 
+@pytest.mark.xfail(PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)')
 def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
     def userinfo_mock(selfless, request):
@@ -136,6 +138,7 @@ def test_login_no_email(test_user, client, monkeypatch):
     assert resp.json()["detail"] == "Unrecognized identity"
 
 
+@pytest.mark.xfail(PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)')
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, client, monkeypatch):
     """LDAP login, user not active"""
