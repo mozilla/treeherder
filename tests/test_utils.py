@@ -187,7 +187,7 @@ def load_exp(filename):
     development.
     """
     path = SampleData().get_log_path(filename)
-    with open(path, "a+") as f:
+    with open(path) as f:
         try:
             return json.load(f)
         except ValueError:
