@@ -1,5 +1,3 @@
-from contextlib import closing
-
 import newrelic.agent
 
 from treeherder.etl.common import make_request
@@ -87,7 +85,7 @@ BuildbotPerformanceDataArtifactBuilder
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
-        with closing(make_request(self.url, stream=True)) as response:
+        with make_request(self.url, stream=True) as response:
             # Temporary annotation of log size to help set thresholds in bug 1295997.
             newrelic.agent.add_custom_parameter(
                 'unstructured_log_size',
