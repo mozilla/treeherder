@@ -73,7 +73,8 @@ matrix:
 
     - env: python3-main
       language: python
-      python: '3.7.2'
+      # Python 3.7 is blocked on Celery/kombu support
+      python: '3.6.8'
       cache:
         directories:
           - ${HOME}/venv
@@ -91,7 +92,8 @@ matrix:
 
     - env: python3-tests-selenium
       language: python
-      python: '3.7.2'
+      # Python 3.7 is blocked on Celery/kombu support
+      python: '3.6.8'
       cache:
         directories:
           - ${HOME}/venv
