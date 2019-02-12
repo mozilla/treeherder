@@ -129,7 +129,13 @@ module.exports = {
       {
         setupFilesAfterEnv: ['<rootDir>/tests/ui/unit/test-setup.js'],
         // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
-        browser: true,
+        moduleNameMapper: {
+          // Hawk's browser and Node APIs differ, and taskcluster-client-web uses APIs that
+          // exist only in the browser version. As such we must force Jest (which runs tests
+          // under Node, not the browser) to use the browser version of Hawk. See:
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c6
+          '^hawk$': 'hawk/dist/browser.js',
+        },
       },
     ],
     neutrino => {

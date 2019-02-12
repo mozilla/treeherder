@@ -78,7 +78,6 @@
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.0",
     "@neutrinojs/jest": "9.0.0-rc.0",
-    "angular-mocks": "1.7.7",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.9.1",
     "eslint": "5.13.0",
@@ -90,12 +89,8 @@
     "eslint-plugin-prettier": "3.0.1",
     "eslint-plugin-react": "7.12.4",
     "fetch-mock": "7.3.0",
-    "jasmine-jquery": "2.1.1",
     "jest": "24.1.0",
-    "karma": "4.0.0",
-    "karma-firefox-launcher": "1.1.0",
-    "karma-jasmine": "2.0.1",
-    "karma-webpack": "4.0.0-rc.6",
+    "node-fetch": "1.7.3",
     "prettier": "1.16.4",
     "webpack-dev-server": "3.1.14"
   },
@@ -109,10 +104,7 @@
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
     "start:local": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=http://localhost:8000",
     "start:stage": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=https://treeherder.allizom.org",
-    "karma": "node ./node_modules/karma/bin/karma start --single-run",
-    "karma:watch": "node ./node_modules/karma/bin/karma start",
-    "jest": "node ./node_modules/jest/bin/jest",
-    "jest:watch": "node ./node_modules/jest/bin/jest --watch",
-    "test": "yarn karma && yarn jest"
+    "test": "node ./node_modules/jest/bin/jest",
+    "test:watch": "node ./node_modules/jest/bin/jest --watch"
   }
 }

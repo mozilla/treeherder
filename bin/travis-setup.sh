@@ -61,20 +61,20 @@ setup_docs() {
     pip install -U -r requirements/docs.txt
 }
 
-setup_geckodriver() {
+setup_browser() {
     echo '-----> Installing geckodriver'
     GECKODRIVER_VERSION='0.24.0'
     curl -sSfL "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
         | tar -zxC "${HOME}/bin"
-}
 
-setup_js_env() {
     echo '-----> Installing Firefox'
     curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' | tar -jxC "${HOME}"
     export PATH="${HOME}/firefox:${PATH}"
     # Enable Firefox headless mode, avoiding the need for xvfb.
     export MOZ_HEADLESS=1
+}
 
+setup_js_env() {
     echo '-----> Installing yarn'
     YARN_VERSION=$(jq -r '.engines.yarn' package.json)
     curl -sSfL "https://yarnpkg.com/downloads/${YARN_VERSION}/yarn-v${YARN_VERSION}.tar.gz" \

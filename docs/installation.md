@@ -72,25 +72,18 @@ See the [code style](code_style.md#ui) section for more details.
 
 ### Running the unit tests
 
-Currently, most of the unit tests for the UI are run with [Karma] and [Jasmine]. However, we are
-migrating from [Karma] to [Jest]. So new tests should be written in [Jest]. React components are tested with [enzyme].
+The unit tests for the UI are run with [Jest] and [Jasmine]. React components are tested with [enzyme].
 
 To run the tests:
 
 - If you haven't already done so, install local dependencies by running `yarn install` from the project root.
-- Then run `yarn test` to execute the tests (both Karma and Jest tests will be run).
+- Then run `yarn test` to execute the tests.
 
 While working on the frontend, you may wish to watch JavaScript files and re-run tests
 automatically when files change. To do this, you may run one of the following commands:
 
 ```bash
-$ yarn karma:watch
-```
-
-or
-
-```bash
-$ yarn jest:watch
+$ yarn test:watch
 ```
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
@@ -231,7 +224,6 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [vagrant]: https://www.vagrantup.com
 [virtualbox]: https://www.virtualbox.org
 [treeherder repo]: https://github.com/mozilla/treeherder
-[karma]: http://karma-runner.github.io/0.8/config/configuration-file.html
 [jest]: https://jestjs.io/docs/en/tutorial-react
 [node.js]: https://nodejs.org/en/download/current/
 [yarn]: https://yarnpkg.com/en/docs/install

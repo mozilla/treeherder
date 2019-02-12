@@ -22,7 +22,6 @@ module.exports = {
   },
   env: {
     browser: true,
-    jasmine: true,
   },
   rules: {
     // TODO: Fix & remove the majority of these deviations from AirBnB style (bug 1183749).

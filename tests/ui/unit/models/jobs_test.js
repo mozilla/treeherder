@@ -1,4 +1,4 @@
-import * as fetchMock from 'fetch-mock';
+import { fetchMock } from 'fetch-mock';
 
 import JobModel from '../../../../ui/models/job';
 import { getProjectUrl } from '../../../../ui/helpers/location';
@@ -15,10 +15,10 @@ describe('JobModel', () => {
 
   describe('getList', () => {
     beforeEach(() => {
-      fetchMock.get(getProjectUrl('/jobs/'), jobListFixtureOne);
+      fetchMock.mock(getProjectUrl('/jobs/'), jobListFixtureOne);
     });
 
-    it('should return a promise', () => {
+    test('should return a promise', () => {
       const result = JobModel.getList('mozilla-inbound');
       expect(result.then).toBeDefined();
     });
@@ -26,23 +26,23 @@ describe('JobModel', () => {
 
   describe('pagination', () => {
     beforeEach(() => {
-      fetchMock.get(
+      fetchMock.mock(
         getProjectUrl('/jobs/?count=2'),
         paginatedJobListFixtureOne,
       );
-      fetchMock.get(
+      fetchMock.mock(
         getProjectUrl('/jobs/?count=2&offset=2'),
         paginatedJobListFixtureTwo,
       );
     });
 
-    it('should return a page of results by default', async () => {
+    test('should return a page of results by default', async () => {
       const jobList = await JobModel.getList(repoName, { count: 2 });
 
       expect(jobList).toHaveLength(2);
     });
 
-    it('should return all the pages when fetch_all==true', async () => {
+    test('should return all the pages when fetch_all==true', async () => {
       const jobList = await JobModel.getList(
         repoName,
         { count: 2 },
