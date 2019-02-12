@@ -24,19 +24,16 @@ def do_test(log):
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
-    exp = test_utils.load_exp("{0}.logview.json".format(log))
 
-    # :: Uncomment to create the ``exp`` files, if you're making a lot of them
+    # :: Uncomment to create the ``exp`` files
     # import json
     # from tests.sampledata import SampleData
     # with open(SampleData().get_log_path("{0}.logview.json".format(log)), "w") as f:
     #     f.write(json.dumps(act, indent=2))
 
-    assert act == exp  # , diff(exp, act)
+    exp = test_utils.load_exp("{0}.logview.json".format(log))
 
-    # :: Use this assert when creating new tests and you want to get the actual
-    # returned artifact:
-    # assert act == exp, json.dumps(act, indent=2)
+    assert act == exp
 
 
 def test_crashtest_passing():

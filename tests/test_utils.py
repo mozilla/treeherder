@@ -181,18 +181,10 @@ def verify_superseded(expected_superseded_job_guids):
 def load_exp(filename):
     """
     Load in an expected result json and return as an obj.
-
-    If the file doesn't exist, it will be created, but the test will
-    fail, due to no content.  This is to make it easier during test
-    development.
     """
     path = SampleData().get_log_path(filename)
     with open(path) as f:
-        try:
-            return json.load(f)
-        except ValueError:
-            # if it's not parse-able, return an empty dict
-            return {}
+        return json.load(f)
 
 
 def create_generic_job(guid, repository, push_id, generic_reference_data):
