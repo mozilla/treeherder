@@ -97,9 +97,16 @@ BuildbotPerformanceDataArtifactBuilder
                 'unstructured_log_encoding',
                 response.headers.get('Content-Encoding', 'None')
             )
+
+            # Lines must be explicitly decoded since `iter_lines()`` returns bytes by default
+            # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline
+            # characters such as `\u0085` (which can appear in test output) are treated the same
+            # as `\n` or `\r`, and so split into unwanted additional lines by `iter_lines()`.
             for line in response.iter_lines():
                 for builder in self.builders:
-                    builder.parse_line(line)
+                    # Using `replace` to prevent malformed unicode (which might possibly exist
+                    # in test message output) from breaking parsing of the rest of the log.
+                    builder.parse_line(line.decode('utf-8', 'replace'))
 
         # gather the artifacts from all builders
         for builder in self.builders:

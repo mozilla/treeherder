@@ -1,7 +1,5 @@
-import pytest
 import responses
 from jsonschema import validate
-from six import PY3
 
 from tests.test_utils import add_log_response
 from treeherder.etl.perf import PERFHERDER_SCHEMA
@@ -9,7 +7,6 @@ from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderColle
 from treeherder.log_parser.artifactbuilders import BuildbotPerformanceDataArtifactBuilder
 
 
-@pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 @responses.activate
 def test_performance_log_parsing():
     """

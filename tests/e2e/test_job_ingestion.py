@@ -4,7 +4,6 @@ import json
 import pytest
 from django.forms import model_to_dict
 from mock import MagicMock
-from six import PY3
 
 from tests.test_utils import add_log_response
 from treeherder.client.thclient import client
@@ -54,7 +53,6 @@ def check_job_log(test_repository, job_guid, parse_status):
     assert job_logs[0].status == parse_status
 
 
-@pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 def test_store_job_with_unparsed_log(test_repository, failure_classifications,
                                      push_stored, monkeypatch, activate_responses):
     """
@@ -99,7 +97,6 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
     assert len(get_error_summary(Job.objects.get(id=1))) == 2
 
 
-@pytest.mark.xfail(PY3, reason='Python 3: a bytes-like object is required, not str (bug 1526743)')
 def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_stored,
                                                           failure_classifications,
                                                           activate_responses):
