@@ -71,7 +71,7 @@
     "redux": "4.0.1",
     "redux-debounce": "1.0.1",
     "taskcluster-client-web": "8.1.1",
-    "taskcluster-lib-scopes": "10.0.1",
+    "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.29.3",
     "webpack-cli": "3.2.3"
   },
