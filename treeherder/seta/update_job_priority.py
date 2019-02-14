@@ -1,10 +1,10 @@
 '''This module is used to add new jobs to the job priority table.
 
 This will query the Treeherder runnable api based on the latest task ID from
-mozilla-inbound's TaskCluster index.
+autoland's TaskCluster index.
 
 Known bug:
- * Only considering mozilla-inbound makes SETA act similarly in all repositories where it is
+ * Only considering autoland makes SETA act similarly in all repositories where it is
    active. Right now, this works for integration repositories since they tend to have
    the same set of jobs. Unfortunately, this is less than ideal if we want to make this
    work for project repositories.
@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 
 def update_job_priority_table():
     """Use it to update the job priority table with data from the runnable api."""
-    # XXX: We are assuming that the jobs accross 'mozilla-inbound', 'autoland' and 'fx-team'
-    #      are equivalent. This could cause issues in the future
-    data = query_sanitized_data(repo_name='mozilla-inbound')
+    # XXX: We are assuming that the jobs across trees are equivalent. This
+    #      could cause issues in the future.
+    data = query_sanitized_data(repo_name='autoland')
     if data:
         return _update_table(data)
     else:
@@ -99,7 +99,7 @@ def _sanitize_data(runnable_jobs_data):
     return sanitized_list
 
 
-def query_sanitized_data(repo_name='mozilla-inbound'):
+def query_sanitized_data(repo_name='autoland'):
     """Return sanitized jobs data based on runnable api. None if failed to obtain or no new data.
 
      We need to find the latest gecko decision task ID (by querying the index [1][2]).
@@ -107,7 +107,7 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
      [1] https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision/
      [2] Index's data structure:
       {
-        "namespace": "gecko.v2.mozilla-inbound.latest.taskgraph.decision",
+        "namespace": "gecko.v2.autoland.latest.taskgraph.decision",
         "taskId": "Dh9ZvFk5QCSprJ877cgUmw",
         "rank": 0,
         "data": {},

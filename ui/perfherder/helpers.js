@@ -375,7 +375,7 @@ export const getGraphsURL = (
   if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
     const branches =
       alertRepository === 'mozilla-beta'
-        ? ['mozilla-inbound']
+        ? ['autoland']
         : thPerformanceBranches.filter(branch => branch !== alertRepository);
     url += branches
       .map(

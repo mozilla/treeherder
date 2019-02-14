@@ -126,7 +126,7 @@ export const thFavicons = {
   unavailable: treeFavicon,
 };
 
-export const thDefaultRepo = 'mozilla-inbound';
+export const thDefaultRepo = 'autoland';
 
 export const thDateFormat = 'EEE MMM d, HH:mm:ss';
 
