@@ -9,6 +9,7 @@ import SimpleTooltip from '../shared/SimpleTooltip';
 import DropdownButton from './DropdownButton';
 import InputFilter from './InputFilter';
 import CompareTable from './CompareTable';
+import { filterText } from './constants';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -175,7 +176,7 @@ export default class CompareTableControls extends React.Component {
                   onClick={() => this.updateFilter('hideUncomparable')}
                   active={hideUncomparable}
                 >
-                  Hide uncomparable results
+                  {filterText.hideUncomparable}
                 </Button>
               }
               tooltipText="At least 1 result for old and new revision"
@@ -190,7 +191,7 @@ export default class CompareTableControls extends React.Component {
                   onClick={() => this.updateFilter('showImportant')}
                   active={showImportant}
                 >
-                  Show only important changes
+                  {filterText.showImportant}
                 </Button>
               }
               tooltipText="Non-trivial changes (2%+)"
@@ -205,7 +206,7 @@ export default class CompareTableControls extends React.Component {
                   onClick={() => this.updateFilter('hideUncertain')}
                   active={hideUncertain}
                 >
-                  Hide uncertain results
+                  {filterText.hideUncertain}
                 </Button>
               }
               tooltipText="At least 6 datapoints OR 2+ datapoints and a large difference"
@@ -220,7 +221,7 @@ export default class CompareTableControls extends React.Component {
                   onClick={() => this.updateFilter('showNoise')}
                   active={showNoise}
                 >
-                  Show only noise
+                  {filterText.showNoise}
                 </Button>
               }
               tooltipText="Display Noise Metric to compare noisy tests at a platform level"

@@ -8,3 +8,11 @@ export const endpoints = {
 };
 
 export const noiseMetricTitle = 'noise metric';
+
+export const filterText = {
+  showImportant: 'Show only important changes',
+  hideUncertain: 'Hide uncertain results',
+  showNoise: 'Show only noise',
+  hideUncomparable: 'Hide uncomparable results',
+  inputPlaceholder: 'linux tp5o',
+};

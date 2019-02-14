@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap';
 
+import { filterText } from './constants';
+
 export default class InputFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,7 @@ export default class InputFilter extends React.Component {
     return (
       <InputGroup>
         <Input
-          placeholder="linux tp5o"
+          placeholder={filterText.inputPlaceholder}
           onChange={this.updateInput}
           value={input}
           onKeyPress={this.handleKeyPress}

@@ -90,6 +90,7 @@
     "eslint-plugin-react": "7.12.4",
     "fetch-mock": "7.3.0",
     "jest": "24.1.0",
+    "jest-dom": "3.1.1",
     "node-fetch": "1.7.3",
     "prettier": "1.16.4",
     "react-testing-library": "5.8.0",
