@@ -4,7 +4,8 @@ from django.db import (connection,
                        transaction)
 
 from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceDatum)
+                                    PerformanceDatum,
+                                    PerformanceSignature)
 
 RAPTOR_TP6_SUBTESTS = 'raptor-tp6-subtests'
 USE_CASES = [RAPTOR_TP6_SUBTESTS]
@@ -39,18 +40,30 @@ class Command(BaseCommand):
                  Cannot be used in conjunction with --from/--to arguments.
                  Available use cases: {}'''.format(','.join(USE_CASES))
         )
+        parser.add_argument(
+            '--keep-leftovers',
+            action='store_true',
+            help='Keep database rows even if they become useless after the script runs'
+        )
 
     def handle(self, *args, **options):
         from_signatures = options['from']
         to_signatures = options['to']
         use_case = options['for']
+        keep_leftovers = options['keep_leftovers']
 
         self.validate_arguments(from_signatures, to_signatures, use_case)
 
         if use_case:
-            self.reassign_perf_tests(use_case)
+            signature_pairs = self.fetch_signature_pairs(use_case)
         else:
-            self.reassign(zip(from_signatures, to_signatures))
+            signature_pairs = zip(from_signatures, to_signatures)
+
+        with transaction.atomic():
+            self.reassign(signature_pairs)
+            if not keep_leftovers:
+                old_signatures = [old_signature for old_signature, _ in signature_pairs]
+                self.remove_signatures(old_signatures)
 
     def validate_arguments(self, from_signatures, to_signatures, perf_framework):
         arguments = [from_signatures, to_signatures, perf_framework]
@@ -62,10 +75,9 @@ class Command(BaseCommand):
             if len(from_signatures) != len(to_signatures):
                 raise CommandError("Each old signature must have a corresponding new one")
 
-    def reassign_perf_tests(self, use_case):
+    def fetch_signature_pairs(self, use_case):
         if use_case == RAPTOR_TP6_SUBTESTS:
-            signature_pairs = self.fetch_tp6_signature_pairs()
-            self.reassign(signature_pairs)
+            return self.fetch_tp6_signature_pairs()
 
     def fetch_tp6_signature_pairs(self):
         with connection.cursor() as cursor:
@@ -97,6 +109,9 @@ class Command(BaseCommand):
                old_signature.has_subtests = new_signature.has_subtests""")
             signature_pairs = cursor.fetchall()
         return signature_pairs
+
+    def remove_signatures(self, signatures):
+        PerformanceSignature.objects.filter(id__in=signatures).delete()
 
     def reassign(self, signature_pairs):
         with transaction.atomic():
