@@ -15,7 +15,6 @@ PYTHON_DIR="$HOME/python"
 
 cd "$SRC_DIR"
 
-ELASTICSEARCH_VERSION="6.6.0"
 GECKODRIVER_VERSION="0.24.0"
 PYTHON_VERSION="$(sed 's/python-//' runtime.txt)"
 PIP_VERSION="19.0.2"
@@ -56,7 +55,6 @@ sudo -E apt-get -yqq update
 sudo -E apt-get -yqq -o 'Dpkg::Options::=--force-confnew' dist-upgrade
 # libdbus-glib-1-2, libgtk-3.0 and libxt6 are required by Firefox
 # gcc and libmysqlclient-dev are required by mysqlclient
-# openjdk-8-jre-headless is required by Elasticsearch
 sudo -E apt-get -yqq install --no-install-recommends \
     gcc \
     libdbus-glib-1-2 \
@@ -65,20 +63,9 @@ sudo -E apt-get -yqq install --no-install-recommends \
     libxt6 \
     mysql-server-5.7 \
     nodejs \
-    openjdk-8-jre-headless \
     rabbitmq-server \
     redis-server \
     yarn
-
-if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
-    echo '-----> Installing Elasticsearch'
-    curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb"
-    sudo dpkg -i --force-confnew /tmp/elasticsearch.deb
-    # Override the new ES 5.x default minimum heap size of 2GB.
-    sudo sed -i 's/.*ES_JAVA_OPTS=.*/ES_JAVA_OPTS="-Xms256m -Xmx1g"/' /etc/default/elasticsearch
-    sudo systemctl enable elasticsearch.service 2>&1
-    sudo systemctl restart elasticsearch.service
-fi
 
 if ! cmp -s vagrant/mysql.cnf /etc/mysql/conf.d/treeherder.cnf; then
     echo '-----> Configuring MySQL'
@@ -130,9 +117,6 @@ sudo mysql -e 'ALTER USER root@localhost IDENTIFIED WITH mysql_native_password B
 # The default `root@localhost` grant only allows loopback interface connections.
 mysql -u root -e 'GRANT ALL PRIVILEGES ON *.* to root@"%"'
 mysql -u root -e 'CREATE DATABASE IF NOT EXISTS treeherder'
-
-echo '-----> Waiting for Elasticsearch to be ready'
-while ! curl "$ELASTICSEARCH_URL" &> /dev/null; do sleep 1; done
 
 echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput

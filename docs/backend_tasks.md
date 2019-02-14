@@ -68,7 +68,7 @@ hidden by default. For TaskCluster, edit the task definition to include the
 
 ## Connecting to Services Running inside Vagrant
 
-Treeherder uses various services to function, eg MySQL, Elasticsearch, etc.
+Treeherder uses various services to function, eg MySQL, etc.
 At times it can be useful to connect to them from outside the Vagrant VM.
 
 The Vagrantfile defines how internal ports are mapped to the host OS' ports.
@@ -91,7 +91,7 @@ With MySQL exposed at port 3308 you can connect to it from your host OS with the
 - user: `root`
 - password: leave blank
 
-Other services running inside the VM, such as Elasticsearch, can be accessed in the same way.
+Other services running inside the VM, can be accessed in the same way.
 
 [client git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
 [client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
