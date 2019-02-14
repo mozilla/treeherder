@@ -1,3 +1,6 @@
+import pytest
+from django.conf import settings
+
 from treeherder.services.elasticsearch import (all_documents,
                                                count_index,
                                                es_conn,
@@ -6,6 +9,8 @@ from treeherder.services.elasticsearch.mapping import (DOC_TYPE,
                                                        INDEX_NAME)
 
 
+@pytest.mark.skipif(not settings.ELASTICSEARCH_URL,
+                    reason="Requires Elasticsearch, which is not configured (bug 1527868)")
 def test_store_none_subtest(elasticsearch):
     doc = {
         'job_guid': '1234',
@@ -24,6 +29,8 @@ def test_store_none_subtest(elasticsearch):
     assert docs[0]['_source']['subtest'] is None
 
 
+@pytest.mark.skipif(not settings.ELASTICSEARCH_URL,
+                    reason="Requires Elasticsearch, which is not configured (bug 1527868)")
 def test_store_no_subtest(elasticsearch):
     doc = {
         'job_guid': '1234',

@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 
 from tests import test_utils
@@ -43,8 +44,9 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert JobDetail.objects.count() == 0
     assert JobLog.objects.count() == 0
 
-    # There should be nothing in elastic search after cycling
-    assert count_index() == 0
+    if settings.ELASTICSEARCH_URL:
+        # There should be nothing in elastic search after cycling
+        assert count_index() == 0
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
@@ -85,7 +87,6 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     num_job_logs_before = JobLog.objects.count()
 
     call_command('cycle_data', sleep_time=0, days=1, debug=True)
-    refresh_index()
 
     assert Job.objects.count() == 1
     assert JobLog.objects.count() == (num_job_logs_before -
@@ -95,10 +96,12 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         assert (set(item.id for item in object_type.objects.all()) ==
                 set(item.id for item in objects))
 
-    # get all documents
-    indexed_ids = set(int(item['_id']) for item in all_documents())
-    expected = set(item.id for item in extra_objects["failure_lines"][1])
-    assert indexed_ids == expected
+    if settings.ELASTICSEARCH_URL:
+        refresh_index()
+        # get all documents
+        indexed_ids = set(int(item['_id']) for item in all_documents())
+        expected = set(item.id for item in extra_objects["failure_lines"][1])
+        assert indexed_ids == expected
 
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
@@ -118,7 +121,8 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
 
-    assert count_index() > 0
+    if settings.ELASTICSEARCH_URL:
+        assert count_index() > 0
 
     call_command('cycle_data', sleep_time=0, days=1, chunk_size=3)
 
@@ -126,7 +130,8 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
-    assert count_index() == 0
+    if settings.ELASTICSEARCH_URL:
+        assert count_index() == 0
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,

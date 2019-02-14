@@ -1,3 +1,6 @@
+import pytest
+from django.conf import settings
+
 from treeherder.autoclassify.autoclassify import match_errors
 from treeherder.autoclassify.matchers import (crash_signature_matcher,
                                               elasticsearch_matcher,
@@ -209,6 +212,8 @@ def test_classify_skip_ignore(test_job_2,
         assert item.error.classified_failures.count() == 0
 
 
+@pytest.mark.skipif(not settings.ELASTICSEARCH_URL,
+                    reason="Requires Elasticsearch, which is not configured (bug 1527868)")
 def test_classify_es(test_job_2, failure_lines, classified_failures):
     _, test_failure_lines = create_lines(test_job_2,
                                          [(test_line, {}),
@@ -246,9 +251,10 @@ def test_classify_multiple(test_job_2, failure_lines, classified_failures):
         assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
         assert actual.error.matches.first().matcher_name == "precise_matcher"
 
-    for actual, expected in zip(expected_classified_fuzzy, classified_failures):
-        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert actual.error.matches.first().matcher_name == "elasticsearch_matcher"
+    if settings.ELASTICSEARCH_URL:
+        for actual, expected in zip(expected_classified_fuzzy, classified_failures):
+            assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+            assert actual.error.matches.first().matcher_name == "elasticsearch_matcher"
 
 
 def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
