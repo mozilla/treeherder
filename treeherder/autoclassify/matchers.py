@@ -62,6 +62,7 @@ def elasticsearch_matcher(text_log_error):
     Uses a filtered search checking test, status, expected, and the message
     as a phrase query with non-alphabet tokens removed.
     """
+    # Note: Elasticsearch is currently disabled in all environments (see bug 1527868).
     if not settings.ELASTICSEARCH_URL:
         return []
 

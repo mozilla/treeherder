@@ -5,7 +5,6 @@ set -euo pipefail
 # This script must be sourced, so that the environment variables are set in the calling shell.
 export BROKER_URL='amqp://guest:guest@localhost:5672//'
 export DATABASE_URL='mysql://root@localhost/test_treeherder'
-export ELASTICSEARCH_URL='http://127.0.0.1:9200'
 export REDIS_URL='redis://localhost:6379'
 export TREEHERDER_DJANGO_SECRET_KEY='secretkey-of-at-50-characters-to-pass-check-deploy'
 # Suppress warnings shown during pytest startup when using `python2 -3` mode.
@@ -18,16 +17,6 @@ setup_services() {
     echo '-----> Installing RabbitMQ'
     sudo apt-get install --no-install-recommends rabbitmq-server
 
-    ELASTICSEARCH_VERSION="6.6.0"
-    if [[ "$(dpkg-query --show --showformat='${Version}' elasticsearch 2>&1)" != "$ELASTICSEARCH_VERSION" ]]; then
-        echo '-----> Installing Elasticsearch'
-        curl -sSfo /tmp/elasticsearch.deb "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb"
-        sudo dpkg -i --force-confnew /tmp/elasticsearch.deb
-        sudo systemctl restart elasticsearch
-    else
-        sudo systemctl start elasticsearch
-    fi
-
     echo '-----> Configuring MySQL'
     # Using tmpfs for the MySQL data directory reduces pytest runtime by 30%.
     sudo mkdir /mnt/ramdisk
@@ -39,9 +28,6 @@ setup_services() {
 
     echo '-----> Starting redis-server'
     sudo systemctl start redis-server
-
-    echo '-----> Waiting for Elasticsearch to be ready'
-    while ! curl "${ELASTICSEARCH_URL}" &> /dev/null; do sleep 1; done
 }
 
 setup_python_env() {

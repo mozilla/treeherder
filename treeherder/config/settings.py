@@ -352,7 +352,8 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
 
 # Elasticsearch
-ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default='')
+# Note: Elasticsearch is currently disabled in all environments (see bug 1527868).
+ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default=None)
 
 # Rest Framework
 REST_FRAMEWORK = {
