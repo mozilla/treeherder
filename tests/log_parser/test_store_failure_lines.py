@@ -172,6 +172,8 @@ def test_store_error_summary_duplicate(activate_responses, test_repository, test
     assert FailureLine.objects.count() == 2
 
 
+@pytest.mark.skipif(not settings.ELASTICSEARCH_URL,
+                    reason="Requires Elasticsearch, which is not configured (bug 1527868)")
 def test_store_error_summary_elastic_search(activate_responses, test_repository,
                                             test_job, elasticsearch):
     log_path = SampleData().get_log_path("plain-chunked_errorsummary.log")
