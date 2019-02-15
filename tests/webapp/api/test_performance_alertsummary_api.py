@@ -213,3 +213,22 @@ def test_alert_summary_post(client, test_repository, test_issue_tracker,
     resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.count() == 1
+
+
+@pytest.mark.parametrize('modification',
+                         [{'notes': 'human created notes'},
+                          {'bug_number': 123456, 'issue_tracker': 1}])
+def test_alert_summary_timestamps_via_endpoints(authorized_sheriff_client, test_perf_alert_summary, modification):
+    assert test_perf_alert_summary.first_triaged is None
+
+    # when editing notes & linking bugs
+    resp = authorized_sheriff_client.put(
+        reverse('performance-alert-summaries-list') + '1/',
+        modification
+    )
+    assert resp.status_code == 200
+    test_perf_alert_summary.refresh_from_db()
+
+    assert test_perf_alert_summary.first_triaged is not None
+    assert test_perf_alert_summary.created < test_perf_alert_summary.first_triaged
+    assert test_perf_alert_summary.created < test_perf_alert_summary.last_updated

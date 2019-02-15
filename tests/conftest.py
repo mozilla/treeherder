@@ -525,6 +525,12 @@ def client():
 
 
 @pytest.fixture
+def authorized_sheriff_client(client, test_sheriff):
+    client.force_authenticate(user=test_sheriff)
+    return client
+
+
+@pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     from tests.autoclassify.utils import create_text_log_errors
     from treeherder.model.models import FailureLine
@@ -565,6 +571,20 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary):
     from treeherder.perf.models import PerformanceAlert
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
+
+
+@pytest.fixture
+def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2):
+    from treeherder.perf.models import PerformanceAlert
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_2,
         series_signature=test_perf_signature,
         is_regression=True,
         amount_pct=0.5,

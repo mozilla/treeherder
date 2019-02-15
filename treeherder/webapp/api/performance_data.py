@@ -323,7 +323,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                             status=HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
-        # import pdb; pdb.set_trace()
         data = request.data
         if 'summary_id' not in data or 'signature_id' not in data:
             return Response({"message": "Summary and signature ids necessary "
@@ -389,7 +388,8 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             repository=alert.summary.repository,
             framework=alert.summary.framework,
             defaults={
-                'created': datetime.datetime.now()
+                'created': datetime.datetime.now(),
+                'manually_created': True
             })
         old_summary = alert.summary
 

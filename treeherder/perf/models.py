@@ -206,7 +206,7 @@ class PerformanceAlertSummary(models.Model):
     notes = models.TextField(null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-    first_modified = models.DateTimeField(null=True, default=None)
+    first_triaged = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(auto_now=True)
 
     UNTRIAGED = 0
@@ -241,24 +241,10 @@ class PerformanceAlertSummary(models.Model):
     def update_status(self):
         own_alerts = PerformanceAlert.objects.filter(summary=self)
         alerts = (own_alerts | PerformanceAlert.objects.filter(related_summary=self))
-        should_save = False
 
         autodetermined_status = self.autodetermine_status(alerts)
         if autodetermined_status != self.status:
             self.status = autodetermined_status
-            should_save = True
-
-        # aggregate first_triaged field of own child alerts
-        first_triaged_stamps = [alert.first_triaged for alert in own_alerts
-                                if alert.first_triaged is not None] or [None]
-
-        oldest_first_triaged = min(first_triaged_stamps)
-        if oldest_first_triaged is not None:
-            if self.first_triaged is None or self.first_triaged > oldest_first_triaged:
-                self.first_triaged = oldest_first_triaged
-                should_save = True
-
-        if should_save:
             self.save()
 
     def autodetermine_status(self, alerts):
@@ -414,8 +400,11 @@ class PerformanceAlert(models.Model):
             self.related_summary.update_status()
 
     def timestamp_first_triage(self):
+        # use only on code triggered by
+        # human interaction
         if self.first_triaged is None:
             self.first_triaged = django_now()
+            self.summary.timestamp_first_triage().save()
         return self
 
     class Meta:
