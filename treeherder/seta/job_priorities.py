@@ -115,8 +115,10 @@ class SETAJobPriorities(object):
     def seta_job_scheduling(self, project, build_system_type, priority=None):
         self._validate_request(build_system_type, project)
         if build_system_type == 'taskcluster':
+            if priority is None:
+                priority = SETA_LOW_VALUE_PRIORITY
             job_priorities = []
-            for jp in self._query_job_priorities(priority=SETA_LOW_VALUE_PRIORITY,
+            for jp in self._query_job_priorities(priority=priority,
                                                  excluded_build_system_type='buildbot'):
                 if jp.has_expired():
                     job_priorities.append(jp)
