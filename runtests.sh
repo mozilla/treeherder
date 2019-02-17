@@ -7,7 +7,7 @@ echo "Running pip check"
 pip check
 
 echo "Checking CELERY_QUEUES matches Procfile"
-./lints/queuelint.py
+python -3 -bb ./lints/queuelint.py
 
 echo "Running flake8"
 flake8 || { echo "flake8 errors found!"; exit 1; }
@@ -21,7 +21,7 @@ git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
 
 echo "Running Django system checks"
 # See .travis.yml for explanation of the environment variable overriding.
-SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" ./manage.py check --deploy --fail-level WARNING
+SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -3 -bb ./manage.py check --deploy --fail-level WARNING
 
 echo "Running Python tests"
-pytest --driver Firefox tests/
+python -3 -bb -m pytest tests/
