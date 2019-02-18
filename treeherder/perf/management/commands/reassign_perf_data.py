@@ -19,6 +19,13 @@ class Command(BaseCommand):
     to combine old signature data with new one.
     """
 
+    # repository ids Perf sheriffs are
+    # daily interacting with
+    mozilla_central = 1
+    mozilla_inbound = 2
+    mozilla_beta = 6
+    autoland = 77
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--from',
@@ -65,12 +72,12 @@ class Command(BaseCommand):
                 old_signatures = [old_signature for old_signature, _ in signature_pairs]
                 self.remove_signatures(old_signatures)
 
-    def validate_arguments(self, from_signatures, to_signatures, perf_framework):
-        arguments = [from_signatures, to_signatures, perf_framework]
+    def validate_arguments(self, from_signatures, to_signatures, use_case):
+        arguments = [from_signatures, to_signatures, use_case]
         if all(arguments) or not any(arguments):
             raise CommandError("Use either --for or --from/--to combo")
 
-        if not perf_framework:
+        if not use_case:
             # --from/--to combo
             if len(from_signatures) != len(to_signatures):
                 raise CommandError("Each old signature must have a corresponding new one")
@@ -80,8 +87,7 @@ class Command(BaseCommand):
             return self.fetch_tp6_signature_pairs()
 
     def fetch_tp6_signature_pairs(self):
-        with connection.cursor() as cursor:
-            cursor.execute("""
+        query_for_signature_pairs = """
             SELECT
                 old_signature.id AS old_id,
                 new_signature.id AS new_id
@@ -90,12 +96,12 @@ class Command(BaseCommand):
                 performance_signature AS new_signature
             WHERE
                old_signature.framework_id = 10 AND
-               old_signature.suite LIKE 'raptor-tp6%' AND
-               old_signature.test LIKE 'raptor-tp6%' AND
+               old_signature.suite LIKE '{tp6_name_pattern}' AND
+               old_signature.test LIKE '{tp6_name_pattern}' AND
                old_signature.parent_signature_id IS NOT NULL AND
-               old_signature.repository_id IN (1, 2, 6, 77) AND
+               old_signature.repository_id IN ({mozilla_central}, {mozilla_inbound}, {mozilla_beta}, {autoland}) AND
 
-               new_signature.test NOT LIKE 'raptor-tp6%' AND
+               new_signature.test NOT LIKE '{tp6_name_pattern}' AND
 
                INSTR(old_signature.test, new_signature.test) <> 0 AND
                old_signature.parent_signature_id = new_signature.parent_signature_id AND
@@ -106,7 +112,15 @@ class Command(BaseCommand):
                old_signature.option_collection_id = new_signature.option_collection_id AND
                old_signature.extra_options = new_signature.extra_options AND
                old_signature.lower_is_better = new_signature.lower_is_better AND
-               old_signature.has_subtests = new_signature.has_subtests""")
+               old_signature.has_subtests = new_signature.has_subtests"""\
+            .format(tp6_name_pattern='raptor-tp6%',
+                    mozilla_central=self.mozilla_central,
+                    mozilla_inbound=self.mozilla_inbound,
+                    mozilla_beta=self.mozilla_beta,
+                    autoland=self.autoland)
+
+        with connection.cursor() as cursor:
+            cursor.execute(query_for_signature_pairs)
             signature_pairs = cursor.fetchall()
         return signature_pairs
 
