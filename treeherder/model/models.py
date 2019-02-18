@@ -458,7 +458,21 @@ class JobManager(models.Manager):
 
             # cycle jobs *after* related data has been deleted, to be sure
             # we don't have any orphan data
-            self.filter(guid__in=jobs_chunk).delete()
+            try:
+                self.filter(guid__in=jobs_chunk).delete()
+            except UnicodeDecodeError as e:
+                # Some TextLogError `line` fields contain invalid Unicode, which causes a
+                # UnicodeDecodeError since Django's .delete() fetches all fields (even those
+                # not required for the delete). As such we delete the offending `TextLogError`s
+                # separately (using only() to prevent pulling in `line`), before trying again.
+                # This can likely be removed once all pre-Python 3 migration `TextLogError`s
+                # have expired (check New Relic Insights at that point to confirm). See:
+                # https://bugzilla.mozilla.org/show_bug.cgi?id=1528710
+                newrelic.agent.record_custom_event('cycle_data UnicodeDecodeError workaround', {
+                    'exception': str(e),
+                })
+                TextLogError.objects.filter(step__job__guid__in=jobs_chunk).only('id').delete()
+                self.filter(guid__in=jobs_chunk).delete()
 
             jobs_cycled += len(jobs_chunk)
 
