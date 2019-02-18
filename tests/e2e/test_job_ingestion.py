@@ -6,7 +6,6 @@ from django.forms import model_to_dict
 from mock import MagicMock
 
 from tests.test_utils import add_log_response
-from treeherder.client.thclient import client
 from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
@@ -70,9 +69,8 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
                         mock_get_error_summary)
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
 
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -84,9 +82,8 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
                 'parse_status': 'pending'
             }]
         }
-    })
-    tjc.add(tj)
-    store_job_data(test_repository, tjc.get_collection_data())
+    }
+    store_job_data(test_repository, [job_data])
 
     # should have 2 errors
     assert TextLogError.objects.count() == 2
@@ -104,25 +101,22 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
 
     # the first time, submit it as running (with no logs)
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'running'
         }
-    })
-    tjc.add(tj)
-    store_job_data(test_repository, tjc.get_collection_data())
+    }
+    store_job_data(test_repository, [job_data])
     # should have no text log errors or bug suggestions
     assert TextLogError.objects.count() == 0
     assert get_error_summary(Job.objects.get(guid=job_guid)) == []
 
     # the second time, post a log that will get parsed
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -134,9 +128,8 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
                 'parse_status': 'pending'
             }]
         }
-    })
-    tjc.add(tj)
-    store_job_data(test_repository, tjc.get_collection_data())
+    }
+    store_job_data(test_repository, [job_data])
 
     # should have a full set of text log errors
     assert TextLogError.objects.count() == 2
@@ -157,9 +150,8 @@ def test_store_job_with_parsed_log(test_repository, push_stored,
     mock_parse = MagicMock(name="parse_line")
     monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -171,10 +163,9 @@ def test_store_job_with_parsed_log(test_repository, push_stored,
                 'parse_status': 'parsed'
             }]
         }
-    })
-    tjc.add(tj)
+    }
 
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     # ensure the parsing didn't happen
     assert mock_parse.called is False
@@ -197,8 +188,7 @@ def test_store_job_with_text_log_summary_artifact_parsed(
     monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -216,10 +206,9 @@ def test_store_job_with_text_log_summary_artifact_parsed(
                 "job_guid": job_guid
             }]
         }
-    })
-    tjc.add(tj)
+    }
 
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -246,8 +235,7 @@ def test_store_job_with_text_log_summary_artifact_pending(
     monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -265,11 +253,9 @@ def test_store_job_with_text_log_summary_artifact_pending(
                 "job_guid": job_guid
             }]
         }
-    })
+    }
 
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     # should have 4 error summary lines (aka bug suggestions)
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
@@ -297,25 +283,6 @@ def test_store_job_artifacts_by_add_artifact(
     mock_parse = MagicMock(name="parse_line")
     monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
-    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tjc = client.TreeherderJobCollection()
-    tj = client.TreeherderJob({
-        'project': test_repository.name,
-        'revision': push_stored[0]['revision'],
-        "job": {
-            "artifacts": [],
-            "job_guid": job_guid,
-            "log_references": [
-                {
-                    "name": "autophone-nexus-one-1.log",
-                    "parse_status": "parsed",
-                    "url": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log"
-                }
-            ],
-            "state": "completed",
-        },
-    })
-
     tls_blob = json.dumps({
         "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
         "step_data": {
@@ -337,13 +304,44 @@ def test_store_job_artifacts_by_add_artifact(
                                            "value": "myvalue"}]})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
-    tj.add_artifact("text_log_summary", "json", tls_blob)
-    tj.add_artifact("Job Info", "json", ji_blob)
-    tj.add_artifact("privatebuild", "json", pb_blob)
+    job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
+    job_data = {
+        'project': test_repository.name,
+        'revision': push_stored[0]['revision'],
+        "job": {
+            "artifacts": [
+                {
+                    'name': 'text_log_summary',
+                    'type': 'json',
+                    'blob': tls_blob,
+                    'job_guid': job_guid,
+                },
+                {
+                    'name': 'Job Info',
+                    'type': 'json',
+                    'blob': ji_blob,
+                    'job_guid': job_guid,
+                },
+                {
+                    'name': 'privatebuild',
+                    'type': 'json',
+                    'blob': pb_blob,
+                    'job_guid': job_guid,
+                },
+            ],
+            "job_guid": job_guid,
+            "log_references": [
+                {
+                    "name": "autophone-nexus-one-1.log",
+                    "parse_status": "parsed",
+                    "url": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log"
+                }
+            ],
+            "state": "completed",
+        },
+    }
 
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     assert JobDetail.objects.count() == 1
     assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
@@ -386,21 +384,18 @@ def test_store_job_artifacts_by_add_artifact(
 
 def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with tier specified"""
-
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
+            'tier': 3,
         }
-    })
-    tj.add_tier(3)
-    tjc.add(tj)
+    }
 
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 3
@@ -408,20 +403,17 @@ def test_store_job_with_tier(test_repository, failure_classifications, push_stor
 
 def test_store_job_with_default_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with no tier specified gets default"""
-
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
         }
-    })
-    tjc.add(tj)
+    }
 
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     job = Job.objects.get(guid=job_guid)
     assert job.tier == 1
