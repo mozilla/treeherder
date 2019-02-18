@@ -230,21 +230,6 @@ class TreeherderClientTest(DataSetup, unittest.TestCase):
         self.assertEqual(len(pushes), 3)
         self.assertEqual(pushes, self.PUSHES)
 
-    @responses.activate
-    def test_get_results(self):
-        tdc = TreeherderClient()
-        url = tdc._get_endpoint_url(tdc.PUSH_ENDPOINT, project='mozilla-inbound')
-        content = {
-            "meta": {"count": 3, "repository": "mozilla-inbound",
-                     "offset": 0},
-            "results": self.PUSHES
-        }
-        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
-
-        pushes = tdc.get_resultsets("mozilla-inbound")
-        self.assertEqual(len(pushes), 3)
-        self.assertEqual(pushes, self.PUSHES)
-
 
 if __name__ == '__main__':
     unittest.main()

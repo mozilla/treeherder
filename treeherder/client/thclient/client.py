@@ -440,13 +440,7 @@ class TreeherderClient(object):
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
     OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
     REPOSITORY_ENDPOINT = 'repository'
-    JOBGROUP_ENDPOINT = 'jobgroup'
-    JOBTYPE_ENDPOINT = 'jobtype'
-    PRODUCT_ENDPOINT = 'product'
-    MACHINE_ENDPOINT = 'machine'
-    MACHINE_PLATFORM_ENDPOINT = 'machineplatform'
     FAILURE_CLASSIFICATION_ENDPOINT = 'failureclassification'
-    BUILD_PLATFORM_ENDPOINT = 'buildplatform'
     MAX_COUNT = 2000
 
     def __init__(self, server_url='https://treeherder.mozilla.org', timeout=30):
@@ -533,35 +527,6 @@ class TreeherderClient(object):
         """
         return self._get_json(self.REPOSITORY_ENDPOINT)
 
-    def get_products(self):
-        """
-        Get a list of treeherder products.
-
-        Returns a list with the following structure:
-
-            {
-              id: <id>,
-              name: <name>,
-              description: <description>
-            }
-        """
-        return self._get_json(self.PRODUCT_ENDPOINT)
-
-    def get_job_groups(self):
-        """
-        Gets a list of job groups stored inside Treeherder
-
-        Returns a list of dictionaries with the following properties:
-
-            {
-              id: <id>,
-              symbol: <symbol>,
-              name: <name>
-              ...
-            }
-        """
-        return self._get_json(self.JOBGROUP_ENDPOINT)
-
     def get_failure_classifications(self):
         """
         Gets a list of failure classification types stored inside Treeherder
@@ -576,66 +541,6 @@ class TreeherderClient(object):
         """
         return self._get_json(self.FAILURE_CLASSIFICATION_ENDPOINT)
 
-    def get_build_platforms(self):
-        """
-        Gets a list of build platforms stored inside Treeherder
-
-        Returns a list of dictionaries with the following properties:
-
-            {
-              id: <id>,
-              os_name: <os_name>,
-              platform: <platform>,
-              architecture: <architecture>
-            }
-        """
-        return self._get_json(self.BUILD_PLATFORM_ENDPOINT)
-
-    def get_job_types(self):
-        """
-        Gets a list of job types stored inside Treeherder
-
-        Returns a list of dictionaries with the following properties:
-
-            {
-              id: <id>
-              symbol: <symbol>
-              name: <name>
-              ...
-            }
-        """
-        return self._get_json(self.JOBTYPE_ENDPOINT)
-
-    def get_machines(self):
-        """
-        Gets a list of machines stored inside Treeherder
-
-        Returns a list of dictionaries with the following properties:
-
-            {
-              id: <id>,
-              name: <name>,
-              first_timestamp: <first_timestamp>,
-              last_timestamp: <last_timestamp>
-            }
-        """
-        return self._get_json(self.MACHINE_ENDPOINT)
-
-    def get_machine_platforms(self):
-        """
-        Gets a list of machine platforms stored inside Treeherder
-
-        Returns a list of dictionaries with the following properties:
-
-            {
-              id: <id>
-              os_name: <os_name>
-              platform: <platform>,
-              architecture: <architecture>
-            }
-        """
-        return self._get_json(self.MACHINE_PLATFORM_ENDPOINT)
-
     def get_pushes(self, project, **params):
         """
         Gets pushes from project, filtered by parameters
@@ -646,13 +551,6 @@ class TreeherderClient(object):
         :param params: keyword arguments to filter results
         """
         return self._get_json_list(self.PUSH_ENDPOINT, project, **params)
-
-    def get_resultsets(self, project, **params):
-        """
-        Returns get_pushes for backwards compatibility
-        """
-        logger.warning("DEPRECATED: TreeherderClient.get_resultsets(), please use get_pushes() instead.")
-        return self.get_pushes(project, **params)
 
     def get_jobs(self, project, **params):
         """
