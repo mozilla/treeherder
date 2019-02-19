@@ -140,9 +140,8 @@ class JobLoader(object):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1323110#c7
         try:
             (decoded_task_id, retry_id) = job_guid.split('/')
-            # Using `.decode('ascii')` to match the `slugid.encode()` implementation:
-            # https://github.com/taskcluster/slugid.py/blob/v1.0.7/slugid/slugid.py#L22
-            real_task_id = slugid.encode(uuid.UUID(decoded_task_id)).decode('ascii')
+            # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
+            real_task_id = slugid.encode(uuid.UUID(decoded_task_id))
             x["job"].update({
                 "taskcluster_task_id": real_task_id,
                 "taskcluster_retry_id": int(retry_id)
