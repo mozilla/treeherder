@@ -536,10 +536,10 @@ export const getTextualSummary = (alertSummary, copySummary) => {
 
   // add summary header if getting text for clipboard only
   if (copySummary) {
-    const lastUpdated = new Date(alertSummary.last_updated);
+    const created = new Date(alertSummary.created);
     resultStr += `== Change summary for alert #${
       alertSummary.id
-    } (as of ${lastUpdated.toUTCString()}) ==\n`;
+    } (as of ${created.toUTCString()}) ==\n`;
   }
   if (regressed.length > 0) {
     // add a newline if we displayed the header

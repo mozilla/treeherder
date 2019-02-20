@@ -101,7 +101,7 @@ def generate_new_alerts_in_series(signature):
                     prev_push_id=prev.push_id,
                     defaults={
                         'manually_created': False,
-                        'last_updated': datetime.datetime.utcfromtimestamp(
+                        'created': datetime.datetime.utcfromtimestamp(
                             cur.push_timestamp)
                     })
 

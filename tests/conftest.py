@@ -559,7 +559,7 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
         prev_push_id=1,
         push_id=2,
         manually_created=False,
-        last_updated=datetime.datetime.now())
+        created=datetime.datetime.now())
 
 
 @pytest.fixture
@@ -571,7 +571,7 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
         prev_push_id=test_perf_alert_summary.prev_push_id+1,
         push_id=test_perf_alert_summary.push_id+1,
         manually_created=False,
-        last_updated=datetime.datetime.now())
+        created=datetime.datetime.now())
 
 
 @pytest.fixture

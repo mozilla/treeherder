@@ -212,7 +212,7 @@ class PerformanceAlertSummary(models.Model):
 
     notes = models.TextField(null=True, blank=True)
 
-    last_updated = models.DateTimeField(db_index=True)
+    created = models.DateTimeField(db_index=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1

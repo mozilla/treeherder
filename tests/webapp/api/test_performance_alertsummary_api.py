@@ -39,7 +39,7 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
         prev_push_id=1,
         push_id=2,
         manually_created=False,
-        last_updated=datetime.datetime.now())
+        created=datetime.datetime.now())
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def test_alert_summaries_get(client, test_perf_alert_summary,
         'notes',
         'framework',
         'id',
-        'last_updated',
+        'created',
         'prev_push_id',
         'related_alerts',
         'repository',
@@ -119,7 +119,7 @@ def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
         'notes',
         'framework',
         'id',
-        'last_updated',
+        'created',
         'prev_push_id',
         'related_alerts',
         'repository',

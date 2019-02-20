@@ -120,12 +120,12 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     # class)
     prev_push_id = serializers.ReadOnlyField()
     push_id = serializers.ReadOnlyField()
-    last_updated = serializers.ReadOnlyField()
+    created = serializers.ReadOnlyField()
 
     class Meta:
         model = PerformanceAlertSummary
         fields = ['id', 'push_id', 'prev_push_id',
-                  'last_updated', 'repository', 'framework', 'alerts',
+                  'created', 'repository', 'framework', 'alerts',
                   'related_alerts', 'status', 'bug_number',
                   'issue_tracker', 'notes']
 
