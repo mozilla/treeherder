@@ -2,86 +2,64 @@ import os
 
 import pytest
 import simplejson as json
-from django.template import (Context,
-                             Template)
 
-from treeherder.client.thclient import TreeherderJobCollection
 from treeherder.etl.jobs import store_job_data
 
 base_dir = os.path.dirname(__file__)
 
 
 @pytest.fixture
-def pending_jobs():
+def pending_job():
     """returns a list of buildapi pending jobs"""
     with open(os.path.join(base_dir, "pending.json")) as f:
         return json.load(f)
 
 
 @pytest.fixture
-def running_jobs():
+def running_job():
     """returns a list of buildapi running jobs"""
     with open(os.path.join(base_dir, "running.json")) as f:
         return json.load(f)
 
 
 @pytest.fixture
-def completed_jobs(sample_data):
+def completed_job():
     """returns a list of buildapi completed jobs"""
     with open(os.path.join(base_dir, "finished.json")) as f:
-        content = f.read()
-        t = Template(content)
-        c = Context({"base_dir": base_dir})
-        return json.loads(t.render(c))
+        return json.load(f)
 
 
 @pytest.fixture
 def pending_jobs_stored(
-        test_repository, failure_classifications, pending_jobs,
+        test_repository, failure_classifications, pending_job,
         push_stored):
     """
     stores a list of buildapi pending jobs into the jobs store
     """
-
-    pending_jobs.update(push_stored[0])
-    pending_jobs.update({'project': test_repository.name})
-
-    tjc = TreeherderJobCollection()
-    tj = tjc.get_job(pending_jobs)
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    pending_job.update(push_stored[0])
+    pending_job.update({'project': test_repository.name})
+    store_job_data(test_repository, [pending_job])
 
 
 @pytest.fixture
 def running_jobs_stored(
-        test_repository, failure_classifications, running_jobs,
+        test_repository, failure_classifications, running_job,
         push_stored):
     """
     stores a list of buildapi running jobs
     """
-    running_jobs.update(push_stored[0])
-    running_jobs.update({'project': test_repository.name})
-
-    tjc = TreeherderJobCollection()
-    tj = tjc.get_job(running_jobs)
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    running_job.update(push_stored[0])
+    running_job.update({'project': test_repository.name})
+    store_job_data(test_repository, [running_job])
 
 
 @pytest.fixture
 def completed_jobs_stored(
-        test_repository, failure_classifications, completed_jobs,
+        test_repository, failure_classifications, completed_job,
         push_stored):
     """
     stores a list of buildapi completed jobs
     """
-    completed_jobs['revision'] = push_stored[0]['revision']
-    completed_jobs.update({'project': test_repository.name})
-
-    tjc = TreeherderJobCollection()
-    tj = tjc.get_job(completed_jobs)
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    completed_job['revision'] = push_stored[0]['revision']
+    completed_job.update({'project': test_repository.name})
+    store_job_data(test_repository, [completed_job])

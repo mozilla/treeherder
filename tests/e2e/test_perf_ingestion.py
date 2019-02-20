@@ -1,6 +1,5 @@
 import copy
 
-from treeherder.client.thclient import client
 from treeherder.etl.jobs import store_job_data
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
@@ -13,9 +12,8 @@ from treeherder.perf.models import (PerformanceDatum,
 def test_store_perf_artifact(test_repository, failure_classifications, push_stored):
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
 
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -42,11 +40,9 @@ def test_store_perf_artifact(test_repository, failure_classifications, push_stor
                 'job_guid': job_guid
             }]
         }
-    })
+    }
 
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
@@ -69,9 +65,8 @@ def test_store_perf_artifact_multiple(test_repository, failure_classifications, 
     }
     perfobj2 = copy.deepcopy(perfobj)
     perfobj2['suites'][0]['name'] = "cheezburger metrics 2"
-    tjc = client.TreeherderJobCollection()
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
-    tj = client.TreeherderJob({
+    job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
         'job': {
@@ -88,11 +83,9 @@ def test_store_perf_artifact_multiple(test_repository, failure_classifications, 
                 'job_guid': job_guid
             }]
         }
-    })
+    }
 
-    tjc.add(tj)
-
-    store_job_data(test_repository, tjc.get_collection_data())
+    store_job_data(test_repository, [job_data])
 
     # we'll just validate that we got the expected number of results
     # (we have validation elsewhere for the actual data adapters)
