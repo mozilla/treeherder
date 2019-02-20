@@ -5,11 +5,12 @@ import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
-from six import PY3
 
 from treeherder.auth.backends import (AuthBackend,
                                       AuthenticationFailed)
 
+one_hour_in_seconds = 60 * 60
+one_day_in_seconds = 24 * one_hour_in_seconds
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
@@ -39,12 +40,7 @@ def test_get_username_from_userinfo(user_info, exp_username, exp_exception):
     [
         ('email/user@foo.com', 'user@foo.com', True),
         ('email/emailaddressexceeding30chars@foo.com', 'emailaddressexceeding30chars@foo.com', True),
-        pytest.param(
-            'email/foo@bar.net', 'foo@bar.net', False,
-            marks=pytest.mark.xfail(
-                PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)'
-            )
-        ),
+        ('email/foo@bar.net', 'foo@bar.net', False),
     ]
 )
 def test_existing_email_create_user(test_user, client, monkeypatch, exp_username, email, exp_create_user):
@@ -56,13 +52,17 @@ def test_existing_email_create_user(test_user, client, monkeypatch, exp_username
     ``username`` == ``clientId``.  Otherwise, create a new user with that
     username.
     """
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
     def userinfo_mock(selfless, request):
-        return {'sub': 'email', 'email': email, 'exp': '500'}
+        return {'sub': 'email', 'email': email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    one_hour = 1000 * 60 * 60
-    expires_at = int(round(time.time() * 1000)) + one_hour
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     existing_user = User.objects.create(username="email/foo@bar.net", email=email)
 
