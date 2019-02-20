@@ -36,10 +36,7 @@ const Layout = props => {
     failureMessage = graphData;
   }
   return (
-    <Container
-      fluid
-      style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}
-    >
+    <Container fluid className="my-5 max-width-default">
       <Navigation updateState={updateState} tree={tree} />
       {(isFetchingGraphs || isFetchingTable) &&
         !(

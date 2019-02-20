@@ -203,10 +203,8 @@ export default class SelectorCard extends React.Component {
     } = this.props;
     return (
       <Col sm="4" className="p-2">
-        <Card style={{ height: '260px' }}>
-          <CardHeader style={{ backgroundColor: 'lightgrey' }}>
-            {title}
-          </CardHeader>
+        <Card className="card-height">
+          <CardHeader className="bg-lightgray">{title}</CardHeader>
           <CardBody>
             <CardSubtitle className="pb-2 pt-3">Project</CardSubtitle>
             <ButtonDropdown
@@ -218,12 +216,7 @@ export default class SelectorCard extends React.Component {
                 {selectedRepo}
               </DropdownToggle>
               {projects.length > 0 && (
-                <DropdownMenu
-                  style={{
-                    overflow: 'auto',
-                    maxHeight: 300,
-                  }}
-                >
+                <DropdownMenu className="overflow-auto dropdown-menu-height">
                   {projects.map(item => (
                     <DropdownItem
                       key={item.name}

@@ -464,3 +464,28 @@ h4 {
 .pre {
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+.max-width-default {
+  max-width: 1200px;
+}
+
+/* Custom widths for compare table cells */
+.table-width-lg {
+  width: 140px;
+}
+
+.table-width-md {
+  width: 100px;
+}
+
+.table-width-sm {
+  width: 50px;
+}
+
+.card-height {
+  height: 260px;
+}
+
+.dropdown-menu-height {
+  max-height: 300px;
+}

@@ -84,10 +84,7 @@ export default class CompareSelectorView extends React.Component {
     } = this.state;
 
     return (
-      <Container
-        fluid
-        style={{ marginBottom: '5rem', marginTop: '5rem', maxWidth: '1200px' }}
-      >
+      <Container fluid className="my-5 pt-5 max-width-default">
         <ErrorBoundary
           errorClasses={errorMessageClass}
           message={genericErrorMessage}

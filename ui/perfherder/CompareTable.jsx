@@ -36,17 +36,15 @@ export default class CompareTable extends React.Component {
             <th className="text-left">
               <span>{testName}</span>
             </th>
-            <th style={{ width: '200px' }}>Base</th>
+            <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}
-            <th style={{ width: '30px' }} />
-            <th style={{ width: '140px' }}>New</th>
-            <th style={{ width: '100px' }}>Delta</th>
+            <th className="table-width-sm" />
+            <th className="table-width-lg">New</th>
+            <th className="table-width-sm">Delta</th>
             {/* empty for progress bars (magnitude of difference) */}
-            <th style={{ width: '120px' }} />
-            <th style={{ width: '100px' }}>Confidence</th>
-            <th className="text-right" style={{ width: '80px' }}>
-              # Runs
-            </th>
+            <th className="table-width-lg" />
+            <th className="table-width-lg">Confidence</th>
+            <th className="text-right table-width-md"># Runs</th>
           </tr>
         </thead>
         <tbody>
