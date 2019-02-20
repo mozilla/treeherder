@@ -70,25 +70,6 @@ matrix:
       script:
         - python -bb -m pytest tests/selenium/
 
-    # TODO: Remove once we're confident we won't be reverting back to Python 2.
-    - env: python2-smoketest
-      language: python
-      python: '2.7.15'
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-        # Create the test database for `manage.py check --deploy`.
-        - mysql -u root -e 'create database test_treeherder;'
-      script:
-        - pip check
-        - python -3 -bb lints/queuelint.py
-        - flake8 --show-source
-        - isort --check-only --diff --quiet
-        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -3 -bb ./manage.py check --deploy --fail-level WARNING
-        - python -3 -bb -m pytest tests/ --runslow --ignore=tests/selenium/
-
 notifications:
   email:
     on_success: never
