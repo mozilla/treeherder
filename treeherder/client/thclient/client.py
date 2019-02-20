@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 
 # The Python client release process is documented here:
 # https://treeherder.readthedocs.io/common_tasks.html#releasing-a-new-version-of-the-python-client
-__version__ = '4.0.0'
+__version__ = '5.0.0'
 
 logger = logging.getLogger(__name__)
 
