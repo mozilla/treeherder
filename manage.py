@@ -5,7 +5,7 @@ import sys
 import warnings
 
 # Display deprecation warnings, which are hidden by default:
-# https://docs.python.org/2.7/library/warnings.html#default-warning-filters
+# https://docs.python.org/3.6/library/warnings.html#default-warning-filters
 warnings.simplefilter('default', DeprecationWarning)
 
 # Suppress noisy warnings from dependencies

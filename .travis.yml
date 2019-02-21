@@ -18,9 +18,10 @@ matrix:
         - yarn format:check
         - yarn test
 
-    - env: python2-linters
+    - env: python-linters
       language: python
-      python: '2.7.15'
+      # Python 3.7 is blocked on Celery/kombu support (see bug 1529243)
+      python: '3.6.8'
       cache:
         directories:
           - ${HOME}/venv
@@ -28,15 +29,15 @@ matrix:
         - source ./bin/travis-setup.sh python_env docs
       script:
         - pip check
-        - python -3 -bb lints/queuelint.py
+        - python -bb lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - mkdocs build
 
-    - env: python2-tests-main
+    - env: python-tests-main
       language: python
-      python: '2.7.15'
+      python: '3.6.8'
       cache:
         directories:
           - ${HOME}/venv
@@ -48,51 +49,13 @@ matrix:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -3 -bb ./manage.py check --deploy --fail-level WARNING
-        # Using Python's `-3` mode to surface DeprecationWarnings for Python 3 incompatibilities:
-        # https://docs.python.org/2/using/cmdline.html#cmdoption-3
-        # Using `-bb` mode to surface BytesWarnings:
-        # https://docs.python.org/2/using/cmdline.html#cmdoption-b
-        - python -3 -bb -m pytest tests/ --runslow --ignore=tests/selenium/
-
-    - env: python2-tests-selenium
-      language: python
-      python: '2.7.15'
-      cache:
-        directories:
-          - ${HOME}/venv
-          - node_modules
-      install:
-        - nvm install 11
-        - source ./bin/travis-setup.sh services python_env browser js_env
-      before_script:
-        # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
-        - yarn build
-      script:
-        - python -3 -bb -m pytest tests/selenium/
-
-    - env: python3-main
-      language: python
-      # Python 3.7 is blocked on Celery/kombu support
-      python: '3.6.8'
-      cache:
-        directories:
-          - ${HOME}/venv
-      install:
-        - source ./bin/travis-setup.sh services python_env
-        # Create the test database for `manage.py check --deploy`.
-        - mysql -u root -e 'create database test_treeherder;'
-      script:
-        - pip check
-        - python -bb lints/queuelint.py
-        - flake8 --show-source
-        - isort --check-only --diff --quiet
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -bb ./manage.py check --deploy --fail-level WARNING
+        # Using `-bb` mode to surface BytesWarnings:
+        # https://docs.python.org/3.6/using/cmdline.html#cmdoption-b
         - python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
 
-    - env: python3-tests-selenium
+    - env: python-tests-selenium
       language: python
-      # Python 3.7 is blocked on Celery/kombu support
       python: '3.6.8'
       cache:
         directories:
@@ -106,6 +69,25 @@ matrix:
         - yarn build
       script:
         - python -bb -m pytest tests/selenium/
+
+    # TODO: Remove once we're confident we won't be reverting back to Python 2.
+    - env: python2-smoketest
+      language: python
+      python: '2.7.15'
+      cache:
+        directories:
+          - ${HOME}/venv
+      install:
+        - source ./bin/travis-setup.sh services python_env
+        # Create the test database for `manage.py check --deploy`.
+        - mysql -u root -e 'create database test_treeherder;'
+      script:
+        - pip check
+        - python -3 -bb lints/queuelint.py
+        - flake8 --show-source
+        - isort --check-only --diff --quiet
+        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -3 -bb ./manage.py check --deploy --fail-level WARNING
+        - python -3 -bb -m pytest tests/ --runslow --ignore=tests/selenium/
 
 notifications:
   email:
