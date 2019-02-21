@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from treeherder.middleware import CustomWhiteNoise
@@ -39,3 +41,14 @@ def test_immutable_file_test_matches(url):
 @pytest.mark.parametrize('url', URLS_NOT_IMMUTABLE)
 def test_immutable_file_test_does_not_match(url):
     assert not CustomWhiteNoise().immutable_file_test('', url)
+
+
+def test_content_security_policy_header(client):
+    # Ideally we'd test requesting our frontend HTML, eg `/` and `/login.html`,
+    # however they won't exist unless `yarn build` has been run first.
+    # So instead we request an arbitrary static asset from django-rest-framework,
+    # which will be served with the same headers as our frontend HTML.
+    response = client.get('/static/rest_framework/css/default.css')
+    assert response.has_header('Content-Security-Policy-Report-Only')
+    policy_regex = r"default-src 'none'; script-src 'self'; .*; report-uri /api/csp-report/"
+    assert re.match(policy_regex, response['Content-Security-Policy-Report-Only'])

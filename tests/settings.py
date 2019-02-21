@@ -9,6 +9,11 @@ TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
+# Make WhiteNoise look for static assets inside registered Django apps, rather
+# than only inside the generated staticfiles directory. This means we don't
+# have to run collectstatic for `test_content_security_policy_header` to pass.
+WHITENOISE_USE_FINDERS = True
+
 # Set a fake api key for testing bug filing
 BUGFILER_API_KEY = "12345helloworld"
 BUGFILER_API_URL = "https://thisisnotbugzilla.org"
