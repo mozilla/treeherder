@@ -50,5 +50,5 @@ def test_content_security_policy_header(client):
     # which will be served with the same headers as our frontend HTML.
     response = client.get('/static/rest_framework/css/default.css')
     assert response.has_header('Content-Security-Policy-Report-Only')
-    policy_regex = r"default-src 'none'; script-src 'self'; .*; report-uri /api/csp-report/"
+    policy_regex = r"default-src 'none'; script-src 'self' 'report-sample'; .*; report-uri /api/csp-report/"
     assert re.match(policy_regex, response['Content-Security-Policy-Report-Only'])

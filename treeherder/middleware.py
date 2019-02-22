@@ -6,17 +6,21 @@ from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-# NB: The quotes inside the strings must be single quotes.
+# NB: The quotes inside the strings must be single quotes. Also any requests that
+# redirect need to have both the original and redirected domains whitelisted.
 CSP_DIRECTIVES = [
     "default-src 'none'",
-    "script-src 'self'",
+    # 'report-sample' instructs the browser to include a sample of the violating JS to assist with debugging.
+    "script-src 'self' 'report-sample'",
     # The unsafe-inline is required for react-select's use of emotion (CSS in JS). See bug 1507903.
     # The Google entries are required for IFV's use of the Open Sans font from their CDN.
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' 'report-sample' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     # The `data:` is required for images that were inlined by webpack's url-loader (as an optimisation).
     "img-src 'self' data:",
-    "connect-src 'self' https://*.taskcluster.net https://treestatus.mozilla-releng.net https://bugzilla.mozilla.org https://auth.mozilla.auth0.com",
+    "connect-src 'self' https://*.taskcluster.net https://taskcluster-artifacts.net https://treestatus.mozilla-releng.net https://bugzilla.mozilla.org https://auth.mozilla.auth0.com",
+    # Required since auth0-js performs session renewals in an iframe.
+    "frame-src 'self' https://auth.mozilla.auth0.com",
     "report-uri {}".format(reverse('csp-report')),
 ]
 CSP_HEADER = '; '.join(CSP_DIRECTIVES)
