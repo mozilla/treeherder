@@ -40,25 +40,18 @@ class AuthBackend(object):
 
         return int(expires_at_in_milliseconds)
 
-    def _get_token_auth_header(self, request):
-        auth = request.META.get("HTTP_AUTHORIZATION")
+    def _get_access_token(self, request):
+        auth = request.META.get('HTTP_AUTHORIZATION')
 
         if not auth:
-            raise AuthenticationFailed("Authorization header is expected")
+            raise AuthenticationFailed('Authorization header is expected')
 
         parts = auth.split()
 
-        if parts[0].lower() != "bearer":
-            raise AuthenticationFailed("Authorization header must start with 'Bearer'")
-
-        elif len(parts) == 1:
-            raise AuthenticationFailed("Token not found")
-
-        elif len(parts) > 2:
-            raise AuthenticationFailed("Authorization header must be 'Bearer {token}'")
+        if len(parts) != 2 or parts[0].lower() != 'bearer':
+            raise AuthenticationFailed("Authorization header must be of form 'Bearer {token}'")
 
         token = parts[1]
-
         return token
 
     def _get_username_from_userinfo(self, user_info):
@@ -113,7 +106,7 @@ class AuthBackend(object):
             "updated_at": "2019-02-20T09:24:55.449Z",
         }
         """
-        access_token = self._get_token_auth_header(request)
+        access_token = self._get_access_token(request)
         id_token = request.META.get("HTTP_IDTOKEN")
 
         # JWT Validator

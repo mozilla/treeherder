@@ -177,7 +177,7 @@ def test_login_unknown_identity_provider(client, monkeypatch):
 
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, client, monkeypatch):
-    """LDAP login, user not active"""
+    """Test that login is not permitted if the user has been disabled."""
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
@@ -203,7 +203,21 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     assert resp.json()["detail"] == "This user has been disabled."
 
 
-def test_login_invalid(client):
+def test_login_authorization_header_missing(client):
     resp = client.get(reverse("auth-login"))
     assert resp.status_code == 403
     assert resp.json()["detail"] == "Authorization header is expected"
+
+
+@pytest.mark.parametrize('auth_header_value', [
+    'foo',
+    'Bearer ',
+    'Bearer foo bar',
+])
+def test_login_authorization_header_malformed(client, auth_header_value):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION=auth_header_value,
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == "Authorization header must be of form 'Bearer {token}'"
