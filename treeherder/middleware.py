@@ -1,8 +1,25 @@
 import re
 
 import newrelic.agent
+from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 from whitenoise.middleware import WhiteNoiseMiddleware
+
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+# NB: The quotes inside the strings must be single quotes.
+CSP_DIRECTIVES = [
+    "default-src 'none'",
+    "script-src 'self'",
+    # The unsafe-inline is required for react-select's use of emotion (CSS in JS). See bug 1507903.
+    # The Google entries are required for IFV's use of the Open Sans font from their CDN.
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    # The `data:` is required for images that were inlined by webpack's url-loader (as an optimisation).
+    "img-src 'self' data:",
+    "connect-src 'self' https://*.taskcluster.net https://treestatus.mozilla-releng.net https://bugzilla.mozilla.org https://auth.mozilla.auth0.com",
+    "report-uri {}".format(reverse('csp-report')),
+]
+CSP_HEADER = '; '.join(CSP_DIRECTIVES)
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):
@@ -13,6 +30,15 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
     #   /assets/2.379789df.css.map
     #   /assets/fontawesome-webfont.af7ae505.woff2
     IMMUTABLE_FILE_RE = re.compile(r'^/assets/.*\.[a-f0-9]{8}\..*')
+
+    def add_headers_function(self, headers, path, url):
+        """
+        This allows custom headers be be added to static assets responses.
+        NB: It does not affect dynamically generated Django views/templates,
+        such as API responses, or the browse-able API/auto-generated docs,
+        since they are not served by the WhiteNoise middleware.
+        """
+        headers['Content-Security-Policy-Report-Only'] = CSP_HEADER
 
     def immutable_file_test(self, path, url):
         """

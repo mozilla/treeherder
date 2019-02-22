@@ -7,6 +7,7 @@ from rest_framework import routers
 from treeherder.webapp.api import (auth,
                                    bug,
                                    bugzilla,
+                                   csp_report,
                                    intermittents_view,
                                    job_log_url,
                                    jobs,
@@ -127,4 +128,5 @@ urlpatterns = [
     url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
     url(r'^performance/summary/$', performance_data.PerformanceSummary.as_view(), name='performance-summary'),
+    url(r'^csp-report/$', csp_report.CSPReportView.as_view(), name='csp-report'),
 ]

@@ -1,6 +1,7 @@
 // Webpack entry point for perf.html
 
 // Vendor Styles
+import 'angular/angular-csp.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'metrics-graphics/dist/metricsgraphics.css';
 
