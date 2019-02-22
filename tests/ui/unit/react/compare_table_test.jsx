@@ -6,7 +6,7 @@ import {
   waitForElement,
 } from 'react-testing-library';
 
-import CompareTableControls from '../../../../ui/perfherder/CompareTableControls';
+import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import { filterText } from '../../../../ui/perfherder/constants';
 
 // TODO addtional tests:

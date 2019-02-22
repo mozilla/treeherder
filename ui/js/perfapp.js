@@ -44,7 +44,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 title: 'Compare',
                 template: compareCtrlTemplate,
                 url: '/compare?originalProject&originalRevision?&newProject&newRevision&hideMinorChanges&framework&filter&showOnlyComparable&showOnlyImportant&showOnlyConfident&selectedTimeRange&showOnlyNoise?',
-                controller: 'CompareResultsCtrl',
             })
             .state('comparesubtest', {
                 title: 'Compare - Subtests',

@@ -3,13 +3,11 @@ import { react2angular } from 'react2angular/index.es2015';
 import PropTypes from 'prop-types';
 import { Col, Row, Container, Button } from 'reactstrap';
 
-import perf from '../js/perf';
-import SimpleTooltip from '../shared/SimpleTooltip';
+import perf from '../../js/perf';
+import SimpleTooltip from '../../shared/SimpleTooltip';
+import { filterText } from '../constants';
 
-import DropdownButton from './DropdownButton';
 import InputFilter from './InputFilter';
-import CompareTable from './CompareTable';
-import { filterText } from './constants';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -20,57 +18,24 @@ export default class CompareTableControls extends React.Component {
       showImportant: this.convertParams('showOnlyImportant'),
       hideUncertain: this.convertParams('showOnlyConfident'),
       showNoise: this.convertParams('showOnlyNoise'),
-      results: new Map(),
       filterText: '',
     };
   }
 
-  componentDidMount() {
-    this.updateFilteredResults();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { compareResults } = this.props;
-    if (prevProps.compareResults !== compareResults) {
-      // TODO fetching new data based on a framework change is remounting
-      // the component and removing any previously set state; might be a side effect
-      // of using it with angular
-      this.updateFilteredResults();
-    }
-  }
-
-  // TODO update usage of $stateParams when switched to react-router
   convertParams = value =>
     Boolean(
-      this.props.$stateParams[value] !== undefined &&
-        parseInt(this.props.$stateParams[value], 10),
+      this.props.validated[value] !== undefined &&
+        parseInt(this.props.validated[value], 10),
     );
-
-  updateFramework = selectedFramework => {
-    const { frameworks, updateData } = this.props;
-    // TODO this updates the entire framework object in the compare controller;
-    // look into removing it
-    const framework = frameworks.find(
-      framework => framework.name === selectedFramework,
-    );
-    updateData(framework);
-  };
 
   updateFilterText = filterText => {
     this.setState({ filterText }, () => this.updateFilteredResults());
   };
 
   updateFilter = filter => {
-    // TODO create callback to update queryParams with filter change if not undefined
     this.setState(
       prevState => ({ [filter]: !prevState[filter] }),
-      () => {
-        // TODO noise panel might be best moved into this table (displayed beneath controls)
-        if (filter === 'showNoise') {
-          this.props.updateNoiseAlert();
-        }
-        this.updateFilteredResults();
-      },
+      () => this.updateFilteredResults(),
     );
   };
 
@@ -112,6 +77,8 @@ export default class CompareTableControls extends React.Component {
       showNoise,
     } = this.state;
 
+    const { updateState } = this.props;
+
     if (
       !filterText &&
       !hideUncomparable &&
@@ -119,55 +86,47 @@ export default class CompareTableControls extends React.Component {
       !hideUncertain &&
       !showNoise
     ) {
-      return this.setState({ results: this.props.compareResults });
+      return updateState({ filteredResults: new Map(), filterOn: false });
     }
 
-    const newResults = new Map(this.props.compareResults);
+    const filteredResults = new Map(this.props.compareResults);
 
-    for (const [testName, values] of newResults) {
+    for (const [testName, values] of filteredResults) {
       const filteredValues = values.filter(result =>
         this.filterResult(testName, result),
       );
 
       if (filteredValues.length) {
-        newResults.set(testName, filteredValues);
+        filteredResults.set(testName, filteredValues);
       } else {
-        newResults.delete(testName);
+        filteredResults.delete(testName);
       }
     }
 
-    this.setState({ results: newResults });
+    updateState({ filteredResults, filterOn: true });
   };
 
   render() {
-    const { filterByFramework, frameworks, titles, filterOptions } = this.props;
+    const {
+      filterByFramework,
+      dateRangeOptions,
+      showTestsWithNoise,
+    } = this.props;
     const {
       hideUncomparable,
       hideUncertain,
       showImportant,
       showNoise,
-      results,
     } = this.state;
 
-    const frameworkNames =
-      frameworks && frameworks.length
-        ? frameworks.map(framework => framework.name)
-        : null;
-
     return (
-      <Container fluid>
+      <Container fluid className="my-3 px-0">
         <Row className="p-3 justify-content-left">
-          {filterByFramework && frameworkNames && (
-            <Col sm="auto" className="p-2">
-              <DropdownButton
-                data={frameworkNames}
-                defaultText={filterOptions.framework.name}
-                updateData={this.updateFramework}
-                defaultTextClass="mr-0 text-nowrap"
-              />
-            </Col>
-          )}
-          <Col sm="2" className="p-2">
+          {filterByFramework}
+          {dateRangeOptions}
+        </Row>
+        <Row className="pb-3 pl-3 justify-content-left">
+          <Col className="py-2 pl-0 pr-2 col-3">
             <InputFilter updateFilterText={this.updateFilterText} />
           </Col>
           <Col sm="auto" className="p-2">
@@ -231,74 +190,46 @@ export default class CompareTableControls extends React.Component {
             />
           </Col>
         </Row>
-
-        {results.size > 0 ? (
-          Array.from(results).map(([testName, data]) => (
-            <CompareTable
-              key={testName}
-              data={data}
-              testName={testName}
-              title={titles}
-            />
-          ))
-        ) : (
-          <p className="lead text-center">No results to show</p>
-        )}
+        {showNoise && showTestsWithNoise}
       </Container>
     );
   }
 }
 
 CompareTableControls.propTypes = {
-  titles: PropTypes.shape({}),
   compareResults: PropTypes.shape({}).isRequired,
-  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
-  filterOptions: PropTypes.shape({
-    framework: PropTypes.oneOfType([
-      PropTypes.shape({
-        name: PropTypes.string,
-      }),
-      PropTypes.string,
-    ]),
-  }).isRequired,
-  filterByFramework: PropTypes.number,
-  updateData: PropTypes.func,
-  updateNoiseAlert: PropTypes.func,
-  $stateParams: PropTypes.shape({
+  filterByFramework: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
     showOnlyConfident: PropTypes.string,
     showOnlyNoise: PropTypes.string,
   }),
+  showTestsWithNoise: PropTypes.oneOfType([
+    PropTypes.shape({}),
+    PropTypes.bool,
+  ]),
+  updateState: PropTypes.func.isRequired,
 };
 
 CompareTableControls.defaultProps = {
   filterByFramework: null,
-  frameworks: null,
-  updateData: null,
-  titles: null,
-  updateNoiseAlert: null,
-  $stateParams: {
+  dateRangeOptions: null,
+  validated: {
     showOnlyImportant: undefined,
     showOnlyComparable: undefined,
     showOnlyConfident: undefined,
     showOnlyNoise: undefined,
   },
+  showTestsWithNoise: null,
 };
 
 perf.component(
   'compareTableControls',
   react2angular(
     CompareTableControls,
-    [
-      'compareResults',
-      'titles',
-      'frameworks',
-      'filterOptions',
-      'filterByFramework',
-      'updateData',
-      'updateNoiseAlert',
-    ],
+    ['compareResults', 'filterByFramework'],
     ['$stateParams'],
   ),
 );

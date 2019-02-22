@@ -264,16 +264,41 @@ export const getCounterMap = function getCounterMap(
   return cmap;
 };
 
-// TODO: move into a react component as this is only used once (in PhCompare controller)
-export const getInterval = function getInterval(oldTimestamp, newTimestamp) {
-  const now = new Date().getTime() / 1000;
-  let timeRange = Math.min(oldTimestamp, newTimestamp);
-  timeRange = Math.round(now - timeRange);
-  const newTimeRange = phTimeRanges.find(time => timeRange <= time.value);
-  return newTimeRange.value;
+export const getGraphsLink = function getGraphsLink(
+  seriesList,
+  resultSets,
+  timeRange,
+) {
+  const params = {
+    series: seriesList.map(series => [
+      series.projectName,
+      series.signature,
+      1,
+      series.frameworkId,
+    ]),
+    highlightedRevisions: resultSets.map(resultSet =>
+      resultSet.revision.slice(0, 12),
+    ),
+  };
+
+  if (resultSets && !timeRange) {
+    params.timerange = Math.max(
+      ...resultSets.map(resultSet =>
+        phTimeRanges
+          .map(range => range.value)
+          .find(t => Date.now() / 1000.0 - resultSet.push_timestamp < t),
+      ),
+    );
+  }
+
+  if (timeRange) {
+    params.timerange = timeRange;
+  }
+
+  return `perf.html#/graphs${createQueryParams(params)}`;
 };
 
-// TODO possibly break up into different functions and/or move into a component
+// TODO this has been moved into Validation component - remove after compare subtests is converted
 export const validateQueryParams = async function validateQueryParams(params) {
   const {
     originalProject,
@@ -309,40 +334,6 @@ export const validateQueryParams = async function validateQueryParams(params) {
   }
 
   return errors;
-};
-
-export const getGraphsLink = function getGraphsLink(
-  seriesList,
-  resultSets,
-  timeRange,
-) {
-  const params = {
-    series: seriesList.map(series => [
-      series.projectName,
-      series.signature,
-      1,
-      series.frameworkId,
-    ]),
-    highlightedRevisions: resultSets.map(resultSet =>
-      resultSet.revision.slice(0, 12),
-    ),
-  };
-
-  if (resultSets && !timeRange) {
-    params.timerange = Math.max(
-      ...resultSets.map(resultSet =>
-        phTimeRanges
-          .map(range => range.value)
-          .find(t => Date.now() / 1000.0 - resultSet.push_timestamp < t),
-      ),
-    );
-  }
-
-  if (timeRange) {
-    params.timerange = timeRange;
-  }
-
-  return `perf.html#/graphs${createQueryParams(params)}`;
 };
 
 // old PhAlerts' inner workings

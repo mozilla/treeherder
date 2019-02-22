@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import SimpleTooltip from '../shared/SimpleTooltip';
+import SimpleTooltip from '../../shared/SimpleTooltip';
+import { displayNumber } from '../helpers';
 
 import TooltipGraph from './TooltipGraph';
-import { displayNumber } from './helpers';
 
 const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
   let tooltipText;

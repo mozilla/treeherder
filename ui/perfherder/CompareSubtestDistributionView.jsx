@@ -10,7 +10,7 @@ import PushModel from '../models/push';
 import { getData } from '../helpers/http';
 import { createApiUrl, perfSummaryEndpoint } from '../helpers/url';
 
-import RevisionInformation from './RevisionInformation';
+import RevisionInformation from './compare/RevisionInformation';
 import ReplicatesGraph from './ReplicatesGraph';
 
 // TODO remove $stateParams after switching to react router

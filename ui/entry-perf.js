@@ -58,10 +58,12 @@ import './js/controllers/perf/alerts';
 import './js/components/perf/compare';
 import './js/components/loading';
 import './js/perfapp';
-import './perfherder/CompareSelectorView';
-import './perfherder/RevisionInformation';
+import './perfherder/compare/CompareSelectorView';
+import './perfherder/compare/RevisionInformation';
+import './perfherder/compare/CompareTableControls';
+import './perfherder/compare/CompareView';
+import './perfherder/compare/Validation';
 import './perfherder/CompareSubtestDistributionView';
-import './perfherder/CompareTableControls';
 
 config.showMissingIcons = true;
 
