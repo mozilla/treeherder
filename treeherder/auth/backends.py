@@ -118,9 +118,15 @@ class AuthBackend(object):
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
 
-        unverified_header = jwt.get_unverified_header(id_token)
+        try:
+            unverified_header = jwt.get_unverified_header(id_token)
+        except jwt.JWTError:
+            raise AuthError('Unable to decode the Id token header')
 
-        rsa_key = {}
+        if 'kid' not in unverified_header:
+            raise AuthError('Id token header missing RSA key ID')
+
+        rsa_key = None
         for key in jwks["keys"]:
             if key["kid"] == unverified_header["kid"]:
                 rsa_key = {
@@ -130,12 +136,13 @@ class AuthBackend(object):
                     "n": key["n"],
                     "e": key["e"]
                 }
+                break
 
         if not rsa_key:
-            raise AuthError({"code": "rsa_key",
-                            "description": "rsa_key is empty"}, 401)
+            raise AuthError('Id token using unrecognised RSA key ID')
 
         try:
+            # https://python-jose.readthedocs.io/en/latest/jwt/api.html#jose.jwt.decode
             user_info = jwt.decode(
                 id_token,
                 rsa_key,
@@ -144,13 +151,12 @@ class AuthBackend(object):
                 access_token=access_token,
                 issuer="https://"+AUTH0_DOMAIN+"/"
             )
-
             return user_info
         except jwt.ExpiredSignatureError:
-            raise AuthError("Token is expired")
+            raise AuthError('Id token is expired')
         except jwt.JWTClaimsError:
             raise AuthError("Incorrect claims: please check the audience and issuer")
-        except Exception:
+        except jwt.JWTError:
             raise AuthError("Invalid header: Unable to parse authentication")
 
     def authenticate(self, request):

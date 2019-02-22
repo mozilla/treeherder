@@ -230,3 +230,82 @@ def test_login_id_token_header_missing(client):
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'IdToken header is expected'
+
+
+def test_login_id_token_malformed(client):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+        HTTP_IDTOKEN='aaa',
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Unable to decode the Id token header'
+
+
+def test_login_id_token_missing_rsa_key_id(client):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+        HTTP_IDTOKEN=(
+            # Token generated using:
+            # https://jwt.io/#debugger-io
+            # With header:
+            # {
+            #   "alg": "RS256",
+            #   "typ": "JWT"
+            # }
+            # (and default payload)
+            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.' +
+            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
+            'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        ),
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Id token header missing RSA key ID'
+
+
+def test_login_id_token_unknown_rsa_key_id(client):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+        HTTP_IDTOKEN=(
+            # Token generated using:
+            # https://jwt.io/#debugger-io
+            # With header:
+            # {
+            #   "alg": "RS256",
+            #   "typ": "JWT",
+            #   "kid": "1234"
+            # }
+            # (and default payload)
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQifQ.' +
+            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
+            'Fghd96rsPbzEOGv0mMn4DDBf86PiW_ztPcAbDQoeA6s'
+        ),
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Id token using unrecognised RSA key ID'
+
+
+def test_login_id_token_invalid_signature(client):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer foo',
+        HTTP_IDTOKEN=(
+            # Token generated using:
+            # https://jwt.io/#debugger-io
+            # With header:
+            # {
+            #   "alg": "HS256",
+            #   "typ": "JWT",
+            #   "kid": "MkZDNDcyRkNGRTFDNjlBNjZFOEJBN0ZBNzJBQTNEMDhCMEEwNkFGOA"
+            # }
+            # (and default payload)
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1rWkRORGN5UmtOR1JURkROamxCTmp' +
+            'aRk9FSkJOMFpCTnpKQlFUTkVNRGhDTUVFd05rRkdPQSJ9.' +
+            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
+            'this_signature_is_not_valid'
+        ),
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Invalid header: Unable to parse authentication'
