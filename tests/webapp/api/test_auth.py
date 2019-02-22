@@ -112,6 +112,35 @@ def test_login_email_user_doesnt_exist(test_user, client, monkeypatch):
     assert resp.json()["username"] == "email/user@foo.com"
 
 
+def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch):
+    """
+    Test that an existing user is not re-used if the email address matches,
+    but the provider is different. This is important since some providers are
+    more secure than others, and therefore may be given greater permissions.
+    """
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'email', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer meh',
+        HTTP_IDTOKEN='meh',
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 200
+    assert resp.json()['username'] == 'email/user@foo.com'
+    assert resp.json()['email'] == test_ldap_user.email
+
+
 def test_login_unknown_identity_provider(client, monkeypatch):
     """Test an id token `sub` value that does not match a known identity provider."""
     now_in_seconds = int(time.time())
