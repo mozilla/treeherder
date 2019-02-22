@@ -112,27 +112,13 @@ def test_login_email_user_doesnt_exist(test_user, client, monkeypatch):
     assert resp.json()["username"] == "email/user@foo.com"
 
 
-@pytest.mark.django_db
-def test_login_no_email(test_user, client, monkeypatch):
-    """
-    When we move to clientId for display in the UI, we may decide users can
-    login without an email.  But for now, it's required.
-
-    Note: Need to have the ``test_user`` fixture in this test, even though we
-    don't use it directly.  If you don't, you will get a
-    TransactionManagementError.
-
-    I am MOSTLY certain this error happens because the model backend tries
-    to authenticate the user, but there are NO users at all, so it hits an
-    exception, which causes the TaskclusterAuthBackend to also fail because the
-    transaction has been compromised.
-
-    """
+def test_login_unknown_identity_provider(client, monkeypatch):
+    """Test an id token `sub` value that does not match a known identity provider."""
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
     def userinfo_mock(selfless, request):
-        return {'sub': 'bad', 'email': test_user.email, 'exp': id_token_expiration_timestamp}
+        return {'sub': 'bad', 'email': 'foo@bar.com', 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
