@@ -158,29 +158,27 @@ class AuthBackend(object):
         user_info = self._get_user_info(request)
         username = self._get_username_from_userinfo(user_info)
 
-        # Look for an existing user by username/clientId
-        # If not found, create it, as long as it has an email.
+        accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
+        # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
+        idtoken_exp_in_ms = user_info['exp'] * 1000
+        now_in_ms = int(round(time.time() * 1000))
+
+        # The default Django user session length is overridden, since otherwise the access token
+        # in localstorage in the UI (used for Taskcluster interactions) might expire before the
+        # Django session does, resulting in confusing UX.
+        # The session length is set to match whichever token expiration time is closer.
+        session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
+        expires_in = int((session_expiry_in_ms - now_in_ms) / 1000)
+
+        logger.debug('Updating session to expire in %i seconds', expires_in)
+        request.session.set_expiry(expires_in)
+
         try:
-            user = User.objects.get(username=username)
-
-            # TODO: This should be performed even in the `ObjectDoesNotExist` case.
-            accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
-            # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
-            idtoken_exp_in_ms = user_info['exp'] * 1000
-            now_in_ms = int(round(time.time() * 1000))
-
-            # The Django user session expiration should be set to the token for which the expiry is closer.
-            session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
-            expires_in = int((session_expiry_in_ms - now_in_ms) / 1000)
-
-            logger.warning("Updating session to expire in %i seconds", expires_in)
-            request.session.set_expiry(expires_in)
-
-            return user
-
+            return User.objects.get(username=username)
         except ObjectDoesNotExist:
-            # the user doesn't already exist, create it.
-            logger.warning("Creating new user: %s", username)
+            # The user doesn't already exist, so create it since we allow
+            # anyone with SSO access to create an account on Treeherder.
+            logger.debug('Creating new user: %s', username)
             return User.objects.create_user(username, email=user_info['email'])
 
     def get_user(self, user_id):

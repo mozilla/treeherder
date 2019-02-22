@@ -92,6 +92,8 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         'is_superuser': False,
     }
     assert auth_session_key in client.session
+    # Uses a tolerance of up to 5 seconds to account for rounding/the time the test takes to run.
+    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
 
     assert User.objects.count() == 1
     session_user_id = int(client.session[auth_session_key])
@@ -116,6 +118,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     assert resp.status_code == 200
     assert resp.json()['username'] == expected_username
     assert auth_session_key in client.session
+    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
     assert User.objects.count() == 1
 
 
