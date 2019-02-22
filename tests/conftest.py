@@ -16,7 +16,8 @@ from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Commit,
                                      JobNote,
                                      Push,
-                                     TextLogErrorMetadata)
+                                     TextLogErrorMetadata,
+                                     User)
 from treeherder.services.pulse.exchange import get_exchange
 
 
@@ -361,48 +362,32 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
 
 
 @pytest.fixture
-def test_user(request, transactional_db):
+def test_user(db):
     # a user *without* sheriff/staff permissions
-    from django.contrib.auth.models import User
     user = User.objects.create(username="testuser1",
                                email='user@foo.com',
                                is_staff=False)
-
-    def fin():
-        user.delete()
-    request.addfinalizer(fin)
-
     return user
 
 
 @pytest.fixture
-def test_ldap_user(request, transactional_db):
-    # a user *without* sheriff/staff permissions
-    from django.contrib.auth.models import User
+def test_ldap_user(db):
+    """
+    A user whose username matches those generated for LDAP SSO logins,
+    and who does not have `is_staff` permissions.
+    """
     user = User.objects.create(username="mozilla-ldap/user@foo.com",
                                email='user@foo.com',
                                is_staff=False)
-
-    def fin():
-        user.delete()
-    request.addfinalizer(fin)
-
     return user
 
 
 @pytest.fixture
-def test_sheriff(request, transactional_db):
+def test_sheriff(db):
     # a user *with* sheriff/staff permissions
-    from django.contrib.auth.models import User
-
     user = User.objects.create(username="testsheriff1",
                                email='sheriff@foo.com',
                                is_staff=True)
-
-    def fin():
-        user.delete()
-    request.addfinalizer(fin)
-
     return user
 
 
