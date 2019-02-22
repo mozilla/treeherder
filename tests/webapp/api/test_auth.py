@@ -63,7 +63,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
-    def userinfo_mock(selfless, request):
+    def userinfo_mock(*args, **kwargs):
         return {'sub': id_token_sub, 'email': id_token_email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
@@ -156,7 +156,7 @@ def test_login_unknown_identity_provider(client, monkeypatch):
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
-    def userinfo_mock(selfless, request):
+    def userinfo_mock(*args, **kwargs):
         return {'sub': 'bad', 'email': 'foo@bar.com', 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
@@ -181,7 +181,7 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
-    def userinfo_mock(selfless, request):
+    def userinfo_mock(*args, **kwargs):
         return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
@@ -221,3 +221,12 @@ def test_login_authorization_header_malformed(client, auth_header_value):
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == "Authorization header must be of form 'Bearer {token}'"
+
+
+def test_login_id_token_header_missing(client):
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'IdToken header is expected'
