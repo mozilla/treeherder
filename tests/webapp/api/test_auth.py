@@ -1,8 +1,7 @@
 import time
-from importlib import import_module
 
 import pytest
-from django.conf import settings
+from django.contrib.auth import SESSION_KEY as auth_session_key
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.decorators import APIView
@@ -14,7 +13,6 @@ from treeherder.model.models import User
 
 one_hour_in_seconds = 60 * 60
 one_day_in_seconds = 24 * one_hour_in_seconds
-SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 class AuthenticatedView(APIView):
@@ -49,67 +47,76 @@ def test_post_no_auth():
 
 # Auth Login and Logout Tests
 
-def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
-    """LDAP login user exists, has scope: find by email"""
-    now_in_seconds = int(time.time())
-    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
-
-    def userinfo_mock(selfless, request):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
-
-    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
-
-    assert "sessionid" not in client.cookies
-
-    client_id = "mozilla-ldap/user@foo.com"
-
-    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
-    # TODO: Change the frontend to pass seconds instead.
-    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
-
-    resp = client.get(
-        reverse("auth-login"),
-        HTTP_AUTHORIZATION="Bearer meh",
-        HTTP_IDTOKEN="meh",
-        HTTP_EXPIRESAT=str(expires_at)
-    )
-    assert resp.status_code == 200
-
-    session = client.session
-    assert not session.is_empty()
-
-    user = User.objects.get(id=session['_auth_user_id'])
-    assert user.id == test_ldap_user.id
-    assert user.username == client_id
-
-    resp = client.get(reverse("auth-logout"))
-    assert resp.status_code == 200
-    assert client.session.is_empty()
-
-
 @pytest.mark.django_db
-def test_login_email_user_doesnt_exist(test_user, client, monkeypatch):
-    """email login, user doesn't exist, create it"""
+@pytest.mark.parametrize(('id_token_sub', 'id_token_email', 'expected_username'), [
+    ('ad|Mozilla-LDAP|biped', 'biped@mozilla.com', 'mozilla-ldap/biped@mozilla.com'),
+    ('email', 'biped@mozilla.com', 'email/biped@mozilla.com'),
+    ('oauth2|biped', 'biped@mozilla.com', 'oauth2/biped@mozilla.com'),
+    ('github|0000', 'biped@gmail.com', 'github/biped@gmail.com'),
+    ('google-oauth2|0000', 'biped@mozilla.com', 'google/biped@mozilla.com'),
+])
+def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email, expected_username):
+    """
+    Test that a new user is able to log in via a variety of identity providers,
+    and that their created Django user is correctly found again on next login.
+    """
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
 
     def userinfo_mock(selfless, request):
-        return {'sub': 'email', 'email': test_user.email, 'exp': id_token_expiration_timestamp}
+        return {'sub': id_token_sub, 'email': id_token_email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    assert auth_session_key not in client.session
+    assert User.objects.count() == 0
 
     # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
     # TODO: Change the frontend to pass seconds instead.
     expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
+    # The first time someone logs in a new user should be created,
+    # which is then associated with their Django session.
+
     resp = client.get(
-        reverse("auth-login"),
-        HTTP_AUTHORIZATION="Bearer meh",
-        HTTP_IDTOKEN="meh",
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer meh',
+        HTTP_IDTOKEN='meh',
         HTTP_EXPIRESAT=str(expires_at)
     )
     assert resp.status_code == 200
-    assert resp.json()["username"] == "email/user@foo.com"
+    assert resp.json() == {
+        'username': expected_username,
+        'email': id_token_email,
+        'is_staff': False,
+        'is_superuser': False,
+    }
+    assert auth_session_key in client.session
+
+    assert User.objects.count() == 1
+    session_user_id = int(client.session[auth_session_key])
+    user = User.objects.get(id=session_user_id)
+    assert user.username == expected_username
+    assert user.email == id_token_email
+
+    # Logging out should disassociate the user from the Django session.
+
+    resp = client.get(reverse('auth-logout'))
+    assert resp.status_code == 200
+    assert auth_session_key not in client.session
+
+    # Logging in again should associate the existing user with the Django session.
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer meh',
+        HTTP_IDTOKEN='meh',
+        HTTP_EXPIRESAT=str(expires_at)
+    )
+    assert resp.status_code == 200
+    assert resp.json()['username'] == expected_username
+    assert auth_session_key in client.session
+    assert User.objects.count() == 1
 
 
 def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch):
