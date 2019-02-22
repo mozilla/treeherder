@@ -54,6 +54,14 @@ class AuthBackend(object):
         token = parts[1]
         return token
 
+    def _get_id_token(self, request):
+        id_token = request.META.get('HTTP_IDTOKEN')
+
+        if not id_token:
+            raise AuthenticationFailed('IdToken header is expected')
+
+        return id_token
+
     def _get_username_from_userinfo(self, user_info):
         """
         Get the user's username from the jwt sub property
@@ -76,7 +84,7 @@ class AuthBackend(object):
         else:
             raise AuthenticationFailed("Unrecognized identity")
 
-    def _get_user_info(self, request):
+    def _get_user_info(self, access_token, id_token):
         """
         Extracts the user info payload from the Id Token.
 
@@ -106,8 +114,6 @@ class AuthBackend(object):
             "updated_at": "2019-02-20T09:24:55.449Z",
         }
         """
-        access_token = self._get_access_token(request)
-        id_token = request.META.get("HTTP_IDTOKEN")
 
         # JWT Validator
         # Per https://auth0.com/docs/quickstart/backend/python/01-authorization#create-the-jwt-validation-decorator
@@ -148,7 +154,10 @@ class AuthBackend(object):
             raise AuthError("Invalid header: Unable to parse authentication")
 
     def authenticate(self, request):
-        user_info = self._get_user_info(request)
+        access_token = self._get_access_token(request)
+        id_token = self._get_id_token(request)
+
+        user_info = self._get_user_info(access_token, id_token)
         username = self._get_username_from_userinfo(user_info)
 
         accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
