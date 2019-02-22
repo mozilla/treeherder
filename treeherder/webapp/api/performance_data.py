@@ -253,7 +253,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
 
 class AlertSummaryPagination(pagination.PageNumberPagination):
-    ordering = ('-last_updated', '-id')
+    ordering = ('-created', '-id')
     page_size = 10
 
 
@@ -275,7 +275,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     filter_fields = ['id', 'status', 'framework', 'repository',
                      'alerts__series_signature',
                      'alerts__series_signature__signature_hash']
-    ordering = ('-last_updated', '-id')
+    ordering = ('-created', '-id')
     pagination_class = AlertSummaryPagination
 
     def create(self, request, *args, **kwargs):
@@ -288,7 +288,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             prev_push_id=data['prev_push_id'],
             defaults={
                 'manually_created': True,
-                'last_updated': datetime.datetime.now()
+                'created': datetime.datetime.now()
             })
 
         return Response({"alert_summary_id": alert_summary.id})
@@ -388,7 +388,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             repository=alert.summary.repository,
             framework=alert.summary.framework,
             defaults={
-                'last_updated': datetime.datetime.now()
+                'created': datetime.datetime.now()
             })
         old_summary = alert.summary
 
