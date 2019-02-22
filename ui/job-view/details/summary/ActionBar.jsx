@@ -31,12 +31,21 @@ class ActionBar extends React.PureComponent {
 
     this.state = {
       customJobActionsShowing: false,
+      timeoutJobIds: [],
     };
   }
 
   componentDidMount() {
     window.addEventListener(thEvents.openLogviewer, this.onOpenLogviewer);
     window.addEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.timeoutId !== this.state.timeoutId) {
+      // If a batch-retrigger timer was already running,
+      // replace it with the new one, thus resetting the timeout
+      clearTimeout(prevState.timeoutId);
+    }
   }
 
   componentWillUnmount() {
@@ -121,7 +130,7 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = jobs => {
-    const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
+    const { user, notify } = this.props;
     const jobIds = jobs.map(({ id }) => id);
 
     if (!user.isLoggedIn) {
@@ -136,7 +145,23 @@ class ActionBar extends React.PureComponent {
       });
     });
 
-    JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify);
+    this.setState((prevState) => ({
+      timeoutId: setTimeout(this.timedRetrigger, 5000), // TODO: 5 seconds too long?
+      timeoutJobIds: [...prevState.timeoutJobIds, jobIds[0]],
+    }));
+    notify('Job added to retrigger list', 'info');
+  };
+
+  // Retrigger all batched jobs when the timer finishes
+  timedRetrigger = () => {
+    const { repoName, getGeckoDecisionTaskId, notify } = this.props;
+    const jobswithcounts = this.state.timeoutJobIds.reduce((m,e) => {
+      m[e] = (+m[e]||0)+1; return m
+    }, {});
+    this.setState({
+      timeoutJobIds: [],
+    });
+    JobModel.retrigger(jobswithcounts, repoName, getGeckoDecisionTaskId, notify);
   };
 
   backfillJob = () => {

@@ -116,36 +116,79 @@ export default class JobModel {
   }
 
   static async retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify) {
-    const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
-
+    const jobTerm = Object.keys(jobIds).length > 1 ? 'jobs' : 'job';
     try {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
+      const jobs = await JobModel.getList(repoName, { id__in: Object.keys(jobIds).join() });
+      // Add counts for each requested job
+      for (const job of jobs) {
+        job.count = jobIds[job.id];
+      }
 
-      const jobs = await JobModel.getList(repoName, { id__in: jobIds.join() });
+      // TODO: If two distinct jobs in a push having the same taskname are requested,
+      // taskcluster won't include it multiple times, so I need to do something else
+      // to multiply the request count for these jobs.
+
+      // TODO: If `count` is greater than the action-task-defined limit, I don't know what to do.
+      // Let the request fail? Send requests at the max-limit enough times to reach the requested count?
+
+      // Group the requested jobs by push, since action-tasks can't span multiple pushes
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         getGeckoDecisionTaskId(Number(key), repoName).then(decisionTaskId => {
-          TaskclusterModel.load(decisionTaskId).then(async results => {
-            const actionTaskId = slugid();
-            const addNewJobsTask = results.actions.find(
-              action => action.name === 'add-new-jobs',
-            );
-
-            await TaskclusterModel.submit({
-              action: addNewJobsTask,
-              actionTaskId,
-              decisionTaskId,
-              taskId: null,
-              task: null,
-              input: { tasks: value.map(job => job.job_type_name) },
-              staticActionVariables: results.staticActionVariables,
-            }).then(() =>
-              notify(
-                `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
-              ),
-            );
-          });
+          // If the same number of each job is requested, a single request can be used per push
+          const allSameTimes = value.every((val, i, arr) => val.count === arr[0].count);
+          if (allSameTimes) {
+            TaskclusterModel.load(decisionTaskId).then(async results => {
+              const actionTaskId = slugid();
+              const addNewJobsTask = results.actions.find(
+                action => action.name === 'add-new-jobs',
+              );
+              await TaskclusterModel.submit({
+                action: addNewJobsTask,
+                actionTaskId,
+                decisionTaskId,
+                taskId: null,
+                task: null,
+                input: {
+                  tasks: value.map(job => job.job_type_name),
+                  times: value[0].count
+                },
+                staticActionVariables: results.staticActionVariables,
+              }).then(() =>
+                notify(
+                  `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
+                ),
+              );
+            });
+          } else {
+            // Otherwise, we can limit the number of requests to one per unique job name per push
+            value.forEach(job => {
+              TaskclusterModel.load(decisionTaskId).then(async results => {
+                const actionTaskId = slugid();
+                const addNewJobsTask = results.actions.find(
+                  action => action.name === 'add-new-jobs',
+                );
+                await TaskclusterModel.submit({
+                  action: addNewJobsTask,
+                  actionTaskId,
+                  decisionTaskId,
+                  taskId: null,
+                  task: null,
+                  input: {
+                    tasks: [job.job_type_name],
+                    times: job.count
+                  },
+                  staticActionVariables: results.staticActionVariables,
+                }).then(() =>
+                  notify(
+                    `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
+                  ),
+                );
+              });
+            });
+          }
         });
       }
     } catch (e) {
