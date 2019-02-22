@@ -1,39 +1,34 @@
+import json
 import logging
 
 import newrelic.agent
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from rest_framework.views import APIView
+from django.http import (HttpResponse,
+                         HttpResponseBadRequest)
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 
 
-class CSPReportParser(JSONParser):
-    # Reports are submitted with a Content-Type that is not `application/json`, so we
-    # have to tell django-rest-framework that it should still parse the body as JSON:
-    # https://w3c.github.io/webappsec-csp/2/#violation-reports
-    # https://www.django-rest-framework.org/api-guide/parsers/#how-the-parser-is-determined
-    media_type = 'application/csp-report'
-
-
-class CSPReportView(APIView):
+@require_POST
+@csrf_exempt
+def csp_report_collector(request):
     """
     Accepts the Content-Security-Policy violation reports generated via the `report-uri` feature:
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-uri
+
+    This is written as a standard Django view rather than as a django-rest-framework APIView,
+    since the latter ends up being more of a hindrance than a help, thanks to:
+      * CSP violation reports being submitted with a Content-Type of `application/csp-report`,
+        which d-r-f is unable to recognise as JSON without use of a custom parser class.
+      * Needing to accept reports from unauthenticated users too, which requires overriding
+        permission_classes.
     """
+    try:
+        report = json.loads(request.body)['csp-report']
+    except (KeyError, TypeError, ValueError):
+        return HttpResponseBadRequest('Invalid CSP violation report')
 
-    # We want to receive all CSP violation reports, including from unauthenticated users.
-    permission_classes = (AllowAny,)
-    parser_classes = (CSPReportParser,)
-
-    def post(self, request):
-        try:
-            report = request.data['csp-report']
-        except (KeyError, TypeError):
-            return Response('Invalid CSP violation report', status=HTTP_400_BAD_REQUEST)
-
-        logger.warning('CSP violation: %s', report)
-        newrelic.agent.record_custom_event('CSP violation', report)
-        return Response()
+    logger.warning('CSP violation: %s', report)
+    newrelic.agent.record_custom_event('CSP violation', report)
+    return HttpResponse()
