@@ -84,6 +84,35 @@ class AuthBackend(object):
             raise AuthenticationFailed("Unrecognized identity")
 
     def _get_user_info(self, request):
+        """
+        Extracts the user info payload from the Id Token.
+
+        Example return value:
+
+        {
+            "at_hash": "<HASH>",
+            "aud": "<HASH>",
+            "email_verified": true,
+            "email": "fsurname@mozilla.com",
+            "exp": 1551259495,
+            "family_name": "Surname",
+            "given_name": "Firstname",
+            "https://sso.mozilla.com/claim/groups": [
+                "all_scm_level_1",
+                "all_scm_level_2",
+                "all_scm_level_3",
+                # ...
+            ],
+            "iat": 1550654695,
+            "iss": "https://auth.mozilla.auth0.com/",
+            "name": "Firstname Surname",
+            "nickname": "Firstname Surname",
+            "nonce": "<HASH>",
+            "picture": "<GRAVATAR_URL>",
+            "sub": "ad|Mozilla-LDAP|fsurname",
+            "updated_at": "2019-02-20T09:24:55.449Z",
+        }
+        """
         access_token = self._get_token_auth_header(request)
         id_token = request.META.get("HTTP_IDTOKEN")
 
@@ -134,6 +163,7 @@ class AuthBackend(object):
         try:
             user = User.objects.get(username=username)
 
+            # TODO: This should be performed even in the `ObjectDoesNotExist` case.
             accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
             # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
             idtoken_exp_in_ms = user_info['exp'] * 1000

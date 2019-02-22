@@ -8,11 +8,12 @@ from rest_framework import status
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
-from six import PY3
 
 from treeherder.auth.backends import AuthBackend
 from treeherder.model.models import User
 
+one_hour_in_seconds = 60 * 60
+one_day_in_seconds = 24 * one_hour_in_seconds
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
@@ -48,11 +49,13 @@ def test_post_no_auth():
 
 # Auth Login and Logout Tests
 
-@pytest.mark.xfail(PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)')
 def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
     """LDAP login user exists, has scope: find by email"""
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
     def userinfo_mock(selfless, request):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
@@ -60,8 +63,9 @@ def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
 
     client_id = "mozilla-ldap/user@foo.com"
 
-    one_hour = 1000 * 60 * 60
-    expires_at = int(round(time.time() * 1000)) + one_hour
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     resp = client.get(
         reverse("auth-login"),
@@ -86,13 +90,17 @@ def test_auth_login_and_logout(test_ldap_user, client, monkeypatch):
 @pytest.mark.django_db
 def test_login_email_user_doesnt_exist(test_user, client, monkeypatch):
     """email login, user doesn't exist, create it"""
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
     def userinfo_mock(selfless, request):
-        return {'sub': 'email', 'email': test_user.email, 'exp': '500'}
+        return {'sub': 'email', 'email': test_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    one_hour = 1000 * 60 * 60
-    expires_at = int(round(time.time() * 1000)) + one_hour
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     resp = client.get(
         reverse("auth-login"),
@@ -120,13 +128,17 @@ def test_login_no_email(test_user, client, monkeypatch):
     transaction has been compromised.
 
     """
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
     def userinfo_mock(selfless, request):
-        return {'sub': 'bad', 'email': test_user.email, 'exp': '500'}
+        return {'sub': 'bad', 'email': test_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    one_hour = 1000 * 60 * 60
-    expires_at = int(round(time.time() * 1000)) + one_hour
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     resp = client.get(
         reverse("auth-login"),
@@ -138,17 +150,20 @@ def test_login_no_email(test_user, client, monkeypatch):
     assert resp.json()["detail"] == "Unrecognized identity"
 
 
-@pytest.mark.xfail(PY3, reason='Python 3: < not supported between instances of str and int (bug 1453837)')
 @pytest.mark.django_db
 def test_login_not_active(test_ldap_user, client, monkeypatch):
     """LDAP login, user not active"""
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
     def userinfo_mock(selfless, request):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': '500'}
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    one_hour = 1000 * 60 * 60
-    expires_at = int(round(time.time() * 1000)) + one_hour
+    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
+    # TODO: Change the frontend to pass seconds instead.
+    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     test_ldap_user.is_active = False
     test_ldap_user.save()
