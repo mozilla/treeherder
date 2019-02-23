@@ -32,13 +32,21 @@ with open('treeherder/auth/jwks.json') as f:
 
 class AuthBackend(object):
 
-    def _get_accesstoken_expiry(self, request):
-        expires_at_in_milliseconds = request.META.get("HTTP_EXPIRESAT")
+    def _get_access_token_expiry(self, request):
+        expiration_timestamp_in_seconds = request.META.get('HTTP_ACCESS_TOKEN_EXPIRES_AT')
 
-        if not expires_at_in_milliseconds:
-            raise AuthenticationFailed("expiresAt header is expected")
+        if not expiration_timestamp_in_seconds:
+            # Check for the previous name/type for this header.
+            # TODO: Remove once enough time has passed for people to reload open UI tabs.
+            expiration_timestamp_in_milliseconds = request.META.get('HTTP_EXPIRESAT')
+            if not expiration_timestamp_in_milliseconds:
+                raise AuthenticationFailed('Access-Token-Expires-At header is expected')
+            expiration_timestamp_in_seconds = int(expiration_timestamp_in_milliseconds) / 1000
 
-        return int(expires_at_in_milliseconds)
+        try:
+            return int(expiration_timestamp_in_seconds)
+        except ValueError:
+            raise AuthenticationFailed('Access-Token-Expires-At header value is invalid')
 
     def _get_access_token(self, request):
         auth = request.META.get('HTTP_AUTHORIZATION')
@@ -166,20 +174,23 @@ class AuthBackend(object):
         user_info = self._get_user_info(access_token, id_token)
         username = self._get_username_from_userinfo(user_info)
 
-        accesstoken_exp_in_ms = self._get_accesstoken_expiry(request)
+        access_token_expiry_timestamp = self._get_access_token_expiry(request)
         # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
-        idtoken_exp_in_ms = user_info['exp'] * 1000
-        now_in_ms = int(round(time.time() * 1000))
+        id_token_expiry_timestamp = user_info['exp']
+        now_in_seconds = int(time.time())
 
         # The default Django user session length is overridden, since otherwise the access token
         # in localstorage in the UI (used for Taskcluster interactions) might expire before the
         # Django session does, resulting in confusing UX.
         # The session length is set to match whichever token expiration time is closer.
-        session_expiry_in_ms = min(accesstoken_exp_in_ms, idtoken_exp_in_ms)
-        expires_in = int((session_expiry_in_ms - now_in_ms) / 1000)
+        earliest_expiration_timestamp = min(access_token_expiry_timestamp, id_token_expiry_timestamp)
+        seconds_until_expiry = earliest_expiration_timestamp - now_in_seconds
 
-        logger.debug('Updating session to expire in %i seconds', expires_in)
-        request.session.set_expiry(expires_in)
+        if seconds_until_expiry <= 0:
+            raise AuthError('Session expiry time has already passed!')
+
+        logger.debug('Updating session to expire in %i seconds', seconds_until_expiry)
+        request.session.set_expiry(seconds_until_expiry)
 
         try:
             return User.objects.get(username=username)

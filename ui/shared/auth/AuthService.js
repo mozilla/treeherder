@@ -18,9 +18,9 @@ export default class AuthService {
     return new Promise(async (resolve, reject) => {
       const userResponse = await fetch(loginUrl, {
         headers: {
-          authorization: `Bearer ${userSession.accessToken}`,
+          Authorization: `Bearer ${userSession.accessToken}`,
+          'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
           idToken: userSession.idToken,
-          expiresAt: userSession.expiresAt,
         },
         method: 'GET',
         credentials: 'same-origin',

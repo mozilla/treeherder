@@ -62,6 +62,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     """
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
 
     def userinfo_mock(*args, **kwargs):
         return {'sub': id_token_sub, 'email': id_token_email, 'exp': id_token_expiration_timestamp}
@@ -71,10 +72,6 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     assert auth_session_key not in client.session
     assert User.objects.count() == 0
 
-    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
-    # TODO: Change the frontend to pass seconds instead.
-    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
-
     # The first time someone logs in a new user should be created,
     # which is then associated with their Django session.
 
@@ -82,7 +79,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_IDTOKEN='meh',
-        HTTP_EXPIRESAT=str(expires_at)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
     assert resp.json() == {
@@ -113,7 +110,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_IDTOKEN='meh',
-        HTTP_EXPIRESAT=str(expires_at)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
     assert resp.json()['username'] == expected_username
@@ -130,21 +127,18 @@ def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch
     """
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
 
     def userinfo_mock(*args, **kwargs):
         return {'sub': 'email', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
-    # TODO: Change the frontend to pass seconds instead.
-    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
-
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_IDTOKEN='meh',
-        HTTP_EXPIRESAT=str(expires_at)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
     assert resp.json()['username'] == 'email/user@foo.com'
@@ -155,21 +149,18 @@ def test_login_unknown_identity_provider(client, monkeypatch):
     """Test an id token `sub` value that does not match a known identity provider."""
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
 
     def userinfo_mock(*args, **kwargs):
         return {'sub': 'bad', 'email': 'foo@bar.com', 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
-    # TODO: Change the frontend to pass seconds instead.
-    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
-
     resp = client.get(
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
         HTTP_IDTOKEN="meh",
-        HTTP_EXPIRESAT=str(expires_at)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 403
     assert resp.json()["detail"] == "Unrecognized identity"
@@ -180,15 +171,12 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     """Test that login is not permitted if the user has been disabled."""
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
 
     def userinfo_mock(*args, **kwargs):
         return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
-
-    # Confusingly the `ExpiresAt` header is expected to be in milliseconds.
-    # TODO: Change the frontend to pass seconds instead.
-    expires_at = (now_in_seconds + one_hour_in_seconds) * 1000
 
     test_ldap_user.is_active = False
     test_ldap_user.save()
@@ -197,7 +185,7 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
         HTTP_IDTOKEN="meh",
-        HTTP_EXPIRESAT=str(expires_at)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 403
     assert resp.json()["detail"] == "This user has been disabled."
@@ -309,3 +297,110 @@ def test_login_id_token_invalid_signature(client):
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Invalid header: Unable to parse authentication'
+
+
+def test_login_access_token_expiry_header_missing(client, monkeypatch):
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'Mozilla-LDAP', 'email': 'x@y.z', 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer foo',
+        HTTP_IDTOKEN='bar',
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Access-Token-Expires-At header is expected'
+
+
+def test_login_access_token_expiry_header_malformed(client, monkeypatch):
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'Mozilla-LDAP', 'email': 'x@y.z', 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer foo',
+        HTTP_IDTOKEN='bar',
+        HTTP_ACCESS_TOKEN_EXPIRES_AT='aaa',
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Access-Token-Expires-At header value is invalid'
+
+
+def test_login_access_token_expired(client, monkeypatch):
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
+    access_token_expiration_timestamp = now_in_seconds - 30
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'Mozilla-LDAP', 'email': 'x@y.z', 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer foo',
+        HTTP_IDTOKEN='bar',
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
+    )
+    assert resp.status_code == 403
+    assert resp.json()['detail'] == 'Session expiry time has already passed!'
+
+
+def test_login_id_token_expires_before_access_token(test_ldap_user, client, monkeypatch):
+    """
+    Test that the Django session expiration is set correctly if the Id Token expiration
+    is due to occur before the Access Token expires (normally it is the other way around).
+    """
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
+    access_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'email', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer meh',
+        HTTP_IDTOKEN='meh',
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+    )
+    assert resp.status_code == 200
+    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
+
+
+# TODO: Remove once enough time has passed for people to reload open UI tabs.
+def test_login_legacy_headers(test_ldap_user, client, monkeypatch):
+    """
+    Test that requests made using the `ExpiresAt` header still succeed.
+    """
+    now_in_seconds = int(time.time())
+    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
+
+    def userinfo_mock(*args, **kwargs):
+        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
+
+    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
+
+    expires_at_in_milliseconds = (now_in_seconds + one_hour_in_seconds) * 1000
+
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+        HTTP_IDTOKEN='abc',
+        HTTP_EXPIRESAT=str(expires_at_in_milliseconds)
+    )
+    assert resp.status_code == 200
+    assert resp.json()['username'] == test_ldap_user.username
+    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
