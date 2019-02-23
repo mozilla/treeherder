@@ -15,7 +15,43 @@ export const webAuth = new WebAuth({
 });
 
 export const userSessionFromAuthResult = authResult => {
-  const expiresAt = JSON.stringify(authResult.expiresIn * 1000 + Date.now());
+  // Example authResult:
+  // {
+  //   "accessToken": "<TOKEN>",
+  //   "idToken": "<TOKEN>",
+  //   "idTokenPayload": {
+  //     "https://sso.mozilla.com/claim/groups": [
+  //       "all_scm_level_1",
+  //       "all_scm_level_2",
+  //       "all_scm_level_3"
+  //     ],
+  //     "given_name": "Firstname",
+  //     "family_name": "Surname",
+  //     "nickname": "Firstname Surname",
+  //     "name": "Firstname Surname",
+  //     "picture": "<GRAVATAR_URL>",
+  //     "updated_at": "2019-02-13T17:26:19.538Z",
+  //     "email": "fsurname@mozilla.com",
+  //     "email_verified": true,
+  //     "iss": "https://auth.mozilla.auth0.com/",
+  //     "sub": "ad|Mozilla-LDAP|fsurname",
+  //     "aud": "<HASH>",
+  //     "iat": 1550078779,
+  //     "exp": 1550683579,
+  //     "at_hash": "<HASH>",
+  //     "nonce": "<HASH>"
+  //   },
+  //   "appState": null,
+  //   "refreshToken": null,
+  //   "state": "<HASH>",
+  //   "expiresIn": 86400,
+  //   "tokenType": "Bearer",
+  //   "scope": "openid profile email taskcluster-credentials"
+  // }
+  //
+  // For more details, see:
+  // https://auth0.com/docs/libraries/auth0js/v9#extract-the-authresult-and-get-user-info
+  //
   const userSession = {
     idToken: authResult.idToken,
     accessToken: authResult.accessToken,
@@ -23,8 +59,9 @@ export const userSessionFromAuthResult = authResult => {
     picture: authResult.idTokenPayload.picture,
     oidcSubject: authResult.idTokenPayload.sub,
     url: authResult.url,
-    // expiresAt is used by the django backend to expire the user session
-    expiresAt,
+    // `accessTokenexpiresAt` is the unix timestamp (in seconds) at which the access token expires.
+    // It is used by the Django backend along with idToken's `exp` to determine session expiry.
+    accessTokenExpiresAt: authResult.expiresIn + Math.floor(Date.now() / 1000),
     // per https://wiki.mozilla.org/Security/Guidelines/OpenID_connect#Session_handling
     renewAfter: fromNow('15 minutes'),
   };
