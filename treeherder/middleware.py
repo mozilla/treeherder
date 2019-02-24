@@ -42,7 +42,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         such as API responses, or the browse-able API/auto-generated docs,
         since they are not served by the WhiteNoise middleware.
         """
-        headers['Content-Security-Policy-Report-Only'] = CSP_HEADER
+        headers['Content-Security-Policy'] = CSP_HEADER
 
     def immutable_file_test(self, path, url):
         """
