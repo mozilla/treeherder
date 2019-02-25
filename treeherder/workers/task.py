@@ -11,7 +11,7 @@ from django.db.utils import (IntegrityError,
 from treeherder.etl.exceptions import MissingPushException
 
 
-class retryable_task(object):
+class retryable_task:
     """Wrapper around a celery task to add conditional task retrying."""
 
     NON_RETRYABLE_EXCEPTIONS = (

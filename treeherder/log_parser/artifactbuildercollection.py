@@ -10,7 +10,7 @@ from .artifactbuilders import (BuildbotJobArtifactBuilder,
 MAX_DOWNLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024
 
 
-class ArtifactBuilderCollection(object):
+class ArtifactBuilderCollection:
     """
 Run a log through a collection of Artifact Builders to generate artifacts.
 

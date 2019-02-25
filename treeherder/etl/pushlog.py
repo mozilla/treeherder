@@ -21,7 +21,7 @@ def last_push_id_from_server(repo):
     return data['lastpushid']
 
 
-class HgPushlogProcess(object):
+class HgPushlogProcess:
     # For more info on Mercurial Pushes, see:
     #   https://mozilla-version-control-tools.readthedocs.io/en/latest/hgmo/pushlog.html
 

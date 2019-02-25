@@ -21,7 +21,7 @@ from treeherder.model.models import (BugJobMap,
 logger = logging.getLogger(__name__)
 
 
-class Commenter(object):
+class Commenter:
     """Handles fetching, composing and submitting bug comments based on
        daily or weekly thresholds and date range, and updating whiteboard
        and priority status as need; if in dry_run, comments will be output

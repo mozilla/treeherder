@@ -28,7 +28,7 @@ with open('treeherder/auth/jwks.json') as f:
     jwks = json.load(f)
 
 
-class AuthBackend(object):
+class AuthBackend:
 
     def _get_access_token_expiry(self, request):
         expiration_timestamp_in_seconds = request.META.get('HTTP_ACCESS_TOKEN_EXPIRES_AT')

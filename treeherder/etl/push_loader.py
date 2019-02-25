@@ -13,7 +13,7 @@ env = environ.Env()
 logger = logging.getLogger(__name__)
 
 
-class PushLoader(object):
+class PushLoader:
     """Transform and load a list of pushes"""
 
     def process(self, message_body, exchange):
@@ -62,7 +62,7 @@ class PushLoader(object):
             "Unsupported push exchange: {}".format(exchange))
 
 
-class GithubTransformer(object):
+class GithubTransformer:
 
     CREDENTIALS = {
         "client_id": env("GITHUB_CLIENT_ID", default=None),
@@ -192,7 +192,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.fetch_push(pr_url, repository)
 
 
-class HgPushTransformer(object):
+class HgPushTransformer:
     # {
     #   "root": {
     #     "payload": {

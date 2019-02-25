@@ -2,7 +2,7 @@ import json
 import os
 
 
-class SampleData(object):
+class SampleData:
 
     @classmethod
     def get_perf_data(cls, filename):
