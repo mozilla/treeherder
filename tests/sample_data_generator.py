@@ -2,8 +2,6 @@
 Functions for flexible generation of sample input job JSON.
 
 """
-from __future__ import division
-
 import time
 from datetime import timedelta
 

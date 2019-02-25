@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import pytest
 
 from tests.test_utils import add_log_response

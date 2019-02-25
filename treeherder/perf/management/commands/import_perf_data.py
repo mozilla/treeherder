@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import concurrent.futures
 import datetime
 
