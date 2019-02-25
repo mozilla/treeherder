@@ -10,7 +10,7 @@ __version__ = '5.0.0'
 logger = logging.getLogger(__name__)
 
 
-class TreeherderClient(object):
+class TreeherderClient:
     """
     Treeherder client class
     """

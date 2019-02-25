@@ -1,7 +1,7 @@
 from .client import TreeherderClient
 
 
-class PerformanceTimeInterval(object):
+class PerformanceTimeInterval:
     '''
     Valid time intervals for Perfherder series
     '''

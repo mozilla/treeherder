@@ -176,7 +176,7 @@ def crash_signature_matcher(text_log_error):
     return scored_matches
 
 
-class MatchScorer(object):
+class MatchScorer:
     """Simple scorer for similarity of strings based on python's difflib SequenceMatcher."""
     def __init__(self, target):
         """:param target: The string to which candidate strings will be compared."""

@@ -9,7 +9,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-class ParserBase(object):
+class ParserBase:
     """
     Base class for all parsers.
 

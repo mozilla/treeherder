@@ -74,7 +74,7 @@ def calc_t(w1, w2, weight_fn=None):
 
 
 @functools.total_ordering
-class RevisionDatum(object):
+class RevisionDatum:
     '''
     This class represents a specific revision and the set of values for it
     '''

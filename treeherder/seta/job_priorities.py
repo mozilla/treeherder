@@ -20,7 +20,7 @@ class SetaError(Exception):
     pass
 
 
-class SETAJobPriorities(object):
+class SETAJobPriorities:
     """
     SETA JobPriority Implementation
     """

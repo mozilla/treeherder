@@ -7,7 +7,7 @@ from .parsers import (PerformanceParser,
 logger = logging.getLogger(__name__)
 
 
-class ArtifactBuilderBase(object):
+class ArtifactBuilderBase:
     """
     Base class for all Buildbot log parsers.
 

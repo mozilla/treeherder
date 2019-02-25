@@ -602,7 +602,7 @@ def generic_reference_data(test_repository):
                                          Product,
                                          ReferenceDataSignatures)
 
-    class RefdataHolder(object):
+    class RefdataHolder:
         pass
     r = RefdataHolder()
 
