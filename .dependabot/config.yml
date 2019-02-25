@@ -33,7 +33,3 @@ update_configs:
           # Bug 1426683
           dependency_name: "django-filter"
           version_requirement: ">=2"
-      # more-itertools 6 requires Python 3 (bug 1527336)
-      - match:
-          dependency_name: "more-itertools"
-          version_requirement: ">=6"
