@@ -1,7 +1,6 @@
 import datetime
 import time
 
-import six.moves
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
@@ -15,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        confirm = six.moves.input("""
+        confirm = input("""
 You have a requested a load of test performance data, this is a destructive
 operation that should only be performed on a development instance.
 
