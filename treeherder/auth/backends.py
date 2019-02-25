@@ -63,10 +63,12 @@ class AuthBackend(object):
         return token
 
     def _get_id_token(self, request):
-        id_token = request.META.get('HTTP_IDTOKEN')
+        # The header has been renamed from 'IDTOKEN' to 'ID_TOKEN'.
+        # TODO: Remove once enough time has passed for people to reload open UI tabs.
+        id_token = request.META.get('HTTP_ID_TOKEN', request.META.get('HTTP_IDTOKEN'))
 
         if not id_token:
-            raise AuthenticationFailed('IdToken header is expected')
+            raise AuthenticationFailed('Id-Token header is expected')
 
         return id_token
 
