@@ -1,3 +1,7 @@
+// NB: Treeherder sets a Content-Security-Policy header in production, so when
+// adding new domains *for use by fetch()*, update the `connect-src` directive:
+// https://github.com/mozilla/treeherder/blob/master/treeherder/middleware.py
+
 export const uiJobsUrlBase = '/#/jobs';
 
 export const uiPushHealthBase = '/pushhealth.html';

@@ -49,6 +49,6 @@ def test_content_security_policy_header(client):
     # So instead we request an arbitrary static asset from django-rest-framework,
     # which will be served with the same headers as our frontend HTML.
     response = client.get('/static/rest_framework/css/default.css')
-    assert response.has_header('Content-Security-Policy-Report-Only')
+    assert response.has_header('Content-Security-Policy')
     policy_regex = r"default-src 'none'; script-src 'self' 'report-sample'; .*; report-uri /api/csp-report/"
-    assert re.match(policy_regex, response['Content-Security-Policy-Report-Only'])
+    assert re.match(policy_regex, response['Content-Security-Policy'])

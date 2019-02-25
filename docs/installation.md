@@ -156,7 +156,7 @@ To get started:
 
 ### Building the minified UI with Vagrant
 
-If you would like to view the minified production version of the UI with Vagrant, follow this step:
+If you would like to view the minified production version of the UI with Vagrant:
 
 - Run the build task (either outside or inside of the Vagrant machine):
 
@@ -164,8 +164,11 @@ If you would like to view the minified production version of the UI with Vagrant
   $ yarn build
   ```
 
-Once the build is complete, the minified version of the UI will now be accessible at
-<http://localhost:8000> (NB: port 8000, unlike above).
+- Run either Django runserver or gunicorn following the instructions in the previous section.
+
+The minified version of the UI will now be accessible at <http://localhost:8000>
+(NB: port 8000, unlike above), and will match the content used in production
+(including being served with a `Content-Security-Policy` header).
 
 ### Running the ingestion tasks
 
