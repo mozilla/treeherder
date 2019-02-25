@@ -1,5 +1,3 @@
-from six import string_types
-
 
 def dict_to_op(d, index_name, doc_type, op_type='index'):
     """
@@ -33,7 +31,7 @@ def to_dict(obj):
 
     Note: This function is currently specific to the FailureLine model.
     """
-    if not isinstance(obj.test, string_types):
+    if not isinstance(obj.test, str):
         # TODO: can we handle this in the DB?
         # Reftests used to use tuple indicies, which we can't support.
         # This is fixed upstream, but we also need to handle it here to allow

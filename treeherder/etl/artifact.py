@@ -2,7 +2,6 @@ import logging
 
 import dateutil.parser
 import simplejson as json
-import six
 from django.db import transaction
 from django.db.utils import IntegrityError
 
@@ -145,7 +144,7 @@ def serialize_artifact_json_blobs(artifacts):
     for artifact in artifacts:
         blob = artifact['blob']
         if (artifact['type'].lower() == 'json' and
-                not isinstance(blob, six.string_types)):
+                not isinstance(blob, str)):
             artifact['blob'] = json.dumps(blob)
 
     return artifacts

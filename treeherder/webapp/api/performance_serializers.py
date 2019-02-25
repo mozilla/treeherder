@@ -1,6 +1,5 @@
 import decimal
 
-import six
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import (exceptions,
@@ -24,7 +23,7 @@ class PerformanceFrameworkSerializer(serializers.ModelSerializer):
 class TestOptionsSerializer(serializers.CharField):
     def to_representation(self, obj):
         # if extra_options str is blank, just return nothing
-        if isinstance(obj, six.string_types):
+        if isinstance(obj, str):
             return obj.split(' ')
         return []
 
