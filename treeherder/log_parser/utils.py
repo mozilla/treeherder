@@ -5,7 +5,8 @@ from requests.exceptions import HTTPError
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
-from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
+                                                             LogSizeException)
 from treeherder.model.models import JobLog
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,10 @@ def post_log_artifacts(job_log):
 
     try:
         artifact_list = extract_text_log_artifacts(job_log)
+    except LogSizeException as e:
+        job_log.update_status(JobLog.SKIPPED_SIZE)
+        logger.warning('Skipping parsing log for %s: %s', job_log.id, e)
+        return
     except Exception as e:
         job_log.update_status(JobLog.FAILED)
 

@@ -41,9 +41,9 @@ def parse_logs(job_id, job_log_ids, priority):
         newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
         logger.debug("parser_task for %s", job_log.id)
 
-        # Don't parse jobs which have already been parsed.
-        if job_log.status == JobLog.PARSED:
-            logger.info("%s log already parsed", job_log.id)
+        # Only parse logs which haven't yet been processed or else failed on the last attempt.
+        if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
+            logger.info('Skipping parsing for job %s since log already processed', job_log.id)
             continue
 
         parser = parser_tasks.get(job_log.name)

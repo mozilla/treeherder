@@ -18,6 +18,11 @@ function getLogUrlProps(logUrl, logViewerUrl, logViewerFullUrl) {
         className: 'disabled',
         title: 'Log parsing has failed',
       };
+    case 'skipped-size':
+      return {
+        className: 'disabled',
+        title: 'Log parsing was skipped',
+      };
     case 'pending':
       return {
         className: 'disabled',
