@@ -1,5 +1,4 @@
 from django.urls import reverse
-from six import iteritems
 
 from tests.test_utils import create_generic_job
 from treeherder.model.models import (Job,
@@ -36,7 +35,7 @@ def test_job_details(test_repository, failure_classifications,
         codebase=test_repository.codebase)
 
     i = 1
-    for (job_guid, params) in iteritems(details):
+    for (job_guid, params) in details.items():
         if i < 3:
             repository = test_repository
             push_id = 1
@@ -59,7 +58,7 @@ def test_job_details(test_repository, failure_classifications,
 
     # filter to just get one guid at a time
     for guid_identifier in ['job_guid', 'job__guid']:
-        for (guid, detail) in iteritems(details):
+        for (guid, detail) in details.items():
             resp = client.get(reverse('jobdetail-list') + '?{}={}'.format(
                 guid_identifier, guid))
             assert resp.status_code == 200

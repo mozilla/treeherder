@@ -17,7 +17,6 @@ from django.db.models import (Count,
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
-from six import iteritems
 
 from treeherder.webapp.api.utils import REPO_GROUPS
 
@@ -1095,7 +1094,7 @@ class FailureLine(models.Model):
         }
 
         # Remove empty values
-        data = {k: v for k, v in iteritems(data) if v}
+        data = {k: v for k, v in data.items() if v}
 
         return data
 

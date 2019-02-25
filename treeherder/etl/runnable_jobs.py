@@ -3,7 +3,6 @@ import logging
 import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from six import iteritems
 
 from treeherder.etl.common import fetch_json
 
@@ -48,7 +47,7 @@ def _taskcluster_runnable_jobs(project):
             'state': 'runnable',
             'result': 'runnable',
         }
-        for label, node in iteritems(tc_graph)
+        for label, node in tc_graph.items()
     ]
 
 

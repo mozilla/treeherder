@@ -1,5 +1,4 @@
-from six import (iteritems,
-                 string_types)
+from six import string_types
 
 
 def dict_to_op(d, index_name, doc_type, op_type='index'):
@@ -54,4 +53,4 @@ def to_dict(obj):
     ]
 
     all_fields = obj.to_dict()
-    return {k: v for k, v in iteritems(all_fields) if k in keys}
+    return {k: v for k, v in all_fields.items() if k in keys}

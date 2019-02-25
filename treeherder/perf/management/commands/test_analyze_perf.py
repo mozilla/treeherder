@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.management.base import (BaseCommand,
                                          CommandError)
-from six import iteritems
 
 from treeherder.client.thclient import (PerfherderClient,
                                         PerformanceTimeInterval)
@@ -77,7 +76,7 @@ class Command(BaseCommand):
                 signatures = []
                 signatures_to_ignore = set()
                 # if doing everything, only handle summary series
-                for (signature, properties) in iteritems(signature_data):
+                for (signature, properties) in signature_data.items():
                     signatures.append(signature)
                     if 'subtest_signatures' in properties:
                         # Don't alert on subtests which have a summary
