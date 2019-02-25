@@ -50,6 +50,9 @@ class ActionBar extends React.PureComponent {
       case 'failed':
         notify('Log parsing has failed, log viewer is unavailable', 'warning');
         break;
+      case 'skipped-size':
+        notify('Log parsing was skipped, log viewer is unavailable', 'warning');
+        break;
       case 'unavailable':
         notify('No logs available for this job', 'info');
         break;

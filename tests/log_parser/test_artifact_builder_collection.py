@@ -1,7 +1,10 @@
+import pytest
 import responses
 
 from tests.test_utils import add_log_response
-from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
+from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
+                                                             LogSizeException,
+                                                             MAX_DOWNLOAD_SIZE_IN_BYTES)
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 
 
@@ -60,3 +63,22 @@ def test_all_builders_complete():
     }
 
     assert exp == lpc.artifacts
+
+
+@responses.activate
+def test_log_download_size_limit():
+    """Test that logs whose Content-Length exceed the size limit are not parsed."""
+    url = 'http://foo.tld/fake_large_log.tar.gz'
+    responses.add(
+        responses.GET,
+        url,
+        body='',
+        adding_headers={
+            'Content-Encoding': 'gzip',
+            'Content-Length': str(MAX_DOWNLOAD_SIZE_IN_BYTES + 1),
+        }
+    )
+    lpc = ArtifactBuilderCollection(url)
+
+    with pytest.raises(LogSizeException):
+        lpc.parse()

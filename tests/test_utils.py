@@ -220,12 +220,14 @@ def add_log_response(filename):
     log_url = "http://my-log.mozilla.org/{}".format(filename)
 
     with open(log_path, 'rb') as log_file:
+        content = log_file.read()
         responses.add(
             responses.GET,
             log_url,
-            body=log_file.read(),
+            body=content,
             adding_headers={
-                "Content-Encoding": "gzip",
+                'Content-Encoding': 'gzip',
+                'Content-Length': str(len(content)),
             }
         )
     return log_url

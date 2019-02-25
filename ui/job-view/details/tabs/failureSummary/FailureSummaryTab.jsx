@@ -119,6 +119,10 @@ class FailureSummaryTab extends React.Component {
             <ListItem text="Log parsing failed.  Unable to generate failure summary." />
           )}
 
+          {!bugSuggestionsLoading && logParseStatus === 'skipped-size' && (
+            <ListItem text="Log parsing was skipped since the log exceeds the size limit." />
+          )}
+
           {!bugSuggestionsLoading && !logs.length && (
             <ListItem text="No logs available for this job." />
           )}

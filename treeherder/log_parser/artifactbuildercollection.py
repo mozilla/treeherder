@@ -6,6 +6,9 @@ from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
 
+# Max log size in bytes we will download (prior to decompression).
+MAX_DOWNLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024
+
 
 class ArtifactBuilderCollection(object):
     """
@@ -86,15 +89,20 @@ BuildbotPerformanceDataArtifactBuilder
         building the ``artifact`` as we go.
         """
         with make_request(self.url, stream=True) as response:
+            download_size_in_bytes = int(response.headers.get('Content-Length', -1))
+
             # Temporary annotation of log size to help set thresholds in bug 1295997.
             newrelic.agent.add_custom_parameter(
                 'unstructured_log_size',
-                int(response.headers.get('Content-Length', -1))
+                download_size_in_bytes
             )
             newrelic.agent.add_custom_parameter(
                 'unstructured_log_encoding',
                 response.headers.get('Content-Encoding', 'None')
             )
+
+            if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
+                raise LogSizeException('Download size of %i bytes exceeds limit' % download_size_in_bytes)
 
             # Lines must be explicitly decoded since `iter_lines()`` returns bytes by default
             # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline
@@ -116,3 +124,7 @@ BuildbotPerformanceDataArtifactBuilder
             if name == 'performance_data' and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
+
+
+class LogSizeException(Exception):
+    pass

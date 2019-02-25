@@ -724,10 +724,14 @@ class JobLog(models.Model):
     PENDING = 0
     PARSED = 1
     FAILED = 2
+    SKIPPED_SIZE = 3
 
-    STATUSES = ((PENDING, 'pending'),
-                (PARSED, 'parsed'),
-                (FAILED, 'failed'))
+    STATUSES = (
+        (PENDING, 'pending'),
+        (PARSED, 'parsed'),
+        (FAILED, 'failed'),
+        (SKIPPED_SIZE, 'skipped-size'),
+    )
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="job_log")
     name = models.CharField(max_length=50)

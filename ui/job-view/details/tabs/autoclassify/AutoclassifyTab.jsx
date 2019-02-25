@@ -112,6 +112,8 @@ class AutoclassifyTab extends React.Component {
         return 'Logs not fully parsed, please wait';
       case 'failed':
         return 'Log parsing failed';
+      case 'skipped-size':
+        return 'Log parsing was skipped since the log file exceeds the size limit';
       case 'no_logs':
         return 'No errors logged';
       case 'error':
