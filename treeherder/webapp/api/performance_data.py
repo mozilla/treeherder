@@ -313,7 +313,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
         if new_push_id is None and new_prev_push_id is None:
             request.data['classifier'] = request.user.username
-            return super(PerformanceAlertViewSet, self).update(request, *args, **kwargs)
+            return super().update(request, *args, **kwargs)
         else:
             alert = PerformanceAlert.objects.get(pk=kwargs['pk'])
             if all([new_push_id, new_prev_push_id]) and alert.summary.push.id != new_push_id:

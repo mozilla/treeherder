@@ -92,7 +92,7 @@ class StepParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the header lines."""
-        super(StepParser, self).__init__("step_data")
+        super().__init__("step_data")
         self.stepnum = -1
         self.artifact = {
             "steps": [],
@@ -295,7 +295,7 @@ class TinderboxPrintParser(ParserBase):
 
     def __init__(self):
         """Setup the artifact to hold the job details."""
-        super(TinderboxPrintParser, self).__init__("job_details")
+        super().__init__("job_details")
 
     def parse_line(self, line, lineno):
         """Parse a single line of the log"""
@@ -424,7 +424,7 @@ class ErrorParser(ParserBase):
 
     def __init__(self):
         """A simple error detection sub-parser"""
-        super(ErrorParser, self).__init__("errors")
+        super().__init__("errors")
         self.is_taskcluster = False
 
     def add(self, line, lineno):
@@ -497,7 +497,7 @@ class PerformanceParser(ParserBase):
     PERF_SCHEMA = json.load(open('schemas/performance-artifact.json'))
 
     def __init__(self):
-        super(PerformanceParser, self).__init__("performance_data")
+        super().__init__("performance_data")
 
     def parse_line(self, line, lineno):
         match = self.RE_PERFORMANCE.match(line)

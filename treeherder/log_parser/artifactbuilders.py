@@ -73,7 +73,7 @@ class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
 
     def __init__(self, url=None):
         """Construct a job artifact builder."""
-        super(BuildbotJobArtifactBuilder, self).__init__(url)
+        super().__init__(url)
         self.parser = TinderboxPrintParser()
         self.name = "Job Info"
 
@@ -83,7 +83,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
 
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
-        super(BuildbotLogViewArtifactBuilder, self).__init__(url)
+        super().__init__(url)
         self.parser = StepParser()
         self.name = "text_log_summary"
 
@@ -93,6 +93,6 @@ class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
 
     def __init__(self, url=None):
         """Construct artifact builder for generic performance data"""
-        super(BuildbotPerformanceDataArtifactBuilder, self).__init__(url)
+        super().__init__(url)
         self.parser = PerformanceParser()
         self.name = "performance_data"

@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = 'Initialize or update SETA data; It causes no harm to run on production'
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
         parser.add_argument(

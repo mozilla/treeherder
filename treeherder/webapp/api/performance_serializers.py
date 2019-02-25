@@ -50,7 +50,7 @@ class PerformanceDecimalField(serializers.DecimalField):
         kwargs['max_digits'] = 20
         kwargs['decimal_places'] = 2
         kwargs['coerce_to_string'] = False
-        super(PerformanceDecimalField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
@@ -92,8 +92,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                     "summary's framework ({})".format(
                         related_summary.framework,
                         instance.summary.framework))
-        return super(PerformanceAlertSerializer, self).update(instance,
-                                                              validated_data)
+        return super().update(instance, validated_data)
 
     def get_classifier_email(self, performance_alert):
         return getattr(performance_alert.classifier, 'email', None)

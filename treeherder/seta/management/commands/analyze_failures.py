@@ -8,7 +8,7 @@ class Command(BaseCommand):
            'and change the priority and timeout of such job.'
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true", dest="dry_run",
