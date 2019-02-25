@@ -113,15 +113,6 @@ mozlog==4.0 \
     --hash=sha256:8c32f07b939960f769df891fbb30cabb86822e4d3a8d0a16ebe693d0f46eae0e \
     --hash=sha256:a9e84e44113ba3cfde217d4e941979d37445ee48166a79583f9fc1e74770d5e1
 
-futures==3.2.0; python_version < '3' \
-    --hash=sha256:ec0a6cb848cc212002b9828c3e34c675e0c9ff6741dc445cab6fdd4e1085d1f1 \
-    --hash=sha256:9ec02aa7d674acb8618afb127e27fde7fc68994c0437ad759fa094a574adb265
-
-# Required by jsonschema
-functools32==3.2.3-2; python_version < '3' \
-    --hash=sha256:f6253dfbe0538ad2e387bd8fdfd9293c925d63553f5813c4e587745416501e6d \
-    --hash=sha256:89d824aa6c358c421a234d7f9ee0bd75933a67c29588ce50aaa3acdf4d403fa0
-
 # Required by djangorestframework's API documentation
 coreapi==2.3.3 \
     --hash=sha256:bf39d118d6d3e171f10df9ede5666f63ad80bba9a29a8ec17726a66cf52ee6f3 \
@@ -268,9 +259,6 @@ iso8601==0.1.12 \
 aniso8601==3.0.2 \
     --hash=sha256:94f90871fcd314a458a3d4eca1c84448efbd200e86f55fe4c733c7a40149ef50 \
     --hash=sha256:7849749cf00ae0680ad2bdfe4419c7a662bef19c03691a19e008c8b9a5267802
-
-enum34==1.1.6; python_version < '3' \
-    --hash=sha256:6bd0f6ad48ec2aa117d3d141940d484deccda84d4fcd884f5c3d93c23ecd8c79
 
 python-jose[pycryptodome]==3.0.1 \
     --hash=sha256:29701d998fe560e52f17246c3213a882a4a39da7e42c7015bcc1f7823ceaff1c \
