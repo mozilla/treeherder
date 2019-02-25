@@ -412,17 +412,6 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
     class JobDetailFilter(django_filters.rest_framework.FilterSet):
 
-        class NumberInFilter(django_filters.filters.BaseInFilter,
-                             django_filters.NumberFilter):
-
-            # prevent a non-filter if ``value`` is empty
-            # See https://github.com/carltongibson/django-filter/issues/755
-            def filter(self, qs, value):
-                if value in django_filters.constants.EMPTY_VALUES:
-                    raise ParseError("Invalid filter on empty value: {}".format(value))
-
-                return django_filters.Filter.filter(self, qs, value)
-
         job_id = django_filters.NumberFilter(field_name='job')
         job_id__in = NumberInFilter(field_name='job', lookup_expr='in')
         job_guid = django_filters.CharFilter(field_name='job__guid')
@@ -438,7 +427,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
                       'value', 'push_id', 'repository']
 
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filter_class = JobDetailFilter
+    filterset_class = JobDetailFilter
 
     # using a custom pagination size of 2000 to avoid breaking mozscreenshots
     # which doesn't paginate through results yet

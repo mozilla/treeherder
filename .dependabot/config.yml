@@ -28,8 +28,3 @@ update_configs:
       - match:
           dependency_name: "Django"
           version_requirement: ">=2.1"
-      # django-filter 2 requires Python 3 (bug 1489212)
-      - match:
-          # Bug 1426683
-          dependency_name: "django-filter"
-          version_requirement: ">=2"

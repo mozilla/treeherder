@@ -272,9 +272,9 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['id', 'status', 'framework', 'repository',
-                     'alerts__series_signature',
-                     'alerts__series_signature__signature_hash']
+    filterset_fields = ['id', 'status', 'framework', 'repository',
+                        'alerts__series_signature',
+                        'alerts__series_signature__signature_hash']
     ordering = ('-created', '-id')
     pagination_class = AlertSummaryPagination
 
@@ -300,7 +300,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     serializer_class = PerformanceAlertSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['id']
+    filterset_fields = ['id']
     ordering = ('-id')
 
     class AlertPagination(pagination.CursorPagination):
@@ -420,7 +420,7 @@ class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PerformanceBugTemplate.objects.all()
     serializer_class = PerformanceBugTemplateSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
-    filter_fields = ['framework']
+    filterset_fields = ['framework']
 
 
 class PerformanceIssueTrackerViewSet(viewsets.ReadOnlyModelViewSet):
