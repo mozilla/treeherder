@@ -1,5 +1,3 @@
-from __future__ import division
-
 import logging
 
 from treeherder.etl.seta import job_priorities_to_jobtypes

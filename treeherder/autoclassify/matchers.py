@@ -1,5 +1,3 @@
-from __future__ import division
-
 import logging
 from difflib import SequenceMatcher
 from itertools import chain

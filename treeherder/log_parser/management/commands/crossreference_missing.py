@@ -1,5 +1,3 @@
-from __future__ import division
-
 import logging
 import time
 from concurrent.futures import ProcessPoolExecutor

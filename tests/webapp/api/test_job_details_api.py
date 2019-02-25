@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from django.urls import reverse
 from six import iteritems
 
