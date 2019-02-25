@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
-from six import iteritems
 
 from treeherder.model.models import (Push,
                                      Repository)
@@ -49,7 +48,7 @@ class PushViewSet(viewsets.ViewSet):
 
         pushes = Push.objects.filter(repository=repository).order_by('-time')
 
-        for (param, value) in iteritems(meta):
+        for (param, value) in meta.items():
             if param == 'fromchange':
                 revision_field = 'revision__startswith' if len(value) < 40 else 'revision'
                 filter_kwargs = {revision_field: value, 'repository': repository}

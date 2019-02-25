@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from six import iteritems
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.model.models import (BuildPlatform,
@@ -31,7 +30,7 @@ class Command(BaseCommand):
         c = TreeherderClient(server_url=options['server'])
 
         # options / option collection hashes
-        for (uuid, props) in iteritems(c.get_option_collection_hash()):
+        for (uuid, props) in c.get_option_collection_hash().items():
             for prop in props:
                 option, _ = Option.objects.get_or_create(name=prop['name'])
                 OptionCollection.objects.get_or_create(

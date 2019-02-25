@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
                                    HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
-from six import iteritems
 
 from treeherder.model.models import (ClassifiedFailure,
                                      TextLogError)
@@ -108,7 +107,7 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         data = {"id": pk}
-        for k, v in iteritems(request.data):
+        for k, v in request.data.items():
             if k not in data:
                 data[k] = v
 

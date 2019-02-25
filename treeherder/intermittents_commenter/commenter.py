@@ -12,7 +12,6 @@ from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
 from requests.exceptions import RequestException
-from six import iteritems
 
 from treeherder.intermittents_commenter.constants import (COMPONENTS,
                                                           WHITEBOARD_NEEDSWORK_OWNER)
@@ -59,7 +58,7 @@ class Commenter(object):
             top_bugs = [bug[0] for bug in sorted(bug_stats.items(), key=lambda x: x[1]['total'],
                         reverse=True)][:50]
 
-        for bug_id, counts in iteritems(bug_stats):
+        for bug_id, counts in bug_stats.items():
             change_priority = None
             change_whiteboard = None
             priority = 0
