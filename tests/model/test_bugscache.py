@@ -6,7 +6,6 @@ from datetime import (datetime,
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
-from django.utils.encoding import smart_text
 
 from treeherder.model.models import Bugscache
 
@@ -31,12 +30,13 @@ def _update_bugscache(bug_list):
             id=bug['id'],
             status=bug['status'],
             resolution=bug['resolution'],
-            summary=smart_text(bug['summary'])[:max_summary_length],
+            summary=bug['summary'][:max_summary_length],
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
             os=bug['op_sys'],
             modified=bug['last_change_time'],
-            whiteboard=smart_text(bug['whiteboard'])[:max_whiteboard_length])
+            whiteboard=bug['whiteboard'][:max_whiteboard_length],
+        )
 
 
 BUG_SEARCHES = (

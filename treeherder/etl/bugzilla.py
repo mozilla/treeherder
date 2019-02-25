@@ -2,7 +2,6 @@ import logging
 
 import dateutil.parser
 from django.conf import settings
-from django.utils.encoding import smart_text
 
 from treeherder.etl.common import fetch_json
 from treeherder.model.models import Bugscache
@@ -58,15 +57,13 @@ class BzApiBugProcess(object):
                         defaults={
                             'status': bug.get('status', ''),
                             'resolution': bug.get('resolution', ''),
-                            'summary': smart_text(
-                                bug.get('summary', '')[:max_summary_length]),
+                            'summary': bug.get('summary', '')[:max_summary_length],
                             'crash_signature': bug.get('cf_crash_signature', ''),
                             'keywords': ",".join(bug['keywords']),
                             'os': bug.get('op_sys', ''),
                             'modified': dateutil.parser.parse(
                                 bug['last_change_time'], ignoretz=True),
-                            'whiteboard': smart_text(
-                                bug.get('whiteboard', '')[:max_whiteboard_length])
+                            'whiteboard': bug.get('whiteboard', '')[:max_whiteboard_length],
                         })
                 except Exception as e:
                     logger.error("error inserting bug '%s' into db: %s", bug, e)
