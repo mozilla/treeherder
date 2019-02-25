@@ -72,6 +72,12 @@ class AuthBackend(object):
 
         return id_token
 
+    def _get_id_token_expiry(self, user_info):
+        # `exp` is the expiration of the ID token in seconds since the epoch:
+        # https://auth0.com/docs/tokens/id-token#id-token-payload
+        # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+        return user_info['exp']
+
     def _get_username_from_userinfo(self, user_info):
         """
         Get the user's username from the jwt sub property
@@ -169,21 +175,12 @@ class AuthBackend(object):
         except jwt.JWTError:
             raise AuthError("Invalid header: Unable to parse authentication")
 
-    def authenticate(self, request):
-        access_token = self._get_access_token(request)
-        id_token = self._get_id_token(request)
-
-        user_info = self._get_user_info(access_token, id_token)
-        username = self._get_username_from_userinfo(user_info)
-
+    def _calculate_session_expiry(self, request, user_info):
+        """Returns the number of seconds after which the Django session should expire."""
         access_token_expiry_timestamp = self._get_access_token_expiry(request)
-        # Per http://openid.net/specs/openid-connect-core-1_0.html#IDToken, exp is given in seconds
-        id_token_expiry_timestamp = user_info['exp']
+        id_token_expiry_timestamp = self._get_id_token_expiry(user_info)
         now_in_seconds = int(time.time())
 
-        # The default Django user session length is overridden, since otherwise the access token
-        # in localstorage in the UI (used for Taskcluster interactions) might expire before the
-        # Django session does, resulting in confusing UX.
         # The session length is set to match whichever token expiration time is closer.
         earliest_expiration_timestamp = min(access_token_expiry_timestamp, id_token_expiry_timestamp)
         seconds_until_expiry = earliest_expiration_timestamp - now_in_seconds
@@ -191,6 +188,16 @@ class AuthBackend(object):
         if seconds_until_expiry <= 0:
             raise AuthError('Session expiry time has already passed!')
 
+        return seconds_until_expiry
+
+    def authenticate(self, request):
+        access_token = self._get_access_token(request)
+        id_token = self._get_id_token(request)
+
+        user_info = self._get_user_info(access_token, id_token)
+        username = self._get_username_from_userinfo(user_info)
+
+        seconds_until_expiry = self._calculate_session_expiry(request, user_info)
         logger.debug('Updating session to expire in %i seconds', seconds_until_expiry)
         request.session.set_expiry(seconds_until_expiry)
 
