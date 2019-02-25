@@ -9,8 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 
-from treeherder.auth.backends import (AuthError,
-                                      NoEmailException)
+from treeherder.auth.backends import AuthError
 from treeherder.webapp.api.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
@@ -35,10 +34,6 @@ class AuthViewSet(viewsets.ViewSet):
             login(request, user)
 
             return Response(UserSerializer(user).data)
-        except NoEmailException as ex:
-            # The user's clientId didn't have an email
-            logger.warning("Email required for login.", exc_info=ex)
-            raise AuthenticationFailed(str(ex))
         except AuthError as ex:
             # This indicates an error that may require attention by the
             # Treeherder or Taskcluster teams.  Logging this to New Relic to
