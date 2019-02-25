@@ -24,10 +24,10 @@ update_configs:
       - match:
           dependency_name: "billiard"
           version_requirement: ">=3.4"
-      # Django 2 requires Python 3 (bug 1426683)
+      # Django 2.1 requires django-filter 2 (bug 1529240)
       - match:
           dependency_name: "Django"
-          version_requirement: ">=2"
+          version_requirement: ">=2.1"
       # django-filter 2 requires Python 3 (bug 1489212)
       - match:
           # Bug 1426683
