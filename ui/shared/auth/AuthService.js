@@ -20,7 +20,7 @@ export default class AuthService {
         headers: {
           Authorization: `Bearer ${userSession.accessToken}`,
           'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
-          idToken: userSession.idToken,
+          'Id-Token': userSession.idToken,
         },
         method: 'GET',
         credentials: 'same-origin',

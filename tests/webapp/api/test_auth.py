@@ -78,7 +78,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
-        HTTP_IDTOKEN='meh',
+        HTTP_ID_TOKEN='meh',
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
@@ -109,7 +109,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
-        HTTP_IDTOKEN='meh',
+        HTTP_ID_TOKEN='meh',
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
@@ -137,7 +137,7 @@ def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
-        HTTP_IDTOKEN='meh',
+        HTTP_ID_TOKEN='meh',
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
@@ -159,7 +159,7 @@ def test_login_unknown_identity_provider(client, monkeypatch):
     resp = client.get(
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
-        HTTP_IDTOKEN="meh",
+        HTTP_ID_TOKEN="meh",
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 403
@@ -184,7 +184,7 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     resp = client.get(
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
-        HTTP_IDTOKEN="meh",
+        HTTP_ID_TOKEN="meh",
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 403
@@ -217,14 +217,14 @@ def test_login_id_token_header_missing(client):
         HTTP_AUTHORIZATION='Bearer abc',
     )
     assert resp.status_code == 403
-    assert resp.json()['detail'] == 'IdToken header is expected'
+    assert resp.json()['detail'] == 'Id-Token header is expected'
 
 
 def test_login_id_token_malformed(client):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer abc',
-        HTTP_IDTOKEN='aaa',
+        HTTP_ID_TOKEN='aaa',
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Unable to decode the Id token header'
@@ -234,7 +234,7 @@ def test_login_id_token_missing_rsa_key_id(client):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer abc',
-        HTTP_IDTOKEN=(
+        HTTP_ID_TOKEN=(
             # Token generated using:
             # https://jwt.io/#debugger-io
             # With header:
@@ -256,7 +256,7 @@ def test_login_id_token_unknown_rsa_key_id(client):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer abc',
-        HTTP_IDTOKEN=(
+        HTTP_ID_TOKEN=(
             # Token generated using:
             # https://jwt.io/#debugger-io
             # With header:
@@ -279,7 +279,7 @@ def test_login_id_token_invalid_signature(client):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer foo',
-        HTTP_IDTOKEN=(
+        HTTP_ID_TOKEN=(
             # Token generated using:
             # https://jwt.io/#debugger-io
             # With header:
@@ -311,7 +311,7 @@ def test_login_access_token_expiry_header_missing(client, monkeypatch):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer foo',
-        HTTP_IDTOKEN='bar',
+        HTTP_ID_TOKEN='bar',
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Access-Token-Expires-At header is expected'
@@ -329,7 +329,7 @@ def test_login_access_token_expiry_header_malformed(client, monkeypatch):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer foo',
-        HTTP_IDTOKEN='bar',
+        HTTP_ID_TOKEN='bar',
         HTTP_ACCESS_TOKEN_EXPIRES_AT='aaa',
     )
     assert resp.status_code == 403
@@ -349,7 +349,7 @@ def test_login_access_token_expired(client, monkeypatch):
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer foo',
-        HTTP_IDTOKEN='bar',
+        HTTP_ID_TOKEN='bar',
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 403
@@ -373,7 +373,7 @@ def test_login_id_token_expires_before_access_token(test_ldap_user, client, monk
     resp = client.get(
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
-        HTTP_IDTOKEN='meh',
+        HTTP_ID_TOKEN='meh',
         HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
     )
     assert resp.status_code == 200
@@ -383,7 +383,7 @@ def test_login_id_token_expires_before_access_token(test_ldap_user, client, monk
 # TODO: Remove once enough time has passed for people to reload open UI tabs.
 def test_login_legacy_headers(test_ldap_user, client, monkeypatch):
     """
-    Test that requests made using the `ExpiresAt` header still succeed.
+    Test that requests made using the old `ExpiresAt` and `IdToken` headers still succeed.
     """
     now_in_seconds = int(time.time())
     id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
