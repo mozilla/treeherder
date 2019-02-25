@@ -216,9 +216,5 @@ class AuthBackend(object):
             return None
 
 
-class NoEmailException(Exception):
-    pass
-
-
 class AuthError(Exception):
     pass
