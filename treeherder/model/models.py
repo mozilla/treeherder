@@ -17,7 +17,6 @@ from django.db.models import (Count,
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from six import iteritems
 
 from treeherder.webapp.api.utils import REPO_GROUPS
@@ -50,7 +49,6 @@ class FailuresQuerySet(models.QuerySet):
             return self.filter(job__repository__name=name) if bugjobmap else self.filter(repository__name=name)
 
 
-@python_2_unicode_compatible
 class NamedModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
@@ -67,7 +65,6 @@ class Product(NamedModel):
         db_table = 'product'
 
 
-@python_2_unicode_compatible
 class BuildPlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25)
@@ -97,7 +94,6 @@ class RepositoryGroup(NamedModel):
         db_table = 'repository_group'
 
 
-@python_2_unicode_compatible
 class Repository(models.Model):
     id = models.AutoField(primary_key=True)
     repository_group = models.ForeignKey('RepositoryGroup', on_delete=models.CASCADE)
@@ -121,7 +117,6 @@ class Repository(models.Model):
             self.name, self.repository_group)
 
 
-@python_2_unicode_compatible
 class Push(models.Model):
     '''
     A push to a repository
@@ -168,7 +163,6 @@ class Push(models.Model):
         return status_dict
 
 
-@python_2_unicode_compatible
 class Commit(models.Model):
     '''
     A single commit in a push
@@ -187,7 +181,6 @@ class Commit(models.Model):
             self.push.repository.name, self.revision)
 
 
-@python_2_unicode_compatible
 class MachinePlatform(models.Model):
     id = models.AutoField(primary_key=True)
     os_name = models.CharField(max_length=25)
@@ -203,7 +196,6 @@ class MachinePlatform(models.Model):
             self.os_name, self.platform, self.architecture)
 
 
-@python_2_unicode_compatible
 class Bugscache(models.Model):
     id = models.PositiveIntegerField(primary_key=True)
     status = models.CharField(max_length=64, db_index=True)
@@ -293,7 +285,6 @@ class Machine(NamedModel):
         db_table = 'machine'
 
 
-@python_2_unicode_compatible
 class JobGroup(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
@@ -331,7 +322,6 @@ class OptionCollectionManager(models.Manager):
         return option_collection_map
 
 
-@python_2_unicode_compatible
 class OptionCollection(models.Model):
     id = models.AutoField(primary_key=True)
     option_collection_hash = models.CharField(max_length=40)
@@ -356,7 +346,6 @@ class OptionCollection(models.Model):
         return "{0}".format(self.option)
 
 
-@python_2_unicode_compatible
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
@@ -686,7 +675,6 @@ class TaskclusterMetadata(models.Model):
         db_table = "taskcluster_metadata"
 
 
-@python_2_unicode_compatible
 class JobDetail(models.Model):
     '''
     Represents metadata associated with a job
@@ -1354,7 +1342,6 @@ class TextLogError(models.Model):
             return None
 
 
-@python_2_unicode_compatible
 class TextLogErrorMetadata(models.Model):
     """
     Link matching TextLogError and FailureLine instances.
