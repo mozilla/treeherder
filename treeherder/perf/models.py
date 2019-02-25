@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 
 from treeherder.model.models import (Job,
                                      MachinePlatform,
@@ -16,7 +15,6 @@ from treeherder.model.models import (Job,
 SIGNATURE_HASH_LENGTH = 40
 
 
-@python_2_unicode_compatible
 class PerformanceFramework(models.Model):
 
     name = models.SlugField(max_length=255, unique=True)
@@ -29,7 +27,6 @@ class PerformanceFramework(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class PerformanceSignature(models.Model):
 
     signature_hash = models.CharField(max_length=SIGNATURE_HASH_LENGTH,
@@ -136,7 +133,6 @@ into chunks of chunk_size size."""
                 signature.delete()
 
 
-@python_2_unicode_compatible
 class PerformanceDatum(models.Model):
 
     objects = PerformanceDatumManager()
@@ -176,7 +172,6 @@ class PerformanceDatum(models.Model):
         return "{} {}".format(self.value, self.push_timestamp)
 
 
-@python_2_unicode_compatible
 class IssueTracker(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=False)
@@ -189,7 +184,6 @@ class IssueTracker(models.Model):
         return "{} (tasks via {})".format(self.name, self.task_base_url)
 
 
-@python_2_unicode_compatible
 class PerformanceAlertSummary(models.Model):
     '''
     A summarization of performance alerts
@@ -304,7 +298,6 @@ class PerformanceAlertSummary(models.Model):
                                     self.push.revision)
 
 
-@python_2_unicode_compatible
 class PerformanceAlert(models.Model):
     '''
     A single performance alert
