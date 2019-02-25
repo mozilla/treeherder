@@ -44,6 +44,6 @@ setup(name='treeherder-client',
       url='https://github.com/mozilla/treeherder',
       license='MPL',
       packages=['thclient'],
-      zip_safe=False,
-      install_requires=['requests>=2.4.3', 'six']
+      python_requires='>=3',
+      install_requires=['requests>=2.4.3']
       )
