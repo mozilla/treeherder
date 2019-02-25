@@ -144,7 +144,7 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
         classified_failures = models.ClassifiedFailure.objects.filter(error_matches__in=matches)
         cf_serializer = ClassifiedFailureSerializer(classified_failures, many=True)
 
-        response = super(FailureLineNoStackSerializer, self).to_representation(failure_line)
+        response = super().to_representation(failure_line)
         response['matches'] = tle_serializer.data
         response['classified_failures'] = cf_serializer.data
         return response

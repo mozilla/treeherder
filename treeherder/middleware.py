@@ -54,7 +54,7 @@ class CustomWhiteNoise(WhiteNoiseMiddleware):
         # Otherwise fall back to the default method, so we catch filenames in the
         # style output by GzipManifestStaticFilesStorage during collectstatic. eg:
         #   bootstrap.min.abda843684d0.js
-        return super(CustomWhiteNoise, self).immutable_file_test(path, url)
+        return super().immutable_file_test(path, url)
 
 
 class NewRelicMiddleware(MiddlewareMixin):

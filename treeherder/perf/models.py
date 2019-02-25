@@ -163,7 +163,7 @@ class PerformanceDatum(models.Model):
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
-        super(PerformanceDatum, self).save(*args, **kwargs)  # Call the "real" save() method.
+        super().save(*args, **kwargs)  # Call the "real" save() method.
         if self.signature.last_updated < self.push_timestamp:
             self.signature.last_updated = self.push_timestamp
             self.signature.save()
@@ -373,7 +373,7 @@ class PerformanceAlert(models.Model):
                                       [STATUS[1] for STATUS in self.STATUSES if
                                        STATUS[0] in self.UNRELATIONAL_STATUS_IDS])))
 
-        super(PerformanceAlert, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # check to see if we need to update the summary statuses
         self.summary.update_status()

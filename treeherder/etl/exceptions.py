@@ -5,7 +5,7 @@ class CollectionNotStoredException(Exception):
         error_list contains dictionaries, each containing
         project, url and message
         """
-        super(CollectionNotStoredException, self).__init__(args, kwargs)
+        super().__init__(args, kwargs)
         self.error_list = error_list
 
     def __str__(self):

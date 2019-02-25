@@ -553,7 +553,7 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_modified = datetime.datetime.now()
-        super(Job, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def is_fully_autoclassified(self):
         """
@@ -890,12 +890,12 @@ class JobNote(models.Model):
             text_log_error.verify_classification(classification)
 
     def save(self, *args, **kwargs):
-        super(JobNote, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self._update_failure_type()
         self._ensure_classification()
 
     def delete(self, *args, **kwargs):
-        super(JobNote, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
         self._update_failure_type()
         self._ensure_classification()
 

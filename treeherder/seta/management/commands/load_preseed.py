@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Update job priority table with data based on preseed.json'
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def handle(self, *args, **options):
         load_preseed()
