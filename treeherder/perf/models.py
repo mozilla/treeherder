@@ -331,7 +331,7 @@ class PerformanceAlert(models.Model):
     starred = models.BooleanField(default=False)
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
 
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
     # time when human user 1st interacted with alert
     # IMPORTANT: workers & automated scripts mustn't update this! Dont' assign this outside setter method!
     first_triaged = models.DateTimeField(null=True, default=None)
