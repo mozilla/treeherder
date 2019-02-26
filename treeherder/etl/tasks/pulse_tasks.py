@@ -19,6 +19,18 @@ def store_pulse_jobs(pulse_job, exchange, routing_key):
     JobLoader().process_job(pulse_job)
 
 
+@retryable_task(name='store-pulse-pushes', max_retries=10)
+def store_pulse_pushes(body, exchange, routing_key):
+    """
+    Fetches the pushes pending from pulse exchanges and loads them.
+    """
+    newrelic.agent.add_custom_parameter("exchange", exchange)
+    newrelic.agent.add_custom_parameter("routing_key", routing_key)
+
+    PushLoader().process(body, exchange)
+
+
+# TODO: Remove this task once the queue is empty.
 @retryable_task(name='store-pulse-resultsets', max_retries=10)
 def store_pulse_resultsets(body, exchange, routing_key):
     """

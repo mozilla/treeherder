@@ -10,7 +10,7 @@ class Command(BaseCommand):
     """
     Management command to read pushes from a set of pulse exchanges
 
-    This adds the pushes to a celery queue called ``store_pulse_resultsets`` which
+    This adds the pushes to a celery queue called ``store_pulse_pushes`` which
     does the actual storing of the pushes in the database.
     """
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
