@@ -465,29 +465,26 @@ perf.controller('AlertsCtrl', [
                     });
             });
 
-            $q.all(Object.keys(resultSetToSummaryMap).map(repo =>
-              PushModel.getList({ repo, id__in: Object.keys(resultSetToSummaryMap[repo]).join(',') })
-                  .then(async (response) => {
-                      const { results } = await response.json();
-                      results.forEach((resultSet) => {
-                          resultSet.dateStr = dateFilter(
-                              resultSet.push_timestamp * 1000, thDateFormat);
-                          // want at least 14 days worth of results for relative comparisons
-                          const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
-                          resultSet.timeRange = Math.max(timeRange,
-                              phTimeRanges.map(timeRange => timeRange.value).find(
-                              t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t));
-                          resultSetToSummaryMap[repo][resultSet.id].forEach(
-                                    (summary) => {
-                                        if (summary.push_id === resultSet.id) {
-                                            summary.resultSetMetadata = resultSet;
-                                        } else if (summary.prev_push_id === resultSet.id) {
-                                            summary.prevResultSetMetadata = resultSet;
-                                        }
-                                    });
-                      });
-                  }),
-            )).then(() => {
+            $q.all(Object.keys(resultSetToSummaryMap).map(async repo => {
+                const { data: results } = await PushModel.getList({ repo, id__in: Object.keys(resultSetToSummaryMap[repo]).join(',') })
+                results.forEach((resultSet) => {
+                    resultSet.dateStr = dateFilter(
+                        resultSet.push_timestamp * 1000, thDateFormat);
+                    // want at least 14 days worth of results for relative comparisons
+                    const timeRange = phTimeRangeValues[repo] ? phTimeRangeValues[repo] : phDefaultTimeRangeValue;
+                    resultSet.timeRange = Math.max(timeRange,
+                        phTimeRanges.map(timeRange => timeRange.value).find(
+                        t => ((Date.now() / 1000.0) - resultSet.push_timestamp) < t));
+                    resultSetToSummaryMap[repo][resultSet.id].forEach(
+                            (summary) => {
+                                if (summary.push_id === resultSet.id) {
+                                    summary.resultSetMetadata = resultSet;
+                                } else if (summary.prev_push_id === resultSet.id) {
+                                    summary.prevResultSetMetadata = resultSet;
+                                }
+                            });
+                });
+            })).then(() => {
                 // for all complete summaries, fill in job and pushlog links
                 // and downstream summaries
                 alertSummaries.forEach((summary) => {
