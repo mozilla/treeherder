@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
@@ -306,7 +308,11 @@ class SimilarJobsTab extends React.Component {
         {isLoading && (
           <div className="overlay">
             <div>
-              <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+              <FontAwesomeIcon
+                icon={faSpinner}
+                pulse
+                className="th-spinner-lg"
+              />
             </div>
           </div>
         )}

@@ -1,6 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartBar } from '@fortawesome/free-regular-svg-icons';
+import {
+  faEllipsisH,
+  faRedo,
+  faThumbtack,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
@@ -120,10 +128,10 @@ class ActionBar extends React.PureComponent {
     }
 
     // Spin the retrigger button when retriggers happen
-    $('#retrigger-btn > span').removeClass('action-bar-spin');
+    $('#retrigger-btn > svg').removeClass('action-bar-spin');
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        $('#retrigger-btn > span').addClass('action-bar-spin');
+        $('#retrigger-btn > svg').addClass('action-bar-spin');
       });
     });
 
@@ -313,7 +321,7 @@ class ActionBar extends React.PureComponent {
                 className="btn icon-blue"
                 onClick={() => pinJob(selectedJob)}
               >
-                <span className="fa fa-thumb-tack" />
+                <FontAwesomeIcon icon={faThumbtack} />
               </span>
             </li>
             <li>
@@ -328,7 +336,7 @@ class ActionBar extends React.PureComponent {
                 disabled={!user.isLoggedIn}
                 onClick={() => this.retriggerJob([selectedJob])}
               >
-                <span className="fa fa-repeat" />
+                <FontAwesomeIcon icon={faRedo} />
               </span>
             </li>
             {isReftest(selectedJob) &&
@@ -340,7 +348,7 @@ class ActionBar extends React.PureComponent {
                     rel="noopener noreferrer"
                     href={getReftestUrl(jobLogUrl.url)}
                   >
-                    <span className="fa fa-bar-chart-o" />
+                    <FontAwesomeIcon icon={faChartBar} />
                   </a>
                 </li>
               ))}
@@ -355,7 +363,7 @@ class ActionBar extends React.PureComponent {
                   className={user.isLoggedIn ? 'hover-warning' : 'disabled'}
                   onClick={() => this.cancelJob()}
                 >
-                  <span className="fa fa-times-circle cancel-job-icon" />
+                  <FontAwesomeIcon icon={faTimesCircle} />
                 </a>
               </li>
             )}
@@ -370,7 +378,7 @@ class ActionBar extends React.PureComponent {
                 className="dropdown-toggle"
                 data-toggle="dropdown"
               >
-                <span className="fa fa-ellipsis-h" aria-hidden="true" />
+                <FontAwesomeIcon icon={faEllipsisH} aria-hidden="true" />
               </span>
               <ul className="dropdown-menu actionbar-menu" role="menu">
                 <li>

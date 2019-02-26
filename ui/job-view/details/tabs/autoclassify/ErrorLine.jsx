@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCaretDown,
+  faCaretRight,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../../helpers/constants';
 import {
@@ -556,10 +562,11 @@ class ErrorLine extends React.Component {
                   </span>
                   {failureLine.message && !errorLine.verifiedIgnore && (
                     <div className="failure-line-message">
-                      <span
-                        className={`failure-line-message-toggle fa fa-fw fa-lg${
-                          messageExpanded ? 'fa-caret-down' : 'fa-carat-right'
-                        }`}
+                      <FontAwesomeIcon
+                        icon={messageExpanded ? faCaretDown : faCaretRight}
+                        size="lg"
+                        fixedWidth
+                        className="failure-line-message-toggle"
                         onClick={() =>
                           this.setState({ messageExpanded: !messageExpanded })
                         }
@@ -630,7 +637,10 @@ class ErrorLine extends React.Component {
 
           {errorLine.verified && !errorLine.verifiedIgnore && (
             <div>
-              <span className="fa fa-star best-classification-star" />
+              <FontAwesomeIcon
+                icon={faStar}
+                className="best-classification-star"
+              />
               {errorLine.bugNumber && (
                 <span className="line-option-text">
                   <a

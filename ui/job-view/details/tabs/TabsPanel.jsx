@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faAngleDown,
+  faAngleUp,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
 import { getAllUrlParams } from '../../../helpers/location';
@@ -181,17 +187,15 @@ class TabsPanel extends React.Component {
                     </div>
                   </div>
                 )}
-                <span
-                  className={`fa ${
-                    isPinBoardVisible ? 'fa-angle-down' : 'fa-angle-up'
-                  }`}
+                <FontAwesomeIcon
+                  icon={isPinBoardVisible ? faAngleDown : faAngleUp}
                 />
               </span>
               <span
                 onClick={() => clearSelectedJob(countPinnedJobs)}
                 className="btn details-panel-close-btn"
               >
-                <span className="fa fa-times" />
+                <FontAwesomeIcon icon={faTimes} />
               </span>
             </span>
           </TabList>

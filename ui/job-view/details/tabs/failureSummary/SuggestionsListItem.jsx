@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit } from '../../../../helpers/constants';
 
@@ -29,7 +31,7 @@ export default class SuggestionsListItem extends React.Component {
             onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
           >
-            <i className="fa fa-bug" />
+            <FontAwesomeIcon icon={faBug} />
           </span>
           <span>{suggestion.search}</span>
         </div>

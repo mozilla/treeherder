@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thSimplePlatforms } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
@@ -183,7 +185,11 @@ class PushJobs extends React.Component {
           ) : (
             <tr>
               <td>
-                <span className="fa fa-spinner fa-pulse th-spinner" />
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  pulse
+                  className="th-spinner"
+                />
               </td>
             </tr>
           )}

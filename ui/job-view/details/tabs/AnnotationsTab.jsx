@@ -1,5 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import {
+  faStar as faStarSolid,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
@@ -28,7 +34,7 @@ function RelatedBugSaved(props) {
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug_id}`}
       >
-        <i className="fa fa-times-circle" />
+        <FontAwesomeIcon icon={faTimesCircle} />
       </span>
     </span>
   );
@@ -68,7 +74,7 @@ function TableRow(props) {
     deleteClassification(classification);
   };
   const failureId = classification.failure_classification_id;
-  const iconClass = failureId === 7 ? 'fa-star-o' : 'fa fa-star';
+  const icon = failureId === 7 ? faStarRegular : faStarSolid;
   const classificationName = classificationMap[failureId];
 
   return (
@@ -79,7 +85,7 @@ function TableRow(props) {
         {/* TODO: the classification label & star has been used in the job_details_pane.jxs
             so it should probably be made its own component when we start using import */}
         <span title={name}>
-          <i className={`fa ${iconClass}`} />
+          <FontAwesomeIcon icon={icon} />
           <span className="ml-1">{classificationName.name}</span>
         </span>
       </td>
@@ -90,7 +96,7 @@ function TableRow(props) {
           className="classification-delete-icon hover-warning pointable"
           title="Delete this classification"
         >
-          <i className="fa fa-times-circle" />
+          <FontAwesomeIcon icon={faTimesCircle} />
         </span>
       </td>
     </tr>

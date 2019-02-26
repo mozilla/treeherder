@@ -1,6 +1,8 @@
 import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../../helpers/constants';
 import { getProjectJobUrl } from '../../../../helpers/location';
@@ -326,7 +328,11 @@ class AutoclassifyTab extends React.Component {
           {loadStatus === 'loading' && (
             <div className="overlay">
               <div>
-                <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  pulse
+                  className="th-spinner-lg"
+                />
               </div>
             </div>
           )}

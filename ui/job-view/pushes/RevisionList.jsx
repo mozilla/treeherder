@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 
 import { Revision } from './Revision';
 
@@ -40,7 +42,7 @@ export function MoreRevisionsLink(props) {
     <li>
       <a href={props.href} target="_blank" rel="noopener noreferrer">
         {'\u2026and more'}
-        <i className="fa fa-external-link-square" />
+        <FontAwesomeIcon icon={faExternalLinkSquareAlt} className="ml-1" />
       </a>
     </li>
   );

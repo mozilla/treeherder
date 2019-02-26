@@ -1,20 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-regular-svg-icons';
+import {
+  faBan,
+  faCheck,
+  faExclamationTriangle,
+  faInfoCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { shortDateFormat } from '../../helpers/display';
 import { withNotifications } from '../../shared/context/Notifications';
 
 class NotificationsMenu extends React.Component {
-  getSeverityClass(severity) {
+  getIcon(severity) {
+    // TODO: Move this and the usage in NotificationsList to a shared component.
     switch (severity) {
       case 'danger':
-        return 'fa fa-ban text-danger';
+        return faBan;
       case 'warning':
-        return 'fa fa-warning text-warning';
+        return faExclamationTriangle;
+      case 'info':
+        return faInfoCircle;
       case 'success':
-        return 'fa fa-check text-success';
+        return faCheck;
     }
-    return 'fa fa-info-circle text-info';
   }
 
   render() {
@@ -30,7 +40,7 @@ class NotificationsMenu extends React.Component {
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn"
         >
-          <span className="fa fa-bell-o lightgray" />
+          <FontAwesomeIcon icon={faBell} className="lightgray" />
         </button>
         <ul
           id="notification-dropdown"
@@ -64,8 +74,9 @@ class NotificationsMenu extends React.Component {
                 <span
                   title={`${notification.message} ${notification.linkText}`}
                 >
-                  <span
-                    className={this.getSeverityClass(notification.severity)}
+                  <FontAwesomeIcon
+                    icon={this.getIcon(notification.severity)}
+                    className={`text-${notification.severity}`}
                   />
                   &nbsp;
                   <small className="text-muted">

@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getRepoUrl } from '../../helpers/location';
 
@@ -55,7 +57,7 @@ export default function ReposMenu(props) {
                   className="dropdown-header"
                   title={group.name}
                 >
-                  {group.name} <span className="fa fa-info-circle" />
+                  {group.name} <FontAwesomeIcon icon={faInfoCircle} />
                 </li>
                 {!!group.repos &&
                   group.repos.map(repo => (

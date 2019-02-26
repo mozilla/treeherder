@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { withPushes } from '../context/Pushes';
 import { getAllUrlParams } from '../../helpers/location';
@@ -34,7 +36,11 @@ function PushLoadErrors(props) {
                       {revision}
                     </a>
                     &nbsp;
-                    <span className="fa fa-spinner fa-pulse th-spinner" />
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      pulse
+                      className="th-spinner"
+                    />
                   </p>
                   <p>
                     If the push exists, it will appear in a few minutes once it

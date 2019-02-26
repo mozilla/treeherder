@@ -40,6 +40,7 @@ export const getBtnClass = function getBtnClass(
   let btnClass = btnClasses[resultStatus] || 'btn-default';
 
   // handle if a job is classified
+  // TODO: Check if the parseInt() is really needed here.
   const classificationId = parseInt(failureClassificationId, 10);
   if (classificationId > 1) {
     btnClass += '-classified';

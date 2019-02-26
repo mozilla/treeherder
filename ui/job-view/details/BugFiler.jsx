@@ -11,6 +11,13 @@ import {
   Input,
   Label,
 } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faChevronCircleDown,
+  faChevronCircleUp,
+  faSpinner,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   bugzillaBugsApi,
@@ -546,7 +553,11 @@ export class BugFilerClass extends React.Component {
               <div>
                 {!!productSearch && searching && (
                   <div>
-                    <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      pulse
+                      className="th-spinner-lg"
+                    />
                     Searching {productSearch}
                   </div>
                 )}
@@ -577,8 +588,8 @@ export class BugFilerClass extends React.Component {
                 {!!unhelpfulSummaryReason && (
                   <div>
                     <div className="text-danger">
-                      <span
-                        className="fa fa-warning"
+                      <FontAwesomeIcon
+                        icon={faExclamationTriangle}
                         id="unhelpful-summary-reason"
                       />
                       Warning: {unhelpfulSummaryReason}
@@ -617,17 +628,19 @@ export class BugFilerClass extends React.Component {
                     ? 'Hide all failure lines for this job'
                     : 'Show all failure lines for this job'}
                 </Tooltip>
-                <i
+                <FontAwesomeIcon
                   onClick={() =>
                     this.setState({
                       isFilerSummaryVisible: !isFilerSummaryVisible,
                     })
                   }
-                  className={`fa fa-lg pointable align-bottom pt-2 ml-1 ${
+                  icon={
                     isFilerSummaryVisible
-                      ? 'fa-chevron-circle-up'
-                      : 'fa-chevron-circle-down'
-                  }`}
+                      ? faChevronCircleUp
+                      : faChevronCircleDown
+                  }
+                  size="lg"
+                  className="pointable align-bottom pt-2 ml-1"
                   id="toggle-failure-lines"
                 />
                 <span

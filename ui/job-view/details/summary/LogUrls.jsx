@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileAlt } from '@fortawesome/free-regular-svg-icons';
 
 import logviewerIcon from '../../../img/logviewerIcon.svg';
 
@@ -68,15 +70,13 @@ export default function LogUrls(props) {
       {logUrls.map(jobLogUrl => (
         <li key={`raw-${jobLogUrl.id}`}>
           <a
-            id="raw-log-btn"
-            className="raw-log-icon"
             title="Open the raw log in a new window"
             target="_blank"
             rel="noopener noreferrer"
             href={jobLogUrl.url}
             copy-value={jobLogUrl.url}
           >
-            <span className="fa fa-file-text-o" />
+            <FontAwesomeIcon icon={faFileAlt} size="lg" />
           </a>
         </li>
       ))}
@@ -86,7 +86,7 @@ export default function LogUrls(props) {
             className="disabled raw-log-icon"
             title="No logs available for this job"
           >
-            <span className="fa fa-file-text-o" />
+            <FontAwesomeIcon icon={faFileAlt} />
           </a>
         </li>
       )}

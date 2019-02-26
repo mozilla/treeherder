@@ -1,5 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle } from '@fortawesome/free-regular-svg-icons';
+import {
+  faInfoCircle,
+  faLock,
+  faQuestion,
+  faSpinner,
+  faTimes,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
@@ -7,33 +17,33 @@ import { getRepoUrl } from '../../helpers/location';
 
 const statusInfoMap = {
   open: {
-    icon: 'fa-circle-o',
+    icon: faCircle,
     color: 'tree-open',
     btnClass: 'btn-view-nav',
   },
   'approval required': {
-    icon: 'fa-lock',
+    icon: faLock,
     color: 'tree-approval',
     btnClass: 'btn-view-nav',
   },
   closed: {
-    icon: 'fa-times-circle',
+    icon: faTimesCircle,
     color: 'tree-closed',
     btnClass: 'btn-view-nav-closed',
   },
   unsupported: {
-    icon: 'fa-question',
+    icon: faQuestion,
     color: 'tree-unavailable',
     btnClass: 'btn-view-nav',
   },
   'not retrieved yet': {
-    icon: 'fa-spinner',
-    pulseIcon: 'fa-pulse',
+    icon: faSpinner,
+    pulseIcon: true,
     color: 'tree-unavailable',
     btnClass: 'btn-view-nav',
   },
   error: {
-    icon: 'fa-question',
+    icon: faQuestion,
     color: 'tree-unavailable',
     btnClass: 'btn-view-nav',
   },
@@ -48,8 +58,8 @@ export default class WatchedRepo extends React.Component {
       reason: '',
       messageOfTheDay: '',
       statusInfo: {
-        icon: 'fa-spinner',
-        pulseIcon: 'fa-pulse',
+        icon: faSpinner,
+        pulseIcon: true,
         color: 'tree-unavailable',
         btnClass: 'btn-view-nav',
       },
@@ -111,7 +121,7 @@ export default class WatchedRepo extends React.Component {
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
     const { btnClass, icon, color } = statusInfo;
-    const pulseIcon = statusInfo.pulseIcon || '';
+    const pulseIcon = statusInfo.pulseIcon || null;
     const treeStatusName = TreeStatusModel.getTreeStatusName(watchedRepo);
     const changeRepoUrl = getRepoUrl(watchedRepo);
 
@@ -123,7 +133,13 @@ export default class WatchedRepo extends React.Component {
           type="button"
           title={status}
         >
-          <i className={`fa ${icon} ${pulseIcon} ${color}`} /> {watchedRepo}
+          <FontAwesomeIcon
+            icon={icon}
+            size="sm"
+            className={color}
+            pulse={pulseIcon}
+          />{' '}
+          {watchedRepo}
         </a>
         <button
           className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
@@ -132,7 +148,7 @@ export default class WatchedRepo extends React.Component {
           aria-label={`${watchedRepo} info`}
           data-toggle="dropdown"
         >
-          <span className="fa fa-info-circle" />
+          <FontAwesomeIcon icon={faInfoCircle} />
         </button>
         {watchedRepo !== repoName && (
           <button
@@ -141,7 +157,7 @@ export default class WatchedRepo extends React.Component {
             onClick={() => unwatchRepo(watchedRepo)}
             title={`Unwatch ${watchedRepo}`}
           >
-            <span className="fa fa-times" />
+            <FontAwesomeIcon icon={faTimes} />
           </button>
         )}
 

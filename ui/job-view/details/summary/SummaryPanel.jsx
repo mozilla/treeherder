@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { withSelectedJob } from '../../context/SelectedJob';
 import JobInfo from '../../../shared/JobInfo';
@@ -50,7 +52,11 @@ class SummaryPanel extends React.PureComponent {
             {jobDetailLoading && (
               <div className="overlay">
                 <div>
-                  <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    pulse
+                    className="th-spinner-lg"
+                  />
                 </div>
               </div>
             )}

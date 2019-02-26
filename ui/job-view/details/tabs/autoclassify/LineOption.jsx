@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 import Highlighter from 'react-highlight-words';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-regular-svg-icons';
+import { faBug, faThumbtack } from '@fortawesome/free-solid-svg-icons';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { isReftest } from '../../../../helpers/job';
@@ -80,7 +83,7 @@ class LineOption extends React.Component {
       <div className="classification-option">
         <span className="classification-icon">
           {option.isBest ? (
-            <span className="fa fa-star-o" title="Autoclassifier best match" />
+            <FontAwesomeIcon icon={faStar} title="Autoclassifier best match" />
           ) : (
             <span className="classification-no-icon">&nbsp;</span>
           )}
@@ -110,7 +113,7 @@ class LineOption extends React.Component {
                     }
                     title="add to list of bugs to associate with all pinned jobs"
                   >
-                    <i className="fa fa-thumb-tack" />
+                    <FontAwesomeIcon icon={faThumbtack} />
                   </button>
                 )}
                 {!!option.bugResolution && (
@@ -168,7 +171,7 @@ class LineOption extends React.Component {
                   onClick={() => this.fileBug()}
                   title="File a bug for this failure"
                 >
-                  <i className="fa fa-bug" />
+                  <FontAwesomeIcon icon={faBug} />
                 </a>
                 {option.id === 'manual' && !!option.manualBugNumber && (
                   <a
