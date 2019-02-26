@@ -10,8 +10,9 @@ from whitenoise.middleware import WhiteNoiseMiddleware
 # redirect need to have both the original and redirected domains whitelisted.
 CSP_DIRECTIVES = [
     "default-src 'none'",
+    # The unsafe-eval is required for Custom Action's use of `ajv`. See bug 1530607.
     # 'report-sample' instructs the browser to include a sample of the violating JS to assist with debugging.
-    "script-src 'self' 'report-sample'",
+    "script-src 'self' 'unsafe-eval' 'report-sample'",
     # The unsafe-inline is required for react-select's use of emotion (CSS in JS). See bug 1507903.
     # The Google entries are required for IFV's use of the Open Sans font from their CDN.
     "style-src 'self' 'unsafe-inline' 'report-sample' https://fonts.googleapis.com",
