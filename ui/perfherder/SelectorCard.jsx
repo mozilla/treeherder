@@ -96,9 +96,9 @@ export default class SelectorCard extends React.Component {
   };
 
   toggle = dropdown => {
-    this.setState({
-      [dropdown]: !this.state[dropdown],
-    });
+    this.setState(prevState => ({
+      [dropdown]: !prevState[dropdown],
+    }));
   };
 
   updateRevisions = selectedRepo => {

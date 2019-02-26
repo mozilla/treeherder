@@ -26,9 +26,9 @@ export default class DropdownButton extends React.Component {
         className={defaultTextClass}
         isOpen={isOpen}
         toggle={() =>
-          this.setState({
-            isOpen: !this.state.isOpen,
-          })
+          this.setState(prevState => ({
+            isOpen: !prevState.isOpen,
+          }))
         }
       >
         <DropdownToggle caret>{selectedItem}</DropdownToggle>

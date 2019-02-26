@@ -14,7 +14,9 @@ export default class SuggestionsListItem extends React.Component {
   }
 
   clickShowMore = () => {
-    this.setState({ suggestionShowMore: !this.state.suggestionShowMore });
+    this.setState(prevState => ({
+      suggestionShowMore: !prevState.suggestionShowMore,
+    }));
   };
 
   render() {

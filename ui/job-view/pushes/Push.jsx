@@ -339,13 +339,13 @@ class Push extends React.Component {
 
   cycleWatchState = async () => {
     const { notify } = this.props;
+    const { watched } = this.state;
 
     if (!this.props.notificationSupported) {
       return;
     }
 
-    let next =
-      watchCycleStates[watchCycleStates.indexOf(this.state.watched) + 1];
+    let next = watchCycleStates[watchCycleStates.indexOf(watched) + 1];
 
     if (next !== 'none' && Notification.permission !== 'granted') {
       const result = await Notification.requestPermission();

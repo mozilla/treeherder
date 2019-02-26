@@ -62,13 +62,16 @@ export default class CompareTableControls extends React.Component {
 
   updateFilter = filter => {
     // TODO create callback to update queryParams with filter change if not undefined
-    this.setState({ [filter]: !this.state[filter] }, () => {
-      // TODO noise panel might be best moved into this table (displayed beneath controls)
-      if (filter === 'showNoise') {
-        this.props.updateNoiseAlert();
-      }
-      this.updateFilteredResults();
-    });
+    this.setState(
+      prevState => ({ [filter]: !prevState[filter] }),
+      () => {
+        // TODO noise panel might be best moved into this table (displayed beneath controls)
+        if (filter === 'showNoise') {
+          this.props.updateNoiseAlert();
+        }
+        this.updateFilteredResults();
+      },
+    );
   };
 
   filterResult = (testName, result) => {

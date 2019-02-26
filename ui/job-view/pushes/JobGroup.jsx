@@ -57,7 +57,7 @@ export class JobGroupComponent extends React.Component {
   }
 
   toggleExpanded = () => {
-    this.setState({ expanded: !this.state.expanded });
+    this.setState(prevState => ({ expanded: !prevState.expanded }));
   };
 
   groupButtonsAndCounts(jobs, expanded) {

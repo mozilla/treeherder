@@ -22,7 +22,7 @@ export default class Metric extends React.PureComponent {
   }
 
   toggleDetails = () => {
-    this.setState({ detailsShowing: !this.state.detailsShowing });
+    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
   };
 
   render() {

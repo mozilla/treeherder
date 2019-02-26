@@ -134,11 +134,11 @@ class SimilarJobsTab extends React.Component {
 
   toggleFilter = filterField => {
     this.setState(
-      {
-        [filterField]: !this.state[filterField],
+      prevState => ({
+        [filterField]: !prevState[filterField],
         similarJobs: [],
         isLoading: true,
-      },
+      }),
       this.getSimilarJobs,
     );
   };
