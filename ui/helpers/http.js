@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import { processErrorMessage } from './errorMessage';
+
 const generateHeaders = function generateHeaders() {
   return new Headers({
     'X-CSRFToken': Cookies.get('csrftoken'),
@@ -48,9 +50,14 @@ export const getData = async function getData(url) {
     .startsWith('text/html');
 
   if (contentType && failureStatus) {
-    return { data: { [failureStatus]: response.statusText }, failureStatus };
+    const errorMessage = processErrorMessage(`${failureStatus}: ${response.statusText}`, failureStatus);
+    return { data: errorMessage, failureStatus };
   }
 
-  const data = await response.json();
+  let data = await response.json();
+
+  if (failureStatus) {
+    data = processErrorMessage(data, failureStatus)
+  }
   return { data, failureStatus };
 };

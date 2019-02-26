@@ -2,12 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 
-import { processErrorMessage } from '../helpers/errorMessage';
-
-const ErrorMessages = ({ failureMessage, failureStatus, errorMessages }) => {
+const ErrorMessages = ({ failureMessage, errorMessages }) => {
   const messages = errorMessages.length
     ? errorMessages
-    : [processErrorMessage(failureMessage, failureStatus)];
+    : [failureMessage];
 
   return (
     <div>
@@ -25,13 +23,11 @@ ErrorMessages.propTypes = {
     PropTypes.object,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  failureStatus: PropTypes.number,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
 };
 
 ErrorMessages.defaultProps = {
   failureMessage: null,
-  failureStatus: null,
   errorMessages: [],
 };
 

@@ -22,7 +22,6 @@ export default class Health extends React.Component {
       repo: params.get('repo'),
       healthData: null,
       failureMessage: null,
-      failureStatus: null,
     };
   }
 
@@ -47,7 +46,7 @@ export default class Health extends React.Component {
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
     const newState = !failureStatus
       ? { healthData: data }
-      : { failureMessage: data, failureStatus };
+      : { failureMessage: data };
 
     this.setState(newState);
   };
@@ -59,7 +58,6 @@ export default class Health extends React.Component {
       repo,
       revision,
       failureMessage,
-      failureStatus,
     } = this.state;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
@@ -105,7 +103,6 @@ export default class Health extends React.Component {
           {failureMessage && (
             <ErrorMessages
               failureMessage={failureMessage}
-              failureStatus={failureStatus}
             />
           )}
           {!failureMessage && !healthData && <Spinner />}
