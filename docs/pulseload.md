@@ -48,7 +48,7 @@ Next, run the Treeherder management command to read Pushes from the default **Pu
 exchange:
 
 ```bash
-./manage.py read_pulse_pushes
+./manage.py pulse_listener_pushes
 ```
 
 You will see a list of the exchanges it has mounted to and a message for each
@@ -62,7 +62,7 @@ As in step 3, open a Vagrant terminal and export your `PULSE_URL`
 variable. Then run the following management command:
 
 ```bash
-./manage.py read_pulse_jobs
+./manage.py pulse_listener_jobs
 ```
 
 You will again see the list of exchanges that your queue is now mounted to and
