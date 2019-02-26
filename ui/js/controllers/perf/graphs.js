@@ -471,23 +471,18 @@ perf.controller('GraphsCtrl', [
                 if (rev && rev.length === 12) {
                     highlightPromises = [...new Set([
                         ...highlightPromises,
-                        ...$scope.seriesList.map((series) => {
+                        ...$scope.seriesList.map(async (series) => {
                             if (series.visible) {
-                                return PushModel.getList({
+                                const { data: results, failureStatus } = await PushModel.getList({
                                     repo: series.projectName,
                                     revision: rev,
-                                }).then(async (resp) => {
-                                    if (resp.ok) {
-                                      const { results } = await resp.json();
-
-                                      if (results.length) {
+                                });
+                                    if (!failureStatus && results.length) {
                                         addHighlightedDatapoint(series, results[0].id);
                                         $scope.$apply();
-                                      }
-                                      // ignore cases where no push exists
-                                      // for revision
                                     }
-                                });
+                                    // ignore cases where no push exists
+                                    // for revision
                             }
                             return null;
                         })])];
