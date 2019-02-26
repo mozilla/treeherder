@@ -129,19 +129,13 @@ To get started:
 
 ### Starting a local Treeherder instance
 
-- Start a gunicorn instance inside the Vagrant VM, to serve the static UI and API requests:
-
-  ```bash
-  vagrant ~/treeherder$ ./bin/run_gunicorn
-  ```
-
-  Or for development you can use the django runserver instead of gunicorn:
+- Start a Django runserver instance inside the Vagrant VM, to serve the static UI and API requests:
 
   ```bash
   vagrant ~/treeherder$ ./manage.py runserver
   ```
 
-  this is more convenient because it automatically refreshes every time there's a change in the code.
+  The server will automatically refresh every time there's a change in the code.
 
 - You must also start the UI dev server. Open a new terminal window and `vagrant ssh` to
   the VM again, then run the following:
@@ -164,7 +158,7 @@ If you would like to view the minified production version of the UI with Vagrant
   $ yarn build
   ```
 
-- Run either Django runserver or gunicorn following the instructions in the previous section.
+- Run Django's runserver following the instructions in the previous section.
 
 The minified version of the UI will now be accessible at <http://localhost:8000>
 (NB: port 8000, unlike above), and will match the content used in production
