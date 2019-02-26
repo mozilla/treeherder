@@ -606,18 +606,14 @@ perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q
         $scope.newSubtestSignature = $stateParams.newSubtestSignature;
         $scope.dataLoading = true;
         const loadRepositories = RepositoryModel.getList();
-        const fetchAndDrawReplicateGraph = function (project, revision, subtestSignature, target) {
+        const fetchAndDrawReplicateGraph = async function (project, revision, subtestSignature, target) {
             const replicateData = {};
-
-            return PushModel.getList({ repo: project, commit_revision: revision })
-                .then(async (resp) => {
-                    const { results } = await resp.json();
-                    replicateData.resultSet = results[0];
-                    return PerfSeriesModel.getSeriesData(project, {
-                        signatures: subtestSignature,
-                        push_id: replicateData.resultSet.id,
-                    });
-                }).then((perfDatumList) => {
+            const { data } = await PushModel.getList({ repo: project, commit_revision: revision });
+            replicateData.resultSet = data.results[0];
+            return PerfSeriesModel.getSeriesData(project, {
+                signatures: subtestSignature,
+                push_id: replicateData.resultSet.id,
+            }).then((perfDatumList) => {
                     if (!perfDatumList[subtestSignature]) {
                         replicateData.replicateDataError = true;
                         return;
