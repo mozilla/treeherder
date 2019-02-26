@@ -38,7 +38,7 @@ class LineOption extends React.Component {
   };
 
   toggleBugFiler = () => {
-    this.setState({ isBugFilerOpen: !this.state.isBugFilerOpen });
+    this.setState(prevState => ({ isBugFilerOpen: !prevState.isBugFilerOpen }));
   };
 
   bugFilerCallback = data => {

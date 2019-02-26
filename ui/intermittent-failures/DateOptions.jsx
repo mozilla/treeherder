@@ -18,9 +18,7 @@ export default class DateOptions extends React.Component {
   }
 
   toggle = () => {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
+    this.setState(prevState => ({ dropdownOpen: !prevState.dropdownOpen }));
   };
 
   updateDateRange = dateRange => {

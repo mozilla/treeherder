@@ -14,7 +14,7 @@ export default class GraphsContainer extends React.Component {
   }
 
   toggleGraph = () => {
-    this.setState({ showGraphTwo: !this.state.showGraphTwo });
+    this.setState(prevState => ({ showGraphTwo: !prevState.showGraphTwo }));
   };
 
   render() {

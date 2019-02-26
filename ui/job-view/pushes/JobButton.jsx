@@ -65,7 +65,9 @@ export default class JobButtonComponent extends React.Component {
   }
 
   toggleRunnableSelected() {
-    this.setState({ isRunnableSelected: !this.state.isRunnableSelected });
+    this.setState(prevState => ({
+      isRunnableSelected: !prevState.isRunnableSelected,
+    }));
   }
 
   render() {

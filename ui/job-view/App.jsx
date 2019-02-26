@@ -85,10 +85,10 @@ class App extends React.Component {
     const { repoName } = this.state;
 
     RepositoryModel.getList().then(repos => {
-      const currentRepo =
-        repos.find(repo => repo.name === repoName) || this.state.currentRepo;
+      const { currentRepo } = this.state;
+      const newRepo = repos.find(repo => repo.name === repoName) || currentRepo;
 
-      this.setState({ currentRepo, repos });
+      this.setState({ currentRepo: newRepo, repos });
     });
 
     ClassificationTypeModel.getList().then(classificationTypes => {
@@ -173,11 +173,15 @@ class App extends React.Component {
   };
 
   toggleFieldFilterVisible = () => {
-    this.setState({ isFieldFilterVisible: !this.state.isFieldFilterVisible });
+    this.setState(prevState => ({
+      isFieldFilterVisible: !prevState.isFieldFilterVisible,
+    }));
   };
 
   updateDimensions = () => {
-    this.setState(App.getSplitterDimensions(this.state.hasSelectedJob));
+    this.setState(prevState =>
+      App.getSplitterDimensions(prevState.hasSelectedJob),
+    );
   };
 
   handleUrlChanges = ev => {

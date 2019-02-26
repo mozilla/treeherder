@@ -676,7 +676,9 @@ class ErrorLine extends React.Component {
                 {this.hasHidden(options) && (
                   <a
                     onClick={() =>
-                      this.setState({ showHidden: !this.state.showHidden })
+                      this.setState(prevState => ({
+                        showHidden: !prevState.showHidden,
+                      }))
                     }
                     className="link-style has-hidden"
                   >
