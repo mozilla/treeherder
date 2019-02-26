@@ -34,12 +34,7 @@ class AuthBackend:
         expiration_timestamp_in_seconds = request.META.get('HTTP_ACCESS_TOKEN_EXPIRES_AT')
 
         if not expiration_timestamp_in_seconds:
-            # Check for the previous name/type for this header.
-            # TODO: Remove once enough time has passed for people to reload open UI tabs.
-            expiration_timestamp_in_milliseconds = request.META.get('HTTP_EXPIRESAT')
-            if not expiration_timestamp_in_milliseconds:
-                raise AuthenticationFailed('Access-Token-Expires-At header is expected')
-            expiration_timestamp_in_seconds = int(expiration_timestamp_in_milliseconds) / 1000
+            raise AuthenticationFailed('Access-Token-Expires-At header is expected')
 
         try:
             return int(expiration_timestamp_in_seconds)
@@ -61,9 +56,7 @@ class AuthBackend:
         return token
 
     def _get_id_token(self, request):
-        # The header has been renamed from 'IDTOKEN' to 'ID_TOKEN'.
-        # TODO: Remove once enough time has passed for people to reload open UI tabs.
-        id_token = request.META.get('HTTP_ID_TOKEN', request.META.get('HTTP_IDTOKEN'))
+        id_token = request.META.get('HTTP_ID_TOKEN')
 
         if not id_token:
             raise AuthenticationFailed('Id-Token header is expected')
