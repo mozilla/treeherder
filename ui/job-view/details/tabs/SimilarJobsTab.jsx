@@ -96,11 +96,9 @@ class SimilarJobsTab extends React.Component {
           this.showJobInfo(newSimilarJobs[0]);
         }
       } else {
-        notify(
-          `Error fetching similar jobs push data: ${data}`,
-          'danger',
-          { sticky: true },
-        );
+        notify(`Error fetching similar jobs push data: ${data}`, 'danger', {
+          sticky: true,
+        });
       }
     }
     this.setState({ isLoading: false });

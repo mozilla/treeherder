@@ -72,8 +72,10 @@ export default class SelectorCard extends React.Component {
       this.setState({ disabled: true });
     }
 
-    const { data, failureStatus } = await PushModel.getList({ repo: selectedRepo });
-    
+    const { data, failureStatus } = await PushModel.getList({
+      repo: selectedRepo,
+    });
+
     if (failureStatus) {
       updateState({ errorMessages: [genericErrorMessage] });
     } else {
@@ -147,8 +149,11 @@ export default class SelectorCard extends React.Component {
     if (!existingRevision) {
       this.setState({ validating: 'Validating...' });
 
-      const { data: revisions, failureStatus } = await PushModel.getList({ repo: selectedRepo, commit_revision: value });
-      
+      const { data: revisions, failureStatus } = await PushModel.getList({
+        repo: selectedRepo,
+        commit_revision: value,
+      });
+
       if (failureStatus || revisions.meta.count === 0) {
         return this.setState({
           invalidRevision: 'Invalid revision',

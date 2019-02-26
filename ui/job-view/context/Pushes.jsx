@@ -216,13 +216,15 @@ export class PushesClass extends React.Component {
         }
         // We will either have a ``revision`` param, but no push for it yet,
         // or a ``fromchange`` param because we have at least 1 push already.
-          const { data, failureStatus } = await PushModel.getList(pushPollingParams);
-          if (!failureStatus) {
-            this.addPushes(data);
-            this.fetchNewJobs();
-          } else {
-            notify('Error fetching new push data', 'danger', { sticky: true });
-          }
+        const { data, failureStatus } = await PushModel.getList(
+          pushPollingParams,
+        );
+        if (!failureStatus) {
+          this.addPushes(data);
+          this.fetchNewJobs();
+        } else {
+          notify('Error fetching new push data', 'danger', { sticky: true });
+        }
       }
     }, pushPollInterval);
   };

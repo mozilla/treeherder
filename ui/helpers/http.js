@@ -50,14 +50,17 @@ export const getData = async function getData(url) {
     .startsWith('text/html');
 
   if (contentType && failureStatus) {
-    const errorMessage = processErrorMessage(`${failureStatus}: ${response.statusText}`, failureStatus);
+    const errorMessage = processErrorMessage(
+      `${failureStatus}: ${response.statusText}`,
+      failureStatus,
+    );
     return { data: errorMessage, failureStatus };
   }
 
   let data = await response.json();
 
   if (failureStatus) {
-    data = processErrorMessage(data, failureStatus)
+    data = processErrorMessage(data, failureStatus);
   }
   return { data, failureStatus };
 };

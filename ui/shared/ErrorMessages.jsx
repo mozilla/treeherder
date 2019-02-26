@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert } from 'reactstrap';
 
 const ErrorMessages = ({ failureMessage, errorMessages }) => {
-  const messages = errorMessages.length
-    ? errorMessages
-    : [failureMessage];
+  const messages = errorMessages.length ? errorMessages : [failureMessage];
 
   return (
     <div>

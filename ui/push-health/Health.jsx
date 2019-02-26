@@ -52,13 +52,7 @@ export default class Health extends React.Component {
   };
 
   render() {
-    const {
-      healthData,
-      user,
-      repo,
-      revision,
-      failureMessage,
-    } = this.state;
+    const { healthData, user, repo, revision, failureMessage } = this.state;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
       : 'none';
@@ -100,11 +94,7 @@ export default class Health extends React.Component {
               </Table>
             </div>
           )}
-          {failureMessage && (
-            <ErrorMessages
-              failureMessage={failureMessage}
-            />
-          )}
+          {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
           {!failureMessage && !healthData && <Spinner />}
         </Container>
       </React.Fragment>
