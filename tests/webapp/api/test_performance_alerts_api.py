@@ -493,6 +493,7 @@ def test_timestamps_on_manual_created_alert_via_their_endpoints(authorized_sheri
     manual_alert_id = resp.json()['alert_id']
     manual_alert = PerformanceAlert.objects.get(pk=manual_alert_id)
     assert manual_alert.manually_created is True
+    assert manual_alert.summary.first_triaged is not None
 
     assert manual_alert.created <= manual_alert.last_updated
     assert manual_alert.first_triaged is not None

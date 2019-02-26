@@ -239,18 +239,13 @@ class PerformanceAlertSummary(models.Model):
                                       default=1)  # Bugzilla
 
     def update_status(self):
-        own_alerts = PerformanceAlert.objects.filter(summary=self)
-        alerts = (own_alerts | PerformanceAlert.objects.filter(related_summary=self))
-
-        autodetermined_status = self.autodetermine_status(alerts)
+        autodetermined_status = self.autodetermine_status()
         if autodetermined_status != self.status:
             self.status = autodetermined_status
             self.save()
 
-    def autodetermine_status(self, alerts):
-        """
-        :param alerts: all child alerts, both owned and reassigned/downstreamed ones
-        """
+    def autodetermine_status(self):
+        alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
