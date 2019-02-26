@@ -299,12 +299,12 @@ export const validateQueryParams = async function validateQueryParams(params) {
 
   if (
     !failureStatus &&
-    data.find(project => project.name === originalProject)
+    !data.find(project => project.name === originalProject)
   ) {
     errors.push(`Invalid project, doesn't exist ${originalProject}`);
   }
 
-  if (!failureStatus && data.find(project => project.name === newProject)) {
+  if (!failureStatus && !data.find(project => project.name === newProject)) {
     errors.push(`Invalid project, doesn't exist ${newProject}`);
   }
 

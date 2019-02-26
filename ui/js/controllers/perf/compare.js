@@ -27,6 +27,23 @@ const createNoiseMetric = (cmap, name, compareResults) => {
     }
 }
 
+async function verifyRevision(project, revision, rsid, $scope) {
+    const { data, failureStatus } = await PushModel.getList({ repo: project.name, commit_revision: revision })
+    if (failureStatus) {
+        return $scope.errors.push(data);
+    }
+    if (!data.results.length) {
+        return $scope.errors.push('No results found for this revision');
+    }
+    const resultSet = data.results[0];
+    // TODO: this is a bit hacky to pass in 'original' as a text string
+    if (rsid === 'original') {
+        $scope.originalResultSet = resultSet;
+    } else {
+        $scope.newResultSet = resultSet;
+    }
+}
+
 perf.controller('CompareResultsCtrl', [
     '$state', '$stateParams', '$scope',
     '$httpParamSerializer', '$q',
@@ -207,28 +224,6 @@ perf.controller('CompareResultsCtrl', [
 
             return displayResults(originalResults.data, newResults.data);    
         }
-        // TODO: duplicated in comparesubtestctrl
-        function verifyRevision(project, revision, rsid) {
-
-            return PushModel.getList({ repo: project.name, commit_revision: revision })
-                .then(async (resp) => {
-                    if (resp.ok) {
-                        const { results } = await resp.json();
-                        const resultSet = results[0];
-                        // TODO: this is a bit hacky to pass in 'original' as a text string
-                        if (rsid === 'original') {
-                            $scope.originalResultSet = resultSet;
-                        } else {
-                            $scope.newResultSet = resultSet;
-                        }
-                    } else {
-                      const error = await resp.text();
-                      $scope.errors.push(error);
-                    }
-                }).catch((error) => {
-                  $scope.errors.push(error);
-                });
-        }
 
         function updateURL() {
             const params = {
@@ -279,11 +274,11 @@ perf.controller('CompareResultsCtrl', [
                 $scope.frameworks = frameworks;
             });
 
-        $q.all([loadRepositories, loadFrameworks]).then(function ([repos]) {
+        $q.all([loadRepositories, loadFrameworks]).then(async function ([repos]) {
             $scope.errors = [];
             // validation works only for revision to revision comparison
             if ($stateParams.originalRevision) {
-                $scope.errors = validateQueryParams($stateParams);
+                $scope.errors = await validateQueryParams($stateParams);
 
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
@@ -312,10 +307,10 @@ perf.controller('CompareResultsCtrl', [
             $scope.newRevision = $stateParams.newRevision;
 
             // always need to verify the new revision, only sometimes the original
-            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new')];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new', $scope)];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original', $scope));
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
@@ -351,24 +346,6 @@ perf.controller('CompareSubtestResultsCtrl', [
     '$httpParamSerializer',
     function CompareSubtestResultsCtrl($state, $stateParams, $scope, $q,
                                        $httpParamSerializer) {
-         // TODO: duplicated from comparectrl
-        function verifyRevision(project, revision, rsid) {
-            return PushModel.getList({ repo: project.name, commit_revision: revision })
-                .then(async (resp) => {
-                   const { results } = await resp.json();
-                   const resultSet = results[0];
-                    // TODO: this is a bit hacky to pass in 'original' as a text string
-                   if (rsid === 'original') {
-                       $scope.originalResultSet = resultSet;
-                   } else {
-                       $scope.newResultSet = resultSet;
-                   }
-                   $scope.$apply();
-               },
-                function (error) {
-                    $scope.errors.push(error);
-                });
-        }
 
         function displayResults(rawResultsMap, newRawResultsMap) {
 
@@ -528,10 +505,10 @@ perf.controller('CompareSubtestResultsCtrl', [
 
         $scope.dataLoading = true;
 
-        RepositoryModel.getList().then((repos) => {
+        RepositoryModel.getList().then(async (repos) => {
             $scope.errors = [];
             if ($stateParams.originalRevision) {
-                $scope.errors = validateQueryParams($stateParams);
+                $scope.errors = await validateQueryParams($stateParams);
 
                 if ($scope.errors.length > 0) {
                     $scope.dataLoading = false;
@@ -548,10 +525,10 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.newSignature = $stateParams.newSignature;
 
             // always need to verify the new revision, only sometimes the original
-            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new')];
+            const verifyPromises = [verifyRevision($scope.newProject, $scope.newRevision, 'new', $scope)];
             if ($stateParams.originalRevision) {
                 $scope.originalRevision = $stateParams.originalRevision;
-                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original'));
+                verifyPromises.push(verifyRevision($scope.originalProject, $scope.originalRevision, 'original', $scope));
             } else {
                 $scope.timeRanges = phTimeRanges;
                 $scope.selectedTimeRange = $scope.timeRanges.find(timeRange =>
