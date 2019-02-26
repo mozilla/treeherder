@@ -21,7 +21,9 @@ import pytest
                           ({'value': 1234,
                             'extraOptions': ['1', '2', '3', '4', '5', '6', '7', '8']}, {'value': 1234}, False)])
 def test_perf_schema(suite_value, test_value, expected_fail):
-    perf_schema = json.load(open('schemas/performance-artifact.json'))
+    with open('schemas/performance-artifact.json') as f:
+        perf_schema = json.load(f)
+
     datum = {
         "framework": {"name": "talos"}, "suites": [{
             "name": "basic_compositor_video",
