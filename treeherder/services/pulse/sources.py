@@ -14,7 +14,7 @@ env = environ.Env()
 # Specifies the Pulse exchanges Treeherder will ingest data from for Jobs.
 # Projects specified after the period (".") delimiter and will be combined with
 # the wildcard ("#") when used in prepare_consumer function when called by
-# read_pulse_jobs.
+# pulse_listener_jobs.
 job_sources = env.list(
     "PULSE_JOB_SOURCES",
     default=[

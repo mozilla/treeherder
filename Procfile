@@ -32,8 +32,8 @@ celery_scheduler: newrelic-admin run-program celery beat -A treeherder
 # to the `store_pulse_{pushes,jobs}` queues for `worker_store_pulse_data` to process.
 # NB: These should not be scaled up to more than 1 of each.
 # TODO: Merge these two listeners into one since they use so little CPU each.
-pulse_listener_pushes: newrelic-admin run-program ./manage.py read_pulse_pushes
-pulse_listener_jobs: newrelic-admin run-program ./manage.py read_pulse_jobs
+pulse_listener_pushes: newrelic-admin run-program ./manage.py pulse_listener_pushes
+pulse_listener_jobs: newrelic-admin run-program ./manage.py pulse_listener_jobs
 
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,jobs)`.
 # TODO: Remove store_pulse_resultsets once the queue has been emptied.
