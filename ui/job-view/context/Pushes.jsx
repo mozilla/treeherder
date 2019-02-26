@@ -192,7 +192,7 @@ export class PushesClass extends React.Component {
   };
 
   poll = () => {
-    this.pushIntervalId = setInterval(() => {
+    this.pushIntervalId = setInterval(async () => {
       const { notify } = this.props;
       const { pushList } = this.state;
       // these params will be passed in each time we poll to remain
@@ -216,15 +216,13 @@ export class PushesClass extends React.Component {
         }
         // We will either have a ``revision`` param, but no push for it yet,
         // or a ``fromchange`` param because we have at least 1 push already.
-        PushModel.getList(pushPollingParams).then(async resp => {
-          if (resp.ok) {
-            const data = await resp.json();
+          const { data, failureStatus } = await PushModel.getList(pushPollingParams);
+          if (!failureStatus) {
             this.addPushes(data);
             this.fetchNewJobs();
           } else {
             notify('Error fetching new push data', 'danger', { sticky: true });
           }
-        });
       }
     }, pushPollInterval);
   };
@@ -265,7 +263,7 @@ export class PushesClass extends React.Component {
    * Get the next batch of pushes based on our current offset.
    * @param count How many to fetch
    */
-  fetchPushes = count => {
+  fetchPushes = async count => {
     const { notify } = this.props;
     const { oldestPushTimestamp } = this.state;
     // const isAppend = (repoData.pushes.length > 0);
@@ -284,17 +282,13 @@ export class PushesClass extends React.Component {
       delete options.tochange;
       options.push_timestamp__lte = oldestPushTimestamp;
     }
-    return PushModel.getList(options)
-      .then(async resp => {
-        if (resp.ok) {
-          const data = await resp.json();
-
-          this.addPushes(data.results.length ? data : { results: [] });
-        } else {
-          notify('Error retrieving push data!', 'danger', { sticky: true });
-        }
-      })
-      .then(() => this.setValue({ loadingPushes: false }));
+    const { data, failureStatus } = await PushModel.getList(options);
+    if (!failureStatus) {
+      this.addPushes(data.results.length ? data : { results: [] });
+    } else {
+      notify('Error retrieving push data!', 'danger', { sticky: true });
+    }
+    return this.setValue({ loadingPushes: false });
   };
 
   addPushes = data => {
