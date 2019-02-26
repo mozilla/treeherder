@@ -29,14 +29,15 @@ celery_scheduler: newrelic-admin run-program celery beat -A treeherder
 
 # Push/job data is consumed from exchanges on pulse.mozilla.org using these kombu-powered
 # Django management commands. They do not ingest the data themselves, instead adding tasks
-# to the `store_pulse_{resultsets,jobs}` queues for `worker_store_pulse_data` to process.
+# to the `store_pulse_{pushes,jobs}` queues for `worker_store_pulse_data` to process.
 # NB: These should not be scaled up to more than 1 of each.
 # TODO: Merge these two listeners into one since they use so little CPU each.
 pulse_listener_pushes: newrelic-admin run-program ./manage.py read_pulse_pushes
 pulse_listener_jobs: newrelic-admin run-program ./manage.py read_pulse_jobs
 
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,jobs)`.
-worker_store_pulse_data: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_resultsets,store_pulse_jobs --concurrency=3
+# TODO: Remove store_pulse_resultsets once the queue has been emptied.
+worker_store_pulse_data: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_resultsets,store_pulse_jobs --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 # TODO: Figure out the memory leak and remove the `--maxtasksperchild` (bug 1513506).

@@ -133,11 +133,11 @@ and all the other processing Treeherder does, then you can minimize the **Celery
 task. You will need:
 
 ```bash
-celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultsets --concurrency 5
+celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_pushes --concurrency 5
 ```
 
 - The `pushlog` queue loads up to the last 10 Mercurial pushes that exist.
-- The `store_pulse_resultsets` queue will ingest all the pushes from the exchanges
+- The `store_pulse_pushes` queue will ingest all the pushes from the exchanges
   specified in `push_sources`. This can be Mercurial and Github
 - The `store_pulse_jobs` queue will ingest all the jobs from the exchanges
   specified in `job_sources` (or `PULSE_JOB_SOURCES`).
@@ -145,11 +145,6 @@ celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_resultset
 <!-- prettier-ignore -->
 !!! note
     Any job that comes from Pulse that does not have an associated push will be skipped.
-
-<!-- prettier-ignore -->
-!!! note
-    It is slightly confusing to see ``store_pulse_resultsets`` there.  It is there
-    for legacy reasons and will change to ``store_pulse_pushes`` at some point.
 
 ## Posting Data
 
