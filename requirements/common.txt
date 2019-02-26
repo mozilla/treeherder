@@ -39,8 +39,8 @@ Brotli==1.0.7 \
     --hash=sha256:113f51658e6fe548dce4b3749f6ef6c24de4184ba9c10a909cbee4261c2a5da0 \
     --hash=sha256:0538dc1744fd17c314d2adc409ea7d1b779783b89fd95bcfb0c2acc93a6ea5a7
 
-Django==2.0.13 \
-    --hash=sha256:665457d4146bbd34ae9d2970fa3b37082d7b225b0671bfd24c337458f229db78
+Django==2.1.7 \
+    --hash=sha256:275bec66fd2588dd517ada59b8bfb23d4a9abc5a362349139ddda3c7ff6f5ade
 
 celery==3.1.26.post2 \
     --hash=sha256:60211897aee321266ff043fe2b33eaac825dfe9f46843cf964fc97507a186334 \
