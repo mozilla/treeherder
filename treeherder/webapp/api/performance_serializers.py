@@ -67,6 +67,11 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         queryset=User.objects.all())
     classifier_email = serializers.SerializerMethodField()
 
+    # Force `is_regression` to be an optional field, even when using PUT, since in
+    # Django 2.1 BooleanField no longer has an implicit `blank=True` on the model.
+    # TODO: Switch to using PATCH instead in the UI and the API tests.
+    is_regression = serializers.BooleanField(required=False)
+
     # express quantities in terms of decimals to save space
     amount_abs = PerformanceDecimalField(read_only=True)
     amount_pct = PerformanceDecimalField(read_only=True)
