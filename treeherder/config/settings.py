@@ -280,8 +280,6 @@ CELERY_QUEUES = [
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
-    # TODO: Remove this queue once emptied.
-    Queue('store_pulse_resultsets', Exchange('default'), routing_key='store_pulse_resultsets'),
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
 ]
 

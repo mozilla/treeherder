@@ -36,8 +36,7 @@ pulse_listener_pushes: newrelic-admin run-program ./manage.py pulse_listener_pus
 pulse_listener_jobs: newrelic-admin run-program ./manage.py pulse_listener_jobs
 
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,jobs)`.
-# TODO: Remove store_pulse_resultsets once the queue has been emptied.
-worker_store_pulse_data: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_resultsets,store_pulse_jobs --concurrency=3
+worker_store_pulse_data: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_jobs --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 # TODO: Figure out the memory leak and remove the `--maxtasksperchild` (bug 1513506).
