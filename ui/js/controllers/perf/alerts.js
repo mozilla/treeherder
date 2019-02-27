@@ -466,8 +466,9 @@ perf.controller('AlertsCtrl', [
             });
 
             $q.all(Object.keys(resultSetToSummaryMap).map(async repo => {
-                const { data: results } = await PushModel.getList({ repo, id__in: Object.keys(resultSetToSummaryMap[repo]).join(',') })
-                results.forEach((resultSet) => {
+                // TODO utilize failureStatus from PushModel.getList for error handling
+                const { data } = await PushModel.getList({ repo, id__in: Object.keys(resultSetToSummaryMap[repo]).join(',') });
+                data.results.forEach((resultSet) => {
                     resultSet.dateStr = dateFilter(
                         resultSet.push_timestamp * 1000, thDateFormat);
                     // want at least 14 days worth of results for relative comparisons
