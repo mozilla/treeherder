@@ -20,10 +20,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-import { createQueryParams, pushEndpoint } from '../helpers/url';
-import { getData } from '../helpers/http';
+import PushModel from '../models/push';
 import { genericErrorMessage } from '../helpers/constants';
-import { getProjectUrl } from '../helpers/location';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {
@@ -74,14 +72,9 @@ export default class SelectorCard extends React.Component {
       this.setState({ disabled: true });
     }
 
-    const url = `${getProjectUrl(
-      pushEndpoint,
-      selectedRepo,
-    )}${createQueryParams({
-      full: true,
-      count: 10,
-    })}`;
-    const { data, failureStatus } = await getData(url);
+    const { data, failureStatus } = await PushModel.getList({
+      repo: selectedRepo,
+    });
 
     if (failureStatus) {
       updateState({ errorMessages: [genericErrorMessage] });
@@ -156,12 +149,10 @@ export default class SelectorCard extends React.Component {
     if (!existingRevision) {
       this.setState({ validating: 'Validating...' });
 
-      const url = `${getProjectUrl(
-        pushEndpoint,
-        selectedRepo,
-      )}${createQueryParams({ commit_revision: value })}`;
-
-      const { data: revisions, failureStatus } = await getData(url);
+      const { data: revisions, failureStatus } = await PushModel.getList({
+        repo: selectedRepo,
+        commit_revision: value,
+      });
 
       if (failureStatus || revisions.meta.count === 0) {
         return this.setState({

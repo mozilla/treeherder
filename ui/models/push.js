@@ -28,7 +28,7 @@ const convertDates = function convertDates(locationParams) {
 };
 
 export default class PushModel {
-  static getList(options = {}) {
+  static async getList(options = {}) {
     const transformedOptions = convertDates(options);
     const repoName = transformedOptions.repo;
     delete transformedOptions.repo;
@@ -51,7 +51,7 @@ export default class PushModel {
       // fetch the maximum number of pushes
       params.count = thMaxPushFetchSize;
     }
-    return fetch(
+    return getData(
       `${getProjectUrl(pushEndpoint, repoName)}${createQueryParams(params)}`,
     );
   }

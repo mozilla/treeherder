@@ -69,13 +69,13 @@ class SimilarJobsTab extends React.Component {
       const pushIds = [...new Set(newSimilarJobs.map(job => job.push_id))];
       // get pushes and revisions for the given ids
       let pushList = { results: [] };
-      const resp = await PushModel.getList({
+      const { data, failureStatus } = await PushModel.getList({
         id__in: pushIds.join(','),
         count: thMaxPushFetchSize,
       });
 
-      if (resp.ok) {
-        pushList = await resp.json();
+      if (!failureStatus) {
+        pushList = data;
         // decorate the list of jobs with their result sets
         const pushes = pushList.results.reduce(
           (acc, push) => ({ ...acc, [push.id]: push }),
@@ -98,11 +98,9 @@ class SimilarJobsTab extends React.Component {
           this.showJobInfo(newSimilarJobs[0]);
         }
       } else {
-        notify(
-          `Error fetching similar jobs push data: ${resp.message}`,
-          'danger',
-          { sticky: true },
-        );
+        notify(`Error fetching similar jobs push data: ${data}`, 'danger', {
+          sticky: true,
+        });
       }
     }
     this.setState({ isLoading: false });

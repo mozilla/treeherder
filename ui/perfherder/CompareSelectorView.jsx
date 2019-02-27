@@ -95,7 +95,6 @@ export default class CompareSelectorView extends React.Component {
                 {(failureStatus || errorMessages.length > 0) && (
                   <ErrorMessages
                     failureMessage={data}
-                    failureStatus={failureStatus}
                     errorMessages={errorMessages}
                   />
                 )}

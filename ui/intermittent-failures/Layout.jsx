@@ -53,7 +53,6 @@ const Layout = props => {
         errorMessages.length > 0) && (
         <ErrorMessages
           failureMessage={failureMessage}
-          failureStatus={tableFailureStatus || graphFailureStatus}
           errorMessages={errorMessages}
         />
       )}
