@@ -378,29 +378,3 @@ def test_login_id_token_expires_before_access_token(test_ldap_user, client, monk
     )
     assert resp.status_code == 200
     assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
-
-
-# TODO: Remove once enough time has passed for people to reload open UI tabs.
-def test_login_legacy_headers(test_ldap_user, client, monkeypatch):
-    """
-    Test that requests made using the old `ExpiresAt` and `IdToken` headers still succeed.
-    """
-    now_in_seconds = int(time.time())
-    id_token_expiration_timestamp = now_in_seconds + one_day_in_seconds
-
-    def userinfo_mock(*args, **kwargs):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
-
-    monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
-
-    expires_at_in_milliseconds = (now_in_seconds + one_hour_in_seconds) * 1000
-
-    resp = client.get(
-        reverse('auth-login'),
-        HTTP_AUTHORIZATION='Bearer abc',
-        HTTP_IDTOKEN='abc',
-        HTTP_EXPIRESAT=str(expires_at_in_milliseconds)
-    )
-    assert resp.status_code == 200
-    assert resp.json()['username'] == test_ldap_user.username
-    assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)
