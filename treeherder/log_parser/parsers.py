@@ -487,6 +487,10 @@ class ErrorParser(ParserBase):
                     self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline))
 
 
+with open('schemas/performance-artifact.json') as f:
+    PERF_SCHEMA = json.load(f)
+
+
 class PerformanceParser(ParserBase):
     """a sub-parser to find generic performance data"""
 
@@ -494,7 +498,6 @@ class PerformanceParser(ParserBase):
     # regex to fail on windows logs. This is likely due to the
     # ^M character representation of the windows end of line.
     RE_PERFORMANCE = re.compile(r'.*?PERFHERDER_DATA:\s+({.*})')
-    PERF_SCHEMA = json.load(open('schemas/performance-artifact.json'))
 
     def __init__(self):
         super().__init__("performance_data")
@@ -504,7 +507,7 @@ class PerformanceParser(ParserBase):
         if match:
             try:
                 dict = json.loads(match.group(1))
-                jsonschema.validate(dict, self.PERF_SCHEMA)
+                jsonschema.validate(dict, PERF_SCHEMA)
                 self.artifact.append(dict)
             except ValueError:
                 logger.warning("Unable to parse Perfherder data from line: %s",
