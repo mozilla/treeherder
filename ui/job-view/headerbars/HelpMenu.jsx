@@ -1,47 +1,60 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import {
+  faEnvelope,
+  faFileCode,
+  faFileWord,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faBug,
+  faCode,
+  faQuestion,
+  faQuestionCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 const menuItems = [
   {
     href: '/userguide.html',
-    icon: 'fa-question-circle',
+    icon: faQuestionCircle,
     text: 'User Guide',
   },
   {
     href: 'https://treeherder.readthedocs.io/',
-    icon: 'fa-file-code-o',
+    icon: faFileCode,
     text: 'Development Documentation',
   },
   {
     href: '/docs/',
-    icon: 'fa-code',
+    icon: faCode,
     text: 'API Reference',
   },
   {
     href:
       'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
-    icon: 'fa-file-word-o',
+    icon: faFileWord,
     text: 'Project Wiki',
   },
   {
     href: 'https://groups.google.com/forum/#!forum/mozilla.tools.treeherder',
-    icon: 'fa-envelope-o',
+    icon: faEnvelope,
     text: 'Mailing List',
   },
   {
     href:
       'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
-    icon: 'fa-bug',
+    icon: faBug,
     text: 'Report a Bug',
   },
   {
     href: 'https://github.com/mozilla/treeherder',
-    icon: 'fa-github',
+    icon: faGithub,
     text: 'Source',
   },
   {
     href:
       'https://whatsdeployed.io/?owner=mozilla&repo=treeherder&name[]=Stage&url[]=https://treeherder.allizom.org/revision.txt&name[]=Prod&url[]=https://treeherder.mozilla.org/revision.txt',
-    icon: 'fa-question',
+    icon: faQuestion,
     text: "What's Deployed?",
   },
 ];
@@ -57,7 +70,7 @@ export default function HelpMenu() {
         data-toggle="dropdown"
         className="btn btn-view-nav nav-help-btn dropdown-toggle"
       >
-        <span className="fa fa-question-circle lightgray nav-help-icon" />
+        <FontAwesomeIcon icon={faQuestionCircle} className="lightgray mr-1" />
       </button>
       <ul
         className="dropdown-menu nav-dropdown-menu-right icon-menu"
@@ -72,7 +85,11 @@ export default function HelpMenu() {
               rel="noopener noreferrer"
               className="dropdown-item"
             >
-              <span className={`fa ${item.icon} midgray`} />
+              <FontAwesomeIcon
+                icon={item.icon}
+                fixedWidth
+                className="midgray mr-2"
+              />
               {item.text}
             </a>
           </li>

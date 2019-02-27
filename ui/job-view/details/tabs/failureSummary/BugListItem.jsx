@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
@@ -19,7 +21,7 @@ function BugListItem(props) {
         onClick={() => addBug(bug, selectedJob)}
         title="add to list of bugs to associate with all pinned jobs"
       >
-        <i className="fa fa-thumb-tack" />
+        <FontAwesomeIcon icon={faThumbtack} />
       </button>
       <a
         className={`${bugClassName} ml-1`}

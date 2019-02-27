@@ -1,5 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
+import {
+  faExclamationCircle,
+  faFilter,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { getBtnClass } from '../../helpers/job';
 import { thFilterGroups } from '../../helpers/filter';
@@ -208,7 +215,7 @@ class SecondaryNavBar extends React.PureComponent {
                 id="revisionChangedLabel"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
               >
-                <span className="fa fa-exclamation-circle" />
+                <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
               </span>
             )}
@@ -288,12 +295,11 @@ class SecondaryNavBar extends React.PureComponent {
                   const isOn = this.isFilterOn(filterName);
                   return (
                     <span key={filterName}>
-                      <span
-                        className={`btn btn-view-nav btn-sm btn-nav-filter ${getBtnClass(
+                      <FontAwesomeIcon
+                        className={`btn btn-view-nav btn-nav-filter ${getBtnClass(
                           filterName,
-                        )}-filter-chicklet fa ${
-                          isOn ? 'fa-dot-circle-o' : 'fa-circle-thin'
-                        }`}
+                        )}-filter-chicklet`}
+                        icon={isOn ? faDotCircle : faCircle}
                         onClick={() =>
                           this.toggleResultStatusFilterChicklet(filterName)
                         }
@@ -315,7 +321,7 @@ class SecondaryNavBar extends React.PureComponent {
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
               >
-                <i className="fa fa-filter" />
+                <FontAwesomeIcon icon={faFilter} size="sm" />
               </span>
             </span>
 
@@ -336,9 +342,9 @@ class SecondaryNavBar extends React.PureComponent {
                 type="text"
                 placeholder="Filter platforms & jobs"
               />
-              <span
+              <FontAwesomeIcon
                 id="quick-filter-clear-button"
-                className="fa fa-times-circle"
+                icon={faTimesCircle}
                 title="Clear this filter"
                 onClick={this.clearFilterBox}
               />

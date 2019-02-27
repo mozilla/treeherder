@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getFieldChoices } from '../../helpers/filter';
 
@@ -86,7 +88,7 @@ export default class ActiveFilters extends React.Component {
               title="Clear all of these filters"
               onClick={filterModel.clearNonStatusFilters}
             >
-              <i className="fa fa-times-circle" />{' '}
+              <FontAwesomeIcon icon={faTimesCircle} />{' '}
             </span>
             <span className="active-filters-title">
               <b>Active Filters</b>
@@ -104,7 +106,7 @@ export default class ActiveFilters extends React.Component {
                       filterModel.removeFilter(filter.field, filterValue)
                     }
                   >
-                    <i className="fa fa-times-circle" />
+                    <FontAwesomeIcon icon={faTimesCircle} />
                     &nbsp;
                   </span>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>

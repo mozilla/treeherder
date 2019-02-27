@@ -57,13 +57,7 @@ body {
   color: #428bca;
 }
 
-#ug-raw-log-icon,
-#ug-logviewer-icon {
-  margin: 0 3px;
-}
-
 #ug-raw-log-icon {
-  font-size: 14px;
   color: #666;
 }
 

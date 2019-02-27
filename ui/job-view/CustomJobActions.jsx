@@ -10,6 +10,8 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 import jsyaml from 'js-yaml/dist/js-yaml';
 import { slugid } from 'taskcluster-client-web';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
@@ -253,7 +255,11 @@ class CustomJobActions extends React.PureComponent {
               onClick={this.triggerAction}
               title={isLoggedIn ? 'Trigger this action' : 'Not logged in'}
             >
-              <span className="fa fa-check-square-o" aria-hidden="true" />
+              <FontAwesomeIcon
+                icon={faCheckSquare}
+                className="mr-1"
+                aria-hidden="true"
+              />
               <span>{triggering ? 'Triggering' : 'Trigger'}</span>
             </Button>
           ) : (

@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
 import { getBugUrl } from '../../../helpers/url';
 import RevisionLinkify from '../../../shared/RevisionLinkify';
@@ -9,16 +12,15 @@ export default function ClassificationsPanel(props) {
   const { classification, job, bugs, currentRepo, classificationMap } = props;
 
   const failureId = classification.failure_classification_id;
-  const iconClass = `${failureId === 7 ? 'fa-star-o' : 'fa fa-star'} star-${
-    job.result
-  }`;
+  const icon = failureId === 7 ? faStarRegular : faStarSolid;
+  const iconClass = `star-${job.result}`;
   const classificationName = classificationMap[failureId];
 
   return (
     <React.Fragment>
       <li>
         <span title={classificationName.name}>
-          <i className={`fa ${iconClass}`} />
+          <FontAwesomeIcon icon={icon} className={iconClass} />
           <span className="ml-1">{classificationName.name}</span>
         </span>
         {!!bugs.length && (

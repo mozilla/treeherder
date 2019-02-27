@@ -1,19 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBan,
+  faCheck,
+  faCircle,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { withNotifications } from './context/Notifications';
 
 class NotificationList extends React.Component {
-  static getSeverityClass(severity) {
+  static getIcon(severity) {
+    // TODO: Move this and the usage in NotificationsMenu to a shared component.
     switch (severity) {
       case 'danger':
-        return 'fa fa-ban';
+        return faBan;
       case 'warning':
-        return 'fa fa-warning';
+        return faExclamationTriangle;
       case 'info':
-        return 'fa fa-circle';
+        return faCircle;
       case 'success':
-        return 'fa fa-check';
+        return faCheck;
     }
   }
 
@@ -25,10 +33,8 @@ class NotificationList extends React.Component {
         {notifications.map((notification, idx) => (
           <li key={notification.created}>
             <div className={`alert alert-${notification.severity}`}>
-              <span
-                className={NotificationList.getSeverityClass(
-                  notification.severity,
-                )}
+              <FontAwesomeIcon
+                icon={NotificationList.getIcon(notification.severity)}
               />
               <span>{notification.message}</span>
               {notification.url && notification.linkText && (
@@ -58,6 +64,7 @@ NotificationList.propTypes = {
     PropTypes.shape({
       created: PropTypes.number.isRequired,
       message: PropTypes.string.isRequired,
+      // TODO: Enforce specific severity strings
       severity: PropTypes.string.isRequired,
       sticky: PropTypes.bool,
     }),

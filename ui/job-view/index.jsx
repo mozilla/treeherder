@@ -3,7 +3,6 @@ import { render } from 'react-dom';
 
 // Vendor Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.css';
 
 // Vendor JS
 import 'bootstrap';

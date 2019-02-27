@@ -1,6 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faMinusSquare,
+  faPlusSquare,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faExternalLinkAlt,
+  faThumbtack,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -243,17 +253,19 @@ class PushHeader extends React.Component {
         <div className="push-bar">
           <span className="push-left">
             <span className="push-title-left">
-              <span
+              <FontAwesomeIcon
                 onClick={this.togglePushCollapsed}
-                className={`fa ${
-                  collapsed ? 'fa-plus-square-o' : 'fa-minus-square-o'
-                } mr-2 mt-2 text-muted pointable`}
+                icon={collapsed ? faPlusSquare : faMinusSquare}
+                className="mr-2 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
               <span>
                 <a href={revisionPushFilterUrl} title="View only this push">
                   {this.pushDateStr}{' '}
-                  <span className="fa fa-external-link icon-superscript" />
+                  <FontAwesomeIcon
+                    icon={faExternalLinkAlt}
+                    className="icon-superscript"
+                  />
                 </a>{' '}
                 -{' '}
               </span>
@@ -299,7 +311,7 @@ class PushHeader extends React.Component {
                 title={cancelJobsTitle}
                 onClick={this.cancelAllJobs}
               >
-                <span className="fa fa-times-circle cancel-job-icon dim-quarter" />
+                <FontAwesomeIcon icon={faTimesCircle} className="dim-quarter" />
               </button>
             )}
             <button
@@ -309,7 +321,7 @@ class PushHeader extends React.Component {
               aria-label="Pin all available jobs in this push"
               onClick={this.pinAllShownJobs}
             >
-              <span className="fa fa-thumb-tack" />
+              <FontAwesomeIcon icon={faThumbtack} />
             </button>
             {!!selectedRunnableJobs.length && runnableVisible && (
               <button

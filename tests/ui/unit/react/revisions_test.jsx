@@ -184,7 +184,9 @@ describe('More revisions link component', () => {
 
   test('has an external link icon', () => {
     const wrapper = mount(<MoreRevisionsLink href="http://more.link" />);
-    expect(wrapper.find('i.fa.fa-external-link-square')).toHaveLength(1);
+    expect(
+      wrapper.find('svg.svg-inline--fa.fa-external-link-square-alt'),
+    ).toHaveLength(1);
   });
 });
 
@@ -195,8 +197,9 @@ describe('initials filter', () => {
     const initials = mount(
       <Initials title={`${name}: ${email}`} author={name} />,
     );
-    expect(initials.html()).toEqual(
-      '<span title="Starscream: foo@bar.baz"><span class="user-push-icon"><i class="fa fa-user-o" aria-hidden="true"></i></span><div class="icon-superscript user-push-initials">S</div></span>',
+    const userPushInitials = initials.find('.user-push-initials');
+    expect(userPushInitials.html()).toEqual(
+      '<div class="icon-superscript user-push-initials">S</div>',
     );
   });
 

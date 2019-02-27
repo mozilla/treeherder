@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-regular-svg-icons';
+import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
@@ -33,7 +36,7 @@ function StaticLineOption(props) {
     <div className="static-classification-option">
       <div className="classification-icon">
         {option.isBest ? (
-          <span className="fa fa-star-o" title="Autoclassifier best match" />
+          <FontAwesomeIcon icon={faStar} title="Autoclassifier best match" />
         ) : (
           <span className="classification-no-icon">&nbsp;</span>
         )}
@@ -48,7 +51,7 @@ function StaticLineOption(props) {
               onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
               title="add to list of bugs to associate with all pinned jobs"
             >
-              <i className="fa fa-thumb-tack" />
+              <FontAwesomeIcon icon={faThumbtack} />
             </button>
           )}
           {!!option.bugResolution && (

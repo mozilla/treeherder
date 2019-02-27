@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
@@ -130,7 +132,11 @@ class FailureSummaryTab extends React.Component {
           {bugSuggestionsLoading && (
             <div className="overlay">
               <div>
-                <span className="fa fa-spinner fa-pulse th-spinner-lg" />
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  pulse
+                  className="th-spinner-lg"
+                />
               </div>
             </div>
           )}

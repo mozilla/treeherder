@@ -1,4 +1,10 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFileAlt,
+  faStar as faStarRegular,
+} from '@fortawesome/free-regular-svg-icons';
+import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
 import ShortcutTable from '../shared/ShortcutTable';
 import logviewerIconHelp from '../img/logviewerIconHelp.svg';
@@ -15,11 +21,13 @@ const notations = [
     explanation: 'Wrapped job group',
   },
   {
-    classes: 'btn-orange-classified autoclassified ug-btn-comment',
+    classes: 'btn-orange-classified ug-btn-comment',
+    icon: faStarRegular,
     explanation: 'Hollow asterisk, auto-classified',
   },
   {
     classes: 'btn-orange-classified ug-btn-comment',
+    icon: faStarSolid,
     explanation: 'Asterisk, classified',
   },
   {
@@ -76,14 +84,20 @@ const UserGuideBody = function UserGuideBody() {
             <div className="card-body">
               <table id="legend-other">
                 <tbody>
-                  {notations.map(({ classes, explanation, text }) => (
+                  {notations.map(({ classes, icon, explanation, text }) => (
                     <tr key={classes}>
-                      <th className="superseded">
+                      <th>
                         <button
                           type="button"
                           className={`btn ug-btn ${classes}`}
                         >
                           {text || 'Th'}
+                          {icon && (
+                            <FontAwesomeIcon
+                              icon={icon}
+                              className="classified-icon"
+                            />
+                          )}
                         </button>
                       </th>
                       <td>{explanation}</td>
@@ -117,6 +131,7 @@ const UserGuideBody = function UserGuideBody() {
                       <img
                         src={logviewerIconHelp}
                         id="ug-logviewer-icon"
+                        className="mx-1"
                         alt=""
                       />
                       logviewer url on hover
@@ -130,9 +145,11 @@ const UserGuideBody = function UserGuideBody() {
                     </td>
                     <td>
                       Copy job details
-                      <span
+                      <FontAwesomeIcon
+                        icon={faFileAlt}
+                        size="lg"
                         id="ug-raw-log-icon"
-                        className="fa fa-file-text-o"
+                        className="mx-1"
                       />
                       raw log url on hover
                     </td>

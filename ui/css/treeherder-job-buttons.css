@@ -151,42 +151,8 @@
   margin: 0 -1px 1px 1px;
 }
 
-.btn-orange-classified::after,
-.btn-orange-classified-count::after,
-.btn-red-classified::after,
-.btn-red-classified-count::after,
-.btn-black-classified::after,
-.btn-black-classified-count::after,
-.btn-green-classified::after,
-.btn-green-classified-count::after,
-.btn-dkblue-classified::after,
-.btn-dkblue-classified-count::after,
-.btn-ltblue-classified::after,
-.btn-ltblue-classified-count::after,
-.btn-dkgray-classified::after,
-.btn-dkgray-classified-count::after,
-.btn-ltgray-classified::after,
-.btn-ltgray-classified-count::after,
-.btn-yellow-classified::after,
-.btn-yellow-classified-count::after,
-.btn-pink-classified::after,
-.btn-pink-classified-count::after,
-.btn-purple-classified::after,
-.btn-purple-classified-count::after {
-  font-family: 'FontAwesome';
-  font-weight: 400;
-  line-height: 1;
-  content: '\f005';
-  font-size: 75%;
-  vertical-align: super;
-}
-
-.autoclassified::after {
-  font-family: 'FontAwesome';
-  font-weight: 400;
-  line-height: 1;
-  content: '\f006';
-  font-size: 75%;
+.classified-icon {
+  font-size: 0.62em;
   vertical-align: super;
 }
 

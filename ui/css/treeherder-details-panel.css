@@ -37,8 +37,8 @@ div#tabs-panel .tab-headers {
   justify-content: space-between;
 }
 
-#tab-header-buttons > span > span {
-  padding-left: 5px;
+#tab-header-buttons > span > svg {
+  margin-left: 5px;
 }
 
 div#details-panel-content .navbar-nav > ul {

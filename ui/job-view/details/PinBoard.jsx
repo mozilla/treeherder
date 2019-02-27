@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input, FormFeedback } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../helpers/constants';
 import { withNotifications } from '../../shared/context/Notifications';
@@ -405,7 +407,7 @@ class PinBoard extends React.Component {
                     onClick={() => unPinJob(job)}
                     title="un-pin this job"
                   >
-                    <i className="fa fa-times" />
+                    <FontAwesomeIcon icon={faTimes} />
                   </span>
                 </span>
               ))}
@@ -421,7 +423,10 @@ class PinBoard extends React.Component {
                 className="pointable"
                 title="Add a related bug"
               >
-                <i className="fa fa-plus-square add-related-bugs-icon" />
+                <FontAwesomeIcon
+                  icon={faPlusSquare}
+                  className="add-related-bugs-icon"
+                />
               </span>
               {!this.hasPinnedJobBugs() && (
                 <span
@@ -468,7 +473,7 @@ class PinBoard extends React.Component {
                       onClick={() => removeBug(bug.id)}
                       title="remove this bug"
                     >
-                      <i className="fa fa-times" />
+                      <FontAwesomeIcon icon={faTimes} />
                     </span>
                   </span>
                 </span>

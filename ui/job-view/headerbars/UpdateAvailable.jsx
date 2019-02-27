@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 export default function UpdateAvailable(props) {
   const { updateButtonClick } = props;
@@ -7,7 +9,7 @@ export default function UpdateAvailable(props) {
   // Show this when the Treeherder server has updated
   return (
     <div className="alert alert-info update-alert-panel">
-      <i className="fa fa-info-circle" aria-hidden="true" />
+      <FontAwesomeIcon icon={faInfoCircle} aria-hidden="true" />
       Treeherder has updated. To pick up the changes, you can reload the page
       &nbsp;
       <button
