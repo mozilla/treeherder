@@ -36,6 +36,7 @@ flake8==3.7.7 \
     --hash=sha256:859996073f341f2670741b51ec1e67a01da142831aa1fdc6242dbf88dffbe661
 
 isort==4.3.9 \
+    --hash=sha256:ee5fddfd792e6e1d664ee28f3fbe00dfc26d8d3c6f059ee78f4da4c19718007c \
     --hash=sha256:f19b23b22fb5a919a081bc31aabcc0991614c244d9215267e11abf2ca7b684ce
 
 # Required by pytest
