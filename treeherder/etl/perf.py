@@ -130,7 +130,7 @@ def _load_perf_datum(job, perf_datum):
             if signature.should_alert is not False and datum_created and \
                job.repository.performance_alerts_enabled:
                 generate_alerts.apply_async(args=[signature.id],
-                                            routing_key='generate_perf_alerts')
+                                            queue='generate_perf_alerts')
 
         for subtest in suite['subtests']:
             subtest_properties = {
@@ -188,7 +188,7 @@ def _load_perf_datum(job, perf_datum):
                                             suite.get('value') is None)) and
                 datum_created and job.repository.performance_alerts_enabled):
                 generate_alerts.apply_async(args=[signature.id],
-                                            routing_key='generate_perf_alerts')
+                                            queue='generate_perf_alerts')
 
 
 def store_performance_artifact(job, artifact):

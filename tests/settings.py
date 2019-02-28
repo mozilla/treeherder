@@ -6,8 +6,8 @@ KEY_PREFIX = 'test'
 TREEHERDER_TEST_REPOSITORY_NAME = 'test_treeherder_jobs'
 
 # this makes celery calls synchronous, useful for unit testing
-CELERY_ALWAYS_EAGER = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
 
 # Make WhiteNoise look for static assets inside registered Django apps, rather
 # than only inside the generated staticfiles directory. This means we don't

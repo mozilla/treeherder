@@ -1,26 +1,11 @@
 # https://dependabot.com/blog/introducing-config-files/
 version: 1
 update_configs:
-  - package_manager: "python"
-    directory: "/requirements"
-    update_schedule: "live"
+  - package_manager: 'python'
+    directory: '/requirements'
+    update_schedule: 'live'
     default_reviewers:
-      - "camd"
+      - 'camd'
     default_labels:
-      - "dependencies"
-      - "python"
-    ignored_updates:
-      # Celery/kombu/amqp/billiard must be updated all at the same time,
-      # and the update is blocked on resolving bug 1337717.
-      - match:
-          dependency_name: "celery"
-          version_requirement: ">=4"
-      - match:
-          dependency_name: "kombu"
-          version_requirement: ">=4"
-      - match:
-          dependency_name: "amqp"
-          version_requirement: ">=2"
-      - match:
-          dependency_name: "billiard"
-          version_requirement: ">=3.4"
+      - 'dependencies'
+      - 'python'

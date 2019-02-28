@@ -20,7 +20,7 @@ settings_queues = set()
 
 queues_list = None
 for item in code.body:
-    if isinstance(item, ast.Assign) and item.targets[0].id == "CELERY_QUEUES":
+    if isinstance(item, ast.Assign) and item.targets[0].id == "CELERY_TASK_QUEUES":
         queues_list = item.value
 
 if queues_list is None:

@@ -287,7 +287,7 @@ def pulse_connection():
     This is a non-lazy mirror of our Pulse service's build_connection as
     explained in: https://bugzilla.mozilla.org/show_bug.cgi?id=1484196
     """
-    return kombu.Connection(settings.BROKER_URL)
+    return kombu.Connection(settings.CELERY_BROKER_URL)
 
 
 @pytest.fixture

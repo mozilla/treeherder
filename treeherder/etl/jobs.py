@@ -358,12 +358,17 @@ def _schedule_log_parsing(job, job_logs, result):
 
         job_log_ids.append(job_log.id)
 
+    # TODO: Replace the use of different queues for failures vs not with the
+    # RabbitMQ priority feature (since the idea behind separate queues was
+    # only to ensure failures are dealt with first if there is a backlog).
     if result != 'success':
+        queue = 'log_parser_fail'
         priority = 'failures'
     else:
+        queue = 'log_parser'
         priority = "normal"
 
-    parse_logs.apply_async(routing_key="log_parser.%s" % priority,
+    parse_logs.apply_async(queue=queue,
                            args=[job.id, job_log_ids, priority])
 
 

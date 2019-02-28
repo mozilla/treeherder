@@ -98,7 +98,7 @@ class JobConsumer(PulseConsumer):
         logger.info('received job message from %s#%s', exchange, routing_key)
         store_pulse_jobs.apply_async(
             args=[body, exchange, routing_key],
-            routing_key='store_pulse_jobs'
+            queue='store_pulse_jobs'
         )
         message.ack()
 
@@ -112,7 +112,7 @@ class PushConsumer(PulseConsumer):
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
             args=[body, exchange, routing_key],
-            routing_key='store_pulse_pushes'
+            queue='store_pulse_pushes'
         )
         message.ack()
 
