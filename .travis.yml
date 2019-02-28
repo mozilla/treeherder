@@ -20,8 +20,7 @@ matrix:
 
     - env: python-linters
       language: python
-      # Python 3.7 is blocked on Celery/kombu support (see bug 1529243)
-      python: '3.6.8'
+      python: '3.7.2'
       cache:
         directories:
           - ${HOME}/venv
@@ -37,7 +36,7 @@ matrix:
 
     - env: python-tests-main
       language: python
-      python: '3.6.8'
+      python: '3.7.2'
       cache:
         directories:
           - ${HOME}/venv
@@ -51,12 +50,12 @@ matrix:
         # value so the tests pass. The real environment variable will be checked during deployment.
         - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings:
-        # https://docs.python.org/3.6/using/cmdline.html#cmdoption-b
+        # https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
 
     - env: python-tests-selenium
       language: python
-      python: '3.6.8'
+      python: '3.7.2'
       cache:
         directories:
           - ${HOME}/venv
