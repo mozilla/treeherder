@@ -40,7 +40,7 @@ worker_store_pulse_data: newrelic-admin run-program celery worker -A treeherder 
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 # TODO: Figure out the memory leak and remove the `--maxtasksperchild` (bug 1513506).
-worker_log_parser: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser,log_parser_fail,log_store_failure_lines,log_store_failure_lines_fail,log_crossreference_error_lines,log_crossreference_error_lines_fail,log_autoclassify,log_autoclassify_fail --maxtasksperchild=50 --concurrency=7
+worker_log_parser: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser,log_parser_fail,log_autoclassify,log_autoclassify_fail --maxtasksperchild=50 --concurrency=7
 
 # Tasks that don't need a dedicated worker.
 worker_misc: newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,seta_analyze_failures --concurrency=3

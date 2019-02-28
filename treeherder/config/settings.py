@@ -265,15 +265,8 @@ AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z
 # Celery
 CELERY_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
-    # queue for failed jobs/logs
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
     Queue('log_parser_fail', Exchange('default'), routing_key='log_parser.failures'),
-    Queue('log_store_failure_lines', Exchange('default'), routing_key='store_failure_lines.normal'),
-    Queue('log_store_failure_lines_fail', Exchange('default'), routing_key='store_failure_lines.failures'),
-    Queue('log_crossreference_error_lines', Exchange('default'),
-          routing_key='crossreference_error_lines.normal'),
-    Queue('log_crossreference_error_lines_fail', Exchange('default'),
-          routing_key='crossreference_error_lines.failures'),
     Queue('log_autoclassify', Exchange('default'), routing_key='autoclassify.normal'),
     Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
