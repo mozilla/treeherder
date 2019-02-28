@@ -207,7 +207,7 @@ class PerformanceAlertSummary(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     first_triaged = models.DateTimeField(null=True, default=None)
-    last_updated = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True, null=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -335,7 +335,7 @@ class PerformanceAlert(models.Model):
     # time when human user 1st interacted with alert
     # IMPORTANT: workers & automated scripts mustn't update this! Dont' assign this outside setter method!
     first_triaged = models.DateTimeField(null=True, default=None)
-    last_updated = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True, null=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1

@@ -137,8 +137,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.timestamp_first_triage()
-        return super(PerformanceAlertSummarySerializer, self).update(instance,
-                                                                     validated_data)
+        return super().update(instance, validated_data)
 
     class Meta:
         model = PerformanceAlertSummary
