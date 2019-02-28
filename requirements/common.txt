@@ -42,11 +42,9 @@ Brotli==1.0.7 \
 Django==2.1.7 \
     --hash=sha256:275bec66fd2588dd517ada59b8bfb23d4a9abc5a362349139ddda3c7ff6f5ade
 
-celery==3.1.26.post2 \
-    --hash=sha256:60211897aee321266ff043fe2b33eaac825dfe9f46843cf964fc97507a186334 \
-    --hash=sha256:5493e172ae817b81ba7d09443ada114886765a8ce02f16a56e6fac68d953a9b2
+celery==4.3.0rc1 --hash=sha256:62cdf98af78278202b8a3ba1b8215c87ab420eae7eebf0b7ba27b16ebc9f148e
 
-kombu==3.0.37 --hash=sha256:7ceab743e3e974f3e5736082e8cc514c009e254e646d6167342e0e192aee81a6
+kombu==4.3.0 --hash=sha256:7a2cbed551103db9a4e2efafe9b63222e012a61a18a881160ad797b9d4e1d0a1
 
 simplejson==3.16.0 \
     --hash=sha256:6c3258ffff58712818a233b9737fe4be943d306c40cf63d14ddc82ba563f483a \
@@ -79,14 +77,16 @@ mysqlclient==1.4.2.post1 \
     --hash=sha256:f257d250f2675d0ef99bd318906f3cfc05cef4a2f385ea695ff32a3f04b9f9a7
 
 # Required by celery
-billiard==3.3.0.23 --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b
+billiard==3.6.0.0 --hash=sha256:756bf323f250db8bf88462cd042c992ba60d8f5e07fc5636c24ba7d6f4261d84
 pytz==2018.9 \
     --hash=sha256:32b0891edff07e28efe91284ed9c31e123d84bea3fd98e1f72be2508f43ef8d9 \
     --hash=sha256:d5f05e487007e29e03409f9398d074e158d920d36eb82eaf66fb1136b0c5374c
 
 # Required by kombu
-amqp==1.4.9 --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908
-anyjson==0.3.3 --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
+amqp==2.4.1 --hash=sha256:16056c952e8029ce8db097edf0d7c2fe2ba9de15d30ba08aee2c5221273d8e23
+
+# Required by amqp
+vine==1.2.0 --hash=sha256:3cd505dcf980223cfaf13423d371f2e7ff99247e38d5985a01ec8264e4f2aca1
 
 # Required by mozlog
 mozterm==1.0.0 \

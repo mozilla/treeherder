@@ -79,9 +79,11 @@ def parse_logs(job_id, job_log_ids, priority):
 
         if success:
             logger.debug("Scheduling autoclassify for job %i", job_id)
-            autoclassify.apply_async(
-                args=[job_id],
-                routing_key="autoclassify.%s" % priority)
+            # TODO: Replace the use of different queues for failures vs not with the
+            # RabbitMQ priority feature (since the idea behind separate queues was
+            # only to ensure failures are dealt with first if there is a backlog).
+            queue = 'log_autoclassify_fail' if priority == 'failures' else 'log_autoclassify'
+            autoclassify.apply_async(args=[job_id], queue=queue)
         else:
             job.autoclassify_status = Job.SKIPPED
     else:

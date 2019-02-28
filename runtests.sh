@@ -6,7 +6,7 @@ set -euo pipefail
 echo "Running pip check"
 pip check
 
-echo "Checking CELERY_QUEUES matches Procfile"
+echo "Checking CELERY_TASK_QUEUES matches Procfile"
 python -bb ./lints/queuelint.py
 
 echo "Running flake8"

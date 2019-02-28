@@ -14,7 +14,7 @@ def fetch_push_logs():
                                           active_status="active"):
         fetch_hg_push_log.apply_async(
             args=(repo.name, repo.url),
-            routing_key='pushlog'
+            queue='pushlog'
         )
 
 
