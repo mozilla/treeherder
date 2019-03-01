@@ -2,6 +2,7 @@ import decimal
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from rest_framework import (exceptions,
                             serializers)
 
@@ -79,6 +80,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         # ensure the related summary, if set, has the same repository and
         # framework as the original summary
@@ -97,6 +99,14 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                     "summary's framework ({})".format(
                         related_summary.framework,
                         instance.summary.framework))
+
+            status = validated_data.get('status')
+            if status and status in PerformanceAlert.RELATIONAL_STATUS_IDS:
+                # we've caught a downstream/reassignment: timestamp it
+                related_summary.timestamp_first_triage().save()
+
+        instance.timestamp_first_triage()
+
         return super().update(instance, validated_data)
 
     def get_classifier_email(self, performance_alert):
@@ -124,6 +134,10 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     prev_push_id = serializers.ReadOnlyField()
     push_id = serializers.ReadOnlyField()
     created = serializers.ReadOnlyField()
+
+    def update(self, instance, validated_data):
+        instance.timestamp_first_triage()
+        return super().update(instance, validated_data)
 
     class Meta:
         model = PerformanceAlertSummary

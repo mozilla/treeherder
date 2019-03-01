@@ -18,6 +18,12 @@ from treeherder.model.models import (Commit,
                                      Push,
                                      TextLogErrorMetadata,
                                      User)
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
+                                    PerformanceAlertSummary,
+                                    PerformanceDatum,
+                                    PerformanceFramework,
+                                    PerformanceSignature)
 from treeherder.services.pulse.exchange import get_exchange
 
 
@@ -142,8 +148,6 @@ def test_repository(transactional_db):
 
 @pytest.fixture
 def test_issue_tracker(transactional_db):
-    from treeherder.perf.models import IssueTracker
-
     return IssueTracker.objects.create(
         name="Bugzilla",
         task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
@@ -393,7 +397,6 @@ def test_sheriff(db):
 
 @pytest.fixture
 def test_perf_framework(transactional_db):
-    from treeherder.perf.models import PerformanceFramework
     return PerformanceFramework.objects.create(
         name='test_talos', enabled=True)
 
@@ -403,7 +406,6 @@ def test_perf_signature(test_repository, test_perf_framework):
     from treeherder.model.models import (MachinePlatform,
                                          Option,
                                          OptionCollection)
-    from treeherder.perf.models import PerformanceSignature
 
     option = Option.objects.create(name='opt')
     option_collection = OptionCollection.objects.create(
@@ -431,8 +433,6 @@ def test_perf_signature(test_repository, test_perf_framework):
 
 @pytest.fixture
 def test_perf_signature_2(test_perf_signature):
-    from treeherder.perf.models import PerformanceSignature
-
     return PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=(20*'t2'),
@@ -450,7 +450,6 @@ def test_perf_signature_2(test_perf_signature):
 @pytest.fixture
 def test_perf_data(test_perf_signature, eleven_jobs_stored):
     from treeherder.model.models import Job
-    from treeherder.perf.models import PerformanceDatum
 
     def normalized_time(hour):
         return datetime.datetime(2018, 7, 3, hour)
@@ -524,6 +523,12 @@ def client():
 
 
 @pytest.fixture
+def authorized_sheriff_client(client, test_sheriff):
+    client.force_authenticate(user=test_sheriff)
+    return client
+
+
+@pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     from tests.autoclassify.utils import create_text_log_errors
     from treeherder.model.models import FailureLine
@@ -537,7 +542,6 @@ def text_log_error_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
-    from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
@@ -549,7 +553,6 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
 
 @pytest.fixture
 def test_perf_alert_summary_2(test_perf_alert_summary):
-    from treeherder.perf.models import PerformanceAlertSummary
     return PerformanceAlertSummary.objects.create(
         repository=test_perf_alert_summary.repository,
         framework=test_perf_alert_summary.framework,
@@ -561,7 +564,6 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
 
 @pytest.fixture
 def test_perf_alert(test_perf_signature, test_perf_alert_summary):
-    from treeherder.perf.models import PerformanceAlert
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary,
         series_signature=test_perf_signature,
@@ -574,8 +576,20 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary):
 
 
 @pytest.fixture
+def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2):
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_2,
+        series_signature=test_perf_signature,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0)
+
+
+@pytest.fixture
 def test_perf_alert_2(test_perf_alert, test_perf_signature_2, test_perf_alert_summary_2):
-    from treeherder.perf.models import PerformanceAlert
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary_2,
         series_signature=test_perf_signature_2,
@@ -679,3 +693,21 @@ def test_run_data(bug_data):
         'test_runs': test_runs,
         'push_time': time
     }
+
+
+@pytest.fixture
+def generate_enough_perf_datum(test_repository, test_perf_signature):
+    # generate enough data for a proper alert to be generated (with enough
+    # extra data on both sides to make sure we're using the proper values
+    # to generate the actual alert)
+    for (push_id, job_id, value) in zip([1] * 30 + [2] * 30,
+                                        range(1, 61),
+                                        [1] * 30 + [2] * 30):
+        # push_id == result_set_id == timestamp for purposes of this test
+        push = Push.objects.get(id=push_id)
+        PerformanceDatum.objects.create(repository=test_repository,
+                                        result_set_id=push_id,
+                                        push_id=push_id,
+                                        signature=test_perf_signature,
+                                        value=value,
+                                        push_timestamp=push.time)

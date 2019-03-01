@@ -347,6 +347,8 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 'new_value': alert_properties.new_value,
                 't_value': 1000
             })
+        alert.timestamp_first_triage().save()
+
         return Response({"alert_id": alert.id})
 
     def calculate_alert_properties(self, alert_summary, series_signature):
@@ -386,7 +388,8 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             repository=alert.summary.repository,
             framework=alert.summary.framework,
             defaults={
-                'created': datetime.datetime.now()
+                'created': datetime.datetime.now(),
+                'manually_created': True
             })
         old_summary = alert.summary
 
@@ -396,6 +399,8 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         if (not new_summary) and conflicting_alert:
             # discard nudged alert to use similar one instead
             alert.delete()
+
+            conflicting_alert.timestamp_first_triage().save()
         else:
             alert.summary = alert_summary
 
@@ -406,8 +411,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             alert.amount_abs = alert_properties.delta
             alert.prev_value = alert_properties.prev_value
             alert.new_value = alert_properties.new_value
+            alert.manually_created = True
 
-            alert.save()
+            alert.timestamp_first_triage().save()
 
         if old_summary.alerts.count() == 0:
             old_summary.delete()

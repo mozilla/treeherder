@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (Job,
                                      MachinePlatform,
@@ -204,7 +205,9 @@ class PerformanceAlertSummary(models.Model):
 
     notes = models.TextField(null=True, blank=True)
 
-    created = models.DateTimeField(db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    first_triaged = models.DateTimeField(null=True, default=None)
+    last_updated = models.DateTimeField(auto_now=True, null=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -242,8 +245,7 @@ class PerformanceAlertSummary(models.Model):
             self.save()
 
     def autodetermine_status(self):
-        alerts = (PerformanceAlert.objects.filter(summary=self) |
-                  PerformanceAlert.objects.filter(related_summary=self))
+        alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
@@ -288,6 +290,12 @@ class PerformanceAlertSummary(models.Model):
 
         return PerformanceAlertSummary.DOWNSTREAM
 
+    def timestamp_first_triage(self):
+        # called for summary specific updates (e.g. notes, bug linking)
+        if self.first_triaged is None:
+            self.first_triaged = django_now()
+        return self
+
     class Meta:
         db_table = "performance_alert_summary"
         unique_together = ('repository', 'framework', 'prev_push', 'push')
@@ -322,6 +330,12 @@ class PerformanceAlert(models.Model):
     is_regression = models.BooleanField()
     starred = models.BooleanField(default=False)
     classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
+
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    # time when human user 1st interacted with alert
+    # IMPORTANT: workers & automated scripts mustn't update this! Dont' assign this outside setter method!
+    first_triaged = models.DateTimeField(null=True, default=None)
+    last_updated = models.DateTimeField(auto_now=True, null=True)
 
     UNTRIAGED = 0
     DOWNSTREAM = 1
@@ -379,6 +393,14 @@ class PerformanceAlert(models.Model):
         self.summary.update_status()
         if self.related_summary:
             self.related_summary.update_status()
+
+    def timestamp_first_triage(self):
+        # use only on code triggered by
+        # human interaction
+        if self.first_triaged is None:
+            self.first_triaged = django_now()
+            self.summary.timestamp_first_triage().save()
+        return self
 
     class Meta:
         db_table = "performance_alert"
