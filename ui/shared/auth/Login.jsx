@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
@@ -110,9 +111,8 @@ class Login extends React.Component {
       <React.Fragment>
         {user.isLoggedIn && (
           <span className="dropdown">
-            <button
+            <Button
               id="logoutLabel"
-              type="button"
               title={`Logged in as: ${user.email}`}
               data-toggle="dropdown"
               className="btn btn-view-nav"
@@ -123,25 +123,33 @@ class Login extends React.Component {
                 </span>
                 <span>{user.fullName}</span>
               </div>
-            </button>
+            </Button>
             <ul
               className="dropdown-menu nav-dropdown-menu-right"
               role="menu"
               aria-labelledby="logoutLabel"
             >
               <li>
-                <a onClick={this.logout} className="dropdown-item">
+                <Button
+                  onClick={this.logout}
+                  className="dropdown-item"
+                  type="submit"
+                >
                   Logout
-                </a>
+                </Button>
               </li>
             </ul>
           </span>
         )}
         {!user.isLoggedIn && (
-          <span className="btn btn-view-nav nav-menu-btn" onClick={this.login}>
+          <Button
+            className="btn btn-view-nav nav-menu-btn"
+            onClick={this.login}
+            type="submit"
+          >
             {' '}
             Login / Register
-          </span>
+          </Button>
         )}
       </React.Fragment>
     );

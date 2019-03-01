@@ -138,6 +138,7 @@ export default class WatchedRepo extends React.Component {
             size="sm"
             className={color}
             pulse={pulseIcon}
+            aria-label={status}
           />{' '}
           {watchedRepo}
         </a>
@@ -156,6 +157,7 @@ export default class WatchedRepo extends React.Component {
             type="button"
             onClick={() => unwatchRepo(watchedRepo)}
             title={`Unwatch ${watchedRepo}`}
+            aria-label={`Unwatch ${watchedRepo}`}
           >
             <FontAwesomeIcon icon={faTimes} />
           </button>
