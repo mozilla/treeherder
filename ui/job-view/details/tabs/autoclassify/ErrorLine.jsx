@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup } from 'reactstrap';
+import { Button, FormGroup } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCaretDown,
@@ -684,7 +684,7 @@ class ErrorLine extends React.Component {
                   )}
                 </ul>
                 {this.hasHidden(options) && (
-                  <a
+                  <Button
                     onClick={() =>
                       this.setState(prevState => ({
                         showHidden: !prevState.showHidden,
@@ -693,7 +693,7 @@ class ErrorLine extends React.Component {
                     className="link-style has-hidden"
                   >
                     {!showHidden ? <span>More…</span> : <span>Fewer</span>}
-                  </a>
+                  </Button>
                 )}
                 {canClassify && (
                   <ul className="list-unstyled extra-options">

@@ -29,7 +29,6 @@ module.exports = {
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'default-case': 'off',
-    'jsx-a11y/anchor-is-valid': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/label-has-associated-control': 'off',
     'jsx-a11y/label-has-for': 'off',

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Label, Input } from 'reactstrap';
+import { Button, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -105,16 +105,15 @@ class LineOption extends React.Component {
             {!!option.bugNumber && (
               <span className="line-option-text">
                 {(!canClassify || selectedJob.id in pinnedJobs) && (
-                  <button
+                  <Button
                     className="btn btn-xs btn-light-bordered"
-                    type="button"
                     onClick={() =>
                       addBug({ id: option.bugNumber }, selectedJob)
                     }
                     title="add to list of bugs to associate with all pinned jobs"
                   >
                     <FontAwesomeIcon icon={faThumbtack} />
-                  </button>
+                  </Button>
                 )}
                 {!!option.bugResolution && (
                   <span className="classification-bug-resolution">
@@ -166,13 +165,13 @@ class LineOption extends React.Component {
                     onManualBugNumberChange(option, evt.target.value)
                   }
                 />
-                <a
+                <Button
                   className="btn btn-xs btn-light-bordered btn-file-bug"
                   onClick={() => this.fileBug()}
                   title="File a bug for this failure"
                 >
                   <FontAwesomeIcon icon={faBug} />
-                </a>
+                </Button>
                 {option.id === 'manual' && !!option.manualBugNumber && (
                   <a
                     href={getBugUrl(option.manualBugNumber)}

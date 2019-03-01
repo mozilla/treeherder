@@ -401,7 +401,7 @@ class Treeherder(Base):
     class Pinboard(Region):
 
         _root_locator = (By.ID, 'pinboard-panel')
-        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(3) a')
+        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(3) button')
         _jobs_locator = (By.CLASS_NAME, 'pinned-job')
         _save_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .save-btn-dropdown')
 
