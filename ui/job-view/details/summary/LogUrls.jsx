@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt } from '@fortawesome/free-regular-svg-icons';
 
@@ -54,16 +55,17 @@ export default function LogUrls(props) {
       ))}
       <li>
         {!logUrls.length && (
-          <a
+          <Button
             className="logviewer-btn disabled"
             title="No logs available for this job"
+            aria-label="No logs available for this job"
           >
             <img
               alt="Logviewer"
               src={logviewerIcon}
               className="logviewer-icon"
             />
-          </a>
+          </Button>
         )}
       </li>
 
@@ -82,12 +84,13 @@ export default function LogUrls(props) {
       ))}
       {!logUrls.length && (
         <li>
-          <a
-            className="disabled raw-log-icon"
+          <Button
+            className="disabled raw-log-icon text-white-50"
             title="No logs available for this job"
+            aria-label="No logs available for this job"
           >
             <FontAwesomeIcon icon={faFileAlt} />
-          </a>
+          </Button>
         </li>
       )}
     </React.Fragment>

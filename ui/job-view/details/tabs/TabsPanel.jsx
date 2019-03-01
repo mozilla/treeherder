@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -159,7 +160,7 @@ class TabsPanel extends React.Component {
               id="tab-header-buttons"
               className="details-panel-controls pull-right"
             >
-              <span
+              <Button
                 id="pinboard-btn"
                 className="btn pinboard-btn-text"
                 onClick={togglePinBoardVisibility}
@@ -189,14 +190,16 @@ class TabsPanel extends React.Component {
                 )}
                 <FontAwesomeIcon
                   icon={isPinBoardVisible ? faAngleDown : faAngleUp}
+                  className="ml-1"
                 />
-              </span>
-              <span
+              </Button>
+              <Button
                 onClick={() => clearSelectedJob(countPinnedJobs)}
-                className="btn details-panel-close-btn"
+                className="btn details-panel-close-btn bg-transparent border-0"
+                aria-label="Close"
               >
                 <FontAwesomeIcon icon={faTimes} />
-              </span>
+              </Button>
             </span>
           </TabList>
           <TabPanel>

@@ -310,6 +310,7 @@ class PushHeader extends React.Component {
                 className="btn btn-sm btn-push cancel-all-jobs-btn"
                 title={cancelJobsTitle}
                 onClick={this.cancelAllJobs}
+                aria-label={cancelJobsTitle}
               >
                 <FontAwesomeIcon icon={faTimesCircle} className="dim-quarter" />
               </button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import $ from 'jquery';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
@@ -315,17 +316,17 @@ class ActionBar extends React.PureComponent {
               logViewerFullUrl={logViewerFullUrl}
             />
             <li>
-              <span
+              <Button
                 id="pin-job-btn"
                 title="Add this job to the pinboard"
                 className="btn icon-blue"
                 onClick={() => pinJob(selectedJob)}
               >
                 <FontAwesomeIcon icon={faThumbtack} />
-              </span>
+              </Button>
             </li>
             <li>
-              <span
+              <Button
                 id="retrigger-btn"
                 title={
                   user.isLoggedIn
@@ -337,7 +338,7 @@ class ActionBar extends React.PureComponent {
                 onClick={() => this.retriggerJob([selectedJob])}
               >
                 <FontAwesomeIcon icon={faRedo} />
-              </span>
+              </Button>
             </li>
             {isReftest(selectedJob) &&
               jobLogUrls.map(jobLogUrl => (
@@ -354,7 +355,7 @@ class ActionBar extends React.PureComponent {
               ))}
             {this.canCancel() && (
               <li>
-                <a
+                <Button
                   title={
                     user.isLoggedIn
                       ? 'Cancel this job'
@@ -364,22 +365,22 @@ class ActionBar extends React.PureComponent {
                   onClick={() => this.cancelJob()}
                 >
                   <FontAwesomeIcon icon={faTimesCircle} />
-                </a>
+                </Button>
               </li>
             )}
           </ul>
           <ul className="nav navbar-right">
             <li className="dropdown">
-              <span
+              <Button
                 id="actionbar-menu-btn"
                 title="Other job actions"
                 aria-haspopup="true"
                 aria-expanded="false"
-                className="dropdown-toggle"
+                className="btn btn-sm dropdown-toggle bg-transparent border-0 pr-2 py-0 m-0"
                 data-toggle="dropdown"
               >
                 <FontAwesomeIcon icon={faEllipsisH} aria-hidden="true" />
-              </span>
+              </Button>
               <ul className="dropdown-menu actionbar-menu" role="menu">
                 <li>
                   <span
@@ -408,30 +409,30 @@ class ActionBar extends React.PureComponent {
                       </a>
                     </li>
                     <li>
-                      <a
-                        className="dropdown-item"
+                      <Button
+                        className="dropdown-item py-2"
                         onClick={this.createInteractiveTask}
                       >
                         Create Interactive Task
-                      </a>
+                      </Button>
                     </li>
                     {isPerfTest(selectedJob) && (
                       <li>
-                        <a
-                          className="dropdown-item"
+                        <Button
+                          className="dropdown-item py-2"
                           onClick={this.createGeckoProfile}
                         >
                           Create Gecko Profile
-                        </a>
+                        </Button>
                       </li>
                     )}
                     <li>
-                      <a
+                      <Button
                         onClick={this.toggleCustomJobActions}
                         className="dropdown-item"
                       >
                         Custom Action...
-                      </a>
+                      </Button>
                     </li>
                   </React.Fragment>
                 )}
