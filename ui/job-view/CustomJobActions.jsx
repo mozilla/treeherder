@@ -9,7 +9,14 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 // https://github.com/nodeca/js-yaml/pull/462
 import jsyaml from 'js-yaml/dist/js-yaml';
 import { slugid } from 'taskcluster-client-web';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import {
+  Button,
+  Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
@@ -200,12 +207,14 @@ class CustomJobActions extends React.PureComponent {
           {!!actions && (
             <div>
               <div className="form-group">
-                <label>Action</label>
+                <Label for="action-select-input">Action</Label>
                 <Select
+                  inputId="action-select"
                   aria-describedby="selectedActionHelp"
                   value={selectedActionOption}
                   onChange={this.onChangeAction}
                   options={actionOptions}
+                  name="Action"
                 />
                 <p id="selectedActionHelp" className="help-block">
                   {selectedAction.description}
@@ -223,8 +232,11 @@ class CustomJobActions extends React.PureComponent {
                 {!!selectedAction.schema && (
                   <React.Fragment>
                     <div className="col-s-12 col-md-6 form-group">
-                      <label>Payload</label>
+                      <Label for="payload-textarea" className="w-100">
+                        Payload
+                      </Label>
                       <textarea
+                        id="payload-textarea"
                         value={payload}
                         className="form-control pre"
                         rows="10"
@@ -233,8 +245,11 @@ class CustomJobActions extends React.PureComponent {
                       />
                     </div>
                     <div className="col-s-12 col-md-6 form-group">
-                      <label>Schema</label>
+                      <Label for="schema-textarea" className="w-100">
+                        Schema
+                      </Label>
                       <textarea
+                        id="schema-textarea"
                         className="form-control pre"
                         rows="10"
                         readOnly

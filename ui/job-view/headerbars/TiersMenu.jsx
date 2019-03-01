@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Label } from 'reactstrap';
 
 const TIERS = ['1', '2', '3'];
 
@@ -24,7 +25,7 @@ export default function TiersMenu(props) {
           return (
             <li key={tier}>
               <div>
-                <label
+                <Label
                   title={
                     isOnlyTier
                       ? 'Must have at least one tier selected at all times'
@@ -41,7 +42,7 @@ export default function TiersMenu(props) {
                     onChange={() => filterModel.toggleFilter('tier', tier)}
                   />
                   tier {tier}
-                </label>
+                </Label>
               </div>
             </li>
           );

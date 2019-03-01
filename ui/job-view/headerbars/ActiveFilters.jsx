@@ -134,15 +134,13 @@ export default class ActiveFilters extends React.Component {
           <div>
             <form className="form-inline">
               <div className="form-group input-group-sm new-filter-input">
-                <label className="sr-only" htmlFor="job-filter-field">
-                  Field
-                </label>
                 <select
                   id="job-filter-field"
                   className="form-control"
                   value={newFilterField}
                   onChange={evt => this.setNewFilterField(evt.target.value)}
                   placeholder="filter field"
+                  aria-label="Field"
                   required
                 >
                   <option value="" disabled>
@@ -156,29 +154,27 @@ export default class ActiveFilters extends React.Component {
                     ) : null,
                   )}
                 </select>
-                <label className="sr-only" htmlFor="job-filter-value">
-                  Value
-                </label>
                 {newFilterMatchType !== 'choice' && (
-                  <input
-                    className="form-control"
-                    value={newFilterValue}
-                    onChange={evt => this.setNewFilterValue(evt.target.value)}
-                    id="job-filter-value"
-                    type="text"
-                    required
-                    placeholder="enter filter value"
-                  />
+                  <React.Fragment>
+                    <input
+                      className="form-control"
+                      value={newFilterValue}
+                      onChange={evt => this.setNewFilterValue(evt.target.value)}
+                      id="job-filter-value"
+                      type="text"
+                      required
+                      placeholder="enter filter value"
+                      aria-label="Value"
+                    />
+                  </React.Fragment>
                 )}
-                <label className="sr-only" htmlFor="job-filter-choice-value">
-                  Value
-                </label>
                 {newFilterMatchType === 'choice' && (
                   <select
                     className="form-control"
                     value={newFilterValue}
                     onChange={evt => this.setNewFilterValue(evt.target.value)}
                     id="job-filter-choice-value"
+                    aria-label="Value"
                   >
                     <option value="" disabled>
                       select value

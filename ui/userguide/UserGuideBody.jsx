@@ -163,7 +163,7 @@ const UserGuideBody = function UserGuideBody() {
                     <td>
                       Copy job details{' '}
                       <span className="small">
-                        <label>Job:</label>
+                        <strong>Job:</strong>
                         <span id="ug-job-name">name</span>
                       </span>{' '}
                       as raw text on hover

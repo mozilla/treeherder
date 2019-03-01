@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, Badge } from 'reactstrap';
+import { Button, Navbar, Nav, Badge } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -62,9 +62,10 @@ class StatusNavbar extends React.Component {
           <Badge color="danger">{counts.failed} Other Failed Tests</Badge>
         </span>
 
-        <span
-          className="navbar-text toggle-count"
+        <Button
+          className="navbar-text bg-transparent border-0 p-0"
           onClick={() => this.toggleHideClassified('infra')}
+          outline
         >
           <Badge color="infra">
             <FontAwesomeIcon
@@ -73,11 +74,12 @@ class StatusNavbar extends React.Component {
             />
             {counts.infra} Infra Tests
           </Badge>
-        </span>
+        </Button>
 
-        <span
-          className="navbar-text toggle-count"
+        <Button
+          className="navbar-text bg-transparent border-0 p-0"
           onClick={() => this.toggleHideClassified('intermittent')}
+          outline
         >
           <Badge color="intermittent">
             <FontAwesomeIcon
@@ -86,7 +88,7 @@ class StatusNavbar extends React.Component {
             />
             {counts.intermittent} Intermittent Tests
           </Badge>
-        </span>
+        </Button>
 
         <span className="navbar-text">
           <Badge color="success">{counts.success} Successful Jobs</Badge>
