@@ -35,6 +35,11 @@ class Migration(migrations.Migration):
             name='last_updated',
             field=models.DateTimeField(auto_now=True, null=True),
         ),
+        migrations.AlterField(
+            model_name='performancealertsummary',
+            name='created',
+            field=models.DateTimeField(auto_now_add=True, db_index=True),
+        ),
         migrations.AddField(
             model_name='performancealertsummary',
             name='first_triaged',
@@ -49,10 +54,5 @@ class Migration(migrations.Migration):
             model_name='performancealertsummary',
             name='last_updated',
             field=models.DateTimeField(auto_now=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name='performancealertsummary',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, db_index=True),
         ),
     ]
