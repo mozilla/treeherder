@@ -140,7 +140,7 @@ class TabsPanel extends React.Component {
     const countPinnedJobs = Object.keys(pinnedJobs).length;
 
     return (
-      <div id="tabs-panel">
+      <div id="tabs-panel" role="region" aria-label="Tabs Container">
         <Tabs
           selectedTabClassName="selected-tab"
           selectedIndex={tabIndex}

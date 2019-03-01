@@ -158,7 +158,11 @@ class SimilarJobsTab extends React.Component {
       : null;
 
     return (
-      <div className="similar-jobs w-100">
+      <div
+        className="similar-jobs w-100"
+        role="region"
+        aria-label="Similar Jobs"
+      >
         <div className="similar-job-list">
           <table className="table table-super-condensed table-hover">
             <thead>

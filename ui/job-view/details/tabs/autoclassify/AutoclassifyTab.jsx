@@ -306,7 +306,7 @@ class AutoclassifyTab extends React.Component {
     const canSaveAll = this.canSaveAll();
 
     return (
-      <React.Fragment>
+      <div role="region" aria-label="Autoclassify">
         {canClassify && (
           <AutoclassifyToolbar
             autoclassifyStatus={selectedJob.autoclassify_status || 'pending'}
@@ -358,7 +358,7 @@ class AutoclassifyTab extends React.Component {
             ))}
           </ul>
         </span>
-      </React.Fragment>
+      </div>
     );
   }
 }
