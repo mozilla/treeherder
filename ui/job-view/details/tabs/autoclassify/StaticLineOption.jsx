@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-regular-svg-icons';
@@ -45,14 +46,13 @@ function StaticLineOption(props) {
       {!!option.bugNumber && (
         <span className="line-option-text">
           {(!canClassify || selectedJob.id in pinnedJobs) && (
-            <button
+            <Button
               className="btn btn-xs btn-light-bordered"
-              type="button"
               onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
               title="add to list of bugs to associate with all pinned jobs"
             >
               <FontAwesomeIcon icon={faThumbtack} />
-            </button>
+            </Button>
           )}
           {!!option.bugResolution && (
             <span className="classification-bug-resolution">
@@ -107,9 +107,9 @@ function StaticLineOption(props) {
         </span>
       )}
       <div>
-        <a onClick={setEditable} className="link-style">
+        <Button onClick={setEditable} className="link-style">
           Edit…
-        </a>
+        </Button>
       </div>
     </div>
   );
