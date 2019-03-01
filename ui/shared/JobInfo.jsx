@@ -42,7 +42,7 @@ export default class JobInfo extends React.PureComponent {
     return (
       <ul id="job-info" className="list-unstyled">
         <li className="small">
-          <label>Job: </label>
+          <strong>Job: </strong>
           {showJobFilters ? (
             <React.Fragment>
               <a
@@ -65,8 +65,9 @@ export default class JobInfo extends React.PureComponent {
         </li>
         {job.taskcluster_metadata && (
           <li className="small">
-            <label>Task: </label>
+            <strong>Task: </strong>
             <a
+              id="taskInfo"
               href={getInspectTaskUrl(job.taskcluster_metadata.task_id)}
               target="_blank"
               rel="noopener noreferrer"
@@ -76,18 +77,18 @@ export default class JobInfo extends React.PureComponent {
           </li>
         )}
         <li className="small">
-          <label>Build: </label>
+          <strong>Build: </strong>
           <span>{`${job.build_architecture} ${
             job.build_platform
           } ${job.build_os || ''}`}</span>
         </li>
         <li className="small">
-          <label>Job name: </label>
+          <strong>Job name: </strong>
           <span>{job.job_type_name}</span>
         </li>
         {[...timeFields, ...extraFields].map(field => (
           <li className="small" key={`${field.title}${field.value}`}>
-            <label>{field.title}: </label>
+            <strong>{field.title}: </strong>
             {field.url ? (
               <a
                 title={field.value}

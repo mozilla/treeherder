@@ -11,11 +11,11 @@ function StatusPanel(props) {
   return (
     <li id="result-status-pane" className={`small ${shadingClass}`}>
       <div>
-        <label>Result:</label>
+        <strong>Result:</strong>
         <span> {selectedJob.result}</span>
       </div>
       <div>
-        <label>State:</label>
+        <strong>State:</strong>
         <span> {selectedJob.state}</span>
       </div>
     </li>

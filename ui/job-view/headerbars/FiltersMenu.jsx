@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Label } from 'reactstrap';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
@@ -56,7 +57,7 @@ function FiltersMenu(props) {
             {resultStatusMenuItems.map(filterName => (
               <span key={filterName}>
                 <span>
-                  <label className="dropdown-item">
+                  <Label className="dropdown-item">
                     <input
                       type="checkbox"
                       className="mousetrap"
@@ -67,13 +68,13 @@ function FiltersMenu(props) {
                       }
                     />
                     {filterName}
-                  </label>
+                  </Label>
                 </span>
               </span>
             ))}
           </li>
           <li className="dropdown-divider separator" />
-          <label className="dropdown-item">
+          <Label className="dropdown-item">
             <input
               type="checkbox"
               id="classified"
@@ -81,8 +82,8 @@ function FiltersMenu(props) {
               onChange={() => filterModel.toggleClassifiedFilter('classified')}
             />
             classified
-          </label>
-          <label className="dropdown-item">
+          </Label>
+          <Label className="dropdown-item">
             <input
               type="checkbox"
               id="unclassified"
@@ -92,7 +93,7 @@ function FiltersMenu(props) {
               }
             />
             unclassified
-          </label>
+          </Label>
           <li className="dropdown-divider separator" />
           <li
             title="Pin all jobs that pass the global filters"

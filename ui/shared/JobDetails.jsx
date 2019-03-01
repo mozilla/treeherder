@@ -24,7 +24,7 @@ export default class JobDetails extends React.PureComponent {
               className="small"
               key={idx} // eslint-disable-line react/no-array-index-key
             >
-              <label>{line.title ? line.title : UNTITLED}:</label>&nbsp;
+              <strong>{line.title ? line.title : UNTITLED}:</strong>&nbsp;
               {/* URL provided */}
               {!!line.url && (
                 <a

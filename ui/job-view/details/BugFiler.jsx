@@ -583,7 +583,7 @@ export class BugFilerClass extends React.Component {
                   ))}
                 </FormGroup>
               </div>
-              <label>Summary:</label>
+              <Label for="summary">Summary:</Label>
               <div className="d-flex">
                 {!!unhelpfulSummaryReason && (
                   <div>
@@ -667,7 +667,7 @@ export class BugFilerClass extends React.Component {
               )}
               <div className="ml-5 mt-2">
                 <div>
-                  <label>
+                  <Label>
                     <Input
                       type="checkbox"
                       checked={checkedLogLinks.includes(parsedLog)}
@@ -680,10 +680,10 @@ export class BugFilerClass extends React.Component {
                     >
                       Include Parsed Log Link
                     </a>
-                  </label>
+                  </Label>
                 </div>
                 <div>
-                  <label>
+                  <Label>
                     <Input
                       type="checkbox"
                       checked={checkedLogLinks.includes(fullLog)}
@@ -692,11 +692,11 @@ export class BugFilerClass extends React.Component {
                     <a target="_blank" rel="noopener noreferrer" href={fullLog}>
                       Include Full Log Link
                     </a>
-                  </label>
+                  </Label>
                 </div>
                 {!!reftestUrl && (
                   <div>
-                    <label>
+                    <Label>
                       <Input
                         type="checkbox"
                         checked={checkedLogLinks.includes(reftestUrl)}
@@ -709,22 +709,23 @@ export class BugFilerClass extends React.Component {
                       >
                         Include Reftest Viewer Link
                       </a>
-                    </label>
+                    </Label>
                   </div>
                 )}
               </div>
               <div className="d-flex flex-column">
-                <label>Comment:</label>
+                <Label for="summary-input">Comment:</Label>
                 <Input
                   onChange={evt => this.setState({ comment: evt.target.value })}
                   type="textarea"
+                  id="summary-input"
                   className="flex-grow-1"
                   rows={5}
                 />
               </div>
               <div className="d-inline-flex mt-2 ml-5">
                 <div className="mt-2">
-                  <label>
+                  <Label>
                     <Input
                       onChange={() =>
                         this.setState({ isIntermittent: !isIntermittent })
@@ -733,7 +734,7 @@ export class BugFilerClass extends React.Component {
                       checked={isIntermittent}
                     />
                     This is an intermittent failure
-                  </label>
+                  </Label>
                 </div>
                 <div className="d-inline-flex ml-2">
                   <Input
@@ -790,9 +791,10 @@ export class BugFilerClass extends React.Component {
               </div>
               {!!crashSignatures.length && (
                 <div>
-                  <label>Signature:</label>
+                  <Label for="signature-input">Signature:</Label>
                   <Input
                     type="textarea"
+                    id="signature-input"
                     onChange={evt =>
                       this.setState({ crashSignatures: evt.target.value })
                     }
