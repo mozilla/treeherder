@@ -44,7 +44,7 @@ Django==2.1.7 \
 
 celery==4.3.0rc1 --hash=sha256:62cdf98af78278202b8a3ba1b8215c87ab420eae7eebf0b7ba27b16ebc9f148e
 
-kombu==4.3.0 --hash=sha256:7a2cbed551103db9a4e2efafe9b63222e012a61a18a881160ad797b9d4e1d0a1
+kombu==4.4.0 --hash=sha256:b1a68fe8a1144eab0359be6bbae5e03b6684c98b9b53de7a17ce6d64ef24e4ea --hash=sha256:750579c10e4ce82636cebdaad3cfc96970b4c7c483a040bb94fb52040bc53a48
 
 simplejson==3.16.0 \
     --hash=sha256:6c3258ffff58712818a233b9737fe4be943d306c40cf63d14ddc82ba563f483a \
