@@ -910,7 +910,7 @@
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.54.tgz#f9d5a03e4da7b021a6dabe5d63e899ed4567a5bd"
   integrity sha512-xA1FuozWXeRQ7FClUbvk8ePL+dydBeDoCWRPFTHU5+8uvVtIIfLGiHA8CMkwsbddFCYnTDVbLxG85a/HBx7LtA==
 
-"@types/lodash.frompairs@^4.0.3":
+"@types/lodash.frompairs@^4.0.5":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@types/lodash.frompairs/-/lodash.frompairs-4.0.5.tgz#406358e8deff235fccfa5dc6d6ef90809aeccbf2"
   integrity sha512-7ewlRQxR/HSyp/Ed3cKZN3WrKwiYOo5OVbdTm5N4iAuiFlavvwBaIt6V7Q/Ml/Ozqz2AtQj81RUyekzKn0oC+Q==
@@ -7776,12 +7776,12 @@ react-virtualized@^9.21.0:
     prop-types "^15.6.0"
     react-lifecycles-compat "^3.0.4"
 
-react2angular@4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/react2angular/-/react2angular-4.0.5.tgz#145b5b2def0b305bec0e05e3e1ab8edf28c569ed"
-  integrity sha512-w9bM5xkbaZbSfVWdisFwhGrTIoj9g2qN1AyhfTgjmIbbgaNKH2IgDg6KslGLNktvqPA3dUO4KFyYwhiN1/XsQQ==
+react2angular@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/react2angular/-/react2angular-4.0.6.tgz#ec49ef834d101c9a320e25229fc5afa5b29edc4f"
+  integrity sha512-MDl2WRoTyu7Gyh4+FAIlmsM2mxIa/DjSz6G/d90L1tK8ZRubqVEayKF6IPyAruC5DMhGDVJ7tlAIcu/gMNDjXg==
   dependencies:
-    "@types/lodash.frompairs" "^4.0.3"
+    "@types/lodash.frompairs" "^4.0.5"
     angular ">=1.5"
     lodash.frompairs "^4.0.1"
     ngcomponent "^4.1.0"
