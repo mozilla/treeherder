@@ -1,5 +1,6 @@
 import logging
 
+import newrelic.agent
 from kombu import (Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
@@ -92,6 +93,7 @@ class PulseConsumer(ConsumerMixin):
 class JobConsumer(PulseConsumer):
     queue_suffix = "jobs"
 
+    @newrelic.agent.background_task(name='pulse-listener-jobs.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
@@ -106,6 +108,7 @@ class JobConsumer(PulseConsumer):
 class PushConsumer(PulseConsumer):
     queue_suffix = "resultsets"
 
+    @newrelic.agent.background_task(name='pulse-listener-pushes.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
