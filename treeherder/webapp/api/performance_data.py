@@ -382,42 +382,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def nudge(self, alert, new_push_id, new_prev_push_id):
-        alert_summary, new_summary = PerformanceAlertSummary.objects.get_or_create(
-            push_id=new_push_id,
-            prev_push_id=new_prev_push_id,
-            repository=alert.summary.repository,
-            framework=alert.summary.framework,
-            defaults={
-                'created': datetime.datetime.now(),
-                'manually_created': True
-            })
-        old_summary = alert.summary
-
-        conflicting_alert = alert_summary.alerts.filter(
-                series_signature=alert.series_signature).first()
-
-        if (not new_summary) and conflicting_alert:
-            # discard nudged alert to use similar one instead
-            alert.delete()
-
-            conflicting_alert.timestamp_first_triage().save()
-        else:
-            alert.summary = alert_summary
-
-            # update deltas as well
-            alert_properties = self.calculate_alert_properties(alert_summary, alert.series_signature)
-            alert.is_regression = alert_properties.is_regression
-            alert.amount_pct = alert_properties.pct_change
-            alert.amount_abs = alert_properties.delta
-            alert.prev_value = alert_properties.prev_value
-            alert.new_value = alert_properties.new_value
-            alert.manually_created = True
-
-            alert.timestamp_first_triage().save()
-
-        if old_summary.alerts.count() == 0:
-            old_summary.delete()
-        return Response({'alert_summary_id': alert_summary.id})
+        # Bug 1532230 disabled nudging because it broke links
+        # Bug 1532283 will re enable a better version of it
+        raise exceptions.APIException('Nudging has been disabled', 400)
 
 
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
