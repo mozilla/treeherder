@@ -218,8 +218,10 @@ class Bugscache(models.Model):
     def search(cls, search_term):
         max_size = 50
 
-        # 90 days ago
-        time_limit = datetime.datetime.now() - datetime.timedelta(days=90)
+        # 365 days ago as limit for recent bugs which get suggested by default
+        # if they are not resolved. Other bugs, both older or resolved, are
+        # hidden by default with a "Show / Hide More" link.
+        time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
 
         # Replace MySQL's Full Text Search Operators with spaces so searching
         # for errors that have been pasted in still works.

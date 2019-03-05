@@ -95,11 +95,11 @@ def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bu
 def test_get_all_other_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
-    ninetyfive_days_ago = datetime.now() - timedelta(days=95)
+    fourhundred_days_ago = datetime.now() - timedelta(days=400)
     # Update the last_change date so that all bugs will be placed in
     # the all_others bucket, and none in open_recent.
     for bug in bug_list:
-        bug['last_change_time'] = ninetyfive_days_ago
+        bug['last_change_time'] = fourhundred_days_ago
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
