@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# TODO: Switch from Vagrant to a docker/docker-compose based environment (bug 1169263).
+
 # Require a recent Vagrant to reduce the chance of issues being caused by the
 # use of legacy versions (Vagrant doesn't automatically update on Windows/OS X,
 # and the ubuntu.com packages are extremely out of date).

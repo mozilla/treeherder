@@ -5,6 +5,7 @@ matrix:
   include:
     - env: js-tests
       language: node_js
+      # The Node version here must be kept in sync with that in `package.json`.
       node_js: '11.10.1'
       cache:
         directories:
@@ -20,6 +21,7 @@ matrix:
 
     - env: python-linters
       language: python
+      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
       python: '3.7.2'
       cache:
         directories:
@@ -36,6 +38,7 @@ matrix:
 
     - env: python-tests-main
       language: python
+      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
       python: '3.7.2'
       cache:
         directories:
@@ -55,12 +58,14 @@ matrix:
 
     - env: python-tests-selenium
       language: python
+      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
       python: '3.7.2'
       cache:
         directories:
           - ${HOME}/venv
           - node_modules
       install:
+        # The Node version here must be kept in sync with that in `package.json`.
         - nvm install 11
         - source ./bin/travis-setup.sh services python_env browser js_env
       before_script:
