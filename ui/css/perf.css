@@ -432,6 +432,10 @@ th {
   background-color: red;
 }
 
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Table widths for alerts */
 td.alert-checkbox {
   width: 30px;
