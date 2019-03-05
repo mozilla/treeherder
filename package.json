@@ -44,7 +44,7 @@
     "lodash": "4.17.11",
     "metrics-graphics": "2.15.6",
     "moment": "2.24.0",
-    "mousetrap": "1.6.2",
+    "mousetrap": "1.6.3",
     "neutrino": "9.0.0-rc.0",
     "ng-text-truncate-2": "1.0.1",
     "numeral": "2.0.6",
