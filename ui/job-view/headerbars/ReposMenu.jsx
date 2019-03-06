@@ -13,6 +13,7 @@ const GROUP_ORDER = [
   'qa automation tests',
   'ci',
   'servo',
+  'mobile',
   'other',
 ];
 

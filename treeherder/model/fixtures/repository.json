@@ -1385,5 +1385,33 @@
       "repository_group": 9,
       "description": "Administrative configuration for Firefox CI"
     }
+  },
+  {
+    "pk": 107,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "reference-browser",
+      "url": "https://github.com/mozilla-mobile/reference-browser",
+      "branch": "master",
+      "active_status": "active",
+      "codebase": "reference-browser",
+      "repository_group": 11,
+      "description": "A full-featured browser reference implementation using Mozilla Android Components"
+    }
+  },
+  {
+    "pk": 108,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "fenix",
+      "url": "https://github.com/mozilla-mobile/fenix",
+      "branch": "master",
+      "active_status": "active",
+      "codebase": "fenix",
+      "repository_group": 11,
+      "description": "Fenix is not your parent's Android browser"
+    }
   }
 ]
