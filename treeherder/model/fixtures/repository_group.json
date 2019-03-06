@@ -78,5 +78,13 @@
       "name": "servo",
       "description": "Branches of github.com/servo/servo"
     }
+  },
+  {
+    "pk": 11,
+    "model": "model.repositorygroup",
+    "fields": {
+      "name": "mobile",
+      "description": "Repositories for https://github.com/mozilla-mobile"
+    }
   }
 ]
