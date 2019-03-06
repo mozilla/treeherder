@@ -2,9 +2,9 @@ import pytest
 import responses
 
 from tests.test_utils import add_log_response
-from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
-                                                             LogSizeException,
-                                                             MAX_DOWNLOAD_SIZE_IN_BYTES)
+from treeherder.log_parser.artifactbuildercollection import (MAX_DOWNLOAD_SIZE_IN_BYTES,
+                                                             ArtifactBuilderCollection,
+                                                             LogSizeException)
 from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
 
 
