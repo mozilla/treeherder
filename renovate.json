@@ -14,5 +14,6 @@
   ],
   "labels": ["dependencies", "javascript"],
   "reviewers": ["sarah-clements"],
-  "semanticCommits": false
+  "semanticCommits": false,
+  "travis": { "enabled": true }
 }
