@@ -62,7 +62,7 @@ class FailureSummaryTab extends React.Component {
     const jobLogsAllParsed = logs.every(jlu => jlu.parse_status !== 'pending');
 
     return (
-      <div className="w-100 h-100">
+      <div className="w-100 h-100" role="region" aria-label="Failure Summary">
         <ul className="list-unstyled failure-summary-list" ref={this.fsMount}>
           {suggestions.map((suggestion, index) => (
             <SuggestionsListItem

@@ -37,7 +37,7 @@ class SummaryPanel extends React.PureComponent {
     ];
 
     return (
-      <div id="summary-panel">
+      <div id="summary-panel" role="region" aria-label="Summary">
         <ActionBar
           repoName={repoName}
           logParseStatus={logParseStatus}

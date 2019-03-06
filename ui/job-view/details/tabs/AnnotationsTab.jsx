@@ -213,7 +213,7 @@ class AnnotationsTab extends React.Component {
     const { classifications, classificationMap, bugs } = this.props;
 
     return (
-      <div className="container-fluid">
+      <div className="container-fluid" role="region" aria-label="Annotations">
         <div className="row h-100">
           <div className="col-sm-10 classifications-pane">
             {classifications.length ? (
