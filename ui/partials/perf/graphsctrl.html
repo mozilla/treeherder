@@ -74,25 +74,31 @@
       </div>
       <div>
         <p ng-show="tooltipContent.revision">
-          <button title="Nudge left"
-            ng-if="user.isStaff && tooltipContent.alert"
-            ng-click="nudgeAlert(tooltipContent, 'left')">
+          <span class="d-inline-block" data-toggle="tooltip" title="Nudge left disabled">
+            <button
+              ng-if="user.isStaff && tooltipContent.alert"
+              ng-click="nudgeAlert(tooltipContent, 'left')"
+              disabled>
             <span class="fas fa-angle-double-left"
-              ng-if="!nudgingAlert"></span>
+                  ng-if="!nudgingAlert"></span>
             <span class="fas fa-spinner fa-pulse th-spinner-lg"
-              ng-if="nudgingAlert"></span>
-          </button>
+                  ng-if="nudgingAlert"></span>
+            </button>
+          </span>
           <a id="tt-cset" ng-href="{{tooltipContent.pushlogURL}}" target="_blank" rel="noopener">
             {{tooltipContent.revision| limitTo: 12}}
           </a>
-          <button title="Nudge right"
-            ng-if="user.isStaff && tooltipContent.alert"
-            ng-click="nudgeAlert(tooltipContent, 'right')">
-            <span class="fas fa-angle-double-right"
-              ng-if="!nudgingAlert"></span>
-            <span class="fas fa-spinner fa-pulse th-spinner-lg"
-              ng-if="nudgingAlert"></span>
-          </button>
+          <span class="d-inline-block" data-toggle="tooltip" title="Nudge right disabled">
+            <button
+              ng-if="user.isStaff && tooltipContent.alert"
+              ng-click="nudgeAlert(tooltipContent, 'right')"
+              disabled>
+                <span class="fas fa-angle-double-right"
+                      ng-if="!nudgingAlert"></span>
+                <span class="fas fa-spinner fa-pulse th-spinner-lg"
+                      ng-if="nudgingAlert"></span>
+            </button>
+          </span>
           <span ng-show="tooltipContent.prevRevision && tooltipContent.revision">
             (<span ng-if="tooltipContent.jobId"><a id="tt-cset" ng-href="{{tooltipContent.revision | getRevisionUrl:tooltipContent.project.name}}&selectedJob={{tooltipContent.jobId}}&group_state=expanded" target="_blank" rel="noopener">job</a>, </span><a ng-href="#/comparesubtest?originalProject={{tooltipContent.project.name}}&newProject={{tooltipContent.project.name}}&originalRevision={{tooltipContent.prevRevision}}&newRevision={{tooltipContent.revision}}&originalSignature={{selectedDataPoint.signatureId}}&newSignature={{selectedDataPoint.signatureId}}&framework={{selectedDataPoint.frameworkId}}" target="_blank" rel="noopener">compare</a>)
           </span>
