@@ -395,7 +395,9 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         'has_subtests': test_perf_signature.has_subtests,
         'values': [test_perf_data[0].value],
         'name': 'mysuite mytest opt e10s opt',
-        'parent_signature': None
+        'parent_signature': None,
+        'job_ids': [test_perf_data[0].job_id],
+        'suite': test_perf_signature.suite
     }]
 
     resp1 = client.get(reverse('performance-summary') + query_params1)
@@ -403,6 +405,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     assert resp1.json() == expected
 
     expected[0]['values'] = [item.value for item in test_perf_data]
+    expected[0]['job_ids'] = [item.job_id for item in test_perf_data]
     resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected

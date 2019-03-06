@@ -1,7 +1,6 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable func-names, object-shorthand, prefer-destructuring, prefer-template, radix */
+/* eslint-disable func-names, object-shorthand, prefer-template, radix */
 import difference from 'lodash/difference';
-import metricsgraphics from 'metrics-graphics';
 
 import perf from '../../perf';
 import { endpoints, noiseMetricTitle } from '../../../perfherder/constants';
@@ -11,7 +10,6 @@ import {
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
-import PerfSeriesModel from '../../../models/perfSeries';
 import { getCounterMap, getInterval, validateQueryParams, getGraphsLink } from '../../../perfherder/helpers';
 import { getApiUrl, createApiUrl, perfSummaryEndpoint } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
@@ -23,7 +21,7 @@ const createNoiseMetric = (cmap, name, compareResults) => {
     if (compareResults.has(noiseMetricTitle)) {
         compareResults.get(noiseMetricTitle).push(cmap);
     } else {
-        compareResults.set(noiseMetricTitle, [cmap]);                        
+        compareResults.set(noiseMetricTitle, [cmap]);
     }
 }
 
@@ -157,7 +155,7 @@ perf.controller('CompareResultsCtrl', [
                     if ($scope.compareResults.has(testName)) {
                         $scope.compareResults.get(testName).push(cmap);
                     } else {
-                        $scope.compareResults.set(testName, [cmap]);                        
+                        $scope.compareResults.set(testName, [cmap]);
                     }
                 });
             });
@@ -167,7 +165,7 @@ perf.controller('CompareResultsCtrl', [
                 if (cmap.isEmpty) {
                     return;
                 }
-                createNoiseMetric(cmap, platform, $scope.compareResults);              
+                createNoiseMetric(cmap, platform, $scope.compareResults);
             });
 
             // Remove the tests with no data, report them as well; not needed for subtests
@@ -218,7 +216,7 @@ perf.controller('CompareResultsCtrl', [
             $scope.dataLoading = false;
 
             const data = [...originalResults.data, ...newResults.data];
-            
+
             $scope.platformList = [...new Set(data.map(item => item.platform))].sort();
             $scope.testList = [...new Set(data.map(item => item.name))].sort();
 
@@ -250,7 +248,7 @@ perf.controller('CompareResultsCtrl', [
         $scope.updateData = function(framework) {
             $scope.filterOptions.framework = framework;
             updateURL();
-            load();        
+            load();
         }
 
         $scope.updateNoiseAlert = function() {
@@ -408,7 +406,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: !oldData ? newData.signature_hash : oldData.signature_hash,
+                            signature: !oldData ? newData.signature_id : oldData.signature_id,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.originalResultSet, $scope.newResultSet]),
                     }];
@@ -421,8 +419,8 @@ perf.controller('CompareSubtestResultsCtrl', [
                                 newProject: $scope.newProject.name,
                                 originalRevision: $scope.originalRevision,
                                 newRevision: $scope.newRevision,
-                                originalSubtestSignature: oldData ? oldData.signature_hash : null,
-                                newSubtestSignature: newData ? newData.signature_hash: null,
+                                originalSubtestSignature: oldData ? oldData.signature_id : null,
+                                newSubtestSignature: newData ? newData.signature_id: null,
                             }),
                         });
                     }
@@ -434,7 +432,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                             $scope.newProject,
                         ])].map(project => ({
                             projectName: project.name,
-                            signature: !oldData ? newData.signature_hash : oldData.signature_hash,
+                            signature: !oldData ? newData.signature_id : oldData.signature_id,
                             frameworkId: $scope.filterOptions.framework,
                         })), [$scope.newResultSet], $scope.selectedTimeRange.value),
                     }];
@@ -442,7 +440,7 @@ perf.controller('CompareSubtestResultsCtrl', [
                 if ($scope.compareResults.has(testName)) {
                     $scope.compareResults.get(testName).push(cmap);
                 } else {
-                    $scope.compareResults.set(testName, [cmap]);                        
+                    $scope.compareResults.set(testName, [cmap]);
                 }
 
             });
@@ -461,7 +459,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.filterOptions.showOnlyNoise = !$scope.filterOptions.showOnlyNoise;
             $scope.$apply();
         }
-        
+
         async function fetchData() {
             const createQueryParams = (parent_signature, repository) => ({
                 parent_signature,
@@ -492,7 +490,7 @@ perf.controller('CompareSubtestResultsCtrl', [
             $scope.dataLoading = false;
 
             const results = [...originalResults.data, ...newResults.data];
-            
+
             const subtestName = results[0].name.split(' ');
             subtestName.splice(1, 1);
             $scope.subtestTitle = subtestName.join(' ');
@@ -597,102 +595,3 @@ perf.controller('CompareSubtestResultsCtrl', [
             });
         });
     }]);
-
-perf.controller('CompareSubtestDistributionCtrl', ['$scope', '$stateParams', '$q',
-    function CompareSubtestDistributionCtrl($scope, $stateParams, $q) {
-        $scope.originalRevision = $stateParams.originalRevision;
-        $scope.newRevision = $stateParams.newRevision;
-        $scope.originalSubtestSignature = $stateParams.originalSubtestSignature;
-        $scope.newSubtestSignature = $stateParams.newSubtestSignature;
-        $scope.dataLoading = true;
-        const loadRepositories = RepositoryModel.getList();
-        const fetchAndDrawReplicateGraph = async function (project, revision, subtestSignature, target) {
-            const replicateData = {};
-            const { data } = await PushModel.getList({ repo: project, commit_revision: revision });
-            replicateData.resultSet = data.results[0];
-            return PerfSeriesModel.getSeriesData(project, {
-                signatures: subtestSignature,
-                push_id: replicateData.resultSet.id,
-            }).then((perfDatumList) => {
-                    if (!perfDatumList[subtestSignature]) {
-                        replicateData.replicateDataError = true;
-                        return;
-                    }
-                    const numRuns = perfDatumList[subtestSignature].length;
-                    const replicatePromises = perfDatumList[subtestSignature].map(
-                        value => PerfSeriesModel.getReplicateData({ job_id: value.job_id }));
-                    return $q.all(replicatePromises).then((replicateData) => {
-                        let replicateValues = replicateData.concat.apply([],
-                                replicateData.map((data) => {
-                                    const testSuite = data.suites.find(suite => suite.name === $scope.testSuite);
-                                    const subtest = testSuite.subtests.find(subtest => subtest.name === $scope.subtest);
-                                    return subtest.replicates;
-                                }),
-                            );
-                        // metrics-graphics doesn't accept "0" as x_accesor
-                        replicateValues = replicateValues.map((value, index) => ({
-                            replicate: (index + 1).toString(),
-                            value: value,
-                        }));
-                        metricsgraphics.data_graphic({
-                            title: `${target} replicates over ${numRuns} run${(numRuns > 1) ? 's' : ''}`,
-                            chart_type: 'bar',
-                            data: replicateValues,
-                            y_accessor: 'value',
-                            x_accessor: 'replicate',
-                            height: 275,
-                            width: 1000,
-                            target: `#${target}`,
-                        });
-                    },
-                    () => {
-                        replicateData.replicateDataError = true;
-                    });
-                }).then(() => {
-                    if (replicateData.replicateDataError) {
-                        metricsgraphics.data_graphic({
-                            title: `${target} Replicates`,
-                            chart_type: 'missing-data',
-                            missing_text: 'No Data Found',
-                            target: `#${target}`,
-                            width: 1000,
-                            height: 275,
-                        });
-                    }
-                    return replicateData;
-                });
-        };
-
-        $q.all([loadRepositories]).then((results) => {
-            const repos = results[0];
-            $scope.originalProject = RepositoryModel.getRepo(
-                $stateParams.originalProject, repos);
-            $scope.newProject = RepositoryModel.getRepo(
-                $stateParams.newProject, repos);
-            PerfSeriesModel.getSeriesList($scope.originalProject.name, { signature: $scope.originalSubtestSignature }).then(
-                (seriesData) => {
-                    $scope.testSuite = seriesData[0].suite;
-                    $scope.subtest = seriesData[0].test;
-                    $scope.testName = seriesData[0].name;
-                    $scope.platform = seriesData[0].platform;
-                    return fetchAndDrawReplicateGraph($scope.originalProject.name,
-                                              $scope.originalRevision,
-                                              $scope.originalSubtestSignature,
-                                              'Base');
-                }).then((result) => {
-                    $scope.originalResultSet = result.resultSet;
-                    $scope.originalReplicateError = result.replicateDataError;
-                    return fetchAndDrawReplicateGraph($scope.newProject.name,
-                                              $scope.newRevision,
-                                              $scope.newSubtestSignature,
-                                              'New');
-                }).then((result) => {
-                    $scope.newResultSet = result.resultSet;
-                    $scope.newReplicateError = result.replicateDataError;
-                    window.document.title = `${$scope.platform}: ${$scope.testName}`;
-                    $scope.dataLoading = false;
-                    $scope.$apply();
-                });
-        });
-    },
-]);

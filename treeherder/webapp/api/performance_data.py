@@ -419,14 +419,21 @@ class PerformanceSummary(generics.ListAPIView):
         interval = query_params.validated_data['interval']
         frameworks = query_params.validated_data['framework']
         parent_signature = query_params.validated_data['parent_signature']
+        signature = query_params.validated_data['signature']
         no_subtests = query_params.validated_data['no_subtests']
 
         signature_data = (PerformanceSignature.objects
-                                              .select_related('framework', 'repository', 'platform', 'push')
-                                              .filter(repository__name=repository_name, framework__in=frameworks,
+                                              .select_related('framework', 'repository', 'platform', 'push', 'job')
+                                              .filter(repository__name=repository_name,
                                                       parent_signature__isnull=no_subtests))
+        if frameworks:
+            signature_data = signature_data.filter(framework__in=frameworks)
+
         if parent_signature:
             signature_data = signature_data.filter(parent_signature_id=parent_signature)
+
+        if signature:
+            signature_data = signature_data.filter(id=signature)
 
         if interval:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
@@ -452,13 +459,16 @@ class PerformanceSummary(generics.ListAPIView):
         option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
 
         grouped_values = defaultdict(list)
-        for signature_id, value in data.values_list('signature_id', 'value'):
+        grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in data.values_list('signature_id', 'value', 'job_id'):
             if value is not None:
                 grouped_values[signature_id].append(value)
+                grouped_job_ids[signature_id].append(job_id)
 
         # name field is created in the serializer
         for item in self.queryset:
             item['values'] = grouped_values.get(item['id'], [])
+            item['job_ids'] = grouped_job_ids.get(item['id'], [])
             item['option_name'] = option_collection_map[item['option_collection_id']]
 
         serializer = self.get_serializer(self.queryset, many=True)

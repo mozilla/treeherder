@@ -3,7 +3,6 @@
 // Vendor Styles
 import 'angular/angular-csp.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'metrics-graphics/dist/metricsgraphics.css';
 
 // Vendor JS
 import 'bootstrap';
@@ -61,6 +60,7 @@ import './js/components/loading';
 import './js/perfapp';
 import './perfherder/CompareSelectorView';
 import './perfherder/RevisionInformation';
+import './perfherder/CompareSubtestDistributionView';
 import './perfherder/CompareTableControls';
 
 config.showMissingIcons = true;

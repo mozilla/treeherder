@@ -2,7 +2,8 @@ import React from 'react';
 import { Row, Button, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-import Graph from './Graph';
+import Graph from '../shared/Graph';
+
 import { graphOneSpecs, graphTwoSpecs } from './constants';
 
 export default class GraphsContainer extends React.Component {
