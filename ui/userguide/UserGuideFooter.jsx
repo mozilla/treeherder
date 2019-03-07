@@ -27,10 +27,7 @@ const UserGuideFooter = function UserGuideFooter() {
       </div>
 
       <div>
-        <a
-          className="midgray"
-          href="http://whatsdeployed.io/?owner=mozilla&amp;repo=treeherder&amp;name[]=Stage&amp;url[]=https://treeherder.allizom.org/revision.txt&amp;name[]=Prod&amp;url[]=https://treeherder.mozilla.org/revision.txt"
-        >
+        <a className="midgray" href="https://whatsdeployed.io/s-dqv">
           Whats Deployed?
         </a>
       </div>

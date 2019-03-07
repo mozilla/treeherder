@@ -66,6 +66,15 @@ To hide jobs we use the job's `tier` setting. Jobs with `tier` of 3 are
 hidden by default. For TaskCluster, edit the task definition to include the
 `tier` setting in the Treeherder section.
 
+## Profiling API endpoint performance
+
+On our development (vagrant) instance we have [django-debug-toolbar] installed, which can
+give information on exactly what SQL is run to generate individual API endpoints. Navigate
+to an endpoint (example: <http://localhost:8000/api/repository/>) and you should see the
+toolbar to your right.
+
+[django-debug-toolbar]: https://django-debug-toolbar.readthedocs.io
+
 ## Connecting to Services Running inside Vagrant
 
 Treeherder uses various services to function, eg MySQL, etc.

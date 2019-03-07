@@ -72,7 +72,7 @@ See the [code style](code_style.md#ui) section for more details.
 
 ### Running the unit tests
 
-The unit tests for the UI are run with [Jest] and [Jasmine]. React components are tested with [enzyme].
+The unit tests for the UI are run with [Jest]. React components are tested with [enzyme].
 
 To run the tests:
 
@@ -105,7 +105,7 @@ To get started:
 
   It will typically take 5 to 30 minutes for the vagrant provision to
   complete, depending on your network performance. If you experience
-  any errors, see the [troubleshooting page](troubleshooting.md).
+  any errors, see the [Vagrant troubleshooting page](troubleshooting_vagrant.md).
 
   It is _very important_ that the provisioning process complete successfully before
   trying to interact with your test instance of treeherder: some things might
@@ -226,5 +226,4 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [yarn]: https://yarnpkg.com/en/docs/install
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
 [eslint]: https://eslint.org
-[jasmine]: https://jasmine.github.io/
 [enzyme]: http://airbnb.io/enzyme/
