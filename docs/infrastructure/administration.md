@@ -1,9 +1,8 @@
 # Infrastructure administration
 
-## Obtaining Access
+## Obtaining access
 
-- Heroku: Follow the [Mozilla Heroku SSO guide] then ask to be invited to the
-  `treeherder-prototype`, `treeherder-stage` and `treeherder-prod` Heroku apps.
+- Heroku: Follow the [Mozilla Heroku SSO guide] then ask to be invited to the Heroku apps.
 - Amazon RDS: File a [Treeherder infrastructure bug] requesting access to the
   `moz-devservices` AWS account and needinfo `:dividehex`, who will update the
   [IAM configuration file][iam-config].
@@ -37,38 +36,39 @@ Commands can then be run against a particular app like so:
 $ heroku config --app treeherder-stage
 ```
 
-Since Treeherder has multiple Heroku apps, the Heroku CLI feature that allows linking a single
-app to the local Git repository (to save having to pass `--app` each time) is not helpful.
-Instead, we recommend adding aliases similar to the following to your bash profile:
-
-```bash
-alias thd='HEROKU_APP=treeherder-prototype heroku'
-alias ths='HEROKU_APP=treeherder-stage heroku'
-alias thp='HEROKU_APP=treeherder-prod heroku'
-```
-
-This allows commands to be run against a specific app with minimal typing:
-
-```bash
-$ ths config
-```
-
 For the list of available CLI commands, see the [CLI Usage] page or run `heroku help`.
 
 [cli usage]: https://devcenter.heroku.com/articles/using-the-cli
 
+<!-- prettier-ignore -->
+!!! tip
+    Since Treeherder has multiple Heroku apps, the Heroku CLI feature that allows linking a single
+    app to the local Git repository (to save having to pass `--app` each time) is not helpful.
+    Instead, we recommend adding aliases similar to the following to your bash profile:
+
+    ```bash
+    alias thd='HEROKU_APP=treeherder-prototype heroku'
+    alias ths='HEROKU_APP=treeherder-stage heroku'
+    alias thp='HEROKU_APP=treeherder-prod heroku'
+    ```
+
+    This allows commands to be run against a specific app with minimal typing:
+
+    ```bash
+    $ ths config
+    ```
+
 ### Deploying Treeherder
 
-Deployments occur via Heroku's [github integration] feature, with prototype/stage typically
+Deployments occur via Heroku's [GitHub integration] feature, with prototype/stage typically
 set to auto-deploy from the `master` branch, and production from the `production` branch.
 This is controlled via the "deploy" tab in the Heroku app dashboard:
 [prototype][deploy-prototype] | [stage][deploy-stage] | [prod][deploy-prod].
 A comparison of the Git revisions deployed to each environment can be seen using [What's Deployed].
 
-After a push is made to an auto-deployed branch, Heroku's [github integration] will wait for
-the successful completion of the [Travis CI build] (taking approximately 8 minutes), before
-initiating the deployment process. The steps described in [deployment lifecycle] then occur,
-taking about another 5 minutes.
+After a push is made to an auto-deployed branch, Heroku will wait for the successful completion of
+the [Travis CI build] (taking approximately 8 minutes), before initiating the deployment process.
+The steps described in [deployment lifecycle] then occur, which take about 5 minutes.
 
 Once the deployment is complete, `heroku-bot` will comment in the `#treeherder` IRC channel,
 and for production, an email is sent to the [tools-treeherder] mailing list. Recent deployment
@@ -88,13 +88,13 @@ activity can also be seen on the "activity" tab in the Heroku dashboard for each
     To simplify pushing latest `master` to the `production` branch, use this bash alias:
 
     ```bash
-    # Replace `origin` with the remote name of the upstream repository if different.
+    # Replace `origin` with the remote name of the upstream Treeherder repository, if different.
     alias deploy='git fetch --all --prune && git push origin remotes/origin/master:production'
     ```
 
-    It pushes directly from the `remotes/origin/master` Git metadata branch, which means the
+    It pushes directly from the `remotes/origin/master` Git metadata branch, meaning the
     command works even when the local `master` branch isn't up to date and does not disturb
-    any locally checked out branch or uncommitted changes in the working directory.
+    the locally checked out branch or working directory.
 
 <!-- prettier-ignore -->
 !!! warning
@@ -126,18 +126,18 @@ or else the [heroku ps:restart] command can be used to restart all/some dyno typ
 
 ### Scaling dynos
 
-To change the quantity or [dyno type] (instance size) of dyno being used for a particular
+To change the quantity or [type][dyno-types] (size) of dyno being used for a particular
 process type, see Heroku's [scaling] documentation.
 
 If changing the dyno type, it may be necessary to adjust the command's concurrency to make
-full use of a larger instances resources, or conversely to avoid exhausting the RAM of a
+full use of a larger dyno's resources, or conversely to avoid exhausting the RAM of a
 smaller instance size.
 
 For gunicorn concurrency is controlled via the `WEB_CONCURRENCY` environment variable, and
 for Celery via the `--concurrency` CLI option. See the comments in Treeherder's [Procfile]
 for more details.
 
-[dyno type]: https://devcenter.heroku.com/articles/dyno-types
+[dyno-types]: https://devcenter.heroku.com/articles/dyno-types
 [scaling]: https://devcenter.heroku.com/articles/scaling#manual-scaling
 [procfile]: https://github.com/mozilla/treeherder/blob/master/Procfile
 
@@ -155,7 +155,7 @@ $ heroku run --app treeherder-stage -- bash
 Or to run a detached Django management command against prod using a larger dyno size:
 
 ```bash
-$ heroku run:detached --app treeherder-prod --size=standard-2x -- ./manage.py <COMMAND>
+$ heroku run:detached --app treeherder-prod --size=standard-2x -- ./manage.py ...
 ```
 
 [one-off dynos]: https://devcenter.heroku.com/articles/one-off-dynos
