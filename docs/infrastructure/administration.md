@@ -2,17 +2,19 @@
 
 ## Obtaining access
 
-- Heroku: Follow the [Mozilla Heroku SSO guide] then ask to be invited to the Heroku apps.
+- Heroku: Follow the [Mozilla Heroku SSO guide] to join the enterprise account,
+  then ask a Treeherder team member who has `manage` permissions to invite you to
+  the Heroku apps.
 - Amazon RDS: File a [Treeherder infrastructure bug] requesting access to the
   `moz-devservices` AWS account and needinfo `:dividehex`, who will update the
   [IAM configuration file][iam-config].
-- New Relic: Ask for an invite to be sent using the [New Relic user management] page.
-- Papertrail: Ask for an invite to be sent using [Papertrail user management] page.
+- New Relic: The Treeherder team will need to [send an invite][new-relic-invite].
+- Papertrail: The Treeherder team will need to [send an invite][papertrail-invite].
 
 [mozilla heroku sso guide]: https://mana.mozilla.org/wiki/display/TS/Using+SSO+with+your+Heroku+account
 [treeherder infrastructure bug]: https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder%3A%20Infrastructure
-[new relic user management]: https://account.newrelic.com/accounts/677903/users
-[papertrail user management]: https://papertrailapp.com/account/members
+[new-relic-invite]: https://account.newrelic.com/accounts/677903/users
+[papertrail-invite]: https://papertrailapp.com/account/members
 
 ## Heroku
 
@@ -218,7 +220,7 @@ to enable TLS.
 
 When setting up a connection make sure to change the "Use SSL" option to `require` and set
 the "SSL CA File" option to point at the AWS public CA certificate, which for convenience can
-be used [direct from the Treeherder repository][aws-rds-cert]. If using another MySQL client,
+be used [directly from the Treeherder repository][aws-rds-cert]. If using another MySQL client,
 see the [RDS SSL docs] for more details.
 
 The public instance hostnames can be found via the [RDS console][aws us-east-1 rds console]
@@ -271,10 +273,13 @@ To create a new RDS instance based on the latest daily production DB snapshot:
    - DB parameter group: `treeherder-mysql57`
 6. Select "Restore DB Instance".
 7. Wait 15-20 minutes for the instance to be created and report status as "Available".
-8. Select the instance, click "Modify", enter a randomly generated 30+ character password in
-   the "New master password" field, and press "Continue" to apply the change.
-9. Make a note of the DB hostname recorded under `Endpoint`. It will be in the form
-   `treeherder-dev-bugNNNNNN.HASH.us-east-1.rds.amazonaws.com`.
+8. Select the instance, click "Modify", and then:
+   - Enter a randomly generated 30+ character password in the "New master password" field.
+   - In the "Security group" section, replace the default group with `treeherder_heroku-sg`.
+9. Press "Continue" to submit the changes. If the page doesn't submit due to a JavaScript
+   exception, try using the deprecated [classic AWS UI] instead.
+10. Make a note of the DB hostname recorded under `Endpoint`. It will be in the form
+    `treeherder-dev-bugNNNNNN.HASH.us-east-1.rds.amazonaws.com`.
 
 To use the new instance locally, run this inside the Vagrant shell:
 
@@ -285,6 +290,7 @@ export DATABASE_URL='mysql://th_admin:PASSWORD@HOSTNAME/treeherder'
 Our Django database configuration automatically enables TLS with non-localhost hostnames.
 
 [us-east-1 rds snapshots page]: https://console.aws.amazon.com/rds/home?region=us-east-1#db-snapshots:
+[classic aws ui]: https://console.aws.amazon.com/rds/home?region=us-east-1&skin=classic#dbinstances:
 
 ### Granting access to the read-only replica
 
@@ -405,7 +411,7 @@ To change the password for a MySQL account on an RDS instance:
 
 The RDS instances are configured using [Terraform] and [this configuration file][terraform-config],
 so the IAM permissions [have been set][iam-config] to be very strict (particularly for stage/prod)
-the config drifting out of sync with that in the `devservices-aws` repository.
+to prevent the config from drifting out of sync with that in the `devservices-aws` repository.
 
 To request disk space increases, MySQL configuration changes (via [Parameter Groups]), or MySQL
 version upgrades, file a [Treeherder infrastructure bug] and needinfo `:dividehex`.

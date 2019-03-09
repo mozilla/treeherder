@@ -72,7 +72,7 @@ See the [code style](code_style.md#ui) section for more details.
 
 ### Running the unit tests
 
-The unit tests for the UI are run with [Jest]. React components are tested with [enzyme].
+The unit tests for the UI are run with [Jest].
 
 To run the tests:
 
@@ -226,4 +226,3 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [yarn]: https://yarnpkg.com/en/docs/install
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
 [eslint]: https://eslint.org
-[enzyme]: http://airbnb.io/enzyme/
