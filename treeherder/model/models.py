@@ -104,7 +104,6 @@ class Repository(models.Model):
     description = models.TextField(blank=True)
     active_status = models.CharField(max_length=7, blank=True, default='active', db_index=True)
     performance_alerts_enabled = models.BooleanField(default=False)
-    expire_performance_data = models.BooleanField(default=True)
     is_try_repo = models.BooleanField(default=False)
 
     class Meta:
