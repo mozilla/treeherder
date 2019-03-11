@@ -44,6 +44,5 @@ nav:
       - Submitting Data: 'submitting_data.md'
       - Retrieving Data: 'retrieving_data.md'
       - Schema Validation: 'data_validation.md'
-      - Troubleshooting: 'troubleshooting.md'
       - Treeherder Test Cases: 'testcases.md'
       - Administrating Treeherder: 'admin.md'

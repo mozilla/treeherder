@@ -7,8 +7,8 @@ interface, see:
 
 ## Profiling API endpoint performance
 
-On our development (vagrant) instance we have [django-debug-toolbar](http://django-debug-toolbar.readthedocs.io/) installed, which can give
-information on exactly what SQL is run to generate individual API
+In the local development environment [django-debug-toolbar](http://django-debug-toolbar.readthedocs.io/) is installed,
+which can give information on exactly what SQL is run to generate individual API
 endpoints. Just navigate to an endpoint
 (example: <http://localhost:8000/api/repository/>) and
 you should see the toolbar to your right.
@@ -41,8 +41,8 @@ client = TreeherderClient()
 # Treeherder stage
 client = TreeherderClient(server_url='https://treeherder.allizom.org')
 
-# Local vagrant instance
-client = TreeherderClient(server_url='http://localhost:8000')
+# Local development environment
+client = TreeherderClient(server_url='http://backend:8000')
 ```
 
 When using the Python client, don't forget to set up logging in the

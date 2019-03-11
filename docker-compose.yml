@@ -1,0 +1,84 @@
+version: '3'
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      # TODO: Try using cache_from pointed at a Docker Hub image built from master
+      # Though may need to also use the workaround for local vs remote:
+      # https://github.com/moby/moby/issues/32612#issuecomment-294055017
+      # cache_from: TODO
+    image: treeherder-backend
+    environment:
+      # Development/CI-specific environment variables only.
+      # Those that do not vary across environments should go in `Dockerfile`.
+      - BROKER_URL=amqp://guest:guest@rabbitmq//
+      - DATABASE_URL=mysql://root@mysql/treeherder
+      - REDIS_URL=redis://redis:6379
+      - SITE_URL=http://backend:8000/
+      - TREEHERDER_DEBUG=True
+      - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
+      - NEW_RELIC_DEVELOPER_MODE=True
+    entrypoint: ./docker/entrypoint.sh
+    command: ./manage.py runserver 0.0.0.0:8000
+    # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
+    # must send SIGINT instead to avoid waiting 10 seconds for the time out.
+    stop_signal: SIGINT
+    volumes:
+      - .:/app
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+
+  frontend:
+    container_name: frontend
+    image: node:11.10.1-alpine
+    environment:
+      # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
+      - IN_DOCKER=1
+    # Installing JS dependencies at runtime so that they share the `node_modules` from the
+    # host, improving speed (both install and build due to the webpack cache) and ensuring
+    # the host copy stays in sync (for people that switch back and forth between UI-only
+    # and full stack Treeherder development).
+    working_dir: /app
+    command: sh -c "yarn && yarn start --env.BACKEND=http://backend:8000 --host 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - '5000:5000'
+
+  mysql:
+    container_name: mysql
+    # https://hub.docker.com/r/library/mysql/
+    image: mysql:5.7.23
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=treeherder
+    volumes:
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - mysql_data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+
+  redis:
+    container_name: redis
+    # https://hub.docker.com/_/redis/
+    image: redis:3.2-alpine3.8
+    # Hide Redis `notice` log level startup output spam.
+    command: redis-server --loglevel warning
+
+  rabbitmq:
+    container_name: rabbitmq
+    # https://hub.docker.com/r/library/rabbitmq/
+    image: rabbitmq:3.7-alpine
+    environment:
+      # Hide INFO and WARNING log levels to reduce log spam.
+      - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
+
+volumes:
+  # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
+  mysql_data: {}

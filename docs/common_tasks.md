@@ -1,17 +1,25 @@
 # Common tasks
 
-## Building the docs locally
+## Serving the docs locally
 
-- Either `vagrant ssh` into the VM, or else activate a virtualenv on the host machine.
-- From the root of the Treeherder repo, run:
+The docs are built using MkDocs, which has a live-reloading development server,
+that makes working on the docs locally much easier.
 
-  ```bash
-  > pip install -r requirements/docs.txt
-  > mkdocs serve
-  ```
+To use this within the Docker environment, run:
 
-- Visit <http://127.0.0.1:8000> to view the docs.
-- Source changes will result in automatic rebuilds and browser page reload.
+```bash
+docker-compose run backend mkdocs serve
+```
+
+Or if you would rather not use Dockler, instead activate a virtualenv on the host
+machine, and from the root of the Treeherder repo, run:
+
+```bash
+> pip install -r requirements/docs.txt
+> mkdocs serve
+```
+
+In either case, the docs will then be available at: <http://127.0.0.1:8000>
 
 ## Updating package.json
 
@@ -28,13 +36,7 @@ To add a new repository, the following steps are needed:
 
 - Append new repository information to the fixtures file located at:
   `treeherder/model/fixtures/repository.json`
-- Load the file you edited with the loaddata command:
-
-  ```bash
-  vagrant ~/treeherder$ ./manage.py loaddata repository
-  ```
-
-- Restart any running gunicorn/celery processes.
+- Restart any running Django runserver/Celery processes.
 
 For more information on adding a new GitHub repository, see
 [Adding a GitHub repository](submitting_data.md#adding-a-github-repository).
