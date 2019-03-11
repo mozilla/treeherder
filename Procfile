@@ -6,7 +6,7 @@
 # The `release` process type specifies the command to run during deployment, and is where
 # we run DB migrations and other tasks that are 'release' rather than 'build' specific:
 # https://devcenter.heroku.com/articles/release-phase
-# https://12factor.net/build-release-run
+# https://devcenter.heroku.com/articles/runtime-principles#build-release-run
 release: ./bin/pre_deploy
 
 # The `web` process type is the only one that receives external traffic from Heroku's routers.
@@ -15,6 +15,7 @@ release: ./bin/pre_deploy
 # https://devcenter.heroku.com/articles/python-gunicorn
 # The Heroku Python buildpack sets some sensible gunicorn defaults via environment variables:
 # https://github.com/heroku/heroku-buildpack-python/blob/master/vendor/python.gunicorn.sh
+# https://github.com/heroku/heroku-buildpack-python/blob/master/vendor/WEB_CONCURRENCY.sh
 # TODO: Experiment with different dyno sizes and gunicorn concurrency/worker types (bug 1175472).
 web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 20
 
@@ -24,8 +25,9 @@ web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --ti
 # The REMAP_SIGTERM is as recommended by:
 # https://devcenter.heroku.com/articles/celery-heroku#using-remap_sigterm
 
-# This schedules (but does not run itself) the cron-like tasks listed in `CELERYBEAT_SCHEDULE`.
+# This schedules (but does not run itself) the cron-like tasks listed in `CELERY_BEAT_SCHEDULE`.
 # However we're moving away from using this in favour of the Heroku scheduler addon.
+# NB: This should not be scaled up to more than 1 dyno otherwise duplicate tasks will be scheduled.
 # TODO: Move the remaining tasks to the addon and remove this process type (deps of bug 1176492).
 celery_scheduler: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery beat -A treeherder
 
@@ -33,7 +35,7 @@ celery_scheduler: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery beat -
 # Django management commands. They do not ingest the data themselves, instead adding tasks
 # to the `store_pulse_{pushes,jobs}` queues for `worker_store_pulse_data` to process.
 # NB: These should not be scaled up to more than 1 of each.
-# TODO: Merge these two listeners into one since they use so little CPU each.
+# TODO: Merge these two listeners into one since they use so little CPU each (bug 1530965).
 pulse_listener_pushes: newrelic-admin run-program ./manage.py pulse_listener_pushes
 pulse_listener_jobs: newrelic-admin run-program ./manage.py pulse_listener_jobs
 

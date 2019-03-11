@@ -111,8 +111,10 @@ for alias in DATABASES:
     }
     if DATABASES[alias]['HOST'] != 'localhost':
         # Use TLS when connecting to RDS.
+        # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
+        # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
         DATABASES[alias]['OPTIONS']['ssl'] = {
-            'ca': 'deployment/aws/combined-ca-bundle.pem',
+            'ca': 'deployment/aws/rds-combined-ca-bundle.pem',
         }
 
 # Caches
@@ -143,6 +145,7 @@ STATIC_URL = "/static/"
 
 # Create hashed+gzipped versions of assets during collectstatic,
 # which will then be served by WhiteNoise with a suitable max-age.
+# http://whitenoise.evans.io/en/stable/django.html#add-compression-and-caching-support
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Authentication
@@ -372,6 +375,7 @@ REST_FRAMEWORK = {
 }
 
 # Whitenoise
+# http://whitenoise.evans.io/en/stable/django.html#available-settings
 # Files in this directory will be served by WhiteNoise at the site root.
 WHITENOISE_ROOT = join(SRC_DIR, ".build")
 # Serve index.html for URLs ending in a trailing slash.

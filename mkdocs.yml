@@ -32,18 +32,18 @@ markdown_extensions:
 # http://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
 nav:
   - About: 'index.md'
-  - Getting Started:
+  - Development:
       - Installation: 'installation.md'
+      - Loading Pulse data: 'pulseload.md'
       - Code Style: 'code_style.md'
       - Common tasks: 'common_tasks.md'
       - Backend tasks: 'backend_tasks.md'
-  - Working with the Server:
-      - Loading Pulse data: 'pulseload.md'
-      - SETA: 'seta.md'
-      - REST API: 'rest_api.md'
-      - Submitting Data: 'submitting_data.md'
-      - Retrieving Data: 'retrieving_data.md'
-      - Schema Validation: 'data_validation.md'
-      - Troubleshooting: 'troubleshooting.md'
-      - Treeherder Test Cases: 'testcases.md'
-      - Administrating Treeherder: 'admin.md'
+      - Troubleshooting Vagrant: 'troubleshooting_vagrant.md'
+  - Infrastructure:
+      - Architecture: 'infrastructure/architecture.md'
+      - Administration: 'infrastructure/administration.md'
+      - Troubleshooting: 'infrastructure/troubleshooting.md'
+  - Accessing data: 'accessing_data.md'
+  - Submitting data: 'submitting_data.md'
+  - SETA: 'seta.md'
+  - Manual test cases: 'testcases.md'

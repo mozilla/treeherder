@@ -1,3 +1,6 @@
+// This is the configuration file for Neutrino, which configures webpack and Jest:
+// https://neutrinojs.org
+
 // `use strict` is still necessary here since this file is not treated as a module.
 'use strict'; // eslint-disable-line strict, lines-around-directive
 

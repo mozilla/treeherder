@@ -1,4 +1,4 @@
-# Troubleshooting
+# Troubleshooting Vagrant
 
 ## Errors during Vagrant setup
 

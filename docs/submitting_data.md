@@ -1,4 +1,4 @@
-# Submitting Data
+# Submitting data to Treeherder
 
 To submit your test data to Treeherder, you have two options:
 
@@ -105,6 +105,32 @@ to your Exchange and they will start showing in Treeherder.
 
 You will no longer need any special credentials. You publish messages to the
 Exchange YOU own. Treeherder is now just listening to it.
+
+## Schema Validation
+
+Some data types in Treeherder will have JSON Schema files in the form of YAML.
+You can use these files to validate your data prior to submission to be sure
+it is in the right format.
+
+You can find all our data schemas in the [schemas] folder.
+
+To validate your file against a `yml` file, you can use something like the
+following example code:
+
+```python
+import yaml
+import jsonschema
+
+with open('schemas/text-log-summary-artifact.yml') as f:
+    schema = yaml.load(f)
+
+jsonschema.validate(data, schema)
+```
+
+This will give output telling you if your `data` element passes validation,
+and, if not, exactly where it is out of compliance.
+
+[schemas]: https://github.com/mozilla/treeherder/tree/master/schemas
 
 ## Adding a GitHub Repository
 

@@ -28,7 +28,15 @@ CSP_HEADER = '; '.join(CSP_DIRECTIVES)
 
 
 class CustomWhiteNoise(WhiteNoiseMiddleware):
-    """Sets long max-age headers for Neutrino-generated hashed files."""
+    """
+    Extends WhiteNoiseMiddleware with two additional features:
+    1) Adds a `Content-Security-Policy` header to all static file responses.
+    2) Allows WhiteNoise to recognise Neutrino-generated hashed filenames as "immutable",
+       so that WhiteNoise will then set long Cache-Control max-age headers for them.
+
+    For the stock functionality provided by WhiteNoiseMiddleware see:
+    http://whitenoise.evans.io/
+    """
 
     # Matches Neutrino's style of hashed filename URLs, eg:
     #   /assets/index.1d85033a.js

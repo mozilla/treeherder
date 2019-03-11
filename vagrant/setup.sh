@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+
 # Script that is run during Vagrant provision to set up the development environment.
+# TODO: Switch from Vagrant to a docker/docker-compose based environment (bug 1169263).
 
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail

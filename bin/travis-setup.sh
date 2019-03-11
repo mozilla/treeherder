@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Script that is called from `.travis.yml` to bootstrap the Travis environment.
+# TODO: Use docker in CI instead as part of the move from Vagrant to docker (bug 1169263).
+
 set -euo pipefail
 
 # This script must be sourced, so that the environment variables are set in the calling shell.
