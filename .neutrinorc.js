@@ -63,7 +63,7 @@ module.exports = {
     require('@neutrinojs/react')({
       devServer: {
         historyApiFallback: false,
-        open: !process.env.MOZ_HEADLESS,
+        open: !process.env.IN_DOCKER,
         proxy: {
           // Proxy any paths not recognised by webpack to the specified backend.
           '*': {
@@ -88,9 +88,9 @@ module.exports = {
             },
           },
         },
-        // Inside Vagrant filesystem watching has to be performed using polling mode,
-        // since inotify doesn't work with Virtualbox shared folders.
-        watchOptions: process.env.USE_WATCH_POLLING && {
+        // Inside Docker filesystem watching has to be performed using polling mode,
+        // since inotify doesn't work.
+        watchOptions: process.env.IN_DOCKER && {
           // Poll only once a second and ignore the node_modules folder to keep CPU usage down.
           poll: 1000,
           ignored: /node_modules/,

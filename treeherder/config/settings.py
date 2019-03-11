@@ -26,7 +26,7 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 
 # Hosts
-SITE_URL = env("SITE_URL", default="http://localhost:8000/")
+SITE_URL = env("SITE_URL")
 SITE_HOSTNAME = furl(SITE_URL).host
 ALLOWED_HOSTS = [SITE_HOSTNAME]
 
@@ -114,7 +114,7 @@ for alias in DATABASES:
         # still not possible to insert non-BMP unicode into utf8mb4 tables.
         'charset': 'utf8mb4',
     }
-    if DATABASES[alias]['HOST'] != 'localhost':
+    if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
         # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
         # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
@@ -350,6 +350,7 @@ CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
 # Debug Toolbar
 if DEBUG:
+    # TODO: Update this for Docker
     # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
     # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:
     # http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/

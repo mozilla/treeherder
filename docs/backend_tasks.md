@@ -2,29 +2,37 @@
 
 ## Running the tests
 
-You can run flake8, isort and the pytest suite inside the Vagrant VM, using:
+You can run flake8, isort and the pytest suite inside Docker, using:
 
 ```bash
-vagrant ~/treeherder$ ./runtests.sh
+docker-compose run backend ./runtests.sh
 ```
 
 Note: The Selenium tests will be skipped unless `yarn build` has been manually run prior.
 
-Or for more control, run each tool individually:
+Or for more control, run each tool individually, by first running:
+
+```bash
+docker-compose run backend bash
+```
+
+...which saves having to wait for docker-compose to spin up for every test run.
+
+Then run the individual tools within that shell, like so:
 
 - [pytest](https://docs.pytest.org/en/stable/):
 
   ```bash
-  vagrant ~/treeherder$ pytest tests/
-  vagrant ~/treeherder$ pytest tests/log_parser/test_tasks.py
-  vagrant ~/treeherder$ pytest tests/etl/test_job_loader.py -k test_ingest_pulse_jobs
-  vagrant ~/treeherder$ pytest tests/selenium/test_pin_jobs.py::test_pin_all_jobs
+  pytest tests/
+  pytest tests/log_parser/test_tasks.py
+  pytest tests/etl/test_job_loader.py -k test_ingest_pulse_jobs
+  pytest tests/selenium/test_pin_jobs.py::test_pin_all_jobs
   ```
 
   To run all tests, including slow tests that are normally skipped, use:
 
   ```bash
-  vagrant ~/treeherder$ pytest --runslow tests/
+  pytest --runslow tests/
   ```
 
   For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>.
@@ -33,32 +41,28 @@ Or for more control, run each tool individually:
   can be generated using:
 
   ```bash
-  vagrant ~/treeherder$ pytest tests/selenium/ --html report.html
+  pytest tests/selenium/ --html report.html
   ```
 
 - [flake8](https://flake8.readthedocs.io/):
 
   ```bash
-  vagrant ~/treeherder$ flake8
+  flake8
   ```
-
-  NB: If running flake8 from outside of the VM, ensure you are using the same version as used on Travis (see `requirements/dev.txt`).
 
 - [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.md#python-imports)):
 
   To run interactively:
 
   ```bash
-  vagrant ~/treeherder$ isort
+  isort
   ```
 
   Or to apply all changes without confirmation:
 
   ```bash
-  vagrant ~/treeherder$ isort --apply
+  isort --apply
   ```
-
-  NB: isort must be run from inside the VM, since a populated (and up to date) virtualenv is required so that isort can correctly categorise the imports.
 
 ## Hide Jobs with Tiers
 
@@ -75,36 +79,32 @@ toolbar to your right.
 
 [django-debug-toolbar]: https://django-debug-toolbar.readthedocs.io
 
-## Connecting to Services Running inside Vagrant
+## Connecting to Services Running inside Docker
 
 Treeherder uses various services to function, eg MySQL, etc.
-At times it can be useful to connect to them from outside the Vagrant VM.
+At times it can be useful to connect to them from outside the Docker environment.
 
-The Vagrantfile defines how internal ports are mapped to the host OS' ports.
-These allow one to connect to services running inside a Vagrant VM.
+The `docker-compose.yml` file defines how internal ports are mapped to the host OS' ports.
 
-In the below example we're mapping VM port 3306 (MySQL's default port) to host port 3308.
+In the below example we're mapping VM port 3306 (MySQL's default port) to host port 3306.
 
-```ruby
-config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+```yaml
+ports:
+  - '3306:3306'
 ```
 
 <!-- prettier-ignore -->
 !!! note
     Any forwarded ports will block usage of that port on the host OS even if there isn't a service running inside the VM talking to it.
 
-With MySQL exposed at port 3308 you can connect to it from your host OS with the following credentials:
+With MySQL exposed at port 3306 you can connect to it from your host OS with the following credentials:
 
 - host: `localhost`
-- port: `3308`
+- port: `3306`
 - user: `root`
 - password: leave blank
 
-Other services running inside the VM, can be accessed in the same way.
-
-[client git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
-[client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
-[bug 1236965]: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965
+Other services running inside the Compose project, can be accessed in the same way.
 
 ## Releasing a new version of the Python client
 
@@ -126,3 +126,7 @@ Other services running inside the VM, can be accessed in the same way.
 - File a `Release Engineering::Buildduty` bug requesting that the sdist
   and wheel releases (plus any new dependent packages) be added to the
   internal PyPI mirror. For an example, see [bug 1236965].
+
+[client git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
+[client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
+[bug 1236965]: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965

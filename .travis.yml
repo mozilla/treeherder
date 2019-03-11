@@ -1,3 +1,5 @@
+# TODO: Make Travis use the docker-compose project instead.
+
 dist: xenial
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
@@ -33,6 +35,9 @@ matrix:
         - python -bb lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
+        # It's probably going to be easier to use the shellcheck docker image than
+        # installing it in the backend Dockerfile. See:
+        # https://hub.docker.com/r/koalaman/shellcheck
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - mkdocs build
 
