@@ -1389,15 +1389,10 @@ angular1-ui-bootstrap4@2.4.22:
   resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
   integrity sha1-N4aXQFyVe5b5R/QjIvNmYM0/yI0=
 
-angular@1.7.8:
+angular@1.7.8, angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
   version "1.7.8"
   resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.8.tgz#b77ede272ce1b261e3be30c1451a0b346905a3c9"
   integrity sha512-wtef/y4COxM7ZVhddd7JtAAhyYObq9YXKar9tsW7558BImeVYteJiTxCKeJOL45lJ/+7B4wrAC49j8gTFYEthg==
-
-angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.7.tgz#26bd87693deadcbd5944610a7a0463fc79a18803"
-  integrity sha512-MH3JEGd8y/EkNCKJ8EV6Ch0j9X0rZTta/QVIDpBWaIdfh85/e5KO8+ZKgvWIb02MQuiS20pDFmMFlv4ZaLcLWg==
 
 ansi-colors@^3.0.0:
   version "3.2.4"
