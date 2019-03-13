@@ -211,7 +211,7 @@ LOGGING = {
         'kombu': {
             'handlers': ['console'],
             'level': 'WARNING',
-        }
+        },
     }
 }
 

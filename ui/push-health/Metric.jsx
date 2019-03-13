@@ -66,7 +66,7 @@ export default class Metric extends React.PureComponent {
                   {failures &&
                     failures.map(failure => (
                       <TestFailure
-                        key={failure.testName}
+                        key={failure.key}
                         failure={failure}
                         repo={repo}
                         revision={revision}
