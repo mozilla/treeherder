@@ -55,6 +55,7 @@ export const thPlatformMap = {
   'windows2012-64-shippable': 'Windows 2012 x64 shippable',
   'windows2012-aarch64': 'Windows 2012 AArch64',
   'windows2012-aarch64-shippable': 'Windows 2012 AArch64 Shippable',
+  'windows2012-aarch64-devedition': 'Windows 2012 AArch64 DevEdition',
   'win64-asan-reporter': 'Windows 2012 x64 asan reporter',
   'windows2012-64-add-on-devel': 'Windows 2012 x64 addon',
   'windows2012-64-noopt': 'Windows 2012 x64 NoOpt',
