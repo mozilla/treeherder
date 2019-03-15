@@ -10,9 +10,9 @@ django-debug-toolbar==1.11 \
 
 mock==2.0.0 --hash=sha256:5ce3c71c5545b472da17b72268978914d0252980348636840bd34a00b5cc96c1
 
-responses==0.10.5 \
-    --hash=sha256:ea5a14f9aea173e3b786ff04cf03133c2dabd4103dbaef1028742fd71a6c2ad3 \
-    --hash=sha256:c85882d2dc608ce6b5713a4e1534120f4a0dc6ec79d1366570d2b0c909a50c87
+responses==0.10.6 \
+    --hash=sha256:97193c0183d63fba8cd3a041c75464e4b09ea0aff6328800d1546598567dde0b \
+    --hash=sha256:502d9c0c8008439cfcdef7e251f507fcfdd503b56e8c0c87c3c3e3393953f790
 
 django-extensions==2.1.6 \
     --hash=sha256:109004f80b6f45ad1f56addaa59debca91d94aa0dc1cb19678b9364b4fe9b6f4 \
