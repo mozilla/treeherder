@@ -14,8 +14,9 @@ export default class TestFailure extends React.PureComponent {
       jobName,
       jobId,
       classification,
-      failureLine,
+      logLines,
       confidence,
+      config,
     } = failure;
 
     return (
@@ -31,17 +32,25 @@ export default class TestFailure extends React.PureComponent {
         </Row>
         <div className="small">
           <a
-            className="text-dark ml-3"
+            className="text-dark ml-3 px-1 border border-secondary rounded"
             href={getJobsUrl({ selectedJob: jobId, repo, revision })}
           >
             {jobName}
           </a>
+          <span className="ml-1">{config},</span>
           <span className="ml-1">
-            <FontAwesomeIcon icon={faStar} />
-            {classification}
+            {classification !== 'not classified' && (
+              <FontAwesomeIcon icon={faStar} />
+            )}
+            <span className="ml-1">{classification}</span>
           </span>
         </div>
-        <Row className="small text-monospace mt-2 ml-3">{failureLine}</Row>
+        {!!logLines.length &&
+          logLines.map(logLine => (
+            <Row className="small text-monospace mt-2 ml-3" key={logLine}>
+              {logLine}
+            </Row>
+          ))}
       </Col>
     );
   }

@@ -9,6 +9,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
 
 from treeherder.model.models import (Push,
                                      Repository)
+from treeherder.push_health.push_health import get_push_health_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
@@ -196,8 +197,6 @@ class PushViewSet(viewsets.ViewSet):
     def health(self, request, project):
         """
         Return a calculated assessment of the health of this push.
-
-        TODO: Replace this static dummy data with real data.
         """
         revision = request.query_params.get('revision')
 
@@ -206,6 +205,8 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
+        push_health_test_failures = get_push_health_test_failures(push)
+
         return Response({
             'revision': revision,
             'id': push.id,
@@ -227,31 +228,8 @@ class PushViewSet(viewsets.ViewSet):
                     'name': 'Tests',
                     'result': 'fail',
                     'value': 2,
-                    'failures': [
-                        {
-                            'testName': 'dom/tests/mochitest/fetch/test_fetch_cors_sw_reroute.html',
-                            'jobName': 'test-linux32/opt-mochitest-browser-chrome-e10s-4',
-                            'jobId': 223458405,
-                            'classification': 'intermittent',
-                            'failureLine':
-                                'REFTEST TEST-UNEXPECTED-FAIL | file:///builds/worker/workspace/build/tests/reftest/tests/layout/reftests/border-dotted/border-dashed-no-radius.html == file:///builds/worker/workspace/build/tests/reftest/tests/layout/reftests/border-dotted/masked.html | image comparison, max difference: 255, number of differing pixels: 54468',
-                            'confidence': 3,
-                        },
-                        {
-                            'testName':
-                                'browser/components/extensions/test/browser/test-oop-extensions/browser_ext_pageAction_context.js',
-                            'jobName': 'test-linux64/debug-mochitest-plain-headless-e10s-8',
-                            'jobId': 223458405,
-                            'classification': 'intermittent',
-                            'failureLine':
-                                "raptor-main TEST-UNEXPECTED-FAIL: test 'raptor-tp6-bing-firefox' timed out loading test page: https://www.bing.com/search?q=barack+obama",
-                            'confidence': 4,
-                        },
-                    ],
-                    'details': [
-                        'Ran some tests that did not go so well',
-                        'See [foo.bar.baz/mongo/rational/fee]',
-                    ],
+                    'failures': push_health_test_failures,
+                    'details': [],
                 },
                 {
                     'name': 'Coverage',

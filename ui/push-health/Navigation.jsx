@@ -16,7 +16,7 @@ export default class Navigation extends React.PureComponent {
           title="This data is for UI prototyping purposes only"
           className="text-white"
         >
-          [---FAKE-DATA---]
+          [---PROTOTYPE---]
         </span>
         <Login user={user} setUser={setUser} />
       </Navbar>
