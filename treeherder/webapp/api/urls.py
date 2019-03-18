@@ -129,4 +129,5 @@ urlpatterns = [
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
     url(r'^performance/summary/$', performance_data.PerformanceSummary.as_view(), name='performance-summary'),
     url(r'^csp-report/$', csp_report.csp_report_collector, name='csp-report'),
+    url(r'^performance/status/$', performance_data.PerformanceAlertStatusViewSet.as_view(), name='performance-status'),
 ]

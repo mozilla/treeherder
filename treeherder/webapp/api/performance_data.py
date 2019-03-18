@@ -5,10 +5,12 @@ from collections import defaultdict
 import django_filters
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Count
 from rest_framework import (exceptions,
                             filters,
                             generics,
                             pagination,
+                            views,
                             viewsets)
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -385,6 +387,82 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         # Bug 1532230 disabled nudging because it broke links
         # Bug 1532283 will re enable a better version of it
         raise exceptions.APIException('Nudging has been disabled', 400)
+
+
+class PerformanceAlertStatusViewSet(views.APIView):
+
+    permission_classes = (IsStaffOrReadOnly,)
+
+    allowed_frameworks = ['talos', 'build_metrics', 'awsy', 'raptor']
+    allowed_repositories = ['mozilla-inbound', 'autoland', 'mozilla-beta']
+    statuses = [PerformanceAlertSummary.UNTRIAGED,
+                PerformanceAlertSummary.DOWNSTREAM,
+                PerformanceAlertSummary.REASSIGNED,
+                PerformanceAlertSummary.INVALID,
+                PerformanceAlertSummary.IMPROVEMENT,
+                PerformanceAlertSummary.INVESTIGATING,
+                PerformanceAlertSummary.WONTFIX,
+                PerformanceAlertSummary.FIXED,
+                PerformanceAlertSummary.BACKED_OUT,
+                PerformanceAlertSummary.CONFIRMING]
+
+    def add_missing_statuses(self, alerts):
+        '''
+        check the alerts query and add default values for missing statuses
+        '''
+        al = alerts[:]
+        # get the statuses present in performance_alertsummary
+        database_statuses = [value['status'] for value in al]
+
+        # add new dictionaries for the missing statuses
+        # the default value for total_count will be 0
+        al += ([{'status': no, 'total_count': 0}
+                for no in self.statuses if no not in database_statuses])
+        al.sort(key=lambda x: x['status'])
+        return al
+
+    def add_missing_frameworks(self, alerts):
+        # create a tuple list with all (status,framework) groups present in alerts queryset
+        al = alerts[:]
+        sf = [(x['status'], x['framework__name']) for x in al]
+
+        # add missing status, framework group with the default value 0
+        for status in self.statuses:
+            for framework in self.allowed_frameworks:
+                if (status, framework) not in sf:
+                    al.append({'status': status,
+                               'framework__name': framework,
+                               'framework_count': 0})
+        al.sort(key=lambda x: x['framework__name'])
+        return al
+
+    def get(self, request):
+
+        allowed_alerts = (PerformanceAlertSummary.objects
+                          .select_related("framework", "repository")
+                          .filter(framework__name__in=self.allowed_frameworks,
+                                  repository__name__in=self.allowed_repositories))
+
+        # get the total number of alerts with a certain status
+        alerts_for_status = list(allowed_alerts.values('status')
+                                 .annotate(total_count=Count('status')))
+
+        alerts_for_status = self.add_missing_statuses(alerts_for_status)
+
+        # get the total number of alerts with a certain status and framework
+        # this way we will split the total_count into frameworks_count
+        alerts_by_frameworks = list(allowed_alerts.values('status', 'framework__name')
+                                    .annotate(framework_count=Count('status')))
+        alerts_by_frameworks = self.add_missing_frameworks(alerts_by_frameworks)
+
+        for alert in alerts_for_status:
+
+            alert['drill_down_by_frameworks'] = [{'framework_name': af['framework__name'],
+                                                  'framework_count':af['framework_count']
+                                                  } for af in alerts_by_frameworks
+                                                 if af['status'] == alert['status']]
+
+        return Response(alerts_for_status)
 
 
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):
