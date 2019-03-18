@@ -64,7 +64,7 @@ export default class CompareSelectorView extends React.Component {
         originalProject,
         newProject,
         newRevision,
-        selectedTimeRange: compareDefaultTimeRange,
+        selectedTimeRange: compareDefaultTimeRange.value,
       });
     }
   };

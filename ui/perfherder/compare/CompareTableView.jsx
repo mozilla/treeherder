@@ -20,8 +20,12 @@ import {
 } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
-import { getCounterMap } from '../helpers';
-import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
+import { getCounterMap, getGraphsLink } from '../helpers';
+import {
+  createApiUrl,
+  perfSummaryEndpoint,
+  createQueryParams,
+} from '../../helpers/url';
 import { noiseMetricTitle } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
@@ -41,11 +45,13 @@ export default class CompareTableView extends React.Component {
       testsWithNoise: [],
       failureMessage: '',
       loading: false,
-      testList: [],
-      platformList: [],
+      tableNames: [],
+      rowNames: [],
       timeRange: this.setTimeRange(),
+      framework: this.getFrameworkData(),
       filteredResults: new Map(),
       filterOn: false,
+      title: '',
     };
   }
 
@@ -53,12 +59,25 @@ export default class CompareTableView extends React.Component {
     this.getPerformanceData();
   }
 
-  // TODO updating seems a bit slow
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
       this.getPerformanceData();
     }
   }
+
+  getFrameworkData = () => {
+    const { framework, frameworks } = this.props.validated;
+
+    if (framework) {
+      const frameworkObject = frameworks.find(
+        item => item.id === parseInt(framework, 10),
+      );
+      // framework is validated in the withValidation component so
+      // we know this object will always exist
+      return frameworkObject;
+    }
+    return { id: 1, name: 'talos' };
+  };
 
   setTimeRange = () => {
     const { selectedTimeRange, originalRevision } = this.props.validated;
@@ -66,9 +85,13 @@ export default class CompareTableView extends React.Component {
     if (originalRevision) {
       return null;
     }
-    const timeRange = phTimeRanges.find(
-      timeRange => timeRange.value === parseInt(selectedTimeRange, 10),
-    );
+
+    let timeRange;
+    if (selectedTimeRange) {
+      timeRange = phTimeRanges.find(
+        timeRange => timeRange.value === parseInt(selectedTimeRange, 10),
+      );
+    }
 
     return timeRange || compareDefaultTimeRange;
   };
@@ -78,19 +101,19 @@ export default class CompareTableView extends React.Component {
     oldStddevVariance,
     newStddevVariance,
   ) => {
-    const { platformList } = this.state;
+    const { rowNames } = this.state;
 
-    platformList.forEach(platform => {
+    rowNames.forEach(value => {
       const cmap = getCounterMap(
         noiseMetricTitle,
-        oldStddevVariance[platform],
-        newStddevVariance[platform],
+        oldStddevVariance[value],
+        newStddevVariance[value],
       );
       if (cmap.isEmpty) {
         return;
       }
 
-      cmap.name = platform;
+      cmap.name = value;
       cmap.isNoiseMetric = true;
 
       if (compareResults.has(noiseMetricTitle)) {
@@ -103,11 +126,12 @@ export default class CompareTableView extends React.Component {
   };
 
   getPerformanceData = async () => {
+    const { getQueryParams, hasSubtests } = this.props;
+    const { framework, timeRange } = this.state;
+
     this.setState({ loading: true });
 
-    const [originalParams, newParams] = this.props.getQueryParams(
-      this.state.timeRange,
-    );
+    const [originalParams, newParams] = getQueryParams(timeRange, framework);
 
     const [originalResults, newResults] = await Promise.all([
       getData(createApiUrl(perfSummaryEndpoint, originalParams)),
@@ -117,21 +141,40 @@ export default class CompareTableView extends React.Component {
     if (originalResults.failureStatus) {
       return this.setState({
         failureMessage: originalResults.data,
+        loading: false,
       });
     }
 
     if (newResults.failureStatus) {
       return this.setState({
         failureMessage: newResults.data,
+        loading: false,
       });
     }
 
     const data = [...originalResults.data, ...newResults.data];
+    let rowNames;
+    let tableNames;
+    let title;
 
-    const platformList = [...new Set(data.map(item => item.platform))].sort();
-    const testList = [...new Set(data.map(item => item.name))].sort();
+    if (!data.length) {
+      return this.setState({ loading: false });
+    }
 
-    return this.setState({ platformList, testList }, () =>
+    if (hasSubtests) {
+      let subtestName = data[0].name.split(' ');
+      subtestName.splice(1, 1);
+      subtestName = subtestName.join(' ');
+
+      title = `${data[0].platform}: ${subtestName}`;
+      tableNames = [subtestName];
+      rowNames = [...new Set(data.map(item => item.test))].sort();
+    } else {
+      tableNames = [...new Set(data.map(item => item.name))].sort();
+      rowNames = [...new Set(data.map(item => item.platform))].sort();
+    }
+
+    return this.setState({ tableNames, rowNames, title }, () =>
       this.getDisplayResults(originalResults.data, newResults.data),
     );
   };
@@ -142,46 +185,68 @@ export default class CompareTableView extends React.Component {
       newProject,
       originalRevision,
       newRevision,
+      originalSignature,
+      newSignature,
     } = this.props.validated;
 
-    const { testList, platformList, timeRange } = this.state;
-    const { framework, checkForResults } = this.props;
+    const { rowNames, tableNames, framework } = this.state;
+    const { checkForResults, hasSubtests } = this.props;
 
     let compareResults = new Map();
-    const titleText = originalRevision
+    const text = originalRevision
       ? `${originalRevision} (${originalProject})`
       : originalProject;
-    window.document.title = `Comparison between ${titleText} and ${newRevision} (${newProject})`;
+    window.document.title =
+      tableNames[0] ||
+      `Comparison between ${text} and ${newRevision} (${newProject})`;
 
     const oldStddevVariance = {};
     const newStddevVariance = {};
     const testsWithNoise = [];
 
-    testList.forEach(testName => {
-      platformList.forEach(platform => {
-        if (!oldStddevVariance[platform]) {
-          oldStddevVariance[platform] = {
+    tableNames.forEach(testName => {
+      rowNames.forEach(value => {
+        if (!oldStddevVariance[value]) {
+          oldStddevVariance[value] = {
             values: [],
             lower_is_better: true,
             frameworkID: framework.id,
           };
         }
-        if (!newStddevVariance[platform]) {
-          newStddevVariance[platform] = {
+        if (!newStddevVariance[value]) {
+          newStddevVariance[value] = {
             values: [],
             frameworkID: framework.id,
           };
         }
 
-        const oldResults = origResultsMap.find(
-          sig => sig.name === testName && sig.platform === platform,
-        );
-        const newResults = newResultsMap.find(
-          sig => sig.name === testName && sig.platform === platform,
-        );
+        let oldResults;
+        let newResults;
+
+        if (hasSubtests) {
+          oldResults = origResultsMap.find(sig => sig.test === value);
+          newResults = newResultsMap.find(sig => sig.test === value);
+        } else {
+          oldResults = origResultsMap.find(
+            sig => sig.name === testName && sig.platform === value,
+          );
+          newResults = newResultsMap.find(
+            sig => sig.name === testName && sig.platform === value,
+          );
+        }
         const cmap = getCounterMap(testName, oldResults, newResults);
         if (cmap.isEmpty) {
           return;
+        }
+        cmap.name = value;
+
+        if (
+          (oldResults && oldResults.parent_signature === originalSignature) ||
+          (oldResults && oldResults.parent_signature === newSignature) ||
+          newResults.parent_signature === originalSignature ||
+          newResults.parent_signature === newSignature
+        ) {
+          cmap.highlightedTest = true;
         }
 
         if (
@@ -189,24 +254,28 @@ export default class CompareTableView extends React.Component {
           cmap.newStddevPct !== undefined
         ) {
           if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
-            oldStddevVariance[platform].values.push(
+            oldStddevVariance[value].values.push(
               Math.round(cmap.originalStddevPct * 100) / 100,
             );
-            newStddevVariance[platform].values.push(
+            newStddevVariance[value].values.push(
               Math.round(cmap.newStddevPct * 100) / 100,
             );
           } else {
-            testsWithNoise.push({
-              platform,
-              testname: testName,
+            const noise = {
               baseStddev: cmap.originalStddevPct,
               newStddev: cmap.newStddevPct,
-            });
+            };
+            if (hasSubtests) {
+              noise.testname = value;
+            } else {
+              noise.platform = value;
+              noise.testname = testName;
+            }
+            testsWithNoise.push(noise);
           }
         }
-        cmap.links = this.props.createLinks(oldResults, newResults, timeRange);
+        cmap.links = this.createLinks(oldResults, newResults);
 
-        cmap.name = platform;
         if (compareResults.has(testName)) {
           compareResults.get(testName).push(cmap);
         } else {
@@ -225,8 +294,12 @@ export default class CompareTableView extends React.Component {
     const updates = { compareResults, testsWithNoise, loading: false };
 
     if (checkForResults) {
+      // subtests
+      // const resultsArr = Array.from(compareResults.values())[0].map(value => value.name);
+      // const testsNoResults = difference(rowNames, resultsArr)
+
       const resultsArr = Array.from(compareResults.keys());
-      const testsNoResults = difference(testList, resultsArr)
+      const testsNoResults = difference(tableNames, resultsArr)
         .sort()
         .join();
 
@@ -238,13 +311,71 @@ export default class CompareTableView extends React.Component {
     this.setState(updates);
   };
 
-  updateTimeRange = time => {
-    const { updateParams } = this.props.validated;
+  updateFramework = selection => {
+    const { frameworks, updateParams } = this.props.validated;
+    const framework = frameworks.find(item => item.name === selection);
 
-    const timeRange = phTimeRanges.find(item => item.text === time);
+    updateParams({ framework: framework.id });
+    this.setState({ framework }, () => this.getPerformanceData());
+  };
+
+  updateTimeRange = selection => {
+    const { updateParams } = this.props.validated;
+    const timeRange = phTimeRanges.find(item => item.text === selection);
 
     updateParams({ selectedTimeRange: timeRange.value });
     this.setState({ timeRange }, () => this.getPerformanceData());
+  };
+
+  createLinks = (oldResults, newResults) => {
+    const {
+      originalProject,
+      newProject,
+      originalRevision,
+      newResultSet,
+      originalResultSet,
+    } = this.props.validated;
+
+    const { framework, timeRange } = this.state;
+    const { getCustomLink } = this.props;
+    let links = [];
+
+    if (getCustomLink) {
+      links = getCustomLink(
+        links,
+        oldResults,
+        newResults,
+        timeRange,
+        framework,
+      );
+    }
+
+    const graphsParams = [...new Set([originalProject, newProject])].map(
+      projectName => ({
+        projectName,
+        signature: !oldResults
+          ? newResults.signature_hash
+          : oldResults.signature_hash,
+        frameworkId: framework.id,
+      }),
+    );
+
+    let graphsLink;
+    if (originalRevision) {
+      graphsLink = getGraphsLink(graphsParams, [
+        originalResultSet,
+        newResultSet,
+      ]);
+    } else {
+      graphsLink = getGraphsLink(graphsParams, [newResultSet], timeRange.value);
+    }
+
+    links.push({
+      title: 'graph',
+      href: graphsLink,
+    });
+
+    return links;
   };
 
   render() {
@@ -255,9 +386,10 @@ export default class CompareTableView extends React.Component {
       newRevision,
       originalResultSet,
       newResultSet,
+      frameworks,
     } = this.props.validated;
 
-    const { filterByFramework, checkForResults } = this.props;
+    const { filterByFramework, checkForResults, hasSubtests } = this.props;
     const {
       compareResults,
       loading,
@@ -267,9 +399,22 @@ export default class CompareTableView extends React.Component {
       testsNoResults,
       filteredResults,
       filterOn,
+      title,
+      framework,
     } = this.state;
 
     const timeRangeOptions = phTimeRanges.map(option => option.text);
+    const frameworkNames =
+      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+
+    const params = { originalProject, newProject, newRevision };
+
+    if (originalRevision) {
+      params.originalRevision = originalRevision;
+    } else if (timeRange) {
+      params.selectedTimeRange = timeRange.value;
+    }
+
     return (
       <Container fluid className="max-width-default">
         {loading && !failureMessage && (
@@ -281,76 +426,112 @@ export default class CompareTableView extends React.Component {
           errorClasses={errorMessageClass}
           message={genericErrorMessage}
         >
-          <div className="mx-auto">
-            <Row className="justify-content-center">
-              <Col sm="8" className="text-center">
-                {failureMessage && (
-                  <ErrorMessages failureMessage={failureMessage} />
-                )}
-              </Col>
-            </Row>
-            {newRevision && newProject && (
-              <Row>
-                <Col sm="12" className="text-center pb-1">
-                  <h1>Perfherder Compare Revisions</h1>
-                  <RevisionInformation
-                    originalProject={originalProject}
-                    originalRevision={originalRevision}
-                    originalResultSet={originalResultSet}
-                    newProject={newProject}
-                    newRevision={newRevision}
-                    newResultSet={newResultSet}
-                    selectedTimeRange={timeRange}
-                  />
+          <React.Fragment>
+            {hasSubtests && (
+              <p>
+                <a href={`perf.html#/compare${createQueryParams(params)}`}>
+                  Show all tests and platforms
+                </a>
+              </p>
+            )}
+
+            <div className="mx-auto">
+              <Row className="justify-content-center">
+                <Col sm="8" className="text-center">
+                  {failureMessage && (
+                    <ErrorMessages failureMessage={failureMessage} />
+                  )}
                 </Col>
               </Row>
-            )}
-
-            {checkForResults && testsNoResults && (
-              <ResultsAlert testsNoResults={testsNoResults} />
-            )}
-
-            <CompareTableControls
-              {...this.props}
-              filterByFramework={filterByFramework}
-              updateState={state => this.setState(state)}
-              compareResults={compareResults}
-              dateRangeOptions={
-                !originalRevision && (
-                  <Col sm="auto" className="p-2">
-                    <UncontrolledDropdown className="mr-0 text-nowrap">
-                      <DropdownToggle caret>{timeRange.text}</DropdownToggle>
-                      <DropdownMenuItems
-                        options={timeRangeOptions}
-                        selectedItem={timeRange.text}
-                        updateData={this.updateTimeRange}
-                      />
-                    </UncontrolledDropdown>
+              {newRevision && newProject && (originalRevision || timeRange) && (
+                <Row>
+                  <Col sm="12" className="text-center pb-1">
+                    <h1>
+                      {hasSubtests
+                        ? `${title} subtest summary`
+                        : 'Perfherder Compare Revisions'}
+                    </h1>
+                    <RevisionInformation
+                      originalProject={originalProject}
+                      originalRevision={originalRevision}
+                      originalResultSet={originalResultSet}
+                      newProject={newProject}
+                      newRevision={newRevision}
+                      newResultSet={newResultSet}
+                      selectedTimeRange={timeRange}
+                    />
                   </Col>
-                )
-              }
-              showTestsWithNoise={
-                testsWithNoise.length > 0 && (
-                  <Row>
-                    <Col sm="12" className="text-center">
-                      <NoiseTable testsWithNoise={testsWithNoise} />
-                    </Col>
-                  </Row>
-                )
-              }
-            />
+                </Row>
+              )}
 
-            {(filterOn && filteredResults.size > 0) ||
-            (!filterOn && compareResults.size > 0) ? (
-              Array.from(
-                filteredResults.size > 0 ? filteredResults : compareResults,
-              ).map(([testName, data]) => (
-                <CompareTable key={testName} data={data} testName={testName} />
-              ))
-            ) : (
-              <p className="lead text-center">No results to show</p>
-            )}
-          </div>
+              {checkForResults && testsNoResults && (
+                <ResultsAlert testsNoResults={testsNoResults} />
+              )}
+
+              <CompareTableControls
+                {...this.props}
+                frameworkOptions={
+                  filterByFramework && (
+                    <Col sm="auto" className="py-0 pl-0 pr-3">
+                      <UncontrolledDropdown className="mr-0 text-nowrap">
+                        <DropdownToggle caret>{framework.name}</DropdownToggle>
+                        {frameworkNames && (
+                          <DropdownMenuItems
+                            options={frameworkNames}
+                            selectedItem={framework.name}
+                            updateData={this.updateFramework}
+                          />
+                        )}
+                      </UncontrolledDropdown>
+                    </Col>
+                  )
+                }
+                updateState={state => this.setState(state)}
+                compareResults={compareResults}
+                dateRangeOptions={
+                  !originalRevision && (
+                    <Col sm="auto" className="p-0">
+                      <UncontrolledDropdown className="mr-0 text-nowrap">
+                        <DropdownToggle caret>{timeRange.text}</DropdownToggle>
+                        <DropdownMenuItems
+                          options={timeRangeOptions}
+                          selectedItem={timeRange.text}
+                          updateData={this.updateTimeRange}
+                        />
+                      </UncontrolledDropdown>
+                    </Col>
+                  )
+                }
+                showTestsWithNoise={
+                  testsWithNoise.length > 0 && (
+                    <Row>
+                      <Col sm="12" className="text-center">
+                        <NoiseTable
+                          testsWithNoise={testsWithNoise}
+                          hasSubtests={hasSubtests}
+                        />
+                      </Col>
+                    </Row>
+                  )
+                }
+              />
+
+              {(filterOn && filteredResults.size > 0) ||
+              (!filterOn && compareResults.size > 0) ? (
+                Array.from(
+                  filteredResults.size > 0 ? filteredResults : compareResults,
+                ).map(([testName, data]) => (
+                  <CompareTable
+                    key={testName}
+                    data={data}
+                    testName={testName}
+                  />
+                ))
+              ) : (
+                <p className="lead text-center">No results to show</p>
+              )}
+            </div>
+          </React.Fragment>
         </ErrorBoundary>
       </Container>
     );
@@ -369,13 +550,16 @@ CompareTableView.propTypes = {
     frameworks: PropTypes.arrayOf(PropTypes.shape({})),
     selectedTimeRange: PropTypes.string,
     updateParams: PropTypes.func.isRequired,
+    originalSignature: PropTypes.string,
+    newSignature: PropTypes.string,
+    framework: PropTypes.string,
   }),
   dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   filterByFramework: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
-  createLinks: PropTypes.func.isRequired,
+  getCustomLink: PropTypes.func,
   getQueryParams: PropTypes.func.isRequired,
-  framework: PropTypes.shape({}).isRequired,
   checkForResults: PropTypes.bool,
+  hasSubtests: PropTypes.bool,
   $stateParams: PropTypes.shape({}).isRequired,
   $state: PropTypes.shape({}).isRequired,
 };
@@ -385,4 +569,6 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   checkForResults: false,
+  hasSubtests: false,
+  getCustomLink: null,
 };

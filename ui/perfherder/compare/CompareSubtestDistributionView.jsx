@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { react2angular } from 'react2angular/index.es2015';
+import { Container, Row } from 'reactstrap';
 
-import perf from '../js/perf';
-import RepositoryModel from '../models/repository';
-import PushModel from '../models/push';
-import { getData } from '../helpers/http';
-import { createApiUrl, perfSummaryEndpoint } from '../helpers/url';
+import perf from '../../js/perf';
+import RepositoryModel from '../../models/repository';
+import PushModel from '../../models/push';
+import { getData } from '../../helpers/http';
+import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
 
-import RevisionInformation from './compare/RevisionInformation';
+import RevisionInformation from './RevisionInformation';
 import ReplicatesGraph from './ReplicatesGraph';
 
 // TODO remove $stateParams after switching to react router
@@ -160,28 +161,27 @@ export default class CompareSubtestDistributionView extends React.Component {
     return (
       originalRevision &&
       newRevision && (
-        <div className="container-fluid">
+        <Container fluid className="max-width-default justify-content-center">
           {dataLoading ? (
             <div className="loading">
-              Loading all results, please wait a minute...
               <FontAwesomeIcon icon={faCog} size="4x" spin />
             </div>
           ) : (
-            <div>
+            <Row className="justify-content-center mt-4">
               <React.Fragment>
                 <h2>
                   {platform}: {testName} replicate distribution
                 </h2>
                 <RevisionInformation
-                  originalProject={originalProject}
+                  originalProject={originalProject.name}
                   originalRevision={originalRevision}
                   originalResultSet={originalResultSet}
-                  newProject={newProject}
+                  newProject={newProject.name}
                   newRevision={newRevision}
                   newResultSet={newResultSet}
                 />
               </React.Fragment>
-              <div>
+              <div className="pt-5">
                 <ReplicatesGraph
                   title="Base"
                   projectName={originalProject.name}
@@ -197,9 +197,9 @@ export default class CompareSubtestDistributionView extends React.Component {
                   filters={this.state.filters}
                 />
               </div>
-            </div>
+            </Row>
           )}
-        </div>
+        </Container>
       )
     );
   }

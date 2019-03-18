@@ -1,9 +1,7 @@
 import React from 'react';
-import { react2angular } from 'react2angular/index.es2015';
 import PropTypes from 'prop-types';
 import { Col, Row, Container, Button } from 'reactstrap';
 
-import perf from '../../js/perf';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { filterText } from '../constants';
 
@@ -108,7 +106,7 @@ export default class CompareTableControls extends React.Component {
 
   render() {
     const {
-      filterByFramework,
+      frameworkOptions,
       dateRangeOptions,
       showTestsWithNoise,
     } = this.props;
@@ -122,7 +120,7 @@ export default class CompareTableControls extends React.Component {
     return (
       <Container fluid className="my-3 px-0">
         <Row className="p-3 justify-content-left">
-          {filterByFramework}
+          {frameworkOptions}
           {dateRangeOptions}
         </Row>
         <Row className="pb-3 pl-3 justify-content-left">
@@ -198,7 +196,7 @@ export default class CompareTableControls extends React.Component {
 
 CompareTableControls.propTypes = {
   compareResults: PropTypes.shape({}).isRequired,
-  filterByFramework: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  frameworkOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
@@ -214,7 +212,7 @@ CompareTableControls.propTypes = {
 };
 
 CompareTableControls.defaultProps = {
-  filterByFramework: null,
+  frameworkOptions: null,
   dateRangeOptions: null,
   validated: {
     showOnlyImportant: undefined,
@@ -224,12 +222,3 @@ CompareTableControls.defaultProps = {
   },
   showTestsWithNoise: null,
 };
-
-perf.component(
-  'compareTableControls',
-  react2angular(
-    CompareTableControls,
-    ['compareResults', 'filterByFramework'],
-    ['$stateParams'],
-  ),
-);

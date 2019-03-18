@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
-import perf from '../../js/perf';
 import { getJobsUrl } from '../../helpers/url';
 
 function getRevisionSpecificDetails(
@@ -27,7 +25,8 @@ function getRevisionSpecificDetails(
         truncatedRevision
       )}
       &nbsp;({project}) -&nbsp;
-      {resultSet ? resultSet.author : selectedTimeRange.text}
+      {resultSet && resultSet.author}
+      {!resultSet && selectedTimeRange && selectedTimeRange.text}
       {isBaseline && ' - '}
       {resultSet ? <span>{resultSet.comments}</span> : ''}
     </React.Fragment>
@@ -101,20 +100,3 @@ RevisionInformation.defaultProps = {
   newResultSet: {},
   selectedTimeRange: undefined,
 };
-
-perf.component(
-  'revisionInformation',
-  react2angular(
-    RevisionInformation,
-    [
-      'originalProject',
-      'originalRevision',
-      'originalResultSet',
-      'newProject',
-      'newRevision',
-      'newResultSet',
-      'selectedTimeRange',
-    ],
-    [],
-  ),
-);

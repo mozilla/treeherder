@@ -25,7 +25,6 @@ const withValidation = requiredParams => WrappedComponent => {
       super(props);
 
       // TODO change $stateParams to location.state once we switch to react-router
-      this.params = this.props.$stateParams;
       this.state = {
         originalProject: null,
         newProject: null,
@@ -69,11 +68,14 @@ const withValidation = requiredParams => WrappedComponent => {
     };
 
     updateParams = param => {
-      this.props.$state.transitionTo('compare', param, {
+      const { transitionTo, current } = this.props.$state;
+      transitionTo(current.name, param, {
         inherit: true,
         notify: false,
       });
     };
+
+    errorMessage = (param, value) => `${param} ${value} is not valid`;
 
     async checkRevisions(params) {
       if (!params.originalRevision) {
@@ -137,11 +139,16 @@ const withValidation = requiredParams => WrappedComponent => {
           continue;
         }
 
+        if (value === 'undefined') {
+          errors.push(this.errorMessage(param, value));
+          continue;
+        }
+
         if (param.indexOf('Project') !== -1 && projects.length) {
           const validProject = projects.find(project => project.name === value);
 
           if (!validProject) {
-            errors.push(`${param} ${value} is not valid`);
+            errors.push(this.errorMessage(param, value));
           }
         }
 
@@ -151,7 +158,7 @@ const withValidation = requiredParams => WrappedComponent => {
           );
 
           if (!validFramework) {
-            errors.push(`${param} ${value} is not valid`);
+            errors.push(this.errorMessage(param, value));
           }
         }
       }
@@ -197,6 +204,7 @@ const withValidation = requiredParams => WrappedComponent => {
     $stateParams: PropTypes.shape({}).isRequired,
     $state: PropTypes.shape({
       transitionTo: PropTypes.func,
+      current: PropTypes.shape({}),
     }).isRequired,
   };
 

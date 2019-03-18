@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
-import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
+import { getApiUrl, createQueryParams } from '../helpers/url';
 import { create, getData, update } from '../helpers/http';
 import { getSeriesName, getTestName } from '../models/perfSeries';
 import OptionCollectionModel from '../models/optionCollection';
@@ -296,44 +296,6 @@ export const getGraphsLink = function getGraphsLink(
   }
 
   return `perf.html#/graphs${createQueryParams(params)}`;
-};
-
-// TODO this has been moved into Validation component - remove after compare subtests is converted
-export const validateQueryParams = async function validateQueryParams(params) {
-  const {
-    originalProject,
-    newProject,
-    originalRevision,
-    newRevision,
-    originalSignature,
-    newSignature,
-  } = params;
-  const errors = [];
-
-  if (!originalProject) errors.push('Missing input: originalProject');
-  if (!newProject) errors.push('Missing input: newProject');
-  if (!originalRevision) errors.push('Missing input: originalRevision');
-  if (!newRevision) errors.push('Missing input: newRevision');
-
-  if (originalSignature && newSignature) {
-    if (!originalSignature) errors.push('Missing input: originalSignature');
-    if (!newSignature) errors.push('Missing input: newSignature');
-  }
-
-  const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
-
-  if (
-    !failureStatus &&
-    !data.find(project => project.name === originalProject)
-  ) {
-    errors.push(`Invalid project, doesn't exist ${originalProject}`);
-  }
-
-  if (!failureStatus && !data.find(project => project.name === newProject)) {
-    errors.push(`Invalid project, doesn't exist ${newProject}`);
-  }
-
-  return errors;
 };
 
 // old PhAlerts' inner workings

@@ -72,13 +72,13 @@ export default class TooltipGraph extends React.Component {
         {(minValue || maxValue) && (
           <tbody>
             <tr>
-              <td className="value-column">
+              <td className="value-column text-white">
                 {this.abbreviatedNumber(minValue)}
               </td>
               <td className="distribution-column">
                 <canvas ref={this.canvasRef} width={190} height={30} />
               </td>
-              <td className="value-column">
+              <td className="value-column text-white">
                 {this.abbreviatedNumber(maxValue)}
               </td>
             </tr>
