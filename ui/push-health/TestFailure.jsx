@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Row, Col } from 'reactstrap';
 
-import { getJobsUrl } from '../helpers/url';
+import logviewerIcon from '../img/logviewerIcon.png';
+import { getJobsUrl, getLogViewerUrl } from '../helpers/url';
 
 export default class TestFailure extends React.PureComponent {
   render() {
@@ -12,10 +11,11 @@ export default class TestFailure extends React.PureComponent {
     const {
       testName,
       jobName,
-      jobId,
-      classification,
+      jobSymbol,
+      jobs,
       logLines,
       confidence,
+      platform,
       config,
     } = failure;
 
@@ -31,24 +31,39 @@ export default class TestFailure extends React.PureComponent {
           </span>
         </Row>
         <div className="small">
-          <a
-            className="text-dark ml-3 px-1 border border-secondary rounded"
-            href={getJobsUrl({ selectedJob: jobId, repo, revision })}
-          >
-            {jobName}
-          </a>
-          <span className="ml-1">{config},</span>
-          <span className="ml-1">
-            {classification !== 'not classified' && (
-              <FontAwesomeIcon icon={faStar} />
-            )}
-            <span className="ml-1">{classification}</span>
+          <span>
+            {platform} {config}:
           </span>
+          {jobs.map(job => (
+            <span className="mr-2">
+              <a
+                className="text-dark ml-3 px-1 border border-secondary rounded"
+                href={getJobsUrl({ selectedJob: job.id, repo, revision })}
+                title={jobName}
+              >
+                {jobSymbol}
+              </a>
+              <a
+                className="logviewer-btn"
+                href={getLogViewerUrl(job.id, repo)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open the Log Viewer for this job"
+              >
+                <img
+                  style={{ height: '18px' }}
+                  alt="Logviewer"
+                  src={logviewerIcon}
+                  className="logviewer-icon text-dark"
+                />
+              </a>
+            </span>
+          ))}
         </div>
         {!!logLines.length &&
           logLines.map(logLine => (
             <Row className="small text-monospace mt-2 ml-3" key={logLine}>
-              {logLine}
+              {logLine.subtest} {logLine.message}
             </Row>
           ))}
       </Col>

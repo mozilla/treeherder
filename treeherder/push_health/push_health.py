@@ -1,14 +1,24 @@
 import datetime
 from collections import defaultdict
 
+from django.forms.models import model_to_dict
+
 from treeherder.model.models import (FailureLine,
                                      OptionCollection,
                                      Repository)
 from treeherder.push_health.classification import set_classifications
 from treeherder.push_health.filter import filter_failure
-from treeherder.push_health.utils import clean_test
+from treeherder.push_health.utils import (clean_config,
+                                          clean_platform,
+                                          clean_test)
 
 intermittent_history_days = 14
+ignored_log_lines = [
+    'Return code: 1',
+    'exit status 1',
+    'unexpected status',
+    'Force-terminating active process(es)'
+]
 
 
 def get_intermittent_history(prior_day, days, option_map):
@@ -36,9 +46,9 @@ def get_intermittent_history(prior_day, days, option_map):
         previous_failures[
             clean_test(line['test'])
         ][
-            line['job_log__job__machine_platform__platform']
+            clean_platform(line['job_log__job__machine_platform__platform'])
         ][
-            option_map[line['job_log__job__option_collection_hash']]
+            clean_config(option_map[line['job_log__job__option_collection_hash']])
         ] += 1
 
     return previous_failures
@@ -57,8 +67,6 @@ def get_push_failures(push, option_map):
         test=None
     ).select_related(
         'job_log__job__job_type', 'job_log__job__machine_platform'
-    ).prefetch_related(
-        'job_log__job__text_log_step__errors'
     )
 
     # using a dict here to avoid duplicates due to multiple failure_lines for
@@ -66,28 +74,32 @@ def get_push_failures(push, option_map):
     tests = {}
     for failure_line in new_failure_lines:
         test_name = clean_test(failure_line.test)
-        test_key = '{}{}'.format(test_name, failure_line.job_guid)
+        job = failure_line.job_log.job
+        config = clean_config(option_map[job.option_collection_hash])
+        platform = clean_platform(job.machine_platform.platform)
+        jobName = job.job_type.name
+        jobSymbol = job.job_type.symbol
+        test_key = '{}{}{}{}'.format(test_name, config, platform, jobName)
+
         if test_name and test_key not in tests:
-            job = failure_line.job_log.job
-            config = option_map[job.option_collection_hash]
-            errors = []
-            for step in failure_line.job_log.job.text_log_step.all():
-                for error in step.errors.all():
-                    if len(errors) < 5:
-                        errors.append(error.line)
             line = {
                 'testName': test_name,
-                'logLines': errors,
-                'jobName': job.job_type.name,
-                'jobId': job.id,
-                'jobClassificationId': job.failure_classification_id,
-                'platform': job.machine_platform.platform,
-                'suggestedClassification': 'New Failure',
+                'jobName': jobName,
+                'jobSymbol': jobSymbol,
+                'platform': platform,
                 'config': config,
                 'key': test_key,
+                'jobs': [],
+                'logLines': [],
+                'suggestedClassification': 'New Failure',
                 'confidence': 0,
             }
             tests[test_key] = line
+        test = tests[test_key]
+        test['logLines'].append(failure_line.to_mozlog_format())
+        if not next((find_job for find_job in test['jobs'] if find_job['id'] == job.id), False):
+            test['jobs'].append(model_to_dict(job))
+
     return sorted(tests.values(), key=lambda k: k['testName'])
 
 
