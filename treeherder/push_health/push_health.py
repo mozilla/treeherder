@@ -6,7 +6,8 @@ from django.forms.models import model_to_dict
 from treeherder.model.models import (FailureLine,
                                      OptionCollection,
                                      Repository)
-from treeherder.push_health.classification import set_classifications
+from treeherder.push_health.classification import (get_grouped,
+                                                   set_classifications)
 from treeherder.push_health.filter import filter_failure
 from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
@@ -121,4 +122,4 @@ def get_push_health_test_failures(push):
         intermittent_history,
         {},  # TODO: Use fbc history
     )
-    return filtered_push_failures
+    return get_grouped(filtered_push_failures)

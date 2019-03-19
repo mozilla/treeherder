@@ -22,7 +22,7 @@ export default class TestFailure extends React.PureComponent {
     return (
       <Col className="mt-2 mb-3 ml-2">
         <Row className="border-bottom border-secondary justify-content-between">
-          <span className="font-weight-bold">{testName}</span>
+          <span>{testName}</span>
           <span>
             Line confidence:
             <Badge color="secondary" className="ml-2 mr-3">

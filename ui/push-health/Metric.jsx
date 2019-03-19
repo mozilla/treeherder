@@ -8,7 +8,7 @@ import {
 import { Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
-import TestFailure from './TestFailure';
+import TestFailures from './TestFailures';
 
 export default class Metric extends React.PureComponent {
   constructor(props) {
@@ -63,15 +63,13 @@ export default class Metric extends React.PureComponent {
             <Collapse isOpen={detailsShowing}>
               <Card>
                 <CardBody>
-                  {failures &&
-                    failures.map(failure => (
-                      <TestFailure
-                        key={failure.key}
-                        failure={failure}
-                        repo={repo}
-                        revision={revision}
-                      />
-                    ))}
+                  {name === 'Tests' && (
+                    <TestFailures
+                      failures={failures}
+                      repo={repo}
+                      revision={revision}
+                    />
+                  )}
                   {details &&
                     details.map(detail => (
                       <div key={detail} className="ml-3">
@@ -94,10 +92,11 @@ Metric.propTypes = {
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
-  details: PropTypes.array.isRequired,
-  failures: PropTypes.array,
+  details: PropTypes.array,
+  failures: PropTypes.object,
 };
 
 Metric.defaultProps = {
+  details: null,
   failures: null,
 };

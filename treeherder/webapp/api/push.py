@@ -229,7 +229,6 @@ class PushViewSet(viewsets.ViewSet):
                     'result': 'fail',
                     'value': 2,
                     'failures': push_health_test_failures,
-                    'details': [],
                 },
                 {
                     'name': 'Coverage',
