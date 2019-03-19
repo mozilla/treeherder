@@ -46,5 +46,5 @@ setup(name='treeherder-client',
       license='MPL',
       packages=['thclient'],
       python_requires='>=3',
-      install_requires=['requests>=2.4.3']
+      install_requires=['requests==2.21.0']
       )
