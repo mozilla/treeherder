@@ -138,10 +138,9 @@ class PushHeader extends React.Component {
       return;
     }
     if (isLoggedIn) {
-      const builderNames = selectedRunnableJobs;
       getGeckoDecisionTaskId(pushId)
         .then(decisionTaskID => {
-          PushModel.triggerNewJobs(builderNames, decisionTaskID)
+          PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskID)
             .then(result => {
               notify(result, 'success');
               hideRunnableJobs(pushId);
