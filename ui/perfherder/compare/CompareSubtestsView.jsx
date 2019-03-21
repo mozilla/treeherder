@@ -1,9 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
+import difference from 'lodash/difference';
 
 import perf from '../../js/perf';
 import { createQueryParams } from '../../helpers/url';
+import {
+  createNoiseMetric,
+  getCounterMap,
+  createGraphsLinks,
+} from '../helpers';
+import { noiseMetricTitle } from '../constants';
 
 import withValidation from './Validation';
 import CompareTableView from './CompareTableView';
@@ -55,13 +62,14 @@ export class CompareSubtestsView extends React.PureComponent {
     return [originalParams, newParams];
   };
 
-  getCustomLink = (links, oldResults, newResults, timeRange, framework) => {
+  createLinks = (oldResults, newResults, timeRange, framework) => {
     const {
       originalProject,
       newProject,
       originalRevision,
       newRevision,
     } = this.props.validated;
+    let links = [];
 
     if (framework.name === 'talos' && originalRevision) {
       const params = {
@@ -80,7 +88,116 @@ export class CompareSubtestsView extends React.PureComponent {
         )}`,
       });
     }
+    const signature_hash = !oldResults
+      ? newResults.signature_hash
+      : oldResults.signature_hash;
+
+    links = createGraphsLinks(
+      this.props.validated,
+      links,
+      framework,
+      timeRange,
+      signature_hash,
+    );
     return links;
+  };
+
+  getDisplayResults = (origResultsMap, newResultsMap, state) => {
+    const { originalSignature, newSignature } = this.props.validated;
+
+    const { tableNames, rowNames, framework, timeRange } = state;
+    const testsWithNoise = [];
+    let compareResults = new Map();
+    const parentTestName = tableNames[0];
+
+    const oldStddevVariance = {
+      values: [],
+      lowerIsBetter: true,
+      frameworkID: framework.id,
+    };
+    const newStddevVariance = {
+      values: [],
+      lowerIsBetter: true,
+      frameworkID: framework.id,
+    };
+
+    rowNames.forEach(testName => {
+      const oldResults = origResultsMap.find(sig => sig.test === testName);
+      const newResults = newResultsMap.find(sig => sig.test === testName);
+
+      const cmap = getCounterMap(testName, oldResults, newResults);
+      if (cmap.isEmpty) {
+        return;
+      }
+      cmap.name = testName;
+
+      if (
+        (oldResults && oldResults.parent_signature === originalSignature) ||
+        (oldResults && oldResults.parent_signature === newSignature) ||
+        newResults.parent_signature === originalSignature ||
+        newResults.parent_signature === newSignature
+      ) {
+        cmap.highlightedTest = true;
+      }
+
+      if (
+        cmap.originalStddevPct !== undefined &&
+        cmap.newStddevPct !== undefined
+      ) {
+        if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
+          oldStddevVariance.values.push(
+            Math.round(cmap.originalStddevPct * 100) / 100,
+          );
+          newStddevVariance.values.push(
+            Math.round(cmap.newStddevPct * 100) / 100,
+          );
+        } else {
+          const noise = {
+            baseStddev: cmap.originalStddevPct,
+            newStddev: cmap.newStddevPct,
+            testname: testName,
+          };
+          testsWithNoise.push(noise);
+        }
+      }
+      cmap.links = this.createLinks(
+        oldResults,
+        newResults,
+        timeRange,
+        framework,
+      );
+
+      if (compareResults.has(parentTestName)) {
+        compareResults.get(parentTestName).push(cmap);
+      } else {
+        compareResults.set(parentTestName, [cmap]);
+      }
+    });
+
+    const cmap = getCounterMap(
+      noiseMetricTitle,
+      oldStddevVariance,
+      newStddevVariance,
+    );
+    if (!cmap.isEmpty) {
+      compareResults = createNoiseMetric(cmap, parentTestName, compareResults);
+    }
+
+    compareResults = new Map([...compareResults.entries()].sort());
+    const updates = { compareResults, testsWithNoise, loading: false };
+
+    const resultsArr = Array.from(compareResults.values())[0].map(
+      value => value.name,
+    );
+    const testsNoResults = difference(rowNames, resultsArr)
+      .sort()
+      .join(', ');
+
+    if (testsNoResults.length) {
+      updates.testsNoResults = testsNoResults;
+    }
+
+    return updates;
   };
 
   render() {
@@ -88,7 +205,7 @@ export class CompareSubtestsView extends React.PureComponent {
       <CompareTableView
         {...this.props}
         getQueryParams={this.getQueryParams}
-        getCustomLink={this.getCustomLink}
+        getDisplayResults={this.getDisplayResults}
         hasSubtests
       />
     );

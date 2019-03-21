@@ -1,10 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
+import difference from 'lodash/difference';
 
 import perf from '../../js/perf';
 import { createQueryParams } from '../../helpers/url';
 import { phTimeRanges } from '../../helpers/constants';
+import {
+  createNoiseMetric,
+  getCounterMap,
+  createGraphsLinks,
+} from '../helpers';
+import { noiseMetricTitle } from '../constants';
 
 import withValidation from './Validation';
 import CompareTableView from './CompareTableView';
@@ -71,7 +78,7 @@ export class CompareView extends React.PureComponent {
     return [originalParams, newParams];
   };
 
-  getCustomLink = (links, oldResults, newResults, timeRange, framework) => {
+  createLinks = (oldResults, newResults, timeRange, framework) => {
     const {
       originalProject,
       newProject,
@@ -79,6 +86,7 @@ export class CompareView extends React.PureComponent {
       newRevision,
     } = this.props.validated;
 
+    let links = [];
     const hasSubtests =
       (oldResults && oldResults.has_subtests) ||
       (newResults && newResults.has_subtests);
@@ -107,7 +115,117 @@ export class CompareView extends React.PureComponent {
         href: detailsLink,
       });
     }
+    const signature_hash = !oldResults
+      ? newResults.signature_hash
+      : oldResults.signature_hash;
+    links = createGraphsLinks(
+      this.props.validated,
+      links,
+      framework,
+      timeRange,
+      signature_hash,
+    );
     return links;
+  };
+
+  getDisplayResults = (origResultsMap, newResultsMap, state) => {
+    const { rowNames, tableNames, framework, timeRange } = state;
+
+    let compareResults = new Map();
+    const oldStddevVariance = {};
+    const newStddevVariance = {};
+    const testsWithNoise = [];
+
+    tableNames.forEach(testName => {
+      rowNames.forEach(value => {
+        if (!oldStddevVariance[value]) {
+          oldStddevVariance[value] = {
+            values: [],
+            lower_is_better: true,
+            frameworkID: framework.id,
+          };
+        }
+        if (!newStddevVariance[value]) {
+          newStddevVariance[value] = {
+            values: [],
+            frameworkID: framework.id,
+          };
+        }
+
+        const oldResults = origResultsMap.find(
+          sig => sig.name === testName && sig.platform === value,
+        );
+        const newResults = newResultsMap.find(
+          sig => sig.name === testName && sig.platform === value,
+        );
+
+        const cmap = getCounterMap(testName, oldResults, newResults);
+        if (cmap.isEmpty) {
+          return;
+        }
+        cmap.name = value;
+
+        if (
+          cmap.originalStddevPct !== undefined &&
+          cmap.newStddevPct !== undefined
+        ) {
+          if (cmap.originalStddevPct < 50.0 && cmap.newStddevPct < 50.0) {
+            oldStddevVariance[value].values.push(
+              Math.round(cmap.originalStddevPct * 100) / 100,
+            );
+            newStddevVariance[value].values.push(
+              Math.round(cmap.newStddevPct * 100) / 100,
+            );
+          } else {
+            const noise = {
+              baseStddev: cmap.originalStddevPct,
+              newStddev: cmap.newStddevPct,
+              platform: value,
+              testname: testName,
+            };
+            testsWithNoise.push(noise);
+          }
+        }
+        cmap.links = this.createLinks(
+          oldResults,
+          newResults,
+          timeRange,
+          framework,
+        );
+
+        if (compareResults.has(testName)) {
+          compareResults.get(testName).push(cmap);
+        } else {
+          compareResults.set(testName, [cmap]);
+        }
+      });
+    });
+
+    rowNames.forEach(value => {
+      const cmap = getCounterMap(
+        noiseMetricTitle,
+        oldStddevVariance[value],
+        newStddevVariance[value],
+      );
+      if (cmap.isEmpty) {
+        return;
+      }
+      compareResults = createNoiseMetric(cmap, value, compareResults);
+    });
+
+    compareResults = new Map([...compareResults.entries()].sort());
+    const updates = { compareResults, testsWithNoise, loading: false };
+
+    const resultsArr = Array.from(compareResults.keys());
+    const testsNoResults = difference(tableNames, resultsArr)
+      .sort()
+      .join(', ');
+
+    if (testsNoResults.length) {
+      updates.testsNoResults = testsNoResults;
+    }
+
+    return updates;
   };
 
   render() {
@@ -115,8 +233,7 @@ export class CompareView extends React.PureComponent {
       <CompareTableView
         {...this.props}
         getQueryParams={this.getQueryParams}
-        getCustomLink={this.getCustomLink}
-        checkForResults
+        getDisplayResults={this.getDisplayResults}
         filterByFramework
       />
     );

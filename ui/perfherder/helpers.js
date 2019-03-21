@@ -298,6 +298,60 @@ export const getGraphsLink = function getGraphsLink(
   return `perf.html#/graphs${createQueryParams(params)}`;
 };
 
+export const createNoiseMetric = function createNoiseMetric(
+  cmap,
+  name,
+  compareResults,
+) {
+  cmap.name = name;
+  cmap.isNoiseMetric = true;
+
+  if (compareResults.has(noiseMetricTitle)) {
+    compareResults.get(noiseMetricTitle).push(cmap);
+  } else {
+    compareResults.set(noiseMetricTitle, [cmap]);
+  }
+  return compareResults;
+};
+
+export const createGraphsLinks = (
+  validatedProps,
+  links,
+  framework,
+  timeRange,
+  signature,
+) => {
+  const {
+    originalProject,
+    newProject,
+    originalRevision,
+    newResultSet,
+    originalResultSet,
+  } = validatedProps;
+
+  const graphsParams = [...new Set([originalProject, newProject])].map(
+    projectName => ({
+      projectName,
+      signature,
+      frameworkId: framework.id,
+    }),
+  );
+
+  let graphsLink;
+  if (originalRevision) {
+    graphsLink = getGraphsLink(graphsParams, [originalResultSet, newResultSet]);
+  } else {
+    graphsLink = getGraphsLink(graphsParams, [newResultSet], timeRange.value);
+  }
+
+  links.push({
+    title: 'graph',
+    href: graphsLink,
+  });
+
+  return links;
+};
+
 // old PhAlerts' inner workings
 // TODO change all usage of signature_hash to signature.id
 // for originalSignature and newSignature query params
