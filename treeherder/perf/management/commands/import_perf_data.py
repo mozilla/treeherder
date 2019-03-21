@@ -1,131 +1,330 @@
-import concurrent.futures
+import collections
 import datetime
+from multiprocessing import Manager as interproc
+from multiprocessing import Process
 
-from django.core.management.base import (BaseCommand,
-                                         CommandError)
-from django.db import (IntegrityError,
-                       transaction)
+from django.core.management.base import BaseCommand
+from django.db import connections
 
-from treeherder.client.thclient import (PerfherderClient,
-                                        PerformanceTimeInterval)
-from treeherder.model.models import (MachinePlatform,
+from treeherder.model.models import (BuildPlatform,
+                                     FailureClassification,
+                                     Job,
+                                     JobGroup,
+                                     JobType,
+                                     Machine,
+                                     MachinePlatform,
+                                     Option,
                                      OptionCollection,
-                                     Repository)
-from treeherder.perf.models import (PerformanceDatum,
+                                     Product,
+                                     Push,
+                                     ReferenceDataSignatures,
+                                     Repository,
+                                     RepositoryGroup)
+from treeherder.perf.models import (IssueTracker,
+                                    PerformanceAlert,
+                                    PerformanceAlertSummary,
+                                    PerformanceDatum,
                                     PerformanceFramework,
                                     PerformanceSignature)
 
+LOG_EVERY = 5  # seconds
 
-def _add_series(pc, project_name, signature_hash, signature_props, verbosity,
-                time_interval, parent_hash=None):
-    if verbosity == 3:
-        print(signature_hash)
 
-    try:
-        option_collection = OptionCollection.objects.get(
-            option_collection_hash=signature_props['option_collection_hash'])
-    except OptionCollection.DoesNotExist:
-        print("Option collection for {} ({}) does not exist".format(
-            signature_hash, signature_props))
-        raise
+def occasional_log(message, seconds=LOG_EVERY):
+    now = datetime.datetime.now()
+    if now.second % seconds == 0:
+        print(message)
 
-    # can't use "get" for platform because we currently have more than one platform
-    # with the same name in the database
-    platform = MachinePlatform.objects.filter(
-        platform=signature_props['machine_platform']).first()
-    if not platform:
-        raise Exception("Platform for {} ({}) does not exist".format(
-            signature_hash, signature_props))
 
-    framework = PerformanceFramework.objects.get(name='talos')
+def progress_notifier(item_processor, iterable: list, item_name: str, tabs_no=0,):
+    total_items = len(iterable)
+    print('{0}Fetching {1} {2} item(s)...'.format('\t'*tabs_no, total_items, item_name))
 
-    extra_properties = {}
-    for k in signature_props.keys():
-        if k not in ['option_collection_hash', 'machine_platform',
-                     'test', 'suite', 'has_subtests', 'parent_signature']:
-            extra_properties[k] = signature_props[k]
+    prev_percentage = None
+    for idx, item in enumerate(iterable):
+        item_processor(item)
+        percentage = int((idx + 1) * 100 / total_items)
+        if percentage % 10 == 0 and percentage != prev_percentage:
+            print('{0}Fetched {1}% of {2} item(s)'.format('\t'*tabs_no, percentage, item_name))
+            prev_percentage = percentage
 
-    repository = Repository.objects.get(name=project_name)
 
-    defaults = {
-        'test': signature_props.get('test', ''),
-        'suite': signature_props['suite'],
-        'option_collection': option_collection,
-        'platform': platform,
-        'framework': framework,
-        'extra_properties': extra_properties,
-        'has_subtests': signature_props.get('has_subtests', False),
-        'last_updated': datetime.datetime.utcfromtimestamp(0)
-    }
+class Data:
+    def __init__(self, source, target, progress_notifier=None, **kwargs):
+        self.source = source
+        self.target = target
+        self.progress_notifier = progress_notifier
 
-    if parent_hash:
-        # the parent PerformanceSignature object should have already been created
-        try:
-            defaults['parent_signature'] = PerformanceSignature.objects.get(
-                signature_hash=parent_hash,
-                repository=repository,
-                framework=framework)
-        except PerformanceSignature.DoesNotExist:
-            print("Cannot find parent signature with hash {} for signature {} ({})".format(
-                parent_hash, signature_hash, signature_props))
-            raise
+    def fillup_target(self, **filters):
+        pass
 
-    signature, _ = PerformanceSignature.objects.get_or_create(
-        signature_hash=signature_hash,
-        repository=repository,
-        defaults=defaults)
+    def show_progress(self, queryset, map, table_name):
+        total_rows = int(queryset.count())
+        print('Fetching {0} {1}(s)...'.format(total_rows, table_name))
 
-    try:
-        series = pc.get_performance_data(
-            project_name, signatures=signature_hash,
-            interval=time_interval)[signature_hash]
-    except KeyError:
-        print("WARNING: No performance data for signature {}".format(signature_hash))
-        return
+        prev_percentage = None
+        for idx, obj in enumerate(list(queryset)):
+            map(obj)
+            percentage = int((idx + 1) * 100 / total_rows)
+            if percentage % 10 == 0 and percentage != prev_percentage:
+                print('Fetched {0}% of alert summaries'.format(percentage))
+                prev_percentage = percentage
 
-    try:
-        new_series = []
-        latest_timestamp = datetime.datetime.utcfromtimestamp(0)
-        for datum in series:
-            timestamp = datetime.datetime.utcfromtimestamp(datum['push_timestamp'])
-            new_series.append(PerformanceDatum(
-                repository=repository,
-                result_set_id=datum['result_set_id'],
-                job_id=datum['job_id'],
-                signature=signature,
-                value=datum['value'],
-                push_timestamp=timestamp))
-            if timestamp > latest_timestamp:
-                latest_timestamp = timestamp
-        PerformanceDatum.objects.bulk_create(new_series)
-        signature.last_updated = latest_timestamp
-        signature.save()
-    except IntegrityError:
-        with transaction.atomic():
-            # bulk_create fails if data to import overlaps with existing data
-            # so we fall back to creating objects one at a time
-            for datum in series:
-                PerformanceDatum.objects.get_or_create(
-                    repository=repository,
-                    result_set_id=datum['result_set_id'],
-                    job_id=datum['job_id'],
-                    signature=signature,
-                    value=datum['value'],
-                    push_timestamp=datetime.datetime.utcfromtimestamp(datum['push_timestamp']))
+
+class DecentSizedData(Data):
+    DECENT_SIZED_TABLES = [
+        FailureClassification,
+        PerformanceFramework,
+        RepositoryGroup,
+        Repository,
+        IssueTracker,
+        Option,
+        OptionCollection,
+        MachinePlatform,
+        Product,
+    ]
+
+    def delete_local_data(self):
+        for model in self.DECENT_SIZED_TABLES:
+            print('Removing elements from {0} table... '.format(model._meta.db_table))
+            model.objects.using(self.target).all().delete()
+
+    def save_local_data(self):
+        for model in self.DECENT_SIZED_TABLES:
+            print('Fetching from {0} table...'.format(model._meta.db_table))
+            model.objects.using(self.target).bulk_create(model.objects.using(self.source).all())
+
+    def fillup_target(self, **filters):
+        print('Fetching all affordable data...\n')
+        # TODO: JSON dump the list
+        print('From tables {0}'.format(
+            ', '.join([model._meta.db_table
+                       for model in self.DECENT_SIZED_TABLES])))
+
+        self.delete_local_data()
+        self.save_local_data()
+
+
+class MassiveData(Data):
+    BIG_SIZED_TABLES = [PerformanceAlertSummary,
+                        PerformanceAlert,
+                        ReferenceDataSignatures,
+                        PerformanceDatum,
+                        PerformanceSignature,
+                        Job,
+                        JobGroup,
+                        JobType,
+                        Push,
+                        BuildPlatform,
+                        MachinePlatform,
+                        Machine]
+
+    priority_dict = {'reference_data_signature': {'download_order': 1,
+                                                  'model': ReferenceDataSignatures},
+                     'push': {'download_order': 1,
+                              'model': Push},
+                     'build_platform': {'download_order': 1,
+                                        'model': BuildPlatform},
+                     'machine': {'download_order': 1,
+                                 'model': Machine},
+                     'machine_platform': {'download_order': 1,
+                                          'model': MachinePlatform},
+                     'job_group': {'download_order': 1,
+                                   'model': JobGroup},
+                     'job_type': {'download_order': 1,
+                                  'model': JobType},
+                     'performance_signature': {'download_order': 2,
+                                               'model': PerformanceSignature},
+                     'job': {'download_order': 2,
+                             'model': Job},
+                     'performance_alert_summary': {'download_order': 2,
+                                                   'model': PerformanceAlertSummary},
+                     'performance_datum': {'download_order': 3,
+                                           'model': PerformanceDatum},
+                     'performance_alert': {'download_order': 3,
+                                           'model': PerformanceAlert}}
+
+    def __init__(self, source, target, num_workers, frameworks, repositories, time_window,
+                 progress_notifier=None, **kwargs):
+
+        super().__init__(source, target, progress_notifier, **kwargs)
+        self.time_window = time_window
+        self.num_workers = num_workers
+
+        oldest_day = datetime.datetime.now() - self.time_window
+        self.query_set = (PerformanceAlertSummary.objects
+                          .using(self.source)
+                          .select_related('framework', 'repository')
+                          .filter(created__gte=oldest_day))
+
+        if frameworks:
+            self.query_set = self.query_set.filter(framework__name__in=frameworks)
+        if repositories:
+            self.query_set = self.query_set.filter(repository__name__in=repositories)
+
+        self.frameworks = (frameworks if frameworks is not None
+                           else list(PerformanceFramework.objects
+                                     .using(self.source)
+                                     .values_list('name', flat=True)))
+        self.repositories = (repositories if repositories is not None
+                             else list(Repository.objects
+                                       .using(self.source)
+                                       .values_list('name', flat=True)))
+        interproc_instance = interproc()
+        self.models_instances = {'reference_data_signature': interproc_instance.list(),
+                                 'performance_alert': interproc_instance.list(),
+                                 'job': interproc_instance.list(),
+                                 'job_type': interproc_instance.list(),
+                                 'job_group': interproc_instance.list(),
+                                 'performance_datum': interproc_instance.list(),
+                                 'performance_alert_summary': interproc_instance.list(),
+                                 'push': interproc_instance.list(),
+                                 'build_platform': interproc_instance.list(),
+                                 'machine': interproc_instance.list(),
+                                 'performance_signature': interproc_instance.list(),
+                                 'machine_platform': interproc_instance.list()}
+
+    def delete_local_data(self):
+        for model in self.BIG_SIZED_TABLES:
+            print('Removing elements from {0} table... '.format(model._meta.db_table))
+            model.objects.using(self.target).all().delete()
+
+    def save_local_data(self):
+        priority_dict = collections.OrderedDict(sorted(self.priority_dict.items(),
+                                                       key=lambda item: item[1]['download_order']))
+
+        for table_name, properties in priority_dict.items():
+            print('Saving {0} data...'.format(table_name))
+            model_values = properties['model'].objects.using(self.source).filter(
+                pk__in=self.models_instances[table_name])
+            properties['model'].objects.using(self.target).bulk_create(model_values)
+
+    def fillup_target(self, **filters):
+        # fetch all alert summaries & alerts
+        # with only a subset of the datum & jobs
+        oldest_day = datetime.datetime.now() - self.time_window
+        print('\nFetching data subset no older than {0}...'.format(str(oldest_day)))
+
+        self.delete_local_data()
+        alert_summaries = list(self.query_set)
+        alert_summaries_len = len(alert_summaries)
+
+        # close all database connections
+        # new connections will be automatically opened in processes
+        connections.close_all()
+
+        processes_list = []
+        num_workers = min(self.num_workers, alert_summaries_len)
+        for idx in range(num_workers):
+            start_idx = int(idx*alert_summaries_len/num_workers)
+            stop_idx = int((idx+1)*alert_summaries_len/num_workers)
+
+            alerts = alert_summaries[start_idx:stop_idx]
+            p = Process(target=self.db_worker, args=(idx+1, alerts))
+            processes_list.append(p)
+
+        # start the processes
+        for p in processes_list:
+            p.start()
+
+        # start the processes
+        for p in processes_list:
+            p.join()
+
+        self.save_local_data()
+
+    def db_worker(self, process_no, alert_summaries):
+        print('Process no {0} up and running...'.format(process_no))
+        self.progress_notifier(self.bring_in_alert_summary, alert_summaries, 'alert summary', 1)
+
+    def bring_in_alert_summary(self, alert_summary):
+        self.update_list('push', alert_summary.push)
+        self.update_list('push', alert_summary.prev_push)
+        self.update_list('performance_alert_summary', alert_summary)
+        # bring in all its alerts
+        alerts = list(PerformanceAlert.objects
+                      .using(self.source)
+                      .select_related('series_signature')
+                      .filter(summary=alert_summary))
+
+        self.progress_notifier(self.bring_in_alert, alerts, 'alert', 2)
+
+    def bring_in_alert(self, alert):
+
+        if alert.id in self.models_instances['performance_alert']:
+            return
+
+        print('{0}Fetching alert #{1}...'.format('\t' * 2, alert.id))
+        if alert.related_summary:
+            if alert.related_summary not in self.models_instances['performance_alert_summary']:
+                # if the alert summary identified isn't registered yet
+                # register it with all its alerts
+                alert_summary = list(PerformanceAlertSummary.objects.get(pk=alert.related_summary))
+                self.progress_notifier(self.bring_in_alert_summary, alert_summary,
+                                       'alert summary', 1)
+
+        # pull parent signature first
+        parent_signature = alert.series_signature.parent_signature
+        if parent_signature:
+            self.bring_in_performance_data(alert.created,
+                                           parent_signature)
+            self.update_list('performance_signature', parent_signature)
+
+        # then signature itself
+        self.bring_in_performance_data(alert.created,
+                                       alert.series_signature)
+        self.update_list('performance_signature', alert.series_signature)
+
+        # then alert itself
+        # we don't have access to user table...
+        alert.classifier = None
+        self.models_instances['performance_alert'].append(alert.id)
+
+    def bring_in_performance_data(self, time_of_alert, performance_signature):
+        performance_data = list(PerformanceDatum.objects
+                                .using(self.source)
+                                .filter(repository=performance_signature.repository,
+                                        signature=performance_signature,
+                                        push_timestamp__gte=(time_of_alert - self.time_window)))
+
+        self.progress_notifier(self.bring_in_performance_datum, performance_data,
+                               'performance datum', 3)
+
+    def bring_in_performance_datum(self, performance_datum):
+        if performance_datum.id in self.models_instances['performance_datum']:
+            return
+
+        self.update_list('push', performance_datum.push)
+
+        self.bring_in_job(performance_datum.job)
+        self.models_instances['performance_datum'].append(performance_datum.id)
+
+    def bring_in_job(self, job):
+        if job.id in self.models_instances['job']:
+            return
+
+        occasional_log('{0}Fetching job #{1}'.format('\t'*4, job.id))
+
+        self.update_list('reference_data_signature', job.signature)
+        self.update_list('build_platform', job.build_platform)
+        self.update_list('machine_platform', job.machine_platform)
+        self.update_list('machine', job.machine)
+        self.update_list('job_group', job.job_group)
+        self.update_list('job_type', job.job_type)
+        self.update_list('push', job.push)
+
+        self.models_instances['job'].append(job.id)
+
+    def update_list(self, database_key, element):
+        if element.id in self.models_instances[database_key]:
+            return
+        self.models_instances[database_key].append(element.id)
 
 
 class Command(BaseCommand):
     help = "Pre-populate performance data from an external source"
 
     def add_arguments(self, parser):
-        parser.add_argument('project')
-        parser.add_argument(
-            '--server',
-            action='store',
-            dest='server',
-            default='https://treeherder.mozilla.org',
-            help='Server to get data from, default https://treeherder.mozilla.org'
-        )
         parser.add_argument(
             '--num-workers',
             action='store',
@@ -133,77 +332,41 @@ class Command(BaseCommand):
             type=int,
             default=4
         )
+
         parser.add_argument(
-            '--filter-props',
-            action='append',
-            dest="filter_props",
-            help="Only import series matching filter criteria (can "
-            "specify multiple times)",
-            metavar="KEY:VALUE"
-        )
-        parser.add_argument(
-            '--time-interval',
+            '--time-window',
             action='store',
-            dest='time_interval',
             type=int,
-            default=PerformanceTimeInterval.WEEK
+            default=1
+        )
+
+        parser.add_argument(
+            '--frameworks',
+            nargs='+',
+            default=None
+        )
+
+        parser.add_argument(
+            '--repositories',
+            nargs='+',
+            default=None
         )
 
     def handle(self, *args, **options):
-        project = options['project']
 
-        time_interval = options['time_interval']
+        time_window = datetime.timedelta(days=options['time_window'])
+        num_workers = options['num_workers']
+        frameworks = options['frameworks']
+        repositories = options['repositories']
 
-        raise CommandError("This command is currently broken and needs to be "
-                           "fixed, see bug 1429809")
+        affordable_data = DecentSizedData(source='upstream', target='default')
+        subseted_data = MassiveData(source='upstream',
+                                    target='default',
+                                    progress_notifier=progress_notifier,
+                                    time_window=time_window,
+                                    num_workers=num_workers,
+                                    frameworks=frameworks,
+                                    repositories=repositories)
 
-        pc = PerfherderClient(server_url=options['server'])
-        signatures = pc.get_performance_signatures(
-            project,
-            interval=time_interval)
-
-        if options['filter_props']:
-            for kv in options['filter_props']:
-                if ':' not in kv or len(kv) < 3:
-                    raise CommandError("Must specify --filter-props as "
-                                       "'key:value'")
-                k, v = kv.split(':')
-                signatures = signatures.filter((k, v))
-
-        with concurrent.futures.ProcessPoolExecutor(
-                options['num_workers']) as executor:
-            futures = []
-            # add signatures without parents first, then those with parents
-            with_parents = []
-            for signature_hash in signatures.get_signature_hashes():
-                if 'parent_signature' in signatures[signature_hash]:
-                    with_parents.append(signature_hash)
-                else:
-                    futures.append(executor.submit(_add_series, pc,
-                                                   project,
-                                                   signature_hash,
-                                                   signatures[signature_hash],
-                                                   options['verbosity'],
-                                                   time_interval=time_interval))
-            for signature_hash in with_parents:
-                parent_hash = signatures[signature_hash]['parent_signature']
-                futures.append(executor.submit(_add_series, pc,
-                                               project,
-                                               signature_hash,
-                                               signatures[signature_hash],
-                                               options['verbosity'],
-                                               time_interval=time_interval,
-                                               parent_hash=parent_hash))
-
-            for future in futures:
-                try:
-                    future.result()
-                except Exception as e:
-                    self.stderr.write("FAIL: {}".format(e))
-                    # shutdown any pending tasks and exit (if something
-                    # is in progress, no wait to stop it)
-                    executor.shutdown(wait=False)
-                    for future in futures:
-                        future.cancel()
-                    raise CommandError(
-                        "Failed to import performance data: {}".format(e))
+        affordable_data.fillup_target()
+        subseted_data.fillup_target(last_n_days=time_window)
