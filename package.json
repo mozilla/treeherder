@@ -62,7 +62,7 @@
     "react-redux": "6.0.1",
     "react-router-dom": "4.3.1",
     "react-select": "2.4.2",
-    "react-split-pane": "0.1.85",
+    "react-split-pane": "0.1.87",
     "react-table": "6.9.2",
     "react-tabs": "3.0.0",
     "react2angular": "4.0.6",
