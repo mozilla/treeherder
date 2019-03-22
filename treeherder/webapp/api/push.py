@@ -11,7 +11,8 @@ from treeherder.model.models import (Push,
                                      Repository)
 from treeherder.push_health.push_health import get_push_health_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
-from treeherder.webapp.api.utils import (to_datetime,
+from treeherder.webapp.api.utils import (REPO_GROUPS,
+                                         to_datetime,
                                          to_timestamp)
 
 
@@ -205,7 +206,7 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push)
+        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
 
         return Response({
             'revision': revision,

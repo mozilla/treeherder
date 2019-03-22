@@ -4,8 +4,7 @@ from collections import defaultdict
 from django.forms.models import model_to_dict
 
 from treeherder.model.models import (FailureLine,
-                                     OptionCollection,
-                                     Repository)
+                                     OptionCollection)
 from treeherder.push_health.classification import (get_grouped,
                                                    set_classifications)
 from treeherder.push_health.filter import filter_failure
@@ -14,6 +13,7 @@ from treeherder.push_health.utils import (clean_config,
                                           clean_test)
 
 intermittent_history_days = 14
+fixed_by_commit_history_days = 30
 ignored_log_lines = [
     'Return code: 1',
     'exit status 1',
@@ -22,14 +22,13 @@ ignored_log_lines = [
 ]
 
 
-def get_intermittent_history(prior_day, days, option_map):
+def get_history(failure_classification_id, prior_day, days, option_map, repository_ids):
     start_date = datetime.datetime.now() - datetime.timedelta(days=days)
-    repos = Repository.objects.filter(name__in=['mozilla-inbound', 'autoland', 'mozilla-central'])
     failure_lines = FailureLine.objects.filter(
         job_log__job__result='testfailed',
         job_log__job__tier=1,
-        job_log__job__failure_classification_id=4,
-        job_log__job__push__repository__in=repos,
+        job_log__job__failure_classification_id=failure_classification_id,
+        job_log__job__push__repository_id__in=repository_ids,
         job_log__job__push__time__gt=start_date,
         job_log__job__push__time__lt=prior_day,
     ).exclude(
@@ -104,15 +103,15 @@ def get_push_failures(push, option_map):
     return sorted(tests.values(), key=lambda k: k['testName'])
 
 
-def get_push_health_test_failures(push):
+def get_push_health_test_failures(push, repository_ids):
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
     option_map = OptionCollection.objects.get_option_collection_map()
-    start_date = push.time.date() - datetime.timedelta(days=1)
-    intermittent_history = get_intermittent_history(start_date, intermittent_history_days, option_map)
+    prior_day = push.time.date() - datetime.timedelta(days=2)
+    intermittent_history = get_history(4, prior_day, intermittent_history_days, option_map, repository_ids)
+    fixed_by_commit_history = get_history(2, prior_day, fixed_by_commit_history_days, option_map, repository_ids)
     push_failures = get_push_failures(push, option_map)
-    # push_failures = []
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
     ]
@@ -120,6 +119,6 @@ def get_push_health_test_failures(push):
     set_classifications(
         filtered_push_failures,
         intermittent_history,
-        {},  # TODO: Use fbc history
+        fixed_by_commit_history,
     )
     return get_grouped(filtered_push_failures)
