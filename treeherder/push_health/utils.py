@@ -55,6 +55,23 @@ def clean_test(test_name):
     return clean_name
 
 
+def clean_config(config):
+    # We have found that pgo ~= opt for our needs, so this helps us get a
+    # more representative sample size of data.
+    if config == 'pgo':
+        config = 'opt'
+
+    return config.encode('ascii', 'ignore').decode('utf-8')
+
+
+def clean_platform(platform):
+    # This is needed because of macosx-qr
+    if platform.startswith('macosx64'):
+        platform = platform.replace('macosx64', 'osx-10-10')
+
+    return platform.encode('ascii', 'ignore').decode('utf-8')
+
+
 def is_valid_failure_line(line):
     skip_lines = ['Return code:', 'unexpected status', 'unexpected crashes', 'exit status', 'Finished in']
     return not any(skip_line in line for skip_line in skip_lines)
