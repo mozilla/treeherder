@@ -27,9 +27,9 @@ PyPOM==2.2.0 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829
 
 # Required by django-extension's runserver_plus command.
-Werkzeug==0.14.1 \
-    --hash=sha256:d5da73735293558eb1651ee2fddc4d0dedcfa06538b8813a2e20011583c9e49b \
-    --hash=sha256:c3fd7a7d41976d9f44db327260e263132466836cef6f91512889ed60ad26557c
+Werkzeug==0.15.1 \
+    --hash=sha256:96da23fa8ccecbc3ae832a83df5c722c11547d021637faacb0bec4dd2f4666c8 \
+    --hash=sha256:ca5c2dcd367d6c0df87185b9082929d255358f5391923269335782b213d52655
 
 flake8==3.7.7 \
     --hash=sha256:a796a115208f5c03b18f332f7c11729812c8c3ded6c46319c59b53efd3819da8 \
