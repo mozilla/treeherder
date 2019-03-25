@@ -17,10 +17,11 @@ export default class TestFailure extends React.PureComponent {
       confidence,
       platform,
       config,
+      key,
     } = failure;
 
     return (
-      <Col className="mt-2 mb-3 ml-2">
+      <Col className="mt-2 mb-3 ml-2" key={key}>
         <Row className="border-bottom border-secondary justify-content-between">
           <span>{testName}</span>
           <span>
@@ -35,7 +36,7 @@ export default class TestFailure extends React.PureComponent {
             {platform} {config}:
           </span>
           {jobs.map(job => (
-            <span className="mr-2">
+            <span className="mr-2" key={job.id}>
               <a
                 className="text-dark ml-3 px-1 border border-secondary rounded"
                 href={getJobsUrl({ selectedJob: job.id, repo, revision })}
@@ -62,8 +63,11 @@ export default class TestFailure extends React.PureComponent {
         </div>
         {!!logLines.length &&
           logLines.map(logLine => (
-            <Row className="small text-monospace mt-2 ml-3" key={logLine}>
-              {logLine.subtest} {logLine.message}
+            <Row
+              className="small text-monospace mt-2 ml-3"
+              key={logLine.line_number}
+            >
+              {logLine.id} {logLine.subtest} {logLine.message}
             </Row>
           ))}
       </Col>
