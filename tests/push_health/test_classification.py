@@ -17,13 +17,13 @@ def test_intermittent_win7_reftest():
     ]
     set_classifications(failures, {}, {})
 
-    assert failures[0]['suggestedClassification'] == 'Intermittent'
+    assert failures[0]['suggestedClassification'] == 'intermittent'
 
 
 @pytest.mark.parametrize(('history', 'confidence', 'classification'), [
-    ({'foo': {'bing': {'baz': 2}}}, 100, 'Intermittent'),
-    ({'foo': {'bing': {'bee': 2}}}, 75, 'Intermittent'),
-    ({'foo': {'bee': {'bee': 2}}}, 50, 'Intermittent'),
+    ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent'),
+    ({'foo': {'bing': {'bee': 2}}}, 75, 'intermittent'),
+    ({'foo': {'bee': {'bee': 2}}}, 50, 'intermittent'),
     ({'fee': {'bee': {'bee': 2}}}, 0, 'New Failure'),
 ])
 def test_intermittent_confidence(history, confidence, classification):
