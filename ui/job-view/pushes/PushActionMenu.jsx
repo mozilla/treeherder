@@ -238,7 +238,7 @@ class PushActionMenu extends React.PureComponent {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Prototype: Push Health)
+              Prototype: Push Health
             </a>
           </li>
         </ul>

@@ -1,9 +1,7 @@
 def set_classifications(failures, intermittent_history, fixed_by_commit_history):
     for failure in failures:
-        if set_intermittent(failure, intermittent_history):
-            continue
-        if set_previous_regression(failure, fixed_by_commit_history):
-            continue
+        set_intermittent(failure, intermittent_history)
+        set_previous_regression(failure, fixed_by_commit_history)
 
 
 def set_previous_regression(failure, fixed_by_commit_history):
