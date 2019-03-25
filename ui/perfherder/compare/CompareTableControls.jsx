@@ -6,6 +6,7 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import { filterText } from '../constants';
 
 import InputFilter from './InputFilter';
+import CompareTable from './CompareTable';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -16,8 +17,20 @@ export default class CompareTableControls extends React.Component {
       showImportant: this.convertParams('showOnlyImportant'),
       hideUncertain: this.convertParams('showOnlyConfident'),
       showNoise: this.convertParams('showOnlyNoise'),
+      results: new Map(),
       filterText: '',
     };
+  }
+
+  componentDidMount() {
+    this.updateFilteredResults();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { compareResults } = this.props;
+    if (prevProps.compareResults !== compareResults) {
+      this.updateFilteredResults();
+    }
   }
 
   convertParams = value =>
@@ -75,7 +88,7 @@ export default class CompareTableControls extends React.Component {
       showNoise,
     } = this.state;
 
-    const { updateState } = this.props;
+    const { compareResults } = this.props;
 
     if (
       !filterText &&
@@ -84,10 +97,10 @@ export default class CompareTableControls extends React.Component {
       !hideUncertain &&
       !showNoise
     ) {
-      return updateState({ filteredResults: new Map(), filterOn: false });
+      return this.setState({ results: compareResults });
     }
 
-    const filteredResults = new Map(this.props.compareResults);
+    const filteredResults = new Map(compareResults);
 
     for (const [testName, values] of filteredResults) {
       const filteredValues = values.filter(result =>
@@ -100,8 +113,7 @@ export default class CompareTableControls extends React.Component {
         filteredResults.delete(testName);
       }
     }
-
-    updateState({ filteredResults, filterOn: true });
+    this.setState({ results: filteredResults });
   };
 
   render() {
@@ -115,6 +127,7 @@ export default class CompareTableControls extends React.Component {
       hideUncertain,
       showImportant,
       showNoise,
+      results,
     } = this.state;
 
     return (
@@ -189,6 +202,14 @@ export default class CompareTableControls extends React.Component {
           </Col>
         </Row>
         {showNoise && showTestsWithNoise}
+
+        {results.size > 0 ? (
+          Array.from(results).map(([testName, data]) => (
+            <CompareTable key={testName} data={data} testName={testName} />
+          ))
+        ) : (
+          <p className="lead text-center">No results to show</p>
+        )}
       </Container>
     );
   }
@@ -208,7 +229,6 @@ CompareTableControls.propTypes = {
     PropTypes.shape({}),
     PropTypes.bool,
   ]),
-  updateState: PropTypes.func.isRequired,
 };
 
 CompareTableControls.defaultProps = {

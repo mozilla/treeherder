@@ -28,7 +28,6 @@ import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
-import CompareTable from './CompareTable';
 import NoiseTable from './NoiseTable';
 import ResultsAlert from './ResultsAlert';
 
@@ -44,8 +43,6 @@ export default class CompareTableView extends React.Component {
       loading: false,
       timeRange: this.setTimeRange(),
       framework: this.getFrameworkData(),
-      filteredResults: new Map(),
-      filterOn: false,
       title: '',
     };
   }
@@ -196,8 +193,6 @@ export default class CompareTableView extends React.Component {
       testsWithNoise,
       timeRange,
       testsNoResults,
-      filteredResults,
-      filterOn,
       title,
       framework,
     } = this.state;
@@ -314,21 +309,6 @@ export default class CompareTableView extends React.Component {
                   )
                 }
               />
-
-              {(filterOn && filteredResults.size > 0) ||
-              (!filterOn && compareResults.size > 0) ? (
-                Array.from(
-                  filteredResults.size > 0 ? filteredResults : compareResults,
-                ).map(([testName, data]) => (
-                  <CompareTable
-                    key={testName}
-                    data={data}
-                    testName={testName}
-                  />
-                ))
-              ) : (
-                <p className="lead text-center">No results to show</p>
-              )}
             </div>
           </React.Fragment>
         </ErrorBoundary>
