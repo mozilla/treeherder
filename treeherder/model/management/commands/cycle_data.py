@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.core.management.base import BaseCommand
 
@@ -9,6 +10,8 @@ from treeherder.model.models import (Job,
                                      Repository)
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceDatumManager)
+
+logging.basicConfig(format='%(levelname)s:%(message)s')
 
 TREEHERDER = 'treeherder'
 PERFHERDER = 'perfherder'
@@ -46,13 +49,28 @@ class TreeherderCycler(DataCycler):
         self.remove_leftovers()
 
     def remove_leftovers(self):
-        used_job_type_ids = Job.objects.values('job_type_id').distinct()
+        def extract_id_groups(id_names, used_dependencies):
+            id_groups = {id_name: set() for id_name in id_names}
+
+            for dependency in used_dependencies:
+                for id_name in id_names:
+                    id_groups[id_name].add(dependency[id_name])
+            return [id_groups[name] for name in id_names]
+
+        used_dependencies = (Job.objects
+                                .values('job_type_id', 'job_group_id', 'machine_id')
+                                .distinct())
+
+        (used_job_type_ids,
+         used_job_group_ids,
+         used_machine_ids) = extract_id_groups(
+            ['job_type_id',
+             'job_group_id',
+             'machine_id'],
+            used_dependencies)
+
         JobType.objects.exclude(id__in=used_job_type_ids).delete()
-
-        used_job_group_ids = Job.objects.values('job_group_id').distinct()
         JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
-
-        used_machine_ids = Job.objects.values('machine_id').distinct()
         Machine.objects.exclude(id__in=used_machine_ids).delete()
 
 
@@ -62,8 +80,7 @@ class PerfherderCycler(DataCycler):
     def __init__(self, days, chunk_size, sleep_time, is_debug=None,
                  logger=None, **kwargs):
         super().__init__(days, chunk_size, sleep_time, is_debug, logger)
-        self.days_for_nonmain = kwargs['days_for_nonmain']
-        self.days_for_nonmain = datetime.timedelta(days=self.days_for_nonmain)
+        self.unsheriffed_repos_expire_days = datetime.timedelta(days=kwargs['days_for_nonmain'])
         self.keep_old_frameworks = kwargs['keep_old_frameworks']
 
     def cycle(self):
@@ -73,18 +90,17 @@ class PerfherderCycler(DataCycler):
                                                 self.cycle_interval,
                                                 self.chunk_size,
                                                 self.sleep_time,
-                                                self.days_for_nonmain,
+                                                self.unsheriffed_repos_expire_days,
                                                 self.keep_old_frameworks)
 
 
 class Logger:
-    def __init__(self, enable, output_channel):
+    def __init__(self, enable):
         self.enable = enable
-        self.output_channel = output_channel
 
     def debug(self, msg):
         if self.enable:
-            self.output_channel.write(msg)
+            logging.warning(msg)
 
 
 class Command(BaseCommand):
@@ -149,7 +165,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger = Logger(options.pop('is_debug'), self.stdout)
+        logger = Logger(options.pop('is_debug'))
 
         logger.debug("Cycle interval... {}".format(options['days']))
 

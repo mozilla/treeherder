@@ -117,13 +117,13 @@ class PerformanceDatumManager(models.Manager):
     ]
 
     def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time,
-                   days_for_nonmain, keep_old_frameworks):
+                   unsheriffed_repos_expire_days, keep_old_frameworks):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size."""
 
         max_timestamp = self._determine_max_timestamp(repository.name,
                                                       cycle_interval,
-                                                      days_for_nonmain)
+                                                      unsheriffed_repos_expire_days)
 
         filter_queryset = self.filter(repository=repository,
                                       push_timestamp__lt=max_timestamp)
@@ -171,12 +171,12 @@ into chunks of chunk_size size."""
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
 
-    def _determine_max_timestamp(self, repo_name, cycle_interval, days_for_nonmain):
+    def _determine_max_timestamp(self, repo_name, cycle_interval, unsheriffed_repos_expire_days):
         if repo_name in self.MAIN_REPOS:
             return datetime.datetime.now() - cycle_interval
 
         # eagerly delete perf data from nonsheriffed repos
-        return datetime.datetime.now() - days_for_nonmain
+        return datetime.datetime.now() - unsheriffed_repos_expire_days
 
 
 class PerformanceDatum(models.Model):
@@ -186,7 +186,7 @@ class PerformanceDatum(models.Model):
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
-    push_timestamp = models.DateTimeField()
+    push_timestamp = models.DateTimeField(db_index=True)
 
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None,
@@ -205,9 +205,7 @@ class PerformanceDatum(models.Model):
             ('repository', 'signature', 'push_timestamp'),
             # Speeds up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
-            ('repository', 'signature', 'push'),
-            # Speeds up data cycling
-            ('push_timestamp',)]
+            ('repository', 'signature', 'push')]
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
