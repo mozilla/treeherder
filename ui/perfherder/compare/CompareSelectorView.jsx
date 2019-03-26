@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row, Button } from 'reactstrap';
 
-import perf from '../js/perf';
-import { getApiUrl, repoEndpoint } from '../helpers/url';
-import { getData } from '../helpers/http';
-import ErrorMessages from '../shared/ErrorMessages';
+import perf from '../../js/perf';
+import { getApiUrl, repoEndpoint } from '../../helpers/url';
+import { getData } from '../../helpers/http';
+import ErrorMessages from '../../shared/ErrorMessages';
 import {
   compareDefaultTimeRange,
   genericErrorMessage,
   errorMessageClass,
-} from '../helpers/constants';
-import ErrorBoundary from '../shared/ErrorBoundary';
+} from '../../helpers/constants';
+import ErrorBoundary from '../../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';
 
@@ -64,7 +64,7 @@ export default class CompareSelectorView extends React.Component {
         originalProject,
         newProject,
         newRevision,
-        selectedTimeRange: compareDefaultTimeRange,
+        selectedTimeRange: compareDefaultTimeRange.value,
       });
     }
   };

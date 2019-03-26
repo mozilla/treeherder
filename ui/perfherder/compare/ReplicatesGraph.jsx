@@ -1,16 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
-import perf from '../js/perf';
-import { errorMessageClass } from '../helpers/constants';
-import ErrorBoundary from '../shared/ErrorBoundary';
-import Graph from '../shared/Graph';
-import PerfSeriesModel from '../models/perfSeries';
-import { getData } from '../helpers/http';
-import { createApiUrl, perfSummaryEndpoint } from '../helpers/url';
+import { errorMessageClass } from '../../helpers/constants';
+import ErrorBoundary from '../../shared/ErrorBoundary';
+import Graph from '../../shared/Graph';
+import PerfSeriesModel from '../../models/perfSeries';
+import { getData } from '../../helpers/http';
+import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
 
 // TODO remove $stateParams after switching to react router
 export default class ReplicatesGraph extends React.Component {
@@ -119,7 +117,6 @@ export default class ReplicatesGraph extends React.Component {
 
   render() {
     const { graphSpecs, drawingData, dataLoading } = this.state;
-    const { title } = this.props;
     const data =
       drawingData && drawingData.replicateValues
         ? drawingData.replicateValues
@@ -127,7 +124,6 @@ export default class ReplicatesGraph extends React.Component {
 
     return dataLoading ? (
       <div className="loading">
-        Loading {title.toLowerCase()} results, please wait a minute...
         <FontAwesomeIcon icon={faCog} size="4x" spin />
       </div>
     ) : (
@@ -151,5 +147,3 @@ ReplicatesGraph.propTypes = {
     subtest: PropTypes.string.isRequired,
   }).isRequired,
 };
-
-perf.component('replicatesGraph', react2angular(ReplicatesGraph, [], []));

@@ -52,16 +52,14 @@ import './js/perf';
 
 // Perf JS
 import './js/filters';
-import './js/controllers/perf/compare';
 import './js/controllers/perf/graphs';
 import './js/controllers/perf/alerts';
-import './js/components/perf/compare';
 import './js/components/loading';
 import './js/perfapp';
-import './perfherder/CompareSelectorView';
-import './perfherder/RevisionInformation';
-import './perfherder/CompareSubtestDistributionView';
-import './perfherder/CompareTableControls';
+import './perfherder/compare/CompareSelectorView';
+import './perfherder/compare/CompareView';
+import './perfherder/compare/CompareSubtestDistributionView';
+import './perfherder/compare/CompareSubtestsView';
 
 config.showMissingIcons = true;
 

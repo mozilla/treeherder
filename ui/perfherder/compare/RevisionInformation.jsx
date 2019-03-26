@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
-import perf from '../js/perf';
-import { getJobsUrl } from '../helpers/url';
+import { getJobsUrl } from '../../helpers/url';
 
 function getRevisionSpecificDetails(
   revision,
@@ -20,14 +18,15 @@ function getRevisionSpecificDetails(
     <React.Fragment>
       <strong>{baselineOrNew}</strong> -&nbsp;
       {revision ? (
-        <a href={getJobsUrl({ repo: project.name, revision })}>
+        <a href={getJobsUrl({ repo: project, revision })}>
           {truncatedRevision}
         </a>
       ) : (
         truncatedRevision
       )}
-      &nbsp;({project.name}) -&nbsp;
-      {resultSet ? resultSet.author : selectedTimeRange.text}
+      &nbsp;({project}) -&nbsp;
+      {resultSet && resultSet.author}
+      {!resultSet && selectedTimeRange && selectedTimeRange.text}
       {isBaseline && ' - '}
       {resultSet ? <span>{resultSet.comments}</span> : ''}
     </React.Fragment>
@@ -83,9 +82,9 @@ export default function RevisionInformation(props) {
 }
 
 RevisionInformation.propTypes = {
-  originalProject: PropTypes.object,
+  originalProject: PropTypes.string,
   originalRevision: PropTypes.string,
-  newProject: PropTypes.object,
+  newProject: PropTypes.string,
   newRevision: PropTypes.string,
   originalResultSet: PropTypes.object,
   newResultSet: PropTypes.object,
@@ -93,28 +92,11 @@ RevisionInformation.propTypes = {
 };
 
 RevisionInformation.defaultProps = {
-  originalProject: {},
+  originalProject: '',
   originalRevision: '',
   originalResultSet: {},
-  newProject: {},
+  newProject: '',
   newRevision: '',
   newResultSet: {},
   selectedTimeRange: undefined,
 };
-
-perf.component(
-  'revisionInformation',
-  react2angular(
-    RevisionInformation,
-    [
-      'originalProject',
-      'originalRevision',
-      'originalResultSet',
-      'newProject',
-      'newRevision',
-      'newResultSet',
-      'selectedTimeRange',
-    ],
-    [],
-  ),
-);

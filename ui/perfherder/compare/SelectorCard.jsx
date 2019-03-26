@@ -20,8 +20,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-import PushModel from '../models/push';
-import { genericErrorMessage } from '../helpers/constants';
+import PushModel from '../../models/push';
+import { genericErrorMessage } from '../../helpers/constants';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {

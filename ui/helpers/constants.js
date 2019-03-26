@@ -221,7 +221,10 @@ export const phAlertStatusMap = {
   CONFIRMING: { id: 5, text: 'confirming' },
 };
 
-export const compareDefaultTimeRange = 86400 * 2;
+export const compareDefaultTimeRange = {
+  value: 86400 * 2,
+  text: 'Last 2 days',
+};
 
 export const thBugSuggestionLimit = 20;
 

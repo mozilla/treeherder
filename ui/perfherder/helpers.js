@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
-import { getApiUrl, createQueryParams, repoEndpoint } from '../helpers/url';
+import { getApiUrl, createQueryParams } from '../helpers/url';
 import { create, getData, update } from '../helpers/http';
 import { getSeriesName, getTestName } from '../models/perfSeries';
 import OptionCollectionModel from '../models/optionCollection';
@@ -264,53 +264,6 @@ export const getCounterMap = function getCounterMap(
   return cmap;
 };
 
-// TODO: move into a react component as this is only used once (in PhCompare controller)
-export const getInterval = function getInterval(oldTimestamp, newTimestamp) {
-  const now = new Date().getTime() / 1000;
-  let timeRange = Math.min(oldTimestamp, newTimestamp);
-  timeRange = Math.round(now - timeRange);
-  const newTimeRange = phTimeRanges.find(time => timeRange <= time.value);
-  return newTimeRange.value;
-};
-
-// TODO possibly break up into different functions and/or move into a component
-export const validateQueryParams = async function validateQueryParams(params) {
-  const {
-    originalProject,
-    newProject,
-    originalRevision,
-    newRevision,
-    originalSignature,
-    newSignature,
-  } = params;
-  const errors = [];
-
-  if (!originalProject) errors.push('Missing input: originalProject');
-  if (!newProject) errors.push('Missing input: newProject');
-  if (!originalRevision) errors.push('Missing input: originalRevision');
-  if (!newRevision) errors.push('Missing input: newRevision');
-
-  if (originalSignature && newSignature) {
-    if (!originalSignature) errors.push('Missing input: originalSignature');
-    if (!newSignature) errors.push('Missing input: newSignature');
-  }
-
-  const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
-
-  if (
-    !failureStatus &&
-    !data.find(project => project.name === originalProject)
-  ) {
-    errors.push(`Invalid project, doesn't exist ${originalProject}`);
-  }
-
-  if (!failureStatus && !data.find(project => project.name === newProject)) {
-    errors.push(`Invalid project, doesn't exist ${newProject}`);
-  }
-
-  return errors;
-};
-
 export const getGraphsLink = function getGraphsLink(
   seriesList,
   resultSets,
@@ -343,6 +296,60 @@ export const getGraphsLink = function getGraphsLink(
   }
 
   return `perf.html#/graphs${createQueryParams(params)}`;
+};
+
+export const createNoiseMetric = function createNoiseMetric(
+  cmap,
+  name,
+  compareResults,
+) {
+  cmap.name = name;
+  cmap.isNoiseMetric = true;
+
+  if (compareResults.has(noiseMetricTitle)) {
+    compareResults.get(noiseMetricTitle).push(cmap);
+  } else {
+    compareResults.set(noiseMetricTitle, [cmap]);
+  }
+  return compareResults;
+};
+
+export const createGraphsLinks = (
+  validatedProps,
+  links,
+  framework,
+  timeRange,
+  signature,
+) => {
+  const {
+    originalProject,
+    newProject,
+    originalRevision,
+    newResultSet,
+    originalResultSet,
+  } = validatedProps;
+
+  const graphsParams = [...new Set([originalProject, newProject])].map(
+    projectName => ({
+      projectName,
+      signature,
+      frameworkId: framework.id,
+    }),
+  );
+
+  let graphsLink;
+  if (originalRevision) {
+    graphsLink = getGraphsLink(graphsParams, [originalResultSet, newResultSet]);
+  } else {
+    graphsLink = getGraphsLink(graphsParams, [newResultSet], timeRange.value);
+  }
+
+  links.push({
+    title: 'graph',
+    href: graphsLink,
+  });
+
+  return links;
 };
 
 // old PhAlerts' inner workings

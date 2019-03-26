@@ -7,12 +7,12 @@ import {
   faThumbsUp,
 } from '@fortawesome/free-solid-svg-icons';
 
-import SimpleTooltip from '../shared/SimpleTooltip';
+import SimpleTooltip from '../../shared/SimpleTooltip';
+import { displayNumber } from '../helpers';
 
-import { displayNumber } from './helpers';
 import TableAverage from './TableAverage';
 
-export default class CompareTable extends React.Component {
+export default class CompareTable extends React.PureComponent {
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -30,7 +30,7 @@ export default class CompareTable extends React.Component {
   render() {
     const { data, testName } = this.props;
     return (
-      <Table sz="small" className="compare-table mb-0" key={testName}>
+      <Table sz="small" className="compare-table mb-0 px-0" key={testName}>
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
@@ -40,7 +40,7 @@ export default class CompareTable extends React.Component {
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" />
             <th className="table-width-lg">New</th>
-            <th className="table-width-sm">Delta</th>
+            <th className="table-width-lg">Delta</th>
             {/* empty for progress bars (magnitude of difference) */}
             <th className="table-width-lg" />
             <th className="table-width-lg">Confidence</th>

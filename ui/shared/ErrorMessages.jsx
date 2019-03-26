@@ -8,7 +8,7 @@ const ErrorMessages = ({ failureMessage, errorMessages }) => {
   return (
     <div>
       {messages.map(message => (
-        <Alert color="danger" key={message}>
+        <Alert color="danger" key={message} className="text-center">
           {message}
         </Alert>
       ))}
