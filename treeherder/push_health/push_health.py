@@ -1,6 +1,8 @@
 import datetime
+import json
 from collections import defaultdict
 
+from django.core.cache import cache
 from django.forms.models import model_to_dict
 
 from treeherder.model.models import (FailureLine,
@@ -12,6 +14,7 @@ from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
                                           clean_test)
 
+ONE_WEEK_IN_SECONDS = 604800
 intermittent_history_days = 14
 fixed_by_commit_history_days = 30
 ignored_log_lines = [
@@ -22,36 +25,44 @@ ignored_log_lines = [
 ]
 
 
-def get_history(failure_classification_id, prior_day, days, option_map, repository_ids):
-    start_date = datetime.datetime.now() - datetime.timedelta(days=days)
-    failure_lines = FailureLine.objects.filter(
-        job_log__job__result='testfailed',
-        job_log__job__tier=1,
-        job_log__job__failure_classification_id=failure_classification_id,
-        job_log__job__push__repository_id__in=repository_ids,
-        job_log__job__push__time__gt=start_date,
-        job_log__job__push__time__lt=prior_day,
-    ).exclude(
-        test=None
-    ).select_related(
-        'job_log__job__machine_platform', 'job_log__job__push'
-    ).values(
-        'test',
-        'job_log__job__machine_platform__platform',
-        'job_log__job__option_collection_hash'
-    ).distinct()
+def get_history(failure_classification_id, push_date, num_days, option_map, repository_ids):
+    start_date = push_date - datetime.timedelta(days=num_days)
+    end_date = push_date - datetime.timedelta(days=2)
+    cache_key = 'failure_history:{}:{}'.format(failure_classification_id, push_date)
+    previous_failures_json = cache.get(cache_key)
 
-    previous_failures = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-    for line in failure_lines:
-        previous_failures[
-            clean_test(line['test'])
-        ][
-            clean_platform(line['job_log__job__machine_platform__platform'])
-        ][
-            clean_config(option_map[line['job_log__job__option_collection_hash']])
-        ] += 1
+    if not previous_failures_json:
+        failure_lines = FailureLine.objects.filter(
+            job_log__job__result='testfailed',
+            job_log__job__tier=1,
+            job_log__job__failure_classification_id=failure_classification_id,
+            job_log__job__push__repository_id__in=repository_ids,
+            job_log__job__push__time__gt=start_date,
+            job_log__job__push__time__lt=end_date,
+        ).exclude(
+            test=None
+        ).select_related(
+            'job_log__job__machine_platform', 'job_log__job__push'
+        ).values(
+            'test',
+            'job_log__job__machine_platform__platform',
+            'job_log__job__option_collection_hash'
+        ).distinct()
+        previous_failures = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        for line in failure_lines:
+            previous_failures[
+                clean_test(line['test'])
+            ][
+                clean_platform(line['job_log__job__machine_platform__platform'])
+            ][
+                clean_config(option_map[line['job_log__job__option_collection_hash']])
+            ] += 1
 
-    return previous_failures
+        cache.set(cache_key, json.dumps(previous_failures), ONE_WEEK_IN_SECONDS)
+    else:
+        previous_failures = json.loads(previous_failures_json)
+
+    return previous_failures, cache_key
 
 
 def get_push_failures(push, option_map):
@@ -110,9 +121,19 @@ def get_push_health_test_failures(push, repository_ids):
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
     option_map = OptionCollection.objects.get_option_collection_map()
-    prior_day = push.time.date() - datetime.timedelta(days=2)
-    intermittent_history = get_history(4, prior_day, intermittent_history_days, option_map, repository_ids)
-    fixed_by_commit_history = get_history(2, prior_day, fixed_by_commit_history_days, option_map, repository_ids)
+    push_date = push.time.date()
+    intermittent_history, cache_key = get_history(
+        4,
+        push_date,
+        intermittent_history_days,
+        option_map,
+        repository_ids)
+    fixed_by_commit_history, cache_key = get_history(
+        2,
+        push_date,
+        fixed_by_commit_history_days,
+        option_map,
+        repository_ids)
     push_failures = get_push_failures(push, option_map)
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
