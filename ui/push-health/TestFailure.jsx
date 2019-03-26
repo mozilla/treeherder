@@ -1,11 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Row, Col } from 'reactstrap';
+import { Badge, Button, Row, Col, Collapse } from 'reactstrap';
 
 import logviewerIcon from '../img/logviewerIcon.png';
 import { getJobsUrl, getLogViewerUrl } from '../helpers/url';
 
 export default class TestFailure extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      detailsShowing: false,
+    };
+  }
+
+  toggleDetails = () => {
+    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
+  };
+
   render() {
     const { failure, repo, revision } = this.props;
     const {
@@ -19,6 +31,7 @@ export default class TestFailure extends React.PureComponent {
       config,
       key,
     } = failure;
+    const { detailsShowing } = this.state;
 
     return (
       <Col className="mt-2 mb-3 ml-2" key={key}>
@@ -67,9 +80,22 @@ export default class TestFailure extends React.PureComponent {
               className="small text-monospace mt-2 ml-3"
               key={logLine.line_number}
             >
-              {logLine.id} {logLine.subtest} {logLine.message}
+              {logLine.subtest}
+              <Collapse isOpen={detailsShowing}>
+                <Row className="ml-3">
+                  <div>{logLine.message}</div>
+                </Row>
+              </Collapse>
             </Row>
           ))}
+        <div>
+          <Button
+            className="border-0 text-info bg-transparent p-1"
+            onClick={this.toggleDetails}
+          >
+            {detailsShowing ? 'less...' : 'more...'}
+          </Button>
+        </div>
       </Col>
     );
   }
