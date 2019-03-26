@@ -74,6 +74,8 @@ def get_push_failures(push, option_map):
     tests = {}
     for failure_line in new_failure_lines:
         test_name = clean_test(failure_line.test)
+        if not test_name:
+            continue
         job = failure_line.job_log.job
         config = clean_config(option_map[job.option_collection_hash])
         platform = clean_platform(job.machine_platform.platform)
@@ -81,7 +83,7 @@ def get_push_failures(push, option_map):
         jobSymbol = job.job_type.symbol
         test_key = '{}{}{}{}'.format(test_name, config, platform, jobName)
 
-        if test_name and test_key not in tests:
+        if test_key not in tests:
             line = {
                 'testName': test_name,
                 'jobName': jobName,
