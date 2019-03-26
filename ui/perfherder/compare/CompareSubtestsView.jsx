@@ -117,10 +117,14 @@ export class CompareSubtestsView extends React.PureComponent {
 
     const oldStddevVariance = {
       values: [],
-      lowerIsBetter: true,
+      lower_is_better: true,
       frameworkID: framework.id,
     };
-    const newStddevVariance = { ...oldStddevVariance };
+    const newStddevVariance = {
+      values: [],
+      lower_is_better: true,
+      frameworkID: framework.id,
+    };
 
     rowNames.forEach(testName => {
       const oldResults = origResultsMap.find(sig => sig.test === testName);
@@ -187,9 +191,9 @@ export class CompareSubtestsView extends React.PureComponent {
     compareResults = new Map([...compareResults.entries()].sort());
     const updates = { compareResults, testsWithNoise, loading: false };
 
-    const resultsArr = Array.from(compareResults.values())[0].map(
-      value => value.name,
-    );
+    const resultsArr = compareResults
+      .get(parentTestName)
+      .map(value => value.name);
     const testsNoResults = difference(rowNames, resultsArr)
       .sort()
       .join(', ');
