@@ -71,7 +71,12 @@ export class CompareSubtestsView extends React.PureComponent {
     } = this.props.validated;
     let links = [];
 
-    if (framework.name === 'talos' && originalRevision) {
+    if (
+      (framework.name === 'talos' ||
+        framework.name === 'raptor' ||
+        framework.name === 'devtools') &&
+      originalRevision
+    ) {
       const params = {
         originalProject,
         newProject,
@@ -115,11 +120,7 @@ export class CompareSubtestsView extends React.PureComponent {
       lowerIsBetter: true,
       frameworkID: framework.id,
     };
-    const newStddevVariance = {
-      values: [],
-      lowerIsBetter: true,
-      frameworkID: framework.id,
-    };
+    const newStddevVariance = { ...oldStddevVariance };
 
     rowNames.forEach(testName => {
       const oldResults = origResultsMap.find(sig => sig.test === testName);
