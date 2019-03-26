@@ -3,7 +3,6 @@ import { slugid } from 'taskcluster-client-web';
 import { thMaxPushFetchSize } from '../helpers/constants';
 import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
-import taskcluster from '../helpers/taskcluster';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
 
 import JobModel from './job';
@@ -132,68 +131,26 @@ export default class PushModel {
     });
   }
 
-  static triggerNewJobs(buildernames, decisionTaskId) {
-    const queue = taskcluster.getQueue();
-    const url = queue.buildUrl(
-      queue.getLatestArtifact,
-      decisionTaskId,
-      'public/full-task-graph.json',
-    );
+  static triggerNewJobs(jobs, decisionTaskId) {
+    return TaskclusterModel.load(decisionTaskId).then(results => {
+      const actionTaskId = slugid();
+      const addNewJobsTask = results.actions.find(
+        action => action.name === 'add-new-jobs',
+      );
 
-    return fetch(url).then(resp =>
-      resp.json().then(graph => {
-        // Build a mapping of buildbot buildername to taskcluster tasklabel for bbb tasks
-        const builderToTask = Object.entries(graph).reduce(
-          (currentMap, [key, value]) => {
-            if (
-              value &&
-              value.task &&
-              value.task.payload &&
-              value.task.payload.buildername
-            ) {
-              currentMap[value.task.payload.buildername] = key;
-            }
-            return currentMap;
-          },
-          {},
-        );
-        const allLabels = Object.keys(graph);
-        const tclabels = [];
-
-        buildernames.forEach(name => {
-          // The following has 2 cases that it accounts for
-          // 1. The name is a taskcluster task label, in which case we pass it on
-          // 2. The name is a buildbot buildername _scheduled_ through bbb, in which case we
-          //    translate it to the taskcluster label that triggers it.
-          name = builderToTask[name] || name;
-          if (allLabels.indexOf(name) !== -1) {
-            tclabels.push(name);
-          }
-        });
-        if (tclabels.length === 0) {
-          throw Error(`No tasks able to run for ${buildernames.join(', ')}`);
-        }
-        return TaskclusterModel.load(decisionTaskId).then(results => {
-          const actionTaskId = slugid();
-          const addNewJobsTask = results.actions.find(
-            action => action.name === 'add-new-jobs',
-          );
-
-          return TaskclusterModel.submit({
-            action: addNewJobsTask,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: { tasks: tclabels },
-            staticActionVariables: results.staticActionVariables,
-          }).then(
-            () =>
-              `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
-          );
-        });
-      }),
-    );
+      return TaskclusterModel.submit({
+        action: addNewJobsTask,
+        actionTaskId,
+        decisionTaskId,
+        taskId: null,
+        task: null,
+        input: { tasks: jobs },
+        staticActionVariables: results.staticActionVariables,
+      }).then(
+        () =>
+          `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
+      );
+    });
   }
 
   static getHealth(repoName, revision) {
