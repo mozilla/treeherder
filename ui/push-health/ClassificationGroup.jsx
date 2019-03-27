@@ -35,7 +35,7 @@ export default class ClassificationGroup extends React.PureComponent {
             <FontAwesomeIcon icon={expandIcon} className="ml-1" />
           </span>
         </h4>
-        <Collapse isOpen={detailsShowing}>
+        <Collapse isOpen={detailsShowing} className="w-100">
           <div>
             {group &&
               group.map(failure => (
