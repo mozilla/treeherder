@@ -1,13 +1,13 @@
 def set_classifications(failures, intermittent_history, fixed_by_commit_history):
     for failure in failures:
         set_intermittent(failure, intermittent_history)
-        set_previous_regression(failure, fixed_by_commit_history)
+        set_fixed_by_commit(failure, fixed_by_commit_history)
 
 
-def set_previous_regression(failure, fixed_by_commit_history):
+def set_fixed_by_commit(failure, fixed_by_commit_history):
     # Not perfect, could have intermittent that is cause of fbc
     if failure['testName'] in fixed_by_commit_history.keys():
-        failure['suggestedClassification'] = 'previousRegression'
+        failure['suggestedClassification'] = 'fixedByCommit'
         return True
     return False
 
@@ -58,7 +58,7 @@ def get_grouped(failures):
     classified = {
         'needInvestigation': [],
         'intermittent': [],
-        'previousRegression': [],
+        'fixedByCommit': [],
     }
 
     for failure in failures:

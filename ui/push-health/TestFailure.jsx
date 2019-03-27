@@ -5,6 +5,12 @@ import { Badge, Button, Row, Col, Collapse } from 'reactstrap';
 import logviewerIcon from '../img/logviewerIcon.png';
 import { getJobsUrl, getLogViewerUrl } from '../helpers/url';
 
+const classificationMap = {
+  fixedByCommit: 'Fixed By Commit',
+  intermittent: 'Intermittent',
+  needsInvestigation: 'Needs Investigation',
+};
+
 export default class TestFailure extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -29,6 +35,7 @@ export default class TestFailure extends React.PureComponent {
       confidence,
       platform,
       config,
+      suggestedClassification,
       key,
     } = failure;
     const { detailsShowing } = this.state;
@@ -37,12 +44,18 @@ export default class TestFailure extends React.PureComponent {
       <Col className="mt-2 mb-3 ml-2" key={key}>
         <Row className="border-bottom border-secondary justify-content-between">
           <span>{testName}</span>
-          <span>
-            Line confidence:
-            <Badge color="secondary" className="ml-2 mr-3">
-              {confidence}
-            </Badge>
-          </span>
+          {!!confidence && (
+            <span title="Best guess at a classification">
+              {classificationMap[suggestedClassification]}
+              <Badge
+                color="secondary"
+                className="ml-2 mr-3"
+                title="Confidence in this classification guess"
+              >
+                {confidence}
+              </Badge>
+            </span>
+          )}
         </Row>
         <div className="small">
           <span>
