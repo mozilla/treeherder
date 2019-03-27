@@ -45,7 +45,8 @@ class Command(BaseCommand):
                 push_date,
                 intermittent_history_days,
                 option_map,
-                repository_ids)
+                repository_ids,
+                True)
             self.debug('Cached failure history for {}'.format(cache_key))
 
             fbc_hist, cache_key = get_history(
@@ -53,7 +54,8 @@ class Command(BaseCommand):
                 push_date,
                 fixed_by_commit_history_days,
                 option_map,
-                repository_ids)
+                repository_ids,
+                True)
             self.debug('Cached failure history for {}'.format(cache_key))
 
     def debug(self, msg):
