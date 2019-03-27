@@ -25,7 +25,6 @@ import {
   faCode,
   faExclamationCircle,
   faExclamationTriangle,
-  faExternalLinkAlt,
   faLevelDownAlt,
   faPlus,
   faQuestionCircle,
@@ -60,6 +59,7 @@ import './perfherder/compare/CompareSelectorView';
 import './perfherder/compare/CompareView';
 import './perfherder/compare/CompareSubtestDistributionView';
 import './perfherder/compare/CompareSubtestsView';
+import './perfherder/alerts/AlertTable';
 
 config.showMissingIcons = true;
 
@@ -77,7 +77,6 @@ library.add(
   faCode,
   faExclamationCircle,
   faExclamationTriangle,
-  faExternalLinkAlt,
   faFileCode,
   faFileWord,
   faGithub,
