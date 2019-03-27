@@ -122,14 +122,14 @@ export const thAllResultStatuses = [
 ];
 
 export const thOptionOrder = {
-  opt: 0,
-  pgo: 1,
-  asan: 2,
-  tsan: 3,
-  debug: 4,
-  cc: 5,
-  addon: 6,
-  all: 7,
+  opt: 1,
+  pgo: 2,
+  asan: 3,
+  tsan: 4,
+  debug: 5,
+  cc: 6,
+  addon: 7,
+  all: 8,
 };
 
 export const thFavicons = {
