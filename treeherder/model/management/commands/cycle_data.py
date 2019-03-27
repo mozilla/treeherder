@@ -38,13 +38,13 @@ class TreeherderCycler(DataCycler):
 
     def cycle(self):
         for repository in Repository.objects.all():
-            self.logger.debug("Cycling repository: {0}".format(repository.name))
+            self.logger.warning("Cycling repository: {0}".format(repository.name))
             rs_deleted = Job.objects.cycle_data(repository,
                                                 self.cycle_interval,
                                                 self.chunk_size,
                                                 self.sleep_time)
-            self.logger.debug("Deleted {} jobs from {}".format(rs_deleted,
-                                                               repository.name))
+            self.logger.warning("Deleted {} jobs from {}"
+                                .format(rs_deleted, repository.name))
 
         self.remove_leftovers()
 
@@ -91,16 +91,8 @@ class PerfherderCycler(DataCycler):
                                                 self.chunk_size,
                                                 self.sleep_time,
                                                 self.unsheriffed_repos_expire_days,
-                                                self.keep_old_frameworks)
-
-
-class Logger:
-    def __init__(self, enable):
-        self.enable = enable
-
-    def debug(self, msg):
-        if self.enable:
-            logging.warning(msg)
+                                                self.keep_old_frameworks,
+                                                self.logger)
 
 
 class Command(BaseCommand):
@@ -165,13 +157,27 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger = Logger(options.pop('is_debug'))
+        logger = self.get_logger(options['is_debug'])
 
-        logger.debug("Cycle interval... {}".format(options['days']))
+        logger.warning("Cycle interval... {}".format(options['days']))
 
         data_cycler = self.fabricate_data_cycler(options, logger)
-        logger.debug('Cycling {0} data...'.format(data_cycler.source))
+        logger.warning('Cycling {0} data...'.format(data_cycler.source))
         data_cycler.cycle()
+
+    def get_logger(self, is_debug):
+        logger = logging.getLogger('cycle_data')
+        logger.setLevel(
+            logging.WARNING if is_debug else logging.CRITICAL)
+        logger.propagate = False
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+
+        formatter = logging.Formatter('%(asctime)s|%(name)s|%(levelname)s|%(message)s')
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+        return logger
 
     def fabricate_data_cycler(self, options, logger):
         data_source = options.pop('data_source')

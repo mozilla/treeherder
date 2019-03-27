@@ -117,20 +117,22 @@ class PerformanceDatumManager(models.Manager):
     ]
 
     def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time,
-                   unsheriffed_repos_expire_days, keep_old_frameworks):
+                   unsheriffed_repos_expire_days, keep_old_frameworks, logger):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size."""
-
+        logger.warning('Cycling Perfherder data from {0} repository...'
+                       .format(repository.name))
         max_timestamp = self._determine_max_timestamp(repository.name,
                                                       cycle_interval,
                                                       unsheriffed_repos_expire_days)
 
         filter_queryset = self.filter(repository=repository,
                                       push_timestamp__lt=max_timestamp)
-        self._delete_in_chunks(filter_queryset, chunk_size, sleep_time)
+        self._delete_in_chunks(filter_queryset, chunk_size, sleep_time, logger)
 
         # also remove any signatures which are (no longer) associated with
         # a job
+        logger.warning('Removing performance signatures with missing jobs...')
         for signature in PerformanceSignature.objects.filter(
                 repository=repository):
             if not self.filter(
@@ -158,11 +160,20 @@ into chunks of chunk_size size."""
             if latest_addition < old_data_cycle:
                 self._delete_in_chunks(signature_data_queryset, chunk_size, sleep_time)
 
-    def _delete_in_chunks(self, filter_queryset, chunk_size, sleep_time):
+    def _delete_in_chunks(self, filter_queryset, chunk_size, sleep_time, logger):
+        def log_once(query, already_logged):
+            if already_logged is False:
+                logger.warning('Sample chunk delete query: {0}'.format(str(query)))
+                already_logged = True
+            return already_logged
+
+        already_logged = False
         while True:
-            perf_datums_to_cycle = list(
-                filter_queryset.values_list('id', flat=True)[:chunk_size]
-            )
+            chunk_filter = filter_queryset.values_list('id', flat=True)[:chunk_size]
+            # inspect just a sample of expensive query
+            already_logged = log_once(chunk_filter.query, already_logged)
+
+            perf_datums_to_cycle = list(chunk_filter)
             if not perf_datums_to_cycle:
                 # we're done!
                 break
