@@ -477,25 +477,6 @@ export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
   );
 };
 
-const modifyAlertSummary = (alertSummary, modification) =>
-  update(
-    getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
-    modification,
-  );
-
-export const alertSummaryIsOfState = (alertSummary, phAlertSummaryStatus) =>
-  alertSummary.status === phAlertSummaryStatus.id;
-
-const updateAlertSummaryStatus = (alertSummary, newStatus) =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
-    status: newStatus.id,
-  }).then(() => {
-    alertSummary.status = newStatus.id;
-  });
-
-export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) =>
-  updateAlertSummaryStatus(alertSummary, phAlertSummaryStatus);
-
 export const getIssueTrackerUrl = alertSummary => {
   if (!alertSummary.bug_number) {
     return;
@@ -574,11 +555,7 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   return resultStr;
 };
 
-export const isResolved = alertSummary =>
-  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.FIXED) ||
-  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX) ||
-  alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT);
-
+// TODO replace usage of getData on line 560 since modifyAlert/update now returns data
 export const refreshAlertSummary = alertSummary =>
   getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
     ({ data }) =>
@@ -637,17 +614,6 @@ export const getTitle = alertSummary => {
   return title;
 };
 
-export const assignBug = (alertSummary, taskNumber, issueTrackerId) =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
-    bug_number: taskNumber,
-    issue_tracker: issueTrackerId,
-  }).then(() => refreshAlertSummary(alertSummary));
-
-export const unassignBug = alertSummary =>
-  update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
-    bug_number: null,
-  }).then(() => refreshAlertSummary(alertSummary));
-
 export const modifySelectedAlerts = (alertSummary, modification) => {
   alertSummary.allSelected = false;
 
@@ -665,16 +631,6 @@ export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,
   ).text;
-
-export const saveNotes = alertSummary =>
-  modifyAlertSummary(alertSummary, { notes: alertSummary.notes }).then(() => {
-    alertSummary.originalNotes = alertSummary.notes;
-    alertSummary.notesChanged = false;
-  });
-
-export const editingNotes = alertSummary => {
-  alertSummary.notesChanged = alertSummary.notes !== alertSummary.originalNotes;
-};
 
 export const getAlertSummary = id =>
   OptionCollectionModel.getMap().then(optionCollectionMap =>

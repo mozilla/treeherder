@@ -360,32 +360,6 @@ th {
   padding: 8px;
 }
 
-.alert-summary-title {
-  flex: auto;
-  padding: 9px 4px;
-  line-height: 19px;
-}
-
-.alert-summary-title .anchor {
-  color: #333;
-  font-weight: bold;
-}
-
-.alert-summary-title .dropdown {
-  vertical-align: text-bottom;
-}
-
-.alert-summary-title .icon-superscript {
-  vertical-align: super;
-  font-size: 0.625em;
-  margin-left: -0.2em;
-}
-
-.alert-summary-title #push-dropdown {
-  padding: 0;
-  margin-bottom: -4px;
-}
-
 .alert-summary .compare-table {
   margin-bottom: 0;
 }

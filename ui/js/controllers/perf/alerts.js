@@ -1,18 +1,12 @@
 // Remove the eslint-disable when rewriting this file during the React conversion.
-/* eslint-disable func-names, object-shorthand, prefer-destructuring, prefer-template, radix */
-import merge from 'lodash/merge';
+/* eslint-disable func-names, object-shorthand, prefer-template, radix */
 import defaults from 'lodash/defaults';
 import set from 'lodash/set';
-import angular from 'angular';
 
 import perf from '../../perf';
 import { endpoints } from '../../../perfherder/constants';
 import {
     alertIsOfState,
-    alertSummaryIsOfState,
-    alertSummaryMarkAs,
-    assignBug,
-    editingNotes,
     getAlertStatusText,
     getAlertSummaries,
     getAlertSummary,
@@ -22,16 +16,11 @@ import {
     getIssueTrackerUrl,
     getSubtestsURL,
     getTextualSummary,
-    getTitle,
-    isResolved,
     modifySelectedAlerts,
     refreshAlertSummary,
-    saveNotes,
     toggleStar,
-    unassignBug,
 } from '../../../perfherder/helpers';
 import modifyAlertsCtrlTemplate from '../../../partials/perf/modifyalertsctrl.html';
-import editAlertSummaryNotesCtrlTemplate from '../../../partials/perf/editnotesctrl.html';
 import { getApiUrl, getJobsUrl } from '../../../helpers/url';
 import { getData } from '../../../helpers/http';
 import {
@@ -46,118 +35,6 @@ import OptionCollectionModel from '../../../models/optionCollection';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 
-perf.factory('PhBugs', [
-    '$http', '$httpParamSerializer', '$interpolate', '$rootScope', 'dateFilter',
-    function ($http, $httpParamSerializer, $interpolate, $rootScope, dateFilter) {
-        return {
-            fileBug: function (alertSummary) {
-                $http.get(getApiUrl(`/performance/bug-template/?framework=${alertSummary.framework}`)).then(function (response) {
-                    const template = response.data[0];
-                    const repo = $rootScope.repos.find(repo =>
-                        repo.name === alertSummary.repository);
-                    const compiledText = $interpolate(template.text)({
-                        revisionHref: repo.getPushLogHref(alertSummary.resultSetMetadata.revision),
-                        alertHref: window.location.origin + '/perf.html#/alerts?id=' +
-                            alertSummary.id,
-                        alertSummary: getTextualSummary(alertSummary),
-                    });
-                    const pushDate = dateFilter(
-                        alertSummary.resultSetMetadata.push_timestamp * 1000,
-                        'EEE MMM d yyyy');
-                    const bugTitle = getTitle(alertSummary) +
-                        ' regression on push ' +
-                        alertSummary.resultSetMetadata.revision + ' (' +
-                        pushDate + ')';
-                    window.open(
-                        'https://bugzilla.mozilla.org/enter_bug.cgi?' + $httpParamSerializer({
-                            cc: template.cc_list,
-                            comment: compiledText,
-                            component: template.default_component,
-                            product: template.default_product,
-                            keywords: template.keywords,
-                            short_desc: bugTitle,
-                            status_whiteboard: template.status_whiteboard,
-                        }));
-                });
-            },
-        };
-    }]);
-
-perf.controller(
-    'ModifyAlertSummaryCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
-        function ($scope, $uibModalInstance, alertSummary) {
-            $scope.title = 'Link to bug';
-            $scope.placeholder = 'Task #';
-            $scope.issueTrackers = [];
-            getData(getApiUrl(endpoints.issueTrackers)).then(({ data: issueTrackerList }) => {
-                $scope.issueTrackers = issueTrackerList;
-
-                if (issueTrackerList.length >= 1) {
-                    $scope.selectedIssueTracker = issueTrackerList[0];
-                } else {
-                    alert('Unexpectedly retrieved an empty list of issue trackers');
-                    $scope.cancel();
-                }
-            });
-
-            $scope.update = function () {
-                const newId = parseInt(
-                    $scope.modifyAlert.newId.$modelValue);
-
-                const selectedIssueTracker = $scope.modifyAlert.selectedIssueTracker.$modelValue;
-
-                $scope.modifying = true;
-                assignBug(alertSummary, newId, selectedIssueTracker.id).then(function () {
-                    $scope.modifying = false;
-                    $uibModalInstance.close('assigned');
-                });
-            };
-
-            $scope.cancel = function () {
-                $uibModalInstance.dismiss('cancel');
-            };
-            $scope.$on('modal.closing', function (event) {
-                if ($scope.modifying) {
-                    event.preventDefault();
-                }
-            });
-        }]);
-perf.controller(
-    'EditAlertSummaryNotesCtrl', ['$scope', '$uibModalInstance', 'alertSummary',
-        function ($scope, $uibModalInstance, alertSummary) {
-            $scope.title = 'Edit notes';
-            $scope.placeholder = 'Leave notes here...';
-            $scope.error = false;
-            $scope.alertSummaryCopy = angular.copy(alertSummary);
-
-            // AlertSummary function
-            $scope.editingNotes = editingNotes;
-
-            $scope.saveChanges = function () {
-                $scope.modifying = true;
-                saveNotes($scope.alertSummaryCopy).then(function () {
-                    merge(alertSummary, $scope.alertSummaryCopy);
-                    $scope.modifying = false;
-                    $scope.error = false;
-
-                    $uibModalInstance.close();
-                }, function () {
-                    $scope.error = true;
-                    $scope.modifying = false;
-                },
-                );
-            };
-
-            $scope.cancel = function () {
-                $uibModalInstance.dismiss('cancel');
-            };
-
-            $scope.$on('modal.closing', function (event) {
-                if ($scope.modifying) {
-                    event.preventDefault();
-                }
-            });
-        }]);
 perf.controller(
     'MarkDownstreamAlertsCtrl', ['$scope', '$uibModalInstance', '$q', 'alertSummary',
         'allAlertSummaries',
@@ -228,9 +105,9 @@ perf.controller(
 
 perf.controller('AlertsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$q', '$uibModal',
-    'PhBugs', 'dateFilter', 'clipboard',
+    'dateFilter',
     function AlertsCtrl($state, $stateParams, $scope, $rootScope, $q, $uibModal,
-                        PhBugs, dateFilter, clipboard) {
+                        dateFilter) {
         $scope.alertSummaries = undefined;
         $scope.getMoreAlertSummariesHref = null;
         $scope.getCappedMagnitude = function (percent) {
@@ -239,24 +116,11 @@ perf.controller('AlertsCtrl', [
             return Math.min(Math.abs(percent) * 5, 100);
         };
 
-        $scope.editAlertSummaryNotes = function (alertSummary) {
-            $uibModal.open({
-                template: editAlertSummaryNotesCtrlTemplate,
-                controller: 'EditAlertSummaryNotesCtrl',
-                size: 'md',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                },
-            });
-        };
-
         // can filter by alert statuses or just show everything
         $scope.statuses = Object.values(phAlertSummaryStatusMap);
         $scope.statuses = $scope.statuses.concat({ id: -1, text: 'all' });
 
-        function updateAlertVisibility() {
+        $scope.updateAlertVisibility = function() {
             $scope.alertSummaries.forEach(function (alertSummary) {
                 alertSummary.alerts.forEach(function (alert) {
                     // only show alert if it passes all filter criteria
@@ -321,34 +185,7 @@ perf.controller('AlertsCtrl', [
                 alertSummary.allSelected = false;
             }
         };
-
-        $scope.copyTextToClipboard = function (alertSummary) {
-            clipboard.copyText(getTextualSummary(alertSummary, true));
-        };
-
-        $scope.fileBug = function (alertSummary) {
-            PhBugs.fileBug(alertSummary);
-        };
-        $scope.linkToBug = function (alertSummary) {
-            $uibModal.open({
-                template: modifyAlertsCtrlTemplate,
-                controller: 'ModifyAlertSummaryCtrl',
-                size: 'sm',
-                resolve: {
-                    alertSummary: function () {
-                        return alertSummary;
-                    },
-                },
-            }).result.then(function () {
-                updateAlertVisibility();
-            });
-        };
-        $scope.unlinkBug = function (alertSummary) {
-            unassignBug(alertSummary).then(function () {
-                updateAlertVisibility();
-                $scope.$digest();
-            });
-        };
+        // TODO replace usage of modifyAlertsCtrlTemplate with Bug Modal component
         $scope.markAlertsDownstream = function (alertSummary) {
             $uibModal.open({
                 template: modifyAlertsCtrlTemplate,
@@ -363,7 +200,7 @@ perf.controller('AlertsCtrl', [
                     },
                 },
             }).result.then(function () {
-                updateAlertVisibility();
+                $scope.updateAlertVisibility();
             });
         };
         $scope.reassignAlerts = function (alertSummary) {
@@ -380,13 +217,13 @@ perf.controller('AlertsCtrl', [
                     },
                 },
             }).result.then(function () {
-                updateAlertVisibility();
+                $scope.updateAlertVisibility();
             });
         };
 
         function updateAlertSummary(alertSummary) {
             refreshAlertSummary(alertSummary).then(function () {
-                updateAlertVisibility();
+                $scope.updateAlertVisibility();
                 $scope.$digest();
             });
         }
@@ -450,7 +287,7 @@ perf.controller('AlertsCtrl', [
                 // initialized
                 defaults(resultSetToSummaryMap,
                            set({}, alertSummary.repository, {}));
-
+                // TODO is this needed or can originalNotes prop be removed?
                 alertSummary.originalNotes = alertSummary.notes;
 
                 [alertSummary.push_id, alertSummary.prev_push_id].forEach(
@@ -522,7 +359,7 @@ perf.controller('AlertsCtrl', [
                         ...$scope.alertSummaries,
                         ...alertSummaries])];
                 }
-                updateAlertVisibility();
+                $scope.updateAlertVisibility();
             });
         }
 
@@ -600,7 +437,7 @@ perf.controller('AlertsCtrl', [
                         $scope.alertSummaryCurrentPage = 1;
                     });
             } else {
-                updateAlertVisibility();
+                $scope.updateAlertVisibility();
             }
         };
 
@@ -616,17 +453,9 @@ perf.controller('AlertsCtrl', [
         // AlertSummary functions
         $scope.phAlertSummaryStatusMap = phAlertSummaryStatusMap;
 
-        $scope.alertSummaryIsOfState = alertSummaryIsOfState;
-        $scope.alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) => {
-            alertSummaryMarkAs(alertSummary, phAlertSummaryStatus).then(() => {
-                $scope.$digest();
-            });
-        };
         $scope.getAlertSummaryStatusText = getAlertSummaryStatusText;
         $scope.getIssueTrackerUrl = getIssueTrackerUrl;
         $scope.getTextualSummary = getTextualSummary;
-        $scope.getTitle = getTitle;
-        $scope.isResolved = isResolved;
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;

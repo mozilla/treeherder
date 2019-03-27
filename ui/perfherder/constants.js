@@ -5,6 +5,7 @@ export const tValueConfidence = 5; // Anything above this is "high" in confidenc
 export const endpoints = {
   issueTrackers: '/performance/issue-tracker/',
   frameworks: '/performance/framework/',
+  alertSummary: '/performance/alertsummary/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -18,3 +19,16 @@ export const filterText = {
 };
 
 export const noDataFoundMessage = 'No Data Found';
+
+export const alertSummaryStatus = {
+  untriaged: 0,
+  downstream: 1,
+  reassigned: 2,
+  invalid: 3,
+  improvement: 4,
+  investigating: 5,
+  wontfix: 6,
+  fixed: 7,
+  backedout: 8,
+  confirming: 9,
+};
