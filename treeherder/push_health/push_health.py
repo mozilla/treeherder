@@ -25,13 +25,13 @@ ignored_log_lines = [
 ]
 
 
-def get_history(failure_classification_id, push_date, num_days, option_map, repository_ids):
+def get_history(failure_classification_id, push_date, num_days, option_map, repository_ids, force_update=False):
     start_date = push_date - datetime.timedelta(days=num_days)
     end_date = push_date - datetime.timedelta(days=2)
     cache_key = 'failure_history:{}:{}'.format(failure_classification_id, push_date)
     previous_failures_json = cache.get(cache_key)
 
-    if not previous_failures_json:
+    if not previous_failures_json or force_update:
         failure_lines = FailureLine.objects.filter(
             job_log__job__result='testfailed',
             job_log__job__tier=1,
