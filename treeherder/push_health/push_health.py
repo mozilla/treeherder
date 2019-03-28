@@ -10,6 +10,8 @@ from treeherder.model.models import (FailureLine,
 from treeherder.push_health.classification import (get_grouped,
                                                    set_classifications)
 from treeherder.push_health.filter import filter_failure
+from treeherder.push_health.similar_jobs import (job_fields,
+                                                 set_matching_passed_jobs)
 from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
                                           clean_test)
@@ -102,17 +104,24 @@ def get_push_failures(push, option_map):
                 'platform': platform,
                 'config': config,
                 'key': test_key,
-                'jobs': [],
+                'failJobs': [],
+                'passJobs': [],
                 'logLines': [],
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
             }
             tests[test_key] = line
+
+        # This ``test`` was either just added above, or already existed in the ``tests``
+        # list in a previous iteration through ``failure_lines``
         test = tests[test_key]
         test['logLines'].append(failure_line.to_mozlog_format())
-        if not next((find_job for find_job in test['jobs'] if find_job['id'] == job.id), False):
-            test['jobs'].append(model_to_dict(job))
+        if not next((find_job for find_job in test['failJobs'] if find_job['id'] == job.id), False):
+            test['failJobs'].append(model_to_dict(job, fields=job_fields))
 
+    # Each line of the sorted list that is returned here represents one test file per platform/
+    # config.  Each line will have at least one failing job, but may have several
+    # passing/failing jobs associated with it.
     return sorted(tests.values(), key=lambda k: k['testName'])
 
 
@@ -144,4 +153,5 @@ def get_push_health_test_failures(push, repository_ids):
         intermittent_history,
         fixed_by_commit_history,
     )
+    set_matching_passed_jobs(filtered_push_failures, push)
     return get_grouped(filtered_push_failures)

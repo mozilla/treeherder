@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Button, Row, Col, Collapse } from 'reactstrap';
 
-import logviewerIcon from '../img/logviewerIcon.png';
-import { getJobsUrl, getLogViewerUrl } from '../helpers/url';
+import Job from './Job';
 
 const classificationMap = {
   fixedByCommit: 'Fixed By Commit',
@@ -30,7 +29,8 @@ export default class TestFailure extends React.PureComponent {
       testName,
       jobName,
       jobSymbol,
-      jobs,
+      failJobs,
+      passJobs,
       logLines,
       confidence,
       platform,
@@ -61,30 +61,25 @@ export default class TestFailure extends React.PureComponent {
           <span>
             {platform} {config}:
           </span>
-          {jobs.map(job => (
-            <span className="mr-2" key={job.id}>
-              <a
-                className="text-dark ml-3 px-1 border border-secondary rounded"
-                href={getJobsUrl({ selectedJob: job.id, repo, revision })}
-                title={jobName}
-              >
-                {jobSymbol}
-              </a>
-              <a
-                className="logviewer-btn"
-                href={getLogViewerUrl(job.id, repo)}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open the Log Viewer for this job"
-              >
-                <img
-                  style={{ height: '18px' }}
-                  alt="Logviewer"
-                  src={logviewerIcon}
-                  className="logviewer-icon text-dark"
-                />
-              </a>
-            </span>
+          {failJobs.map(failJob => (
+            <Job
+              job={failJob}
+              jobName={jobName}
+              jobSymbol={jobSymbol}
+              repo={repo}
+              revision={revision}
+              key={failJob.id}
+            />
+          ))}
+          {passJobs.map(passJob => (
+            <Job
+              job={passJob}
+              jobName={jobName}
+              jobSymbol={jobSymbol}
+              repo={repo}
+              revision={revision}
+              key={passJob.id}
+            />
           ))}
         </div>
         {!!logLines.length &&
@@ -115,7 +110,19 @@ export default class TestFailure extends React.PureComponent {
 }
 
 TestFailure.propTypes = {
-  failure: PropTypes.object.isRequired,
+  failure: PropTypes.shape({
+    testName: PropTypes.string.isRequired,
+    jobName: PropTypes.string.isRequired,
+    jobSymbol: PropTypes.string.isRequired,
+    failJobs: PropTypes.arrayOf(PropTypes.shape({})),
+    passJobs: PropTypes.arrayOf(PropTypes.shape({})),
+    logLines: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    confidence: PropTypes.number.isRequired,
+    platform: PropTypes.string.isRequired,
+    config: PropTypes.string.isRequired,
+    suggestedClassification: PropTypes.string.isRequired,
+    key: PropTypes.string.isRequired,
+  }).isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
 };
