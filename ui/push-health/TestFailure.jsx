@@ -45,7 +45,7 @@ export default class TestFailure extends React.PureComponent {
         <Row className="border-bottom border-secondary justify-content-between">
           <span>{testName}</span>
           {!!confidence && (
-            <span title="Best guess at a classification">
+            <span title="Best guess at a classification" className="ml-auto">
               {classificationMap[suggestedClassification]}
               <Badge
                 color="secondary"

@@ -58,12 +58,14 @@ def get_grouped(failures):
     classified = {
         'needInvestigation': [],
         'intermittent': [],
-        'fixedByCommit': [],
     }
 
     for failure in failures:
-        if failure['confidence'] == 100:
-            classified[failure['suggestedClassification']].append(failure)
+        pass_fail_ratio = len(failure['passJobs']) / (len(failure['failJobs']) + len(failure['passJobs']))
+        is_intermittent = failure['suggestedClassification'] == 'intermittent'
+
+        if (is_intermittent and failure['confidence'] == 100) or pass_fail_ratio > .5:
+            classified['intermittent'].append(failure)
         else:
             classified['needInvestigation'].append(failure)
 

@@ -6,7 +6,7 @@ import ClassificationGroup from './ClassificationGroup';
 export default class TestFailures extends React.PureComponent {
   render() {
     const { failures, repo, revision } = this.props;
-    const { needInvestigation, intermittent, fixedByCommit } = failures;
+    const { needInvestigation, intermittent } = failures;
     const needInvestigationLength = Object.keys(needInvestigation).length;
 
     return (
@@ -18,13 +18,6 @@ export default class TestFailures extends React.PureComponent {
           revision={revision}
           className="mb-5"
           headerColor={needInvestigationLength ? 'danger' : 'secondary'}
-        />
-        <ClassificationGroup
-          group={fixedByCommit}
-          name="Known FixedByCommit"
-          repo={repo}
-          revision={revision}
-          headerColor="secondary"
         />
         <ClassificationGroup
           group={intermittent}
