@@ -163,8 +163,13 @@ export default class CompareSubtestDistributionView extends React.Component {
       newRevision && (
         <Container fluid className="max-width-default justify-content-center">
           {dataLoading ? (
-            <div className="loading">
-              <FontAwesomeIcon icon={faCog} size="4x" spin />
+            <div className="loading" aria-label="loading">
+              <FontAwesomeIcon
+                icon={faCog}
+                size="4x"
+                spin
+                title="loading page, please wait"
+              />
             </div>
           ) : (
             <Row className="justify-content-center mt-4">

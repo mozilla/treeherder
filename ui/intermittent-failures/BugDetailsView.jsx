@@ -140,7 +140,11 @@ const BugDetailsView = props => {
           <Row>
             <Col xs="12" className="text-left">
               <Link to={lastLocation || '/'}>
-                <FontAwesomeIcon icon={faArrowLeft} className="mr-1" />
+                <FontAwesomeIcon
+                  icon={faArrowLeft}
+                  className="mr-1"
+                  title="go to intermittent failures view main page"
+                />
                 back
               </Link>
             </Col>

@@ -213,7 +213,12 @@ export default class CompareTableView extends React.Component {
       <Container fluid className="max-width-default">
         {loading && !failureMessage && (
           <div className="loading">
-            <FontAwesomeIcon icon={faCog} size="4x" spin />
+            <FontAwesomeIcon
+              icon={faCog}
+              size="4x"
+              spin
+              title="loading page, please wait"
+            />
           </div>
         )}
         <ErrorBoundary
