@@ -141,7 +141,6 @@ def test_repository(transactional_db):
         repository_group_id=1,
         description="",
         performance_alerts_enabled=True,
-        expire_performance_data=False
     )
     return r
 
