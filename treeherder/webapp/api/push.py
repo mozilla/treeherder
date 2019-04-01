@@ -207,8 +207,7 @@ class PushViewSet(viewsets.ViewSet):
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
         push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
-        test_result = 'fail' if (len(push_health_test_failures['needInvestigation']) +
-                                 len(push_health_test_failures['fixedByCommit'])) else 'pass'
+        test_result = 'fail' if len(push_health_test_failures['needInvestigation']) else 'pass'
 
         return Response({
             'revision': revision,
