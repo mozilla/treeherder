@@ -124,7 +124,12 @@ export default class ReplicatesGraph extends React.Component {
 
     return dataLoading ? (
       <div className="loading">
-        <FontAwesomeIcon icon={faCog} size="4x" spin />
+        <FontAwesomeIcon
+          icon={faCog}
+          size="4x"
+          spin
+          title="loading page, please wait"
+        />
       </div>
     ) : (
       <ErrorBoundary
