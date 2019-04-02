@@ -636,7 +636,7 @@ export const getTitle = alertSummary => {
   title += ` (${platformInfo})`;
   return title;
 };
-
+// TODO remove
 export const assignBug = (alertSummary, taskNumber, issueTrackerId) =>
   update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     bug_number: taskNumber,

@@ -38,7 +38,7 @@
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
   <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <alert-table alert-summary="alertSummary" user="user" ></alert-table>      
+    <alert-table alert-summary="alertSummary" user="user" repos="repos" update-alert-visibility="updateAlertVisibility"></alert-table>      
     <div class="card-header alert-summary-heading">
       <div class="alert-summary-header-element">
         <input type="checkbox" ng-disabled="!user.isStaff" ng-model="alertSummary.allSelected" ng-change="selectNoneOrSelectAll(alertSummary)"/><!-- select 'em all checkbox -->
