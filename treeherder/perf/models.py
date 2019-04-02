@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db.models import Max
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (Job,
@@ -108,72 +107,17 @@ class PerformanceDatumManager(models.Manager):
     Convenience functions for operations on groups of performance datums
     """
 
-    # Performance sheriffs check these daily
-    MAIN_REPOS = [
-        'autoland',
-        'mozilla-inbound',
-        'mozilla-beta',
-        'mozilla-central'
-    ]
-
-    def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time,
-                   unsheriffed_repos_expire_days, keep_old_frameworks, logger):
+    def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size."""
-        logger.warning('Cycling Perfherder data from {0} repository...'
-                       .format(repository.name))
-        max_timestamp = self._determine_max_timestamp(repository.name,
-                                                      cycle_interval,
-                                                      unsheriffed_repos_expire_days)
 
-        filter_queryset = self.filter(repository=repository,
-                                      push_timestamp__lt=max_timestamp)
-        self._delete_in_chunks(filter_queryset, chunk_size, sleep_time, logger)
+        max_timestamp = datetime.datetime.now() - cycle_interval
 
-        # also remove any signatures which are (no longer) associated with
-        # a job
-        logger.warning('Removing performance signatures with missing jobs...')
-        for signature in PerformanceSignature.objects.filter(
-                repository=repository):
-            if not self.filter(
-                    repository=repository,  # redundant, but leverages (repository, signature) compound index
-                    signature=signature).exists():
-                signature.delete()
-
-        if not keep_old_frameworks:
-            self.remove_old_framework_data(repository, chunk_size, sleep_time)
-
-    def remove_old_framework_data(self, repository, chunk_size, sleep_time):
-        # currently deactivated;
-        # re enable once main cycle method is stable
-        if not (False and repository.name in self.MAIN_REPOS):
-            return
-
-        for signature in PerformanceSignature.objects.filter(
-                repository=repository):
-            signature_data_queryset = self.filter(
-                repository=repository,  # redundant, but leverages (repository, signature) compound index
-                signature=signature)
-            latest_addition = signature_data_queryset.aggregate(value=Max('push_timestamp'))['value']
-
-            old_data_cycle = datetime.datetime.now() - datetime.timedelta(days=120)
-            if latest_addition < old_data_cycle:
-                self._delete_in_chunks(signature_data_queryset, chunk_size, sleep_time)
-
-    def _delete_in_chunks(self, filter_queryset, chunk_size, sleep_time, logger):
-        def log_once(query, already_logged):
-            if already_logged is False:
-                logger.warning('Sample chunk delete query: {0}'.format(str(query)))
-                already_logged = True
-            return already_logged
-
-        already_logged = False
+        # seperate datums into chunks
         while True:
-            chunk_filter = filter_queryset.values_list('id', flat=True)[:chunk_size]
-            # inspect just a sample of expensive query
-            already_logged = log_once(chunk_filter.query, already_logged)
-
-            perf_datums_to_cycle = list(chunk_filter)
+            perf_datums_to_cycle = list(self.filter(
+                repository=repository,
+                push_timestamp__lt=max_timestamp).values_list('id', flat=True)[:chunk_size])
             if not perf_datums_to_cycle:
                 # we're done!
                 break
@@ -182,12 +126,12 @@ into chunks of chunk_size size."""
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
 
-    def _determine_max_timestamp(self, repo_name, cycle_interval, unsheriffed_repos_expire_days):
-        if repo_name in self.MAIN_REPOS:
-            return datetime.datetime.now() - cycle_interval
-
-        # eagerly delete perf data from nonsheriffed repos
-        return datetime.datetime.now() - unsheriffed_repos_expire_days
+        # also remove any signatures which are (no longer) associated with
+        # a job
+        for signature in PerformanceSignature.objects.filter(
+                repository=repository):
+            if not self.filter(signature=signature).exists():
+                signature.delete()
 
 
 class PerformanceDatum(models.Model):
@@ -197,7 +141,7 @@ class PerformanceDatum(models.Model):
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
-    push_timestamp = models.DateTimeField(db_index=True)
+    push_timestamp = models.DateTimeField()
 
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None,
@@ -212,9 +156,9 @@ class PerformanceDatum(models.Model):
     class Meta:
         db_table = 'performance_datum'
         index_together = [
-            # Speeds up the typical "get a range of performance datums" query
+            # this should speed up the typical "get a range of performance datums" query
             ('repository', 'signature', 'push_timestamp'),
-            # Speeds up the compare view in treeherder (we only index on
+            # this should speed up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
             ('repository', 'signature', 'push')]
         unique_together = ('repository', 'job', 'push', 'signature')

@@ -9,7 +9,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "expire_performance_data": false
     }
   },
   {
@@ -23,7 +24,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "",
-      "performance_alerts_enabled": true
+      "performance_alerts_enabled": true,
+      "expire_performance_data": false
     }
   },
   {
@@ -64,7 +66,8 @@
       "codebase": "gecko",
       "repository_group": 2,
       "description": "",
-      "performance_alerts_enabled": true
+      "performance_alerts_enabled": true,
+      "expire_performance_data": false
     }
   },
   {
@@ -78,7 +81,8 @@
       "codebase": "gecko",
       "repository_group": 2,
       "description": "",
-      "performance_alerts_enabled": true
+      "performance_alerts_enabled": true,
+      "expire_performance_data": false
     }
   },
   {
@@ -92,7 +96,8 @@
       "codebase": "gecko",
       "repository_group": 2,
       "description": "",
-      "performance_alerts_enabled": true
+      "performance_alerts_enabled": true,
+      "expire_performance_data": false
     }
   },
   {
@@ -184,7 +189,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "",
-      "performance_alerts_enabled": false
+      "performance_alerts_enabled": false,
+      "expire_performance_data": false
     }
   },
   {
@@ -949,7 +955,8 @@
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
-      "description": "The Servo Parallel Browser Engine − master"
+      "description": "The Servo Parallel Browser Engine − master",
+      "expire_performance_data": false
     }
   },
   {
@@ -976,7 +983,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "The destination for automatically landed Firefox commits.",
-      "performance_alerts_enabled": true
+      "performance_alerts_enabled": true,
+      "expire_performance_data": false
     }
   },
   {
@@ -1276,7 +1284,8 @@
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
-      "description": "The Servo Parallel Browser Engine − try (multiple branches)"
+      "description": "The Servo Parallel Browser Engine − try (multiple branches)",
+      "expire_performance_data": false
     }
   },
   {
@@ -1290,7 +1299,8 @@
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
-      "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master."
+      "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
+      "expire_performance_data": false
     }
   },
   {
@@ -1304,7 +1314,8 @@
       "active_status": "onhold",
       "codebase": "servo",
       "repository_group": 10,
-      "description": "The Servo Parallel Browser Engine − try, Taskcluster only"
+      "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
+      "expire_performance_data": false
     }
   },
   {
@@ -1318,7 +1329,8 @@
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
-      "description": "The Servo Parallel Browser Engine − pull requests"
+      "description": "The Servo Parallel Browser Engine − pull requests",
+      "expire_performance_data": false
     }
   },
   {
