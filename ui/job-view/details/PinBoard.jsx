@@ -198,14 +198,12 @@ class PinBoard extends React.Component {
   };
 
   cancelAllPinnedJobs = () => {
-    const { getGeckoDecisionTaskId, notify, repoName } = this.props;
+    const { notify, repoName, pinnedJobs } = this.props;
 
     if (
       window.confirm('This will cancel all the selected jobs. Are you sure?')
     ) {
-      const jobIds = Object.keys(this.props.pinnedJobs);
-
-      JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
+      JobModel.cancel(Object.values(pinnedJobs), repoName, notify);
       this.unPinAll();
     }
   };
@@ -640,7 +638,6 @@ PinBoard.propTypes = {
   unPinAll: PropTypes.func.isRequired,
   setClassificationId: PropTypes.func.isRequired,
   setClassificationComment: PropTypes.func.isRequired,
-  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
