@@ -5,6 +5,7 @@ node_modules/
 .vscode/
 yarn-error.log
 npm-error.log
+vagrant/env_local.sh
 
 # vi
 *.swp

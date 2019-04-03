@@ -127,6 +127,21 @@ To get started:
 - If you just wish to [run the tests](common_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
 
+### Customizing Vagrant
+
+If you have some common settings you make in Vagrant (setting an alternate database, or your own
+pulse credentials, etc) then you can create a file that contains `alias`es and `function`s
+to setup those values in a file called `vagrant/env_local.sh`. Git will ignore this file and
+not check it in with your changes.
+
+<!-- prettier-ignore -->
+!!! warning
+    We highly recommend you do NOT ``export`` any values in this file, as it is a foot-gun.
+    If This could lead to a situation where one forgets certain settings were made in that file, and
+    is getting unexpected results in Vagrant.  These changes will persist, event after a
+    ``vagrant destroy``.  For this reason, only use ``alias`` and ``function`` entries, and execute
+    them when you need them.
+
 ### Starting a local Treeherder instance
 
 - Start a Django runserver instance inside the Vagrant VM, to serve the static UI and API requests:

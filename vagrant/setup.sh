@@ -40,6 +40,11 @@ ln -sf "$SRC_DIR/vagrant/.profile" "$HOME/.profile"
 sudo ln -sf "$SRC_DIR/vagrant/env.sh" /etc/profile.d/treeherder.sh
 . vagrant/env.sh
 
+if [[ -f vagrant/env_local.sh ]]; then
+    echo '-----> Found custom local_env.sh'
+    sudo ln -sf "$SRC_DIR/vagrant/env_local.sh" /etc/profile.d/treeherder_local.sh
+fi
+
 if ! grep -qs 'node_11.x' /etc/apt/sources.list.d/nodesource.list; then
     echo '-----> Adding APT repository for Node.js'
     sudo curl -sSf https://deb.nodesource.com/gpgkey/nodesource.gpg.key -o /etc/apt/trusted.gpg.d/nodesource.asc
