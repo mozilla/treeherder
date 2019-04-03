@@ -344,14 +344,9 @@ class PinBoard extends React.Component {
   };
 
   retriggerAllPinnedJobs = () => {
-    const { getGeckoDecisionTaskId, notify, repoName } = this.props;
+    const { pinnedJobs, notify, repoName } = this.props;
 
-    JobModel.retrigger(
-      Object.keys(this.props.pinnedJobs),
-      repoName,
-      getGeckoDecisionTaskId,
-      notify,
-    );
+    JobModel.retrigger(Object.values(pinnedJobs), repoName, notify);
   };
 
   render() {

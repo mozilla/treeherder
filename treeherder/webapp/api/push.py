@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
-from treeherder.model.models import (Push,
+from treeherder.model.models import (Job,
+                                     Push,
                                      Repository)
 from treeherder.push_health.push_health import get_push_health_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
@@ -245,6 +246,25 @@ class PushViewSet(viewsets.ViewSet):
                 },
             ],
         })
+
+    @action(detail=False)
+    def decisiontask(self, request, project):
+        """
+        Return the decision task ids for the pushes.
+        """
+        push_ids = request.query_params.getlist('push_ids')
+        decision_jobs = Job.objects.filter(
+            push_id__in=push_ids,
+            job_type__name='Gecko Decision Task'
+        ).select_related('taskcluster_metadata')
+
+        if decision_jobs:
+            return Response(
+                {job.push_id: job.taskcluster_metadata.task_id for job in decision_jobs}
+            )
+        else:
+            return Response("No decision tasks found for pushes: {}".format(push_ids),
+                            status=HTTP_404_NOT_FOUND)
 
     # TODO: Remove when we no longer support short revisions: Bug 1306707
     def report_if_short_revision(self, param, revision):

@@ -121,8 +121,7 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = jobs => {
-    const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
-    const jobIds = jobs.map(({ id }) => id);
+    const { user, repoName, notify } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to retrigger a job', 'danger');
@@ -136,7 +135,7 @@ class ActionBar extends React.PureComponent {
       });
     });
 
-    JobModel.retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify);
+    JobModel.retrigger(jobs, repoName, notify);
   };
 
   backfillJob = () => {
