@@ -1,17 +1,17 @@
 from itertools import groupby
 
 from django.db.models import Q
-from django.forms.models import model_to_dict
 
 from treeherder.model.models import Job
 
 job_fields = [
     'id',
-    'machine_platform',
+    'machine_platform_id',
     'option_collection_hash',
-    'job_type',
+    'job_type_id',
     'result',
-    'failure_classification'
+    'failure_classification_id',
+    'push_id',
 ]
 
 
@@ -27,8 +27,8 @@ def set_matching_passed_jobs(failures, push):
     for job in failed_jobs.values():
         query_conditions.append(Q(
             option_collection_hash=job['option_collection_hash'],
-            machine_platform=job['machine_platform'],
-            job_type=job['job_type'],
+            machine_platform=job['machine_platform_id'],
+            job_type=job['job_type_id'],
         ))
     # ``query`` here will end up being a set of OR conditions for each combination of
     # platform/config/job_type for the failed jobs.  This OR condition will give us a
@@ -49,7 +49,7 @@ def set_matching_passed_jobs(failures, push):
     # Group the passing jobs into groups based on their platform, option and job_type
     #
     # convert from ORM objects to dicts for when we return this object
-    passing_job_dicts = [model_to_dict(job, fields=job_fields) for job in passing_jobs]
+    passing_job_dicts = [job_to_dict(job) for job in passing_jobs]
     sorted_passing_jobs = sorted(passing_job_dicts, key=get_job_key)
     passing_job_map = {key: list(group) for key, group in groupby(sorted_passing_jobs, get_job_key)}
 
@@ -68,4 +68,8 @@ def set_matching_passed_jobs(failures, push):
 
 
 def get_job_key(job):
-    return '{}-{}-{}'.format(job['machine_platform'], job['option_collection_hash'], job['job_type'])
+    return '{}-{}-{}'.format(job['machine_platform_id'], job['option_collection_hash'], job['job_type_id'])
+
+
+def job_to_dict(job):
+    return {field: getattr(job, field) for field in job_fields}
