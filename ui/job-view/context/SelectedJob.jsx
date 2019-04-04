@@ -251,12 +251,13 @@ class SelectedJobClass extends React.Component {
 
   clearIfEligibleTarget(target) {
     // Target must be within the "push" area, but not be a dropdown-item or
-    // a btn.
+    // a button/btn.
     // This will exclude the JobDetails and navbars.
     const globalContent = document.getElementById('th-global-content');
     const isEligible =
       globalContent.contains(target) &&
       target.tagName !== 'A' &&
+      target.closest('button') === null &&
       !intersection(target.classList, ['btn', 'dropdown-item']).length;
 
     if (isEligible) {
