@@ -8,6 +8,11 @@
   > vagrant provision
   ```
 
+  Check if you have a file `/vagrant/env_local.sh`. If this file has any errors or is explicitly
+  exporting any environment variables, we recommend updating it so it only has entries of `alias`
+  and `function`.  
+  See [Customizing Vagrant](installation.md#customizing-vagrant)
+
   If that is still unsuccessful, you should attempt a `vagrant destroy` followed by another `vagrant up --provision`.
 
 - If you encounter an error saying _"mount.nfs: requested NFS version or transport protocol is not supported"_, you should restart the kernel server service using this sequence of commands:
