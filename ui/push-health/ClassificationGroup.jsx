@@ -24,7 +24,15 @@ export default class ClassificationGroup extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const { group, name, repo, revision, className, headerColor } = this.props;
+    const {
+      group,
+      name,
+      repo,
+      revision,
+      className,
+      headerColor,
+      user,
+    } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
     return (
@@ -44,6 +52,7 @@ export default class ClassificationGroup extends React.PureComponent {
                   failure={failure}
                   repo={repo}
                   revision={revision}
+                  user={user}
                 />
               ))}
           </div>
@@ -58,6 +67,7 @@ ClassificationGroup.propTypes = {
   name: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   expanded: PropTypes.bool,
   className: PropTypes.string,
   headerColor: PropTypes.string,

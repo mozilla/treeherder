@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, Button, Row, Col, Collapse } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRedo } from '@fortawesome/free-solid-svg-icons';
+
+import JobModel from '../models/job';
+import { withNotifications } from '../shared/context/Notifications';
 
 import Job from './Job';
 
@@ -10,7 +15,7 @@ const classificationMap = {
   needsInvestigation: 'Needs Investigation',
 };
 
-export default class TestFailure extends React.PureComponent {
+class TestFailure extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -21,6 +26,16 @@ export default class TestFailure extends React.PureComponent {
 
   toggleDetails = () => {
     this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
+  };
+
+  retriggerJob = async job => {
+    const { user, repo, notify } = this.props;
+
+    if (!user.isLoggedIn) {
+      notify('Must be logged in to retrigger a job', 'danger');
+      return;
+    }
+    JobModel.retrigger([job], repo, notify);
   };
 
   render() {
@@ -58,6 +73,15 @@ export default class TestFailure extends React.PureComponent {
           )}
         </Row>
         <div className="small">
+          <Button
+            onClick={() => this.retriggerJob(failJobs[0])}
+            outline
+            className="btn btn-sm mr-2"
+            title="Retrigger job"
+            style={{ lineHeight: '10px' }}
+          >
+            <FontAwesomeIcon icon={faRedo} />
+          </Button>
           <span>
             {platform} {config}:
           </span>
@@ -124,5 +148,9 @@ TestFailure.propTypes = {
     key: PropTypes.string.isRequired,
   }).isRequired,
   repo: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   revision: PropTypes.string.isRequired,
+  notify: PropTypes.func.isRequired,
 };
+
+export default withNotifications(TestFailure);
