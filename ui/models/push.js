@@ -158,4 +158,16 @@ export default class PushModel {
       getProjectUrl(`${pushEndpoint}health/?revision=${revision}`, repoName),
     );
   }
+
+  static getDecisionTaskId(pushId) {
+    const map = PushModel.getDecisionTaskMap([pushId]);
+
+    return map[pushId];
+  }
+
+  static getDecisionTaskMap(pushIds) {
+    return getData(
+      getProjectUrl(`${pushEndpoint}decisiontask/?push_ids=${pushIds}`),
+    );
+  }
 }

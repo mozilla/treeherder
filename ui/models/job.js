@@ -6,6 +6,7 @@ import { createQueryParams } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
 
+import PushModel from './push';
 import TaskclusterModel from './taskcluster';
 
 const uri = getProjectUrl('/jobs/');
@@ -115,37 +116,51 @@ export default class JobModel {
     return JobModel.getList(repoName, options, config);
   }
 
-  static async retrigger(jobIds, repoName, getGeckoDecisionTaskId, notify) {
-    const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
+  static async retrigger(jobs, repoName, notify) {
+    const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
 
     try {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
-      const jobs = await JobModel.getList(repoName, { id__in: jobIds.join() });
+      const pushIds = [...new Set(jobs.map(job => job.push_id))];
+      const {
+        data: taskIdMap,
+        failureStatus,
+      } = await PushModel.getDecisionTaskMap(pushIds);
+      if (failureStatus) {
+        notify(
+          `Error getting Gecko Decision Task Ids: ${failureStatus}: ${taskIdMap}`,
+        );
+        return;
+      }
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
-        getGeckoDecisionTaskId(Number(key), repoName).then(decisionTaskId => {
-          TaskclusterModel.load(decisionTaskId).then(async results => {
-            const actionTaskId = slugid();
-            const addNewJobsTask = results.actions.find(
-              action => action.name === 'add-new-jobs',
-            );
+        const decisionTaskId = taskIdMap[key];
 
-            await TaskclusterModel.submit({
-              action: addNewJobsTask,
-              actionTaskId,
-              decisionTaskId,
-              taskId: null,
-              task: null,
-              input: { tasks: value.map(job => job.job_type_name) },
-              staticActionVariables: results.staticActionVariables,
-            }).then(() =>
+        TaskclusterModel.load(decisionTaskId).then(async results => {
+          const actionTaskId = slugid();
+          const addNewJobsTask = results.actions.find(
+            action => action.name === 'add-new-jobs',
+          );
+
+          await TaskclusterModel.submit({
+            action: addNewJobsTask,
+            actionTaskId,
+            decisionTaskId,
+            taskId: null,
+            task: null,
+            input: { tasks: value.map(job => job.job_type_name) },
+            staticActionVariables: results.staticActionVariables,
+          })
+            .then(() =>
               notify(
                 `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
               ),
-            );
-          });
+            )
+            .catch(error => {
+              notify(`Retrigger failed: ${error}`, 'danger', { sticky: true });
+            });
         });
       }
     } catch (e) {
