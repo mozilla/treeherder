@@ -454,7 +454,7 @@ perf.controller('AlertsCtrl', [
                 // initialized
                 defaults(resultSetToSummaryMap,
                            set({}, alertSummary.repository, {}));
-
+                // TODO is this needed or can originalNotes prop be removed?
                 alertSummary.originalNotes = alertSummary.notes;
 
                 [alertSummary.push_id, alertSummary.prev_push_id].forEach(

@@ -12,19 +12,21 @@ import {
   getAlertSummaryStatusText,
   getTextualSummary,
   getTitle,
-  unassignBug,
+  refreshAlertSummary,
 } from '../helpers';
-import { getData } from '../../helpers/http';
+import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
 import { endpoints } from '../constants';
 
-import ModifyAlertsModal from './ModifyAlertsModal';
+import BugModal from './BugModal';
+import NotesModal from './NotesModal';
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false,
+      showBugModal: false,
+      showNotesModal: false,
       issueTrackers: [],
       issueTrackersError: null,
     };
@@ -37,7 +39,7 @@ export default class StatusDropdown extends React.Component {
       getApiUrl(endpoints.issueTrackers),
     );
     this.setState(prevState => ({
-      showModal: !prevState.showModal,
+      showBugModal: !prevState.showBugModal,
       issueTrackers: data,
       issueTrackersError: failureStatus,
     }));
@@ -113,29 +115,50 @@ export default class StatusDropdown extends React.Component {
     navigator.clipboard.writeText(summary).then(() => {});
   };
 
-  toggle = () => {
+  toggle = state => {
     this.setState(prevState => ({
-      showModal: !prevState.showModal,
+      [state]: !prevState[state],
     }));
   };
 
-  unlinkBug = () => {
+  unlinkBug = async () => {
     const { alertSummary, updateAlertVisibility } = this.props;
-    unassignBug(alertSummary).then(() => updateAlertVisibility());
+    const { data, failureStatus } = await update(
+      getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
+      {
+        bug_number: null,
+      },
+    );
+    // TODO show error message
+    if (!failureStatus) {
+      refreshAlertSummary(alertSummary, data);
+      // TODO this doesn't work as expected in this component - replace
+      updateAlertVisibility();
+    }
   };
 
   render() {
     const { alertSummary, user, updateAlertVisibility } = this.props;
-    const { showModal, issueTrackers, issueTrackersError } = this.state;
+    const {
+      showBugModal,
+      issueTrackers,
+      issueTrackersError,
+      showNotesModal,
+    } = this.state;
     return (
       <React.Fragment>
-        <ModifyAlertsModal
-          showModal={showModal}
-          toggle={this.toggle}
+        <BugModal
+          showModal={showBugModal}
+          toggle={() => this.toggle('showBugModal')}
           issueTrackers={issueTrackers}
           issueTrackersError={issueTrackersError}
           alertSummary={alertSummary}
           updateAlertVisibility={updateAlertVisibility}
+        />
+        <NotesModal
+          showModal={showNotesModal}
+          toggle={() => this.toggle('showNotesModal')}
+          alertSummary={alertSummary}
         />
         <UncontrolledDropdown tag="span">
           <DropdownToggle
@@ -150,13 +173,22 @@ export default class StatusDropdown extends React.Component {
             {!alertSummary.bug_number && (
               <DropdownItem onClick={this.fileBug}>File bug</DropdownItem>
             )}
-            {!alertSummary.bug_number && user.isStaff && (
-              <DropdownItem onClick={this.getIssueTrackers}>
-                Link to bug
-              </DropdownItem>
+            {user.isStaff && (
+              <React.Fragment>
+                {!alertSummary.bug_number ? (
+                  <DropdownItem onClick={this.getIssueTrackers}>
+                    Link to bug
+                  </DropdownItem>
+                ) : (
+                  <DropdownItem onClick={this.unlinkBug}>
+                    Unlink from bug
+                  </DropdownItem>
+                )}
+                <DropdownItem onClick={() => this.toggle('showNotesModal')}>
+                  {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
+                </DropdownItem>
+              </React.Fragment>
             )}
-            {alertSummary.bug_number && user.isStaff && (
-            <DropdownItem onClick={this.unlinkBug}>Unlink from bug</DropdownItem>)}
           </DropdownMenu>
         </UncontrolledDropdown>
       </React.Fragment>
@@ -168,5 +200,5 @@ StatusDropdown.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
-  updateAlertVisibility: PropTypes.func.isRequired,  
+  updateAlertVisibility: PropTypes.func.isRequired,
 };

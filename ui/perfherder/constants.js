@@ -5,6 +5,7 @@ export const tValueConfidence = 5; // Anything above this is "high" in confidenc
 export const endpoints = {
   issueTrackers: '/performance/issue-tracker/',
   frameworks: '/performance/framework/',
+  alertSummary: '/performance/alertsummary/',
 };
 
 export const noiseMetricTitle = 'noise metric';

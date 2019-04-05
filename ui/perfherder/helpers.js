@@ -476,7 +476,7 @@ export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
     issueTrackers,
   );
 };
-
+// TODO remove
 const modifyAlertSummary = (alertSummary, modification) =>
   update(
     getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
@@ -579,17 +579,14 @@ export const isResolved = alertSummary =>
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX) ||
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.BACKEDOUT);
 
-export const refreshAlertSummary = alertSummary =>
-  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
-    ({ data }) =>
-      OptionCollectionModel.getMap().then(optionCollectionMap => {
-        Object.assign(alertSummary, data);
-        alertSummary.alerts = getInitializedAlerts(
-          alertSummary,
-          optionCollectionMap,
-        );
-      }),
-  );
+export const refreshAlertSummary = (alertSummary, data) =>
+  OptionCollectionModel.getMap().then(optionCollectionMap => {
+    Object.assign(alertSummary, data);
+    alertSummary.alerts = getInitializedAlerts(
+      alertSummary,
+      optionCollectionMap,
+    );
+  });
 
 export const getTitle = alertSummary => {
   let title;
@@ -643,6 +640,7 @@ export const assignBug = (alertSummary, taskNumber, issueTrackerId) =>
     issue_tracker: issueTrackerId,
   }).then(() => refreshAlertSummary(alertSummary));
 
+// TODO remove
 export const unassignBug = alertSummary =>
   update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     bug_number: null,
@@ -665,13 +663,13 @@ export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,
   ).text;
-
+// TODO remove
 export const saveNotes = alertSummary =>
   modifyAlertSummary(alertSummary, { notes: alertSummary.notes }).then(() => {
     alertSummary.originalNotes = alertSummary.notes;
     alertSummary.notesChanged = false;
   });
-
+// TODO remove
 export const editingNotes = alertSummary => {
   alertSummary.notesChanged = alertSummary.notes !== alertSummary.originalNotes;
 };

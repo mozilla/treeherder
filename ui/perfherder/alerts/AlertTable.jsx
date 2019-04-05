@@ -50,7 +50,7 @@ export class AlertTable extends React.Component {
     const { user, alertSummary, repos, updateAlertVisibility } = this.props;
 
     return (
-      <Container fluid>
+      <Container fluid className="px-0">
         <Form>
           <Table>
             <thead>
