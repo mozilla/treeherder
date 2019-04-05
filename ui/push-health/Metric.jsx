@@ -27,7 +27,15 @@ export default class Metric extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const { result, name, details, failures, repo, revision } = this.props;
+    const {
+      result,
+      name,
+      details,
+      failures,
+      repo,
+      revision,
+      user,
+    } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -59,6 +67,7 @@ export default class Metric extends React.PureComponent {
                       failures={failures}
                       repo={repo}
                       revision={revision}
+                      user={user}
                     />
                   )}
                   {details &&
@@ -82,6 +91,7 @@ Metric.propTypes = {
   revision: PropTypes.string.isRequired,
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   details: PropTypes.array,
   failures: PropTypes.object,
 };

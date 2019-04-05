@@ -3,14 +3,13 @@ import json
 from collections import defaultdict
 
 from django.core.cache import cache
-from django.forms.models import model_to_dict
 
 from treeherder.model.models import (FailureLine,
                                      OptionCollection)
 from treeherder.push_health.classification import (get_grouped,
                                                    set_classifications)
 from treeherder.push_health.filter import filter_failure
-from treeherder.push_health.similar_jobs import (job_fields,
+from treeherder.push_health.similar_jobs import (job_to_dict,
                                                  set_matching_passed_jobs)
 from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
@@ -117,7 +116,7 @@ def get_push_failures(push, option_map):
         test = tests[test_key]
         test['logLines'].append(failure_line.to_mozlog_format())
         if not next((find_job for find_job in test['failJobs'] if find_job['id'] == job.id), False):
-            test['failJobs'].append(model_to_dict(job, fields=job_fields))
+            test['failJobs'].append(job_to_dict(job))
 
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several

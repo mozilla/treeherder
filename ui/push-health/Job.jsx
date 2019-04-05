@@ -10,21 +10,21 @@ import logviewerIcon from '../img/logviewerIcon.png';
 class Job extends PureComponent {
   render() {
     const { job, jobName, jobSymbol, repo, revision } = this.props;
-    const { id, result, failure_classification } = job;
+    const { id, result, failure_classification_id } = job;
 
     return (
       <span className="mr-2" key={id}>
         <a
           className={`btn job-btn filter-shown btn-sm mt-1 ${getBtnClass(
             result,
-            failure_classification,
+            failure_classification_id,
           )}`}
           href={getJobsUrl({ selectedJob: job.id, repo, revision })}
           title={jobName}
         >
           {jobSymbol}
         </a>
-        {failure_classification !== 1 && <FontAwesomeIcon icon={faStar} />}
+        {failure_classification_id !== 1 && <FontAwesomeIcon icon={faStar} />}
         {job.result === 'testfailed' && (
           <a
             className="logviewer-btn"
@@ -50,7 +50,7 @@ Job.propTypes = {
   job: PropTypes.shape({
     id: PropTypes.number.isRequired,
     result: PropTypes.string.isRequired,
-    failure_classification: PropTypes.number.isRequired,
+    failure_classification_id: PropTypes.number.isRequired,
   }).isRequired,
   jobName: PropTypes.string.isRequired,
   jobSymbol: PropTypes.string.isRequired,

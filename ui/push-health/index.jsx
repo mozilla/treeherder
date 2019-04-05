@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Treeherder Styles
 import '../css/treeherder-navbar.css';
 import '../css/treeherder-job-buttons.css';
+import '../css/treeherder-notifications.css';
 import './pushhealth.css';
 
 import App from './App';
