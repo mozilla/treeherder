@@ -16,6 +16,8 @@ job_fields = [
 
 
 def set_matching_passed_jobs(failures, push):
+    if len(failures) == 0:
+        return
 
     failed_jobs = {}
     for failure in failures:
