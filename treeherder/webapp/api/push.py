@@ -8,6 +8,7 @@ from rest_framework.status import (HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 
 from treeherder.model.models import (Job,
+                                     JobType,
                                      Push,
                                      Repository)
 from treeherder.push_health.push_health import get_push_health_test_failures
@@ -253,9 +254,10 @@ class PushViewSet(viewsets.ViewSet):
         Return the decision task ids for the pushes.
         """
         push_ids = request.query_params.getlist('push_ids')
+        job_type = JobType.objects.get(name='Gecko Decision Task')
         decision_jobs = Job.objects.filter(
             push_id__in=push_ids,
-            job_type__name='Gecko Decision Task'
+            job_type=job_type
         ).select_related('taskcluster_metadata')
 
         if decision_jobs:
