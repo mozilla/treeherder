@@ -58,7 +58,7 @@ def clean_test(test_name):
 def clean_config(config):
     # We have found that pgo ~= opt for our needs, so this helps us get a
     # more representative sample size of data.
-    if config == 'pgo':
+    if config in ['pgo', 'shippable']:
         config = 'opt'
 
     return config.encode('ascii', 'ignore').decode('utf-8')
