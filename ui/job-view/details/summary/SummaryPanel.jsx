@@ -56,6 +56,7 @@ class SummaryPanel extends React.PureComponent {
                     icon={faSpinner}
                     pulse
                     className="th-spinner-lg"
+                    title="Loading..."
                   />
                 </div>
               </div>

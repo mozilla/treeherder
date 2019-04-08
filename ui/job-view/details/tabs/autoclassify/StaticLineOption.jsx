@@ -51,7 +51,7 @@ function StaticLineOption(props) {
               onClick={() => addBug({ id: option.bugNumber }, selectedJob)}
               title="add to list of bugs to associate with all pinned jobs"
             >
-              <FontAwesomeIcon icon={faThumbtack} />
+              <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
             </Button>
           )}
           {!!option.bugResolution && (

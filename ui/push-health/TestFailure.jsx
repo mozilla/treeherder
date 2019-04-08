@@ -80,7 +80,7 @@ class TestFailure extends React.PureComponent {
             title="Retrigger job"
             style={{ lineHeight: '10px' }}
           >
-            <FontAwesomeIcon icon={faRedo} />
+            <FontAwesomeIcon icon={faRedo} title="Retrigger" />
           </Button>
           <span>
             {platform} {config}:

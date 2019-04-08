@@ -20,7 +20,11 @@ export default function ClassificationsPanel(props) {
     <React.Fragment>
       <li>
         <span title={classificationName.name}>
-          <FontAwesomeIcon icon={icon} className={iconClass} />
+          <FontAwesomeIcon
+            icon={icon}
+            className={iconClass}
+            title={iconClass}
+          />
           <span className="ml-1">{classificationName.name}</span>
         </span>
         {!!bugs.length && (

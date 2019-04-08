@@ -570,6 +570,7 @@ class ErrorLine extends React.Component {
                         onClick={() =>
                           this.setState({ messageExpanded: !messageExpanded })
                         }
+                        title="Expand/Collapse"
                       />
                       {messageExpanded ? (
                         <span className="failure-line-message-expanded">
@@ -640,6 +641,7 @@ class ErrorLine extends React.Component {
               <FontAwesomeIcon
                 icon={faStar}
                 className="best-classification-star"
+                title="Classified"
               />
               {errorLine.bugNumber && (
                 <span className="line-option-text">

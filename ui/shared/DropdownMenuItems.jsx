@@ -14,6 +14,7 @@ const DropdownMenuItems = ({ selectedItem, updateData, options }) => (
         <FontAwesomeIcon
           icon={faCheck}
           className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
+          title={selectedItem === item ? 'Checked' : ''}
         />
         {item}
       </DropdownItem>

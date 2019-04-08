@@ -189,6 +189,7 @@ class PushJobs extends React.Component {
                   icon={faSpinner}
                   pulse
                   className="th-spinner"
+                  title="Loading..."
                 />
               </td>
             </tr>

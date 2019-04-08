@@ -321,7 +321,7 @@ class ActionBar extends React.PureComponent {
                 className="btn icon-blue"
                 onClick={() => pinJob(selectedJob)}
               >
-                <FontAwesomeIcon icon={faThumbtack} />
+                <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
               </Button>
             </li>
             <li>
@@ -336,19 +336,22 @@ class ActionBar extends React.PureComponent {
                 disabled={!user.isLoggedIn}
                 onClick={() => this.retriggerJob([selectedJob])}
               >
-                <FontAwesomeIcon icon={faRedo} />
+                <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
               </Button>
             </li>
             {isReftest(selectedJob) &&
               jobLogUrls.map(jobLogUrl => (
                 <li key={`reftest-${jobLogUrl.id}`}>
                   <a
-                    title="Launch the Reftest Analyser in a new window"
+                    title="Launch the Reftest Analyzer in a new window"
                     target="_blank"
                     rel="noopener noreferrer"
                     href={getReftestUrl(jobLogUrl.url)}
                   >
-                    <FontAwesomeIcon icon={faChartBar} />
+                    <FontAwesomeIcon
+                      icon={faChartBar}
+                      title="Reftest analyzer"
+                    />
                   </a>
                 </li>
               ))}
@@ -363,7 +366,7 @@ class ActionBar extends React.PureComponent {
                   className={user.isLoggedIn ? 'hover-warning' : 'disabled'}
                   onClick={() => this.cancelJob()}
                 >
-                  <FontAwesomeIcon icon={faTimesCircle} />
+                  <FontAwesomeIcon icon={faTimesCircle} title="Cancel job" />
                 </Button>
               </li>
             )}
@@ -378,7 +381,7 @@ class ActionBar extends React.PureComponent {
                 className="btn btn-sm dropdown-toggle bg-transparent border-0 pr-2 py-0 m-0"
                 data-toggle="dropdown"
               >
-                <FontAwesomeIcon icon={faEllipsisH} aria-hidden="true" />
+                <FontAwesomeIcon icon={faEllipsisH} title="Other job actions" />
               </Button>
               <ul className="dropdown-menu actionbar-menu" role="menu">
                 <li>

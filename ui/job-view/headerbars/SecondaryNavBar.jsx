@@ -321,7 +321,11 @@ class SecondaryNavBar extends React.PureComponent {
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
               >
-                <FontAwesomeIcon icon={faFilter} size="sm" />
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  size="sm"
+                  title="Filter by a job field"
+                />
               </span>
             </span>
 

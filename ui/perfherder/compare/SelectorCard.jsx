@@ -220,6 +220,7 @@ export default class SelectorCard extends React.Component {
                         className={`mr-1 ${
                           selectedRepo === item.name ? '' : 'hide'
                         }`}
+                        title={selectedRepo === item.name ? 'Checked' : ''}
                       />
                       {item.name}
                     </DropdownItem>
@@ -288,6 +289,11 @@ export default class SelectorCard extends React.Component {
                               className={`mr-1 ${
                                 selectedRevision === item.revision ? '' : 'hide'
                               }`}
+                              title={
+                                selectedRevision === item.revision
+                                  ? 'Checked'
+                                  : ''
+                              }
                             />
                             {`${item.revision} ${item.author}`}
                           </DropdownItem>

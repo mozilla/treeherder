@@ -69,7 +69,11 @@ export default function HelpMenu() {
         data-toggle="dropdown"
         className="btn btn-view-nav nav-help-btn dropdown-toggle"
       >
-        <FontAwesomeIcon icon={faQuestionCircle} className="lightgray mr-1" />
+        <FontAwesomeIcon
+          icon={faQuestionCircle}
+          className="lightgray mr-1"
+          title="Treeherder help"
+        />
       </button>
       <ul
         className="dropdown-menu nav-dropdown-menu-right icon-menu"

@@ -40,6 +40,7 @@ function PushLoadErrors(props) {
                       icon={faSpinner}
                       pulse
                       className="th-spinner"
+                      title="Loading..."
                     />
                   </p>
                   <p>

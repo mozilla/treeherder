@@ -88,7 +88,10 @@ export default class ActiveFilters extends React.Component {
               title="Clear all of these filters"
               onClick={filterModel.clearNonStatusFilters}
             >
-              <FontAwesomeIcon icon={faTimesCircle} />{' '}
+              <FontAwesomeIcon
+                icon={faTimesCircle}
+                title="Clear all these filters"
+              />{' '}
             </span>
             <span className="active-filters-title">
               <b>Active Filters</b>
@@ -106,7 +109,10 @@ export default class ActiveFilters extends React.Component {
                       filterModel.removeFilter(filter.field, filterValue)
                     }
                   >
-                    <FontAwesomeIcon icon={faTimesCircle} />
+                    <FontAwesomeIcon
+                      icon={faTimesCircle}
+                      title={`Clear filter: ${filter.field}`}
+                    />
                     &nbsp;
                   </span>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>

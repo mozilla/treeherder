@@ -58,7 +58,8 @@ export default function ReposMenu(props) {
                   className="dropdown-header"
                   title={group.name}
                 >
-                  {group.name} <FontAwesomeIcon icon={faInfoCircle} />
+                  {group.name}{' '}
+                  <FontAwesomeIcon icon={faInfoCircle} title={group.name} />
                 </li>
                 {!!group.repos &&
                   group.repos.map(repo => (
