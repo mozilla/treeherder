@@ -12,11 +12,10 @@ import {
   getAlertSummaryStatusText,
   getTextualSummary,
   getTitle,
-  refreshAlertSummary,
 } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
-import { endpoints } from '../constants';
+import { endpoints, alertSummaryStatus } from '../constants';
 
 import BugModal from './BugModal';
 import NotesModal from './NotesModal';
@@ -121,44 +120,74 @@ export default class StatusDropdown extends React.Component {
     }));
   };
 
-  unlinkBug = async () => {
-    const { alertSummary, updateAlertVisibility } = this.props;
-    const { data, failureStatus } = await update(
+  updateAndClose = async (event, params, state) => {
+    event.preventDefault();
+    this.changeAlertSummary(params);
+    this.toggle(state);
+  };
+
+  changeAlertSummary = async params => {
+    const { alertSummary, updateAlertSummary } = this.props;
+    // TODO error handling
+    await update(
+      getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
+      params,
+    );
+    updateAlertSummary({ ...alertSummary, ...params });
+  };
+
+  updateAlertStatus = async status => {
+    const { alertSummary, alertSummaryMarkAs } = this.props;
+    const { failureStatus } = await update(
       getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
       {
-        bug_number: null,
+        status,
       },
     );
-    // TODO show error message
     if (!failureStatus) {
-      refreshAlertSummary(alertSummary, data);
-      // TODO this doesn't work as expected in this component - replace
-      updateAlertVisibility();
+      alertSummary.status = status;
+      alertSummaryMarkAs();
     }
   };
 
+  isResolved = alertStatus =>
+    alertStatus === 'backedout' ||
+    alertStatus === 'fixed' ||
+    alertStatus === 'wontfix';
+
+  isValidStatus = (alertStatus, status) =>
+    alertStatus === 'investigating' ||
+    (alertStatus !== status && this.isResolved(alertStatus));
+
   render() {
-    const { alertSummary, user, updateAlertVisibility } = this.props;
+    const { alertSummary, user, $rootScope } = this.props;
     const {
       showBugModal,
       issueTrackers,
       issueTrackersError,
       showNotesModal,
     } = this.state;
+
+    const alertStatus = Object.entries(alertSummaryStatus).find(
+      item => alertSummary.status === item[1],
+    )[0];
+
     return (
       <React.Fragment>
-        <BugModal
-          showModal={showBugModal}
-          toggle={() => this.toggle('showBugModal')}
-          issueTrackers={issueTrackers}
-          issueTrackersError={issueTrackersError}
-          alertSummary={alertSummary}
-          updateAlertVisibility={updateAlertVisibility}
-        />
+        {!issueTrackersError && (
+          <BugModal
+            showModal={showBugModal}
+            toggle={() => this.toggle('showBugModal')}
+            issueTrackers={issueTrackers}
+            alertSummary={alertSummary}
+            updateAndClose={this.updateAndClose}
+          />
+        )}
         <NotesModal
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
           alertSummary={alertSummary}
+          $rootScope={$rootScope}
         />
         <UncontrolledDropdown tag="span">
           <DropdownToggle
@@ -180,13 +209,58 @@ export default class StatusDropdown extends React.Component {
                     Link to bug
                   </DropdownItem>
                 ) : (
-                  <DropdownItem onClick={this.unlinkBug}>
+                  <DropdownItem
+                    onClick={() =>
+                      this.changeAlertSummary({
+                        bug_number: null,
+                        issue_tracker: null,
+                      })
+                    }
+                  >
                     Unlink from bug
                   </DropdownItem>
                 )}
                 <DropdownItem onClick={() => this.toggle('showNotesModal')}>
                   {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
                 </DropdownItem>
+                {this.isResolved(alertStatus) && (
+                  <DropdownItem
+                    onClick={() =>
+                      this.updateAlertStatus(alertSummaryStatus.investigating)
+                    }
+                  >
+                    Re-open
+                  </DropdownItem>
+                )}
+                {this.isValidStatus(alertStatus, 'wontfix') && (
+                  <DropdownItem
+                    onClick={() =>
+                      this.updateAlertStatus(alertSummaryStatus.wontfix)
+                    }
+                  >
+                    {"Mark as won't fix"}
+                  </DropdownItem>
+                )}
+
+                {this.isValidStatus(alertStatus, 'backedout') && (
+                  <DropdownItem
+                    onClick={() =>
+                      this.updateAlertStatus(alertSummaryStatus.backedout)
+                    }
+                  >
+                    Mark as backed out
+                  </DropdownItem>
+                )}
+
+                {this.isValidStatus(alertStatus, 'fixed') && (
+                  <DropdownItem
+                    onClick={() =>
+                      this.updateAlertStatus(alertSummaryStatus.fixed)
+                    }
+                  >
+                    Mark as fixed
+                  </DropdownItem>
+                )}
               </React.Fragment>
             )}
           </DropdownMenu>
@@ -200,5 +274,6 @@ StatusDropdown.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
-  updateAlertVisibility: PropTypes.func.isRequired,
+  $rootScope: PropTypes.shape({}).isRequired,
+  alertSummaryMarkAs: PropTypes.func.isRequired,
 };

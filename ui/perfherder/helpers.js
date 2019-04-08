@@ -482,17 +482,17 @@ const modifyAlertSummary = (alertSummary, modification) =>
     getApiUrl(`/performance/alertsummary/${alertSummary.id}/`),
     modification,
   );
-
+// TODO remove
 export const alertSummaryIsOfState = (alertSummary, phAlertSummaryStatus) =>
   alertSummary.status === phAlertSummaryStatus.id;
-
+// TODO remove
 const updateAlertSummaryStatus = (alertSummary, newStatus) =>
   update(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`), {
     status: newStatus.id,
   }).then(() => {
     alertSummary.status = newStatus.id;
   });
-
+// TODO remove
 export const alertSummaryMarkAs = (alertSummary, phAlertSummaryStatus) =>
   updateAlertSummaryStatus(alertSummary, phAlertSummaryStatus);
 
@@ -573,7 +573,7 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   }
   return resultStr;
 };
-
+// TDO remove
 export const isResolved = alertSummary =>
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.FIXED) ||
   alertSummaryIsOfState(alertSummary, phAlertSummaryStatusMap.WONTFIX) ||
