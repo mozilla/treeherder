@@ -402,7 +402,7 @@ class PinBoard extends React.Component {
                     onClick={() => unPinJob(job)}
                     title="un-pin this job"
                   >
-                    <FontAwesomeIcon icon={faTimes} />
+                    <FontAwesomeIcon icon={faTimes} title="Unpin job" />
                   </span>
                 </span>
               ))}
@@ -421,6 +421,7 @@ class PinBoard extends React.Component {
                 <FontAwesomeIcon
                   icon={faPlusSquare}
                   className="add-related-bugs-icon"
+                  title="Add related bugs"
                 />
               </span>
               {!this.hasPinnedJobBugs() && (
@@ -468,7 +469,7 @@ class PinBoard extends React.Component {
                       onClick={() => removeBug(bug.id)}
                       title="remove this bug"
                     >
-                      <FontAwesomeIcon icon={faTimes} />
+                      <FontAwesomeIcon icon={faTimes} title="Remove bug" />
                     </span>
                   </span>
                 </span>

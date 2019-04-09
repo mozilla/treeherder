@@ -78,7 +78,7 @@ export default function LogUrls(props) {
             href={jobLogUrl.url}
             copy-value={jobLogUrl.url}
           >
-            <FontAwesomeIcon icon={faFileAlt} size="lg" />
+            <FontAwesomeIcon icon={faFileAlt} size="lg" title="Raw Log" />
           </a>
         </li>
       ))}
@@ -89,7 +89,7 @@ export default function LogUrls(props) {
             title="No logs available for this job"
             aria-label="No logs available for this job"
           >
-            <FontAwesomeIcon icon={faFileAlt} />
+            <FontAwesomeIcon icon={faFileAlt} title="No logs" />
           </Button>
         </li>
       )}

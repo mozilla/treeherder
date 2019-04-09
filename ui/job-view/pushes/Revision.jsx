@@ -24,7 +24,7 @@ export function Initials(props) {
   return (
     <span title={props.title}>
       <span className="user-push-icon">
-        <FontAwesomeIcon icon={faUser} aria-hidden="true" />
+        <FontAwesomeIcon icon={faUser} />
       </span>
       <div className="icon-superscript user-push-initials">{initials}</div>
     </span>

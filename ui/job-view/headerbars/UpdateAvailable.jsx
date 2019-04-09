@@ -9,7 +9,7 @@ export default function UpdateAvailable(props) {
   // Show this when the Treeherder server has updated
   return (
     <div className="alert alert-info update-alert-panel">
-      <FontAwesomeIcon icon={faInfoCircle} aria-hidden="true" />
+      <FontAwesomeIcon icon={faInfoCircle} />
       Treeherder has updated. To pick up the changes, you can reload the page
       &nbsp;
       <button

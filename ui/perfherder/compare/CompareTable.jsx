@@ -92,6 +92,11 @@ export default class CompareTable extends React.PureComponent {
                                 ? faExclamationTriangle
                                 : faThumbsUp
                             }
+                            title={
+                              results.isRegression
+                                ? 'regression'
+                                : 'improvement'
+                            }
                             className={this.getColorClass(results, 'text')}
                             size="lg"
                           />

@@ -35,6 +35,7 @@ class NotificationList extends React.Component {
             <div className={`alert alert-${notification.severity}`}>
               <FontAwesomeIcon
                 icon={NotificationList.getIcon(notification.severity)}
+                title={notification.severity}
               />
               <span>{notification.message}</span>
               {notification.url && notification.linkText && (

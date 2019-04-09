@@ -50,7 +50,7 @@ export default class Metric extends React.PureComponent {
                   {name}
                 </span>
                 <span className="btn">
-                  <FontAwesomeIcon icon={expandIcon} />
+                  <FontAwesomeIcon icon={expandIcon} title="expand" />
                 </span>
               </div>
               <span>

@@ -33,7 +33,7 @@ export default class SuggestionsListItem extends React.Component {
             onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
           >
-            <FontAwesomeIcon icon={faBug} />
+            <FontAwesomeIcon icon={faBug} title="File bug" />
           </span>
           <span>{suggestion.search}</span>
         </div>

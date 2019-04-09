@@ -557,6 +557,7 @@ export class BugFilerClass extends React.Component {
                       icon={faSpinner}
                       pulse
                       className="th-spinner-lg"
+                      title="Searching..."
                     />
                     Searching {productSearch}
                   </div>
@@ -642,6 +643,7 @@ export class BugFilerClass extends React.Component {
                   size="lg"
                   className="pointable align-bottom pt-2 ml-1"
                   id="toggle-failure-lines"
+                  title={isFilerSummaryVisible ? 'collapse' : 'expand'}
                 />
                 <span
                   id="summaryLength"

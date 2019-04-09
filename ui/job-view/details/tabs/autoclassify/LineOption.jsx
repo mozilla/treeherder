@@ -112,7 +112,7 @@ class LineOption extends React.Component {
                     }
                     title="add to list of bugs to associate with all pinned jobs"
                   >
-                    <FontAwesomeIcon icon={faThumbtack} />
+                    <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
                   </Button>
                 )}
                 {!!option.bugResolution && (
@@ -170,7 +170,7 @@ class LineOption extends React.Component {
                   onClick={() => this.fileBug()}
                   title="File a bug for this failure"
                 >
-                  <FontAwesomeIcon icon={faBug} />
+                  <FontAwesomeIcon icon={faBug} title="Select bug" />
                 </Button>
                 {option.id === 'manual' && !!option.manualBugNumber && (
                   <a

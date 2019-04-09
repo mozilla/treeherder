@@ -119,7 +119,7 @@ class Login extends React.Component {
             >
               <div className="dropdown-toggle">
                 <span className="nav-user-icon mr-1 rounded">
-                  <FontAwesomeIcon icon={faUser} size="xs" />
+                  <FontAwesomeIcon icon={faUser} size="xs" title="User" />
                 </span>
                 <span>{user.fullName}</span>
               </div>

@@ -190,6 +190,7 @@ class TabsPanel extends React.Component {
                 )}
                 <FontAwesomeIcon
                   icon={isPinBoardVisible ? faAngleDown : faAngleUp}
+                  title={isPinBoardVisible ? 'expand' : 'collapse'}
                   className="ml-1"
                 />
               </Button>
@@ -198,7 +199,7 @@ class TabsPanel extends React.Component {
                 className="btn details-panel-close-btn bg-transparent border-0"
                 aria-label="Close"
               >
-                <FontAwesomeIcon icon={faTimes} />
+                <FontAwesomeIcon icon={faTimes} title="Close" />
               </Button>
             </span>
           </TabList>
