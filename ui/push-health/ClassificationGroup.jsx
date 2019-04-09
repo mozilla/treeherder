@@ -40,7 +40,11 @@ export default class ClassificationGroup extends React.PureComponent {
         <h4 className="w-100" onClick={this.toggleDetails}>
           <span className={`pointable badge badge-${headerColor} w-100`}>
             {name} : {Object.keys(group).length}
-            <FontAwesomeIcon icon={expandIcon} className="ml-1" />
+            <FontAwesomeIcon
+              icon={expandIcon}
+              className="ml-1"
+              title="expand"
+            />
           </span>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">

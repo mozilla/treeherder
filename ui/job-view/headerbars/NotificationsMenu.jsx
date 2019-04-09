@@ -40,7 +40,11 @@ class NotificationsMenu extends React.Component {
           data-toggle="dropdown"
           className="btn btn-view-nav nav-menu-btn"
         >
-          <FontAwesomeIcon icon={faBell} className="lightgray" />
+          <FontAwesomeIcon
+            icon={faBell}
+            className="lightgray"
+            title="Recent notifications"
+          />
         </button>
         <ul
           id="notification-dropdown"
@@ -77,6 +81,7 @@ class NotificationsMenu extends React.Component {
                   <FontAwesomeIcon
                     icon={this.getIcon(notification.severity)}
                     className={`text-${notification.severity}`}
+                    title={notification.severity}
                   />
                   &nbsp;
                   <small className="text-muted">

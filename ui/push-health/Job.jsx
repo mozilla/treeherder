@@ -24,7 +24,9 @@ class Job extends PureComponent {
         >
           {jobSymbol}
         </a>
-        {failure_classification_id !== 1 && <FontAwesomeIcon icon={faStar} />}
+        {failure_classification_id !== 1 && (
+          <FontAwesomeIcon icon={faStar} title="Classified" />
+        )}
         {job.result === 'testfailed' && (
           <a
             className="logviewer-btn"

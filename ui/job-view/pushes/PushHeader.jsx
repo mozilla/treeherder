@@ -312,7 +312,11 @@ class PushHeader extends React.Component {
                 onClick={this.cancelAllJobs}
                 aria-label={cancelJobsTitle}
               >
-                <FontAwesomeIcon icon={faTimesCircle} className="dim-quarter" />
+                <FontAwesomeIcon
+                  icon={faTimesCircle}
+                  className="dim-quarter"
+                  title="Cancel jobs"
+                />
               </button>
             )}
             <button
@@ -322,7 +326,7 @@ class PushHeader extends React.Component {
               aria-label="Pin all available jobs in this push"
               onClick={this.pinAllShownJobs}
             >
-              <FontAwesomeIcon icon={faThumbtack} />
+              <FontAwesomeIcon icon={faThumbtack} title="Pin all jobs" />
             </button>
             {!!selectedRunnableJobs.length && runnableVisible && (
               <button

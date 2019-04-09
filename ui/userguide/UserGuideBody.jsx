@@ -96,6 +96,7 @@ const UserGuideBody = function UserGuideBody() {
                             <FontAwesomeIcon
                               icon={icon}
                               className="classified-icon"
+                              title="Classified"
                             />
                           )}
                         </button>

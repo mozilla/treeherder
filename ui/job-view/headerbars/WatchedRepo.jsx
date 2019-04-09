@@ -138,7 +138,6 @@ export default class WatchedRepo extends React.Component {
             size="sm"
             className={color}
             pulse={pulseIcon}
-            aria-label={status}
           />{' '}
           {watchedRepo}
         </a>
@@ -149,7 +148,7 @@ export default class WatchedRepo extends React.Component {
           aria-label={`${watchedRepo} info`}
           data-toggle="dropdown"
         >
-          <FontAwesomeIcon icon={faInfoCircle} />
+          <FontAwesomeIcon icon={faInfoCircle} title={`${watchedRepo} info`} />
         </button>
         {watchedRepo !== repoName && (
           <button
@@ -159,7 +158,7 @@ export default class WatchedRepo extends React.Component {
             title={`Unwatch ${watchedRepo}`}
             aria-label={`Unwatch ${watchedRepo}`}
           >
-            <FontAwesomeIcon icon={faTimes} />
+            <FontAwesomeIcon icon={faTimes} title="Unwatch" />
           </button>
         )}
 

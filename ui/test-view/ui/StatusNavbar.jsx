@@ -53,7 +53,7 @@ class StatusNavbar extends React.Component {
 
           <span className="navbar-text">
             <span className="hidden-sm-down">&mdash;&nbsp;&nbsp;&nbsp;</span>
-            <FontAwesomeIcon icon={faIdCard} /> Author{' '}
+            <FontAwesomeIcon icon={faIdCard} title="Author" /> Author{' '}
             <code>{push.author}</code>
           </span>
         </Nav>
@@ -65,12 +65,14 @@ class StatusNavbar extends React.Component {
         <Button
           className="navbar-text bg-transparent border-0 p-0"
           onClick={() => this.toggleHideClassified('infra')}
+          title="Toggle show infra"
           outline
         >
           <Badge color="infra">
             <FontAwesomeIcon
               icon={hideClassified.infra ? faSquare : faCheckSquare}
               pull="left"
+              title={hideClassified.infra ? 'unchecked' : 'checked'}
             />
             {counts.infra} Infra Tests
           </Badge>
@@ -80,11 +82,13 @@ class StatusNavbar extends React.Component {
           className="navbar-text bg-transparent border-0 p-0"
           onClick={() => this.toggleHideClassified('intermittent')}
           outline
+          title="Toggle show intermittent"
         >
           <Badge color="intermittent">
             <FontAwesomeIcon
               icon={hideClassified.intermittent ? faSquare : faCheckSquare}
               pull="left"
+              title={hideClassified.intermittent ? 'unchecked' : 'checked'}
             />
             {counts.intermittent} Intermittent Tests
           </Badge>

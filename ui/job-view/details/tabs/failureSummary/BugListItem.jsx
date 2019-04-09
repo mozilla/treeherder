@@ -21,7 +21,7 @@ function BugListItem(props) {
         onClick={() => addBug(bug, selectedJob)}
         title="add to list of bugs to associate with all pinned jobs"
       >
-        <FontAwesomeIcon icon={faThumbtack} />
+        <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
       </button>
       <a
         className={`${bugClassName} ml-1`}

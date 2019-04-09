@@ -83,6 +83,7 @@ class Groups extends React.Component {
                   icon={faBug}
                   size="sm"
                   className="classified-intermittent"
+                  title="classified-intermittent"
                 />
                 <br />
                 Infrastructure issue&nbsp;&nbsp;
@@ -90,6 +91,7 @@ class Groups extends React.Component {
                   icon={faUnlink}
                   size="sm"
                   className="classified-infra"
+                  title="classified-infra"
                 />
               </Col>
               <Col md={6} sm={12} xs={12}>
@@ -166,7 +168,12 @@ class Groups extends React.Component {
                   colSpan={4}
                   style={{ textAlign: 'center', paddingTop: '2rem' }}
                 >
-                  <FontAwesomeIcon icon={faSpinner} size="2x" spin />
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    size="2x"
+                    spin
+                    title="Loading..."
+                  />
                 </td>
               </tr>
             </tbody>

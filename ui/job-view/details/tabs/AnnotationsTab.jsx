@@ -34,7 +34,7 @@ function RelatedBugSaved(props) {
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug_id}`}
       >
-        <FontAwesomeIcon icon={faTimesCircle} />
+        <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
       </span>
     </span>
   );
@@ -85,7 +85,10 @@ function TableRow(props) {
         {/* TODO: the classification label & star has been used in the job_details_pane.jxs
             so it should probably be made its own component when we start using import */}
         <span title={name}>
-          <FontAwesomeIcon icon={icon} />
+          <FontAwesomeIcon
+            icon={icon}
+            title={failureId === 7 ? 'Auto classified' : 'Classified'}
+          />
           <span className="ml-1">{classificationName.name}</span>
         </span>
       </td>
@@ -96,7 +99,7 @@ function TableRow(props) {
           className="classification-delete-icon hover-warning pointable"
           title="Delete this classification"
         >
-          <FontAwesomeIcon icon={faTimesCircle} />
+          <FontAwesomeIcon icon={faTimesCircle} title="Delete classification" />
         </span>
       </td>
     </tr>

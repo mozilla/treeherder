@@ -88,6 +88,7 @@ class Platform extends React.Component {
             icon={faBug}
             size="sm"
             className="classified classified-intermittent"
+            title="Bug"
           />
         );
       case 'infra':
@@ -96,11 +97,17 @@ class Platform extends React.Component {
             icon={faUnlink}
             size="sm"
             className="classified classified-infra"
+            title="Infra"
           />
         );
       default:
         return (
-          <FontAwesomeIcon icon={faStar} size="sm" className="classified" />
+          <FontAwesomeIcon
+            icon={faStar}
+            size="sm"
+            className="classified"
+            title="Classified"
+          />
         );
     }
   }

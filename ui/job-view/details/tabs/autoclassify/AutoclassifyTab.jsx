@@ -332,6 +332,7 @@ class AutoclassifyTab extends React.Component {
                   icon={faSpinner}
                   pulse
                   className="th-spinner-lg"
+                  title="Loading..."
                 />
               </div>
             </div>

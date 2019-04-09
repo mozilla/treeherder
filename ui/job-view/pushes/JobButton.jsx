@@ -131,7 +131,11 @@ export default class JobButtonComponent extends React.Component {
       <button type="button" {...attributes}>
         {job_type_symbol}
         {classifiedIcon && (
-          <FontAwesomeIcon icon={classifiedIcon} className="classified-icon" />
+          <FontAwesomeIcon
+            icon={classifiedIcon}
+            className="classified-icon"
+            title="classified"
+          />
         )}
       </button>
     );
