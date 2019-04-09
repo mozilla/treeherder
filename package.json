@@ -94,7 +94,7 @@
     "node-fetch": "1.7.3",
     "prettier": "1.16.4",
     "react-testing-library": "6.0.4",
-    "webpack-dev-server": "3.2.1"
+    "webpack-dev-server": "3.3.0"
   },
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
