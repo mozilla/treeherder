@@ -92,6 +92,7 @@ class PushHeader extends React.Component {
       isLoggedIn: prevIsLoggedIn,
       selectedRunnableJobs: prevSelectedRunnableJobs,
       runnableVisible: prevRunnableVisible,
+      collapsed: prevCollapsed,
     } = prevProps;
     const {
       jobCounts,
@@ -99,6 +100,7 @@ class PushHeader extends React.Component {
       isLoggedIn,
       selectedRunnableJobs,
       runnableVisible,
+      collapsed,
     } = this.props;
 
     return (
@@ -106,7 +108,8 @@ class PushHeader extends React.Component {
       prevWatchState !== watchState ||
       prevIsLoggedIn !== isLoggedIn ||
       prevSelectedRunnableJobs !== selectedRunnableJobs ||
-      prevRunnableVisible !== runnableVisible
+      prevRunnableVisible !== runnableVisible ||
+      prevCollapsed !== collapsed
     );
   }
 
