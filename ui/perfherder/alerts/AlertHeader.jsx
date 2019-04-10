@@ -14,9 +14,7 @@ import { getIssueTrackerUrl, getTitle } from '../helpers';
 const AlertHeader = ({ alertSummary }) => (
   <div className="pl-2">
     <a
-      className={`text-dark font-weight-bold align-middle ${
-        alertSummary.status === 4 ? 'alert-summary-title-invalid' : ''
-      }`}
+      className="text-dark font-weight-bold align-middle"
       href={`#/alerts?id=${alertSummary.id}`}
     >
       Alert #{alertSummary.id} - {alertSummary.repository} -{' '}

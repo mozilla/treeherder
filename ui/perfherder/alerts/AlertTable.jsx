@@ -3,26 +3,6 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import { Container, Form, FormGroup, Label, Input, Table } from 'reactstrap';
 
-import // alertIsOfState,
-// alertSummaryIsOfState,
-// alertSummaryMarkAs,
-// assignBug,
-// editingNotes,
-// getAlertStatusText,
-// getAlertSummaries,
-// getAlertSummary,
-// getAlertSummaryTitle,
-// getAlertSummaryStatusText,
-// getGraphsURL,
-// getSubtestsURL,
-// getTextualSummary,
-// isResolved,
-// modifySelectedAlerts,
-// refreshAlertSummary,
-// saveNotes,
-// toggleStar,
-// unassignBug,
-'../helpers';
 import perf from '../../js/perf';
 
 import AlertHeader from './AlertHeader';
@@ -36,10 +16,18 @@ export class AlertTable extends React.Component {
       alertSummary: this.props.alertSummary,
     };
   }
-  // TODO omponentDidUpdate
+
+  componentDidUpdate(prevProps) {
+    const { alertSummary } = this.props;
+    if (prevProps.alertSummary !== alertSummary) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ alertSummary });
+    }
+  }
 
   selectAlerts = () => {
-    const alertSummary = { ...this.state.alertSummary };
+    const { alertSummary: oldAlertSummary } = this.state;
+    const alertSummary = { ...oldAlertSummary };
     alertSummary.allSelected = !alertSummary.allSelected;
 
     alertSummary.alerts.forEach(function selectAlerts(alert) {
@@ -105,8 +93,9 @@ AlertTable.propTypes = {
   alertSummary: PropTypes.shape({}),
   user: PropTypes.shape({}),
   repos: PropTypes.arrayOf(PropTypes.shape({})),
-  alertSummaryMarkAs: PropTypes.func.isRequired,
-  $rootScope: PropTypes.shape({}).isRequired,
+  $rootScope: PropTypes.shape({
+    $apply: PropTypes.func,
+  }).isRequired,
 };
 
 AlertTable.defaultProps = {
@@ -121,14 +110,7 @@ perf.component(
   'alertTable',
   react2angular(
     AlertTable,
-    [
-      'alertSummary',
-      'user',
-      'repos',
-      'updateAlertVisibility',
-      'alertSummaryMarkAs',
-      'updateStatus',
-    ],
+    ['alertSummary', 'user', 'repos'],
     ['$stateParams', '$state', '$rootScope'],
   ),
 );

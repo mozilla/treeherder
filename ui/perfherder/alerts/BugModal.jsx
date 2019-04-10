@@ -58,12 +58,7 @@ export default class BugModal extends React.Component {
 
   render() {
     const { showModal, toggle, issueTrackers, updateAndClose } = this.props;
-    const {
-      inputValue,
-      invalidInput,
-      validated,
-      selectedValue,
-    } = this.state;
+    const { inputValue, invalidInput, validated, selectedValue } = this.state;
 
     const tracker = issueTrackers.find(item => item.text === selectedValue);
 

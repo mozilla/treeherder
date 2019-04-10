@@ -136,20 +136,6 @@ export default class StatusDropdown extends React.Component {
     updateAlertSummary({ ...alertSummary, ...params });
   };
 
-  updateAlertStatus = async status => {
-    const { alertSummary, alertSummaryMarkAs } = this.props;
-    const { failureStatus } = await update(
-      getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
-      {
-        status,
-      },
-    );
-    if (!failureStatus) {
-      alertSummary.status = status;
-      alertSummaryMarkAs();
-    }
-  };
-
   isResolved = alertStatus =>
     alertStatus === 'backedout' ||
     alertStatus === 'fixed' ||
@@ -213,7 +199,6 @@ export default class StatusDropdown extends React.Component {
                     onClick={() =>
                       this.changeAlertSummary({
                         bug_number: null,
-                        issue_tracker: null,
                       })
                     }
                   >
@@ -226,7 +211,9 @@ export default class StatusDropdown extends React.Component {
                 {this.isResolved(alertStatus) && (
                   <DropdownItem
                     onClick={() =>
-                      this.updateAlertStatus(alertSummaryStatus.investigating)
+                      this.changeAlertSummary({
+                        status: alertSummaryStatus.investigating,
+                      })
                     }
                   >
                     Re-open
@@ -235,7 +222,9 @@ export default class StatusDropdown extends React.Component {
                 {this.isValidStatus(alertStatus, 'wontfix') && (
                   <DropdownItem
                     onClick={() =>
-                      this.updateAlertStatus(alertSummaryStatus.wontfix)
+                      this.changeAlertSummary({
+                        status: alertSummaryStatus.wontfix,
+                      })
                     }
                   >
                     {"Mark as won't fix"}
@@ -245,7 +234,9 @@ export default class StatusDropdown extends React.Component {
                 {this.isValidStatus(alertStatus, 'backedout') && (
                   <DropdownItem
                     onClick={() =>
-                      this.updateAlertStatus(alertSummaryStatus.backedout)
+                      this.changeAlertSummary({
+                        status: alertSummaryStatus.backedout,
+                      })
                     }
                   >
                     Mark as backed out
@@ -255,7 +246,9 @@ export default class StatusDropdown extends React.Component {
                 {this.isValidStatus(alertStatus, 'fixed') && (
                   <DropdownItem
                     onClick={() =>
-                      this.updateAlertStatus(alertSummaryStatus.fixed)
+                      this.changeAlertSummary({
+                        status: alertSummaryStatus.fixed,
+                      })
                     }
                   >
                     Mark as fixed
@@ -275,5 +268,5 @@ StatusDropdown.propTypes = {
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
   $rootScope: PropTypes.shape({}).isRequired,
-  alertSummaryMarkAs: PropTypes.func.isRequired,
+  updateAlertSummary: PropTypes.func.isRequired,
 };

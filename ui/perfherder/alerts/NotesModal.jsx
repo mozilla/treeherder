@@ -10,7 +10,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Col,
 } from 'reactstrap';
 
 import { update } from '../../helpers/http';
@@ -22,7 +21,6 @@ export default class NotesModal extends React.Component {
     super(props);
     this.state = {
       inputValue: this.props.alertSummary.notes,
-      failureMessage: '',
     };
   }
 
@@ -38,26 +36,20 @@ export default class NotesModal extends React.Component {
     const { alertSummary, toggle, $rootScope } = this.props;
     const { inputValue } = this.state;
 
-    const { failureStatus } = await update(
-      getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
-      {
-        notes: inputValue,
-      },
-    );
-
-    if (!failureStatus) {
-      alertSummary.notes = inputValue;
-      $rootScope.$apply();
-      // TODO originalNotes and notesChanged might not be needed since they're used for comparison purposes
-      // alertSummary.originalNotes = alertSummary.notes;
-      // alertSummary.notesChanged = false;
-    }
+    await update(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`), {
+      notes: inputValue,
+    });
+    // TODO originalNotes and notesChanged might not be needed since they're used for comparison purposes
+    // alertSummary.originalNotes = alertSummary.notes;
+    // alertSummary.notesChanged = false;
+    alertSummary.notes = inputValue;
+    $rootScope.$apply();
     toggle();
   };
 
   render() {
     const { showModal, toggle, alertSummary } = this.props;
-    const { inputValue, failureMessage } = this.state;
+    const { inputValue } = this.state;
 
     return (
       <Modal isOpen={showModal} className="">
@@ -77,23 +69,14 @@ export default class NotesModal extends React.Component {
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Col>
-              {failureMessage.length > 0 && (
-                <p className="text-danger text-wrap text-center mb-1">
-                  {`Failed to update notes: ${failureMessage}`}
-                </p>
-              )}
-            </Col>
-            <Col className="text-right" lg="auto">
-              <Button
-                color="secondary"
-                onClick={this.editNotes}
-                disabled={inputValue === alertSummary.notes}
-                type="submit"
-              >
-                Save
-              </Button>
-            </Col>
+            <Button
+              color="secondary"
+              onClick={this.editNotes}
+              disabled={inputValue === alertSummary.notes}
+              type="submit"
+            >
+              Save
+            </Button>
           </ModalFooter>
         </Form>
       </Modal>

@@ -38,7 +38,7 @@
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
   <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <alert-table alert-summary="alertSummary" user="user" repos="repos" update-status="updateStatus" alert-summary-mark-as="alertSummaryMarkAs" update-alert-visibility="updateAlertVisibility"></alert-table>
+    <alert-table alert-summary="alertSummary" user="user" repos="repos"></alert-table>
     <table class="table table-compact compare-table">
       <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
         <td class="alert-checkbox">
