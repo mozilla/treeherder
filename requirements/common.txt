@@ -78,9 +78,9 @@ mysqlclient==1.4.2.post1 \
 
 # Required by celery
 billiard==3.6.0.0 --hash=sha256:756bf323f250db8bf88462cd042c992ba60d8f5e07fc5636c24ba7d6f4261d84
-pytz==2018.9 \
-    --hash=sha256:32b0891edff07e28efe91284ed9c31e123d84bea3fd98e1f72be2508f43ef8d9 \
-    --hash=sha256:d5f05e487007e29e03409f9398d074e158d920d36eb82eaf66fb1136b0c5374c
+pytz==2019.1 \
+    --hash=sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda \
+    --hash=sha256:d747dd3d23d77ef44c6a3526e274af6efeb0a6f1afd5a69ba4d5be4098c8e141
 
 # Required by kombu
 amqp==2.4.2 --hash=sha256:35a3b5006ca00b21aaeec8ceea07130f07b902dd61bfe42815039835f962f5f1 --hash=sha256:043beb485774ca69718a35602089e524f87168268f0d1ae115f28b88d27f92d7
