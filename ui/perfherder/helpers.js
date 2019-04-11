@@ -18,6 +18,7 @@ import {
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
+  alertSummaryStatus,
 } from './constants';
 
 export const displayNumber = input =>
@@ -264,6 +265,7 @@ export const getCounterMap = function getCounterMap(
   return cmap;
 };
 
+// TODO look into using signature_id instead of the hash
 export const getGraphsLink = function getGraphsLink(
   seriesList,
   resultSets,
@@ -361,11 +363,12 @@ const Alert = (alertData, optionCollectionMap) => ({
     includePlatformInName: true,
   }),
 });
-
+// TODO move into graphs component or remove
 export const getAlertStatusText = alert =>
   Object.values(phAlertStatusMap).find(status => status.id === alert.status)
     .text;
 
+// TODO look into using signature_id instead of the hash
 export const getGraphsURL = (
   alert,
   timeRange,
@@ -394,25 +397,19 @@ export const getGraphsURL = (
 
   return url;
 };
-
+// TODO remove
 export const getSubtestsURL = (alert, alertSummary) => {
-  const endpoint = '#/comparesubtest';
   const urlParameters = {
     framework: alertSummary.framework,
     originalProject: alertSummary.repository,
     originalSignature: alert.series_signature.id,
     newProject: alertSummary.repository,
     newSignature: alert.series_signature.id,
+    originalRevision: alertSummary.prev_push_revision,
+    newRevision: alertSummary.revision,
   };
-  if (alertSummary.prevResultSetMetadata) {
-    urlParameters.originalRevision =
-      alertSummary.prevResultSetMetadata.revision;
-  }
-  if (alertSummary.prevResultSetMetadata) {
-    urlParameters.newRevision = alertSummary.resultSetMetadata.revision;
-  }
 
-  return `${endpoint}${createQueryParams(urlParameters)}`;
+  return `#/comparesubtest${createQueryParams(urlParameters)}`;
 };
 
 const modifyAlert = (alert, modification) =>
@@ -421,18 +418,9 @@ const modifyAlert = (alert, modification) =>
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
 
-export const toggleStar = alert => {
-  const toggledStar = !alert.starred;
-  modifyAlert(alert, {
-    starred: toggledStar,
-  }).then(() => {
-    alert.starred = toggledStar;
-  });
-};
-
 let issueTrackers; // will cache on first AlertSummary call
 
-const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
+export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // this function converts the representation returned by the perfherder
   // api into a representation more suited for display in the UI
 
@@ -442,6 +430,7 @@ const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map(alertData => Alert(alertData, optionCollectionMap));
 
+// TODO remove
 const constructAlertSummary = (
   alertSummaryData,
   optionCollectionMap,
@@ -456,6 +445,7 @@ const constructAlertSummary = (
   return alertSummaryState;
 };
 
+// TODO remove usage
 export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
   if (issueTrackers === undefined) {
     return getData(getApiUrl(endpoints.issueTrackers)).then(
@@ -476,7 +466,7 @@ export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
     issueTrackers,
   );
 };
-
+// TODO remove
 export const getIssueTrackerUrl = alertSummary => {
   if (!alertSummary.bug_number) {
     return;
@@ -555,9 +545,9 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   return resultStr;
 };
 
-// TODO replace usage of getData on line 560 since modifyAlert/update now returns data
+// TODO remove
 export const refreshAlertSummary = alertSummary =>
-  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
+  getData(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`)).then(
     ({ data }) =>
       OptionCollectionModel.getMap().then(optionCollectionMap => {
         Object.assign(alertSummary, data);
@@ -634,7 +624,7 @@ export const getAlertSummaryStatusText = alertSummary =>
 
 export const getAlertSummary = id =>
   OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(getApiUrl(`/performance/alertsummary/${id}/`)).then(({ data }) =>
+    getData(getApiUrl(`${endpoints.alertSummary}${id}/`)).then(({ data }) =>
       AlertSummary(data, optionCollectionMap),
     ),
   );
@@ -642,10 +632,11 @@ export const getAlertSummary = id =>
 export const getAlertSummaryTitle = id =>
   getAlertSummary(id).then(alertSummary => getTitle(alertSummary));
 
+// TODO remove
 export const getAlertSummaries = options => {
   let { href } = options;
   if (!options || !options.href) {
-    href = getApiUrl('/performance/alertsummary/');
+    href = getApiUrl(endpoints.alertSummary);
 
     // add filter parameters for status and framework
     const params = [];
@@ -659,6 +650,8 @@ export const getAlertSummaries = options => {
     if (options && options.frameworkFilter !== undefined) {
       params[params.length] = `framework=${options.frameworkFilter}`;
     }
+    // TODO replace all usage with createQueryParams except for
+    // signatureId and seriesSignature (used in graphs controller)
     if (options && options.signatureId !== undefined) {
       params[params.length] = `alerts__series_signature=${options.signatureId}`;
     }
@@ -695,7 +688,7 @@ export const getAlertSummaries = options => {
 };
 
 export const createAlert = data =>
-  create(getApiUrl('/performance/alertsummary/'), {
+  create(getApiUrl(endpoints.alertSummary), {
     repository_id: data.project.id,
     framework_id: data.series.frameworkId,
     push_id: data.resultSetId,
@@ -727,3 +720,21 @@ export const nudgeAlert = (dataPoint, towardsDataPoint) => {
   const alertId = dataPoint.alert.id;
   return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
 };
+
+export const convertParams = (params, value) =>
+  Boolean(params[value] !== undefined && parseInt(params[value], 10));
+
+export const getFrameworkData = props => {
+  const { framework, frameworks } = props;
+
+  if (framework) {
+    const frameworkObject = frameworks.find(
+      item => item.id === parseInt(framework, 10),
+    );
+    return frameworkObject;
+  }
+  return { id: 1, name: 'talos' };
+};
+
+export const getStatus = status =>
+  Object.entries(alertSummaryStatus).find(item => status === item[1])[0];

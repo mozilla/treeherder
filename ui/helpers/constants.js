@@ -177,6 +177,7 @@ export const thFavicons = {
 
 export const thDefaultRepo = 'mozilla-inbound';
 
+// TODO remove
 export const thDateFormat = 'EEE MMM d, HH:mm:ss';
 
 export const thJobNavSelectors = {
@@ -223,6 +224,7 @@ export const phTimeRanges = [
 
 export const phDefaultTimeRangeValue = 1209600;
 
+// TODO remove
 export const phTimeRangeValues = {
   'mozilla-beta': 7776000,
 };
@@ -248,7 +250,7 @@ export const phAlertSummaryStatusMap = {
   BACKEDOUT: { id: 8, text: 'backedout' },
   CONFIRMING: { id: 9, text: 'confirming' },
 };
-
+// TODO move into perfherder constants file
 export const phAlertStatusMap = {
   UNTRIAGED: { id: 0, text: 'untriaged' },
   DOWNSTREAM: { id: 1, text: 'downstream' },

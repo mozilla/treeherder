@@ -64,3 +64,11 @@ export const destroy = function deleteRecord(uri) {
     credentials: 'same-origin',
   });
 };
+
+export const processResponse = (response, state, errorMessages) => {
+  const { data, failureStatus } = response;
+  if (failureStatus) {
+    return { errorMessages: [...errorMessages, ...[data]] };
+  }
+  return { [state]: data };
+};

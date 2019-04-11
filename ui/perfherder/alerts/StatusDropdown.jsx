@@ -7,11 +7,14 @@ import {
   DropdownToggle,
 } from 'reactstrap';
 import moment from 'moment';
+import template from 'lodash/template';
+import templateSettings from 'lodash/templateSettings';
 
 import {
   getAlertSummaryStatusText,
   getTextualSummary,
   getTitle,
+  getStatus,
 } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
@@ -26,42 +29,11 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
-      issueTrackers: [],
-      issueTrackersError: null,
     };
   }
 
-  // TODO this is something else that can be moved to the parent level component
-  // so it is only fetching this once per page
-  getIssueTrackers = async () => {
-    const { data, failureStatus } = await getData(
-      getApiUrl(endpoints.issueTrackers),
-    );
-    this.setState(prevState => ({
-      showBugModal: !prevState.showBugModal,
-      issueTrackers: data,
-      issueTrackersError: failureStatus,
-    }));
-  };
-
-  fillTemplate = (template, replacement) => {
-    let newTemplate = template;
-    const regex = {
-      revisionHref: /{+\srevisionHref\s}+/g,
-      alertHref: /{+\salertHref\s}+/g,
-      alertSummary: /{+\salertSummary\s}+/g,
-    };
-
-    for (const word of template.split(' ')) {
-      if (regex[word]) {
-        newTemplate = newTemplate.replace(regex[word], replacement[word]);
-      }
-    }
-    return newTemplate;
-  };
-
   fileBug = async () => {
-    const { alertSummary, repos } = this.props;
+    const { alertSummary, repoModel } = this.props;
     // TODO it seems like it'd make more sense to fetch this once and customize/cache it for future use rather than
     // fetching this template each time someone clicks on 'file bug' - regardless of test framework
     const { data, failureStatus } = await getData(
@@ -71,32 +43,30 @@ export default class StatusDropdown extends React.Component {
     );
     if (!failureStatus) {
       const result = data[0];
-      // repos is an instance of RepositoryModel, accessed on the $rootScope
-      const repo = repos.find(repo => repo.name === alertSummary.repository);
-
       const templateArgs = {
-        revisionHref: repo.getPushLogHref(
-          alertSummary.resultSetMetadata.revision,
-        ),
+        revisionHref: repoModel.getPushLogHref(alertSummary.revision),
         alertHref: `${window.location.origin}/perf.html#/alerts?id=${
           alertSummary.id
         }`,
         alertSummary: getTextualSummary(alertSummary),
       };
-      const template = this.fillTemplate(result.text, templateArgs);
 
-      const pushDate = moment(
-        alertSummary.resultSetMetadata.push_timestamp * 1000,
-      ).format('ddd MMMM D YYYY');
+      templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+      const fillTemplate = template(result.text);
+      const commentText = fillTemplate(templateArgs);
+
+      const pushDate = moment(alertSummary.push_timestamp * 1000).format(
+        'ddd MMMM D YYYY',
+      );
 
       const bugTitle = `${getTitle(alertSummary)} regression on push ${
-        alertSummary.resultSetMetadata.revision
+        alertSummary.revision
       } (${pushDate})`;
 
       window.open(
         `${bzBaseUrl}/enter_bug.cgi?${createQueryParams({
           cc: result.cc_list,
-          comment: template,
+          comment: commentText,
           component: result.default_component,
           product: result.default_product,
           keywords: result.keywords,
@@ -127,13 +97,13 @@ export default class StatusDropdown extends React.Component {
   };
 
   changeAlertSummary = async params => {
-    const { alertSummary, updateAlertSummary } = this.props;
+    const { alertSummary, updateState } = this.props;
     // TODO error handling
     await update(
       getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
       params,
     );
-    updateAlertSummary({ ...alertSummary, ...params });
+    updateState({ ...alertSummary, ...params });
   };
 
   isResolved = alertStatus =>
@@ -146,21 +116,14 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, $rootScope } = this.props;
-    const {
-      showBugModal,
-      issueTrackers,
-      issueTrackersError,
-      showNotesModal,
-    } = this.state;
+    const { alertSummary, user, issueTrackers } = this.props;
+    const { showBugModal, showNotesModal } = this.state;
 
-    const alertStatus = Object.entries(alertSummaryStatus).find(
-      item => alertSummary.status === item[1],
-    )[0];
+    const alertStatus = getStatus(alertSummary.status);
 
     return (
       <React.Fragment>
-        {!issueTrackersError && (
+        {issueTrackers.length > 0 && (
           <BugModal
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
@@ -173,7 +136,7 @@ export default class StatusDropdown extends React.Component {
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
           alertSummary={alertSummary}
-          $rootScope={$rootScope}
+          updateAndClose={this.updateAndClose}
         />
         <UncontrolledDropdown tag="span">
           <DropdownToggle
@@ -191,7 +154,7 @@ export default class StatusDropdown extends React.Component {
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <DropdownItem onClick={this.getIssueTrackers}>
+                  <DropdownItem onClick={() => this.toggle('showBugModal')}>
                     Link to bug
                   </DropdownItem>
                 ) : (
@@ -265,8 +228,12 @@ export default class StatusDropdown extends React.Component {
 
 StatusDropdown.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
-  repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
-  $rootScope: PropTypes.shape({}).isRequired,
-  updateAlertSummary: PropTypes.func.isRequired,
+  updateState: PropTypes.func.isRequired,
+  issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  repoModel: PropTypes.shape({}).isRequired,
+};
+
+StatusDropdown.defaultProps = {
+  issueTrackers: [],
 };

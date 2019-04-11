@@ -6,6 +6,7 @@ export const endpoints = {
   issueTrackers: '/performance/issue-tracker/',
   frameworks: '/performance/framework/',
   alertSummary: '/performance/alertsummary/',
+  alert: '/performance/alert/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -21,6 +22,8 @@ export const filterText = {
 export const noDataFoundMessage = 'No Data Found';
 
 export const alertSummaryStatus = {
+  // all is only added to statuses in alerts controller
+  all: -1,
   untriaged: 0,
   downstream: 1,
   reassigned: 2,

@@ -4,11 +4,12 @@ import { Container } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
-import { getData } from '../../helpers/http';
-import { getApiUrl, repoEndpoint } from '../../helpers/url';
-import PushModel from '../../models/push';
-import { endpoints } from '../constants';
-import ErrorMessages from '../../shared/ErrorMessages';
+import { getData, processResponse } from '../helpers/http';
+import { getApiUrl, repoEndpoint } from '../helpers/url';
+import PushModel from '../models/push';
+import ErrorMessages from '../shared/ErrorMessages';
+
+import { endpoints } from './constants';
 
 // TODO once we switch to react-router
 // 1) use context in this HOC to share state between compare views, by wrapping router component in it;
@@ -19,7 +20,10 @@ import ErrorMessages from '../../shared/ErrorMessages';
 //      to a different project, projects will already be stored in state so no fetching data again to validate
 //
 
-const withValidation = requiredParams => WrappedComponent => {
+const withValidation = (
+  requiredParams,
+  verifyRevisions = true,
+) => WrappedComponent => {
   class Validation extends React.Component {
     constructor(props) {
       super(props);
@@ -51,21 +55,13 @@ const withValidation = requiredParams => WrappedComponent => {
       ]);
 
       const updates = {
-        ...this.processResponse(projects, 'projects'),
-        ...this.processResponse(frameworks, 'frameworks'),
+        ...processResponse(projects, 'projects'),
+        ...processResponse(frameworks, 'frameworks'),
       };
       this.setState(updates, () =>
         this.validateParams(this.props.$stateParams),
       );
     }
-
-    processResponse = (response, state) => {
-      const { data, failureStatus } = response;
-      if (failureStatus) {
-        return { errorMessages: [...this.state.errorMessages, ...data] };
-      }
-      return { [state]: data };
-    };
 
     updateParams = param => {
       const { transitionTo, current } = this.props.$state;
@@ -166,8 +162,13 @@ const withValidation = requiredParams => WrappedComponent => {
       if (errors.length) {
         return this.setState({ errorMessages: errors });
       }
-
-      this.checkRevisions(params);
+      if (verifyRevisions) {
+        return this.checkRevisions(params);
+      }
+      this.setState({
+        ...params,
+        validationComplete: true,
+      });
     }
 
     render() {

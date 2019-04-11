@@ -60,6 +60,7 @@ import './perfherder/compare/CompareView';
 import './perfherder/compare/CompareSubtestDistributionView';
 import './perfherder/compare/CompareSubtestsView';
 import './perfherder/alerts/AlertTable';
+import './perfherder/alerts/AlertsView';
 
 config.showMissingIcons = true;
 

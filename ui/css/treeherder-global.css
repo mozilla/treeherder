@@ -341,7 +341,7 @@ kbd {
   color: #555;
 }
 
-.deleted {
+.strike-through {
   text-decoration: line-through;
 }
 

@@ -316,14 +316,6 @@ th {
   color: #23527c;
 }
 
-.compare-table td.alert-labels a {
-  visibility: hidden;
-}
-
-.compare-table tr:hover td.alert-labels a {
-  visibility: visible;
-}
-
 .button-panel {
   position: sticky;
   bottom: 0;
@@ -349,10 +341,6 @@ th {
   flex-flow: row;
   padding: 0;
   border-bottom: 1px solid transparent;
-}
-
-.notes-preview {
-  white-space: pre-wrap;
 }
 
 .alert-summary-header-element {
@@ -386,71 +374,12 @@ th {
   width: 160px;
   text-align: right;
 }
-/* TODO replace with bootstrap colors */
-.bar {
-  height: 1em;
-  margin-top: 0.25em;
-  margin-bottom: 5px;
-  background-color: #bbb;
-}
-
-.bar-scale {
-  background-color: #eee;
-}
-
-.bar-improvement {
-  background-color: green;
-}
-
-.bar-regression {
-  background-color: red;
-}
 
 button:disabled {
   cursor: not-allowed;
 }
 
-/* Table widths for alerts */
-td.alert-checkbox {
-  width: 30px;
-  padding: 8px;
-}
-td.alert-labels {
-  width: 30px;
-  padding: 8px;
-}
-td.alert-title {
-  text-align: left;
-  padding: 8px;
-}
-td.alert-value {
-  width: 140px;
-}
-td.alert-comparison {
-  /* e.g. "<" */
-  width: 30px;
-}
-td.alert-pct-difference {
-  width: 80px;
-}
-td.alert-graphical-difference {
-  width: 120px;
-}
-td.alert-confidence {
-  width: 100px;
-}
-
 /* Various styles for individual alerts ("changes" in UI) */
-.alert-untriaged {
-  color: #3c763d;
-}
-.alert-invalid {
-  color: #a94442;
-}
-.alert-strike {
-  text-decoration: line-through;
-}
-
 .alert-selects .form-group {
   margin-right: 6px;
 }
@@ -514,4 +443,9 @@ li.pagination-next .material-icons::before {
 
 .pagination {
   margin: 20px 0;
+}
+
+/* for use with global max-width-default style */
+.max-width-row-text {
+  max-width: 1194px;
 }

@@ -18,7 +18,7 @@ export default class SimpleTooltip extends React.Component {
     } = this.props;
 
     return (
-      <div>
+      <React.Fragment>
         <span ref={this.tooltipRef} className={textClass}>
           {text}
         </span>
@@ -30,7 +30,7 @@ export default class SimpleTooltip extends React.Component {
         >
           {tooltipText}
         </UncontrolledTooltip>
-      </div>
+      </React.Fragment>
     );
   }
 }

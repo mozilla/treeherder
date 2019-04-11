@@ -1,5 +1,6 @@
-<div class="container-fluid alerts-container">
-  <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
+<!-- <div class="container-fluid alerts-container"> -->
+  <alerts-view user="user"></alerts-view>
+  <!-- <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
@@ -37,105 +38,9 @@
   <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
-  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <alert-table alert-summary="alertSummary" user="user" repos="repos"></alert-table>
-    <table class="table table-compact compare-table">
-      <tr ng-repeat="alert in alertSummary.alerts | orderBy: ['-starred', 'title']" ng-show="alert.visible">
-        <td class="alert-checkbox">
-          <input type="checkbox" ng-disabled="!user.isStaff" ng-model="alert.selected" ng-change="alertSelected(alertSummary)"/>
-        </td>
-        <td class="alert-labels">
-          <a ng-attr-title="{{alert.starred ? 'Starred': 'Not starred'}}"
-             ng-class="{'visible': alert.starred}"
-             ng-disabled="!user.isStaff"
-             ng-click="toggleStar(alert)">
-             <i ng-class="{'fas fa-star': alert.starred, 'far fa-star': !alert.starred}"></i>
-          </a>
-        </td>
-        <td class="alert-title">
-          <span ng-class="{'alert-strike': alertIsOfState(alert, phAlertStatusMap.INVALID) || (alert.related_summary_id && alert.related_summary_id !== alertSummary.id)}"
-                uib-tooltip="{{ !alertIsOfState(alert, phAlertStatusMap.UNTRIAGED) ? (alert.classifier_email ?  'Classified by ' + alert.classifier_email : 'Classified automatically') : ''}}">
-            {{alert.title}}
-          </span>
-          &nbsp;(<span ng-class="{'alert-invalid': alertIsOfState(alert, phAlertStatusMap.INVALID), 'alert-untriaged': alertIsOfState(alert, phAlertStatusMap.UNTRIAGED)}">{{getAlertStatusText(alert)}}</span><span ng-show="alert.related_summary_id">
-            <!-- Reassigned or downstream *to* another alert -->
-            <span ng-if="alert.related_summary_id !== alertSummary.id">
-              to <a href="#/alerts?id={{alert.related_summary_id}}" target="_blank" rel="noopener">alert #{{alert.related_summary_id}}</a>
-            </span>
-            <!-- Reassigned or downstream *from* the another alert -->
-            <span ng-if="alert.related_summary_id === alertSummary.id">
-              from <a href="#/alerts?id={{alert.summary_id}}" target="_blank" rel="noopener" >alert #{{alert.summary_id}}</a>
-            </span>
-          </span>)&nbsp;&nbsp;
-          <span class="result-links">
-            <a href="{{getGraphsURL(alert, alertSummary.resultSetMetadata.timeRange, alertSummary.repository, alertSummary.framework)}}" target="_blank" rel="noopener">graph</a>
-            <span ng-if="alert.series_signature.has_subtests"> · </span>
-            <a ng-if="alert.series_signature.has_subtests" href="{{getSubtestsURL(alert, alertSummary)}}" target="_blank" rel="noopener">subtests</a>
-          </span>
-        </td>
-        <td class="alert-value">{{alert.prev_value|number}}</td>
-        <td class="alert-comparison">
-          <span ng-class="{'text-success': !alert.is_regression, 'text-danger': alert.is_regression}">
-            <span ng-if="alert.prev_value < alert.new_value">
-              &lt;
-            </span>
-            <span ng-if="alert.prev_value > alert.new_value">
-              &gt;
-            </span>
-          </span>
-        </td>
-        <td class="alert-value">{{alert.new_value|number}}</td>
-        <td class="alert-pct-difference"><span class="detail-hint" uib-tooltip="Absolute difference: {{alert.amount_abs}}">{{alert.amount_pct}}%</span></td>
-        <td class="alert-graphical-difference">
-          <!-- TODO replace with progress bar (in CompareTable component) and remove custom classes -->
-          <div ng-if="alert.is_regression" style="margin: auto; width: 80%;"
-               uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-            <div class="bar bar-scale"
-                 style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; height: 1em; float: left;">
-            </div>
-            <div class="bar bar-regression"
-                 style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-            </div>
-          </div>
-          <div ng-if="!alert.is_regression" style="margin: auto; width: 80%;"
-               uib-tooltip="Relative magnitude of change (scale from 0 - 20%+)">
-            <div class="bar bar-improvement"
-                 style="width: {{getCappedMagnitude(alert.amount_pct)}}%; float: left;">
-            </div>
-            <div class="bar bar-scale"
-                 style="width: {{100 - getCappedMagnitude(alert.amount_pct)}}%; float: left; ">
-            </div>
-          </div>
-        </td>
-        <td class="alert-confidence">
-          <span ng-if="!alert.manually_created"
-                class="detail-hint"
-                uib-tooltip="Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"
-                tooltip-placement="left">
-            <span>
-              {{alert.t_value}}
-            </span>
-          </span>
-          <span ng-if="alert.manually_created" uib-tooltip="Sheriff-created alert">
-            <span class="fas fa-user"></span>
-          </span>
-        </td>
-      </tr>
-    </table>
-    <div class="card-body" ng-show="alertSummary.downstreamSummaryIds.length">
-      <p class="text-muted">
-        Downstream alert summaries:
-        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds" >
-            <a href="perf.html#/alerts?id={{summaryId}}"
-                ng-mouseenter="getSummaryTitle(summaryId)"
-                ng-mouseleave="resetSummaryTitle()"
-                uib-tooltip-html="summaryTitle.html" >
-               #{{summaryId}}
-            </a>{{$last ? '' : ', '}}
-        </span>
-      </p>
-    </div>
-    <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
+  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible"> -->
+    <!-- <alert-table alert-summary="alertSummary" user="user" repos="repos" alert-summaries="alertSummaries"></alert-table> -->
+    <!-- <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
       <div ng-show="anySelected(alertSummary.alerts)">
         <alert-controls alert-summary="alertSummary" is-alert-selected="isAlertSelected" alert-summaries="alertSummaries" update-alert-visibility="updateAlertVisibility"></alert-controls>       
           
@@ -169,13 +74,6 @@
           </button>
         </span>
       </div>
-      <div ng-show="alertSummary.notes">
-        <p class="notes-preview bg-light rounded mt-2"
-           ng-text-truncate="alertSummary.notes"
-           ng-tt-chars-threshold="40"
-           ng-tt-more-label="Show"
-           ng-tt-less-label="Hide"></p>
-      </div>
     </div>
   </div>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">
@@ -187,4 +85,4 @@
         ng-show="alertSummaryCount > alertSummaryPageSize" max-size="10"
         total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
         rotate="false" boundary-link-numbers="true"></ul>
-</div>
+</div> -->

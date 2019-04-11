@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap';
 
-import { filterText } from '../constants';
+import { filterText } from './constants';
 
 export default class InputFilter extends React.Component {
   constructor(props) {

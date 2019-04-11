@@ -12,10 +12,6 @@ import {
   ModalFooter,
 } from 'reactstrap';
 
-import { update } from '../../helpers/http';
-import { getApiUrl } from '../../helpers/url';
-import { endpoints } from '../constants';
-
 export default class NotesModal extends React.Component {
   constructor(props) {
     super(props);
@@ -28,31 +24,12 @@ export default class NotesModal extends React.Component {
     this.setState({ inputValue: event.target.value });
   };
 
-  // TODO remove this in favor of updateAndClose in StatusDropdown
-  // once this component is using/updating the alertSummary via react state
-  editNotes = async event => {
-    event.preventDefault();
-
-    const { alertSummary, toggle, $rootScope } = this.props;
-    const { inputValue } = this.state;
-
-    await update(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`), {
-      notes: inputValue,
-    });
-    // TODO originalNotes and notesChanged might not be needed since they're used for comparison purposes
-    // alertSummary.originalNotes = alertSummary.notes;
-    // alertSummary.notesChanged = false;
-    alertSummary.notes = inputValue;
-    $rootScope.$apply();
-    toggle();
-  };
-
   render() {
-    const { showModal, toggle, alertSummary } = this.props;
+    const { showModal, toggle, alertSummary, updateAndClose } = this.props;
     const { inputValue } = this.state;
 
     return (
-      <Modal isOpen={showModal} className="">
+      <Modal isOpen={showModal}>
         <ModalHeader toggle={toggle}>Alert Notes</ModalHeader>
         <Form>
           <ModalBody>
@@ -71,7 +48,15 @@ export default class NotesModal extends React.Component {
           <ModalFooter>
             <Button
               color="secondary"
-              onClick={this.editNotes}
+              onClick={event =>
+                updateAndClose(
+                  event,
+                  {
+                    notes: inputValue.length ? inputValue : null,
+                  },
+                  'showNotesModal',
+                )
+              }
               disabled={inputValue === alertSummary.notes}
               type="submit"
             >
@@ -90,5 +75,5 @@ NotesModal.propTypes = {
   alertSummary: PropTypes.shape({
     notes: PropTypes.string,
   }).isRequired,
-  $rootScope: PropTypes.shape({}).isRequired,
+  updateAndClose: PropTypes.func.isRequired,
 };

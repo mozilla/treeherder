@@ -19,7 +19,7 @@ export default class BugModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedValue: '',
+      selectedValue: this.props.issueTrackers[0].text,
       inputValue: '',
       invalidInput: false,
       validated: false,
