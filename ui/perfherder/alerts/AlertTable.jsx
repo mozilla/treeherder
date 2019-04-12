@@ -17,14 +17,6 @@ export class AlertTable extends React.Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    const { alertSummary } = this.props;
-    if (prevProps.alertSummary !== alertSummary) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ alertSummary });
-    }
-  }
-
   selectAlerts = () => {
     const { alertSummary: oldAlertSummary } = this.state;
     const alertSummary = { ...oldAlertSummary };
