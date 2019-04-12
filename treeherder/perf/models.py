@@ -238,11 +238,11 @@ class PerformanceAlertSummary(models.Model):
                                       on_delete=models.PROTECT,
                                       default=1)  # Bugzilla
 
-    def update_status(self):
+    def update_status(self, using=None):
         autodetermined_status = self.autodetermine_status()
         if autodetermined_status != self.status:
             self.status = autodetermined_status
-            self.save()
+            self.save(using=using)
 
     def autodetermine_status(self):
         alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
@@ -390,9 +390,13 @@ class PerformanceAlert(models.Model):
         super().save(*args, **kwargs)
 
         # check to see if we need to update the summary statuses
-        self.summary.update_status()
+
+        # just forward the explicit database
+        # so the summary properly updates there
+        using = kwargs.get('using', None)
+        self.summary.update_status(using=using)
         if self.related_summary:
-            self.related_summary.update_status()
+            self.related_summary.update_status(using=using)
 
     def timestamp_first_triage(self):
         # use only on code triggered by
