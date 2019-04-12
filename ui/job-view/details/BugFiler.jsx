@@ -143,9 +143,13 @@ export class BugFilerClass extends React.Component {
       summaryString = summaryString.replace(re, '');
     }
 
-    const checkedLogLinks = [parsedLog, fullLog];
+    const checkedLogLinks = new Map([
+      ['Parsed log', parsedLog],
+      ['Full log', fullLog],
+    ]);
+
     if (reftestUrl) {
-      checkedLogLinks.push(reftestUrl);
+      checkedLogLinks.set('Reftest URL', reftestUrl);
     }
 
     this.state = {
@@ -352,11 +356,14 @@ export class BugFilerClass extends React.Component {
     });
   };
 
-  toggleCheckedLogLink = link => {
+  toggleCheckedLogLink = (name, link) => {
     const { checkedLogLinks } = this.state;
-    const newCheckedLogLinks = checkedLogLinks.includes(link)
-      ? checkedLogLinks.filter(item => item !== link)
-      : [...checkedLogLinks, link];
+    const newCheckedLogLinks = new Map(checkedLogLinks);
+    if (newCheckedLogLinks.has(name)) {
+      newCheckedLogLinks.delete(name);
+    } else {
+      newCheckedLogLinks.set(name, link);
+    }
 
     this.setState({ checkedLogLinks: newCheckedLogLinks });
   };
@@ -395,7 +402,19 @@ export class BugFilerClass extends React.Component {
       return;
     }
 
-    const descriptionStrings = [...checkedLogLinks, comment].join('\n\n');
+    // Format links in bugzilla markdown:
+    //   **Parsed log:** http://...
+    //   **Full log:** http://....
+    const logLinks = [...checkedLogLinks]
+      .map(e => {
+        const [name, url] = e;
+        return `**${name}:** ${url}`;
+      })
+      .join('\n');
+
+    // Join that with the comment separated with a hard rule.
+    const descriptionStrings = `${logLinks}\n\n---\n\n${comment}`;
+
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
     keywords.push('regression');
     let severity = 'normal';
@@ -672,8 +691,10 @@ export class BugFilerClass extends React.Component {
                   <Label>
                     <Input
                       type="checkbox"
-                      checked={checkedLogLinks.includes(parsedLog)}
-                      onChange={() => this.toggleCheckedLogLink(parsedLog)}
+                      checked={checkedLogLinks.has('Parsed log')}
+                      onChange={() =>
+                        this.toggleCheckedLogLink('Parsed log', parsedLog)
+                      }
                     />
                     <a
                       target="_blank"
@@ -688,8 +709,10 @@ export class BugFilerClass extends React.Component {
                   <Label>
                     <Input
                       type="checkbox"
-                      checked={checkedLogLinks.includes(fullLog)}
-                      onChange={() => this.toggleCheckedLogLink(fullLog)}
+                      checked={checkedLogLinks.has('Full log')}
+                      onChange={() =>
+                        this.toggleCheckedLogLink('Full log', fullLog)
+                      }
                     />
                     <a target="_blank" rel="noopener noreferrer" href={fullLog}>
                       Include Full Log Link
@@ -701,8 +724,10 @@ export class BugFilerClass extends React.Component {
                     <Label>
                       <Input
                         type="checkbox"
-                        checked={checkedLogLinks.includes(reftestUrl)}
-                        onChange={() => this.toggleCheckedLogLink(reftestUrl)}
+                        checked={checkedLogLinks.has('Reftest URL')}
+                        onChange={() =>
+                          this.toggleCheckedLogLink('Reftest URL', reftestUrl)
+                        }
                       />
                       <a
                         target="_blank"
