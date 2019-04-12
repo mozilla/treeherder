@@ -140,19 +140,34 @@ export default class JobModel {
 
         TaskclusterModel.load(decisionTaskId).then(async results => {
           const actionTaskId = slugid();
-          const addNewJobsTask = results.actions.find(
+          const taskLabels = value.map(job => job.job_type_name);
+
+          let retriggerAction = results.actions.find(
             action => action.name === 'retrigger-multiple',
           );
+          let actionInput = {
+            requests: [{ tasks: taskLabels }],
+          };
+          if (!retriggerAction) {
+            // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action
+            // to control whether new task are created, or existing ones re-run. We fall back
+            // to `add-new-jobs` to support pushing old revision to try, where the duplicating
+            // the release tasks impacted is unlikely to cause problems.
+            retriggerAction = results.actions.find(
+              action => action.name === 'add-new-jobs',
+            );
+            actionInput = {
+              tasks: taskLabels,
+            };
+          }
 
           await TaskclusterModel.submit({
-            action: addNewJobsTask,
+            action: retriggerAction,
             actionTaskId,
             decisionTaskId,
             taskId: null,
             task: null,
-            input: {
-              requests: [{ tasks: value.map(job => job.job_type_name) }],
-            },
+            input: actionInput,
             staticActionVariables: results.staticActionVariables,
           })
             .then(() =>
