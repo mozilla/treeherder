@@ -141,7 +141,7 @@ export default class JobModel {
         TaskclusterModel.load(decisionTaskId).then(async results => {
           const actionTaskId = slugid();
           const addNewJobsTask = results.actions.find(
-            action => action.name === 'add-new-jobs',
+            action => action.name === 'retrigger-multiple',
           );
 
           await TaskclusterModel.submit({
@@ -150,7 +150,9 @@ export default class JobModel {
             decisionTaskId,
             taskId: null,
             task: null,
-            input: { tasks: value.map(job => job.job_type_name) },
+            input: {
+              requests: [{ tasks: value.map(job => job.job_type_name) }],
+            },
             staticActionVariables: results.staticActionVariables,
           })
             .then(() =>
