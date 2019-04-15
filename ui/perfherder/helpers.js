@@ -555,14 +555,18 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   return resultStr;
 };
 
-export const refreshAlertSummary = (alertSummary, data) =>
-  OptionCollectionModel.getMap().then(optionCollectionMap => {
-    Object.assign(alertSummary, data);
-    alertSummary.alerts = getInitializedAlerts(
-      alertSummary,
-      optionCollectionMap,
-    );
-  });
+// TODO replace usage of getData on line 560 since modifyAlert/update now returns data
+export const refreshAlertSummary = alertSummary =>
+  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
+    ({ data }) =>
+      OptionCollectionModel.getMap().then(optionCollectionMap => {
+        Object.assign(alertSummary, data);
+        alertSummary.alerts = getInitializedAlerts(
+          alertSummary,
+          optionCollectionMap,
+        );
+      }),
+  );
 
 export const getTitle = alertSummary => {
   let title;
