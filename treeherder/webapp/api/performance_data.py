@@ -259,7 +259,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
     queryset = PerformanceAlertSummary.objects.filter(
         repository__active_status='active').select_related(
-            'repository').prefetch_related(
+            'repository', 'push').prefetch_related(
                 'alerts',
                 'alerts__classifier',
                 'alerts__series_signature',

@@ -79,6 +79,9 @@ def test_alert_summaries_get(client, test_perf_alert_summary,
         'repository',
         'push_id',
         'status',
+        'revision',
+        'push_timestamp',
+        'prev_push_revision'
     ])
     assert len(resp.json()['results'][0]['alerts']) == 1
     assert set(resp.json()['results'][0]['alerts'][0].keys()) == set([
@@ -125,6 +128,9 @@ def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
         'repository',
         'push_id',
         'status',
+        'revision',
+        'push_timestamp',
+        'prev_push_revision'
     ])
     assert len(resp.json()['results'][0]['alerts']) == 1
     assert set(resp.json()['results'][0]['alerts'][0].keys()) == set([
