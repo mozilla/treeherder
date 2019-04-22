@@ -1,7 +1,6 @@
 FROM python:3.7.2-slim
 
 # Variables that are not specific to a particular environment.
-ENV PYTHONUNBUFFERED 1
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
 
 # libmysqlclient-dev and gcc are required for the mysqlclient Python package.
