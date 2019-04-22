@@ -28,7 +28,8 @@ SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 # Hosts
 SITE_URL = env("SITE_URL")
 SITE_HOSTNAME = furl(SITE_URL).host
-ALLOWED_HOSTS = [SITE_HOSTNAME]
+# Including localhost allows using the backend locally
+ALLOWED_HOSTS = [SITE_HOSTNAME, 'localhost']
 
 # URL handling
 APPEND_SLASH = False
