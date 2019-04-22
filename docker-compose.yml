@@ -37,7 +37,7 @@ services:
   frontend:
     container_name: frontend
     # https://hub.docker.com/_/node
-    image: node:11.10.1-alpine
+    image: node:11.14.0-alpine
     environment:
       # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
       - IN_DOCKER=1
@@ -55,7 +55,7 @@ services:
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
-    image: mysql:5.7.23
+    image: mysql:5.7.25
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
@@ -68,7 +68,7 @@ services:
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
-    image: redis:3.2-alpine3.8
+    image: redis:5.0.4-alpine
     # Messages after starting the redis-server
     # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128
     # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
