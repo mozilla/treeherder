@@ -11,14 +11,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat \
     && rm -rf /var/lib/apt/lists/*
 
+# /app will be mounted via a volume defined in docker-compose
+ADD . /app
 WORKDIR /app
 
 # Common and dev deps installed separately to:
 # (a) prove that common.txt works standalone (given dev.txt not installed on Heroku)
 # (b) to reduce amount of cache invalidation when only dev.txt updated
-COPY requirements/common.txt requirements/
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/common.txt
-COPY requirements/dev.txt requirements/
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/dev.txt
-COPY requirements/docs.txt requirements/
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# This file is the entrypoint for the backend container.
+# It takes care of making sure to wait for the mysql container to be ready
 
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
