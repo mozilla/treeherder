@@ -1,4 +1,5 @@
-FROM python:3.7.2-slim
+# Use the same Python version as in Heroku (see runtime.txt)
+FROM python:3.7.2
 
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
@@ -18,6 +19,6 @@ WORKDIR /app
 # Common and dev deps installed separately to:
 # (a) prove that common.txt works standalone (given dev.txt not installed on Heroku)
 # (b) to reduce amount of cache invalidation when only dev.txt updated
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/common.txt
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/dev.txt
+RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
+RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt

@@ -4,7 +4,7 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/dev.Dockerfile
       # TODO: Try using cache_from pointed at a Docker Hub image built from master
       # Though may need to also use the workaround for local vs remote:
       # https://github.com/moby/moby/issues/32612#issuecomment-294055017
@@ -29,6 +29,30 @@ services:
       - .:/app
     ports:
       - '8000:8000'
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+
+  # We use this image for testing within Travis CI. The image is based on the dev image
+  testing:
+    container_name: testing
+    build:
+      context: .
+      dockerfile: docker/testing.Dockerfile
+    environment:
+      # Development/CI-specific environment variables only.
+      # Those that do not vary across environments should go in `Dockerfile`.
+      - BROKER_URL=amqp://guest:guest@rabbitmq//
+      - DATABASE_URL=mysql://root@mysql/test_treeherder
+      - REDIS_URL=redis://redis:6379
+      - SITE_URL=http://backend:8000/
+      - TREEHERDER_DEBUG=True
+      - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
+      - NEW_RELIC_DEVELOPER_MODE=True
+    image: treeherder-testing
+    volumes:
+      - .:/app
     depends_on:
       - mysql
       - redis

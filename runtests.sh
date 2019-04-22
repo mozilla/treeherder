@@ -10,14 +10,11 @@ echo "Checking CELERY_TASK_QUEUES matches Procfile"
 python -bb ./lints/queuelint.py
 
 echo "Running flake8"
-flake8 || { echo "flake8 errors found!"; exit 1; }
+flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
 
 echo "Running isort"
 isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
-
-echo "Running shellcheck"
-git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
 
 echo "Running Django system checks"
 # See .travis.yml for explanation of the environment variable overriding.

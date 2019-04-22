@@ -1,8 +1,8 @@
-# TODO: Make Travis use the docker-compose project instead.
-
 dist: xenial
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
+services:
+  - docker
 matrix:
   include:
     - env: js-tests
@@ -13,7 +13,7 @@ matrix:
         directories:
           - node_modules
       install:
-        - source ./bin/travis-setup.sh js_env
+        - yarn install --frozen-lockfile
       script:
         # `yarn build` is tested as part of the Selenium job.
         - yarn lint
@@ -29,55 +29,52 @@ matrix:
         directories:
           - ${HOME}/venv
       install:
-        - source ./bin/travis-setup.sh python_env docs
+        - python -m venv ${HOME}/venv
+        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check --require-hashes -r requirements/common.txt
+        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check --require-hashes -r requirements/dev.txt
+        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check -r requirements/docs.txt
       script:
+        # XXX: We can probably switch to docker then run ./runtests.sh and finally shellcheck
         - pip check
-        - python -bb lints/queuelint.py
+        - python -bb ./lints/queuelint.py
         - flake8 --show-source
         - isort --check-only --diff --quiet
-        # It's probably going to be easier to use the shellcheck docker image than
-        # installing it in the backend Dockerfile. See:
-        # https://hub.docker.com/r/koalaman/shellcheck
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - mkdocs build
 
     - env: python-tests-main
-      language: python
-      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
-      python: '3.7.2'
-      cache:
-        directories:
-          - ${HOME}/venv
+      language: minimal
       install:
-        - source ./bin/travis-setup.sh services python_env
-        # Create the test database for `manage.py check --deploy`.
-        - mysql -u root -e 'create database test_treeherder;'
+        - docker-compose build backend
+        - docker-compose build testing
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        - SITE_URL='https://treeherder.dev' TREEHERDER_DEBUG='False' python -bb ./manage.py check --deploy --fail-level WARNING
-        # Using `-bb` mode to surface BytesWarnings:
-        # https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
+        - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False testing python -bb ./manage.py check --deploy --fail-level WARNING
+        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
+        - docker-compose run testing python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
 
     - env: python-tests-selenium
-      language: python
-      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
-      python: '3.7.2'
+      language: node_js
+      # The Node version here must be kept in sync with that in `package.json`.
+      node_js: '11'
       cache:
         directories:
-          - ${HOME}/venv
           - node_modules
+      before_install:
+        - docker-compose build backend
+        - docker-compose build testing
       install:
-        # The Node version here must be kept in sync with that in `package.json`.
-        - nvm install 11
-        - source ./bin/travis-setup.sh services python_env browser js_env
+        # This gets the backend started for the testing container to connect to
+        - docker-compose up -d
+        - yarn install
       before_script:
-        # Run in `before_script` to prevent the selenium tests from still being run if the UI build fails.
+        # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
       script:
-        - python -bb -m pytest tests/selenium/
+        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
+        - docker-compose run testing python -bb -m pytest tests/selenium/
 
 notifications:
   email:
