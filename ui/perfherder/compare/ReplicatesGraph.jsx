@@ -9,6 +9,7 @@ import Graph from '../../shared/Graph';
 import PerfSeriesModel from '../../models/perfSeries';
 import { getData } from '../../helpers/http';
 import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
+import { noDataFoundMessage } from '../constants';
 
 // TODO remove $stateParams after switching to react router
 export default class ReplicatesGraph extends React.Component {
@@ -56,13 +57,19 @@ export default class ReplicatesGraph extends React.Component {
           target: '',
           title: `${title} replicates`,
           chart_type: 'missing-data',
-          missing_text: 'No Data Found',
+          missing_text: noDataFoundMessage,
           width: 1000,
           height: 275,
         };
 
   fetchReplicateGraphData = async () => {
-    const { projectName, revision, subtestSignature } = this.props;
+    const {
+      projectName,
+      revision,
+      subtestSignature,
+      getData,
+      getReplicateData,
+    } = this.props;
     const replicateData = {};
 
     const perfDatumResponse = await getData(
@@ -80,7 +87,7 @@ export default class ReplicatesGraph extends React.Component {
     }
     const numRuns = perfDatum.values.length;
     const replicatePromises = perfDatum.job_ids.map(job_id =>
-      PerfSeriesModel.getReplicateData({ job_id }),
+      getReplicateData({ job_id }),
     );
 
     return Promise.all(replicatePromises).then(
@@ -151,4 +158,13 @@ ReplicatesGraph.propTypes = {
     testSuite: PropTypes.string.isRequired,
     subtest: PropTypes.string.isRequired,
   }).isRequired,
+  getData: PropTypes.func,
+  getReplicateData: PropTypes.func,
+};
+
+ReplicatesGraph.defaultProps = {
+  // leverage dependency injection
+  // to improve code testability
+  getData,
+  getReplicateData: PerfSeriesModel.getReplicateData,
 };

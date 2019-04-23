@@ -16,3 +16,5 @@ export const filterText = {
   hideUncomparable: 'Hide uncomparable results',
   inputPlaceholder: 'linux tp5o',
 };
+
+export const noDataFoundMessage = 'No Data Found';
