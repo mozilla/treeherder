@@ -20,7 +20,8 @@ services:
       - TREEHERDER_DEBUG=True
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True
-    entrypoint: ./docker/entrypoint.sh
+      - RUN_MIGRATIONS=True
+    entrypoint: './docker/entrypoint.sh'
     command: ./manage.py runserver 0.0.0.0:8000
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
@@ -44,13 +45,16 @@ services:
       # Development/CI-specific environment variables only.
       # Those that do not vary across environments should go in `Dockerfile`.
       - BROKER_URL=amqp://guest:guest@rabbitmq//
-      - DATABASE_URL=mysql://root@mysql/test_treeherder
+      - DATABASE_URL=mysql://root@mysql/treeherder
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True
+    entrypoint: ./docker/entrypoint.sh
     image: treeherder-testing
+    # https://github.com/SeleniumHQ/docker-selenium#running-the-images
+    shm_size: 2g
     volumes:
       - .:/app
     depends_on:

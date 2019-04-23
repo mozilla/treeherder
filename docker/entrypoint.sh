@@ -14,9 +14,12 @@ while ! nc -z "${DATABASE_HOST}" "${DATABASE_PORT}" &> /dev/null; do
     sleep 1;
 done
 
-echo '-----> Running Django migrations and loading reference data'
-./manage.py migrate --noinput
-./manage.py load_initial_data
+RUN_MIGRATIONS=${RUN_MIGRATIONS:-False}
+if [[ "${RUN_MIGRATIONS}" == 'True' ]]; then
+    echo '-----> Running Django migrations and loading reference data'
+    ./manage.py migrate --noinput
+    ./manage.py load_initial_data
+fi
 
 echo '-----> Setup complete!'
 

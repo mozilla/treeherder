@@ -45,6 +45,7 @@ matrix:
     - env: python-tests-main
       language: minimal
       install:
+        # We need to build treeherder-stage:latest before we can build the testing image
         - docker-compose build backend
         - docker-compose build testing
       script:
@@ -63,11 +64,10 @@ matrix:
         directories:
           - node_modules
       before_install:
+        # We need to build treeherder-stage:latest before we can build the testing image
         - docker-compose build backend
         - docker-compose build testing
       install:
-        # This gets the backend started for the testing container to connect to
-        - docker-compose up -d
         - yarn install
       before_script:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
