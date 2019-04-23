@@ -22,21 +22,13 @@ matrix:
         - yarn test
 
     - env: python-linters
-      language: python
-      # The Python version here must be kept in sync with that in `runtime.txt` (used by Heroku/Vagrant).
-      python: '3.7.2'
-      cache:
-        directories:
-          - ${HOME}/venv
+      language: minimal
       install:
-        - python -m venv ${HOME}/venv
-        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check --require-hashes -r requirements/common.txt
-        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check --require-hashes -r requirements/dev.txt
-        - ${HOME}/venv/bin/pip install -q --disable-pip-version-check -r requirements/docs.txt
+        # We need to build treeherder-stage:latest before we can build the testing image
+        - docker-compose build backend
+        - docker-compose build testing
       script:
-        - ./runtests.sh
-        - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
-        - mkdocs build
+        - docker-compose run testing ./runtests.sh && git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck && mkdocs build
 
     - env: python-tests-main
       language: minimal
