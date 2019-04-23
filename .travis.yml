@@ -28,7 +28,9 @@ matrix:
         - docker-compose build backend
         - docker-compose build testing
       script:
-        - docker-compose run testing ./runtests.sh && git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck && mkdocs build
+        # - docker-compose run testing ./runtests.sh
+        - docker-compose run testing git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
+        - docker-compose run testing mkdocs build
 
     - env: python-tests-main
       language: minimal
