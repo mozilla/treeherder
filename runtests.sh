@@ -22,3 +22,7 @@ SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.p
 
 echo "Running Python tests"
 python -bb -m pytest tests/
+
+# Restore shell options since this script is sourced, so affects the caller:
+# https://github.com/travis-ci/travis-ci/issues/5434
+set +euo pipefail

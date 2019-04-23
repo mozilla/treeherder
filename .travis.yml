@@ -34,11 +34,7 @@ matrix:
         - ${HOME}/venv/bin/pip install -q --disable-pip-version-check --require-hashes -r requirements/dev.txt
         - ${HOME}/venv/bin/pip install -q --disable-pip-version-check -r requirements/docs.txt
       script:
-        # XXX: We can probably switch to docker then run ./runtests.sh and finally shellcheck
-        - pip check
-        - python -bb ./lints/queuelint.py
-        - flake8 --show-source
-        - isort --check-only --diff --quiet
+        - ./runtests.sh
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - mkdocs build
 
