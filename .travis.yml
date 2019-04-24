@@ -24,27 +24,21 @@ matrix:
     - env: python-linters
       language: minimal
       install:
-        # We need to build treeherder-stage:latest before we can build the testing image
-        - docker-compose build backend
-        - docker-compose build testing
+        - docker-compose build
       script:
-        # - docker-compose run testing ./runtests.sh
-        - docker-compose run testing git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
-        - docker-compose run testing mkdocs build
+        - docker-compose run backend ./runtests.sh
 
     - env: python-tests-main
       language: minimal
       install:
-        # We need to build treeherder-stage:latest before we can build the testing image
-        - docker-compose build backend
-        - docker-compose build testing
+        - docker-compose build
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False testing python -bb ./manage.py check --deploy --fail-level WARNING
+        - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run testing python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
+        - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
 
     - env: python-tests-selenium
       language: node_js
@@ -54,9 +48,7 @@ matrix:
         directories:
           - node_modules
       before_install:
-        # We need to build treeherder-stage:latest before we can build the testing image
-        - docker-compose build backend
-        - docker-compose build testing
+        - docker-compose build
       install:
         - yarn install
       before_script:
@@ -64,7 +56,7 @@ matrix:
         - yarn build
       script:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run testing python -bb -m pytest tests/selenium/
+        - docker-compose run backend python -bb -m pytest tests/selenium/
 
 notifications:
   email:
