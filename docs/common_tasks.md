@@ -8,7 +8,7 @@ that makes working on the docs locally much easier.
 To use this within the Docker environment, run:
 
 ```bash
-docker-compose run backend mkdocs serve
+docker-compose run -p 8000:8000 backend mkdocs serve -a 0.0.0.0:8000
 ```
 
 Or if you would rather not use Docker, instead activate a virtualenv on the host
@@ -19,7 +19,7 @@ machine, and from the root of the Treeherder repo, run:
 > mkdocs serve
 ```
 
-In either case, the docs will then be available at: <http://127.0.0.1:8000>
+In either case, the docs will then be available at: <http://localhost:8000>
 
 ## Updating package.json
 

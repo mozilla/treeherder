@@ -18,6 +18,10 @@ docker-compose run backend bash
 
 ...which saves having to wait for docker-compose to spin up for every test run.
 
+NOTE: To run Selenium tests you need to run `yarn build` for the tests not to skip.
+`yarn build` will generate a `.build` directory which will be seen within the `backend` container.
+If you don't have `yarn` working on your host you can run this instead `docker-compose run frontend sh -c "yarn && yarn build"`
+
 Then run the individual tools within that shell, like so:
 
 - [pytest](https://docs.pytest.org/en/stable/):
