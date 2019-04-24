@@ -20,9 +20,8 @@ services:
       - TREEHERDER_DEBUG=True
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True
-      - RUN_MIGRATIONS=True
     entrypoint: './docker/entrypoint.sh'
-    command: ./manage.py runserver 0.0.0.0:8000
+    command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
     stop_signal: SIGINT
