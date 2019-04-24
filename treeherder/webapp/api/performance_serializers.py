@@ -13,6 +13,7 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceBugTemplate,
                                     PerformanceFramework,
                                     PerformanceSignature)
+from treeherder.webapp.api.utils import to_timestamp
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
@@ -120,6 +121,12 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                   'manually_created', 'classifier', 'starred', 'classifier_email']
 
 
+class TimestampField(serializers.Field):
+
+    def to_representation(self, value):
+        return to_timestamp(value.time)
+
+
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
@@ -127,7 +134,13 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
                                               slug_field='name')
     framework = serializers.SlugRelatedField(read_only=True,
                                              slug_field='id')
-
+    revision = serializers.SlugRelatedField(read_only=True,
+                                            slug_field='revision',
+                                            source='push')
+    push_timestamp = TimestampField(source='push', read_only=True)
+    prev_push_revision = serializers.SlugRelatedField(read_only=True,
+                                                      slug_field='revision',
+                                                      source='prev_push')
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -144,7 +157,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         fields = ['id', 'push_id', 'prev_push_id',
                   'created', 'repository', 'framework', 'alerts',
                   'related_alerts', 'status', 'bug_number',
-                  'issue_tracker', 'notes']
+                  'issue_tracker', 'notes', 'revision', 'push_timestamp', 'prev_push_revision']
 
 
 class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
