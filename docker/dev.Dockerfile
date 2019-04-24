@@ -37,8 +37,8 @@ RUN curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHE
 ADD . /app
 WORKDIR /app
 
-# Common and dev deps installed separately to:
-# (a) prove that common.txt works standalone (given dev.txt not installed on Heroku)
+# Common and dev deps installed separately to prove that common.txt works standalone
+# (given that dev.txt is not installed on Heroku)
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
 RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt

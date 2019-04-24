@@ -86,9 +86,10 @@ At times it can be useful to connect to them from outside the Docker environment
 
 The `docker-compose.yml` file defines how internal ports are mapped to the host OS' ports.
 
-In the below example we're mapping VM port 3306 (MySQL's default port) to host port 3306.
+In the below example we're mapping the container's port 3306 (MySQL's default port) to host port 3306.
 
 ```yaml
+# This is a line from the docker-compose.yml file
 ports:
   - '3306:3306'
 ```

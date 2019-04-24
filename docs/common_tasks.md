@@ -11,7 +11,7 @@ To use this within the Docker environment, run:
 docker-compose run backend mkdocs serve
 ```
 
-Or if you would rather not use Dockler, instead activate a virtualenv on the host
+Or if you would rather not use Docker, instead activate a virtualenv on the host
 machine, and from the root of the Treeherder repo, run:
 
 ```bash
