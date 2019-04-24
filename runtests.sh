@@ -16,19 +16,15 @@ echo "Running isort"
 isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
-echo "Running Django system checks"
-# See .travis.yml for explanation of the environment variable overriding.
-SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.py check --deploy --fail-level WARNING
-
 echo "Running shellcheck"
 git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
 
 echo "Running test docs generation"
 mkdocs build
 
+echo "Running Django system checks"
+# See .travis.yml for explanation of the environment variable overriding.
+SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.py check --deploy --fail-level WARNING
+
 echo "Running Python tests"
 python -bb -m pytest tests/
-
-# Restore shell options since this script is sourced, so affects the caller:
-# https://github.com/travis-ci/travis-ci/issues/5434
-set +euo pipefail
