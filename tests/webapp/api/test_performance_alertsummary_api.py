@@ -69,6 +69,7 @@ def test_alert_summaries_get(client, test_perf_alert_summary,
     assert set(resp.json()['results'][0].keys()) == set([
         'alerts',
         'bug_number',
+        'bug_updated',
         'issue_tracker',
         'notes',
         'framework',
@@ -118,6 +119,7 @@ def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
     assert set(resp.json()['results'][0].keys()) == set([
         'alerts',
         'bug_number',
+        'bug_updated',
         'issue_tracker',
         'notes',
         'framework',
@@ -238,3 +240,59 @@ def test_alert_summary_timestamps_via_endpoints(authorized_sheriff_client, test_
     assert test_perf_alert_summary.first_triaged is not None
     assert test_perf_alert_summary.created < test_perf_alert_summary.first_triaged
     assert test_perf_alert_summary.created < test_perf_alert_summary.last_updated
+
+
+def test_bug_number_and_timestamp_on_setting_value(authorized_sheriff_client, test_perf_alert_summary):
+    assert test_perf_alert_summary.first_triaged is None
+    assert test_perf_alert_summary.bug_number is None
+    assert test_perf_alert_summary.bug_updated is None
+
+    # link a bug
+    resp = authorized_sheriff_client.put(
+        reverse('performance-alert-summaries-list') + '1/',
+        {'bug_number': 123456}
+    )
+    assert resp.status_code == 200
+    test_perf_alert_summary.refresh_from_db()
+
+    # hopefully they updated
+    assert test_perf_alert_summary.bug_number == 123456
+    assert test_perf_alert_summary.bug_updated is not None
+
+
+def test_bug_number_and_timestamp_on_overriding(authorized_sheriff_client, test_perf_alert_summary_with_bug):
+    assert test_perf_alert_summary_with_bug.bug_number == 123456
+    assert test_perf_alert_summary_with_bug.bug_updated < datetime.datetime.now()
+
+    bug_linking_time = test_perf_alert_summary_with_bug.bug_updated
+
+    # update the existing bug number
+    resp = authorized_sheriff_client.put(
+        reverse('performance-alert-summaries-list') + '1/',
+        {'bug_number': 987654}
+    )
+
+    assert resp.status_code == 200
+    test_perf_alert_summary_with_bug.refresh_from_db()
+
+    # hopefully they updated
+    assert test_perf_alert_summary_with_bug.bug_number == 987654
+    assert test_perf_alert_summary_with_bug.bug_updated > bug_linking_time
+
+
+def test_bug_number_and_timestamp_dont_update_from_other_modifications(authorized_sheriff_client,
+                                                                       test_perf_alert_summary):
+    assert test_perf_alert_summary.bug_number is None
+    assert test_perf_alert_summary.bug_updated is None
+
+    # link a bug
+    resp = authorized_sheriff_client.put(
+        reverse('performance-alert-summaries-list') + '1/',
+        {'notes': 'human created notes'}
+    )
+    assert resp.status_code == 200
+    test_perf_alert_summary.refresh_from_db()
+
+    # bug fields shouldn't have updated
+    assert test_perf_alert_summary.bug_number is None
+    assert test_perf_alert_summary.bug_updated is None
