@@ -17,7 +17,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"#[markdown(off)]\nFiled by: {}\n\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
@@ -61,7 +61,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"#[markdown(off)]\nFiled by: {}\n\nIntermittent “description” string".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent “description” string".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent “summary”"
         assert requestdata['comment_tags'] == "treeherder"
@@ -105,7 +105,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"#[markdown(off)]\nFiled by: {}\n\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
@@ -155,7 +155,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"#[markdown(off)]\nFiled by: MyName\n\nIntermittent Description"
+        assert requestdata['description'] == u"**Filed by:** MyName\nIntermittent Description"
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
@@ -203,7 +203,7 @@ def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activa
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"#[markdown(off)]\nFiled by: MyName\n\nIntermittent Description"
+        assert requestdata['description'] == u"**Filed by:** MyName\nIntermittent Description"
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"

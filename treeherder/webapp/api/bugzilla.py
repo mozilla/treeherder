@@ -29,7 +29,7 @@ class BugzillaViewSet(viewsets.ViewSet):
             return Response({"failure": "Crash signature can't be more than 2048 characters."},
                             status=HTTP_400_BAD_REQUEST)
 
-        description = u"#[markdown(off)]\nFiled by: {}\n\n{}".format(
+        description = u"**Filed by:** {}\n{}".format(
             request.user.email.replace('@', " [at] "),
             params.get("comment", "")
         ).encode("utf-8")
