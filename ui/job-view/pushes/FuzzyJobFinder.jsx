@@ -52,8 +52,8 @@ class FuzzyJobFinder extends React.Component {
         this.setState({ fuzzySearch: ev.target.value }, () => {
           const options = {
             // http://fusejs.io/ describes the options available
-            keys: ['name'],
-            threshold: 0.3, // This seems like a good threshold to remove most false matches, lower is stricter
+            keys: ['name', 'symbol'],
+            threshold: 0.6, // This seems like a good threshold to remove most false matches, lower is stricter
             matchAllTokens: true,
             tokenize: true,
           };
@@ -204,7 +204,7 @@ class FuzzyJobFinder extends React.Component {
           toggle={this.props.toggle}
           className={this.props.className}
         >
-          <ModalHeader>Add New Jobs (Fuzzy)</ModalHeader>
+          <ModalHeader>Add New Jobs (Search)</ModalHeader>
           <ModalBody>
             <FormGroup row>
               <Col sm={10}>
