@@ -74,4 +74,8 @@ def get_job_key(job):
 
 
 def job_to_dict(job):
-    return {field: getattr(job, field) for field in job_fields}
+    job_dict = {field: getattr(job, field) for field in job_fields}
+    # required for retriggers
+    job_dict['job_type_name'] = job.job_type.name
+
+    return job_dict
