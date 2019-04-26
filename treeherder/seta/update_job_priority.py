@@ -9,7 +9,6 @@ Known bug:
    the same set of jobs. Unfortunately, this is less than ideal if we want to make this
    work for project repositories.
 '''
-import datetime
 import logging
 
 from treeherder.etl.runnable_jobs import list_runnable_jobs
@@ -18,8 +17,7 @@ from treeherder.etl.seta import (parse_testtype,
 from treeherder.seta.common import (job_priority_index,
                                     unique_key)
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import (SETA_HIGH_VALUE_PRIORITY,
-                                      SETA_LOW_VALUE_PRIORITY)
+from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 logger = logging.getLogger(__name__)
 
@@ -118,24 +116,11 @@ def query_sanitized_data(repo_name='mozilla-inbound'):
     return _sanitize_data(runnable_jobs)
 
 
-def _two_weeks_from_now():
-    return datetime.datetime.now() + datetime.timedelta(days=14)
-
-
 def _initialize_values():
     logger.info('Fetch all rows from the job priority table.')
     # Get all rows of job priorities
     jp_index = job_priority_index(JobPriority.objects.all())
-    if jp_index:
-        # For 2 weeks the job will be considered high value (priority=1)
-        return jp_index, SETA_HIGH_VALUE_PRIORITY, _two_weeks_from_now()
-    else:
-        # When the table is empty it means that we're starting the system for the first time
-        # and we're going to use a different set of default values
-        # All job priorities will be marked as low value jobs
-        # If information to determine job failures is available, the jobs will quickly be turned
-        # into high value jobs.
-        return jp_index, SETA_LOW_VALUE_PRIORITY, None
+    return jp_index, SETA_LOW_VALUE_PRIORITY, None
 
 
 def _update_table(data):

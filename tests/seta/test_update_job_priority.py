@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from mock import patch
 
@@ -46,29 +44,6 @@ def test_query_sanitized_data(list_runnable_jobs, runnable_jobs_data, sanitized_
 def test_initialize_values_no_data():
     results = _initialize_values()
     assert results == ({}, 5, None)
-
-
-@pytest.mark.django_db()
-@patch.object(JobPriority.objects, 'all')
-@patch('treeherder.seta.update_job_priority._two_weeks_from_now')
-def test_initialize_values(two_weeks, jp_all,
-                           job_priority_list, jp_index_fixture):
-    fourteen_days = datetime.datetime.now() + datetime.timedelta(days=14)
-    two_weeks.return_value = fourteen_days
-    jp_all.return_value = job_priority_list
-    assert _initialize_values() == (jp_index_fixture, 1, fourteen_days)
-
-
-@patch('treeherder.seta.update_job_priority._two_weeks_from_now')
-@patch('treeherder.seta.update_job_priority._initialize_values')
-def test_update_table_no_new_jobs(initial_values, two_weeks,
-                                  job_priority_list, jp_index_fixture, sanitized_data):
-    '''
-    We test that once a table has information about job priorities future calls with the same data will not change the table
-    '''
-    # By doing this we won't need DB access
-    initial_values.return_value = jp_index_fixture, 1, two_weeks
-    assert _update_table(sanitized_data) == (0, 0, 0)
 
 
 @patch.object(JobPriority, 'save')
