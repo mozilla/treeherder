@@ -373,7 +373,13 @@ export class PushesClass extends React.Component {
     }
     const pushIds = pushList.map(push => push.id);
     const lastModified = this.getLastModifiedJobTime();
-    const jobList = await PushModel.getJobs(pushIds, { lastModified });
+    const jobList = await JobModel.getList(
+      {
+        push_id__in: pushIds.join(','),
+        last_modified__gt: lastModified.toISOString().replace('Z', ''),
+      },
+      { fetch_all: true },
+    );
     // break the jobs up per push
     const jobs = jobList.reduce((acc, job) => {
       const pushJobs = acc[job.push_id] ? [...acc[job.push_id], job] : [job];

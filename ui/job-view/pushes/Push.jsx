@@ -10,7 +10,7 @@ import {
 import { withPushes } from '../context/Pushes';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
-import PushModel from '../../models/push';
+import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
@@ -139,7 +139,14 @@ class Push extends React.Component {
 
   fetchJobs = async () => {
     const { push } = this.props;
-    const jobs = await PushModel.getJobs(push.id);
+    const jobs = await JobModel.getList(
+      {
+        push_id: push.id,
+        count: 2000,
+        return_type: 'list',
+      },
+      { fetch_all: true },
+    );
 
     this.mapPushJobs(jobs);
   };

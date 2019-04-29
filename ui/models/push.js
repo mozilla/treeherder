@@ -5,7 +5,6 @@ import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
 
-import JobModel from './job';
 import TaskclusterModel from './taskcluster';
 
 const convertDates = function convertDates(locationParams) {
@@ -58,33 +57,6 @@ export default class PushModel {
   static get(pk, options = {}) {
     const repoName = options.repo || getUrlParam('repo');
     return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
-  }
-
-  static getJobs(pushIds, options = {}) {
-    const { lastModified, repo } = options;
-    delete options.lastModified;
-    delete options.repo;
-    const params = {
-      return_type: 'list',
-      count: 2000,
-      ...options,
-    };
-
-    if (!Array.isArray(pushIds)) {
-      params.push_id = pushIds;
-    } else {
-      params.push_id__in = pushIds.join(',');
-    }
-    if (lastModified) {
-      // XXX: should never happen, but maybe sometimes does? see bug 1287501
-      if (!(lastModified instanceof Date)) {
-        throw Error(
-          `Invalid parameter passed to get job updates: ${lastModified}.  Please reload treeherder`,
-        );
-      }
-      params.last_modified__gt = lastModified.toISOString().replace('Z', '');
-    }
-    return JobModel.getList(repo, params, { fetch_all: true });
   }
 
   static triggerMissingJobs(decisionTaskId) {
