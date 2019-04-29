@@ -175,7 +175,7 @@ class PushActionMenu extends React.PureComponent {
             <li
               title={
                 isLoggedIn
-                  ? 'Add new jobs to this push via fuzzy search'
+                  ? 'Add new jobs to this push via a fuzzy search'
                   : 'Must be logged in'
               }
               className={
@@ -183,7 +183,7 @@ class PushActionMenu extends React.PureComponent {
               }
               onClick={showFuzzyJobs}
             >
-              Add new jobs (fuzzy)
+              Add new jobs (Search)
             </li>
           )}
           {triggerMissingRepos.includes(repoName) && (
