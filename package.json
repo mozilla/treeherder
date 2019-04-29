@@ -60,7 +60,7 @@
     "react-hotkeys": "1.1.4",
     "react-lazylog": "3.2.0",
     "react-linkify": "0.2.2",
-    "react-redux": "6.0.1",
+    "react-redux": "7.0.3",
     "react-router-dom": "5.0.0",
     "react-select": "2.4.3",
     "react-split-pane": "0.1.87",
