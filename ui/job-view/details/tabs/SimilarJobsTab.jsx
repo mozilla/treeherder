@@ -57,7 +57,6 @@ class SimilarJobsTab extends React.Component {
     });
 
     const newSimilarJobs = await JobModel.getSimilarJobs(
-      repoName,
       selectedJob.id,
       options,
     );

@@ -7,8 +7,6 @@ import paginatedJobListFixtureOne from '../../mock/job_list/pagination/page_1';
 import paginatedJobListFixtureTwo from '../../mock/job_list/pagination/page_2';
 
 describe('JobModel', () => {
-  const repoName = 'mozilla-inbound';
-
   afterEach(() => {
     fetchMock.reset();
   });
@@ -19,7 +17,7 @@ describe('JobModel', () => {
     });
 
     test('should return a promise', () => {
-      const result = JobModel.getList('mozilla-inbound');
+      const result = JobModel.getList();
       expect(result.then).toBeDefined();
     });
   });
@@ -37,17 +35,13 @@ describe('JobModel', () => {
     });
 
     test('should return a page of results by default', async () => {
-      const jobList = await JobModel.getList(repoName, { count: 2 });
+      const jobList = await JobModel.getList({ count: 2 });
 
       expect(jobList).toHaveLength(2);
     });
 
     test('should return all the pages when fetch_all==true', async () => {
-      const jobList = await JobModel.getList(
-        repoName,
-        { count: 2 },
-        { fetch_all: true },
-      );
+      const jobList = await JobModel.getList({ count: 2 }, { fetch_all: true });
 
       expect(jobList).toHaveLength(3);
       expect(jobList[2].id).toBe(3);

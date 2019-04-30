@@ -45,7 +45,7 @@ export default class JobModel {
       .join(' ');
   }
 
-  static getList(repoName, options, config) {
+  static getList(options, config) {
     // a static method to retrieve a list of JobModel
     config = config || {};
     const fetch_all = config.fetch_all || false;
@@ -67,11 +67,7 @@ export default class JobModel {
             const offset = parseInt(data.meta.offset, 10) + count;
             const newOptions = { ...options, offset, count };
 
-            nextPagesJobs = await JobModel.getList(
-              repoName,
-              newOptions,
-              config,
-            );
+            nextPagesJobs = await JobModel.getList(newOptions, config);
           }
           if ('job_property_names' in data) {
             // the results came as list of fields
@@ -108,12 +104,12 @@ export default class JobModel {
     });
   }
 
-  static getSimilarJobs(repoName, pk, options, config) {
+  static getSimilarJobs(pk, options, config) {
     config = config || {};
     // The similar jobs endpoints returns the same type of objects as
     // the job list endpoint, so let's reuse the getList method logic.
     config.uri = `${uri}${pk}/similar_jobs/`;
-    return JobModel.getList(repoName, options, config);
+    return JobModel.getList(options, config);
   }
 
   static async retrigger(jobs, repoName, notify) {
