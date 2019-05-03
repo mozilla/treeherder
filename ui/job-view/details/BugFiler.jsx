@@ -418,12 +418,14 @@ export class BugFilerClass extends React.Component {
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
     keywords.push('regression');
     let severity = 'normal';
-    const priority = 'P5';
+    let priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
 
     if (crashSignature.length > 0) {
       keywords.push('crash');
       severity = 'critical';
+      // Set no priority for crashes to get them included in triage meetings.
+      priority = '--';
     }
 
     // Fetch product information from bugzilla to get version numbers, then
