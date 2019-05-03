@@ -109,7 +109,7 @@ class ClassificationGroup extends React.PureComponent {
                       title={`Retrigger all 'Need Investigation' jobs ${times} times`}
                       onClick={() => this.retriggerAll(times)}
                     >
-                      {times}
+                      Retrigger all {times} times
                     </DropdownItem>
                   ))}
                 </DropdownMenu>
