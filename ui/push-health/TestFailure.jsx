@@ -46,6 +46,7 @@ class TestFailure extends React.PureComponent {
       jobSymbol,
       failJobs,
       passJobs,
+      passInFailedJobs,
       logLines,
       confidence,
       platform,
@@ -103,6 +104,24 @@ class TestFailure extends React.PureComponent {
               repo={repo}
               revision={revision}
               key={passJob.id}
+            />
+          ))}
+          {!!passInFailedJobs.length && (
+            <span
+              className="text-success mr-1"
+              title="The following jobs failed overall, but this test did not fail in them"
+            >
+              Passed in:
+            </span>
+          )}
+          {passInFailedJobs.map(passedInAFailedJob => (
+            <Job
+              job={passedInAFailedJob}
+              jobName={jobName}
+              jobSymbol={jobSymbol}
+              repo={repo}
+              revision={revision}
+              key={passedInAFailedJob.id}
             />
           ))}
         </div>

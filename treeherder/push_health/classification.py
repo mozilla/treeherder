@@ -61,7 +61,8 @@ def get_grouped(failures):
     }
 
     for failure in failures:
-        pass_fail_ratio = len(failure['passJobs']) / (len(failure['failJobs']) + len(failure['passJobs']))
+        total_jobs = len(failure['failJobs']) + len(failure['passJobs']) + len(failure['passInFailedJobs'])
+        pass_fail_ratio = (len(failure['passJobs']) + len(failure['passInFailedJobs'])) / total_jobs
         is_intermittent = failure['suggestedClassification'] == 'intermittent'
 
         if (is_intermittent and failure['confidence'] == 100) or pass_fail_ratio > .5:
