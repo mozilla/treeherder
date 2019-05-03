@@ -19,6 +19,7 @@ export default class TestFailures extends React.PureComponent {
           className="mb-5"
           headerColor={needInvestigationLength ? 'danger' : 'secondary'}
           user={user}
+          hasRetriggerAll
         />
         <ClassificationGroup
           group={intermittent}

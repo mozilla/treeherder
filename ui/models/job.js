@@ -112,7 +112,7 @@ export default class JobModel {
     return JobModel.getList(options, config);
   }
 
-  static async retrigger(jobs, repoName, notify) {
+  static async retrigger(jobs, repoName, notify, times = 1) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
 
     try {
@@ -142,7 +142,7 @@ export default class JobModel {
             action => action.name === 'retrigger-multiple',
           );
           let actionInput = {
-            requests: [{ tasks: taskLabels }],
+            requests: [{ tasks: taskLabels, times }],
           };
           if (!retriggerAction) {
             // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action

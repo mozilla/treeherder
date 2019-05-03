@@ -1,20 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Row, Collapse } from 'reactstrap';
+import {
+  Row,
+  Collapse,
+  ButtonGroup,
+  ButtonDropdown,
+  Button,
+  DropdownMenu,
+  DropdownToggle,
+  DropdownItem,
+} from 'reactstrap';
+
+import { withNotifications } from '../shared/context/Notifications';
+import JobModel from '../models/job';
 
 import TestFailure from './TestFailure';
 
-export default class ClassificationGroup extends React.PureComponent {
+class ClassificationGroup extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
       detailsShowing: props.expanded,
+      retriggerDropdownOpen: false,
     };
   }
 
@@ -22,8 +36,29 @@ export default class ClassificationGroup extends React.PureComponent {
     this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
   };
 
+  toggleRetrigger = () => {
+    this.setState(prevState => ({
+      retriggerDropdownOpen: !prevState.retriggerDropdownOpen,
+    }));
+  };
+
+  retriggerAll = times => {
+    const { group, notify } = this.props;
+    // Reduce down to the unique jobs
+    const jobs = group.reduce(
+      (acc, test) => ({
+        ...acc,
+        ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
+      }),
+      {},
+    );
+    const uniqueJobs = Object.values(jobs);
+
+    JobModel.retrigger(uniqueJobs, null, notify, times);
+  };
+
   render() {
-    const { detailsShowing } = this.state;
+    const { detailsShowing, retriggerDropdownOpen } = this.state;
     const {
       group,
       name,
@@ -32,6 +67,7 @@ export default class ClassificationGroup extends React.PureComponent {
       className,
       headerColor,
       user,
+      hasRetriggerAll,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -48,6 +84,38 @@ export default class ClassificationGroup extends React.PureComponent {
           </span>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
+          {hasRetriggerAll && (
+            <ButtonGroup>
+              <Button
+                title="Retrigger all 'Need Investigation' jobs once"
+                onClick={() => this.retriggerAll(1)}
+              >
+                <FontAwesomeIcon
+                  icon={faRedo}
+                  title="Retrigger"
+                  className="mr-2"
+                />
+                Retrigger all
+              </Button>
+              <ButtonDropdown
+                isOpen={retriggerDropdownOpen}
+                toggle={this.toggleRetrigger}
+              >
+                <DropdownToggle caret />
+                <DropdownMenu>
+                  {[5, 10, 15].map(times => (
+                    <DropdownItem
+                      key={times}
+                      title={`Retrigger all 'Need Investigation' jobs ${times} times`}
+                      onClick={() => this.retriggerAll(times)}
+                    >
+                      Retrigger all {times} times
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </ButtonDropdown>
+            </ButtonGroup>
+          )}
           <div>
             {group &&
               group.map(failure => (
@@ -72,6 +140,8 @@ ClassificationGroup.propTypes = {
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
+  hasRetriggerAll: PropTypes.bool,
   expanded: PropTypes.bool,
   className: PropTypes.string,
   headerColor: PropTypes.string,
@@ -81,4 +151,7 @@ ClassificationGroup.defaultProps = {
   expanded: true,
   className: '',
   headerColor: '',
+  hasRetriggerAll: false,
 };
+
+export default withNotifications(ClassificationGroup);
