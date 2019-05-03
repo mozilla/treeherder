@@ -66,6 +66,18 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
     return previous_failures, cache_key
 
 
+# For each failure item in ``tests``, we have 3 categories of jobs that are associated with it in order
+# to help determine if the test is 'intermittent' or not:
+#
+# 1. failJobs: These are jobs where this test has specifically failed in the job
+#    (it has a FailureLine record with the tests name).
+# 2. passJobs: These are jobs where this test was run and all tests, including this one, passed.
+#    (The job is green.)
+# 3. passInFailedJobs: These are jobs that overall came back as 'testfailed', however, the
+#    test in question did NOT fail (we have no FailureLine record matching this test).  So, even
+#    though the job failed, we count it as a 'pass' for the test in question.  This 'pass' is
+#    used for the pass/fail ratio on the test to help determine if it is intermittent.
+#
 def get_push_failures(push, option_map):
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
@@ -84,6 +96,7 @@ def get_push_failures(push, option_map):
     # using a dict here to avoid duplicates due to multiple failure_lines for
     # each job.
     tests = {}
+    all_failed_jobs = {}
     for failure_line in new_failure_lines:
         test_name = clean_test(failure_line.test)
         if not test_name:
@@ -91,20 +104,24 @@ def get_push_failures(push, option_map):
         job = failure_line.job_log.job
         config = clean_config(option_map[job.option_collection_hash])
         platform = clean_platform(job.machine_platform.platform)
-        jobName = job.job_type.name
-        jobSymbol = job.job_type.symbol
-        test_key = '{}{}{}{}'.format(test_name, config, platform, jobName)
+        job_name = job.job_type.name
+        job_symbol = job.job_type.symbol
+        job.job_key = '{}{}{}'.format(config, platform, job_name)
+        all_failed_jobs[job.id] = job
+        test_key = '{}{}{}{}'.format(test_name, config, platform, job_name)
 
         if test_key not in tests:
             line = {
                 'testName': test_name,
-                'jobName': jobName,
-                'jobSymbol': jobSymbol,
+                'jobName': job_name,
+                'jobSymbol': job_symbol,
                 'platform': platform,
                 'config': config,
                 'key': test_key,
+                'jobKey': job.job_key,
                 'failJobs': [],
                 'passJobs': [],
+                'passInFailedJobs': [],  # This test passed in a job that failed for another test
                 'logLines': [],
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
@@ -115,13 +132,23 @@ def get_push_failures(push, option_map):
         # list in a previous iteration through ``failure_lines``
         test = tests[test_key]
         test['logLines'].append(failure_line.to_mozlog_format())
-        if not next((find_job for find_job in test['failJobs'] if find_job['id'] == job.id), False):
+        if not has_job(job, test['failJobs']):
             test['failJobs'].append(job_to_dict(job))
+
+    # Check each test to find jobs where it passed, even if the job itself failed due to another test
+    for test in tests.values():
+        for failed_job in all_failed_jobs.values():
+            if not has_job(failed_job, test['failJobs']) and test['jobKey'] == failed_job.job_key:
+                test['passInFailedJobs'].append(job_to_dict(failed_job))
 
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several
     # passing/failing jobs associated with it.
     return sorted(tests.values(), key=lambda k: k['testName'])
+
+
+def has_job(job, job_list):
+    return next((find_job for find_job in job_list if find_job['id'] == job.id), False)
 
 
 def get_push_health_test_failures(push, repository_ids):
