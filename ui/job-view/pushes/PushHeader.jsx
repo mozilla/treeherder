@@ -21,6 +21,7 @@ import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
 import { withNotifications } from '../../shared/context/Notifications';
+import PushHealthStatus from '../../shared/PushHealthStatus';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
 
 import PushActionMenu from './PushActionMenu';
@@ -93,6 +94,7 @@ class PushHeader extends React.Component {
       selectedRunnableJobs: prevSelectedRunnableJobs,
       runnableVisible: prevRunnableVisible,
       collapsed: prevCollapsed,
+      pushHealthVisibility: prevPushHealthVisibility,
     } = prevProps;
     const {
       jobCounts,
@@ -101,6 +103,7 @@ class PushHeader extends React.Component {
       selectedRunnableJobs,
       runnableVisible,
       collapsed,
+      pushHealthVisibility,
     } = this.props;
 
     return (
@@ -109,7 +112,8 @@ class PushHeader extends React.Component {
       prevIsLoggedIn !== isLoggedIn ||
       prevSelectedRunnableJobs !== selectedRunnableJobs ||
       prevRunnableVisible !== runnableVisible ||
-      prevCollapsed !== collapsed
+      prevCollapsed !== collapsed ||
+      prevPushHealthVisibility !== pushHealthVisibility
     );
   }
 
@@ -237,6 +241,7 @@ class PushHeader extends React.Component {
       notificationSupported,
       selectedRunnableJobs,
       collapsed,
+      pushHealthVisibility,
     } = this.props;
     const cancelJobsTitle = isLoggedIn
       ? 'Cancel all jobs'
@@ -244,7 +249,9 @@ class PushHeader extends React.Component {
     const linkParams = this.getLinkParams();
     const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
-
+    const showPushHealthStatus =
+      pushHealthVisibility === 'All' ||
+      repoName === pushHealthVisibility.toLowerCase();
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
@@ -275,6 +282,14 @@ class PushHeader extends React.Component {
               <Author author={author} url={authorPushFilterUrl} />
             </span>
           </span>
+          {showPushHealthStatus && (
+            <PushHealthStatus
+              repoName={repoName}
+              pushId={pushId}
+              revision={revision}
+              jobCounts={jobCounts}
+            />
+          )}
           <PushCounts
             className="push-counts"
             pending={jobCounts.pending}
@@ -382,6 +397,7 @@ PushHeader.propTypes = {
   collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.object.isRequired,
+  pushHealthVisibility: PropTypes.string.isRequired,
   watchState: PropTypes.string,
   selectedJob: PropTypes.object,
 };

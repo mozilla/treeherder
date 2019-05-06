@@ -35,6 +35,7 @@ class PushList extends React.Component {
       jobsLoaded,
       duplicateJobsVisible,
       groupCountsExpanded,
+      pushHealthVisibility,
     } = this.props;
     const { notificationSupported } = this.state;
     const { isLoggedIn } = user;
@@ -63,6 +64,7 @@ class PushList extends React.Component {
                 duplicateJobsVisible={duplicateJobsVisible}
                 groupCountsExpanded={groupCountsExpanded}
                 isOnlyRevision={push.revision === revision}
+                pushHealthVisibility={pushHealthVisibility}
               />
             </ErrorBoundary>
           ))}
@@ -110,6 +112,7 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
+  pushHealthVisibility: PropTypes.string.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.object,
 };

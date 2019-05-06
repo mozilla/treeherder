@@ -196,6 +196,21 @@ class PushViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
         return Response(push.get_status())
 
+    @action(detail=True)
+    def health_summary(self, request, project, pk=None):
+        """
+        Return a calculated summary of the health of this push.
+        """
+
+        try:
+            push = Push.objects.get(id=pk)
+        except Push.DoesNotExist:
+            return Response("No push with id: {0}".format(pk),
+                            status=HTTP_404_NOT_FOUND)
+        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+
+        return Response({'needInvestigation': len(push_health_test_failures['needInvestigation'])})
+
     @action(detail=False)
     def health(self, request, project):
         """

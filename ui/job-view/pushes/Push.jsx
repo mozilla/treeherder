@@ -435,6 +435,7 @@ class Push extends React.Component {
       getAllShownJobs,
       groupCountsExpanded,
       isOnlyRevision,
+      pushHealthVisibility,
     } = this.props;
     const {
       fuzzyJobList,
@@ -493,6 +494,7 @@ class Push extends React.Component {
           getAllShownJobs={getAllShownJobs}
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
+          pushHealthVisibility={pushHealthVisibility}
         />
         <div className="push-body-divider" />
         {!collapsed ? (
@@ -544,6 +546,7 @@ Push.propTypes = {
   groupCountsExpanded: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
+  pushHealthVisibility: PropTypes.string.isRequired,
 };
 
 export default withNotifications(withPushes(Push));
