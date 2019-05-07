@@ -563,6 +563,19 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
 
 
 @pytest.fixture
+def test_perf_alert_summary_with_bug(test_repository, push_stored, test_perf_framework, test_issue_tracker):
+    return PerformanceAlertSummary.objects.create(
+        repository=test_repository,
+        framework=test_perf_framework,
+        prev_push_id=1,
+        push_id=2,
+        manually_created=False,
+        created=datetime.datetime.now(),
+        bug_number=123456,
+        bug_updated=datetime.datetime.now())
+
+
+@pytest.fixture
 def test_perf_alert(test_perf_signature, test_perf_alert_summary):
     return PerformanceAlert.objects.create(
         summary=test_perf_alert_summary,

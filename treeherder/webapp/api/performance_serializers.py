@@ -156,7 +156,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         model = PerformanceAlertSummary
         fields = ['id', 'push_id', 'prev_push_id',
                   'created', 'repository', 'framework', 'alerts',
-                  'related_alerts', 'status', 'bug_number',
+                  'related_alerts', 'status', 'bug_number', 'bug_updated',
                   'issue_tracker', 'notes', 'revision', 'push_timestamp', 'prev_push_revision']
 
 

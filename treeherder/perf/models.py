@@ -233,10 +233,24 @@ class PerformanceAlertSummary(models.Model):
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
     bug_number = models.PositiveIntegerField(null=True)
+    bug_updated = models.DateTimeField(null=True)
 
     issue_tracker = models.ForeignKey(IssueTracker,
                                       on_delete=models.PROTECT,
                                       default=1)  # Bugzilla
+
+    def __init__(self, *args, **kwargs):
+        super(PerformanceAlertSummary, self).__init__(*args, **kwargs)
+
+        # allows updating timestamps only on new values
+        self.__prev_bug_number = self.bug_number
+
+    def save(self, *args, **kwargs):
+        if (self.bug_number is not None and
+                self.bug_number != self.__prev_bug_number):
+            self.bug_updated = datetime.datetime.now()
+        super(PerformanceAlertSummary, self).save(*args, **kwargs)
+        self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):
         autodetermined_status = self.autodetermine_status()
