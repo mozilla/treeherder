@@ -41,7 +41,7 @@ export default class Metric extends React.PureComponent {
 
     return (
       <td>
-        <Row>
+        <Row className="flex-nowrap">
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">

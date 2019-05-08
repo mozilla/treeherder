@@ -81,7 +81,7 @@ export default class Health extends React.Component {
                     </a>
                   </span>
                 </h3>
-                <Table size="sm">
+                <Table size="sm" className="table-fixed">
                   <tbody>
                     {healthData.metrics.map(metric => (
                       <tr key={metric.name}>
