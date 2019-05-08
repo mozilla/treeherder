@@ -5635,14 +5635,15 @@ jest-docblock@^24.3.0:
   dependencies:
     detect-newline "^2.1.0"
 
-jest-dom@3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.1.4.tgz#914490e8baf997da16f71dc913ff0a77bd2a2ff7"
-  integrity sha512-ruIRHoRVnqPRt/HSS2aFukfhTpjEoq1I6PkYptKK5U2EeRm1eeOXG7BFiaMncTaGu4COSoCF84oLHj02+J5VDg==
+jest-dom@3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.2.1.tgz#61c50dd229747678391948dcda6d96aa95b83bed"
+  integrity sha512-+bnOYDjgUc4Z9RuB5ulXOZ9SNGWxSzfCwFBNxq0CY43mPCWwB6KR7quDfEQghH/adJ5HzDMM+SiKHf124QHioQ==
   dependencies:
     chalk "^2.4.1"
     css "^2.2.3"
     css.escape "^1.5.1"
+    expect "^24.7.1"
     jest-diff "^24.0.0"
     jest-matcher-utils "^24.0.0"
     lodash "^4.17.11"
