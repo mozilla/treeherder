@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col, Collapse } from 'reactstrap';
+import { Badge, Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
@@ -131,12 +131,18 @@ class TestFailure extends React.PureComponent {
               className="small text-monospace mt-2 ml-3"
               key={logLine.line_number}
             >
-              {logLine.subtest}
-              <Collapse isOpen={detailsShowing}>
-                <Row className="ml-3">
-                  <div>{logLine.message}</div>
-                </Row>
-              </Collapse>
+              {detailsShowing ? (
+                <div className="pre-wrap text-break">
+                  {logLine.subtest}
+                  <Row className="ml-3">
+                    <div>{logLine.message}</div>
+                  </Row>
+                </div>
+              ) : (
+                <div className="pre-wrap text-break">
+                  {!!logLine.subtest && logLine.subtest.substr(0, 200)}
+                </div>
+              )}
             </Row>
           ))}
         <div>

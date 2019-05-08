@@ -5,3 +5,12 @@
 .pointable {
   cursor: pointer;
 }
+
+.pre-wrap {
+  white-space: pre-wrap;
+  max-width: 95%;
+}
+
+.table-fixed {
+  table-layout: fixed;
+}
