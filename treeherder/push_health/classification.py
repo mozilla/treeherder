@@ -6,7 +6,7 @@ def set_classifications(failures, intermittent_history, fixed_by_commit_history)
 
 def set_fixed_by_commit(failure, fixed_by_commit_history):
     # Not perfect, could have intermittent that is cause of fbc
-    if failure['testName'] in fixed_by_commit_history.keys():
+    if failure['testName'] in fixed_by_commit_history.keys() and not is_classified_intermittent(failure):
         failure['suggestedClassification'] = 'fixedByCommit'
         return True
     return False
@@ -37,11 +37,18 @@ def set_intermittent(failure, previous_failures):
     ):
         confidence = 50
 
+    if is_classified_intermittent(failure):
+        confidence = 100
+
     if confidence:
         failure['confidence'] = confidence
         failure['suggestedClassification'] = 'intermittent'
         return True
     return False
+
+
+def is_classified_intermittent(failure):
+    return all(job['failure_classification_id'] == 4 for job in failure['failJobs'])
 
 
 def get_log_lines(failure):
