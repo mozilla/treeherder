@@ -1,10 +1,8 @@
-const eslint = require('@neutrinojs/eslint');
-const react = require('@neutrinojs/react');
-const copy = require('@neutrinojs/copy');
-const jest = require('@neutrinojs/jest');
-
 // This is the configuration file for Neutrino, which configures webpack and Jest:
 // https://neutrinojs.org
+
+// `use strict` is still necessary here since this file is not treated as a module.
+'use strict'; // eslint-disable-line strict, lines-around-directive
 
 const BACKEND = process.env.BACKEND || 'https://treeherder.mozilla.org';
 
@@ -54,13 +52,15 @@ module.exports = {
   },
   use: [
     process.env.NODE_ENV === 'development' &&
-      eslint({
+      // eslint-disable-next-line global-require
+      require('@neutrinojs/eslint')({
         eslint: {
           // We manage our lint config in .eslintrc.js instead of here.
           useEslintrc: true,
         },
       }),
-    react({
+    // eslint-disable-next-line global-require
+    require('@neutrinojs/react')({
       devServer: {
         historyApiFallback: false,
         open: !process.env.MOZ_HEADLESS,
@@ -118,11 +118,13 @@ module.exports = {
         ],
       },
     }),
-    copy({
+    // eslint-disable-next-line global-require
+    require('@neutrinojs/copy')({
       patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
     }),
     process.env.NODE_ENV === 'test' &&
-      jest({
+      // eslint-disable-next-line global-require
+      require('@neutrinojs/jest')({
         setupFilesAfterEnv: ['<rootDir>/tests/ui/unit/test-setup.js'],
         // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
         moduleNameMapper: {
