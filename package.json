@@ -19,8 +19,8 @@
     "@fortawesome/free-regular-svg-icons": "5.8.2",
     "@fortawesome/free-solid-svg-icons": "5.8.2",
     "@fortawesome/react-fontawesome": "0.1.4",
-    "@neutrinojs/copy": "9.0.0-rc.1",
-    "@neutrinojs/react": "9.0.0-rc.1",
+    "@neutrinojs/copy": "9.0.0-rc.3",
+    "@neutrinojs/react": "9.0.0-rc.3",
     "@types/angular": "*",
     "@types/prop-types": "*",
     "@types/react": "*",
@@ -46,7 +46,7 @@
     "metrics-graphics": "2.15.6",
     "moment": "2.24.0",
     "mousetrap": "1.6.3",
-    "neutrino": "9.0.0-rc.1",
+    "neutrino": "9.0.0-rc.3",
     "ng-text-truncate-2": "1.0.1",
     "numeral": "2.0.6",
     "popper.js": "1.15.0",
@@ -74,8 +74,8 @@
     "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.31.0",
     "webpack-cli": "3.3.2",
-    "@neutrinojs/eslint": "9.0.0-rc.1",
-    "@neutrinojs/jest": "9.0.0-rc.1"
+    "@neutrinojs/eslint": "9.0.0-rc.3",
+    "@neutrinojs/jest": "9.0.0-rc.3"
   },
   "devDependencies": {
     "enzyme": "3.9.0",
