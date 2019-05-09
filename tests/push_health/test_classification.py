@@ -8,7 +8,7 @@ def test_intermittent_win7_reftest():
     failures = [
         {
             'testName': 'foo',
-            'failureLines': [],
+            'failJobs': [],
             'jobName': 'Foodebug-reftest',
             'platform': 'windows7-32',
             'suggestedClassification': 'New Failure',
@@ -20,18 +20,20 @@ def test_intermittent_win7_reftest():
     assert failures[0]['suggestedClassification'] == 'intermittent'
 
 
-@pytest.mark.parametrize(('history', 'confidence', 'classification'), [
-    ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent'),
-    ({'foo': {'bing': {'bee': 2}}}, 75, 'intermittent'),
-    ({'foo': {'bee': {'bee': 2}}}, 50, 'intermittent'),
-    ({'fee': {'bee': {'bee': 2}}}, 0, 'New Failure'),
+@pytest.mark.parametrize(('history', 'confidence', 'classification', 'fcid'), [
+    ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent', 1),
+    ({'foo': {'bing': {'bee': 2}}}, 75, 'intermittent', 1),
+    ({'foo': {'bee': {'bee': 2}}}, 50, 'intermittent', 1),
+    ({'fee': {'bee': {'bee': 2}}}, 0, 'New Failure', 1),
+    # no match, but job has been classified as intermittent by hand.
+    ({'fee': {'bee': {'bee': 2}}}, 100, 'intermittent', 4),
 ])
-def test_intermittent_confidence(history, confidence, classification):
+def test_intermittent_confidence(history, confidence, classification, fcid):
     """test that a failed test is classified as intermittent, confidence 100"""
     failures = [
         {
             'testName': 'foo',
-            'failureLines': [],
+            'failJobs': [{'failure_classification_id': fcid}],
             'jobName': 'bar',
             'platform': 'bing',
             'suggestedClassification': 'New Failure',
