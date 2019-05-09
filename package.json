@@ -73,11 +73,11 @@
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.30.0",
-    "webpack-cli": "3.3.2"
+    "webpack-cli": "3.3.2",
+    "@neutrinojs/eslint": "9.0.0-rc.1",
+    "@neutrinojs/jest": "9.0.0-rc.1"
   },
   "devDependencies": {
-    "@neutrinojs/eslint": "9.0.0-rc.1",
-    "@neutrinojs/jest": "9.0.0-rc.1",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.12.1",
     "eslint": "5.16.0",
