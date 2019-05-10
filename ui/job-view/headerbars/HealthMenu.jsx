@@ -1,48 +1,45 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Label } from 'reactstrap';
+import { Dropdown, DropdownToggle } from 'reactstrap';
+
+import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 export const PUSH_HEALTH_VISIBILITY = 'pushHealthVisibility';
 
 class HealthMenu extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      dropdownOpen: false,
+    };
+  }
+
+  toggle = () => {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen,
+    }));
+  };
+
   render() {
     const { pushHealthVisibility, setPushHealthVisibility } = this.props;
+    const { dropdownOpen } = this.state;
 
     return (
-      <span className="dropdown">
-        <span
-          id="healthLabel"
-          role="button"
+      <Dropdown isOpen={dropdownOpen} toggle={this.toggle}>
+        <DropdownToggle
+          caret
           title="Change visibility of the Push Health badge/link"
-          data-toggle="dropdown"
           className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
         >
           Health
-        </span>
-        <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
-          {['All', 'Try', 'None'].map(option => {
-            return (
-              <li key={option}>
-                <div>
-                  <Label
-                    title={`Add Push Health badge to ${option} repo(s)`}
-                    className="dropdown-item"
-                  >
-                    <input
-                      id="health-checkbox"
-                      type="checkbox"
-                      className="mousetrap"
-                      checked={pushHealthVisibility === option}
-                      onChange={() => setPushHealthVisibility(option)}
-                    />
-                    {option}
-                  </Label>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </span>
+        </DropdownToggle>
+        <DropdownMenuItems
+          options={['All', 'Try', 'None']}
+          updateData={setPushHealthVisibility}
+          selectedItem={pushHealthVisibility}
+        />
+      </Dropdown>
     );
   }
 }
