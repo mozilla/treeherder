@@ -21,6 +21,7 @@ import { PinnedJobs } from './context/PinnedJobs';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
+import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
@@ -71,6 +72,8 @@ class App extends React.Component {
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
+      pushHealthVisibility:
+        localStorage.getItem(PUSH_HEALTH_VISIBILITY) || 'None',
     };
   }
 
@@ -100,6 +103,7 @@ class App extends React.Component {
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('hashchange', this.handleUrlChanges, false);
+    window.addEventListener('storage', this.handleStorageEvent);
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then(revision => {
@@ -141,6 +145,7 @@ class App extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
+    window.removeEventListener('storage', this.handleUrlChanges, false);
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -161,6 +166,19 @@ class App extends React.Component {
       defaultDetailsHeight,
     };
   }
+
+  handleStorageEvent = e => {
+    if (e.key === PUSH_HEALTH_VISIBILITY) {
+      this.setState({
+        pushHealthVisibility: localStorage.getItem(PUSH_HEALTH_VISIBILITY),
+      });
+    }
+  };
+
+  setPushHealthVisibility = visibility => {
+    localStorage.setItem(PUSH_HEALTH_VISIBILITY, visibility);
+    this.setState({ pushHealthVisibility: visibility });
+  };
 
   setUser = user => {
     this.setState({ user });
@@ -256,6 +274,7 @@ class App extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       showShortCuts,
+      pushHealthVisibility,
     } = this.state;
 
     // SplitPane will adjust the CSS height of the top component, but not the
@@ -301,6 +320,8 @@ class App extends React.Component {
                     duplicateJobsVisible={duplicateJobsVisible}
                     groupCountsExpanded={groupCountsExpanded}
                     toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                    pushHealthVisibility={pushHealthVisibility}
+                    setPushHealthVisibility={this.setPushHealthVisibility}
                   />
                   <SplitPane
                     split="horizontal"
@@ -334,6 +355,7 @@ class App extends React.Component {
                             filterModel={filterModel}
                             duplicateJobsVisible={duplicateJobsVisible}
                             groupCountsExpanded={groupCountsExpanded}
+                            pushHealthVisibility={pushHealthVisibility}
                           />
                         </span>
                       </div>

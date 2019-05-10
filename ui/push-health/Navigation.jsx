@@ -4,6 +4,7 @@ import { Navbar } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';
+import SimpleTooltip from '../shared/SimpleTooltip';
 
 export default class Navigation extends React.PureComponent {
   render() {
@@ -12,12 +13,20 @@ export default class Navigation extends React.PureComponent {
     return (
       <Navbar dark color="dark">
         <LogoMenu menuText="Push Health" />
-        <span
-          title="This data is for UI prototyping purposes only"
-          className="text-white"
-        >
-          [---PROTOTYPE---]
-        </span>
+        <SimpleTooltip
+          text="[---PROTOTYPE---]"
+          textClass="text-white"
+          placement="bottom"
+          tooltipText={
+            <div>
+              This prototype is still in-progress. The section on `Tests` has
+              been implemented, but Linting, Coverage, Builds, etc are not. You
+              will notice in Treeherder that the status may say `OK` for a push
+              that has failed Builds or linting. These features will be updated
+              in the weeks to come.
+            </div>
+          }
+        />
         <Login user={user} setUser={setUser} />
       </Navbar>
     );

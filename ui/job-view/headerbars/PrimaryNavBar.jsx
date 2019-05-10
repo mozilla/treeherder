@@ -13,6 +13,7 @@ import TiersMenu from './TiersMenu';
 import FiltersMenu from './FiltersMenu';
 import HelpMenu from './HelpMenu';
 import SecondaryNavBar from './SecondaryNavBar';
+import HealthMenu from './HealthMenu';
 
 export default class PrimaryNavBar extends React.Component {
   shouldComponentUpdate(prevProps) {
@@ -23,6 +24,7 @@ export default class PrimaryNavBar extends React.Component {
       serverChanged,
       groupCountsExpanded,
       duplicateJobsVisible,
+      pushHealthVisibility,
     } = this.props;
 
     return (
@@ -31,7 +33,8 @@ export default class PrimaryNavBar extends React.Component {
       !isEqual(prevProps.repos, repos) ||
       prevProps.serverChanged !== serverChanged ||
       prevProps.groupCountsExpanded !== groupCountsExpanded ||
-      prevProps.duplicateJobsVisible !== duplicateJobsVisible
+      prevProps.duplicateJobsVisible !== duplicateJobsVisible ||
+      prevProps.pushHealthVisibility !== pushHealthVisibility
     );
   }
 
@@ -47,6 +50,8 @@ export default class PrimaryNavBar extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       toggleFieldFilterVisible,
+      pushHealthVisibility,
+      setPushHealthVisibility,
     } = this.props;
 
     return (
@@ -61,6 +66,10 @@ export default class PrimaryNavBar extends React.Component {
                 <ReposMenu repos={repos} />
                 <TiersMenu filterModel={filterModel} />
                 <FiltersMenu filterModel={filterModel} user={user} />
+                <HealthMenu
+                  pushHealthVisibility={pushHealthVisibility}
+                  setPushHealthVisibility={setPushHealthVisibility}
+                />
                 <HelpMenu />
                 <Login user={user} setUser={setUser} />
               </span>
@@ -93,4 +102,6 @@ PrimaryNavBar.propTypes = {
   user: PropTypes.object.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
+  pushHealthVisibility: PropTypes.string.isRequired,
+  setPushHealthVisibility: PropTypes.func.isRequired,
 };

@@ -131,6 +131,12 @@ export default class PushModel {
     );
   }
 
+  static getHealthSummary(repoName, pushId) {
+    return getData(
+      getProjectUrl(`${pushEndpoint}${pushId}/health_summary/`, repoName),
+    );
+  }
+
   static getDecisionTaskId(pushId) {
     const map = PushModel.getDecisionTaskMap([pushId]);
 
