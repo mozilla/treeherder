@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies, global-require */
+
 // This is the configuration file for Neutrino, which configures webpack and Jest:
 // https://neutrinojs.org
 
@@ -52,14 +54,12 @@ module.exports = {
   },
   use: [
     process.env.NODE_ENV === 'development' &&
-      // eslint-disable-next-line global-require
       require('@neutrinojs/eslint')({
         eslint: {
           // We manage our lint config in .eslintrc.js instead of here.
           useEslintrc: true,
         },
       }),
-    // eslint-disable-next-line global-require
     require('@neutrinojs/react')({
       devServer: {
         historyApiFallback: false,
@@ -118,12 +118,10 @@ module.exports = {
         ],
       },
     }),
-    // eslint-disable-next-line global-require
     require('@neutrinojs/copy')({
       patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
     }),
     process.env.NODE_ENV === 'test' &&
-      // eslint-disable-next-line global-require
       require('@neutrinojs/jest')({
         setupFilesAfterEnv: ['<rootDir>/tests/ui/unit/test-setup.js'],
         // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
