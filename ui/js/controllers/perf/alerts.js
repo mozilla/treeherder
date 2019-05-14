@@ -359,6 +359,7 @@ perf.controller('AlertsCtrl', [
         $scope.alertSummaryCount = 0;
         $scope.alertSummaryCurrentPage = 1;
         $scope.alertSummaryPageSize = 10;
+        // TODO remove
         $scope.getAlertSummariesPage = function () {
             getAlertSummaries({
                 page: $scope.alertSummaryCurrentPage,

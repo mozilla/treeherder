@@ -1,7 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
-import { Alert, Container } from 'reactstrap';
+import {
+  Alert,
+  Container,
+  Row,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
@@ -31,20 +38,14 @@ export class AlertsView extends React.Component {
       issueTrackers: [],
       loading: false,
       optionCollectionMap: null,
+      count: 0,
+      id: this.validated.id,
     };
   }
 
-  // TODO need to add alert validation to Validation component
-  // if ($stateParams.id) {
-  //   $scope.alertId = $stateParams.id;
-  //   getAlertSummary($stateParams.id).then(
-  //       function (data) {
-  //           addAlertSummaries([data], null);
-  //       });
   componentDidMount() {
     this.fetchAlertSummaries();
   }
-  // TODO send data to tableControls to filter summaries
 
   getDefaultStatus = () => {
     const { validated } = this.props;
@@ -60,7 +61,6 @@ export class AlertsView extends React.Component {
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
-    // TODO fetch new data
     this.setState({ framework }, () => this.fetchAlertSummaries());
   };
 
@@ -71,25 +71,54 @@ export class AlertsView extends React.Component {
     this.setState({ status }, () => this.fetchAlertSummaries());
   };
 
+  navigatePage = page => {
+    const { framework, status } = this.state;
+    this.props.$state.go('alerts', {
+      page,
+      framework: framework.id,
+      status: alertSummaryStatus[status],
+    });
+  };
+
+  generatePages = (page, count) => {
+    const pages = [];
+    if (page < count) {
+      for (let num = page; num < page + 5; num++) {
+        pages.push(num);
+      }
+    }
+    return pages;
+  };
+
   // TODO potentially pass as a prop for testing purposes
-  async fetchAlertSummaries() {
+  async fetchAlertSummaries(page = this.state.page) {
     this.setState({ loading: true });
+
     const {
       framework,
       status,
-      page,
       errorMessages,
       issueTrackers,
       optionCollectionMap,
+      id,
     } = this.state;
+
     let updates = { loading: false };
+    const params = {
+      framework: framework.id,
+      page,
+    };
+
+    if (id) params.id = id;
+    if (alertSummaryStatus[status] !== -1) {
+      // -1 ('all') is created for UI purposes but is not a valid API parameter
+      params.status = alertSummaryStatus[status];
+    }
+
     const url = getApiUrl(
-      `${endpoints.alertSummary}${createQueryParams({
-        framework: framework.id,
-        status: alertSummaryStatus[status],
-        page,
-      })}`,
+      `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
+
     // TODO OptionCollectionModel to use getData wrapper
     if (!issueTrackers.length && !optionCollectionMap) {
       const [optionCollectionMap, issueTrackers] = await Promise.all([
@@ -107,9 +136,13 @@ export class AlertsView extends React.Component {
     const response = processResponse(data, 'alertSummaries', errorMessages);
 
     if (response.alertSummaries) {
+      const summary = response.alertSummaries;
       updates = {
         ...updates,
-        ...{ alertSummaries: response.alertSummaries.results },
+        ...{
+          alertSummaries: summary.results,
+          count: Math.round(summary.count / 10),
+        },
       };
     } else {
       updates = { ...updates, ...response };
@@ -127,6 +160,8 @@ export class AlertsView extends React.Component {
       alertSummaries,
       issueTrackers,
       optionCollectionMap,
+      page,
+      count,
     } = this.state;
     const { frameworks } = validated;
 
@@ -145,6 +180,8 @@ export class AlertsView extends React.Component {
         updateData: this.updateFramework,
       },
     ];
+
+    const pageNums = this.generatePages(page, count);
 
     return (
       <Container fluid className="pt-5 max-width-default">
@@ -190,6 +227,40 @@ export class AlertsView extends React.Component {
             ))
           }
         />
+        {pageNums.length > 0 && (
+          <Row className="justify-content-center pb-5">
+            <Pagination aria-label={`Page ${page}`}>
+              {page > 1 && (
+                <PaginationItem>
+                  <PaginationLink
+                    className="text-info"
+                    previous
+                    onClick={() => this.navigatePage(page - 1)}
+                  />
+                </PaginationItem>
+              )}
+              {pageNums.map(page => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    className="text-info"
+                    onClick={() => this.navigatePage(page)}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              {page < count && (
+                <PaginationItem>
+                  <PaginationLink
+                    className="text-info"
+                    next
+                    onClick={() => this.navigatePage(page + 1)}
+                  />
+                </PaginationItem>
+              )}
+            </Pagination>
+          </Row>
+        )}
       </Container>
     );
   }
@@ -197,7 +268,9 @@ export class AlertsView extends React.Component {
 
 AlertsView.propTypes = {
   $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({}),
+  $state: PropTypes.shape({
+    go: PropTypes.func,
+  }),
   user: PropTypes.shape({}).isRequired,
   validated: PropTypes.shape({
     projects: PropTypes.arrayOf(PropTypes.shape({})),

@@ -41,9 +41,8 @@
   <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible"> -->
     <!-- <alert-table alert-summary="alertSummary" user="user" repos="repos" alert-summaries="alertSummaries"></alert-table> -->
     <!-- <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
-      <div ng-show="anySelected(alertSummary.alerts)">
-        <alert-controls alert-summary="alertSummary" is-alert-selected="isAlertSelected" alert-summaries="alertSummaries" update-alert-visibility="updateAlertVisibility"></alert-controls>       
-          
+
+      <div ng-show="anySelected(alertSummary.alerts)">          
         <button ng-if="anySelectedAndTriaged(alertSummary.alerts)" class="btn btn-warning" role="button"
                 ng-click="resetAlerts(alertSummary)" title="Reset selected alerts to untriaged">
           Reset

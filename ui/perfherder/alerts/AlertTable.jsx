@@ -16,10 +16,7 @@ import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
-
-// TODO
-// * if there are no alerts after filtering, that alertSummaryTable should not be shown
-// and it shouldn't be shown if there aren't actually any alerts
+import AlertTableControls from './AlertTableControls';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -28,6 +25,8 @@ export default class AlertTable extends React.Component {
       alertSummary: null,
       downstreamIds: [],
       filteredAlerts: [],
+      selectAlertSummary: false,
+      selectedAlerts: [],
     };
   }
 
@@ -82,16 +81,17 @@ export default class AlertTable extends React.Component {
     this.setState({ downstreamIds });
   };
 
-  selectAlerts = () => {
-    const { alertSummary: oldAlertSummary } = this.state;
-    const alertSummary = { ...oldAlertSummary };
-    alertSummary.allSelected = !alertSummary.allSelected;
+  // selectAlerts = () => {
 
-    alertSummary.alerts.forEach(function selectAlerts(alert) {
-      alert.selected = alert.visible && alertSummary.allSelected;
-    });
-    this.setState({ alertSummary });
-  };
+  // const { alertSummary: oldAlertSummary } = this.state;
+  // const alertSummary = { ...oldAlertSummary };
+  // alertSummary.allSelected = !alertSummary.allSelected;
+
+  // alertSummary.alerts.forEach(function selectAlerts(alert) {
+  //   alert.selected = alert.visible && alertSummary.allSelected;
+  // });
+  // this.setState({ alertSummary });
+  // };
 
   // TODO move to alertTableRow
   getTimeRange = () => {
@@ -154,7 +154,13 @@ export default class AlertTable extends React.Component {
 
   render() {
     const { user, validated, alertSummaries, issueTrackers } = this.props;
-    const { alertSummary, downstreamIds, filteredAlerts } = this.state;
+    const {
+      alertSummary,
+      downstreamIds,
+      filteredAlerts,
+      selectAlertSummary,
+      selectedAlerts,
+    } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
     const repo = alertSummary
@@ -179,7 +185,7 @@ export default class AlertTable extends React.Component {
                           <Input
                             type="checkbox"
                             disabled={!user.isStaff}
-                            onClick={this.selectAlerts}
+                            onClick={() => this.setState({ selectAlertSummary: !selectAlertSummary })}
                           />
                           <AlertHeader
                             alertSummary={alertSummary}
@@ -244,6 +250,17 @@ export default class AlertTable extends React.Component {
                           text={alertSummary.notes}
                           showMoreClass="text-info"
                         />
+                      </td>
+                    </tr>
+                  )}
+                  {/* add "card-body button-panel" class to tr? */}
+                  {(selectAlertSummary || selectedAlerts.length > 0) && (
+                    <tr className="border">
+                      <td
+                        colSpan="9"
+                        className="max-width-row-text text-left text-muted pl-3 py-4"
+                      >
+                        <AlertTableControls selectedAlerts={selectedAlerts} />
                       </td>
                     </tr>
                   )}

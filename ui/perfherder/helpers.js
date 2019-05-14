@@ -414,7 +414,7 @@ export const getSubtestsURL = (alert, alertSummary) => {
 
 const modifyAlert = (alert, modification) =>
   update(getApiUrl(`/performance/alert/${alert.id}/`), modification);
-
+// TODO remove
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
 
