@@ -9,7 +9,7 @@ import { getApiUrl, repoEndpoint } from '../helpers/url';
 import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
 
-import { endpoints } from './constants';
+import { endpoints, summaryStatusMap } from './constants';
 
 // TODO once we switch to react-router
 // 1) use context in this HOC to share state between compare views, by wrapping router component in it;
@@ -73,6 +73,15 @@ const withValidation = (
 
     errorMessage = (param, value) => `${param} ${value} is not valid`;
 
+    findParam = (param, value, list, errors) => {
+      const valid = list.find(item => item.name || item === value);
+
+      if (valid === undefined) {
+        errors.push(this.errorMessage(param, value));
+      }
+      return errors;
+    };
+
     async checkRevisions(params) {
       if (!params.originalRevision) {
         const newResultResponse = await this.verifyRevision(
@@ -127,7 +136,7 @@ const withValidation = (
 
     validateParams(params) {
       const { projects, frameworks } = this.state;
-      const errors = [];
+      let errors = [];
 
       for (const [param, value] of Object.entries(params)) {
         if (!value && requiredParams.has(param)) {
@@ -141,21 +150,20 @@ const withValidation = (
         }
 
         if (param.indexOf('Project') !== -1 && projects.length) {
-          const validProject = projects.find(project => project.name === value);
-
-          if (!validProject) {
-            errors.push(this.errorMessage(param, value));
-          }
+          errors = this.findParam(param, value, projects, errors);
         }
 
         if (param === 'framework' && value && frameworks.length) {
-          const validFramework = frameworks.find(
-            item => item.id === parseInt(value, 10),
-          );
+          errors = this.findParam(param, value, frameworks, errors);
+        }
 
-          if (!validFramework) {
-            errors.push(this.errorMessage(param, value));
-          }
+        if (param === 'status' && value) {
+          errors = this.findParam(
+            param,
+            parseInt(value, 10),
+            Object.values(summaryStatusMap),
+            errors,
+          );
         }
       }
 

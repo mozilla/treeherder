@@ -15,13 +15,6 @@ export default class AlertsViewControls extends React.Component {
     };
   }
 
-  updateFilter = filter => {
-    this.setState(
-      prevState => ({ [filter]: !prevState[filter] }),
-      () => this.updateFilteredResults(),
-    );
-  };
-
   render() {
     const { hideImprovements, hideDownstream } = this.state;
     const { dropdownOptions, render } = this.props;

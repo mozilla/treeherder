@@ -21,11 +21,12 @@ export const filterText = {
 
 export const noDataFoundMessage = 'No Data Found';
 
-export const alertSummaryStatus = {
+export const summaryStatusMap = {
   all: -1,
   untriaged: 0,
   downstream: 1,
-  reassigned: 2,
+  // Is in the performance_alert_summary model but doesn't appear to be a valid status
+  // reassigned: 2,
   invalid: 3,
   improvement: 4,
   investigating: 5,
@@ -35,7 +36,7 @@ export const alertSummaryStatus = {
   confirming: 9,
 };
 
-export const alertStatus = {
+export const alertStatusMap = {
   untriaged: 0,
   downstream: 1,
   reassigned: 2,

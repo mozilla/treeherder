@@ -316,11 +316,10 @@ th {
   color: #23527c;
 }
 
-.button-panel {
+.sticky-footer {
   position: sticky;
   bottom: 0;
-  z-index: 1030;
-  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 900;
 }
 
 .alerts-container {

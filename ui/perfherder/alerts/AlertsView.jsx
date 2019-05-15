@@ -15,11 +15,16 @@ import { faCog } from '@fortawesome/free-solid-svg-icons';
 import perf from '../../js/perf';
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
-import { alertSummaryStatus, endpoints } from '../constants';
+import { summaryStatusMap, endpoints } from '../constants';
 import { createQueryParams, getApiUrl } from '../../helpers/url';
 import { getData, processResponse } from '../../helpers/http';
 import ErrorMessages from '../../shared/ErrorMessages';
 import OptionCollectionModel from '../../models/optionCollection';
+import {
+  genericErrorMessage,
+  errorMessageClass,
+} from '../../helpers/constants';
+import ErrorBoundary from '../../shared/ErrorBoundary';
 
 import AlertsViewControls from './AlertsViewControls';
 import AlertTable from './AlertTable';
@@ -40,6 +45,8 @@ export class AlertsView extends React.Component {
       optionCollectionMap: null,
       count: 0,
       id: this.validated.id,
+      filteredResults: [],
+      bugTemplate: null,
     };
   }
 
@@ -51,7 +58,7 @@ export class AlertsView extends React.Component {
     const { validated } = this.props;
     const statusParam = convertParams(validated, 'status');
     if (!statusParam) {
-      return Object.keys(alertSummaryStatus)[1];
+      return Object.keys(summaryStatusMap)[1];
     }
     return getStatus(parseInt(validated.status, 10));
   };
@@ -61,13 +68,14 @@ export class AlertsView extends React.Component {
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
-    this.setState({ framework }, () => this.fetchAlertSummaries());
+    this.setState({ framework, bugTemplate: null }, () =>
+      this.fetchAlertSummaries(),
+    );
   };
 
   updateStatus = status => {
-    const statusId = alertSummaryStatus[status];
+    const statusId = summaryStatusMap[status];
     this.props.validated.updateParams({ status: statusId });
-    // TODO fetch new data, use statusId as param
     this.setState({ status }, () => this.fetchAlertSummaries());
   };
 
@@ -76,7 +84,7 @@ export class AlertsView extends React.Component {
     this.props.$state.go('alerts', {
       page,
       framework: framework.id,
-      status: alertSummaryStatus[status],
+      status: summaryStatusMap[status],
     });
   };
 
@@ -91,8 +99,9 @@ export class AlertsView extends React.Component {
   };
 
   // TODO potentially pass as a prop for testing purposes
-  async fetchAlertSummaries(page = this.state.page) {
-    this.setState({ loading: true });
+  async fetchAlertSummaries(id = this.state.id, update = false) {
+    // turn off loading when update is true (used to update alert statuses)
+    this.setState({ loading: !update, errorMessages: [], filteredResults: [] });
 
     const {
       framework,
@@ -100,19 +109,26 @@ export class AlertsView extends React.Component {
       errorMessages,
       issueTrackers,
       optionCollectionMap,
-      id,
+      alertSummaries,
+      count,
+      page,
     } = this.state;
 
     let updates = { loading: false };
-    const params = {
-      framework: framework.id,
-      page,
-    };
+    let params;
 
-    if (id) params.id = id;
-    if (alertSummaryStatus[status] !== -1) {
+    if (id) {
+      params = { id };
+    } else {
+      params = {
+        framework: framework.id,
+        page,
+      };
+    }
+
+    if (!id && summaryStatusMap[status] !== -1) {
       // -1 ('all') is created for UI purposes but is not a valid API parameter
-      params.status = alertSummaryStatus[status];
+      params.status = summaryStatusMap[status];
     }
 
     const url = getApiUrl(
@@ -137,16 +153,25 @@ export class AlertsView extends React.Component {
 
     if (response.alertSummaries) {
       const summary = response.alertSummaries;
+
+      if (update) {
+        const index = alertSummaries.findIndex(
+          item => item.id === summary.results[0].id,
+        );
+
+        alertSummaries.splice(index, 1, summary.results[0]);
+      }
       updates = {
         ...updates,
         ...{
-          alertSummaries: summary.results,
-          count: Math.round(summary.count / 10),
+          alertSummaries: update ? alertSummaries : summary.results,
+          count: update ? count : Math.round(summary.count / 10),
         },
       };
     } else {
       updates = { ...updates, ...response };
     }
+
     this.setState(updates);
   }
 
@@ -162,6 +187,8 @@ export class AlertsView extends React.Component {
       optionCollectionMap,
       page,
       count,
+      filteredResults,
+      bugTemplate,
     } = this.state;
     const { frameworks } = validated;
 
@@ -170,7 +197,7 @@ export class AlertsView extends React.Component {
 
     const alertDropdowns = [
       {
-        options: Object.keys(alertSummaryStatus),
+        options: Object.keys(summaryStatusMap),
         selectedItem: status,
         updateData: this.updateStatus,
       },
@@ -180,88 +207,102 @@ export class AlertsView extends React.Component {
         updateData: this.updateFramework,
       },
     ];
-
+    // this is not strictly accurate since we have no way of knowing the final count
+    // until the results are filtered (and we're only retrieving 10 results at a time)
     const pageNums = this.generatePages(page, count);
 
     return (
-      <Container fluid className="pt-5 max-width-default">
-        {loading && (
-          <div className="loading">
-            <FontAwesomeIcon
-              icon={faCog}
-              size="4x"
-              spin
-              title="loading page, please wait"
-            />
-          </div>
-        )}
-
-        {errorMessages.length > 0 && (
-          <Container className="pt-5 max-width-default">
-            <ErrorMessages errorMessages={errorMessages} />
-          </Container>
-        )}
-
-        {!user.isStaff && (
-          <Alert color="info">
-            You must be logged into perfherder/treeherder and be a sheriff to
-            make changes
-          </Alert>
-        )}
-        <AlertsViewControls
-          validated={validated}
-          dropdownOptions={alertDropdowns}
-          render={state =>
-            alertSummaries.length > 0 &&
-            alertSummaries.map(alertSummary => (
-              <AlertTable
-                filters={state}
-                key={alertSummary.id}
-                alertSummary={alertSummary}
-                user={user}
-                alertSummaries={alertSummaries}
-                issueTrackers={issueTrackers}
-                {...this.props}
-                optionCollectionMap={optionCollectionMap}
+      <ErrorBoundary
+        errorClasses={errorMessageClass}
+        message={genericErrorMessage}
+      >
+        <Container fluid className="pt-5 max-width-default">
+          {loading && (
+            <div className="loading">
+              <FontAwesomeIcon
+                icon={faCog}
+                size="4x"
+                spin
+                title="loading page, please wait"
               />
-            ))
-          }
-        />
-        {pageNums.length > 0 && (
-          <Row className="justify-content-center pb-5">
-            <Pagination aria-label={`Page ${page}`}>
-              {page > 1 && (
-                <PaginationItem>
-                  <PaginationLink
-                    className="text-info"
-                    previous
-                    onClick={() => this.navigatePage(page - 1)}
-                  />
-                </PaginationItem>
-              )}
-              {pageNums.map(page => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    className="text-info"
-                    onClick={() => this.navigatePage(page)}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              {page < count && (
-                <PaginationItem>
-                  <PaginationLink
-                    className="text-info"
-                    next
-                    onClick={() => this.navigatePage(page + 1)}
-                  />
-                </PaginationItem>
-              )}
-            </Pagination>
-          </Row>
-        )}
-      </Container>
+            </div>
+          )}
+
+          {errorMessages.length > 0 && (
+            <Container className="pt-5 px-0 max-width-default">
+              <ErrorMessages errorMessages={errorMessages} />
+            </Container>
+          )}
+
+          {!user.isStaff && (
+            <Alert color="info">
+              You must be logged into perfherder/treeherder and be a sheriff to
+              make changes
+            </Alert>
+          )}
+          <AlertsViewControls
+            validated={validated}
+            dropdownOptions={alertDropdowns}
+            render={state =>
+              alertSummaries.length > 0 &&
+              alertSummaries.map(alertSummary => (
+                <AlertTable
+                  filters={state}
+                  key={alertSummary.id}
+                  alertSummary={alertSummary}
+                  user={user}
+                  alertSummaries={alertSummaries}
+                  issueTrackers={issueTrackers}
+                  {...this.props}
+                  optionCollectionMap={optionCollectionMap}
+                  fetchAlertSummaries={id => this.fetchAlertSummaries(id, true)}
+                  updateViewState={state => this.setState(state)}
+                  filteredResults={filteredResults}
+                  bugTemplate={bugTemplate}
+                />
+              ))
+            }
+          />
+          {pageNums.length > 0 && filteredResults.length > 0 && (
+            <Row className="justify-content-center pb-5">
+              <Pagination aria-label={`Page ${page}`}>
+                {page > 1 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      className="text-info"
+                      previous
+                      onClick={() => this.navigatePage(page - 1)}
+                    />
+                  </PaginationItem>
+                )}
+                {pageNums.map(page => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      className="text-info"
+                      onClick={() => this.navigatePage(page)}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {page < count && (
+                  <PaginationItem>
+                    <PaginationLink
+                      className="text-info"
+                      next
+                      onClick={() => this.navigatePage(page + 1)}
+                    />
+                  </PaginationItem>
+                )}
+              </Pagination>
+            </Row>
+          )}
+          {!loading &&
+            (alertSummaries.length === 0 || filteredResults.length === 0) && (
+              <p className="lead text-center">No alerts to show</p>
+            )}
+        </Container>
+      </ErrorBoundary>
     );
   }
 }

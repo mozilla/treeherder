@@ -72,3 +72,13 @@ export const processResponse = (response, state, errorMessages) => {
   }
   return { [state]: data };
 };
+
+export const processErrors = responses => {
+  const errorMessages = [];
+  responses.forEach(response => {
+    if (response.failureStatus) {
+      errorMessages.push(response.data);
+    }
+  });
+  return errorMessages;
+};

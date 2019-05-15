@@ -5,6 +5,9 @@ import {
   DropdownMenu,
   DropdownItem,
   DropdownToggle,
+  Col,
+  Label,
+  Input,
 } from 'reactstrap';
 import moment from 'moment';
 import template from 'lodash/template';
@@ -18,9 +21,9 @@ import {
 } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
-import { endpoints, alertSummaryStatus } from '../constants';
+import { endpoints, summaryStatusMap } from '../constants';
 
-import BugModal from './BugModal';
+import AlertModal from './AlertModal';
 import NotesModal from './NotesModal';
 
 export default class StatusDropdown extends React.Component {
@@ -29,52 +32,66 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
+      selectedValue: this.props.issueTrackers[0].text,
     };
   }
 
   fileBug = async () => {
-    const { alertSummary, repoModel } = this.props;
-    // TODO it seems like it'd make more sense to fetch this once and customize/cache it for future use rather than
-    // fetching this template each time someone clicks on 'file bug' - regardless of test framework
-    const { data, failureStatus } = await getData(
-      getApiUrl(
-        `/performance/bug-template/?framework=${alertSummary.framework}`,
-      ),
-    );
-    if (!failureStatus) {
-      const result = data[0];
-      const templateArgs = {
-        revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-        alertHref: `${window.location.origin}/perf.html#/alerts?id=${
-          alertSummary.id
-        }`,
-        alertSummary: getTextualSummary(alertSummary),
-      };
+    const {
+      alertSummary,
+      repoModel,
+      bugTemplate,
+      updateViewState,
+    } = this.props;
+    let result = bugTemplate;
 
-      templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-      const fillTemplate = template(result.text);
-      const commentText = fillTemplate(templateArgs);
-
-      const pushDate = moment(alertSummary.push_timestamp * 1000).format(
-        'ddd MMMM D YYYY',
+    if (!result) {
+      const { data, failureStatus } = await getData(
+        getApiUrl(
+          `/performance/bug-template/?framework=${alertSummary.framework}`,
+        ),
       );
-
-      const bugTitle = `${getTitle(alertSummary)} regression on push ${
-        alertSummary.revision
-      } (${pushDate})`;
-
-      window.open(
-        `${bzBaseUrl}/enter_bug.cgi?${createQueryParams({
-          cc: result.cc_list,
-          comment: commentText,
-          component: result.default_component,
-          product: result.default_product,
-          keywords: result.keywords,
-          short_desc: bugTitle,
-          status_whiteboard: result.status_whiteboard,
-        })}`,
-      );
+      if (failureStatus) {
+        updateViewState({
+          errorMessages: [`Failed to retrieve bug template: ${data}`],
+        });
+      } else {
+        [result] = data;
+        updateViewState({ bugTemplate: result });
+      }
     }
+
+    const templateArgs = {
+      revisionHref: repoModel.getPushLogHref(alertSummary.revision),
+      alertHref: `${window.location.origin}/perf.html#/alerts?id=${
+        alertSummary.id
+      }`,
+      alertSummary: getTextualSummary(alertSummary),
+    };
+
+    templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+    const fillTemplate = template(result.text);
+    const commentText = fillTemplate(templateArgs);
+
+    const pushDate = moment(alertSummary.push_timestamp * 1000).format(
+      'ddd MMMM D YYYY',
+    );
+
+    const bugTitle = `${getTitle(alertSummary)} regression on push ${
+      alertSummary.revision
+    } (${pushDate})`;
+
+    window.open(
+      `${bzBaseUrl}/enter_bug.cgi?${createQueryParams({
+        cc: result.cc_list,
+        comment: commentText,
+        component: result.default_component,
+        product: result.default_product,
+        keywords: result.keywords,
+        short_desc: bugTitle,
+        status_whiteboard: result.status_whiteboard,
+      })}`,
+    );
   };
 
   copySummary = () => {
@@ -97,13 +114,20 @@ export default class StatusDropdown extends React.Component {
   };
 
   changeAlertSummary = async params => {
-    const { alertSummary, updateState } = this.props;
-    // TODO error handling
-    await update(
+    const { alertSummary, updateState, updateViewState } = this.props;
+
+    const { data, failureStatus } = await update(
       getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
       params,
     );
-    updateState({ ...alertSummary, ...params });
+    if (failureStatus) {
+      return updateViewState({
+        errorMessages: [
+          `Failed to update alert summary ${alertSummary.id}: ${data}`,
+        ],
+      });
+    }
+    updateState({ alertSummary: data });
   };
 
   isResolved = alertStatus =>
@@ -117,19 +141,47 @@ export default class StatusDropdown extends React.Component {
 
   render() {
     const { alertSummary, user, issueTrackers } = this.props;
-    const { showBugModal, showNotesModal } = this.state;
+    const { showBugModal, showNotesModal, selectedValue } = this.state;
 
     const alertStatus = getStatus(alertSummary.status);
 
     return (
       <React.Fragment>
         {issueTrackers.length > 0 && (
-          <BugModal
+          <AlertModal
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
-            issueTrackers={issueTrackers}
-            alertSummary={alertSummary}
-            updateAndClose={this.updateAndClose}
+            updateAndClose={(event, inputValue) =>
+              this.updateAndClose(
+                event,
+                {
+                  bug_number: parseInt(inputValue, 10),
+                  issue_tracker: issueTrackers.find(
+                    item => item.text === selectedValue,
+                  ).id,
+                },
+                'showBugModal',
+              )
+            }
+            header="Link to Bug"
+            title="Bug Number"
+            dropdownOption={
+              <Col>
+                <Label for="issueTrackerSelector">Select Bug Tracker</Label>
+                <Input
+                  onChange={event =>
+                    this.setState({ selectedValue: event.target.value })
+                  }
+                  type="select"
+                  name="issueTrackerSelector"
+                  value={selectedValue}
+                >
+                  {issueTrackers.map(item => (
+                    <option key={item.id}>{item.text}</option>
+                  ))}
+                </Input>
+              </Col>
+            }
           />
         )}
         <NotesModal
@@ -175,7 +227,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.investigating,
+                        status: summaryStatusMap.investigating,
                       })
                     }
                   >
@@ -186,7 +238,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.wontfix,
+                        status: summaryStatusMap.wontfix,
                       })
                     }
                   >
@@ -198,7 +250,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.backedout,
+                        status: summaryStatusMap.backedout,
                       })
                     }
                   >
@@ -210,7 +262,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.fixed,
+                        status: summaryStatusMap.fixed,
                       })
                     }
                   >
@@ -230,10 +282,17 @@ StatusDropdown.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateState: PropTypes.func.isRequired,
-  issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  issueTrackers: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string,
+    }),
+  ),
   repoModel: PropTypes.shape({}).isRequired,
+  updateViewState: PropTypes.func.isRequired,
+  bugTemplate: PropTypes.shape({}),
 };
 
 StatusDropdown.defaultProps = {
   issueTrackers: [],
+  bugTemplate: null,
 };

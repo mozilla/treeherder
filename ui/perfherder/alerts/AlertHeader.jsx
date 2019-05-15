@@ -13,7 +13,6 @@ import moment from 'moment';
 import { getTitle } from '../helpers';
 import { getJobsUrl } from '../../helpers/url';
 
-// TODO refactor getIssueTracker URL - issue trackers being fetched in Alerts View
 const AlertHeader = ({ alertSummary, repoModel, issueTrackers }) => {
   const getIssueTrackerUrl = () => {
     const { issueTrackerUrl } = issueTrackers.find(

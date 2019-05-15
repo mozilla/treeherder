@@ -15,25 +15,17 @@ import {
 } from 'reactstrap';
 import debounce from 'lodash/debounce';
 
-export default class BugModal extends React.Component {
+export default class AlertModal extends React.Component {
+  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {
-      selectedValue: this.props.issueTrackers[0].text,
       inputValue: '',
       invalidInput: false,
       validated: false,
     };
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.issueTrackers !== this.props.issueTrackers) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ selectedValue: this.props.issueTrackers[0].text });
-    }
-  }
-
-  // eslint-disable-next-line react/sort-comp
   validateInput = debounce(() => {
     const { inputValue } = this.state;
     const regex = /^[1-9]+[0-9]*$/;
@@ -57,20 +49,26 @@ export default class BugModal extends React.Component {
   };
 
   render() {
-    const { showModal, toggle, issueTrackers, updateAndClose } = this.props;
-    const { inputValue, invalidInput, validated, selectedValue } = this.state;
+    const {
+      showModal,
+      toggle,
+      updateAndClose,
+      dropdownOption,
+      header,
+      title,
+    } = this.props;
 
-    const tracker = issueTrackers.find(item => item.text === selectedValue);
+    const { inputValue, invalidInput, validated } = this.state;
 
     return (
-      <Modal isOpen={showModal} className="">
-        <ModalHeader toggle={toggle}>Link to Bug</ModalHeader>
+      <Modal isOpen={showModal}>
+        <ModalHeader toggle={toggle}>{header}</ModalHeader>
         <Form>
           <ModalBody>
             <FormGroup>
               <Row>
                 <Col>
-                  <Label for="taskId">Enter Bug</Label>
+                  <Label for="taskId">{title}</Label>
                   <Input
                     value={inputValue}
                     onChange={this.updateInput}
@@ -78,22 +76,7 @@ export default class BugModal extends React.Component {
                     placeholder="123456"
                   />
                 </Col>
-                <Col>
-                  <Label for="issueTrackerSelector">Select Bug Tracker</Label>
-                  <Input
-                    onChange={event =>
-                      this.setState({ selectedValue: event.target.value })
-                    }
-                    type="select"
-                    name="issueTrackerSelector"
-                    value={selectedValue}
-                  >
-                    {issueTrackers.length > 0 &&
-                      issueTrackers.map(item => (
-                        <option key={item.id}>{item.text}</option>
-                      ))}
-                  </Input>
-                </Col>
+                {dropdownOption}
               </Row>
               <Row>
                 <Col>
@@ -109,16 +92,7 @@ export default class BugModal extends React.Component {
           <ModalFooter>
             <Button
               color="secondary"
-              onClick={event =>
-                updateAndClose(
-                  event,
-                  {
-                    bug_number: parseInt(inputValue, 10),
-                    issue_tracker: tracker.id,
-                  },
-                  'showBugModal',
-                )
-              }
+              onClick={event => updateAndClose(event, inputValue)}
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"
             >
@@ -131,19 +105,15 @@ export default class BugModal extends React.Component {
   }
 }
 
-BugModal.propTypes = {
+AlertModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
-  issueTrackers: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      id: PropTypes.number,
-    }),
-  ),
-  alertSummary: PropTypes.shape({}).isRequired,
   updateAndClose: PropTypes.func.isRequired,
+  dropdownOption: PropTypes.shape({}),
+  header: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
-BugModal.defaultProps = {
-  issueTrackers: [],
+AlertModal.defaultProps = {
+  dropdownOption: null,
 };

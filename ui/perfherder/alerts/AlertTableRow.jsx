@@ -8,12 +8,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
-import { update } from '../../helpers/http';
-import { getApiUrl, createQueryParams } from '../../helpers/url';
-import { endpoints } from '../constants';
-import { getStatus, getGraphsURL } from '../helpers';
+import { createQueryParams } from '../../helpers/url';
+import { getStatus, getGraphsURL, modifyAlert } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
+import { alertStatusMap } from '../constants';
+import { phDefaultTimeRangeValue, phTimeRanges } from '../../helpers/constants';
 
 // TODO remove $stateParams and $state after switching to react router
 export default class AlertTableRow extends React.Component {
@@ -22,33 +22,55 @@ export default class AlertTableRow extends React.Component {
     this.state = {
       alert: this.props.alert,
       starred: this.props.alert.starred,
+      checkboxSelected: false,
     };
   }
 
-  // TODO figure out how to structure this - alert.selected needs to be updated
-  // do we need to use alert.visible as per updateAlertVisibility in controller?
-  selectAlert = () => {
-    const { alertSummary: oldAlertSummary } = this.props;
-    const alertSummary = { ...oldAlertSummary };
+  componentDidUpdate(prevProps) {
+    const { allSelected, selectedAlerts } = this.props;
 
-    if (alertSummary.alerts.every(alert => !alert.visible || alert.selected)) {
-      alertSummary.allSelected = true;
-    } else {
-      alertSummary.allSelected = false;
+    if (prevProps.allSelected !== allSelected) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      return this.setState({ checkboxSelected: allSelected });
     }
-    // this.props.$rootScope.$apply();
-  };
+    // remove checkbox when an action is taken in the AlertActionPanel
+    // (it resets selectedAlerts)
+    if (prevProps.selectedAlerts !== selectedAlerts && !selectedAlerts.length) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      return this.setState({ checkboxSelected: false });
+    }
+  }
 
-  // TODO error handling
-  modifyAlert = (alert, modification) =>
-    update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
+  getTimeRange = () => {
+    const { alertSummary } = this.props;
+
+    const defaultTimeRange =
+      alertSummary.repository === 'mozilla-beta'
+        ? 7776000
+        : phDefaultTimeRangeValue;
+    const timeRange = Math.max(
+      defaultTimeRange,
+      phTimeRanges
+        .map(time => time.value)
+        .find(
+          value => Date.now() / 1000.0 - alertSummary.push_timestamp < value,
+        ),
+    );
+    return timeRange;
+  };
 
   toggleStar = async () => {
     const { starred, alert } = this.state;
     const updatedStar = {
       starred: !starred,
     };
-    await this.modifyAlert(alert, updatedStar);
+    const { data, failureStatus } = await modifyAlert(alert, updatedStar);
+
+    if (failureStatus) {
+      return this.props.updateViewState({
+        errorMessages: [`Failed to update alert ${alert.id}: ${data}`],
+      });
+    }
     this.setState(updatedStar);
   };
 
@@ -73,6 +95,24 @@ export default class AlertTableRow extends React.Component {
     );
   };
 
+  updateCheckbox = () => {
+    const { alert, updateSelectedAlerts, selectedAlerts } = this.props;
+    const { checkboxSelected } = this.state;
+
+    const index = selectedAlerts.indexOf(alert);
+
+    if (checkboxSelected && index === -1) {
+      return updateSelectedAlerts({
+        selectedAlerts: [...selectedAlerts, alert],
+      });
+    }
+
+    if (index !== -1) {
+      selectedAlerts.splice(index, 1);
+      return updateSelectedAlerts({ selectedAlerts });
+    }
+  };
+
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
 
@@ -90,7 +130,7 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
-
+    const timeRange = this.getTimeRange();
     return (
       <span>
         <span className={textEffect}>{alert.title}</span> (
@@ -98,12 +138,7 @@ export default class AlertTableRow extends React.Component {
         {alert.related_summary_id && this.getReassignment(alert)}){' '}
         <span className="result-links">
           <a
-            href={getGraphsURL(
-              alert,
-              this.props.timeRange,
-              repository,
-              framework,
-            )}
+            href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -145,25 +180,35 @@ export default class AlertTableRow extends React.Component {
   };
 
   render() {
-    const { user, alert } = this.props;
-    const { starred } = this.state;
+    const { user, alert, alertSummary } = this.props;
+    const { starred, checkboxSelected } = this.state;
 
-    const alertStatus = getStatus(alert.status);
+    const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
-    // TODO also add to compareTable re bug filed in Perfherder
+
     const numberFormat = new Intl.NumberFormat();
 
     return (
-      <tr className="justify-center border">
-        <td className="px-1">
-          <FormGroup check>
-            {/* TODO aria label */}
+      <tr
+        className={
+          alertSummary.notes ? 'border-top border-left border-right' : 'border'
+        }
+      >
+        <td className="table-width-xs px-1">
+          {/* TODO aria label */}
+          <FormGroup check className="ml-2 pl-4">
             <Input
               type="checkbox"
               disabled={!user.isStaff}
-              // onClick={() => console.log('selected')}
+              checked={checkboxSelected}
+              onChange={() =>
+                this.setState(
+                  { checkboxSelected: !checkboxSelected },
+                  this.updateCheckbox,
+                )
+              }
             />
           </FormGroup>
         </td>
@@ -248,7 +293,10 @@ AlertTableRow.propTypes = {
   alert: PropTypes.shape({
     starred: PropTypes.bool,
   }).isRequired,
-  timeRange: PropTypes.number.isRequired,
+  updateSelectedAlerts: PropTypes.func.isRequired,
+  selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  allSelected: PropTypes.bool.isRequired,
+  updateViewState: PropTypes.func.isRequired,
 };
 
 AlertTableRow.defaultProps = {

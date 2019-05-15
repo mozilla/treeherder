@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getAlertSummary, getTitle } from '../helpers';
+import { getTitle } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
+import { getData } from '../../helpers/http';
+import { endpoints } from '../constants';
+import { getApiUrl } from '../../helpers/url';
 
 // TODO remove $stateParams and $state after switching to react router
 export default class DownstreamSummary extends React.Component {
@@ -18,11 +21,23 @@ export default class DownstreamSummary extends React.Component {
     this.setState({ tooltipText });
   }
 
-  // TODO error handling
   getAlertSummaryTitle = async id => {
-    let alertSummary = this.props.alertSummaries.find(item => item.id === id);
+    const { alertSummaries, updateViewState } = this.props;
+    let alertSummary = alertSummaries.find(item => item.id === id);
+
     if (!alertSummary) {
-      alertSummary = await getAlertSummary(id);
+      const { data, failureStatus } = await getData(
+        getApiUrl(`${endpoints.alertSummary}${id}/`),
+      );
+
+      if (failureStatus) {
+        return updateViewState({
+          errorMessages: [
+            `Failed to retrieve downstream alert summary: ${data}`,
+          ],
+        });
+      }
+      alertSummary = data;
     }
     return getTitle(alertSummary);
   };
@@ -55,4 +70,5 @@ DownstreamSummary.propTypes = {
   id: PropTypes.number.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   position: PropTypes.number.isRequired,
+  updateViewState: PropTypes.func.isRequired,
 };

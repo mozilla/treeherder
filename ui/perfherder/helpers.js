@@ -18,7 +18,7 @@ import {
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
-  alertSummaryStatus,
+  summaryStatusMap,
 } from './constants';
 
 export const displayNumber = input =>
@@ -412,8 +412,10 @@ export const getSubtestsURL = (alert, alertSummary) => {
   return `#/comparesubtest${createQueryParams(urlParameters)}`;
 };
 
-const modifyAlert = (alert, modification) =>
-  update(getApiUrl(`/performance/alert/${alert.id}/`), modification);
+// TODO error handling
+export const modifyAlert = (alert, modification) =>
+  update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
+
 // TODO remove
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
@@ -603,7 +605,7 @@ export const getTitle = alertSummary => {
   title += ` (${platformInfo})`;
   return title;
 };
-
+// TODO remove
 export const modifySelectedAlerts = (alertSummary, modification) => {
   alertSummary.allSelected = false;
 
@@ -616,12 +618,13 @@ export const modifySelectedAlerts = (alertSummary, modification) => {
       }),
   );
 };
-
+// TODO replace usage with summaryStatusMap
 export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,
   ).text;
 
+// TODO remove
 export const getAlertSummary = id =>
   OptionCollectionModel.getMap().then(optionCollectionMap =>
     getData(getApiUrl(`${endpoints.alertSummary}${id}/`)).then(({ data }) =>
@@ -736,5 +739,5 @@ export const getFrameworkData = props => {
   return { id: 1, name: 'talos' };
 };
 
-export const getStatus = status =>
-  Object.entries(alertSummaryStatus).find(item => status === item[1])[0];
+export const getStatus = (status, statusMap = summaryStatusMap) =>
+  Object.entries(statusMap).find(item => status === item[1])[0];

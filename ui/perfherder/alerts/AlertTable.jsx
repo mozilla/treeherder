@@ -5,18 +5,19 @@ import orderBy from 'lodash/orderBy';
 
 import {
   phAlertStatusMap,
-  phDefaultTimeRangeValue,
-  phTimeRanges,
+  genericErrorMessage,
+  errorMessageClass,
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
 import { getInitializedAlerts } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
+import ErrorBoundary from '../../shared/ErrorBoundary';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
-import AlertTableControls from './AlertTableControls';
+import AlertActionPanel from './AlertActionPanel';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -25,7 +26,7 @@ export default class AlertTable extends React.Component {
       alertSummary: null,
       downstreamIds: [],
       filteredAlerts: [],
-      selectAlertSummary: false,
+      allSelected: false,
       selectedAlerts: [],
     };
   }
@@ -81,38 +82,6 @@ export default class AlertTable extends React.Component {
     this.setState({ downstreamIds });
   };
 
-  // selectAlerts = () => {
-
-  // const { alertSummary: oldAlertSummary } = this.state;
-  // const alertSummary = { ...oldAlertSummary };
-  // alertSummary.allSelected = !alertSummary.allSelected;
-
-  // alertSummary.alerts.forEach(function selectAlerts(alert) {
-  //   alert.selected = alert.visible && alertSummary.allSelected;
-  // });
-  // this.setState({ alertSummary });
-  // };
-
-  // TODO move to alertTableRow
-  getTimeRange = () => {
-    const { alertSummary } = this.state;
-
-    const defaultTimeRange =
-      alertSummary.repository === 'mozilla-beta'
-        ? 7776000
-        : phDefaultTimeRangeValue;
-    const timeRange = Math.max(
-      defaultTimeRange,
-      phTimeRanges
-        .map(time => time.value)
-        .find(
-          value => Date.now() / 1000.0 - alertSummary.push_timestamp < value,
-        ),
-    );
-
-    return timeRange;
-  };
-
   filterAlert = alert => {
     const { hideImprovements, hideDownstream, filterText } = this.props.filters;
     const { alertSummary } = this.state;
@@ -146,19 +115,32 @@ export default class AlertTable extends React.Component {
 
   updateFilteredAlerts = () => {
     const { alertSummary } = this.state;
+    const { updateViewState, filteredResults } = this.props;
+
     const filteredAlerts = alertSummary.alerts.filter(alert =>
       this.filterAlert(alert),
     );
     this.setState({ filteredAlerts });
+    updateViewState({
+      filteredResults: [...filteredAlerts, ...filteredResults],
+    });
   };
 
   render() {
-    const { user, validated, alertSummaries, issueTrackers } = this.props;
+    const {
+      user,
+      validated,
+      alertSummaries,
+      issueTrackers,
+      fetchAlertSummaries,
+      updateViewState,
+      bugTemplate,
+    } = this.props;
     const {
       alertSummary,
       downstreamIds,
       filteredAlerts,
-      selectAlertSummary,
+      allSelected,
       selectedAlerts,
     } = this.state;
 
@@ -170,10 +152,13 @@ export default class AlertTable extends React.Component {
 
     return (
       <Container fluid className="px-0 max-width-default">
-        {filteredAlerts.length > 0 && (
-          <Form>
-            {alertSummary && (
-              <Table className="compare-table">
+        <ErrorBoundary
+          errorClasses={errorMessageClass}
+          message={genericErrorMessage}
+        >
+          {filteredAlerts.length > 0 && alertSummary && (
+            <Form>
+              <Table className="compare-table mb-0">
                 <thead>
                   <tr className="bg-lightgray border">
                     <th
@@ -184,8 +169,11 @@ export default class AlertTable extends React.Component {
                         <Label check className="pl-1">
                           <Input
                             type="checkbox"
+                            checked={allSelected}
                             disabled={!user.isStaff}
-                            onClick={() => this.setState({ selectAlertSummary: !selectAlertSummary })}
+                            onChange={() =>
+                              this.setState({ allSelected: !allSelected })
+                            }
                           />
                           <AlertHeader
                             alertSummary={alertSummary}
@@ -198,12 +186,12 @@ export default class AlertTable extends React.Component {
                     <th className="table-width-sm align-top font-weight-normal">
                       <StatusDropdown
                         alertSummary={alertSummary}
-                        user={user}
-                        updateState={alertSummary =>
-                          this.setState({ alertSummary })
-                        }
+                        updateState={state => this.setState(state)}
                         repoModel={repoModel}
+                        updateViewState={updateViewState}
                         issueTrackers={issueTrackers}
+                        bugTemplate={bugTemplate}
+                        user={user}
                       />
                     </th>
                   </tr>
@@ -215,11 +203,20 @@ export default class AlertTable extends React.Component {
                       alertSummary={alertSummary}
                       alert={alert}
                       user={user}
-                      timeRange={this.getTimeRange()}
+                      allSelected={allSelected}
+                      updateSelectedAlerts={alerts => this.setState(alerts)}
+                      selectedAlerts={selectedAlerts}
+                      updateViewState={updateViewState}
                     />
                   ))}
                   {downstreamIdsLength > 0 && (
-                    <tr className="border">
+                    <tr
+                      className={`${
+                        alertSummary.notes
+                          ? 'border-top border-left border-right'
+                          : 'border'
+                      }`}
+                    >
                       <td
                         colSpan="9"
                         className="text-left text-muted pl-3 py-4"
@@ -233,42 +230,48 @@ export default class AlertTable extends React.Component {
                             id={id}
                             alertSummaries={alertSummaries}
                             position={downstreamIdsLength - 1 - index}
+                            updateViewState={updateViewState}
                           />
                         ))}
                       </td>
                     </tr>
                   )}
-                  {alertSummary.notes && (
-                    <tr className="border">
-                      <td
-                        colSpan="9"
-                        className="max-width-row-text text-left text-muted pl-3 py-4"
-                      >
-                        <TruncatedText
-                          title="Notes: "
-                          maxLength={167}
-                          text={alertSummary.notes}
-                          showMoreClass="text-info"
-                        />
-                      </td>
-                    </tr>
-                  )}
-                  {/* add "card-body button-panel" class to tr? */}
-                  {(selectAlertSummary || selectedAlerts.length > 0) && (
-                    <tr className="border">
-                      <td
-                        colSpan="9"
-                        className="max-width-row-text text-left text-muted pl-3 py-4"
-                      >
-                        <AlertTableControls selectedAlerts={selectedAlerts} />
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </Table>
-            )}
-          </Form>
-        )}
+              {alertSummary.notes ||
+              allSelected ||
+              selectedAlerts.length > 0 ? (
+                <div className="border mb-4 sticky-footer max-width-default text-left text-muted p-0">
+                  {alertSummary.notes && (
+                    <div className="bg-white px-3 py-4">
+                      <TruncatedText
+                        title="Notes: "
+                        maxLength={167}
+                        text={alertSummary.notes}
+                        showMoreClass="text-info"
+                      />
+                    </div>
+                  )}
+                  {(allSelected || selectedAlerts.length > 0) && (
+                    <AlertActionPanel
+                      selectedAlerts={
+                        allSelected ? alertSummary.alerts : selectedAlerts
+                      }
+                      allSelected={allSelected}
+                      alertSummaries={alertSummaries}
+                      alertSummary={alertSummary}
+                      fetchAlertSummaries={fetchAlertSummaries}
+                      updateState={state => this.setState(state)}
+                      updateViewState={updateViewState}
+                    />
+                  )}
+                </div>
+              ) : (
+                <br />
+              )}
+            </Form>
+          )}
+        </ErrorBoundary>
       </Container>
     );
   }
@@ -288,10 +291,16 @@ AlertTable.propTypes = {
     hideDownstream: PropTypes.bool,
     hideImprovements: PropTypes.bool,
   }).isRequired,
+  fetchAlertSummaries: PropTypes.func.isRequired,
+  updateViewState: PropTypes.func.isRequired,
+  filteredResults: PropTypes.arrayOf(PropTypes.shape({})),
+  bugTemplate: PropTypes.shape({}),
 };
 
 AlertTable.defaultProps = {
   alertSummary: null,
   user: null,
   issueTrackers: [],
+  filteredResults: [],
+  bugTemplate: null,
 };
