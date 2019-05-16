@@ -62,7 +62,7 @@ $ yarn lint --fix
 
 See the [code style](code_style.md#ui) section for more details.
 
-### Running the unit tests
+### Running the Jest front-end unit tests
 
 The unit tests for the UI are run with [Jest].
 
@@ -86,7 +86,7 @@ To get started:
 
 - Install Docker & docker-compose (both are installed if using Docker for Windows/Mac).
 
-- If you just wish to [run the tests](common_tasks.md#running-the-tests),
+- If you just wish to [run the tests](backend_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
 
 ### Starting a local Treeherder instance
@@ -106,6 +106,14 @@ Both Django's runserver and webpack-dev-server will automatically refresh every 
 <!-- prettier-ignore -->
 !!! note
     There will be no data to display until the ingestion tasks are run.
+
+### Running the migrations
+
+To run the Django migrations:
+
+```bash
+docker-compose run backend sh -c "./initialize_data.sh"
+```
 
 ### Using the minified UI
 
@@ -129,6 +137,36 @@ Requests to port 8000 skip webpack-dev-server, causing Django's runserver to ser
 production UI from `.build/` instead. In addition to being minified and using the
 non-debug versions of React, the assets are served with the same `Content-Security-Policy`
 header as production.
+
+### Running full stack with a custom DB setting
+
+If you want to develop both the frontend and backend, but have the database pointing to
+an external DB host, you have a few choices. The environment variable of `DATABASE_URL`
+is what needs to be set. You can do this in a file in the root of `/treeherder` called
+`.env`:
+
+```bash
+DATABASE_URL=mysql://user:password@hostname/treeherder
+```
+
+Alternatively, you can `export` that value in your terminal prior to executing
+`docker-compose up` or just specify it on the command line as you execute:
+
+```bash
+DATABASE_URL=mysql://user:password@hostname/treeherder docker-compose up
+```
+
+### Running the Python and Selenium back-end unit tests
+
+```bash
+docker-compose run backend sh -c "./runtests.sh"
+```
+
+or
+
+```bash
+docker-compose run backend python -bb -m pytest tests/
+```
 
 ### Running the ingestion tasks
 
