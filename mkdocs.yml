@@ -38,7 +38,6 @@ nav:
       - Code Style: 'code_style.md'
       - Common tasks: 'common_tasks.md'
       - Backend tasks: 'backend_tasks.md'
-      - Troubleshooting Vagrant: 'troubleshooting_vagrant.md'
   - Infrastructure:
       - Architecture: 'infrastructure/architecture.md'
       - Administration: 'infrastructure/administration.md'

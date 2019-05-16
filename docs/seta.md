@@ -21,35 +21,23 @@ In order to find open bugs for SETA visit list of [SETA bugs].
 
 ## APIs
 
-- `/api/project/{project}/seta/{version}/job-priorities/`
+- `/api/project/{project}/seta/job-priorities/`
 
   - This is the API that consumers like the Gecko decision task will use
 
-- `/api/project/{project}/seta/{version}/job-types/`
-
-  - This API shows which jobs are defined for each project
-
-- `/api/seta/{version}/failures-fixed-by-commit/`
-
-  - This API shows job failures that have been annotated with "fixed by commit"
-
 ## Local set up
 
-After you set up Treeherder, ssh (3 different tabs) into the provisioned VM and run the following commands in each:
+- Follow the steps at [Starting a local Treeherder instance].
+- Run:
 
-- 1st tab: `./manage.py runserver`
-- 2nd tab: `yarn start:local`
-- 3rd tab: `./manage.py initialize_seta`
+```bash
+docker-compose run backend ./manage.py initialize_seta
+```
 
-Then try out the various APIs:
+- Then try out the various APIs:
+  - <http://localhost:5000/api/project/mozilla-inbound/seta/job-priorities/>
 
-- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=buildbot>
-- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-priorities/?build_system_type=taskcluster>
-- <http://localhost:5000/api/project/mozilla-inbound/seta/v1/job-types/>
-- <http://localhost:5000/api/seta/v1/failures-fixed-by-commit/>
-
-  - This one won't work until [bug 1389123] is fixed.
-
+[starting a local treeherder instance]: installation.md#starting-a-local-treeherder-instance
 [bug 1389123]: https://bugzilla.mozilla.org/show_bug.cgi?id=1389123
 
 ## Maintenance

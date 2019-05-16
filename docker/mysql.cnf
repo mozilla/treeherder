@@ -1,6 +1,6 @@
 # Overrides the mysql defaults in /etc/mysql/my.cnf
-# Any changes here will require a Vagrant re-provision to take effect.
-# NB: This file is only used by Vagrant/Travis, and must be kept in sync with
+# Any changes here will require restarting docker-compose to take effect.
+# NB: This file is only used by docker-compose, and must be kept in sync with
 # the RDS parameter group used by stage/prod:
 # https://github.com/mozilla-platform-ops/devservices-aws/blob/master/treeherder/rds.tf
 
@@ -20,5 +20,8 @@ sql_mode="NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES"
 # https://bugs.mysql.com/bug.php?id=70008
 transaction-isolation=READ-COMMITTED
 
-# Vagrant/Travis only: Speed up I/O by reducing data-loss protection.
+# Development/CI only: Speed up I/O by reducing data-loss protection.
 innodb_flush_log_at_trx_commit="0"
+
+# Development/CI only: Reduce verbosity of log output (output errors only).
+log_error_verbosity="1"

@@ -12,9 +12,9 @@ If you just want to get the same data that Treeherder gets, then you have 3 step
 
 1. Create a user on [Pulse Guardian] if you don't already have one
 2. Create your `PULSE_URL` string
-3. Open a Vagrant terminal to read Pushes
-4. Open a Vagrant terminal to read Jobs
-5. Open a Vagrant terminal to run **Celery**
+3. Run a backend Docker container to read Pushes
+4. Run a backend Docker container to read Jobs
+5. Run a backend Docker container for **Celery**
 
 ### 1. Pulse Guardian
 
@@ -28,17 +28,12 @@ this step is necessary.
 If your **Pulse User** was username: `foo` and password: `bar`, your config
 string would be:
 
-```bash
-PULSE_URL="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
-```
+`amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1`
 
 ### 3. Read Pushes
 
-<!-- prettier-ignore -->
-!!! note
-    Be sure your Vagrant environment is up-to-date.  Reload it and run ``vagrant provision`` if you're not sure.
-
-`ssh` into Vagrant, then set your config environment variable:
+On the **host machine**, set your Pulse config environment variable, so that it's available
+for docker-compose to use:
 
 ```bash
 export PULSE_URL="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
@@ -48,7 +43,7 @@ Next, run the Treeherder management command to read Pushes from the default **Pu
 exchange:
 
 ```bash
-./manage.py pulse_listener_pushes
+docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_pushes
 ```
 
 You will see a list of the exchanges it has mounted to and a message for each
@@ -58,11 +53,12 @@ ingested in step 5.
 
 ### 4. Read Jobs
 
-As in step 3, open a Vagrant terminal and export your `PULSE_URL`
-variable. Then run the following management command:
+As in step 3, open a new terminal and export your `PULSE_URL` variable.
+
+Then run the management command for listing to jobs:
 
 ```bash
-./manage.py pulse_listener_jobs
+docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_jobs
 ```
 
 You will again see the list of exchanges that your queue is now mounted to and
@@ -70,18 +66,18 @@ a message for each Job as it is read into your local **Celery** queue.
 
 ### 5. Celery
 
-Open your next Vagrant terminal. You don't need to set your environment variable
+Open your next terminal. You don't need to set your environment variable
 in this one. Just run **Celery**:
 
 ```bash
-celery -A treeherder worker -B --concurrency 5
+docker-compose run backend celery -A treeherder worker -B --concurrency 5
 ```
 
 That's it! With those processes running, you will begin ingesting Treeherder
 data. To see the data, you will need to run the Treeherder UI and API.
-See [Running the unminified UI with Vagrant] for more info.
+See [Starting a local Treeherder instance] for more info.
 
-[running the unminified ui with vagrant]: installation.md#server-and-full-stack-development
+[starting a local treeherder instance]: installation.md#starting-a-local-treeherder-instance
 
 ## Advanced Configuration
 

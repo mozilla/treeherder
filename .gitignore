@@ -29,3 +29,6 @@ vagrant/env_local.sh
 
 # Celery
 celerybeat-schedule
+
+#docker custom environment
+.env
