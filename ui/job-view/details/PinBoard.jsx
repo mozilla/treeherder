@@ -7,7 +7,11 @@ import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { thEvents } from '../../helpers/constants';
 import { withNotifications } from '../../shared/context/Notifications';
 import { formatModelError } from '../../helpers/errorMessage';
-import { getJobBtnClass, getHoverText } from '../../helpers/job';
+import {
+  getJobBtnClass,
+  getHoverText,
+  findJobInstance,
+} from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
@@ -122,6 +126,8 @@ class PinBoard extends React.Component {
             `Classification saved for ${job.platform} ${job.job_type_name}`,
             'success',
           );
+          // update the job to show that it's now classified
+          findJobInstance(job.id).refilter();
         })
         .catch(response => {
           const message = `Error saving classification for ${job.platform} ${
