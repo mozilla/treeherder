@@ -212,9 +212,9 @@ elasticsearch==7.0.1 \
     --hash=sha256:445c6ea9c55c493bae635718de6b276034f55378c836f9550ae49dd8cd04a02b
 
 # required by requests and elasticsearch
-urllib3==1.24.2 \
-    --hash=sha256:4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0 \
-    --hash=sha256:9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3
+urllib3==1.25.2 \
+    --hash=sha256:d363e3607d8de0c220d31950a8f38b18d5ba7c0830facd71a1c6b1036b7ce06c \
+    --hash=sha256:a53063d8b9210a7bdec15e7b272776b9d42b2fd6816401a0d43006ad2f9902db
 
 certifi==2019.3.9 \
     --hash=sha256:59b7658e26ca9c7339e00f8f4636cdfe59d34fa37b9b04f6f9e9926b3cece1a5 \
