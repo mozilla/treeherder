@@ -80,7 +80,7 @@ export const getLogViewerUrl = function getLogViewerUrl(
 };
 
 export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {
-  return `https://perf-html.io/from-url/${encodeURIComponent(url)}`;
+  return `https://profiler.firefox.com/from-url/${encodeURIComponent(url)}`;
 };
 
 // This takes a plain object, rather than a URLSearchParams object.
