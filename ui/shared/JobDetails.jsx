@@ -38,12 +38,13 @@ export default class JobDetails extends React.PureComponent {
               )}
               {line.url &&
                 line.value.startsWith('profile_') &&
-                line.value.endsWith('.zip') && (
+                (line.value.endsWith('.zip') ||
+                  line.value.endsWith('.json')) && (
                   <span>
                     {' '}
                     -{' '}
                     <a title={line.value} href={getPerfAnalysisUrl(line.url)}>
-                      open in perf-html.io
+                      open in Firefox Profiler
                     </a>
                   </span>
                 )}
