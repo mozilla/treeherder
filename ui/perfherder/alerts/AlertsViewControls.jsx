@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import FilterControls from '../FilterControls';
 import { convertParams } from '../helpers';
 
+import AlertTable from './AlertTable';
+
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
@@ -17,7 +19,7 @@ export default class AlertsViewControls extends React.Component {
 
   render() {
     const { hideImprovements, hideDownstream } = this.state;
-    const { dropdownOptions, render } = this.props;
+    const { dropdownOptions, alertSummaries } = this.props;
     const alertFilters = [
       {
         text: 'Hide improvements',
@@ -42,7 +44,15 @@ export default class AlertsViewControls extends React.Component {
           updateFilterText={filterText => this.setState({ filterText })}
           dropdownCol
         />
-        {render(this.state)}
+        {alertSummaries.length > 0 &&
+          alertSummaries.map(alertSummary => (
+            <AlertTable
+              filters={this.state}
+              key={alertSummary.id}
+              alertSummary={alertSummary}
+              {...this.props}
+            />
+          ))}
       </React.Fragment>
     );
   }
@@ -51,9 +61,10 @@ export default class AlertsViewControls extends React.Component {
 AlertsViewControls.propTypes = {
   validated: PropTypes.shape({}).isRequired,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
-  render: PropTypes.func.isRequired,
+  alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 AlertsViewControls.defaultProps = {
   dropdownOptions: null,
+  alertSummaries: [],
 };

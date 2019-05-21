@@ -27,7 +27,9 @@ export default class AlertActionPanel extends React.Component {
   }
 
   modifySelectedAlerts = (selectedAlerts, modification) =>
-    Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
+    Promise.all(
+      selectedAlerts.map(alert => this.props.modifyAlert(alert, modification)),
+    );
 
   updateAndFetch = async (newStatus, alertId = null) => {
     const {
@@ -256,8 +258,10 @@ AlertActionPanel.propTypes = {
   allSelected: PropTypes.bool.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   updateViewState: PropTypes.func.isRequired,
+  modifyAlert: PropTypes.func,
 };
 
 AlertActionPanel.defaultProps = {
   alertSummary: null,
+  modifyAlert,
 };

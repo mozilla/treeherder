@@ -27,7 +27,6 @@ import {
 import ErrorBoundary from '../../shared/ErrorBoundary';
 
 import AlertsViewControls from './AlertsViewControls';
-import AlertTable from './AlertTable';
 
 // TODO remove $stateParams and $state after switching to react router
 export class AlertsView extends React.Component {
@@ -243,25 +242,14 @@ export class AlertsView extends React.Component {
           <AlertsViewControls
             validated={validated}
             dropdownOptions={alertDropdowns}
-            render={state =>
-              alertSummaries.length > 0 &&
-              alertSummaries.map(alertSummary => (
-                <AlertTable
-                  filters={state}
-                  key={alertSummary.id}
-                  alertSummary={alertSummary}
-                  user={user}
-                  alertSummaries={alertSummaries}
-                  issueTrackers={issueTrackers}
-                  {...this.props}
-                  optionCollectionMap={optionCollectionMap}
-                  fetchAlertSummaries={id => this.fetchAlertSummaries(id, true)}
-                  updateViewState={state => this.setState(state)}
-                  filteredResults={filteredResults}
-                  bugTemplate={bugTemplate}
-                />
-              ))
-            }
+            alertSummaries={alertSummaries}
+            issueTrackers={issueTrackers}
+            optionCollectionMap={optionCollectionMap}
+            fetchAlertSummaries={id => this.fetchAlertSummaries(id, true)}
+            updateViewState={state => this.setState(state)}
+            filteredResults={filteredResults}
+            bugTemplate={bugTemplate}
+            user={user}
           />
           {pageNums.length > 0 && filteredResults.length > 0 && (
             <Row className="justify-content-center pb-5">

@@ -64,7 +64,11 @@ export default class AlertTableRow extends React.Component {
     const updatedStar = {
       starred: !starred,
     };
-    const { data, failureStatus } = await modifyAlert(alert, updatedStar);
+    // passed as prop only for testing purposes
+    const { data, failureStatus } = await this.props.modifyAlert(
+      alert,
+      updatedStar,
+    );
 
     if (failureStatus) {
       return this.props.updateViewState({
@@ -133,8 +137,10 @@ export default class AlertTableRow extends React.Component {
     const timeRange = this.getTimeRange();
     return (
       <span>
-        <span className={textEffect}>{alert.title}</span> (
-        <span className={statusColor}>{alertStatus}</span>
+        <span className={textEffect} id={`alert ${alert.id} title`}>
+          {alert.title}
+        </span>{' '}
+        (<span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}){' '}
         <span className="result-links">
           <a
@@ -195,11 +201,13 @@ export default class AlertTableRow extends React.Component {
         className={
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
         }
+        data-testid={alert.id}
       >
         <td className="table-width-xs px-1">
-          {/* TODO aria label */}
           <FormGroup check className="ml-2 pl-4">
             <Input
+              aria-labelledby={`alert ${alert.id} title`}
+              data-testid={`alert ${alert.id} checkbox`}
               type="checkbox"
               disabled={!user.isStaff}
               checked={checkboxSelected}
@@ -213,7 +221,11 @@ export default class AlertTableRow extends React.Component {
           </FormGroup>
         </td>
         <td className="px-0">
-          <span className={starred ? 'visible' : ''} onClick={this.toggleStar}>
+          <span
+            className={starred ? 'visible' : ''}
+            data-testid={`alert ${alert.id.toString()} star`}
+            onClick={this.toggleStar}
+          >
             <FontAwesomeIcon
               title={starred ? 'starred' : 'not starred'}
               icon={starred ? faStarSolid : faStarRegular}
@@ -227,7 +239,7 @@ export default class AlertTableRow extends React.Component {
               tooltipText={tooltipText}
             />
           ) : (
-            <span>{this.getTitleText(alert, alertStatus)}</span>
+            this.getTitleText(alert, alertStatus)
           )}
         </td>
         <td className="table-width-md">
@@ -297,8 +309,10 @@ AlertTableRow.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   allSelected: PropTypes.bool.isRequired,
   updateViewState: PropTypes.func.isRequired,
+  modifyAlert: PropTypes.func,
 };
 
 AlertTableRow.defaultProps = {
   user: null,
+  modifyAlert,
 };

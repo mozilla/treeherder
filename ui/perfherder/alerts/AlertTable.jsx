@@ -135,6 +135,7 @@ export default class AlertTable extends React.Component {
       fetchAlertSummaries,
       updateViewState,
       bugTemplate,
+      modifyAlert,
     } = this.props;
     const {
       alertSummary,
@@ -168,6 +169,8 @@ export default class AlertTable extends React.Component {
                       <FormGroup check>
                         <Label check className="pl-1">
                           <Input
+                            data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
+                            aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
                             type="checkbox"
                             checked={allSelected}
                             disabled={!user.isStaff}
@@ -207,6 +210,7 @@ export default class AlertTable extends React.Component {
                       updateSelectedAlerts={alerts => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
+                      modifyAlert={modifyAlert}
                     />
                   ))}
                   {downstreamIdsLength > 0 && (
@@ -263,6 +267,7 @@ export default class AlertTable extends React.Component {
                       fetchAlertSummaries={fetchAlertSummaries}
                       updateState={state => this.setState(state)}
                       updateViewState={updateViewState}
+                      modifyAlert={modifyAlert}
                     />
                   )}
                 </div>
@@ -295,6 +300,7 @@ AlertTable.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   filteredResults: PropTypes.arrayOf(PropTypes.shape({})),
   bugTemplate: PropTypes.shape({}),
+  modifyAlert: PropTypes.func,
 };
 
 AlertTable.defaultProps = {
@@ -303,4 +309,5 @@ AlertTable.defaultProps = {
   issueTrackers: [],
   filteredResults: [],
   bugTemplate: null,
+  modifyAlert: undefined,
 };

@@ -29,6 +29,8 @@ const AlertHeader = ({ alertSummary, repoModel, issueTrackers }) => {
       <a
         className="text-dark font-weight-bold align-middle"
         href={`#/alerts?id=${alertSummary.id}`}
+        id={`alert summary ${alertSummary.id.toString()} title`}
+        data-testid={`alert summary ${alertSummary.id.toString()} title`}
       >
         Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
         {getTitle(alertSummary)}{' '}
