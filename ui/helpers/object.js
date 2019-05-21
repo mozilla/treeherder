@@ -1,3 +1,5 @@
+import isEqual from 'lodash/isEqual';
+
 export const extendProperties = function extendProperties(dest, src) {
   /* Version of _.extend that works with property descriptors */
   if (dest !== src) {
@@ -23,3 +25,6 @@ export const extendProperties = function extendProperties(dest, src) {
 
 export const didObjectsChange = (firstObj, secondObj, fields) =>
   fields.some(field => firstObj[field] !== secondObj[field]);
+
+export const didValuesChange = (firstObj, secondObj, fields) =>
+  fields.some(field => !isEqual(firstObj[field], secondObj[field]));

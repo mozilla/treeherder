@@ -8,20 +8,14 @@ import { getJobsUrl } from '../../helpers/url';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withPushes } from '../context/Pushes';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
+import { getSelectedJobId } from '../../helpers/location';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   rs => rs !== 'runnable',
 );
 
 function FiltersMenu(props) {
-  const {
-    filterModel,
-    pinJobs,
-    getAllShownJobs,
-    selectedJob,
-    setSelectedJob,
-    user,
-  } = props;
+  const { filterModel, pinJobs, getAllShownJobs, setSelectedJob, user } = props;
   const {
     urlParams: { resultStatus, classifiedState },
   } = filterModel;
@@ -30,7 +24,7 @@ function FiltersMenu(props) {
     const shownJobs = getAllShownJobs();
 
     pinJobs(shownJobs);
-    if (!selectedJob) {
+    if (!getSelectedJobId()) {
       setSelectedJob(shownJobs[0]);
     }
   };
@@ -131,17 +125,10 @@ FiltersMenu.propTypes = {
   pinJobs: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  selectedJob: PropTypes.object,
   user: PropTypes.object.isRequired,
 };
 
-FiltersMenu.defaultProps = {
-  selectedJob: null,
-};
-
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
 export default connect(
-  mapStateToProps,
+  null,
   { setSelectedJob, clearSelectedJob },
 )(withPushes(withPinnedJobs(FiltersMenu)));

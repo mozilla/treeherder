@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinusSquare,
@@ -82,7 +81,7 @@ PushCounts.propTypes = {
   completed: PropTypes.number.isRequired,
 };
 
-class PushHeader extends React.Component {
+class PushHeader extends React.PureComponent {
   constructor(props) {
     super(props);
     const { pushTimestamp } = this.props;
@@ -90,36 +89,18 @@ class PushHeader extends React.Component {
     this.pushDateStr = toDateStr(pushTimestamp);
   }
 
-  shouldComponentUpdate(prevProps) {
-    const {
-      jobCounts: prevJobCounts,
-      watchState: prevWatchState,
-      isLoggedIn: prevIsLoggedIn,
-      selectedRunnableJobs: prevSelectedRunnableJobs,
-      runnableVisible: prevRunnableVisible,
-      collapsed: prevCollapsed,
-      pushHealthVisibility: prevPushHealthVisibility,
-    } = prevProps;
-    const {
-      jobCounts,
-      watchState,
-      isLoggedIn,
-      selectedRunnableJobs,
-      runnableVisible,
-      collapsed,
-      pushHealthVisibility,
-    } = this.props;
-
-    return (
-      !isEqual(prevJobCounts, jobCounts) ||
-      prevWatchState !== watchState ||
-      prevIsLoggedIn !== isLoggedIn ||
-      prevSelectedRunnableJobs !== selectedRunnableJobs ||
-      prevRunnableVisible !== runnableVisible ||
-      prevCollapsed !== collapsed ||
-      prevPushHealthVisibility !== pushHealthVisibility
-    );
-  }
+  // shouldComponentUpdate(prevProps) {
+  //   return didObjectsChange(this.props, prevProps, [
+  //     'jobCounts',
+  //     'watchState',
+  //     'isLoggedIn',
+  //     'selectedRunnableJobs',
+  //     'runnableVisible',
+  //     'collapsed',
+  //     'pushHealthVisibility',
+  //     'filterModel',
+  //   ]);
+  // }
 
   getLinkParams() {
     const { filterModel } = this.props;
