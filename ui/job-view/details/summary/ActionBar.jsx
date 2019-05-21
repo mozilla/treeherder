@@ -214,7 +214,7 @@ class ActionBar extends React.PureComponent {
 
     if (title === '') {
       title =
-        'Trigger jobs of ths type on prior pushes ' +
+        'Trigger jobs of this type on prior pushes ' +
         'to fill in gaps where the job was not run';
     } else {
       // Cut off trailing '/ ' if one exists, capitalize first letter
