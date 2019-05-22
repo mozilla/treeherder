@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thSimplePlatforms } from '../../helpers/constants';
-import { getUrlParam } from '../../helpers/location';
+import { getSelectedJobId } from '../../helpers/location';
+import { didObjectsChange } from '../../helpers/object';
 
 import JobsAndGroups from './JobsAndGroups';
 
@@ -20,21 +21,37 @@ PlatformName.propTypes = {
 };
 
 export default class Platform extends React.PureComponent {
-  static getDerivedStateFromProps(nextProps) {
-    const { filterModel, runnableVisible } = nextProps;
-    const selectedJobId = parseInt(getUrlParam('selectedJob') || '0', 10);
+  constructor(props) {
+    super(props);
 
-    return {
-      filteredPlatform: Platform.filter(
-        nextProps.platform,
-        selectedJobId,
-        filterModel,
-        runnableVisible,
-      ),
+    this.state = {
+      filteredPlatform: props.platform,
     };
   }
 
-  static filter = (platform, selectedJobId, filterModel, runnableVisible) => {
+  componentDidMount() {
+    const selectedJobId = getSelectedJobId();
+
+    this.filter(selectedJobId);
+  }
+
+  componentDidUpdate(nextProps) {
+    if (
+      didObjectsChange(nextProps, this.props, [
+        'platform',
+        'filterModel',
+        'pushGroupState',
+        'duplicateJobsVisible',
+        'groupCountsExpanded',
+        'runnableVisible',
+      ])
+    ) {
+      this.filter(getSelectedJobId());
+    }
+  }
+
+  filter = selectedJobId => {
+    const { platform, filterModel, runnableVisible } = this.props;
     const filteredPlatform = { ...platform };
 
     filteredPlatform.visible = false;
@@ -52,28 +69,11 @@ export default class Platform extends React.PureComponent {
         }
       });
     });
-    return filteredPlatform;
+    this.setState({ filteredPlatform });
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      filteredPlatform: props.platform,
-    };
-  }
-
-  filterCb = (platform, selectedJobId) => {
-    const { filterModel, runnableVisible } = this.props;
-
-    this.setState({
-      filteredPlatform: Platform.filter(
-        platform,
-        selectedJobId,
-        filterModel,
-        runnableVisible,
-      ),
-    });
+  filterCb = selectedJobId => {
+    this.filter(selectedJobId);
   };
 
   render() {

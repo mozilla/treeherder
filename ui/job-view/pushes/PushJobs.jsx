@@ -7,6 +7,7 @@ import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { getPushTableId } from '../../helpers/aggregateId';
 import { findInstance, findSelectedInstance } from '../../helpers/job';
+import { getSelectedJobId } from '../../helpers/location';
 import { didObjectsChange } from '../../helpers/object';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
@@ -35,8 +36,9 @@ class PushJobs extends React.Component {
   }
 
   onMouseDown = ev => {
-    const { selectedJob, togglePinJob } = this.props;
+    const { togglePinJob } = this.props;
     const jobInstance = findInstance(ev.target);
+    const selectedJobId = getSelectedJobId();
 
     if (jobInstance && jobInstance.props.job) {
       const { job } = jobInstance.props;
@@ -45,7 +47,7 @@ class PushJobs extends React.Component {
         this.handleLogViewerClick(job.id);
       } else if (ev.metaKey || ev.ctrlKey) {
         // Pin job
-        if (!selectedJob) {
+        if (!selectedJobId) {
           this.selectJob(job, ev.target);
         }
         togglePinJob(job);
@@ -59,8 +61,9 @@ class PushJobs extends React.Component {
   };
 
   selectJob = (job, el) => {
-    const { setSelectedJob, selectedJob } = this.props;
-    if (selectedJob) {
+    const { setSelectedJob } = this.props;
+
+    if (getSelectedJobId()) {
       const selected = findSelectedInstance();
       if (selected) selected.setSelected(false);
     }
@@ -136,22 +139,17 @@ class PushJobs extends React.Component {
 }
 
 PushJobs.propTypes = {
-  push: PropTypes.object.isRequired,
-  platforms: PropTypes.array.isRequired,
-  repoName: PropTypes.string.isRequired,
-  filterModel: PropTypes.object.isRequired,
   togglePinJob: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
-  pushGroupState: PropTypes.string.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
+  repoName: PropTypes.string.isRequired,
+  push: PropTypes.object.isRequired,
+  pushGroupState: PropTypes.string.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  selectedJob: PropTypes.object,
-};
-
-PushJobs.defaultProps = {
-  selectedJob: null,
+  platforms: PropTypes.array.isRequired,
+  filterModel: PropTypes.object.isRequired,
 };
 
 export default withPushes(withSelectedJob(withPinnedJobs(PushJobs)));
