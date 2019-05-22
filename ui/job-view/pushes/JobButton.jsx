@@ -73,6 +73,12 @@ export default class JobButtonComponent extends React.Component {
     }));
   }
 
+  refilter() {
+    const { filterPlatformCb, platform } = this.props;
+
+    filterPlatformCb(platform);
+  }
+
   render() {
     const { job, resultStatus } = this.props;
     const { isSelected, isRunnableSelected } = this.state;

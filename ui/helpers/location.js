@@ -13,6 +13,10 @@ export const getUrlParam = function getUrlParam(name) {
   return getAllUrlParams().get(name);
 };
 
+export const getSelectedJobId = function getSelectedJobId() {
+  return parseInt(getUrlParam('selectedJob') || '0', 10);
+};
+
 export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };

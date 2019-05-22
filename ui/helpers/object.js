@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export const extendProperties = function extendProperties(dest, src) {
   /* Version of _.extend that works with property descriptors */
   if (dest !== src) {
@@ -21,3 +20,6 @@ export const extendProperties = function extendProperties(dest, src) {
   }
   return dest;
 };
+
+export const didObjectsChange = (firstObj, secondObj, fields) =>
+  fields.some(field => firstObj[field] !== secondObj[field]);
