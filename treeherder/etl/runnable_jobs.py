@@ -8,7 +8,7 @@ from treeherder.etl.common import fetch_json
 
 logger = logging.getLogger(__name__)
 
-RUNNABLE_JOBS_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/runs/0/artifacts/public/runnable-jobs.json'
+RUNNABLE_JOBS_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/runs/{run_number}/artifacts/public/runnable-jobs.json'
 TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
 
 
@@ -18,37 +18,40 @@ def _taskcluster_runnable_jobs(project):
     if not decision_task_id:
         return []
 
-    tc_graph_url = RUNNABLE_JOBS_URL.format(task_id=decision_task_id)
-    validate = URLValidator()
-    try:
-        validate(tc_graph_url)
-    except ValidationError:
-        logger.warning('Failed to validate %s', tc_graph_url)
-        return []
+    for run_number in range(0, 5):
+        tc_graph_url = RUNNABLE_JOBS_URL.format(task_id=decision_task_id, run_number=run_number)
+        validate = URLValidator()
+        try:
+            validate(tc_graph_url)
+        except ValidationError:
+            logger.warning('Failed to validate %s', tc_graph_url)
+            return []
 
-    try:
-        tc_graph = fetch_json(tc_graph_url)
-    except requests.exceptions.HTTPError as e:
-        logger.info('HTTPError %s when getting taskgraph at %s',
-                    e.response.status_code, tc_graph_url)
-        return []
+        try:
+            tc_graph = fetch_json(tc_graph_url)
+        except requests.exceptions.HTTPError as e:
+            logger.info('HTTPError %s when getting taskgraph at %s',
+                        e.response.status_code, tc_graph_url)
+            continue
 
-    return [
-        {
-            'build_platform': node.get('platform', ''),
-            'build_system_type': 'taskcluster',
-            'job_group_name': node.get('groupName', ''),
-            'job_group_symbol': node.get('groupSymbol', ''),
-            'job_type_name': label,
-            'job_type_symbol': node['symbol'],
-            'platform': node.get('platform'),
-            'platform_option': ' '.join(node.get('collection', {}).keys()),
-            'ref_data_name': label,
-            'state': 'runnable',
-            'result': 'runnable',
-        }
-        for label, node in tc_graph.items()
-    ]
+        return [
+            {
+                'build_platform': node.get('platform', ''),
+                'build_system_type': 'taskcluster',
+                'job_group_name': node.get('groupName', ''),
+                'job_group_symbol': node.get('groupSymbol', ''),
+                'job_type_name': label,
+                'job_type_symbol': node['symbol'],
+                'platform': node.get('platform'),
+                'platform_option': ' '.join(node.get('collection', {}).keys()),
+                'ref_data_name': label,
+                'state': 'runnable',
+                'result': 'runnable',
+            }
+            for label, node in tc_graph.items()
+        ]
+
+    return []
 
 
 def list_runnable_jobs(project):
