@@ -6,7 +6,7 @@ from treeherder.etl.runnable_jobs import (RUNNABLE_JOBS_URL,
 
 TASK_ID = 'AFq3FRt4TyiTwIN7fUqOQg'
 CONTENT1 = {'taskId': TASK_ID}
-RUNNABLE_JOBS_URL = RUNNABLE_JOBS_URL.format(task_id=TASK_ID)
+RUNNABLE_JOBS_URL = RUNNABLE_JOBS_URL.format(task_id=TASK_ID, run_number=0)
 JOB_NAME = 'job name'
 API_RETURN = {
     'build_platform': 'plaform name',
