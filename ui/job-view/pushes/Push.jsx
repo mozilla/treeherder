@@ -319,6 +319,13 @@ class Push extends React.Component {
         push_id: push.id,
       });
 
+      if (jobList === undefined) {
+        notify(
+          `Error fetching runnable jobs: No job list found for any run of gecko decision task`,
+          'danger',
+        );
+        return;
+      }
       if (jobList.length === 0) {
         notify('No new jobs available');
       }
@@ -366,6 +373,13 @@ class Push extends React.Component {
       let fuzzyJobList = await RunnableJobModel.getList(repoName, {
         decision_task_id: decisionTaskId,
       });
+      if (fuzzyJobList === undefined) {
+        notify(
+          `Error fetching runnable jobs: No job list found for any run of gecko decision task`,
+          'danger',
+        );
+        return;
+      }
       fuzzyJobList = [
         ...new Set(
           fuzzyJobList.map(job => {

@@ -30,8 +30,11 @@ export const repoEndpoint = '/repository/';
 
 export const perfSummaryEndpoint = 'performance/summary/';
 
-export const getRunnableJobsURL = function getRunnableJobsURL(decisionTaskId) {
-  return `https://queue.taskcluster.net/v1/task/${decisionTaskId}/runs/0/artifacts/public/runnable-jobs.json`;
+export const getRunnableJobsURL = function getRunnableJobsURL(
+  decisionTaskId,
+  runNumber,
+) {
+  return `https://queue.taskcluster.net/v1/task/${decisionTaskId}/runs/${runNumber}/artifacts/public/runnable-jobs.json`;
 };
 
 export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {

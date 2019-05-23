@@ -1,3 +1,4 @@
+import { getData } from '../helpers/http';
 import { getRunnableJobsURL } from '../helpers/url';
 import { escapeId } from '../helpers/aggregateId';
 
@@ -9,8 +10,21 @@ export default class RunnableJobModel {
   }
 
   static async getList(repoName, params) {
-    const uri = getRunnableJobsURL(params.decision_task_id);
-    const rawJobs = await fetch(uri).then(response => response.json());
+    let rawJobs;
+    /* Jobs are retried up to 5 times. Find the first successful one to
+       download the list of runnable jobs. */
+    for (let runNumber = 0; runNumber < 6; runNumber++) {
+      const uri = getRunnableJobsURL(params.decision_task_id, runNumber);
+      // eslint-disable-next-line no-await-in-loop
+      const { data, failureStatus } = await getData(uri);
+      if (!failureStatus) {
+        rawJobs = data;
+        break;
+      }
+    }
+    if (!rawJobs) {
+      return;
+    }
 
     return Object.entries(rawJobs).map(
       ([key, value]) =>
