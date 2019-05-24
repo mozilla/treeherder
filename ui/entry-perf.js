@@ -52,7 +52,6 @@ import './js/perf';
 // Perf JS
 import './js/filters';
 import './js/controllers/perf/graphs';
-import './js/controllers/perf/alerts';
 import './js/components/loading';
 import './js/perfapp';
 import './perfherder/compare/CompareSelectorView';

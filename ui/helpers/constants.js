@@ -177,9 +177,6 @@ export const thFavicons = {
 
 export const thDefaultRepo = 'mozilla-inbound';
 
-// TODO remove
-export const thDateFormat = 'EEE MMM d, HH:mm:ss';
-
 export const thJobNavSelectors = {
   ALL_JOBS: {
     name: 'jobs',
@@ -223,11 +220,6 @@ export const phTimeRanges = [
 ];
 
 export const phDefaultTimeRangeValue = 1209600;
-
-// TODO remove
-export const phTimeRangeValues = {
-  'mozilla-beta': 7776000,
-};
 
 export const phDefaultFramework = 'talos';
 

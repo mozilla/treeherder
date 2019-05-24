@@ -86,8 +86,6 @@ export const getTTest = function getTTest(
 
   return delta / stdDiffErr;
 };
-// TODO many of these are only used in one controller so can likely be moved
-// into the appropriate react component
 
 const numericCompare = (a, b) => {
   if (a < b) {
@@ -397,26 +395,11 @@ export const getGraphsURL = (
 
   return url;
 };
-// TODO remove
-export const getSubtestsURL = (alert, alertSummary) => {
-  const urlParameters = {
-    framework: alertSummary.framework,
-    originalProject: alertSummary.repository,
-    originalSignature: alert.series_signature.id,
-    newProject: alertSummary.repository,
-    newSignature: alert.series_signature.id,
-    originalRevision: alertSummary.prev_push_revision,
-    newRevision: alertSummary.revision,
-  };
 
-  return `#/comparesubtest${createQueryParams(urlParameters)}`;
-};
-
-// TODO error handling
 export const modifyAlert = (alert, modification) =>
   update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
 
-// TODO remove
+// TODO remove after graphs conversion
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
 
@@ -432,55 +415,7 @@ export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map(alertData => Alert(alertData, optionCollectionMap));
 
-// TODO remove
-const constructAlertSummary = (
-  alertSummaryData,
-  optionCollectionMap,
-  issueTrackers,
-) => {
-  const alertSummaryState = {
-    ...alertSummaryData,
-    issueTrackers,
-    alerts: getInitializedAlerts(alertSummaryData, optionCollectionMap),
-  };
-
-  return alertSummaryState;
-};
-
-// TODO remove usage
-export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
-  if (issueTrackers === undefined) {
-    return getData(getApiUrl(endpoints.issueTrackers)).then(
-      ({ data: issueTrackerList }) => {
-        issueTrackers = issueTrackerList;
-        return constructAlertSummary(
-          alertSummaryData,
-          optionCollectionMap,
-          issueTrackers,
-        );
-      },
-    );
-  }
-
-  return constructAlertSummary(
-    alertSummaryData,
-    optionCollectionMap,
-    issueTrackers,
-  );
-};
-// TODO remove
-export const getIssueTrackerUrl = alertSummary => {
-  if (!alertSummary.bug_number) {
-    return;
-  }
-  if (alertSummary.issue_tracker) {
-    const { issueTrackerUrl } = alertSummary.issueTrackers.find(
-      tracker => tracker.id === alertSummary.issue_tracker,
-    );
-    return issueTrackerUrl + alertSummary.bug_number;
-  }
-};
-
+// TODO rework this
 export const getTextualSummary = (alertSummary, copySummary) => {
   let resultStr = '';
   const improved = sortBy(
@@ -547,19 +482,6 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   return resultStr;
 };
 
-// TODO remove
-export const refreshAlertSummary = alertSummary =>
-  getData(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`)).then(
-    ({ data }) =>
-      OptionCollectionModel.getMap().then(optionCollectionMap => {
-        Object.assign(alertSummary, data);
-        alertSummary.alerts = getInitializedAlerts(
-          alertSummary,
-          optionCollectionMap,
-        );
-      }),
-  );
-
 export const getTitle = alertSummary => {
   let title;
 
@@ -605,37 +527,51 @@ export const getTitle = alertSummary => {
   title += ` (${platformInfo})`;
   return title;
 };
-// TODO remove
-export const modifySelectedAlerts = (alertSummary, modification) => {
-  alertSummary.allSelected = false;
 
-  return Promise.all(
-    alertSummary.alerts
-      .filter(alert => alert.selected)
-      .map(selectedAlert => {
-        selectedAlert.selected = false;
-        return modifyAlert(selectedAlert, modification);
-      }),
-  );
-};
-// TODO replace usage with summaryStatusMap
+// TODO replace usage with summaryStatusMap after graphs conversion
 export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,
   ).text;
 
-// TODO remove
-export const getAlertSummary = id =>
-  OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(getApiUrl(`${endpoints.alertSummary}${id}/`)).then(({ data }) =>
-      AlertSummary(data, optionCollectionMap),
-    ),
+// TODO remove after graphs conversion
+const constructAlertSummary = (
+  alertSummaryData,
+  optionCollectionMap,
+  issueTrackers,
+) => {
+  const alertSummaryState = {
+    ...alertSummaryData,
+    issueTrackers,
+    alerts: getInitializedAlerts(alertSummaryData, optionCollectionMap),
+  };
+
+  return alertSummaryState;
+};
+
+// TODO remove graphs conversion
+export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
+  if (issueTrackers === undefined) {
+    return getData(getApiUrl(endpoints.issueTrackers)).then(
+      ({ data: issueTrackerList }) => {
+        issueTrackers = issueTrackerList;
+        return constructAlertSummary(
+          alertSummaryData,
+          optionCollectionMap,
+          issueTrackers,
+        );
+      },
+    );
+  }
+
+  return constructAlertSummary(
+    alertSummaryData,
+    optionCollectionMap,
+    issueTrackers,
   );
+};
 
-export const getAlertSummaryTitle = id =>
-  getAlertSummary(id).then(alertSummary => getTitle(alertSummary));
-
-// TODO remove
+// TODO remove after graphs conversion
 export const getAlertSummaries = options => {
   let { href } = options;
   if (!options || !options.href) {
