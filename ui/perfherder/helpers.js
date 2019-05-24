@@ -19,6 +19,7 @@ import {
   tValueConfidence,
   noiseMetricTitle,
   summaryStatusMap,
+  alertStatusMap,
 } from './constants';
 
 export const displayNumber = input =>
@@ -415,19 +416,15 @@ export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map(alertData => Alert(alertData, optionCollectionMap));
 
-// TODO rework this
-export const getTextualSummary = (alertSummary, copySummary) => {
+export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
   let resultStr = '';
   const improved = sortBy(
-    alertSummary.alerts.filter(alert => !alert.is_regression && alert.visible),
+    alerts.filter(alert => !alert.is_regression),
     'amount_pct',
   ).reverse();
   const regressed = sortBy(
-    alertSummary.alerts.filter(
-      alert =>
-        alert.is_regression &&
-        alert.visible &&
-        !alertIsOfState(alert, phAlertStatusMap.INVALID),
+    alerts.filter(
+      alert => alert.is_regression && alert.status !== alertStatusMap.invalid,
     ),
     'amount_pct',
   ).reverse();

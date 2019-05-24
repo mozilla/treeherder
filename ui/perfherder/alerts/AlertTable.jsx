@@ -195,6 +195,7 @@ export default class AlertTable extends React.Component {
                         issueTrackers={issueTrackers}
                         bugTemplate={bugTemplate}
                         user={user}
+                        filteredAlerts={filteredAlerts}
                       />
                     </th>
                   </tr>

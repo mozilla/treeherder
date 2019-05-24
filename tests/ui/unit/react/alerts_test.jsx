@@ -223,6 +223,7 @@ const alertsViewControls = () =>
           { id: 1, name: 'mozilla-central' },
           { id: 2, name: 'mozilla-inbound' },
         ],
+        updateParams: () => {},
       }}
       dropdownOptions={testAlertDropdowns}
       alertSummaries={testAlertSummaries}

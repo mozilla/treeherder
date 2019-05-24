@@ -53,33 +53,29 @@ const AlertHeader = ({ alertSummary, repoModel, issueTrackers }) => {
             {alertSummary.revision.slice(0, 12)}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem>
-              <a
-                className="text-dark"
-                href={getJobsUrl({
-                  repo: alertSummary.repository,
-                  fromchange: alertSummary.prev_push_revision,
-                  tochange: alertSummary.revision,
-                })}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Jobs
-              </a>
-            </DropdownItem>
-            <DropdownItem>
-              <a
-                className="text-dark"
-                href={repoModel.getPushLogRangeHref({
-                  fromchange: alertSummary.prev_push_revision,
-                  tochange: alertSummary.revision,
-                })}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Pushlog
-              </a>
-            </DropdownItem>
+            <a
+              className="text-dark"
+              href={getJobsUrl({
+                repo: alertSummary.repository,
+                fromchange: alertSummary.prev_push_revision,
+                tochange: alertSummary.revision,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <DropdownItem>Jobs</DropdownItem>
+            </a>
+            <a
+              className="text-dark"
+              href={repoModel.getPushLogRangeHref({
+                fromchange: alertSummary.prev_push_revision,
+                tochange: alertSummary.revision,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <DropdownItem>Pushlog</DropdownItem>
+            </a>
           </DropdownMenu>
         </UncontrolledDropdown>
         {bugNumber && (

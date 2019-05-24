@@ -17,6 +17,18 @@ export default class AlertsViewControls extends React.Component {
     };
   }
 
+  updateFilter = filter => {
+    this.setState(
+      prevState => ({ [filter]: !prevState[filter] }),
+      () =>
+        this.props.validated.updateParams({
+          [filter === 'hideDownstream' ? 'hideDwnToInv' : filter]: +this.state[
+            filter
+          ],
+        }),
+    );
+  };
+
   render() {
     const { hideImprovements, hideDownstream } = this.state;
     const { dropdownOptions, alertSummaries } = this.props;
@@ -38,9 +50,7 @@ export default class AlertsViewControls extends React.Component {
         <FilterControls
           dropdownOptions={dropdownOptions}
           filterOptions={alertFilters}
-          updateFilter={filter =>
-            this.setState(prevState => ({ [filter]: !prevState[filter] }))
-          }
+          updateFilter={this.updateFilter}
           updateFilterText={filterText => this.setState({ filterText })}
           dropdownCol
         />
@@ -59,7 +69,9 @@ export default class AlertsViewControls extends React.Component {
 }
 
 AlertsViewControls.propTypes = {
-  validated: PropTypes.shape({}).isRequired,
+  validated: PropTypes.shape({
+    updateParams: PropTypes.func,
+  }).isRequired,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
 };

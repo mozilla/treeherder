@@ -42,6 +42,7 @@ export default class StatusDropdown extends React.Component {
       repoModel,
       bugTemplate,
       updateViewState,
+      filteredAlerts,
     } = this.props;
     let result = bugTemplate;
 
@@ -66,7 +67,7 @@ export default class StatusDropdown extends React.Component {
       alertHref: `${window.location.origin}/perf.html#/alerts?id=${
         alertSummary.id
       }`,
-      alertSummary: getTextualSummary(alertSummary),
+      alertSummary: getTextualSummary(filteredAlerts, alertSummary),
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -82,7 +83,7 @@ export default class StatusDropdown extends React.Component {
     } (${pushDate})`;
 
     window.open(
-      `${bzBaseUrl}/enter_bug.cgi?${createQueryParams({
+      `${bzBaseUrl}/enter_bug.cgi${createQueryParams({
         cc: result.cc_list,
         comment: commentText,
         component: result.default_component,
@@ -95,9 +96,10 @@ export default class StatusDropdown extends React.Component {
   };
 
   copySummary = () => {
-    const summary = getTextualSummary(this.props.alertSummary, true);
+    const { filteredAlerts, alertSummary } = this.props;
+    const summary = getTextualSummary(filteredAlerts, alertSummary, true);
     // can't access the clipboardData on event unless it's done from react's
-    // onCopy, onCut or onPaste props
+    // onCopy, onCut or onPaste props so using this workaround
     navigator.clipboard.writeText(summary).then(() => {});
   };
 
@@ -290,9 +292,11 @@ StatusDropdown.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
+  filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 StatusDropdown.defaultProps = {
   issueTrackers: [],
   bugTemplate: null,
+  filteredAlerts: [],
 };
