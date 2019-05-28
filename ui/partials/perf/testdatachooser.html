@@ -5,8 +5,9 @@
 <div class="modal-body" ng-show="!loadingRelatedSignatures">
     <p class="blink" >Getting related test information ...</p>
 </div>
-<div class="modal-body" ng-show="loadingRelatedSignatures">
-  <div id="performance-test-chooser" class="test-chooser">
+<div ng-show="loadingRelatedSignatures">
+  <test-data-modal repos='repos' series-list='seriesList' time-range='timeRange' default-platform="defaultPlatform"/>
+  <!-- <div id="performance-test-chooser" class="test-chooser">
     <div class="form-group">
       <label>Framework</label>
       <select class="form-control" ng-change="updateTestInput()" ng-model="selectedFramework" ng-options="framework.name for framework in frameworkList">
@@ -61,7 +62,7 @@
       </select>
     </div>
   </div>
-</div>
-<div class="modal-footer">
+</div> -->
+<!-- <div class="modal-footer">
   <button class="btn btn-primary-soft" ng-click="addTestData()" ng-disabled="!testsToAdd.length" ng-model="rightList"><span class="fas fa-plus" aria-hidden="true"></span> Add</button>
-</div>
+</div> -->

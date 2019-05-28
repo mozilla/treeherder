@@ -30,7 +30,7 @@ export default class InputFilter extends React.Component {
   };
 
   render() {
-    const { updateFilterText } = this.props;
+    const { updateFilterText, outline } = this.props;
     const { input } = this.state;
 
     return (
@@ -42,7 +42,9 @@ export default class InputFilter extends React.Component {
           onKeyPress={this.handleKeyPress}
         />
         <InputGroupAddon addonType="append">
-          <Button onClick={() => updateFilterText(input)}>filter</Button>
+          <Button outline={outline} onClick={() => updateFilterText(input)}>
+            filter
+          </Button>
         </InputGroupAddon>
       </InputGroup>
     );
@@ -51,4 +53,9 @@ export default class InputFilter extends React.Component {
 
 InputFilter.propTypes = {
   updateFilterText: PropTypes.func.isRequired,
+  outline: PropTypes.bool,
+};
+
+InputFilter.defaultProps = {
+  outline: false,
 };

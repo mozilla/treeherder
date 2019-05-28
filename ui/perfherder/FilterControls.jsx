@@ -14,6 +14,25 @@ import DropdownMenuItems from '../shared/DropdownMenuItems';
 
 import InputFilter from './InputFilter';
 
+export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
+  <React.Fragment>
+    {dropdownOptions.map(dropdown => (
+      <Col sm="auto" className={colClass} key={dropdown.selectedItem}>
+        <UncontrolledDropdown className="mr-0 text-nowrap">
+          <DropdownToggle caret outline={outline}>
+            {dropdown.selectedItem}
+          </DropdownToggle>
+          <DropdownMenuItems
+            options={dropdown.options}
+            selectedItem={dropdown.selectedItem}
+            updateData={dropdown.updateData}
+          />
+        </UncontrolledDropdown>
+      </Col>
+    ))}
+  </React.Fragment>
+);
+
 const FilterControls = ({
   dropdownOptions,
   filterOptions,
@@ -32,34 +51,17 @@ const FilterControls = ({
     </Button>
   );
 
-  const createDropdowns = colClass => (
-    <React.Fragment>
-      {dropdownOptions.map(dropdown => (
-        <Col sm="auto" className={colClass} key={dropdown.selectedItem}>
-          <UncontrolledDropdown className="mr-0 text-nowrap">
-            <DropdownToggle caret>{dropdown.selectedItem}</DropdownToggle>
-            <DropdownMenuItems
-              options={dropdown.options}
-              selectedItem={dropdown.selectedItem}
-              updateData={dropdown.updateData}
-            />
-          </UncontrolledDropdown>
-        </Col>
-      ))}
-    </React.Fragment>
-  );
-
   return (
     <Container fluid className="my-3 px-0">
       {!dropdownCol && dropdownOptions.length > 0 && (
         <Row className="p-3 justify-content-left">
-          {createDropdowns('py-0 pl-0 pr-3')}
+          {createDropdowns(dropdownOptions, 'py-0 pl-0 pr-3')}
         </Row>
       )}
       <Row className="pb-3 pl-3 justify-content-left">
         {dropdownCol &&
           dropdownOptions.length > 0 &&
-          createDropdowns('py-2 pl-0 pr-3')}
+          createDropdowns(dropdownOptions, 'py-2 pl-0 pr-3')}
 
         <Col className="col-3 py-2 pl-0 pr-2">
           <InputFilter updateFilterText={updateFilterText} />

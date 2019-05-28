@@ -181,16 +181,8 @@ h1 {
 
 /* Test Chooser graph */
 
-.modal-body {
-  display: flex;
-  justify-content: space-around;
-  flex-flow: row;
-  align-content: center;
-}
-
 .test-chooser {
-  flex: none;
-  width: 320px;
+  width: 550px;
 }
 
 .btn-group-vertical {

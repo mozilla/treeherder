@@ -66,8 +66,8 @@ export default class AlertModal extends React.Component {
         <Form>
           <ModalBody>
             <FormGroup>
-              <Row>
-                <Col>
+              <Row className="justify-content-center">
+                <Col className="col-4">
                   <Label for="taskId">{title}</Label>
                   <Input
                     value={inputValue}
@@ -78,8 +78,8 @@ export default class AlertModal extends React.Component {
                 </Col>
                 {dropdownOption}
               </Row>
-              <Row>
-                <Col>
+              <Row className="justify-content-center">
+                <Col className="text-center">
                   {invalidInput && validated && (
                     <p className="text-danger pt-2 text-wrap">
                       Input should only contain numbers and not start with 0

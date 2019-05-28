@@ -1,7 +1,8 @@
 import queryString from 'query-string';
 
 import { getProjectUrl } from '../helpers/location';
-import { getApiUrl } from '../helpers/url';
+import { getApiUrl, createQueryParams } from '../helpers/url';
+import { getData } from '../helpers/http';
 
 import OptionCollectionModel from './optionCollection';
 
@@ -68,7 +69,7 @@ export const getSeriesSummary = function getSeriesSummary(
       signatureProps.lower_is_better,
   };
 };
-
+// TODO should use getData wrapper
 export default class PerfSeriesModel {
   static getSeriesList(projectName, params) {
     return OptionCollectionModel.getMap().then(optionCollectionMap =>
@@ -94,12 +95,12 @@ export default class PerfSeriesModel {
   }
 
   static getPlatformList(projectName, params) {
-    return fetch(
+    return getData(
       `${getProjectUrl(
         '/performance/platforms/',
         projectName,
-      )}?${queryString.stringify(params)}`,
-    ).then(async resp => resp.json());
+      )}${createQueryParams(params)}`,
+    );
   }
 
   static getSeriesData(projectName, params) {
