@@ -7,7 +7,6 @@ import {
   DropdownToggle,
   Col,
   Label,
-  Input,
 } from 'reactstrap';
 import moment from 'moment';
 import template from 'lodash/template';
@@ -22,6 +21,7 @@ import {
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
 import { endpoints, summaryStatusMap } from '../constants';
+import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import AlertModal from './AlertModal';
 import NotesModal from './NotesModal';
@@ -170,18 +170,18 @@ export default class StatusDropdown extends React.Component {
             dropdownOption={
               <Col>
                 <Label for="issueTrackerSelector">Select Bug Tracker</Label>
-                <Input
-                  onChange={event =>
-                    this.setState({ selectedValue: event.target.value })
-                  }
-                  type="select"
-                  name="issueTrackerSelector"
-                  value={selectedValue}
-                >
-                  {issueTrackers.map(item => (
-                    <option key={item.id}>{item.text}</option>
-                  ))}
-                </Input>
+                <UncontrolledDropdown>
+                  <DropdownToggle caret outline>
+                    {selectedValue}
+                  </DropdownToggle>
+                  <DropdownMenuItems
+                    updateData={selectedValue =>
+                      this.setState({ selectedValue })
+                    }
+                    selectedItem={selectedValue}
+                    options={issueTrackers.map(item => item.text)}
+                  />
+                </UncontrolledDropdown>
               </Col>
             }
           />

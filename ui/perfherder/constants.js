@@ -25,8 +25,9 @@ export const summaryStatusMap = {
   all: -1,
   untriaged: 0,
   downstream: 1,
-  // Is in the performance_alert_summary model but doesn't appear to be a valid status
-  // reassigned: 2,
+  // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter
+  // with get requests
+  reassigned: 2,
   invalid: 3,
   improvement: 4,
   investigating: 5,

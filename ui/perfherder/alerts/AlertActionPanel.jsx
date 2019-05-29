@@ -138,7 +138,7 @@ export default class AlertActionPanel extends React.Component {
           }
         />
         <AlertModal
-          toggle={this.toggle}
+          toggle={() => this.toggle('showReassignedModal')}
           showModal={showReassignedModal}
           header="Reassign Alerts"
           title="Alert Number"
