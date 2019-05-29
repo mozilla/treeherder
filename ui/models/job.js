@@ -177,7 +177,9 @@ export default class JobModel {
         });
       }
     } catch (e) {
-      notify(`Unable to retrigger/add ${jobTerm}`, 'danger', { sticky: true });
+      notify(`Unable to retrigger/add ${jobTerm}: {e}`, 'danger', {
+        sticky: true,
+      });
     }
   }
 
