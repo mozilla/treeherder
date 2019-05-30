@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,7 +10,7 @@ import { getProjectJobUrl } from '../../../../helpers/location';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
 import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
-import { withNotifications } from '../../../../shared/context/Notifications';
+import { notify } from '../../../redux/stores/notifications';
 
 import AutoclassifyToolbar from './AutoclassifyToolbar';
 import ErrorLine from './ErrorLine';
@@ -371,6 +372,7 @@ AutoclassifyTab.propTypes = {
   repoName: PropTypes.string.isRequired,
 };
 
-export default withNotifications(
-  withSelectedJob(withPinnedJobs(AutoclassifyTab)),
-);
+export default connect(
+  null,
+  { notify },
+)(withSelectedJob(withPinnedJobs(AutoclassifyTab)));

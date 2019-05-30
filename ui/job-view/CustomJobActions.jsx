@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import Ajv from 'ajv';
@@ -22,9 +23,9 @@ import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
-import { withNotifications } from '../shared/context/Notifications';
 
 import { withPushes } from './context/Pushes';
+import { notify } from './redux/stores/notifications';
 
 class CustomJobActions extends React.PureComponent {
   constructor(props) {
@@ -302,4 +303,7 @@ CustomJobActions.defaultProps = {
   job: null,
 };
 
-export default withNotifications(withPushes(CustomJobActions));
+export default connect(
+  null,
+  { notify },
+)(withPushes(CustomJobActions));

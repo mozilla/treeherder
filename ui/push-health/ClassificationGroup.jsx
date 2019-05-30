@@ -17,7 +17,6 @@ import {
   DropdownItem,
 } from 'reactstrap';
 
-import { withNotifications } from '../shared/context/Notifications';
 import JobModel from '../models/job';
 
 import TestFailure from './TestFailure';
@@ -68,6 +67,7 @@ class ClassificationGroup extends React.PureComponent {
       headerColor,
       user,
       hasRetriggerAll,
+      notify,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -125,6 +125,7 @@ class ClassificationGroup extends React.PureComponent {
                   repo={repo}
                   revision={revision}
                   user={user}
+                  notify={notify}
                 />
               ))}
           </div>
@@ -154,4 +155,4 @@ ClassificationGroup.defaultProps = {
   hasRetriggerAll: false,
 };
 
-export default withNotifications(ClassificationGroup);
+export default ClassificationGroup;

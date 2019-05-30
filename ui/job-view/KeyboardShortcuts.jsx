@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { HotKeys } from 'react-hotkeys';
+import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
-import { withNotifications } from '../shared/context/Notifications';
 
 import { withPinnedJobs } from './context/PinnedJobs';
 import { withSelectedJob } from './context/SelectedJob';
+import { clearAllOnScreenNotifications } from './redux/stores/notifications';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -49,11 +50,11 @@ class KeyboardShortcuts extends React.Component {
       clearSelectedJob,
       showOnScreenShortcuts,
       notifications,
-      clearOnScreenNotifications,
+      clearAllOnScreenNotifications,
     } = this.props;
 
     if (notifications.length) {
-      clearOnScreenNotifications();
+      clearAllOnScreenNotifications();
     } else {
       clearSelectedJob();
       showOnScreenShortcuts(false);
@@ -243,7 +244,7 @@ KeyboardShortcuts.propTypes = {
       sticky: PropTypes.bool,
     }),
   ).isRequired,
-  clearOnScreenNotifications: PropTypes.func.isRequired,
+  clearAllOnScreenNotifications: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
 
@@ -251,6 +252,11 @@ KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
 
-export default withPinnedJobs(
-  withSelectedJob(withNotifications(KeyboardShortcuts)),
-);
+const mapStateToProps = ({ notifications: { notifications } }) => ({
+  notifications,
+});
+
+export default connect(
+  mapStateToProps,
+  { clearAllOnScreenNotifications },
+)(withPinnedJobs(withSelectedJob(KeyboardShortcuts)));

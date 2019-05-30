@@ -5,7 +5,7 @@ import ClassificationGroup from './ClassificationGroup';
 
 export default class TestFailures extends React.PureComponent {
   render() {
-    const { failures, repo, revision, user } = this.props;
+    const { failures, repo, revision, user, notify } = this.props;
     const { needInvestigation, intermittent } = failures;
     const needInvestigationLength = Object.keys(needInvestigation).length;
 
@@ -20,6 +20,7 @@ export default class TestFailures extends React.PureComponent {
           headerColor={needInvestigationLength ? 'danger' : 'secondary'}
           user={user}
           hasRetriggerAll
+          notify={notify}
         />
         <ClassificationGroup
           group={intermittent}
@@ -30,6 +31,7 @@ export default class TestFailures extends React.PureComponent {
           headerColor="secondary"
           expanded={false}
           user={user}
+          notify={notify}
         />
       </div>
     );
@@ -41,4 +43,5 @@ TestFailures.propTypes = {
   user: PropTypes.object.isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
+  notify: PropTypes.func.isRequired,
 };

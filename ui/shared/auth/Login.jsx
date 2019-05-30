@@ -9,7 +9,6 @@ import { loggedOutUser } from '../../helpers/auth';
 import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
-import { withNotifications } from '../context/Notifications';
 
 import AuthService from './AuthService';
 
@@ -167,4 +166,4 @@ Login.defaultProps = {
   notify: msg => console.error(msg), // eslint-disable-line no-console
 };
 
-export default withNotifications(Login);
+export default Login;

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import $ from 'jquery';
 
@@ -15,7 +16,7 @@ import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { getJobsUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import PushModel from '../../models/push';
-import { withNotifications } from '../../shared/context/Notifications';
+import { notify } from '../redux/stores/notifications';
 
 import { withPinnedJobs } from './PinnedJobs';
 import { withPushes } from './Pushes';
@@ -287,9 +288,10 @@ SelectedJobClass.propTypes = {
   children: PropTypes.object.isRequired,
 };
 
-export const SelectedJob = withNotifications(
-  withPushes(withPinnedJobs(SelectedJobClass)),
-);
+export const SelectedJob = connect(
+  null,
+  { notify },
+)(withPushes(withPinnedJobs(SelectedJobClass)));
 
 export function withSelectedJob(Component) {
   return function SelectedJobComponent(props) {

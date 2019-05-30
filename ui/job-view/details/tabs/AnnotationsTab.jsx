@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -11,8 +12,8 @@ import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPushes } from '../../context/Pushes';
-import { withNotifications } from '../../../shared/context/Notifications';
 import { longDateFormat } from '../../../helpers/display';
+import { notify } from '../../redux/stores/notifications';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -254,4 +255,7 @@ AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
 
-export default withNotifications(withPushes(withSelectedJob(AnnotationsTab)));
+export default connect(
+  null,
+  { notify },
+)(withPushes(withSelectedJob(AnnotationsTab)));
