@@ -37,6 +37,7 @@ export const treeOptions = [
   'mozilla-central',
   'mozilla-inbound',
   'mozilla-esr60',
+  'mozilla-esr68',
   'autoland',
   'firefox-releases',
   'comm-central',
