@@ -222,6 +222,7 @@ class PerformanceAlertSummary(models.Model):
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
+                (REASSIGNED, 'Reassigned'),
                 (INVALID, 'Invalid'),
                 (IMPROVEMENT, 'Improvement'),
                 (INVESTIGATING, 'Investigating'),
