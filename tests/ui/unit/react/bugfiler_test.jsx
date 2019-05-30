@@ -54,7 +54,7 @@ describe('BugFiler', () => {
     );
 
     fetchMock.mock(
-      `${bzBaseUrl}rest/prod_comp_search/firefox%20::%20search?limit=5`,
+      `${bzBaseUrl}rest/prod_comp_search/find/firefox%20::%20search?limit=5`,
       {
         products: [
           { product: 'Firefox' },
