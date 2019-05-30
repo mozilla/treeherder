@@ -7652,16 +7652,17 @@ react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4, react-is
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.8.6.tgz#5bbc1e2d29141c9fbdfed456343fe2bc430a6a16"
   integrity sha512-aUk3bHfZ2bRSVFFbbeVS4i+lNPZr3/WM5jT2J5omUVV1zzcs1nAaf3l51ctA5FFvCRbhrH0bdAsRRQddFJZPtA==
 
-react-lazylog@3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/react-lazylog/-/react-lazylog-3.2.1.tgz#5aa01e81d3465351acd7a7b744a85c17bd06ae7c"
-  integrity sha512-KCOVxWx/w6u3BPcuoPgaTF8dJMF6aqCbUcbJfL5loy6YC/SyrtiSXC4XMhehqDTDLfqB5WJsFZu4aOfE1U06Tw==
+react-lazylog@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-lazylog/-/react-lazylog-4.0.0.tgz#f498e9408b5c09c03b046d55dd7cc8ee28b91edc"
+  integrity sha512-xFduKoCFes4pGYfTvq03S35aHt09uCngAtaRWDjnlmUhuBX+bO8GtgiONqdfeM1Oow7CK7FBcMTm+sBskgDq2Q==
   dependencies:
     "@mattiasbuelens/web-streams-polyfill" "^0.2.0"
     fetch-readablestream "^0.2.0"
     immutable "^3.8.2"
     mitt "^1.1.2"
     prop-types "^15.6.1"
+    react-string-replace "^0.4.1"
     react-virtualized "^9.21.0"
     text-encoding-utf-8 "^1.0.1"
     whatwg-fetch "^2.0.4"
@@ -7750,6 +7751,13 @@ react-split-pane@0.1.87:
     prop-types "^15.5.10"
     react-lifecycles-compat "^3.0.4"
     react-style-proptype "^3.0.0"
+
+react-string-replace@^0.4.1:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/react-string-replace/-/react-string-replace-0.4.4.tgz#24006fbe0db573d5be583133df38b1a735cb4225"
+  integrity sha512-FAMkhxmDpCsGTwTZg7p/2v+/GTmxAp73so3fbSvlAcBBX36ujiGRNEaM/1u+jiYQrArhns+7eE92g2pi5E5FUA==
+  dependencies:
+    lodash "^4.17.4"
 
 react-style-proptype@^3.0.0:
   version "3.2.2"
