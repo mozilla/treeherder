@@ -233,7 +233,7 @@ export class BugFilerClass extends React.Component {
 
     if (productSearch) {
       const resp = await fetch(
-        `${bzBaseUrl}rest/prod_comp_search/${productSearch}?limit=5`,
+        `${bzBaseUrl}rest/prod_comp_search/find/${productSearch}?limit=5`,
       );
       const data = await resp.json();
       const products = data.products.filter(
