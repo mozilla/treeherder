@@ -43,7 +43,7 @@ const AlertHeader = ({ alertSummary, repoModel, issueTrackers }) => {
       <span className="font-weight-normal">
         <span className="align-middle">{`${moment(
           alertSummary.push_timestamp * 1000,
-        ).format('ddd MMM d, HH:mm:ss')} · `}</span>
+        ).format('ddd MMM D, HH:mm:ss')} · `}</span>
         <UncontrolledDropdown tag="span">
           <DropdownToggle
             className="btn-link text-info p-0"

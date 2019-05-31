@@ -44,7 +44,6 @@ export class AlertsView extends React.Component {
       optionCollectionMap: null,
       count: 0,
       id: this.validated.id,
-      filteredResults: [],
       bugTemplate: null,
     };
   }
@@ -100,7 +99,7 @@ export class AlertsView extends React.Component {
   // TODO potentially pass as a prop for testing purposes
   async fetchAlertSummaries(id = this.state.id, update = false) {
     // turn off loading when update is true (used to update alert statuses)
-    this.setState({ loading: !update, errorMessages: [], filteredResults: [] });
+    this.setState({ loading: !update, errorMessages: [] });
 
     const {
       framework,
@@ -186,8 +185,8 @@ export class AlertsView extends React.Component {
       optionCollectionMap,
       page,
       count,
-      filteredResults,
       bugTemplate,
+      id,
     } = this.state;
     const { frameworks } = validated;
 
@@ -241,17 +240,16 @@ export class AlertsView extends React.Component {
           )}
           <AlertsViewControls
             validated={validated}
-            dropdownOptions={alertDropdowns}
+            dropdownOptions={id ? [] : alertDropdowns}
             alertSummaries={alertSummaries}
             issueTrackers={issueTrackers}
             optionCollectionMap={optionCollectionMap}
             fetchAlertSummaries={id => this.fetchAlertSummaries(id, true)}
             updateViewState={state => this.setState(state)}
-            filteredResults={filteredResults}
             bugTemplate={bugTemplate}
             user={user}
           />
-          {pageNums.length > 0 && filteredResults.length > 0 && (
+          {pageNums.length > 0 && (
             <Row className="justify-content-center pb-5">
               <Pagination aria-label={`Page ${page}`}>
                 {page > 1 && (
@@ -285,10 +283,9 @@ export class AlertsView extends React.Component {
               </Pagination>
             </Row>
           )}
-          {!loading &&
-            (alertSummaries.length === 0 || filteredResults.length === 0) && (
-              <p className="lead text-center">No alerts to show</p>
-            )}
+          {!loading && alertSummaries.length === 0 && (
+            <p className="lead text-center">No alerts to show</p>
+          )}
         </Container>
       </ErrorBoundary>
     );

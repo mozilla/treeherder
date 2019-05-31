@@ -115,15 +115,11 @@ export default class AlertTable extends React.Component {
 
   updateFilteredAlerts = () => {
     const { alertSummary } = this.state;
-    const { updateViewState, filteredResults } = this.props;
 
     const filteredAlerts = alertSummary.alerts.filter(alert =>
       this.filterAlert(alert),
     );
     this.setState({ filteredAlerts });
-    updateViewState({
-      filteredResults: [...filteredAlerts, ...filteredResults],
-    });
   };
 
   render() {
@@ -299,7 +295,6 @@ AlertTable.propTypes = {
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
-  filteredResults: PropTypes.arrayOf(PropTypes.shape({})),
   bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
 };
@@ -308,7 +303,6 @@ AlertTable.defaultProps = {
   alertSummary: null,
   user: null,
   issueTrackers: [],
-  filteredResults: [],
   bugTemplate: null,
   modifyAlert: undefined,
 };

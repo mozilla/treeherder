@@ -57,9 +57,11 @@ const FilterControls = ({
         </Row>
       )}
       <Row className="pb-3 pl-3 justify-content-left">
-        {dropdownCol && dropdownOptions.length > 0 && createDropdowns('p-2')}
+        {dropdownCol &&
+          dropdownOptions.length > 0 &&
+          createDropdowns('py-2 pl-0 pr-3')}
 
-        <Col className={`col-3 ${dropdownCol ? 'p-2' : 'py-2 pl-0 pr-2'}`}>
+        <Col className="col-3 py-2 pl-0 pr-2">
           <InputFilter updateFilterText={updateFilterText} />
         </Col>
 
