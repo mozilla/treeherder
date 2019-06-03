@@ -5,6 +5,8 @@ export const tValueConfidence = 5; // Anything above this is "high" in confidenc
 export const endpoints = {
   issueTrackers: '/performance/issue-tracker/',
   frameworks: '/performance/framework/',
+  alertSummary: '/performance/alertsummary/',
+  alert: '/performance/alert/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -18,3 +20,28 @@ export const filterText = {
 };
 
 export const noDataFoundMessage = 'No Data Found';
+
+export const summaryStatusMap = {
+  all: -1,
+  untriaged: 0,
+  downstream: 1,
+  // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter
+  // with get requests
+  reassigned: 2,
+  invalid: 3,
+  improvement: 4,
+  investigating: 5,
+  wontfix: 6,
+  fixed: 7,
+  backedout: 8,
+  confirming: 9,
+};
+
+export const alertStatusMap = {
+  untriaged: 0,
+  downstream: 1,
+  reassigned: 2,
+  invalid: 3,
+  acknowledged: 4,
+  confirming: 5,
+};

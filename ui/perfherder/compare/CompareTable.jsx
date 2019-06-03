@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Progress } from 'reactstrap';
+import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,6 +9,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
+import ProgressBar from '../ProgressBar';
 
 import TableAverage from './TableAverage';
 
@@ -119,40 +120,10 @@ export default class CompareTable extends React.PureComponent {
               </td>
               <td>
                 {results.delta ? (
-                  <SimpleTooltip
-                    text={
-                      <Progress multi>
-                        {/* the % of the bars that are colored and transparent is based on the newIsBetter metric,
-                        which determines whether the colored bar for magnitude is displayed on the left or right */}
-                        <Progress
-                          bar
-                          value={
-                            !results.newIsBetter
-                              ? 100 - results.magnitude
-                              : results.magnitude
-                          }
-                          color={
-                            !results.newIsBetter
-                              ? 'transparent'
-                              : this.getColorClass(results, 'bar')
-                          }
-                        />
-                        <Progress
-                          bar
-                          value={
-                            !results.newIsBetter
-                              ? results.magnitude
-                              : 100 - results.magnitude
-                          }
-                          color={
-                            !results.newIsBetter
-                              ? this.getColorClass(results, 'bar')
-                              : 'transparent'
-                          }
-                        />
-                      </Progress>
-                    }
-                    tooltipText="Relative magnitude of change (scale from 0 - 20%+)"
+                  <ProgressBar
+                    magnitude={results.magnitude}
+                    regression={!results.newIsBetter}
+                    color={this.getColorClass(results, 'bar')}
                   />
                 ) : null}
               </td>

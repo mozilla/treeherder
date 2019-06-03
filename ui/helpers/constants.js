@@ -177,8 +177,6 @@ export const thFavicons = {
 
 export const thDefaultRepo = 'mozilla-inbound';
 
-export const thDateFormat = 'EEE MMM d, HH:mm:ss';
-
 export const thJobNavSelectors = {
   ALL_JOBS: {
     name: 'jobs',
@@ -223,10 +221,6 @@ export const phTimeRanges = [
 
 export const phDefaultTimeRangeValue = 1209600;
 
-export const phTimeRangeValues = {
-  'mozilla-beta': 7776000,
-};
-
 export const phDefaultFramework = 'talos';
 
 export const phFrameworksWithRelatedBranches = [
@@ -235,7 +229,7 @@ export const phFrameworksWithRelatedBranches = [
   11, // js-bench
   12, // devtools
 ];
-
+// TODO remove usage in favor of summaryStatusMap perfherder's constant file
 export const phAlertSummaryStatusMap = {
   UNTRIAGED: { id: 0, text: 'untriaged' },
   DOWNSTREAM: { id: 1, text: 'downstream' },
@@ -248,7 +242,7 @@ export const phAlertSummaryStatusMap = {
   BACKEDOUT: { id: 8, text: 'backedout' },
   CONFIRMING: { id: 9, text: 'confirming' },
 };
-
+// TODO move into perfherder constants file
 export const phAlertStatusMap = {
   UNTRIAGED: { id: 0, text: 'untriaged' },
   DOWNSTREAM: { id: 1, text: 'downstream' },

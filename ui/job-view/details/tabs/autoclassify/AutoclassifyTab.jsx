@@ -230,7 +230,7 @@ class AutoclassifyTab extends React.Component {
    * the server.
    * @param {number[]} lines - Lines to test.
    */
-  save = lines => {
+  save = async lines => {
     if (!Object.keys(lines).length) {
       return Promise.reject('No lines to save');
     }
@@ -243,25 +243,24 @@ class AutoclassifyTab extends React.Component {
     }));
 
     this.setState({ loadStatus: 'loading' });
-    return TextLogErrorsModel.verifyMany(data)
-      .then(data => {
-        const newErrorLines = data.reduce(
-          (newLines, updatedLine) => {
-            const idx = newLines.findIndex(line => line.id === updatedLine.id);
-            newLines[idx] = new ErrorLineData(updatedLine);
-            return newLines;
-          },
-          [...errorLines],
-        );
-        this.setState({ errorLines: newErrorLines, loadStatus: 'ready' });
-      })
-      .catch(err => {
-        const prefix = 'Error saving classifications: ';
-        const msg = err.stack
-          ? `${prefix}${err}${err.stack}`
-          : `${prefix}${err.statusText} - ${err.data.detail}`;
-        notify(msg, 'danger', { sticky: true });
-      });
+    const {
+      data: results,
+      failureStatus,
+    } = await TextLogErrorsModel.verifyMany(data);
+    if (!failureStatus) {
+      const newErrorLines = results.reduce(
+        (newLines, updatedLine) => {
+          const idx = newLines.findIndex(line => line.id === updatedLine.id);
+          newLines[idx] = new ErrorLineData(updatedLine);
+          return newLines;
+        },
+        [...errorLines],
+      );
+      this.setState({ errorLines: newErrorLines, loadStatus: 'ready' });
+    } else {
+      const msg = `Error saving classifications: ${results}`;
+      notify(msg, 'danger', { sticky: true });
+    }
   };
 
   /**

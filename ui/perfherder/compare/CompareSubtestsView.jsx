@@ -11,8 +11,8 @@ import {
   createGraphsLinks,
 } from '../helpers';
 import { noiseMetricTitle } from '../constants';
+import withValidation from '../Validation';
 
-import withValidation from './Validation';
 import CompareTableView from './CompareTableView';
 
 // TODO remove $stateParams and $state after switching to react router

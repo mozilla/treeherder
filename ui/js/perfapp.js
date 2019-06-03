@@ -32,7 +32,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 title: 'Alerts',
                 template: alertsCtrlTemplate,
                 url: '/alerts?id&status&framework&filter&hideImprovements&hideDwnToInv&page',
-                controller: 'AlertsCtrl',
             })
             .state('graphs', {
                 title: 'Graphs',

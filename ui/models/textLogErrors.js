@@ -15,6 +15,6 @@ export default class TextLogErrorsModel {
     if (!body.length) {
       return Promise.resolve();
     }
-    return update(uri, body).then(resp => resp.json());
+    return update(uri, body);
   }
 }

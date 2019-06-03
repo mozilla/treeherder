@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Container, Button } from 'reactstrap';
+import { Container } from 'reactstrap';
 
-import SimpleTooltip from '../../shared/SimpleTooltip';
 import { filterText } from '../constants';
+import { convertParams } from '../helpers';
+import FilterControls from '../FilterControls';
 
-import InputFilter from './InputFilter';
 import CompareTable from './CompareTable';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
     super(props);
-
+    this.validated = this.props.validated;
     this.state = {
-      hideUncomparable: this.convertParams('showOnlyComparable'),
-      showImportant: this.convertParams('showOnlyImportant'),
-      hideUncertain: this.convertParams('showOnlyConfident'),
-      showNoise: this.convertParams('showOnlyNoise'),
+      hideUncomparable: convertParams(this.validated, 'showOnlyComparable'),
+      showImportant: convertParams(this.validated, 'showOnlyImportant'),
+      hideUncertain: convertParams(this.validated, 'showOnlyConfident'),
+      showNoise: convertParams(this.validated, 'showOnlyNoise'),
       results: new Map(),
       filterText: '',
     };
@@ -32,12 +32,6 @@ export default class CompareTableControls extends React.Component {
       this.updateFilteredResults();
     }
   }
-
-  convertParams = value =>
-    Boolean(
-      this.props.validated[value] !== undefined &&
-        parseInt(this.props.validated[value], 10),
-    );
 
   updateFilterText = filterText => {
     this.setState({ filterText }, () => this.updateFilteredResults());
@@ -117,11 +111,7 @@ export default class CompareTableControls extends React.Component {
   };
 
   render() {
-    const {
-      frameworkOptions,
-      dateRangeOptions,
-      showTestsWithNoise,
-    } = this.props;
+    const { showTestsWithNoise, dropdownOptions } = this.props;
     const {
       hideUncomparable,
       hideUncertain,
@@ -130,77 +120,43 @@ export default class CompareTableControls extends React.Component {
       results,
     } = this.state;
 
+    const compareFilters = [
+      {
+        tooltipText: 'At least 1 result for old and new revision',
+        text: filterText.hideUncomparable,
+        state: hideUncomparable,
+        stateName: 'hideUncomparable',
+      },
+      {
+        tooltipText: 'Non-trivial changes (2%+)',
+        text: filterText.showImportant,
+        state: showImportant,
+        stateName: 'showImportant',
+      },
+      {
+        tooltipText:
+          'At least 6 datapoints OR 2+ datapoints and a large difference',
+        text: filterText.hideUncertain,
+        state: hideUncertain,
+        stateName: 'hideUncertain',
+      },
+      {
+        tooltipText:
+          'Display Noise Metric to compare noisy tests at a platform level',
+        text: filterText.showNoise,
+        state: showNoise,
+        stateName: 'showNoise',
+      },
+    ];
     return (
       <Container fluid className="my-3 px-0">
-        <Row className="p-3 justify-content-left">
-          {frameworkOptions}
-          {dateRangeOptions}
-        </Row>
-        <Row className="pb-3 pl-3 justify-content-left">
-          <Col className="py-2 pl-0 pr-2 col-3">
-            <InputFilter updateFilterText={this.updateFilterText} />
-          </Col>
-          <Col sm="auto" className="p-2">
-            <SimpleTooltip
-              text={
-                <Button
-                  color="info"
-                  outline
-                  onClick={() => this.updateFilter('hideUncomparable')}
-                  active={hideUncomparable}
-                >
-                  {filterText.hideUncomparable}
-                </Button>
-              }
-              tooltipText="At least 1 result for old and new revision"
-            />
-          </Col>
-          <Col sm="auto" className="p-2">
-            <SimpleTooltip
-              text={
-                <Button
-                  color="info"
-                  outline
-                  onClick={() => this.updateFilter('showImportant')}
-                  active={showImportant}
-                >
-                  {filterText.showImportant}
-                </Button>
-              }
-              tooltipText="Non-trivial changes (2%+)"
-            />
-          </Col>
-          <Col sm="auto" className="p-2">
-            <SimpleTooltip
-              text={
-                <Button
-                  color="info"
-                  outline
-                  onClick={() => this.updateFilter('hideUncertain')}
-                  active={hideUncertain}
-                >
-                  {filterText.hideUncertain}
-                </Button>
-              }
-              tooltipText="At least 6 datapoints OR 2+ datapoints and a large difference"
-            />
-          </Col>
-          <Col sm="auto" className="p-2">
-            <SimpleTooltip
-              text={
-                <Button
-                  color="info"
-                  outline
-                  onClick={() => this.updateFilter('showNoise')}
-                  active={showNoise}
-                >
-                  {filterText.showNoise}
-                </Button>
-              }
-              tooltipText="Display Noise Metric to compare noisy tests at a platform level"
-            />
-          </Col>
-        </Row>
+        <FilterControls
+          filterOptions={compareFilters}
+          updateFilter={this.updateFilter}
+          updateFilterText={this.updateFilterText}
+          dropdownOptions={dropdownOptions}
+        />
+
         {showNoise && showTestsWithNoise}
 
         {results.size > 0 ? (
@@ -217,8 +173,7 @@ export default class CompareTableControls extends React.Component {
 
 CompareTableControls.propTypes = {
   compareResults: PropTypes.shape({}).isRequired,
-  frameworkOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
-  dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
@@ -232,8 +187,7 @@ CompareTableControls.propTypes = {
 };
 
 CompareTableControls.defaultProps = {
-  frameworkOptions: null,
-  dateRangeOptions: null,
+  dropdownOptions: [],
   validated: {
     showOnlyImportant: undefined,
     showOnlyComparable: undefined,

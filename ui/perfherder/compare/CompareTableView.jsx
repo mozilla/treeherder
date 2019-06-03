@@ -1,12 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Col,
-  Row,
-  Container,
-  UncontrolledDropdown,
-  DropdownToggle,
-} from 'reactstrap';
+import { Alert, Col, Row, Container } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
@@ -24,12 +18,12 @@ import {
   perfSummaryEndpoint,
   createQueryParams,
 } from '../../helpers/url';
-import DropdownMenuItems from '../../shared/DropdownMenuItems';
+import { getFrameworkData } from '../helpers';
+import TruncatedText from '../../shared/TruncatedText';
 
 import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
-import ResultsAlert from './ResultsAlert';
 
 // TODO remove $stateParams and $state after switching to react router
 export default class CompareTableView extends React.Component {
@@ -42,7 +36,7 @@ export default class CompareTableView extends React.Component {
       failureMessage: '',
       loading: false,
       timeRange: this.setTimeRange(),
-      framework: this.getFrameworkData(),
+      framework: getFrameworkData(this.props.validated),
       title: '',
     };
   }
@@ -56,20 +50,6 @@ export default class CompareTableView extends React.Component {
       this.getPerformanceData();
     }
   }
-
-  getFrameworkData = () => {
-    const { framework, frameworks } = this.props.validated;
-
-    if (framework) {
-      const frameworkObject = frameworks.find(
-        item => item.id === parseInt(framework, 10),
-      );
-      // framework is validated in the withValidation component so
-      // we know this object will always exist
-      return frameworkObject;
-    }
-    return { id: 1, name: 'talos' };
-  };
 
   setTimeRange = () => {
     const { selectedTimeRange, originalRevision } = this.props.validated;
@@ -197,9 +177,10 @@ export default class CompareTableView extends React.Component {
       framework,
     } = this.state;
 
-    const timeRangeOptions = phTimeRanges.map(option => option.text);
     const frameworkNames =
       frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+
+    const compareDropdowns = [];
 
     const params = { originalProject, newProject, newRevision };
 
@@ -207,6 +188,21 @@ export default class CompareTableView extends React.Component {
       params.originalRevision = originalRevision;
     } else if (timeRange) {
       params.selectedTimeRange = timeRange.value;
+    }
+
+    if (filterByFramework) {
+      compareDropdowns.push({
+        options: frameworkNames,
+        selectedItem: framework.name,
+        updateData: framework => this.updateFramework(framework),
+      });
+    }
+    if (!originalRevision) {
+      compareDropdowns.push({
+        options: phTimeRanges.map(option => option.text),
+        selectedItem: timeRange.text,
+        updateData: timeRange => this.updateTimeRange(timeRange),
+      });
     }
 
     return (
@@ -264,43 +260,24 @@ export default class CompareTableView extends React.Component {
               )}
 
               {testsNoResults && (
-                <ResultsAlert testsNoResults={testsNoResults} />
+                <Row className="pt-5 justify-content-center">
+                  <Col small="12" className="px-0 max-width-default">
+                    <Alert color="warning">
+                      <TruncatedText
+                        title="Tests without results: "
+                        maxLength={174}
+                        text={testsNoResults}
+                      />
+                    </Alert>
+                  </Col>
+                </Row>
               )}
 
               <CompareTableControls
                 {...this.props}
-                frameworkOptions={
-                  filterByFramework && (
-                    <Col sm="auto" className="py-0 pl-0 pr-3">
-                      <UncontrolledDropdown className="mr-0 text-nowrap">
-                        <DropdownToggle caret>{framework.name}</DropdownToggle>
-                        {frameworkNames && (
-                          <DropdownMenuItems
-                            options={frameworkNames}
-                            selectedItem={framework.name}
-                            updateData={this.updateFramework}
-                          />
-                        )}
-                      </UncontrolledDropdown>
-                    </Col>
-                  )
-                }
+                dropdownOptions={compareDropdowns}
                 updateState={state => this.setState(state)}
                 compareResults={compareResults}
-                dateRangeOptions={
-                  !originalRevision && (
-                    <Col sm="auto" className="p-0">
-                      <UncontrolledDropdown className="mr-0 text-nowrap">
-                        <DropdownToggle caret>{timeRange.text}</DropdownToggle>
-                        <DropdownMenuItems
-                          options={timeRangeOptions}
-                          selectedItem={timeRange.text}
-                          updateData={this.updateTimeRange}
-                        />
-                      </UncontrolledDropdown>
-                    </Col>
-                  )
-                }
                 showTestsWithNoise={
                   testsWithNoise.length > 0 && (
                     <Row>

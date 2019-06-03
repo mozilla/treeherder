@@ -4,11 +4,12 @@ import { Container } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
-import { getData } from '../../helpers/http';
-import { getApiUrl, repoEndpoint } from '../../helpers/url';
-import PushModel from '../../models/push';
-import { endpoints } from '../constants';
-import ErrorMessages from '../../shared/ErrorMessages';
+import { getData, processResponse } from '../helpers/http';
+import { getApiUrl, repoEndpoint } from '../helpers/url';
+import PushModel from '../models/push';
+import ErrorMessages from '../shared/ErrorMessages';
+
+import { endpoints, summaryStatusMap } from './constants';
 
 // TODO once we switch to react-router
 // 1) use context in this HOC to share state between compare views, by wrapping router component in it;
@@ -19,7 +20,10 @@ import ErrorMessages from '../../shared/ErrorMessages';
 //      to a different project, projects will already be stored in state so no fetching data again to validate
 //
 
-const withValidation = requiredParams => WrappedComponent => {
+const withValidation = (
+  requiredParams,
+  verifyRevisions = true,
+) => WrappedComponent => {
   class Validation extends React.Component {
     constructor(props) {
       super(props);
@@ -51,21 +55,13 @@ const withValidation = requiredParams => WrappedComponent => {
       ]);
 
       const updates = {
-        ...this.processResponse(projects, 'projects'),
-        ...this.processResponse(frameworks, 'frameworks'),
+        ...processResponse(projects, 'projects'),
+        ...processResponse(frameworks, 'frameworks'),
       };
       this.setState(updates, () =>
         this.validateParams(this.props.$stateParams),
       );
     }
-
-    processResponse = (response, state) => {
-      const { data, failureStatus } = response;
-      if (failureStatus) {
-        return { errorMessages: [...this.state.errorMessages, ...data] };
-      }
-      return { [state]: data };
-    };
 
     updateParams = param => {
       const { transitionTo, current } = this.props.$state;
@@ -76,6 +72,15 @@ const withValidation = requiredParams => WrappedComponent => {
     };
 
     errorMessage = (param, value) => `${param} ${value} is not valid`;
+
+    findParam = (param, value, list, errors) => {
+      const valid = list.find(item => item.name || item === value);
+
+      if (valid === undefined) {
+        errors.push(this.errorMessage(param, value));
+      }
+      return errors;
+    };
 
     async checkRevisions(params) {
       if (!params.originalRevision) {
@@ -131,7 +136,7 @@ const withValidation = requiredParams => WrappedComponent => {
 
     validateParams(params) {
       const { projects, frameworks } = this.state;
-      const errors = [];
+      let errors = [];
 
       for (const [param, value] of Object.entries(params)) {
         if (!value && requiredParams.has(param)) {
@@ -145,29 +150,33 @@ const withValidation = requiredParams => WrappedComponent => {
         }
 
         if (param.indexOf('Project') !== -1 && projects.length) {
-          const validProject = projects.find(project => project.name === value);
-
-          if (!validProject) {
-            errors.push(this.errorMessage(param, value));
-          }
+          errors = this.findParam(param, value, projects, errors);
         }
 
         if (param === 'framework' && value && frameworks.length) {
-          const validFramework = frameworks.find(
-            item => item.id === parseInt(value, 10),
-          );
+          errors = this.findParam(param, value, frameworks, errors);
+        }
 
-          if (!validFramework) {
-            errors.push(this.errorMessage(param, value));
-          }
+        if (param === 'status' && value) {
+          errors = this.findParam(
+            param,
+            parseInt(value, 10),
+            Object.values(summaryStatusMap),
+            errors,
+          );
         }
       }
 
       if (errors.length) {
         return this.setState({ errorMessages: errors });
       }
-
-      this.checkRevisions(params);
+      if (verifyRevisions) {
+        return this.checkRevisions(params);
+      }
+      this.setState({
+        ...params,
+        validationComplete: true,
+      });
     }
 
     render() {

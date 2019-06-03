@@ -25,7 +25,6 @@ import {
   faCode,
   faExclamationCircle,
   faExclamationTriangle,
-  faExternalLinkAlt,
   faLevelDownAlt,
   faPlus,
   faQuestionCircle,
@@ -53,13 +52,14 @@ import './js/perf';
 // Perf JS
 import './js/filters';
 import './js/controllers/perf/graphs';
-import './js/controllers/perf/alerts';
 import './js/components/loading';
 import './js/perfapp';
 import './perfherder/compare/CompareSelectorView';
 import './perfherder/compare/CompareView';
 import './perfherder/compare/CompareSubtestDistributionView';
 import './perfherder/compare/CompareSubtestsView';
+import './perfherder/alerts/AlertTable';
+import './perfherder/alerts/AlertsView';
 
 config.showMissingIcons = true;
 
@@ -77,7 +77,6 @@ library.add(
   faCode,
   faExclamationCircle,
   faExclamationTriangle,
-  faExternalLinkAlt,
   faFileCode,
   faFileWord,
   faGithub,
