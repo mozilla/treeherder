@@ -2,11 +2,11 @@
   <h4 class="modal-title">Add test data</h4>
   <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 </div>
-<div class="modal-body" ng-show="!loadingRelatedSignatures">
+<!-- <div class="modal-body" ng-show="!loadingRelatedSignatures">
     <p class="blink" >Getting related test information ...</p>
 </div>
-<div ng-show="loadingRelatedSignatures">
-  <test-data-modal repos='repos' series-list='seriesList' time-range='timeRange' default-platform="defaultPlatform"/>
+<div ng-show="loadingRelatedSignatures"> -->
+  <test-data-modal repos='repos' series-list='seriesList' time-range='timeRange' default-platform="defaultPlatform" submit-data='submitData' options='options'/>
   <!-- <div id="performance-test-chooser" class="test-chooser">
     <div class="form-group">
       <label>Framework</label>

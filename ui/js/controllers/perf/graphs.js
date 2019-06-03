@@ -673,29 +673,30 @@ perf.controller('GraphsCtrl', [
 
         function addSeriesList(partialSeriesList) {
             $scope.loadingGraphs = true;
-            return $q.all(partialSeriesList.map(function (partialSeries) {
+            return $q.all(partialSeriesList.map(async function (partialSeries) {
                 const params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
                 } else {
                     params.signature = partialSeries.signature;
                 }
-                return PerfSeriesModel.getSeriesList(
-                    partialSeries.project, params).then(function (seriesList) {
-                        if (!seriesList.length) {
-                            return $q.reject('Signature `' + partialSeries.signature +
-                                '` not found for ' + partialSeries.project);
-                        }
-                        var seriesSummary = seriesList[0];
-                        seriesSummary.projectName = partialSeries.project;
-                        seriesSummary.visible = partialSeries.visible;
-                        seriesSummary.color = availableColors.pop();
-                        seriesSummary.highlighted = partialSeries.highlighted;
-                        $scope.seriesList.push(seriesSummary);
-                    });
-            }, function (error) {
-                alert('Error loading performance signature\n\n' + error);
-            })).then(function () {
+                const { data: seriesList, failureStatus} = await PerfSeriesModel.getSeriesList(
+                    partialSeries.project, params);
+                
+                if (failureStatus) {
+                    return alert('Error loading performance signature\n\n' + seriesList);
+                }
+                if (!seriesList.length) {
+                    return $q.reject('Signature `' + partialSeries.signature +
+                        '` not found for ' + partialSeries.project);
+                }
+                var seriesSummary = seriesList[0];
+                seriesSummary.projectName = partialSeries.project;
+                seriesSummary.visible = partialSeries.visible;
+                seriesSummary.color = availableColors.pop();
+                seriesSummary.highlighted = partialSeries.highlighted;
+                $scope.seriesList.push(seriesSummary);
+
                 $q.all($scope.seriesList.map(getSeriesData)).then(function () {
                     plotGraph();
                     updateDocumentTitle();
@@ -704,13 +705,14 @@ perf.controller('GraphsCtrl', [
                         showTooltip($scope.selectedDataPoint);
                     }
                 });
-            }, alertHttpError);
+            }));
         }
 
         function alertHttpError(error) {
             if (error.statusText) {
                 error = 'HTTP Error: ' + error.statusText;
             }
+
             // we could probably do better than print this
             // rather useless error, but at least this gives
             // a hint on what the problem is
@@ -949,6 +951,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
     'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform', '$q', 'testsDisplayed', 'options',
     function ($scope, $uibModalInstance, projects, timeRange,
               defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
+        $scope.options = options;
         $scope.timeRange = timeRange;
         $scope.projects = projects;
         $scope.selectedProject = projects.find(project =>
@@ -976,7 +979,9 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
             });
             $uibModalInstance.close(series);
         };
-
+        $scope.submitData = function (series) {
+            $uibModalInstance.close(series);
+        }
         $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');
         };
