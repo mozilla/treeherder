@@ -69,29 +69,36 @@ export const getSeriesSummary = function getSeriesSummary(
       signatureProps.lower_is_better,
   };
 };
-// TODO should use getData wrapper
+
 export default class PerfSeriesModel {
-  static getSeriesList(projectName, params) {
-    return OptionCollectionModel.getMap().then(optionCollectionMap =>
-      fetch(
-        `${getProjectUrl(
-          '/performance/signatures/',
-          projectName,
-        )}?${queryString.stringify(params)}`,
-      ).then(async resp => {
-        if (resp.ok) {
-          const data = await resp.json();
-          return Object.entries(data).map(([signature, signatureProps]) =>
-            getSeriesSummary(
-              projectName,
-              signature,
-              signatureProps,
-              optionCollectionMap,
-            ),
-          );
-        }
-      }),
+  constructor() {
+    this.optionCollectionMap = null;
+  }
+
+  static async getSeriesList(projectName, params) {
+    if (!this.optionCollectionMap) {
+      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    }
+    const response = await getData(
+      `${getProjectUrl(
+        '/performance/signatures/',
+        projectName,
+      )}${createQueryParams(params)}`,
     );
+
+    if (response.failureStatus) {
+      return response;
+    }
+    const data = Object.entries(response.data).map(
+      ([signature, signatureProps]) =>
+        getSeriesSummary(
+          projectName,
+          signature,
+          signatureProps,
+          this.optionCollectionMap,
+        ),
+    );
+    return { data, failureStatus: null };
   }
 
   static getPlatformList(projectName, params) {

@@ -70,6 +70,48 @@ export class TestDataModal extends React.Component {
   }
 
   findObject = (list, key, value) => list.find(item => item[key] === value);
+  // PerfSeriesModel.getSeriesList(
+  //   $scope.selectedProject.name,
+  //   { interval: $scope.timeRange,
+  //       platform: $scope.selectedPlatform,
+  //       framework: $scope.selectedFramework.id,
+  //       subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
+  //           $scope.unselectedTestList = sortBy(
+  //               seriesList.filter(series => series.platform === $scope.selectedPlatform),
+  //               'name',
+  //           );
+  //           // filter out tests which are already displayed or are
+  //           // already selected
+  //           [...new Set([...testsDisplayed, ...$scope.testsToAdd])].forEach((test) => {
+  //                   remove($scope.unselectedTestList, {
+  //                       projectName: test.projectName,
+  //                       signature: test.signature });
+  //               });
+  //           $scope.loadingTestData = false;
+  //           $scope.$apply();
+  //       });
+
+  // TODO change getSeriesList to only fetch OptionCollectionMap once
+  getSeriesData = async () => {
+    const {
+      project,
+      platform,
+      framework,
+      includeSubtests,
+      errorMessages,
+    } = this.state;
+    const { timeRange } = this.props;
+
+    const params = {
+      interval: timeRange,
+      platform,
+      framework: framework.id,
+      subtests: +includeSubtests,
+    };
+    const response = await PerfSeriesModel.getSeriesList(project.name, params);
+    const updates = processResponse(response, 'seriesData', errorMessages);
+    this.setState(updates);
+  };
 
   render() {
     const {
@@ -105,8 +147,15 @@ export class TestDataModal extends React.Component {
       },
       {
         options: platforms,
+<<<<<<< HEAD
         selectedItem: platform || platforms[0],
         updateData: platform => this.setState({ platform }),
+=======
+        selectedItem: platforms.find(item => item === platform)
+          ? platform
+          : platforms[0],
+        updateData: platform => this.setState({ platform }, this.getSeriesData),
+>>>>>>> d07312141... modify perfSeries
       },
     ];
 
@@ -148,7 +197,12 @@ export class TestDataModal extends React.Component {
             <Col className="p-0">
               <Label for="exampleSelect">Selected tests</Label>
               <Input type="select" name="selectMulti" id="selectTests" multiple>
+<<<<<<< HEAD
                 {tests.length > 0 && tests.map(test => <option>test</option>)}
+=======
+                {selectedTests.length > 0 &&
+                  tests.map(test => <option>{selectedTests}</option>)}
+>>>>>>> d07312141... modify perfSeries
               </Input>
             </Col>
           </Row>
