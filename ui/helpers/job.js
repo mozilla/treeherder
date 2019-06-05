@@ -77,6 +77,18 @@ export const isPerfTest = function isPerfTest(job) {
   );
 };
 
+export const isTestIsolatable = function isTestIsolatable(job) {
+  return [job.job_group_name, job.job_type_name].some(
+    name =>
+      !name.toLowerCase().includes('source-test') &&
+      (name.toLowerCase().includes('crashtest') ||
+        name.toLowerCase().includes('jsreftest') ||
+        name.toLowerCase().includes('mochitest') ||
+        name.toLowerCase().includes('reftest') ||
+        name.toLowerCase().includes('xpcshell')),
+  );
+};
+
 export const isClassified = function isClassified(job) {
   return !thUnclassifiedIds.includes(job.failure_classification_id);
 };

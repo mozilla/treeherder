@@ -13,7 +13,7 @@ import {
 
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
-import { isReftest, isPerfTest } from '../../../helpers/job';
+import { isReftest, isPerfTest, isTestIsolatable } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -190,6 +190,94 @@ class ActionBar extends React.PureComponent {
       );
     } else {
       notify('Unable to backfill this job type!', 'danger', { sticky: true });
+    }
+  };
+
+  isolateJob = () => {
+    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
+
+    if (!isTestIsolatable(selectedJob)) {
+      return;
+    }
+
+    if (!user.isLoggedIn) {
+      notify('Must be logged in to isolate a job', 'danger');
+
+      return;
+    }
+
+    if (!selectedJob.id) {
+      notify('Job not yet loaded for isolation', 'warning');
+
+      return;
+    }
+
+    if (selectedJob.state != 'completed') {
+      notify('Job not yet completed. Try again later.', 'warning');
+
+      return;
+    }
+
+    if (
+      selectedJob.build_system_type === 'taskcluster' ||
+      selectedJob.reason.startsWith('Created by BBB for task')
+    ) {
+      getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
+        TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+          const isolationtask = results.actions.find(
+            result => result.name === 'isolate-test-failures',
+          );
+
+          if (!isolationtask) {
+            notify(
+              'Request to isolate job via actions.json failed could not find action.',
+              'danger',
+              { sticky: true },
+            );
+            return;
+          }
+
+          let times = 1;
+          let response = null;
+          do {
+            response = window.prompt(
+              'Enter number of times to run isolation jobs',
+              times,
+            );
+            if (response == null) {
+              break;
+            }
+            times = parseInt(response, 10);
+          } while (Number.isNaN(times) || times < 1 || times > 20);
+
+          if (response === null) {
+            notify('Request to isolate job via actions.json aborted.');
+            return;
+          }
+
+          return TaskclusterModel.submit({
+            action: isolationtask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: { times: times },
+            staticActionVariables: results.staticActionVariables,
+          }).then(
+            () => {
+              notify(
+                'Request sent to isolate-test-failures job via actions.json',
+                'success',
+              );
+            },
+            e => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            },
+          );
+        }),
+      );
+    } else {
+      notify('Unable to isolate this job type!', 'danger', { sticky: true });
     }
   };
 
@@ -425,6 +513,16 @@ class ActionBar extends React.PureComponent {
                           onClick={this.createGeckoProfile}
                         >
                           Create Gecko Profile
+                        </Button>
+                      </li>
+                    )}
+                    {isTestIsolatable(selectedJob) && (
+                      <li>
+                        <Button
+                          className="dropdown-item py-2"
+                          onClick={this.isolateJob}
+                        >
+                          Run Isolation Tests
                         </Button>
                       </li>
                     )}
