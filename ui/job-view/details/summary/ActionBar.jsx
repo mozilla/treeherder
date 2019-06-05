@@ -212,7 +212,7 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (selectedJob.state != 'completed') {
+    if (selectedJob.state !== 'completed') {
       notify('Job not yet completed. Try again later.', 'warning');
 
       return;
@@ -259,7 +259,7 @@ class ActionBar extends React.PureComponent {
             action: isolationtask,
             decisionTaskId,
             taskId: results.originalTaskId,
-            input: { times: times },
+            input: { times },
             staticActionVariables: results.staticActionVariables,
           }).then(
             () => {
