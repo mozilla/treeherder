@@ -14,10 +14,10 @@
     "d3": "5.9.2"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "1.2.18",
-    "@fortawesome/free-brands-svg-icons": "5.8.2",
-    "@fortawesome/free-regular-svg-icons": "5.8.2",
-    "@fortawesome/free-solid-svg-icons": "5.8.2",
+    "@fortawesome/fontawesome-svg-core": "1.2.19",
+    "@fortawesome/free-brands-svg-icons": "5.9.0",
+    "@fortawesome/free-regular-svg-icons": "5.9.0",
+    "@fortawesome/free-solid-svg-icons": "5.9.0",
     "@fortawesome/react-fontawesome": "0.1.4",
     "@neutrinojs/copy": "9.0.0-rc.3",
     "@neutrinojs/react": "9.0.0-rc.3",
