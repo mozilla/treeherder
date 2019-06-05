@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button, FormGroup } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -14,7 +15,6 @@ import {
   highlightLogLine,
 } from '../../../../helpers/autoclassify';
 import { getBugUrl, getLogViewerUrl } from '../../../../helpers/url';
-import { withSelectedJob } from '../../../context/SelectedJob';
 
 import LineOption from './LineOption';
 import LineOptionModel from './LineOptionModel';
@@ -757,4 +757,6 @@ ErrorLine.defaultProps = {
   prevErrorLine: null,
 };
 
-export default withSelectedJob(ErrorLine);
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(ErrorLine);

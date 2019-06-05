@@ -11,7 +11,6 @@ import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
-import { withSelectedJob } from '../../context/SelectedJob';
 import { notify } from '../../redux/stores/notifications';
 
 class SimilarJobsTab extends React.Component {
@@ -335,7 +334,9 @@ SimilarJobsTab.defaultProps = {
   selectedJob: null,
 };
 
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
-)(withSelectedJob(SimilarJobsTab));
+)(SimilarJobsTab);

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 import Highlighter from 'react-highlight-words';
@@ -17,7 +18,6 @@ import {
 import BugFiler from '../../BugFiler';
 import { thEvents } from '../../../../helpers/constants';
 import { getAllUrlParams } from '../../../../helpers/location';
-import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 /**
@@ -260,4 +260,6 @@ LineOption.defaultProps = {
   manualBugNumber: undefined,
 };
 
-export default withSelectedJob(withPinnedJobs(LineOption));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(withPinnedJobs(LineOption));

@@ -8,7 +8,6 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { thEvents } from '../../../../helpers/constants';
 import { getProjectJobUrl } from '../../../../helpers/location';
 import TextLogErrorsModel from '../../../../models/textLogErrors';
-import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 import { notify } from '../../../redux/stores/notifications';
 
@@ -372,7 +371,9 @@ AutoclassifyTab.propTypes = {
   repoName: PropTypes.string.isRequired,
 };
 
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
-)(withSelectedJob(withPinnedJobs(AutoclassifyTab)));
+)(withPinnedJobs(AutoclassifyTab));

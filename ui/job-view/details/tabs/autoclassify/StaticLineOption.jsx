@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,7 +9,6 @@ import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
-import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 
 /**
@@ -132,4 +132,6 @@ StaticLineOption.defaultProps = {
   manualBugNumber: undefined,
 };
 
-export default withSelectedJob(withPinnedJobs(StaticLineOption));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(withPinnedJobs(StaticLineOption));

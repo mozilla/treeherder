@@ -6,8 +6,15 @@ import { connect } from 'react-redux';
 import { thEvents } from '../helpers/constants';
 
 import { withPinnedJobs } from './context/PinnedJobs';
-import { withSelectedJob } from './context/SelectedJob';
-import { clearAllOnScreenNotifications } from './redux/stores/notifications';
+import {
+  notify,
+  clearAllOnScreenNotifications,
+} from './redux/stores/notifications';
+import {
+  changeJob,
+  clearSelectedJob,
+  updateJobDetails,
+} from './redux/stores/selectedJob';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -51,12 +58,13 @@ class KeyboardShortcuts extends React.Component {
       showOnScreenShortcuts,
       notifications,
       clearAllOnScreenNotifications,
+      countPinnedJobs,
     } = this.props;
 
     if (notifications.length) {
       clearAllOnScreenNotifications();
     } else {
-      clearSelectedJob();
+      clearSelectedJob(countPinnedJobs);
       showOnScreenShortcuts(false);
     }
   };
@@ -156,6 +164,22 @@ class KeyboardShortcuts extends React.Component {
     filterModel.removeFilter('searchStr');
   };
 
+  changeSelectedJob = (direction, unclassifiedOnly) => {
+    // Select the next job without updating the details panel.  That is debounced so
+    // it doesn't do too much updating while quickly switching between jobs.
+    const { updateJobDetails, notify, countPinnedJobs } = this.props;
+    const { selectedJob } = changeJob(
+      direction,
+      unclassifiedOnly,
+      countPinnedJobs,
+      notify,
+    );
+
+    if (selectedJob) {
+      updateJobDetails(selectedJob);
+    }
+  };
+
   doKey(ev, callback) {
     const element = ev.target;
 
@@ -182,11 +206,7 @@ class KeyboardShortcuts extends React.Component {
   }
 
   render() {
-    const {
-      filterModel,
-      changeSelectedJob,
-      showOnScreenShortcuts,
-    } = this.props;
+    const { filterModel, showOnScreenShortcuts } = this.props;
     const handlers = {
       addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
       pinEditComment: ev => this.doKey(ev, this.pinEditComment),
@@ -194,17 +214,19 @@ class KeyboardShortcuts extends React.Component {
       clearFilter: ev => this.doKey(ev, this.clearFilter),
       toggleInProgress: ev => this.doKey(ev, filterModel.toggleInProgress),
       nextUnclassified: ev =>
-        this.doKey(ev, () => changeSelectedJob('next', true)),
+        this.doKey(ev, () => this.changeSelectedJob('next', true)),
       previousUnclassified: ev =>
-        this.doKey(ev, () => changeSelectedJob('previous', true)),
+        this.doKey(ev, () => this.changeSelectedJob('previous', true)),
       openLogviewer: ev => this.doKey(ev, this.openLogviewer),
       jobRetrigger: ev => this.doKey(ev, this.jobRetrigger),
       selectNextTab: ev => this.doKey(ev, this.selectNextTab),
       toggleUnclassifiedFailures: ev =>
         this.doKey(ev, filterModel.toggleUnclassifiedFailures),
       clearPinboard: ev => this.doKey(ev, this.clearPinboard),
-      previousJob: ev => this.doKey(ev, () => changeSelectedJob('previous')),
-      nextJob: ev => this.doKey(ev, () => changeSelectedJob('next')),
+      previousJob: ev =>
+        this.doKey(ev, () => this.changeSelectedJob('previous', false)),
+      nextJob: ev =>
+        this.doKey(ev, () => this.changeSelectedJob('next', false)),
       pinJob: ev => this.doKey(ev, this.pinJob),
       toggleOnScreenShortcuts: ev => this.doKey(ev, showOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
@@ -234,7 +256,7 @@ KeyboardShortcuts.propTypes = {
   unPinAll: PropTypes.func.isRequired,
   children: PropTypes.array.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
-  changeSelectedJob: PropTypes.func.isRequired,
+  updateJobDetails: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
   notifications: PropTypes.arrayOf(
     PropTypes.shape({
@@ -244,6 +266,8 @@ KeyboardShortcuts.propTypes = {
       sticky: PropTypes.bool,
     }),
   ).isRequired,
+  notify: PropTypes.func.isRequired,
+  countPinnedJobs: PropTypes.number.isRequired,
   clearAllOnScreenNotifications: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
@@ -252,11 +276,20 @@ KeyboardShortcuts.defaultProps = {
   selectedJob: null,
 };
 
-const mapStateToProps = ({ notifications: { notifications } }) => ({
+const mapStateToProps = ({
+  notifications: { notifications },
+  selectedJob: { selectedJob },
+}) => ({
   notifications,
+  selectedJob,
 });
 
 export default connect(
   mapStateToProps,
-  { clearAllOnScreenNotifications },
-)(withPinnedJobs(withSelectedJob(KeyboardShortcuts)));
+  {
+    clearAllOnScreenNotifications,
+    notify,
+    updateJobDetails,
+    clearSelectedJob,
+  },
+)(withPinnedJobs(KeyboardShortcuts));

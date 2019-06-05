@@ -19,7 +19,6 @@ import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 import { withPushes } from '../../context/Pushes';
 import { notify } from '../../redux/stores/notifications';
@@ -477,7 +476,9 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
-)(withPushes(withSelectedJob(withPinnedJobs(ActionBar))));
+)(withPushes(withPinnedJobs(ActionBar)));

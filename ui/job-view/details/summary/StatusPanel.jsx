@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import { getStatus } from '../../../helpers/job';
-import { withSelectedJob } from '../../context/SelectedJob';
 
 function StatusPanel(props) {
   const { selectedJob } = props;
@@ -26,4 +26,6 @@ StatusPanel.propTypes = {
   selectedJob: PropTypes.object.isRequired,
 };
 
-export default withSelectedJob(StatusPanel);
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(StatusPanel);
