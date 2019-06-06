@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button, FormGroup, Input, FormFeedback } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../helpers/constants';
-import { withNotifications } from '../../shared/context/Notifications';
 import { formatModelError } from '../../helpers/errorMessage';
 import {
   getJobBtnClass,
@@ -20,6 +20,7 @@ import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
+import { notify } from '../redux/stores/notifications';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -657,6 +658,7 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
-export default withNotifications(
-  withPushes(withSelectedJob(withPinnedJobs(PinBoard))),
-);
+export default connect(
+  null,
+  { notify },
+)(withPushes(withSelectedJob(withPinnedJobs(PinBoard))));

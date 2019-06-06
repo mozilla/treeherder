@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { withPushes } from '../context/Pushes';
-import { withNotifications } from '../../shared/context/Notifications';
 import { getPushHealthUrl } from '../../helpers/url';
+import { notify } from '../redux/stores/notifications';
 
 // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
 const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
@@ -284,4 +285,7 @@ PushActionMenu.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-export default withNotifications(withPushes(PushActionMenu));
+export default connect(
+  null,
+  { notify },
+)(withPushes(PushActionMenu));

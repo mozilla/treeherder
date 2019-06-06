@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -20,9 +21,9 @@ import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
-import { withNotifications } from '../../shared/context/Notifications';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
+import { notify } from '../redux/stores/notifications';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -407,6 +408,7 @@ PushHeader.defaultProps = {
   watchState: 'none',
 };
 
-export default withNotifications(
-  withPushes(withSelectedJob(withPinnedJobs(PushHeader))),
-);
+export default connect(
+  null,
+  { notify },
+)(withPushes(withSelectedJob(withPinnedJobs(PushHeader))));

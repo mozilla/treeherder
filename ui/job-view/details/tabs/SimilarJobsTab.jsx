@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -11,7 +12,7 @@ import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TextLogStepModel from '../../../models/textLogStep';
 import { withSelectedJob } from '../../context/SelectedJob';
-import { withNotifications } from '../../../shared/context/Notifications';
+import { notify } from '../../redux/stores/notifications';
 
 class SimilarJobsTab extends React.Component {
   constructor(props) {
@@ -334,4 +335,7 @@ SimilarJobsTab.defaultProps = {
   selectedJob: null,
 };
 
-export default withNotifications(withSelectedJob(SimilarJobsTab));
+export default connect(
+  null,
+  { notify },
+)(withSelectedJob(SimilarJobsTab));

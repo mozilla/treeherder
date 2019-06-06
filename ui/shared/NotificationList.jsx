@@ -8,8 +8,6 @@ import {
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { withNotifications } from './context/Notifications';
-
 class NotificationList extends React.Component {
   static getIcon(severity) {
     // TODO: Move this and the usage in NotificationsMenu to a shared component.
@@ -26,7 +24,7 @@ class NotificationList extends React.Component {
   }
 
   render() {
-    const { notifications, removeNotification } = this.props;
+    const { notifications, clearNotification } = this.props;
 
     return (
       <ul id="notification-box" className="list-unstyled">
@@ -37,7 +35,7 @@ class NotificationList extends React.Component {
                 icon={NotificationList.getIcon(notification.severity)}
                 title={notification.severity}
               />
-              <span>{notification.message}</span>
+              <span className="ml-1">{notification.message}</span>
               {notification.url && notification.linkText && (
                 <span>
                   <a href={notification.url}>{notification.linkText}</a>
@@ -46,7 +44,7 @@ class NotificationList extends React.Component {
               {notification.sticky && (
                 <button
                   type="button"
-                  onClick={() => removeNotification(idx)}
+                  onClick={() => clearNotification(idx)}
                   className="close"
                 >
                   x
@@ -65,12 +63,11 @@ NotificationList.propTypes = {
     PropTypes.shape({
       created: PropTypes.number.isRequired,
       message: PropTypes.string.isRequired,
-      // TODO: Enforce specific severity strings
-      severity: PropTypes.string.isRequired,
+      severity: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
       sticky: PropTypes.bool,
     }),
   ).isRequired,
-  removeNotification: PropTypes.func.isRequired,
+  clearNotification: PropTypes.func.isRequired,
 };
 
-export default withNotifications(NotificationList);
+export default NotificationList;

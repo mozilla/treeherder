@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import { withNotifications } from '../../shared/context/Notifications';
+import { notify } from '../redux/stores/notifications';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';
 const MAX_SIZE = 500;
@@ -165,7 +166,10 @@ PinnedJobsClass.propTypes = {
   children: PropTypes.object.isRequired,
 };
 
-export const PinnedJobs = withNotifications(PinnedJobsClass);
+export const PinnedJobs = connect(
+  null,
+  { notify },
+)(PinnedJobsClass);
 
 export function withPinnedJobs(Component) {
   return function PinBoardComponent(props) {
