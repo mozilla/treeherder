@@ -70,7 +70,7 @@
     "reactstrap": "7.1.0",
     "redux": "4.0.1",
     "redux-debounce": "1.0.1",
-    "taskcluster-client-web": "8.1.1",
+    "taskcluster-client-web": "10.0.0",
     "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.33.0",
     "webpack-cli": "3.3.2"
