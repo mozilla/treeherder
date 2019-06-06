@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
 import JobModel from '../models/job';
-import { withNotifications } from '../shared/context/Notifications';
 
 import Job from './Job';
 
@@ -32,7 +31,9 @@ class TestFailure extends React.PureComponent {
     const { user, repo, notify } = this.props;
 
     if (!user.isLoggedIn) {
-      notify('Must be logged in to retrigger a job', 'danger');
+      notify('Must be logged in to retrigger a job', 'danger', {
+        sticky: true,
+      });
       return;
     }
     JobModel.retrigger([job], repo, notify);
@@ -178,4 +179,4 @@ TestFailure.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-export default withNotifications(TestFailure);
+export default TestFailure;

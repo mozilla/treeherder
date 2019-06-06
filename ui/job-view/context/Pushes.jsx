@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
@@ -22,7 +23,7 @@ import { isUnclassifiedFailure } from '../../helpers/job';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { reloadOnChangeParameters } from '../../helpers/filter';
-import { withNotifications } from '../../shared/context/Notifications';
+import { notify } from '../redux/stores/notifications';
 
 const PushesContext = React.createContext({});
 const defaultPushCount = 10;
@@ -414,7 +415,10 @@ PushesClass.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-export const Pushes = withNotifications(PushesClass);
+export const Pushes = connect(
+  null,
+  { notify },
+)(PushesClass);
 
 export function withPushes(Component) {
   return function PushesComponent(props) {

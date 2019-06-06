@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -10,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { shortDateFormat } from '../../helpers/display';
-import { withNotifications } from '../../shared/context/Notifications';
+import { clearStoredNotifications } from '../redux/stores/notifications';
 
 class NotificationsMenu extends React.Component {
   getIcon(severity) {
@@ -117,4 +118,11 @@ NotificationsMenu.propTypes = {
   clearStoredNotifications: PropTypes.func.isRequired,
 };
 
-export default withNotifications(NotificationsMenu);
+const mapStateToProps = ({ notifications: { storedNotifications } }) => ({
+  storedNotifications,
+});
+
+export default connect(
+  mapStateToProps,
+  { clearStoredNotifications },
+)(NotificationsMenu);

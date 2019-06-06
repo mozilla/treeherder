@@ -3,18 +3,19 @@ import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
+import { Provider } from 'react-redux';
 
 import { thFavicons } from '../helpers/constants';
-import { Notifications } from '../shared/context/Notifications';
-import NotificationList from '../shared/NotificationList';
 import ShortcutTable from '../shared/ShortcutTable';
 import { allFilterParams, matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
+import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
 
+import Notifications from './Notifications';
 import { Pushes } from './context/Pushes';
 import { SelectedJob } from './context/SelectedJob';
 import { PinnedJobs } from './context/PinnedJobs';
@@ -25,6 +26,8 @@ import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
+import { store } from './redux/store';
+import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -140,6 +143,11 @@ class App extends React.Component {
         });
       }, REVISION_POLL_INTERVAL);
     });
+
+    // clear expired notifications
+    this.notificationInterval = setInterval(() => {
+      store.dispatch({ type: CLEAR_EXPIRED_TRANSIENTS });
+    }, MAX_TRANSIENT_AGE);
   }
 
   componentWillUnmount() {
@@ -300,7 +308,7 @@ class App extends React.Component {
 
     return (
       <div id="global-container" className="height-minus-navbars">
-        <Notifications>
+        <Provider store={store}>
           <Pushes filterModel={filterModel}>
             <PinnedJobs>
               <SelectedJob>
@@ -369,7 +377,7 @@ class App extends React.Component {
                       classificationMap={classificationMap}
                     />
                   </SplitPane>
-                  <NotificationList />
+                  <Notifications />
                   {showShortCuts && (
                     <div
                       id="onscreen-overlay"
@@ -386,7 +394,7 @@ class App extends React.Component {
               </SelectedJob>
             </PinnedJobs>
           </Pushes>
-        </Notifications>
+        </Provider>
       </div>
     );
   }

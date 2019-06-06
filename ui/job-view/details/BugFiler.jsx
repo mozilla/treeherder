@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
   Button,
   Modal,
@@ -27,7 +28,7 @@ import {
   hgBaseUrl,
 } from '../../helpers/url';
 import { create } from '../../helpers/http';
-import { withNotifications } from '../../shared/context/Notifications';
+import { notify } from '../redux/stores/notifications';
 
 const crashRegex = /application crashed \[@ (.+)\]$/g;
 const omittedLeads = [
@@ -862,4 +863,7 @@ BugFilerClass.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-export default withNotifications(BugFilerClass);
+export default connect(
+  null,
+  { notify },
+)(BugFilerClass);

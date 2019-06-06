@@ -4,15 +4,18 @@ import { Table, Container, Spinner } from 'reactstrap';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
-import { Notifications } from '../shared/context/Notifications';
 import { getJobsUrl } from '../helpers/url';
+import {
+  clearNotificationAtIndex,
+  clearExpiredTransientNotifications,
+} from '../helpers/notifications';
 import PushModel from '../models/push';
 
 import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
 
-export default class Health extends React.Component {
+export default class Health extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -24,6 +27,7 @@ export default class Health extends React.Component {
       repo: params.get('repo'),
       healthData: null,
       failureMessage: null,
+      notifications: [],
     };
   }
 
@@ -33,6 +37,11 @@ export default class Health extends React.Component {
 
     // Update the tests every two minutes.
     this.testTimerId = setInterval(() => this.updatePushHealth(), 120000);
+    this.notificationsId = setInterval(() => {
+      const { notifications } = this.state;
+
+      this.setState(clearExpiredTransientNotifications(notifications));
+    }, 4000);
   }
 
   componentWillUnmount() {
@@ -53,61 +62,87 @@ export default class Health extends React.Component {
     this.setState(newState);
   };
 
+  notify = (message, severity, options = {}) => {
+    const { notifications } = this.state;
+    const notification = {
+      ...options,
+      message,
+      severity: severity || 'info',
+      created: Date.now(),
+    };
+    const newNotifications = [notification, ...notifications];
+
+    this.setState({
+      notifications: newNotifications,
+    });
+  };
+
+  clearNotification = index => {
+    const { notifications } = this.state;
+
+    this.setState(clearNotificationAtIndex(notifications, index));
+  };
+
   render() {
-    const { healthData, user, repo, revision, failureMessage } = this.state;
+    const {
+      healthData,
+      user,
+      repo,
+      revision,
+      failureMessage,
+      notifications,
+    } = this.state;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
       : 'none';
 
     return (
-      <Notifications>
-        <React.Fragment>
-          <Navigation user={user} setUser={this.setUser} />
-          <Container fluid className="mt-2">
-            <NotificationList />
-            {healthData && (
-              <div className="d-flex flex-column">
-                <h3 className="text-center">
-                  <span
-                    className={`badge badge-xl mb-3 badge-${overallResult}`}
+      <React.Fragment>
+        <Navigation user={user} setUser={this.setUser} notify={this.notify} />
+        <Container fluid className="mt-2">
+          <NotificationList
+            notifications={notifications}
+            clearNotification={this.clearNotification}
+          />
+          {healthData && (
+            <div className="d-flex flex-column">
+              <h3 className="text-center">
+                <span className={`badge badge-xl mb-3 badge-${overallResult}`}>
+                  <a
+                    href={getJobsUrl({ repo, revision })}
+                    className="text-white"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <a
-                      href={getJobsUrl({ repo, revision })}
-                      className="text-white"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {repo} - {revision}
-                    </a>
-                  </span>
-                </h3>
-                <Table size="sm" className="table-fixed">
-                  <tbody>
-                    {healthData.metrics.map(metric => (
-                      <tr key={metric.name}>
-                        <Metric
-                          name={metric.name}
-                          result={metric.result}
-                          value={metric.value}
-                          details={metric.details}
-                          failures={metric.failures}
-                          repo={repo}
-                          revision={revision}
-                          user={user}
-                        />
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            )}
-            {failureMessage && (
-              <ErrorMessages failureMessage={failureMessage} />
-            )}
-            {!failureMessage && !healthData && <Spinner />}
-          </Container>
-        </React.Fragment>
-      </Notifications>
+                    {repo} - {revision}
+                  </a>
+                </span>
+              </h3>
+              <Table size="sm" className="table-fixed">
+                <tbody>
+                  {healthData.metrics.map(metric => (
+                    <tr key={metric.name}>
+                      <Metric
+                        name={metric.name}
+                        result={metric.result}
+                        value={metric.value}
+                        details={metric.details}
+                        failures={metric.failures}
+                        repo={repo}
+                        revision={revision}
+                        user={user}
+                        notify={this.notify}
+                      />
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+          {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
+          {!failureMessage && !healthData && <Spinner />}
+        </Container>
+      </React.Fragment>
     );
   }
 }

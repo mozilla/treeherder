@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
   Button,
   Col,
@@ -15,9 +16,9 @@ import {
 import Fuse from 'fuse.js';
 
 import PushModel from '../../models/push';
-import { withNotifications } from '../../shared/context/Notifications';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { sortAlphaNum } from '../../helpers/sort';
+import { notify } from '../redux/stores/notifications';
 
 class FuzzyJobFinder extends React.Component {
   constructor(props) {
@@ -321,4 +322,7 @@ FuzzyJobFinder.defaultProps = {
   decisionTaskId: '',
 };
 
-export default withNotifications(FuzzyJobFinder);
+export default connect(
+  null,
+  { notify },
+)(FuzzyJobFinder);

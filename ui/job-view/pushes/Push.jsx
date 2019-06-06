@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
 
 import {
@@ -12,9 +13,9 @@ import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
-import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+import { notify } from '../redux/stores/notifications';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import { Revision } from './Revision';
@@ -549,4 +550,7 @@ Push.propTypes = {
   pushHealthVisibility: PropTypes.string.isRequired,
 };
 
-export default withNotifications(withPushes(Push));
+export default connect(
+  null,
+  { notify },
+)(withPushes(Push));

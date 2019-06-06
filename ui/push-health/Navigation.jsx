@@ -8,7 +8,7 @@ import SimpleTooltip from '../shared/SimpleTooltip';
 
 export default class Navigation extends React.PureComponent {
   render() {
-    const { user, setUser } = this.props;
+    const { user, setUser, notify } = this.props;
 
     return (
       <Navbar dark color="dark">
@@ -27,7 +27,7 @@ export default class Navigation extends React.PureComponent {
             </div>
           }
         />
-        <Login user={user} setUser={setUser} />
+        <Login user={user} setUser={setUser} notify={notify} />
       </Navbar>
     );
   }
@@ -36,4 +36,5 @@ export default class Navigation extends React.PureComponent {
 Navigation.propTypes = {
   user: PropTypes.object.isRequired,
   setUser: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
 };

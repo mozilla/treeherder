@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import $ from 'jquery';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,7 +22,7 @@ import CustomJobActions from '../../CustomJobActions';
 import { withSelectedJob } from '../../context/SelectedJob';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 import { withPushes } from '../../context/Pushes';
-import { withNotifications } from '../../../shared/context/Notifications';
+import { notify } from '../../redux/stores/notifications';
 
 import LogUrls from './LogUrls';
 
@@ -476,6 +477,7 @@ ActionBar.defaultProps = {
   jobLogUrls: [],
 };
 
-export default withNotifications(
-  withPushes(withSelectedJob(withPinnedJobs(ActionBar))),
-);
+export default connect(
+  null,
+  { notify },
+)(withPushes(withSelectedJob(withPinnedJobs(ActionBar))));

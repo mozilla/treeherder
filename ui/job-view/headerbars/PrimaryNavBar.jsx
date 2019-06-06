@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
 
 import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
+import { notify } from '../redux/stores/notifications';
 
 import NotificationsMenu from './NotificationsMenu';
 import InfraMenu from './InfraMenu';
@@ -15,7 +17,7 @@ import HelpMenu from './HelpMenu';
 import SecondaryNavBar from './SecondaryNavBar';
 import HealthMenu from './HealthMenu';
 
-export default class PrimaryNavBar extends React.Component {
+class PrimaryNavBar extends React.Component {
   shouldComponentUpdate(prevProps) {
     const {
       filterModel,
@@ -52,6 +54,7 @@ export default class PrimaryNavBar extends React.Component {
       toggleFieldFilterVisible,
       pushHealthVisibility,
       setPushHealthVisibility,
+      notify,
     } = this.props;
 
     return (
@@ -71,7 +74,7 @@ export default class PrimaryNavBar extends React.Component {
                   setPushHealthVisibility={setPushHealthVisibility}
                 />
                 <HelpMenu />
-                <Login user={user} setUser={setUser} />
+                <Login user={user} setUser={setUser} notify={notify} />
               </span>
             </div>
             <SecondaryNavBar
@@ -104,4 +107,10 @@ PrimaryNavBar.propTypes = {
   groupCountsExpanded: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   setPushHealthVisibility: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
 };
+
+export default connect(
+  null,
+  { notify },
+)(PrimaryNavBar);
