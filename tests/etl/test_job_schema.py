@@ -1,7 +1,7 @@
 import jsonschema
 import pytest
 
-from treeherder.etl.schema import job_json_schema
+from treeherder.etl.schema import get_json_schema
 
 # The test data in this file are a representative sample-set from
 # production Treeherder
@@ -16,7 +16,7 @@ def test_group_symbols(sample_data, group_symbol):
     job["origin"]["project"] = "proj"
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
     job["display"]["groupSymbol"] = group_symbol
-    jsonschema.validate(job, job_json_schema)
+    jsonschema.validate(job, get_json_schema("pulse-job.yml"))
 
 
 @pytest.mark.parametrize("job_symbol", ['1.1g', '1g', '20', 'A', 'GBI10', 'en-US-1'])
@@ -28,4 +28,4 @@ def test_job_symbols(sample_data, job_symbol):
     job["origin"]["project"] = "proj"
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
     job["display"]["jobSymbol"] = job_symbol
-    jsonschema.validate(job, job_json_schema)
+    jsonschema.validate(job, get_json_schema("pulse-job.yml"))

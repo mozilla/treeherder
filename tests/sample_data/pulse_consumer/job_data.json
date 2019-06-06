@@ -43,7 +43,6 @@
 
     "labels": ["debug"],
     "version": 1,
-
     "logs": [
       {
         "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
@@ -102,8 +101,8 @@
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
-    "labels": ["debug"],
-    "version": 1
+    "version": 1,
+    "labels": ["debug"]
   },
 
   {
@@ -142,8 +141,8 @@
     "timeScheduled": "2014-12-19T16:39:57-08:00",
     "timeStarted": "2014-12-19T17:39:57-08:00",
     "timeCompleted": "2014-12-19T18:39:57-08:00",
-    "labels": ["debug"],
-    "version": 1
+    "version": 1,
+    "labels": ["debug"]
   },
 
   {

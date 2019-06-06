@@ -2,7 +2,7 @@
 
 For ingestion from **Pulse** exchanges, on your local machine, you can choose
 to ingest from any exchange you like. Some exchanges will be registered in
-`settings.py` for use by the Treeherder servers. You can use those to get the
+`sources.py` for use by the Treeherder servers. You can use those to get the
 same data as Treeherder. Or you can specify your own and experiment with
 posting your own data.
 
@@ -32,8 +32,7 @@ string would be:
 
 ### 3. Read Pushes
 
-On the **host machine**, set your Pulse config environment variable, so that it's available
-for docker-compose to use:
+On your localhost set your Pulse config environment variable:
 
 ```bash
 export PULSE_URL="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
@@ -58,7 +57,7 @@ As in step 3, open a new terminal and export your `PULSE_URL` variable.
 Then run the management command for listing to jobs:
 
 ```bash
-docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_jobs
+docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_tasks
 ```
 
 You will again see the list of exchanges that your queue is now mounted to and
@@ -99,23 +98,18 @@ push_sources = [
 
 #### Jobs
 
-Job Exchanges and Projects are defined in `job_sources`, however can
-also be configured in the environment like so:
-
-`PULSE_JOB_SOURCES` defines a list of exchanges with projects.
+Job Exchanges and Projects are defined in `job_sources`, however, it can
+also be configured in the environment by using the `PULSE_TASK_SOURCES` environment variables.
+This defines a list of exchanges with projects.
 
 ```bash
-export PULSE_JOB_SOURCES="exchange/taskcluster-treeherder/v1/jobs.mozilla-central:mozilla-inbound",
+export PULSE_TASK_SOURCES="exchange/taskcluster-queue/v1/task-pending.#,exchange/taskcluster-queue/v1/task-completed.#",
 ```
 
-In this example we've defined one exchange:
+In this example we've defined two exchanges:
 
-- `exchange/taskcluster-treeherder/v1/jobs`
-
-The taskcluster-treeherder exchange defines two projects:
-
-- `mozilla-central`
-- `mozilla-inbound`
+- `exchange/taskcluster-queue/v1/task-pending`
+- `exchange/taskcluster-queue/v1/task-completed`
 
 When Jobs are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending `#.` to each project key.
 
@@ -126,14 +120,14 @@ and all the other processing Treeherder does, then you can minimize the **Celery
 task. You will need:
 
 ```bash
-celery -A treeherder worker -B -Q pushlog,store_pulse_jobs,store_pulse_pushes --concurrency 5
+celery -A treeherder worker -B -Q pushlog,store_pulse_tasks,store_pulse_pushes --concurrency 5
 ```
 
 - The `pushlog` queue loads up to the last 10 Mercurial pushes that exist.
 - The `store_pulse_pushes` queue will ingest all the pushes from the exchanges
   specified in `push_sources`. This can be Mercurial and Github
-- The `store_pulse_jobs` queue will ingest all the jobs from the exchanges
-  specified in `job_sources` (or `PULSE_JOB_SOURCES`).
+- The `store_pulse_tasks` queue will ingest all the jobs from the exchanges
+  specified in `task_sources` (or `PULSE_TASK_SOURCES`).
 
 <!-- prettier-ignore -->
 !!! note

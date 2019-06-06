@@ -167,7 +167,7 @@ If new pushes or CI job results are not appearing in Treeherder's UI:
    it suggests that Treeherder's `pulse_listener_{pushes,jobs}` dynos have stopped
    consuming Pulse events, and so might need [restarting].
 3. Failing that, it's possible the issue might lie in the services that send events to
-   those Pulse exchanges, such as `taskcluster-treeherder`, `taskcluster-github` or
+   those Pulse exchanges, such as `taskcluster-github` or
    the Taskcluster systems upstream of those. Ask for help in the IRC channel
    `#taskcluster`.
 

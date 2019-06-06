@@ -7,7 +7,8 @@ from kombu.mixins import ConsumerMixin
 
 from treeherder.etl.common import fetch_json
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
-                                              store_pulse_pushes)
+                                              store_pulse_pushes,
+                                              store_pulse_tasks)
 
 from .exchange import get_exchange
 
@@ -90,6 +91,7 @@ class PulseConsumer(ConsumerMixin):
         return fetch_json("{}queue/{}/bindings".format(PULSE_GUARDIAN_URL, queue_name))
 
 
+# We will remove this class once it is not in use anymore
 class JobConsumer(PulseConsumer):
     queue_suffix = "jobs"
 
@@ -103,6 +105,46 @@ class JobConsumer(PulseConsumer):
             queue='store_pulse_jobs'
         )
         message.ack()
+
+
+class TaskConsumer(PulseConsumer):
+    # Use a different name than JobConsumer
+    queue_suffix = "tasks"
+
+    @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.info('received job message from %s#%s', exchange, routing_key)
+        store_pulse_tasks.apply_async(
+            args=[body, exchange, routing_key],
+            queue='store_pulse_tasks'
+        )
+        message.ack()
+
+
+class UpdateJobFixtures(PulseConsumer):
+    processedMessages = 0
+    maxMessages = 5
+    # This is the name of your queue on Pulse Guardian
+    queue_suffix = "foo"
+    messages = []
+
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received job message from %s', exchange)
+        # handleMessage expects messages in this format
+        self.messages.append({
+            "exchange": exchange,
+            "routes": routing_key,
+            "payload": body,
+        })
+        message.ack()
+        self.processedMessages += 1
+        self.close()
+        if self.processedMessages > self.maxMessages:
+            raise Exception('We have processed {} and need to store them'.format(self.processedMessages))
 
 
 class PushConsumer(PulseConsumer):
