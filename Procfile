@@ -37,10 +37,14 @@ celery_scheduler: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery beat -
 # NB: These should not be scaled up to more than 1 of each.
 # TODO: Merge these two listeners into one since they use so little CPU each (bug 1530965).
 pulse_listener_pushes: newrelic-admin run-program ./manage.py pulse_listener_pushes
+# We will remove this soon after this commit is deployed
 pulse_listener_jobs: newrelic-admin run-program ./manage.py pulse_listener_jobs
+pulse_listener_tasks: newrelic-admin run-program ./manage.py pulse_listener_tasks
 
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,jobs)`.
-worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_jobs --concurrency=3
+worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3
+# We will remove this soon after this commit is deployed
+worker_store_pulse_old: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_jobs --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 worker_log_parser: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser,log_parser_fail,log_autoclassify,log_autoclassify_fail --concurrency=7

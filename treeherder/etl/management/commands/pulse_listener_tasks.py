@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 
-from treeherder.services.pulse import (JobConsumer,
-                                       job_sources,
+from treeherder.services.pulse import (TaskConsumer,
                                        prepare_consumer,
-                                       pulse_conn)
+                                       pulse_conn,
+                                       task_sources)
 
 
 class Command(BaseCommand):
@@ -19,8 +19,8 @@ class Command(BaseCommand):
         with pulse_conn as connection:
             consumer = prepare_consumer(
                 connection,
-                JobConsumer,
-                job_sources,
+                TaskConsumer,
+                task_sources,
                 lambda key: "#.{}".format(key),
             )
 

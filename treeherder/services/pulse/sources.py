@@ -14,12 +14,16 @@ env = environ.Env()
 # Specifies the Pulse exchanges Treeherder will ingest data from for Jobs.
 # Projects specified after the period (".") delimiter and will be combined with
 # the wildcard ("#") when used in prepare_consumer function when called by
-# pulse_listener_jobs.
-job_sources = env.list(
-    "PULSE_JOB_SOURCES",
+# pulse_listener_tasks.
+job_sources = ["exchange/taskcluster-treeherder/v1/jobs.#"]
+task_sources = env.list(
+    "PULSE_TASK_SOURCES",
     default=[
-        "exchange/taskcluster-treeherder/v1/jobs.#",
-        # ... other CI systems
+        "exchange/taskcluster-queue/v1/task-pending.#",
+        "exchange/taskcluster-queue/v1/task-running.#",
+        "exchange/taskcluster-queue/v1/task-completed.#",
+        "exchange/taskcluster-queue/v1/task-failed.#",
+        "exchange/taskcluster-queue/v1/task-exception.#",
     ],
 )
 
