@@ -105,6 +105,30 @@ class JobConsumer(PulseConsumer):
         message.ack()
 
 
+class UpdateJobFixtures(PulseConsumer):
+    processedMessages = 0
+    maxMessages = 5
+    # This is the name of your queue on Pulse Guardian
+    queue_suffix = "foo"
+    messages = []
+
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received job message from %s', exchange)
+        # handleMessage expects messages in this format
+        self.messages.append({
+            "exchange": exchange,
+            "routes": routing_key,
+            "payload": body,
+        })
+        message.ack()
+        self.processedMessages += 1
+        self.close()
+        if self.processedMessages > self.maxMessages:
+            raise Exception('We have processed {} and need to store them'.format(self.processedMessages))
+
+
 class PushConsumer(PulseConsumer):
     queue_suffix = "resultsets"
 

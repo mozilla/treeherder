@@ -37,18 +37,3 @@ def test_retry_missing_revision_succeeds(sample_data, sample_push,
     assert Job.objects.count() == 1
     assert Job.objects.values()[0]["guid"] == job["taskId"]
     assert thread_data.retries == 1
-
-
-def test_retry_missing_revision_never_succeeds(sample_data, test_repository,
-                                               mock_log_parser, monkeypatch):
-    """
-    Ensure that when the missing push exists after a retry, that the job
-    is then ingested.
-    """
-    job = sample_data.pulse_jobs[0]
-    job["origin"]["project"] = test_repository.name
-
-    with pytest.raises(MissingPushException):
-        store_pulse_jobs.delay(job, "foo", "bar")
-
-    assert Job.objects.count() == 0

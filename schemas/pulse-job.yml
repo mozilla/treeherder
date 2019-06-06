@@ -14,8 +14,18 @@ properties:
     pattern: '^[A-Za-z0-9/+-]+$'
     minLength: 1
     maxLength: 50
-  retryId:
-    title: 'Retry ID'
+  realTaskId:
+    title: 'Real task ID'
+    description: |
+      On a follow PR we will replace taskId with realTaskId and have a jobGuid instead of the
+      current taskId
+    type: 'string'
+    # From TaskCluster https://github.com/taskcluster/taskcluster/blob/master/services/queue/schemas/constants.yml
+    pattern: '^[A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw]$'
+    minLength: 1
+    maxLength: 50
+  runId:
+    title: 'Run ID'
     description: |
       The infrastructure retry iteration on this job.  The number of times this
       job has been retried by the infrastructure.
@@ -376,11 +386,6 @@ properties:
   extra:
     type: 'object'
     description: Extra information that Treeherder reads on a best-effort basis
-  version:
-    type: 'integer'
-    description: Message version
-    enum:
-      - 1
 
 additionalProperties: false
 required:
@@ -390,7 +395,6 @@ required:
   - display
   - state
   - jobKind
-  - version
 
 definitions:
   machine:

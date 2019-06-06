@@ -8,7 +8,7 @@ from .utils import create_and_destroy_exchange
 
 def test_bind_to(pulse_connection, pulse_exchange):
     job_consumer = JobConsumer(pulse_connection)
-    exchange = pulse_exchange("exchange/taskcluster-treeherder/v1/jobs", create_exchange=True)
+    exchange = pulse_exchange("exchange/taskcluster-queue/v1/task-running", create_exchange=True)
     routing_key = "test_routing_key"
 
     binding = bind_to(job_consumer, exchange, routing_key)
@@ -28,7 +28,7 @@ def test_bind_to(pulse_connection, pulse_exchange):
 
 def test_prepare_consumer(pulse_connection, pulse_exchange):
     # create the exchange in the local RabbitMQ instance
-    job_exchange = "exchange/taskcluster-treeherder/v1/jobs"
+    job_exchange = "exchange/taskcluster-queue/v1/task-running"
     with create_and_destroy_exchange(pulse_connection, job_exchange):
         job_consumer = prepare_consumer(
             pulse_connection,
@@ -42,7 +42,7 @@ def test_prepare_consumer(pulse_connection, pulse_exchange):
 
     queue = job_consumer.consumers[0]["queues"]
     assert queue.routing_key == "foo.test_project"
-    assert queue.exchange.name == "exchange/taskcluster-treeherder/v1/jobs"
+    assert queue.exchange.name == "exchange/taskcluster-queue/v1/task-running"
 
     push_exchange = "exchange/taskcluster-github/v1/push"
     with create_and_destroy_exchange(pulse_connection, push_exchange):
