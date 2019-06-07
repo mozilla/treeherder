@@ -290,14 +290,26 @@ export class TestDataModal extends React.Component {
         <Form>
           <Row className="justify-content-start">
             {createDropdowns(modalOptions, 'p-2', true)}
+            <Col sm="auto" className="p-2">
+              <Button
+                color="info"
+                outline
+                onClick={() =>
+                  this.setState({ includeSubtests: !includeSubtests })
+                }
+                active={includeSubtests}
+              >
+                Include subtests
+              </Button>
+            </Col>
             <Col className="p-2">
               <Button color="secondary" onClick={this.processOptions}>
                 Update
               </Button>
             </Col>
           </Row>
-          <Row>
-            <Col className="px-2 py-3 col-4">
+          <Row className="justify-content-start">
+            <Col className="p-2 col-4">
               <InputFilter
                 outline
                 disabled={relatedTests.length > 0}
@@ -326,23 +338,6 @@ export class TestDataModal extends React.Component {
               {showNoRelatedTests && (
                 <p className="text-info pt-2">No related tests found.</p>
               )}
-            </Col>
-          </Row>
-          <Row className="pt-1 pb-3 px-2 justify-content-center">
-            <Col className="text-left px-0">
-              <FormGroup check>
-                <Label check className="font-weight-normal">
-                  <Input
-                    type="checkbox"
-                    id="checkbox2"
-                    checked={includeSubtests}
-                    onChange={() =>
-                      this.setState({ includeSubtests: !includeSubtests })
-                    }
-                  />{' '}
-                  Include subtests
-                </Label>
-              </FormGroup>
             </Col>
           </Row>
           <Row className="p-2 justify-content-start">
