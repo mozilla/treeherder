@@ -1,16 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
-import {
-  Button,
-  Col,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  ModalBody,
-  Row,
-} from 'reactstrap';
+import { Button, Col, Form, Input, Label, ModalBody, Row } from 'reactstrap';
 
 import perf from '../../js/perf';
 import { createDropdowns } from '../FilterControls';
@@ -22,7 +13,6 @@ import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText } from '../helpers';
 
-// TODO remove $stateParams and $state after switching to react router
 export class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
@@ -31,7 +21,7 @@ export class TestDataModal extends React.Component {
       platforms: [],
       framework: { name: 'talos', id: 1 },
       project: this.findObject(this.props.repos, 'name', 'mozilla-central'),
-      platform: this.props.defaultPlatform || 'linux64',
+      platform: 'linux64',
       errorMessages: [],
       includeSubtests: false,
       seriesData: [],
@@ -42,7 +32,6 @@ export class TestDataModal extends React.Component {
     };
   }
 
-  // TODO need to utilize default values (defaultFrameworkId), etc and pass as props
   componentDidMount() {
     this.getInitialData();
   }
@@ -154,6 +143,7 @@ export class TestDataModal extends React.Component {
 
   addRelatedBranches = async params => {
     const { relatedSeries } = this.props.options;
+    const errorMessages = [];
 
     const relatedProjects = thPerformanceBranches.filter(
       project => project !== relatedSeries.projectName,
@@ -161,17 +151,20 @@ export class TestDataModal extends React.Component {
     const requests = relatedProjects.map(projectName =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
-    // TODO error messages
+
     const responses = await Promise.all(requests);
+    // eslint-disable-next-line func-names
     const relatedTests = responses.flatMap(function(item) {
       if (!item.failureStatus) {
         return item.data;
       }
+      errorMessages.push(item.data);
     });
 
     this.setState({
       relatedTests,
       showNoRelatedTests: relatedTests.length === 0,
+      errorMessages,
     });
   };
 
@@ -381,11 +374,8 @@ export class TestDataModal extends React.Component {
 }
 
 TestDataModal.propTypes = {
-  $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({}),
   repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   timeRange: PropTypes.number.isRequired,
-  defaultPlatform: PropTypes.string,
   submitData: PropTypes.func.isRequired,
   options: PropTypes.shape({
     option: PropTypes.string,
@@ -394,9 +384,6 @@ TestDataModal.propTypes = {
 };
 
 TestDataModal.defaultProps = {
-  $stateParams: undefined,
-  $state: undefined,
-  defaultPlatform: undefined,
   options: undefined,
 };
 
@@ -404,15 +391,8 @@ perf.component(
   'testDataModal',
   react2angular(
     TestDataModal,
-    [
-      'repos',
-      'seriesList',
-      'timeRange',
-      'defaultPlatform',
-      'submitData',
-      'options',
-    ],
-    ['$stateParams', '$state'],
+    ['repos', 'seriesList', 'timeRange', 'submitData', 'options'],
+    [],
   ),
 );
 

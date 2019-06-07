@@ -5,14 +5,11 @@
 
 import $ from 'jquery';
 import map from 'lodash/map';
-import sortBy from 'lodash/sortBy';
 import countBy from 'lodash/countBy';
-import remove from 'lodash/remove';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
 
 import perf from '../../perf';
-import { endpoints } from '../../../perfherder/constants';
 import {
     alertIsOfState,
     createAlert,
@@ -24,19 +21,14 @@ import {
 } from '../../../perfherder/helpers';
 import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
-  thDefaultRepo,
   phTimeRanges,
   phAlertStatusMap,
   phAlertSummaryStatusMap,
   phDefaultTimeRangeValue,
-  phDefaultFramework,
-  thPerformanceBranches,
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
 import PerfSeriesModel from '../../../models/perfSeries';
-import { getApiUrl } from '../../../helpers/url';
-import { getData } from '../../../helpers/http';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
@@ -953,227 +945,11 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
               defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
         $scope.options = options;
         $scope.timeRange = timeRange;
-        $scope.projects = projects;
-        $scope.selectedProject = projects.find(project =>
-            project.name === defaultProjectName || thDefaultRepo);
-        $scope.includeSubtests = false;
-        $scope.loadingTestData = false;
-        $scope.loadingRelatedSignatures = true;
-        var series = [];
-        $scope.addTestData = function () {
-            if (($scope.testsToAdd.length + testsDisplayed.length) > 6) {
-                var a = window.confirm('WARNING: Displaying more than 6 graphs at the same time is not supported in the UI. Do it anyway?');
-                if (a === true) {
-                    addTestToGraph();
-                }
-            } else {
-                addTestToGraph();
-            }
-        };
 
-        var addTestToGraph = function () {
-            $scope.selectedSeriesList = $scope.testsToAdd;
-            $scope.selectedSeriesList.forEach(function (selectedSeries, i) {
-                series[i] = { ...selectedSeries };
-                series[i].projectName = selectedSeries.projectName;
-            });
-            $uibModalInstance.close(series);
-        };
         $scope.submitData = function (series) {
             $uibModalInstance.close(series);
         }
         $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');
         };
-
-        $scope.unselectedTestList = []; // tests in the "tests" list
-        $scope.selectedTestSignatures = []; // tests in the "tests" list that have been selected by the user
-        $scope.testsToAdd = []; // tests in the "tests to add" list
-        $scope.selectedTestsToAdd = []; // tests in the "to add" test list that have been selected by the user
-
-        $scope.unselectTest = function () {
-            $scope.selectedTestsToAdd.forEach(function (testValue) {
-                // selectedTestsToAdd is stored in JSON format, need to convert
-                // it back to an object and get the actual value
-                var test = $scope.testsToAdd.find(test =>
-                    test.id === JSON.parse(testValue).id);
-                // add test back to unselected test list if we're browsing for
-                // the current project/platform, otherwise just discard it
-                if (test.projectName === $scope.selectedProject.name &&
-                    test.platform === $scope.selectedPlatform) {
-                    $scope.unselectedTestList.push(test);
-                }
-
-                // unconditionally remove it from the current list
-                remove($scope.testsToAdd, test);
-            });
-            // resort unselected test list
-            $scope.unselectedTestList = sortBy($scope.unselectedTestList,
-                'name');
-        };
-
-        $scope.selectTest = function () {
-            $scope.selectedTestSignatures.forEach(function (signature) {
-                // Add the selected tests to the selected test list
-                $scope.testsToAdd.push({ ...$scope.unselectedTestList.find(
-                    test => test.signature === signature),
-                });
-
-                // Remove the added tests from the unselected test list
-                remove($scope.unselectedTestList, { signature: signature });
-            });
-        };
-
-        var loadingExtraDataPromise = $q.defer();
-        var addRelatedPlatforms = function (originalSeries) {
-            PerfSeriesModel.getSeriesList(
-                originalSeries.projectName, {
-                    interval: $scope.timeRange,
-                    framework: originalSeries.frameworkId,
-                }).then((seriesList) => {
-                    const filteredSeriesList = seriesList.filter(series =>
-                        series.platform !== originalSeries.platform &&
-                        series.name === originalSeries.name &&
-                        !testsDisplayed.map(test =>
-                            (test.projectName === series.projectName &&
-                            test.signature === series.signature)).some(x => x),
-                    );
-                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
-                }).then(function () {
-                    // resolve the testsToAdd's length after every thing was done
-                    // so we don't need timeout here
-                    loadingExtraDataPromise.resolve($scope.testsToAdd.length);
-                });
-        };
-
-        var addRelatedBranches = function (originalSeries) {
-            var branchList = [];
-            thPerformanceBranches.forEach(function (branch) {
-                if (branch !== originalSeries.projectName) {
-                    branchList.push($scope.projects.find(project =>
-                        project.name === branch));
-                }
-            });
-            // get each project's series data from remote and use promise to
-            // ensure each step will be executed after last on has finished
-            $q.all(branchList.map(function (project) {
-                return PerfSeriesModel.getSeriesList(project.name, {
-                    interval: $scope.timeRange,
-                    signature: originalSeries.signature,
-                    framework: originalSeries.frameworkId,
-                });
-            })).then(function (seriesList) {
-                // we get a list of lists because we are getting the results
-                // of multiple promises, filter that down to one flat list
-                seriesList = seriesList.reduce((a, b) => [...a, ...b], []);
-
-                // filter out tests which are already displayed
-                $scope.testsToAdd = seriesList.filter(series =>
-                  !testsDisplayed.map(test =>
-                    (test.projectName === series.projectName &&
-                     test.signature === series.signature)).some(x => x));
-            }).then(function () {
-                loadingExtraDataPromise.resolve($scope.testsToAdd.length);
-            });
-        };
-
-        var addRelatedConfigs = function (originalSeries) {
-            PerfSeriesModel.getSeriesList(
-                originalSeries.projectName, {
-                    interval: $scope.timeRange,
-                    framework: originalSeries.frameworkId,
-                }).then(function (seriesList) {
-                    const filteredSeriesList = seriesList.filter(series =>
-                        series.platform === originalSeries.platform &&
-                        series.testName === originalSeries.testName &&
-                        series.name !== originalSeries.name,
-                    );
-                    $scope.testsToAdd = (filteredSeriesList === undefined ? undefined : [...filteredSeriesList]);
-                }).then(function () {
-                    // resolve the testsToAdd's length after every thing was done
-                    // so we don't need timeout here
-                    loadingExtraDataPromise.resolve($scope.testsToAdd.length);
-                });
-        };
-        if (options.option !== undefined) {
-            $scope.loadingRelatedSignatures = false;
-            if (options.option === 'addRelatedPlatform') {
-                addRelatedPlatforms(options.relatedSeries);
-            } else if (options.option === 'addRelatedBranches') {
-                addRelatedBranches(options.relatedSeries);
-            } else if (options.option === 'addRelatedConfigs') {
-                addRelatedConfigs(options.relatedSeries);
-            }
-            loadingExtraDataPromise.promise.then(function (length) {
-                if (length > 0) {
-                    $scope.loadingRelatedSignatures = true;
-                } else {
-                    window.alert('Oops, no related platforms or branches have been found.');
-                }
-            });
-        }
-
-        getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworkList }) => {
-            $scope.frameworkList = frameworkList;
-            if (defaultFrameworkId) {
-                $scope.selectedFramework = $scope.frameworkList.find(framework =>
-                    framework.id === defaultFrameworkId,
-                );
-            } else {
-                $scope.selectedFramework = $scope.frameworkList.find(framework =>
-                    framework.name === phDefaultFramework,
-                );
-            }
-            $scope.$digest();
-
-            $scope.updateTestInput = function () {
-                $scope.addTestDataDisabled = true;
-                $scope.loadingTestData = true;
-                $scope.loadingPlatformList = true;
-                $scope.platformList = [];
-                PerfSeriesModel.getPlatformList($scope.selectedProject.name, {
-                    interval: $scope.timeRange,
-                    framework: $scope.selectedFramework.id }).then(function (platformList) {
-                        $scope.platformList = platformList;
-                        $scope.platformList.sort();
-                        if ($scope.platformList.indexOf(defaultPlatform) !== -1) {
-                            $scope.selectedPlatform = defaultPlatform;
-                        } else {
-                            $scope.selectedPlatform = $scope.platformList[0];
-                        }
-                        $scope.loadingPlatformList = false;
-                        $scope.updateTestSelector();
-                    });
-
-                $scope.updateTestSelector = function () {
-                    $scope.loadingTestData = true;
-                    if ($scope.selectedPlatform) {
-                        defaultPlatform = $scope.selectedPlatform;
-                    }
-                    PerfSeriesModel.getSeriesList(
-                        $scope.selectedProject.name,
-                        { interval: $scope.timeRange,
-                            platform: $scope.selectedPlatform,
-                            framework: $scope.selectedFramework.id,
-                            subtests: $scope.includeSubtests ? 1 : 0 }).then(function (seriesList) {
-                                $scope.unselectedTestList = sortBy(
-                                    seriesList.filter(series => series.platform === $scope.selectedPlatform),
-                                    'name',
-                                );
-                                // filter out tests which are already displayed or are
-                                // already selected
-                                [...new Set([...testsDisplayed, ...$scope.testsToAdd])].forEach((test) => {
-                                        remove($scope.unselectedTestList, {
-                                            projectName: test.projectName,
-                                            signature: test.signature });
-                                    });
-                                $scope.loadingTestData = false;
-                                $scope.$apply();
-                            });
-                };
-
-            };
-            $uibModalInstance.updateTestInput = $scope.updateTestInput;
-            $scope.updateTestInput();
-        });
     }]);
