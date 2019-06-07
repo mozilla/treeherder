@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -9,11 +10,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { getBtnClass } from '../../helpers/job';
-import { thFilterGroups } from '../../helpers/filter';
+import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
 import { getRepo, getUrlParam, setUrlParam } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { withPushes } from '../context/Pushes';
+import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 
 import WatchedRepo from './WatchedRepo';
 
@@ -47,6 +48,14 @@ class SecondaryNavBar extends React.PureComponent {
     this.loadWatchedRepos();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { repoName } = this.state;
+
+    if (repoName !== prevState.repoName) {
+      this.loadWatchedRepos();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
@@ -55,9 +64,22 @@ class SecondaryNavBar extends React.PureComponent {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges = () => {
-    this.setState({
+  handleUrlChanges = evt => {
+    const { oldURL, newURL } = evt;
+    const { repoName } = this.state;
+    const { recalculateUnclassifiedCounts } = this.props;
+    const newState = {
       searchQueryStr: getSearchStrFromUrl(),
+      repoName: getRepo(),
+    };
+
+    this.setState(newState, () => {
+      if (
+        hasUrlFilterChanges(oldURL, newURL) ||
+        newState.repoName !== repoName
+      ) {
+        recalculateUnclassifiedCounts();
+      }
     });
   };
 
@@ -367,10 +389,18 @@ SecondaryNavBar.propTypes = {
   repos: PropTypes.array.isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
+  recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   filteredUnclassifiedFailureCount: PropTypes.number.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
 };
 
-export default withPushes(SecondaryNavBar);
+const mapStateToProps = ({
+  pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
+}) => ({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
+
+export default connect(
+  mapStateToProps,
+  { recalculateUnclassifiedCounts },
+)(SecondaryNavBar);

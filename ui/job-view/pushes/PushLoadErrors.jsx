@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { withPushes } from '../context/Pushes';
 import { getAllUrlParams } from '../../helpers/location';
 import { uiJobsUrlBase } from '../../helpers/url';
 
@@ -105,4 +105,6 @@ PushLoadErrors.defaultProps = {
   revision: null,
 };
 
-export default withPushes(PushLoadErrors);
+const mapStateToProps = ({ pushes: { loadingPushes } }) => ({ loadingPushes });
+
+export default connect(mapStateToProps)(PushLoadErrors);

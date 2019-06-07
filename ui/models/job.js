@@ -5,6 +5,7 @@ import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
+import { getData } from '../helpers/http';
 
 import PushModel from './push';
 import TaskclusterModel from './taskcluster';
@@ -45,51 +46,55 @@ export default class JobModel {
       .join(' ');
   }
 
-  static getList(options, config) {
-    // a static method to retrieve a list of JobModel
-    config = config || {};
-    const fetch_all = config.fetch_all || false;
+  static async getList(options, config = {}) {
     // The `uri` config allows to fetch a list of jobs from an arbitrary
     // endpoint e.g. the similar jobs endpoint. It defaults to the job
     // list endpoint.
-    const jobUri = config.uri || getProjectUrl(uri);
+    const { fetchAll, uri: configUri } = config;
+    const jobUri = configUri || getProjectUrl(uri);
 
-    return fetch(`${jobUri}${options ? createQueryParams(options) : ''}`).then(
-      async resp => {
-        if (resp.ok) {
-          const data = await resp.json();
-          let itemList;
-          let nextPagesJobs = [];
-
-          // if the number of elements returned equals the page size, fetch the next pages
-          if (fetch_all && data.results.length === data.meta.count) {
-            const count = parseInt(data.meta.count, 10);
-            const offset = parseInt(data.meta.offset, 10) + count;
-            const newOptions = { ...options, offset, count };
-
-            nextPagesJobs = await JobModel.getList(newOptions, config);
-          }
-          if ('job_property_names' in data) {
-            // the results came as list of fields
-            // we need to convert them to objects
-            itemList = data.results.map(
-              elem =>
-                new JobModel(
-                  data.job_property_names.reduce(
-                    (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
-                    {},
-                  ),
-                ),
-            );
-          } else {
-            itemList = data.results.map(job_obj => new JobModel(job_obj));
-          }
-          return [...itemList, ...nextPagesJobs];
-        }
-        const text = await resp.text();
-        throw Error(text);
-      },
+    const { data, failureStatus } = await getData(
+      `${jobUri}${options ? createQueryParams(options) : ''}`,
     );
+
+    if (!failureStatus) {
+      const { results, meta, job_property_names } = data;
+      let itemList;
+      let nextPagesJobs = [];
+
+      // if the number of elements returned equals the page size,
+      // fetch the next pages
+      if (fetchAll && results.length === meta.count) {
+        const count = parseInt(meta.count, 10);
+        const offset = parseInt(meta.offset, 10) + count;
+        const newOptions = { ...options, offset, count };
+        const {
+          data: nextData,
+          failureStatus: nextFailureStatus,
+        } = await JobModel.getList(newOptions, config);
+
+        if (!nextFailureStatus) {
+          nextPagesJobs = nextData;
+        }
+      }
+      if (job_property_names) {
+        // the results came as list of fields
+        // we need to convert them to objects
+        itemList = results.map(
+          elem =>
+            new JobModel(
+              job_property_names.reduce(
+                (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
+                {},
+              ),
+            ),
+        );
+      } else {
+        itemList = results.map(job_obj => new JobModel(job_obj));
+      }
+      return { data: [...itemList, ...nextPagesJobs], failureStatus: null };
+    }
+    return { data, failureStatus };
   }
 
   static get(repoName, pk, signal) {

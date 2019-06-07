@@ -25,6 +25,18 @@ export const setLocation = function setLocation(params, hashPrefix = '/jobs') {
   window.location.hash = `#${hashPrefix}${createQueryParams(params)}`;
 };
 
+// change the url hash without firing a ``hashchange`` event.
+export const replaceLocation = function replaceLocation(
+  params,
+  hashPrefix = '/jobs',
+) {
+  window.history.replaceState(
+    null,
+    null,
+    `${window.location.pathname}#${hashPrefix}${createQueryParams(params)}`,
+  );
+};
+
 export const setUrlParam = function setUrlParam(
   field,
   value,

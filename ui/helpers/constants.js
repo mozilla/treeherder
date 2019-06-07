@@ -213,6 +213,8 @@ export const thEvents = {
   openLogviewer: 'open-logviewer-EVT',
   autoclassifyIgnore: 'ac-ignore-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
+  filtersUpdated: 'filters-updated-EVT',
+  clearPinboard: 'clear-pinboard-EVT',
 };
 
 export const phTimeRanges = [

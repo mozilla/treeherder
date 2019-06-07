@@ -18,9 +18,9 @@ import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withPushes } from '../context/Pushes';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
+import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -655,7 +655,9 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
+const mapStateToProps = ({ pushes: { revisionTips } }) => ({ revisionTips });
+
 export default connect(
-  null,
-  { notify, setSelectedJob },
-)(withPushes(withPinnedJobs(PinBoard)));
+  mapStateToProps,
+  { notify, setSelectedJob, recalculateUnclassifiedCounts },
+)(withPinnedJobs(PinBoard));

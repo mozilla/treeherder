@@ -2,18 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
+import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { withPushes } from '../context/Pushes';
 import { withPinnedJobs } from '../context/PinnedJobs';
 import { notify } from '../redux/stores/notifications';
 import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
 } from '../redux/stores/selectedJob';
+import {
+  fetchPushes,
+  fetchNextPushes,
+  updateRange,
+  pollPushes,
+} from '../redux/stores/pushes';
+import { reloadOnChangeParameters } from '../../helpers/filter';
 
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
+
+const PUSH_POLL_INTERVAL = 60000;
 
 class PushList extends React.Component {
   constructor(props) {
@@ -24,6 +33,14 @@ class PushList extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const { fetchPushes } = this.props;
+
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
+    fetchPushes();
+    this.poll();
+  }
+
   componentDidUpdate(prevProps) {
     const {
       notify,
@@ -32,9 +49,17 @@ class PushList extends React.Component {
       setSelectedJobFromQueryString,
     } = this.props;
 
-    if (jobsLoaded !== prevProps.jobsLoaded) {
+    if (jobsLoaded && jobsLoaded !== prevProps.jobsLoaded) {
       setSelectedJobFromQueryString(notify, jobMap);
     }
+  }
+
+  componentWillUnmount() {
+    if (this.pushIntervalId) {
+      clearInterval(this.pushIntervalId);
+      this.pushIntervalId = null;
+    }
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setWindowTitle() {
@@ -42,6 +67,35 @@ class PushList extends React.Component {
 
     document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
   }
+
+  getUrlRangeValues = url => {
+    const params = [...new URLSearchParams(url.split('?')[1]).entries()];
+
+    return params.reduce((acc, [key, value]) => {
+      return reloadOnChangeParameters.includes(key)
+        ? { ...acc, [key]: value }
+        : acc;
+    }, {});
+  };
+
+  poll = () => {
+    const { pollPushes } = this.props;
+
+    this.pushIntervalId = setInterval(async () => {
+      pollPushes();
+    }, PUSH_POLL_INTERVAL);
+  };
+
+  handleUrlChanges = evt => {
+    const { updateRange } = this.props;
+    const { oldURL, newURL } = evt;
+    const oldRange = this.getUrlRangeValues(oldURL);
+    const newRange = this.getUrlRangeValues(newURL);
+
+    if (!isEqual(oldRange, newRange)) {
+      updateRange(newRange);
+    }
+  };
 
   clearIfEligibleTarget(target) {
     // Target must be within the "push" area, but not be a dropdown-item or
@@ -69,7 +123,8 @@ class PushList extends React.Component {
       filterModel,
       pushList,
       loadingPushes,
-      getNextPushes,
+      fetchNextPushes,
+      getAllShownJobs,
       jobsLoaded,
       duplicateJobsVisible,
       groupCountsExpanded,
@@ -81,7 +136,6 @@ class PushList extends React.Component {
     if (!revision) {
       this.setWindowTitle();
     }
-
     return (
       <div onClick={evt => this.clearIfEligibleTarget(evt.target)}>
         {jobsLoaded && <span className="hidden ready" />}
@@ -103,6 +157,7 @@ class PushList extends React.Component {
                 groupCountsExpanded={groupCountsExpanded}
                 isOnlyRevision={push.revision === revision}
                 pushHealthVisibility={pushHealthVisibility}
+                getAllShownJobs={getAllShownJobs}
               />
             </ErrorBoundary>
           ))}
@@ -126,7 +181,7 @@ class PushList extends React.Component {
             {[10, 20, 50].map(count => (
               <div
                 className="btn btn-light-bordered"
-                onClick={() => getNextPushes(count)}
+                onClick={() => fetchNextPushes(count)}
                 key={count}
               >
                 {count}
@@ -144,7 +199,10 @@ PushList.propTypes = {
   user: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   pushList: PropTypes.array.isRequired,
-  getNextPushes: PropTypes.func.isRequired,
+  fetchNextPushes: PropTypes.func.isRequired,
+  fetchPushes: PropTypes.func.isRequired,
+  pollPushes: PropTypes.func.isRequired,
+  updateRange: PropTypes.func.isRequired,
   loadingPushes: PropTypes.bool.isRequired,
   jobsLoaded: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
@@ -154,6 +212,7 @@ PushList.propTypes = {
   clearSelectedJob: PropTypes.func.isRequired,
   countPinnedJobs: PropTypes.number.isRequired,
   setSelectedJobFromQueryString: PropTypes.func.isRequired,
+  getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
@@ -165,7 +224,31 @@ PushList.defaultProps = {
   currentRepo: {},
 };
 
+const mapStateToProps = ({
+  pushes: {
+    loadingPushes,
+    jobsLoaded,
+    jobMap,
+    pushList,
+    allUnclassifiedFailureCount,
+  },
+}) => ({
+  loadingPushes,
+  jobsLoaded,
+  jobMap,
+  pushList,
+  allUnclassifiedFailureCount,
+});
+
 export default connect(
-  null,
-  { notify, clearSelectedJob, setSelectedJobFromQueryString },
-)(withPushes(withPinnedJobs(PushList)));
+  mapStateToProps,
+  {
+    notify,
+    clearSelectedJob,
+    setSelectedJobFromQueryString,
+    fetchNextPushes,
+    fetchPushes,
+    updateRange,
+    pollPushes,
+  },
+)(withPinnedJobs(PushList));

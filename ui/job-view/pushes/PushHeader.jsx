@@ -99,6 +99,7 @@ class PushHeader extends React.Component {
       runnableVisible: prevRunnableVisible,
       collapsed: prevCollapsed,
       pushHealthVisibility: prevPushHealthVisibility,
+      filterModel: prevFilterModel,
     } = prevProps;
     const {
       jobCounts,
@@ -108,6 +109,7 @@ class PushHeader extends React.Component {
       runnableVisible,
       collapsed,
       pushHealthVisibility,
+      filterModel,
     } = this.props;
 
     return (
@@ -117,7 +119,8 @@ class PushHeader extends React.Component {
       prevSelectedRunnableJobs !== selectedRunnableJobs ||
       prevRunnableVisible !== runnableVisible ||
       prevCollapsed !== collapsed ||
-      prevPushHealthVisibility !== pushHealthVisibility
+      prevPushHealthVisibility !== pushHealthVisibility ||
+      prevFilterModel !== filterModel
     );
   }
 
