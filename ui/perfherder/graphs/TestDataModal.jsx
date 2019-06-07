@@ -368,6 +368,7 @@ export class TestDataModal extends React.Component {
                 color="info"
                 disabled={!selectedTests.length}
                 onClick={() => submitData(selectedTests)}
+                onKeyPress={event => event.preventDefault()}
               >
                 Plot graphs
               </Button>

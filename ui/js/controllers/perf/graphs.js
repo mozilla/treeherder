@@ -672,8 +672,8 @@ perf.controller('GraphsCtrl', [
         }
 
         function addSeriesList(partialSeriesList) {
-            $scope.loadingGraphs = true;
-            return $q.all(partialSeriesList.map(async function (partialSeries) {
+            $q.all(partialSeriesList.map(async function (partialSeries) {
+                $scope.loadingGraphs = true;                
                 const params = { framework: partialSeries.frameworkId };
                 if (partialSeries.id) {
                     params.id = partialSeries.id;
@@ -682,7 +682,7 @@ perf.controller('GraphsCtrl', [
                 }
                 const { data: seriesList, failureStatus} = await PerfSeriesModel.getSeriesList(
                     partialSeries.project, params);
-                
+ 
                 if (failureStatus) {
                     return alert('Error loading performance signature\n\n' + seriesList);
                 }
@@ -854,7 +854,7 @@ perf.controller('GraphsCtrl', [
                 addSeriesList(partialSeriesList);
             } else {
                 $scope.seriesList = [];
-                addSeriesList([]);
+                plotGraph();
             }
             if ($stateParams.selected) {
                 var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
