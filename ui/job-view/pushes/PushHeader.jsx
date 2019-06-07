@@ -19,11 +19,15 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
 import PushHealthStatus from '../../shared/PushHealthStatus';
-import { getUrlParam, setUrlParam } from '../../helpers/location';
+import {
+  getSelectedJobId,
+  getUrlParam,
+  setUrlParam,
+} from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
+import { setSelectedJob } from '../redux/stores/selectedJob';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -184,7 +188,6 @@ class PushHeader extends React.Component {
 
   pinAllShownJobs = () => {
     const {
-      selectedJob,
       setSelectedJob,
       pinJobs,
       expandAllPushGroups,
@@ -193,11 +196,12 @@ class PushHeader extends React.Component {
       pushId,
     } = this.props;
     const shownJobs = getAllShownJobs(pushId);
+    const selectedJobId = getSelectedJobId();
 
     if (shownJobs.length) {
       expandAllPushGroups(() => {
         pinJobs(shownJobs);
-        if (!selectedJob) {
+        if (!selectedJobId) {
           setSelectedJob(shownJobs[0]);
         }
       });
@@ -400,15 +404,13 @@ PushHeader.propTypes = {
   jobCounts: PropTypes.object.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   watchState: PropTypes.string,
-  selectedJob: PropTypes.object,
 };
 
 PushHeader.defaultProps = {
-  selectedJob: null,
   watchState: 'none',
 };
 
 export default connect(
   null,
-  { notify },
-)(withPushes(withSelectedJob(withPinnedJobs(PushHeader))));
+  { notify, setSelectedJob },
+)(withPushes(withPinnedJobs(PushHeader)));

@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
 import { getBugUrl } from '../../../../helpers/url';
-import { withSelectedJob } from '../../../context/SelectedJob';
 import { withPinnedJobs } from '../../../context/PinnedJobs';
 import BugFiler from '../../BugFiler';
 
@@ -184,4 +184,6 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
 };
 
-export default withSelectedJob(withPinnedJobs(FailureSummaryTab));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(withPinnedJobs(FailureSummaryTab));

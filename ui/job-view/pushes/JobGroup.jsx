@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 
-import { withSelectedJob } from '../context/SelectedJob';
 import { thFailureResults } from '../../helpers/constants';
 import { getBtnClass, getStatus } from '../../helpers/job';
-import { getUrlParam } from '../../helpers/location';
+import { getSelectedJobId, getUrlParam } from '../../helpers/location';
 
 import JobButton from './JobButton';
 import JobCount from './JobCount';
@@ -61,13 +60,10 @@ export class JobGroupComponent extends React.Component {
   };
 
   groupButtonsAndCounts(jobs, expanded) {
-    const {
-      selectedJob,
-      duplicateJobsVisible,
-      groupCountsExpanded,
-    } = this.props;
+    const { duplicateJobsVisible, groupCountsExpanded } = this.props;
     let buttons = [];
     const counts = [];
+    const selectedJobId = getSelectedJobId();
 
     if (expanded || groupCountsExpanded) {
       // All buttons should be shown when the group is expanded
@@ -90,10 +86,7 @@ export class JobGroupComponent extends React.Component {
           buttons.push(job);
         } else {
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if (
-            (selectedJob && selectedJob.id === job.id) ||
-            countInfo.selectedClasses
-          ) {
+          if (selectedJobId === job.id || countInfo.selectedClasses) {
             countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';
@@ -190,11 +183,6 @@ JobGroupComponent.propTypes = {
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  selectedJob: PropTypes.object,
 };
 
-JobGroupComponent.defaultProps = {
-  selectedJob: null,
-};
-
-export default withSelectedJob(JobGroupComponent);
+export default JobGroupComponent;

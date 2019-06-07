@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
+import { connect } from 'react-redux';
 
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
@@ -418,4 +418,8 @@ DetailsPanel.defaultProps = {
   selectedJob: null,
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(DetailsPanel)));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(mapStateToProps)(
+  withPushes(withPinnedJobs(DetailsPanel)),
+);

@@ -10,7 +10,6 @@ import {
 
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
-import { withSelectedJob } from '../../context/SelectedJob';
 import { withPushes } from '../../context/Pushes';
 import { longDateFormat } from '../../../helpers/display';
 import { notify } from '../../redux/stores/notifications';
@@ -255,7 +254,9 @@ AnnotationsTab.defaultProps = {
   selectedJob: null,
 };
 
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
-)(withPushes(withSelectedJob(AnnotationsTab)));
+)(withPushes(AnnotationsTab));

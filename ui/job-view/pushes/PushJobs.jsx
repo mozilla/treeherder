@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withSelectedJob } from '../context/SelectedJob';
 import { getPushTableId } from '../../helpers/aggregateId';
 import { findInstance, findSelectedInstance } from '../../helpers/job';
 import { getSelectedJobId } from '../../helpers/location';
@@ -12,6 +12,7 @@ import { didObjectsChange } from '../../helpers/object';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
 import { withPushes } from '../context/Pushes';
+import { setSelectedJob } from '../redux/stores/selectedJob';
 
 import Platform from './Platform';
 
@@ -152,4 +153,7 @@ PushJobs.propTypes = {
   filterModel: PropTypes.object.isRequired,
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(PushJobs)));
+export default connect(
+  null,
+  { setSelectedJob },
+)(withPushes(withPinnedJobs(PushJobs)));

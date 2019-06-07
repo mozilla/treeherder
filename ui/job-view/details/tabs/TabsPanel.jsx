@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,7 +15,7 @@ import { getAllUrlParams } from '../../../helpers/location';
 import { getStatus } from '../../../helpers/job';
 import JobDetails from '../../../shared/JobDetails';
 import { withPinnedJobs } from '../../context/PinnedJobs';
-import { withSelectedJob } from '../../context/SelectedJob';
+import { clearSelectedJob } from '../../redux/stores/selectedJob';
 
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
 import PerformanceTab from './PerformanceTab';
@@ -131,14 +132,13 @@ class TabsPanel extends React.Component {
       classifications,
       togglePinBoardVisibility,
       isPinBoardVisible,
-      pinnedJobs,
+      countPinnedJobs,
       classificationMap,
       logViewerFullUrl,
       reftestUrl,
       clearSelectedJob,
     } = this.props;
     const { showAutoclassifyTab, tabIndex } = this.state;
-    const countPinnedJobs = Object.keys(pinnedJobs).length;
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -257,7 +257,7 @@ TabsPanel.propTypes = {
   classifications: PropTypes.array.isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
+  countPinnedJobs: PropTypes.number.isRequired,
   bugs: PropTypes.array.isRequired,
   user: PropTypes.object.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
@@ -286,4 +286,9 @@ TabsPanel.defaultProps = {
   reftestUrl: null,
 };
 
-export default withSelectedJob(withPinnedJobs(TabsPanel));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(
+  mapStateToProps,
+  { clearSelectedJob },
+)(withPinnedJobs(TabsPanel));
