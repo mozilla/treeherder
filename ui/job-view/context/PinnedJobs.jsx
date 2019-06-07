@@ -180,6 +180,7 @@ export function withPinnedJobs(Component) {
             {...props}
             pinnedJobs={context.pinnedJobs}
             pinnedJobBugs={context.pinnedJobBugs}
+            countPinnedJobs={Object.keys(context.pinnedJobs).length}
             isPinBoardVisible={context.isPinBoardVisible}
             setPinBoardVisible={context.setPinBoardVisible}
             pinJob={context.pinJob}

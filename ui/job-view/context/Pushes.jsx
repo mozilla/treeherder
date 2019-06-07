@@ -24,6 +24,7 @@ import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { reloadOnChangeParameters } from '../../helpers/filter';
 import { notify } from '../redux/stores/notifications';
+import { setSelectedJob } from '../redux/stores/selectedJob';
 
 const PushesContext = React.createContext({});
 const defaultPushCount = 10;
@@ -367,6 +368,7 @@ export class PushesClass extends React.Component {
   };
 
   async fetchNewJobs() {
+    const { setSelectedJob } = this.props;
     const { pushList } = this.state;
     if (!pushList.length) {
       // If we have no pushes, then no need to poll for jobs.
@@ -395,9 +397,12 @@ export class PushesClass extends React.Component {
 
     window.dispatchEvent(
       new CustomEvent(thEvents.applyNewJobs, {
-        detail: { jobs, updatedSelectedJob },
+        detail: { jobs },
       }),
     );
+    if (updatedSelectedJob) {
+      setSelectedJob(updatedSelectedJob);
+    }
   }
 
   render() {
@@ -413,11 +418,12 @@ PushesClass.propTypes = {
   children: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
+  setSelectedJob: PropTypes.func.isRequired,
 };
 
 export const Pushes = connect(
   null,
-  { notify },
+  { notify, setSelectedJob },
 )(PushesClass);
 
 export function withPushes(Component) {

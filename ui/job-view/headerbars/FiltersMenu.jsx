@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Label } from 'reactstrap';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withSelectedJob } from '../context/SelectedJob';
 import { withPushes } from '../context/Pushes';
+import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   rs => rs !== 'runnable',
@@ -138,4 +139,9 @@ FiltersMenu.defaultProps = {
   selectedJob: null,
 };
 
-export default withPushes(withSelectedJob(withPinnedJobs(FiltersMenu)));
+const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
+
+export default connect(
+  mapStateToProps,
+  { setSelectedJob, clearSelectedJob },
+)(withPushes(withPinnedJobs(FiltersMenu)));
