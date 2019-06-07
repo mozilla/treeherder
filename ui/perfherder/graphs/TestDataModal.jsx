@@ -35,8 +35,10 @@ export class TestDataModal extends React.Component {
       errorMessages: [],
       includeSubtests: false,
       seriesData: [],
+      relatedTests: [],
       selectedTests: [],
       filteredData: [],
+      showNoRelatedTests: false,
     };
   }
 
@@ -78,10 +80,17 @@ export class TestDataModal extends React.Component {
   getSeriesData = async params => {
     const { errorMessages, project } = this.state;
 
+    let updates = {
+      filteredData: [],
+      relatedTests: [],
+      showNoRelatedTests: false,
+    };
     const response = await PerfSeriesModel.getSeriesList(project.name, params);
-    const updates = processResponse(response, 'seriesData', errorMessages);
-    updates.filteredData = [];
-    return updates;
+    updates = {
+      ...updates,
+      ...processResponse(response, 'seriesData', errorMessages),
+    };
+    this.setState(updates);
   };
 
   async getPlatforms() {
@@ -98,39 +107,48 @@ export class TestDataModal extends React.Component {
     this.setState(updates);
   }
 
-  // TODO show message if nothing found (for all addRelated)
-  // TODO seriesData needs to be filtered
   addRelatedConfigs = async params => {
     const { relatedSeries } = this.props.options;
-    const updates = await this.getSeriesData(params);
+    const { errorMessages, project } = this.state;
 
-    if (updates.seriesData) {
-      const selectedTests =
-        updates.seriesData.filter(
+    const response = await PerfSeriesModel.getSeriesList(project.name, params);
+    const updates = processResponse(response, 'relatedTests', errorMessages);
+
+    if (updates.relatedTests.length) {
+      const tests =
+        updates.relatedTests.filter(
           series =>
             series.platform === relatedSeries.platform &&
             series.testName === relatedSeries.testName &&
             series.name !== relatedSeries.name,
         ) || [];
 
-      updates.selectedTests = selectedTests;
+      updates.relatedTests = tests;
     }
+    updates.showNoRelatedTests = updates.relatedTests.length === 0;
+
     this.setState(updates);
   };
 
   addRelatedPlatforms = async params => {
     const { relatedSeries } = this.props.options;
-    const updates = await this.getSeriesData(params);
+    const { errorMessages, project } = this.state;
 
-    if (updates.seriesData) {
-      const selectedTests =
-        updates.seriesData.filter(
+    const response = await PerfSeriesModel.getSeriesList(project.name, params);
+    const updates = processResponse(response, 'relatedTests', errorMessages);
+
+    if (updates.relatedTests.length) {
+      const tests =
+        updates.relatedTests.filter(
           series =>
             series.platform !== relatedSeries.platform &&
             series.name === relatedSeries.name,
         ) || [];
-      updates.selectedTests = selectedTests;
+
+      updates.relatedTests = tests;
     }
+    updates.showNoRelatedTests = updates.relatedTests.length === 0;
+
     this.setState(updates);
   };
 
@@ -145,21 +163,27 @@ export class TestDataModal extends React.Component {
     );
     // TODO error messages
     const responses = await Promise.all(requests);
-    const selectedTests = responses.flatMap(function(item) {
+    const relatedTests = responses.flatMap(function(item) {
       if (!item.failureStatus) {
         return item.data;
       }
     });
 
-    // TODO if no data is found, show message.
-    // const updates = processResponse(response, 'seriesData', errorMessages);
-    // updates.filteredData = [];
-    this.setState({ selectedTests });
+    this.setState({
+      relatedTests,
+      showNoRelatedTests: relatedTests.length === 0,
+    });
   };
 
-  processOptions = async () => {
+  processOptions = () => {
     const { option, relatedSeries } = this.props.options;
-    const { platform, framework, includeSubtests } = this.state;
+    const {
+      platform,
+      framework,
+      includeSubtests,
+      relatedTests,
+      showNoRelatedTests,
+    } = this.state;
     const { timeRange } = this.props;
 
     const params = {
@@ -168,13 +192,13 @@ export class TestDataModal extends React.Component {
       subtests: +includeSubtests,
     };
 
-    if (!option) {
+    // TODO reset option after it's called the first time
+    // so user can press update to use test filter controls
+    if (!option || relatedTests.length || showNoRelatedTests) {
       params.platform = platform;
-      const updates = await this.getSeriesData(params);
-      return this.setState(updates);
+      return this.getSeriesData(params);
     }
 
-    // this is needed because we should be using the last used platform as the defaultPlatform
     params.framework = relatedSeries.frameworkId;
 
     if (option === 'addRelatedPlatform') {
@@ -211,7 +235,6 @@ export class TestDataModal extends React.Component {
     }
   };
 
-  // add onKeypress for selecting/deselecting
   render() {
     const {
       frameworks,
@@ -223,6 +246,8 @@ export class TestDataModal extends React.Component {
       includeSubtests,
       selectedTests,
       filteredData,
+      relatedTests,
+      showNoRelatedTests,
     } = this.state;
     const { repos, submitData } = this.props;
 
@@ -253,7 +278,12 @@ export class TestDataModal extends React.Component {
         updateData: platform => this.setState({ platform }),
       },
     ];
-    const tests = filteredData.length ? filteredData : seriesData;
+    let tests = seriesData;
+    if (filteredData.length) {
+      tests = filteredData;
+    } else if (relatedTests.length) {
+      tests = relatedTests;
+    }
 
     return (
       <ModalBody className="container-fluid test-chooser">
@@ -268,12 +298,18 @@ export class TestDataModal extends React.Component {
           </Row>
           <Row>
             <Col className="px-2 py-3 col-4">
-              <InputFilter outline updateFilterText={this.updateFilterText} />
+              <InputFilter
+                outline
+                disabled={relatedTests.length > 0}
+                updateFilterText={this.updateFilterText}
+              />
             </Col>
           </Row>
           <Row className="p-2 justify-content-start">
             <Col className="p-0">
-              <Label for="exampleSelect">Tests</Label>
+              <Label for="exampleSelect">
+                {relatedTests.length > 0 ? 'Related tests' : 'Tests'}
+              </Label>
               <Input type="select" name="selectMulti" id="selectTests" multiple>
                 {tests.length > 0 &&
                   tests.sort().map(test => (
@@ -281,10 +317,15 @@ export class TestDataModal extends React.Component {
                       key={test.id}
                       onClick={() => this.updateSelectedTests(test)}
                     >
-                      {test.name}
+                      {relatedTests.length > 0
+                        ? `${test.projectName} ${test.platform} ${test.name}`
+                        : test.name}
                     </option>
                   ))}
               </Input>
+              {showNoRelatedTests && (
+                <p className="text-info pt-2">No related tests found.</p>
+              )}
             </Col>
           </Row>
           <Row className="pt-1 pb-3 px-2 justify-content-center">
