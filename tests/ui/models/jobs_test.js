@@ -35,16 +35,16 @@ describe('JobModel', () => {
     });
 
     test('should return a page of results by default', async () => {
-      const jobList = await JobModel.getList({ count: 2 });
+      const { data } = await JobModel.getList({ count: 2 });
 
-      expect(jobList).toHaveLength(2);
+      expect(data).toHaveLength(2);
     });
 
-    test('should return all the pages when fetch_all==true', async () => {
-      const jobList = await JobModel.getList({ count: 2 }, { fetch_all: true });
+    test('should return all the pages when fetchAll==true', async () => {
+      const { data } = await JobModel.getList({ count: 2 }, { fetchAll: true });
 
-      expect(jobList).toHaveLength(3);
-      expect(jobList[2].id).toBe(3);
+      expect(data).toHaveLength(3);
+      expect(data[2].id).toBe(3);
     });
   });
 });

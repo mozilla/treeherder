@@ -8,7 +8,6 @@ import {
   thOptionOrder,
   thPlatformMap,
 } from '../../helpers/constants';
-import { withPushes } from '../context/Pushes';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import JobModel from '../../models/job';
@@ -17,6 +16,10 @@ import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
 import { notify } from '../redux/stores/notifications';
+import {
+  updateJobMap,
+  recalculateUnclassifiedCounts,
+} from '../redux/stores/pushes';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import { Revision } from './Revision';
@@ -140,17 +143,21 @@ class Push extends React.PureComponent {
   };
 
   fetchJobs = async () => {
-    const { push } = this.props;
-    const jobs = await JobModel.getList(
+    const { push, notify } = this.props;
+    const { data, failureStatus } = await JobModel.getList(
       {
         push_id: push.id,
         count: 2000,
         return_type: 'list',
       },
-      { fetch_all: true },
+      { fetchAll: true },
     );
 
-    this.mapPushJobs(jobs);
+    if (!failureStatus) {
+      this.mapPushJobs(data);
+    } else {
+      notify(failureStatus, 'danger', { sticky: true });
+    }
   };
 
   mapPushJobs = (jobs, skipJobMap) => {
@@ -462,6 +469,7 @@ class Push extends React.PureComponent {
     return (
       <div
         className="push"
+        data-testid={`push-${push.id}`}
         ref={ref => {
           this.container = ref;
         }}
@@ -550,7 +558,11 @@ Push.propTypes = {
   pushHealthVisibility: PropTypes.string.isRequired,
 };
 
+const mapStateToProps = ({ pushes: { allUnclassifiedFailureCount } }) => ({
+  allUnclassifiedFailureCount,
+});
+
 export default connect(
-  null,
-  { notify },
-)(withPushes(Push));
+  mapStateToProps,
+  { notify, updateJobMap, recalculateUnclassifiedCounts },
+)(Push);

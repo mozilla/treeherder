@@ -136,11 +136,8 @@ class Treeherder(Base):
 
     def select_repository(self, name):
         self.find_element(*self._repo_menu_locator).click()
-        # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-        el = self.find_element(By.CSS_SELECTOR, 'body')
         locator = (self._repo_locator[0], self._repo_locator[1].format(name))
         self.find_element(*locator).click()
-        self.wait.until(expected.staleness_of(el))
         self.wait_for_page_to_load()
 
     def switch_to_perfherder(self):
@@ -264,26 +261,21 @@ class Treeherder(Base):
             self.wait.until(lambda _: self.page.pinboard.is_displayed)
 
         def set_as_bottom_of_range(self):
-            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-            el = self.page.find_element(By.CSS_SELECTOR, 'body')
+            el = self.page.find_element(By.CSS_SELECTOR, '.push')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_bottom_of_range_locator).click()
             self.wait.until(expected.staleness_of(el))
             self.page.wait_for_page_to_load()
 
         def set_as_top_of_range(self):
-            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-            el = self.page.find_element(By.CSS_SELECTOR, 'body')
+            el = self.page.find_element(By.CSS_SELECTOR, '.push')
             self.find_element(*self._dropdown_toggle_locator).click()
             self.find_element(*self._set_top_of_range_locator).click()
             self.wait.until(expected.staleness_of(el))
             self.page.wait_for_page_to_load()
 
         def view(self):
-            # FIXME workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1411264
-            el = self.page.find_element(By.CSS_SELECTOR, 'body')
             self.find_element(*self._datestamp_locator).click()
-            self.wait.until(expected.staleness_of(el))
             self.page.wait_for_page_to_load()
 
         class Job(Region):

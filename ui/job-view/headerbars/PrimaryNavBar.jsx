@@ -53,6 +53,7 @@ class PrimaryNavBar extends React.Component {
       groupCountsExpanded,
       toggleFieldFilterVisible,
       pushHealthVisibility,
+      getAllShownJobs,
       setPushHealthVisibility,
       notify,
     } = this.props;
@@ -68,7 +69,11 @@ class PrimaryNavBar extends React.Component {
                 <InfraMenu />
                 <ReposMenu repos={repos} />
                 <TiersMenu filterModel={filterModel} />
-                <FiltersMenu filterModel={filterModel} user={user} />
+                <FiltersMenu
+                  filterModel={filterModel}
+                  user={user}
+                  getAllShownJobs={getAllShownJobs}
+                />
                 <HealthMenu
                   pushHealthVisibility={pushHealthVisibility}
                   setPushHealthVisibility={setPushHealthVisibility}
@@ -108,6 +113,7 @@ PrimaryNavBar.propTypes = {
   pushHealthVisibility: PropTypes.string.isRequired,
   setPushHealthVisibility: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+  getAllShownJobs: PropTypes.func.isRequired,
 };
 
 export default connect(

@@ -10,9 +10,9 @@ import {
 
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
-import { withPushes } from '../../context/Pushes';
 import { longDateFormat } from '../../../helpers/display';
 import { notify } from '../../redux/stores/notifications';
+import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
@@ -258,5 +258,5 @@ const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
 
 export default connect(
   mapStateToProps,
-  { notify },
-)(withPushes(AnnotationsTab));
+  { notify, recalculateUnclassifiedCounts },
+)(AnnotationsTab);

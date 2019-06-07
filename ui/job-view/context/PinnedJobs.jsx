@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { notify } from '../redux/stores/notifications';
+import { thEvents } from '../../helpers/constants';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';
 const MAX_SIZE = 500;
@@ -32,6 +33,14 @@ export class PinnedJobsClass extends React.Component {
       setClassificationId: this.setClassificationId,
       setClassificationComment: this.setClassificationComment,
     };
+  }
+
+  componentDidMount() {
+    window.addEventListener(thEvents.clearPinboard, this.unPinAll);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener(thEvents.clearPinboard, this.unPinAll);
   }
 
   setValue(newState, callback) {
