@@ -9,7 +9,7 @@ import {
   errorMessageClass,
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
-import { getInitializedAlerts } from '../helpers';
+import { getInitializedAlerts, containsText } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 
@@ -102,17 +102,12 @@ export default class AlertTable extends React.Component {
 
     if (!filterText) return matchesFilters;
 
-    const words = filterText
-      .split(' ')
-      .map(word => `(?=.*${word})`)
-      .join('');
-    const regex = RegExp(words, 'gi');
-    const text = `${alert.title} ${alertSummary.bug_number &&
+    const textToTest = `${alert.title} ${alertSummary.bug_number &&
       alertSummary.bug_number.toString()} ${alertSummary.revision.toString()}`;
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
-    return regex.test(text) && matchesFilters;
+    return containsText(textToTest, filterText) && matchesFilters;
   };
 
   updateFilteredAlerts = () => {

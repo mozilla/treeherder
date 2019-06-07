@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
 import { filterText } from '../constants';
-import { convertParams } from '../helpers';
+import { convertParams, containsText } from '../helpers';
 import FilterControls from '../FilterControls';
 
 import CompareTable from './CompareTable';
@@ -61,16 +61,11 @@ export default class CompareTableControls extends React.Component {
 
     if (!filterText) return matchesFilters;
 
-    const words = filterText
-      .split(' ')
-      .map(word => `(?=.*${word})`)
-      .join('');
-    const regex = RegExp(words, 'gi');
-    const text = `${testName} ${result.name}`;
+    const textToSearch = `${testName} ${result.name}`;
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
-    return regex.test(text) && matchesFilters;
+    return containsText(textToSearch, filterText) && matchesFilters;
   };
 
   updateFilteredResults = () => {

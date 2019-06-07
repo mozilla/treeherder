@@ -20,6 +20,7 @@ import { getApiUrl } from '../../helpers/url';
 import { endpoints } from '../constants';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
+import { containsText } from '../helpers';
 
 // TODO remove $stateParams and $state after switching to react router
 export class TestDataModal extends React.Component {
@@ -188,19 +189,10 @@ export class TestDataModal extends React.Component {
 
   findObject = (list, key, value) => list.find(item => item[key] === value);
 
-  filterData = (testName, filterText) => {
-    const words = filterText
-      .split(' ')
-      .map(word => `(?=.*${word})`)
-      .join('');
-    const regex = RegExp(words, 'gi');
-    return regex.test(testName);
-  };
-
   updateFilterText = filterText => {
     const { seriesData } = this.state;
     const filteredData = seriesData.filter(test =>
-      this.filterData(test.name, filterText),
+      containsText(test.name, filterText),
     );
     this.setState({ filteredData });
   };
@@ -219,9 +211,7 @@ export class TestDataModal extends React.Component {
     }
   };
 
-  // TODO connect plot graphs button
   // add onKeypress for selecting/deselecting
-  // move filter regex logic to helpers file
   render() {
     const {
       frameworks,
