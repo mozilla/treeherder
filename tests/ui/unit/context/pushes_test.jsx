@@ -10,7 +10,7 @@ import jobListFixtureOne from '../../mock/job_list/job_1';
 import jobListFixtureTwo from '../../mock/job_list/job_2';
 
 describe('Pushes context', () => {
-  const repoName = 'mozilla-inbound';
+  const repoName = 'autoland';
 
   beforeEach(() => {
     fetchMock.mock(
