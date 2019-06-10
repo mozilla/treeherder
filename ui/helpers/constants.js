@@ -175,7 +175,7 @@ export const thFavicons = {
   unavailable: treeFavicon,
 };
 
-export const thDefaultRepo = 'mozilla-inbound';
+export const thDefaultRepo = 'autoland';
 
 export const thJobNavSelectors = {
   ALL_JOBS: {
