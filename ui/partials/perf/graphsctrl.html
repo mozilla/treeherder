@@ -4,23 +4,7 @@
       <div ng-show="seriesList.length == 0">
         <p>Nothing here yet</p>
       </div>
-      <table class="table table-bordered graph-legend-table">
-        <tr ng-repeat="series in seriesList">
-          <td>
-            <button class="close" ng-click="removeSeries(series.projectName, series.signature)">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Remove series</span>
-            </button>
-              <div class="graph-legend" style="border-left-color: {{series.blockColor}}" ng-class="{'series-inactive':!series.visible}">
-                <a href="" id="test-name" ng-click="addTestData('addRelatedConfigs', series.signature)" title="Add related configurations">{{series.name}}</a><br/>
-                <a href="" id="project-name" ng-click="addTestData('addRelatedBranches', series.signature)" title="Add related branches">{{series.projectName}}</a><br/>
-                <a href="" id="platform" ng-click="addTestData('addRelatedPlatform', series.signature)" title="Add related platforms">{{series.platform}}</a><br/>
-                <div class="signature"><small>{{series.signature}}</small></div>
-              </div>
-              <input title="Show/Hide series" type="checkbox" ng-model="series.visible" class="show-hide-check" ng-change="showHideSeries(series.signature)">
-          </td>
-        </tr>
-      </table>
+      <selected-tests-container series-list="seriesList" add-test-data="addTestData" remove-series="removeSeries" show-hide-series="showHideSeries"/>
       <button id="add-test-data-button" class="btn btn-primary-soft" ng-click="addTestData()">
         <span class="fas fa-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
     </div>
