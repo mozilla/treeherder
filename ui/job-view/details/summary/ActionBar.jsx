@@ -241,14 +241,14 @@ class ActionBar extends React.PureComponent {
           let response = null;
           do {
             response = window.prompt(
-              'Enter number of times to run isolation jobs',
+              'Enter number of times (1..100) to run isolation jobs: ',
               times,
             );
             if (response == null) {
               break;
             }
             times = parseInt(response, 10);
-          } while (Number.isNaN(times) || times < 1 || times > 20);
+          } while (Number.isNaN(times) || times < 1 || times > 100);
 
           if (response === null) {
             notify('Request to isolate job via actions.json aborted.');
