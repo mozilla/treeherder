@@ -78,11 +78,13 @@ export const isPerfTest = function isPerfTest(job) {
 };
 
 export const isTestIsolatable = function isTestIsolatable(job) {
+  if (job.job_type_name.toLowerCase().includes('jsreftest')) {
+    return false;
+  }
   return [job.job_group_name, job.job_type_name].some(
     name =>
       !name.toLowerCase().includes('source-test') &&
       (name.toLowerCase().includes('crashtest') ||
-        name.toLowerCase().includes('jsreftest') ||
         name.toLowerCase().includes('mochitest') ||
         name.toLowerCase().includes('reftest') ||
         name.toLowerCase().includes('xpcshell')),
