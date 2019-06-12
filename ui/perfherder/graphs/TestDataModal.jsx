@@ -255,6 +255,7 @@ export class TestDataModal extends React.Component {
             },
             this.getPlatforms,
           ),
+        title: 'Framework',          
       },
       {
         options: repos.length ? repos.map(item => item.name) : [],
@@ -264,11 +265,13 @@ export class TestDataModal extends React.Component {
             { project: this.findObject(repos, 'name', value) },
             this.getPlatforms,
           ),
+        title: 'Project',
       },
       {
         options: platforms,
         selectedItem: platform,
         updateData: platform => this.setState({ platform }),
+        title: 'Platform',
       },
     ];
     let tests = seriesData;
