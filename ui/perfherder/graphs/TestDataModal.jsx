@@ -228,6 +228,11 @@ export class TestDataModal extends React.Component {
     }
   };
 
+  getFullTestName = test => `${test.projectName} ${test.platform} ${test.name}`;
+
+  getOriginalTestName = test =>
+    this.state.relatedTests.length > 0 ? this.getFullTestName(test) : test.name;
+
   render() {
     const {
       frameworks,
@@ -255,7 +260,7 @@ export class TestDataModal extends React.Component {
             },
             this.getPlatforms,
           ),
-        title: 'Framework',          
+        title: 'Framework',
       },
       {
         options: repos.length ? repos.map(item => item.name) : [],
@@ -324,10 +329,9 @@ export class TestDataModal extends React.Component {
                     <option
                       key={test.id}
                       onClick={() => this.updateSelectedTests(test)}
+                      title={this.getOriginalTestName(test)}
                     >
-                      {relatedTests.length > 0
-                        ? `${test.projectName} ${test.platform} ${test.name}`
-                        : test.name}
+                      {this.getOriginalTestName(test)}
                     </option>
                   ))}
               </Input>
@@ -345,8 +349,9 @@ export class TestDataModal extends React.Component {
                     <option
                       key={test.id}
                       onClick={() => this.updateSelectedTests(test, true)}
+                      title={this.getFullTestName(test)}
                     >
-                      {`${test.projectName} ${test.platform} ${test.name}`}
+                      {this.getFullTestName(test)}
                     </option>
                   ))}
               </Input>

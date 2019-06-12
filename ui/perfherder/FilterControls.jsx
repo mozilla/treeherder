@@ -18,7 +18,11 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>
     {dropdownOptions.map(dropdown => (
       <Col sm="auto" className={colClass} key={dropdown.selectedItem}>
-        <UncontrolledDropdown className="mr-0 text-nowrap" title={dropdown.title} aria-label={dropdown.title}>
+        <UncontrolledDropdown
+          className="mr-0 text-nowrap"
+          title={dropdown.title}
+          aria-label={dropdown.title}
+        >
           <DropdownToggle caret outline={outline}>
             {dropdown.selectedItem}
           </DropdownToggle>
