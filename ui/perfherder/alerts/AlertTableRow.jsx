@@ -21,14 +21,14 @@ export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      alert: this.props.alert,
       starred: this.props.alert.starred,
       checkboxSelected: false,
     };
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedAlerts } = this.props;
+    const { selectedAlerts, alert } = this.props;
+
     // reset alert checkbox when an action is taken in the AlertActionPanel
     // (it resets selectedAlerts) or an individual alert has been deselected
     // and removed from selectedAlerts
@@ -36,9 +36,7 @@ export default class AlertTableRow extends React.Component {
       if (!selectedAlerts.length) {
         this.setState({ checkboxSelected: false });
       } else {
-        const index = selectedAlerts.findIndex(
-          alert => alert.id === this.state.alert.id,
-        );
+        const index = selectedAlerts.findIndex(item => item.id === alert.id);
         this.setState({ checkboxSelected: index !== -1 });
       }
     }
@@ -63,7 +61,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   toggleStar = async () => {
-    const { starred, alert } = this.state;
+    const { starred } = this.state;
+    const { alert } = this.props;
     const updatedStar = {
       starred: !starred,
     };
@@ -103,8 +102,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   updateCheckbox = () => {
-    const { updateSelectedAlerts, selectedAlerts } = this.props;
-    const { checkboxSelected, alert } = this.state;
+    const { updateSelectedAlerts, selectedAlerts, alert } = this.props;
+    const { checkboxSelected } = this.state;
 
     const index = selectedAlerts.findIndex(item => item.id === alert.id);
 
