@@ -1,3 +1,4 @@
+/* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input } from 'reactstrap';
@@ -20,27 +21,24 @@ export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      alert: this.props.alert,
       starred: this.props.alert.starred,
       checkboxSelected: false,
     };
   }
 
   componentDidUpdate(prevProps) {
-    const { allSelected, selectedAlerts } = this.props;
+    const { selectedAlerts, alert } = this.props;
 
-    if (prevProps.allSelected !== allSelected) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ checkboxSelected: allSelected });
-    }
-    // remove checkbox when an action is taken in the AlertActionPanel
-    // (it resets selectedAlerts)
-    else if (
-      prevProps.selectedAlerts !== selectedAlerts &&
-      !selectedAlerts.length
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ checkboxSelected: false });
+    // reset alert checkbox when an action is taken in the AlertActionPanel
+    // (it resets selectedAlerts) or an individual alert has been deselected
+    // and removed from selectedAlerts
+    if (prevProps.selectedAlerts !== selectedAlerts) {
+      if (!selectedAlerts.length) {
+        this.setState({ checkboxSelected: false });
+      } else {
+        const index = selectedAlerts.findIndex(item => item.id === alert.id);
+        this.setState({ checkboxSelected: index !== -1 });
+      }
     }
   }
 
@@ -63,7 +61,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   toggleStar = async () => {
-    const { starred, alert } = this.state;
+    const { starred } = this.state;
+    const { alert } = this.props;
     const updatedStar = {
       starred: !starred,
     };
@@ -103,10 +102,10 @@ export default class AlertTableRow extends React.Component {
   };
 
   updateCheckbox = () => {
-    const { alert, updateSelectedAlerts, selectedAlerts } = this.props;
+    const { updateSelectedAlerts, selectedAlerts, alert } = this.props;
     const { checkboxSelected } = this.state;
 
-    const index = selectedAlerts.indexOf(alert);
+    const index = selectedAlerts.findIndex(item => item.id === alert.id);
 
     if (checkboxSelected && index === -1) {
       return updateSelectedAlerts({
@@ -114,9 +113,9 @@ export default class AlertTableRow extends React.Component {
       });
     }
 
-    if (index !== -1) {
+    if (!checkboxSelected && index !== -1) {
       selectedAlerts.splice(index, 1);
-      return updateSelectedAlerts({ selectedAlerts });
+      return updateSelectedAlerts({ selectedAlerts, allSelected: false });
     }
   };
 
@@ -310,7 +309,6 @@ AlertTableRow.propTypes = {
   }).isRequired,
   updateSelectedAlerts: PropTypes.func.isRequired,
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  allSelected: PropTypes.bool.isRequired,
   updateViewState: PropTypes.func.isRequired,
   modifyAlert: PropTypes.func,
 };

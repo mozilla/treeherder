@@ -36,10 +36,12 @@ export default class AlertTable extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.filters !== this.props.filters) {
+    const { filters, alertSummary } = this.props;
+
+    if (prevProps.filters !== filters) {
       this.updateFilteredAlerts();
     }
-    if (prevProps.alertSummary !== this.props.alertSummary) {
+    if (prevProps.alertSummary !== alertSummary) {
       this.processAlerts();
     }
   }
@@ -171,7 +173,12 @@ export default class AlertTable extends React.Component {
                             checked={allSelected}
                             disabled={!user.isStaff}
                             onChange={() =>
-                              this.setState({ allSelected: !allSelected })
+                              this.setState({
+                                allSelected: !allSelected,
+                                selectedAlerts: !allSelected
+                                  ? [...alertSummary.alerts]
+                                  : [],
+                              })
                             }
                           />
                           <AlertHeader
@@ -203,7 +210,6 @@ export default class AlertTable extends React.Component {
                       alertSummary={alertSummary}
                       alert={alert}
                       user={user}
-                      allSelected={allSelected}
                       updateSelectedAlerts={alerts => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
@@ -253,11 +259,9 @@ export default class AlertTable extends React.Component {
                       />
                     </div>
                   )}
-                  {(allSelected || selectedAlerts.length > 0) && (
+                  {selectedAlerts.length > 0 && (
                     <AlertActionPanel
-                      selectedAlerts={
-                        allSelected ? alertSummary.alerts : selectedAlerts
-                      }
+                      selectedAlerts={selectedAlerts}
                       allSelected={allSelected}
                       alertSummaries={alertSummaries}
                       alertSummary={alertSummary}
