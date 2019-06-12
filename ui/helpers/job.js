@@ -2,7 +2,7 @@ import $ from 'jquery';
 
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
-import { getAllUrlParams } from './location';
+import { getAllUrlParams, getRepo } from './location';
 import { uiJobsUrlBase } from './url';
 
 const btnClasses = {
@@ -74,6 +74,30 @@ export const isPerfTest = function isPerfTest(job) {
     name =>
       name.toLowerCase().includes('talos') ||
       name.toLowerCase().includes('raptor'),
+  );
+};
+
+export const isTestIsolatable = function isTestIsolatable(job) {
+  const isolatableRepos = [
+    'autoland',
+    'mozilla-central',
+    'mozilla-inbound',
+    'try',
+  ];
+  const repoName = getRepo();
+  if (!isolatableRepos.includes(repoName)) {
+    return false;
+  }
+  if (job.job_type_name.toLowerCase().includes('jsreftest')) {
+    return false;
+  }
+  return [job.job_group_name, job.job_type_name].some(
+    name =>
+      !name.toLowerCase().includes('source-test') &&
+      (name.toLowerCase().includes('crashtest') ||
+        name.toLowerCase().includes('mochitest') ||
+        name.toLowerCase().includes('reftest') ||
+        name.toLowerCase().includes('xpcshell')),
   );
 };
 
