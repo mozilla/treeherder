@@ -306,6 +306,7 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
   const alertCheckbox2 = getByTestId('alert 69345 checkbox');
 
   fireEvent.click(summaryCheckbox);
+  expect(summaryCheckbox).toHaveProperty('checked', true);  
   expect(alertCheckbox1).toHaveProperty('checked', true);
   expect(alertCheckbox2).toHaveProperty('checked', true);
   let acknowledgeButton = await waitForElement(() => getByText('Acknowledge'));
@@ -377,6 +378,59 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
   });
 
   modifyAlertSpy.mockClear();
+});
+
+test('deselecting one alert only updates the selected alerts not all alerts', async () => {
+  const { getByTestId, getByText, queryByText } = alertsViewControls();
+  
+    // select all alerts
+    const summaryCheckbox = getByTestId('alert summary 20174 checkbox');
+    const alertCheckbox1 = getByTestId('alert 69344 checkbox');
+    const alertCheckbox2 = getByTestId('alert 69345 checkbox');
+
+    fireEvent.click(summaryCheckbox);
+    expect(summaryCheckbox).toHaveProperty('checked', true);
+    expect(alertCheckbox1).toHaveProperty('checked', true);
+    expect(alertCheckbox2).toHaveProperty('checked', true);
+    
+    // deselect one alert
+    fireEvent.click(alertCheckbox1);
+    expect(summaryCheckbox).toHaveProperty('checked', false);
+    expect(alertCheckbox1).toHaveProperty('checked', false);
+    expect(alertCheckbox2).toHaveProperty('checked', true);
+    
+    // let acknowledgeButton = await waitForElement(() => getByText('Acknowledge'));
+    // fireEvent.click(acknowledgeButton);
+  
+    // only the selected alert has been updated
+    // expect(modifyAlertSpy).toHaveBeenCalled();
+    // expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
+    //   data: {
+    //     ...testAlertSummaries[0].alerts[0],
+    //     ...{ status: 4 },
+    //   },
+    //   failureStatus: null,
+    // });
+  
+    // expect(modifyAlertSpy.mock.results[1].value).toStrictEqual({
+    //   data: {
+    //     ...testAlertSummaries[0].alerts[1],
+    //     ...{ status: 4 },
+    //   },
+    //   failureStatus: null,
+    // });
+  
+    // // action panel has closed and all checkboxes reset
+    // acknowledgeButton = await waitForElementToBeRemoved(() =>
+    //   queryByText('Acknowledge'),
+    // );
+    // await wait(() => {
+    //   expect(summaryCheckbox).toHaveProperty('checked', false);
+    //   expect(alertCheckbox1).toHaveProperty('checked', false);
+    //   expect(alertCheckbox2).toHaveProperty('checked', false);
+    // });
+  
+    // modifyAlertSpy.mockClear();
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
