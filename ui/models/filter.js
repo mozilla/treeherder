@@ -13,39 +13,56 @@ import {
   thMatchType,
   thFilterDefaults,
   deprecated_thFilterPrefix,
+  allFilterParams,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 
+export const getNonFilterUrlParams = () =>
+  [...getAllUrlParams().entries()].reduce(
+    (acc, [urlField, urlValue]) =>
+      allFilterParams.includes(urlField.replace(deprecated_thFilterPrefix, ''))
+        ? acc
+        : { ...acc, [urlField]: urlValue },
+    {},
+  );
+
+export const getFilterUrlParamsWithDefaults = () => {
+  // Group multiple values for the same field into an array of values.
+  // This handles the transition from our old url params to this newer, more
+  // terse version.
+  // Also remove usage of the 'filter-' prefix.
+  const groupedValues = [...getAllUrlParams().entries()].reduce(
+    (acc, [urlField, urlValue]) => {
+      const field = urlField.replace(deprecated_thFilterPrefix, '');
+      if (!allFilterParams.includes(field)) {
+        return acc;
+      }
+      const value =
+        field === 'author' ? [urlValue] : urlValue.toLowerCase().split(/,| /);
+
+      return field in acc
+        ? { ...acc, [field]: [...acc[field], ...value] }
+        : { ...acc, [field]: value };
+    },
+    {},
+  );
+
+  return { ...cloneDeep(thFilterDefaults), ...groupedValues };
+};
+
 export default class FilterModel {
   constructor() {
-    this.urlParams = FilterModel.getUrlParamsWithDefaults();
-  }
-
-  static getUrlParamsWithDefaults() {
-    // Group multiple values for the same field into an array of values.
-    // This handles the transition from our old url params to this newer, more
-    // terse version.
-    // Also remove usage of the 'filter-' prefix.
-    const groupedValues = [...getAllUrlParams().entries()].reduce(
-      (acc, [urlField, urlValue]) => {
-        const field = urlField.replace(deprecated_thFilterPrefix, '');
-        const value =
-          field === 'author' ? [urlValue] : urlValue.toLowerCase().split(/,| /);
-
-        return field in acc
-          ? { ...acc, [field]: [...acc[field], ...value] }
-          : { ...acc, [field]: value };
-      },
-      {},
-    );
-
-    return { ...cloneDeep(thFilterDefaults), ...groupedValues };
+    this.urlParams = getFilterUrlParamsWithDefaults();
   }
 
   // If a param matches the defaults, then don't include it.
   getUrlParamsWithoutDefaults = () => {
     // ensure the repo param is always set
-    const params = { repo: thDefaultRepo, ...this.urlParams };
+    const params = {
+      repo: thDefaultRepo,
+      ...getNonFilterUrlParams(),
+      ...this.urlParams,
+    };
 
     return Object.entries(params).reduce(
       (acc, [field, value]) =>

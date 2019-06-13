@@ -99,7 +99,6 @@ export default class Platform extends React.PureComponent {
           groups={filteredPlatform.groups}
           repoName={repoName}
           filterPlatformCb={this.filterCb}
-          platform={filteredPlatform}
           filterModel={filterModel}
           pushGroupState={pushGroupState}
           duplicateJobsVisible={duplicateJobsVisible}

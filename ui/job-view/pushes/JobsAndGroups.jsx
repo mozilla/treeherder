@@ -11,7 +11,6 @@ export default class JobsAndGroups extends React.Component {
     const {
       groups,
       repoName,
-      platform,
       filterPlatformCb,
       filterModel,
       pushGroupState,
@@ -30,7 +29,6 @@ export default class JobsAndGroups extends React.Component {
                   repoName={repoName}
                   filterModel={filterModel}
                   filterPlatformCb={filterPlatformCb}
-                  platform={platform}
                   key={group.mapKey}
                   pushGroupState={pushGroupState}
                   duplicateJobsVisible={duplicateJobsVisible}
@@ -48,7 +46,6 @@ export default class JobsAndGroups extends React.Component {
               resultStatus={getStatus(job)}
               failureClassificationId={job.failure_classification_id}
               filterPlatformCb={filterPlatformCb}
-              platform={platform}
               key={job.id}
             />
           ));
@@ -63,7 +60,6 @@ JobsAndGroups.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
-  platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
