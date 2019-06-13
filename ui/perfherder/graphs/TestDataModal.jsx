@@ -312,7 +312,6 @@ export class TestDataModal extends React.Component {
           <Row className="justify-content-start">
             <Col className="p-2 col-4">
               <InputFilter
-                outline
                 disabled={relatedTests.length > 0}
                 updateFilterText={this.updateFilterText}
               />

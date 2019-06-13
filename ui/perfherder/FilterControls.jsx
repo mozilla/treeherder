@@ -67,7 +67,7 @@ const FilterControls = ({
           dropdownOptions.length > 0 &&
           createDropdowns(dropdownOptions, 'py-2 pl-0 pr-3')}
 
-        <Col className="col-3 py-2 pl-0 pr-2">
+        <Col className="col-2 py-2 pl-0 pr-2">
           <InputFilter updateFilterText={updateFilterText} />
         </Col>
 
