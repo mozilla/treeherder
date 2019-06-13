@@ -222,7 +222,7 @@ export class TestDataModal extends React.Component {
       this.setState({
         selectedTests: [...selectedTests, ...[test]],
       });
-    } else if (index !== 1 && removeTest) {
+    } else if (index !== -1 && removeTest) {
       selectedTests.splice(index, 1);
       this.setState({ selectedTests });
     }
@@ -341,7 +341,10 @@ export class TestDataModal extends React.Component {
           </Row>
           <Row className="p-2 justify-content-start">
             <Col className="p-0">
-              <Label for="exampleSelect">Selected tests</Label>
+              <Label for="exampleSelect">
+                Selected tests{' '}
+                <span className="small">(click a test to remove it)</span>
+              </Label>
               <Input type="select" name="selectMulti" id="selectTests" multiple>
                 {selectedTests.length > 0 &&
                   selectedTests.map(test => (
