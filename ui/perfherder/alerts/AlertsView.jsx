@@ -45,11 +45,20 @@ export class AlertsView extends React.Component {
       count: 0,
       id: this.validated.id,
       bugTemplate: null,
+      totalPages: 0,
     };
   }
 
   componentDidMount() {
     this.fetchAlertSummaries();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { count } = this.state;
+    if (prevState.count !== count) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ totalPages: this.generatePages(count) });
+    }
   }
 
   getDefaultStatus = () => {
@@ -86,12 +95,18 @@ export class AlertsView extends React.Component {
     });
   };
 
-  generatePages = (page, count) => {
+  getCurrentPages = () => {
+    const { page, totalPages } = this.state;
+    if (totalPages.length === 5 || !totalPages.length) {
+      return totalPages;
+    }
+    return totalPages.slice(page - 1, page + 4);
+  };
+
+  generatePages = count => {
     const pages = [];
-    if (page < count) {
-      for (let num = page; num < page + 5; num++) {
-        pages.push(num);
-      }
+    for (let num = 1; num <= count; num++) {
+      pages.push(num);
     }
     return pages;
   };
@@ -207,7 +222,7 @@ export class AlertsView extends React.Component {
     ];
     // this is not strictly accurate since we have no way of knowing the final count
     // until the results are filtered (and we're only retrieving 10 results at a time)
-    const pageNums = this.generatePages(page, count);
+    const pageNums = this.getCurrentPages();
 
     return (
       <ErrorBoundary
@@ -251,6 +266,9 @@ export class AlertsView extends React.Component {
           />
           {pageNums.length > 0 && (
             <Row className="justify-content-center pb-5">
+              {/* The first and last pagination navigation links
+              aren't working correctly (icons aren't visible)
+              so they haven't been added */}
               <Pagination aria-label={`Page ${page}`}>
                 {page > 1 && (
                   <PaginationItem>
