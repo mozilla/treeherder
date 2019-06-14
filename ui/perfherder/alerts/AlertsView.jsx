@@ -178,7 +178,7 @@ export class AlertsView extends React.Component {
         ...updates,
         ...{
           alertSummaries: update ? alertSummaries : summary.results,
-          count: update ? count : Math.round(summary.count / 10),
+          count: update ? count : Math.ceil(summary.count / 10),
         },
       };
     } else {
@@ -279,13 +279,17 @@ export class AlertsView extends React.Component {
                     />
                   </PaginationItem>
                 )}
-                {pageNums.map(page => (
-                  <PaginationItem key={page}>
+                {pageNums.map(num => (
+                  <PaginationItem
+                    key={num}
+                    active={num === page}
+                    className="text-info pagination-active"
+                  >
                     <PaginationLink
                       className="text-info"
-                      onClick={() => this.navigatePage(page)}
+                      onClick={() => this.navigatePage(num)}
                     >
-                      {page}
+                      {num}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
