@@ -420,31 +420,12 @@ button:disabled {
   stroke: #ffffff;
 }
 
-/* The paginator in angular1-ui-bootstrap4 always tries to put chevrons
-   for the prev/next buttons, but they look all messed up sizing wise.
-   The paginator SHOULD show the text of Next/Previous, but it's not, so this
-   is a work-around.*/
-li.page-item .material-icons {
-  font-size: 0;
-}
-
-li.pagination-prev .material-icons::before {
-  content: 'Previous';
-  font-size: 14px;
-  font-style: normal;
-}
-
-li.pagination-next .material-icons::before {
-  content: 'Next';
-  font-size: 14px;
-  font-style: normal;
-}
-
-.pagination {
-  margin: 20px 0;
-}
-
 /* for use with global max-width-default style */
 .max-width-row-text {
   max-width: 1194px;
+}
+
+li.pagination-active.active > button {
+  background-color: lightgray !Important;
+  border-color: lightgray !Important;
 }
