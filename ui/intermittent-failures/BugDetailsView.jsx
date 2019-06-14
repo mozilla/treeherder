@@ -140,13 +140,13 @@ const BugDetailsView = props => {
           <Row>
             <Col xs="12" className="text-left">
               <Link to={lastLocation || '/'}>
-                <FontAwesomeIcon
+                {/* <FontAwesomeIcon
                   icon={faArrowLeft}
                   className="mr-1"
                   title="go to intermittent failures view main page"
-                />
-                back
-              </Link>
+                /> */}
+                <span title="go to intermittent failures view main page">{"Main"}</span>
+              </Link>{(!bug ? '' : " / "+bug)}
             </Col>
           </Row>
           {!errorMessages.length && !tableFailureStatus && !graphFailureStatus && (
