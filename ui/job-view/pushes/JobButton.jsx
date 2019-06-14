@@ -5,7 +5,7 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
 import { getBtnClass, findJobInstance } from '../../helpers/job';
-import { getUrlParam } from '../../helpers/location';
+import { getSelectedJobId, getUrlParam } from '../../helpers/location';
 
 export default class JobButtonComponent extends React.Component {
   constructor(props) {
@@ -53,7 +53,7 @@ export default class JobButtonComponent extends React.Component {
   }
 
   setSelected(isSelected) {
-    const { job, platform, filterPlatformCb, filterModel } = this.props;
+    const { job, filterPlatformCb, filterModel } = this.props;
     // if a job was just classified, and we are in unclassified only mode,
     // then the job no longer meets the filter criteria.  However, if it
     // is still selected, then it should stay visible so that next/previous
@@ -64,7 +64,7 @@ export default class JobButtonComponent extends React.Component {
     this.setState({ isSelected });
     // filterPlatformCb will keep a job and platform visible if it contains
     // the selected job, so we must pass in if this job is selected or not.
-    filterPlatformCb(platform, isSelected ? job.id : null);
+    filterPlatformCb(isSelected ? job.id : null);
   }
 
   toggleRunnableSelected() {
@@ -74,9 +74,9 @@ export default class JobButtonComponent extends React.Component {
   }
 
   refilter() {
-    const { filterPlatformCb, platform } = this.props;
+    const { filterPlatformCb } = this.props;
 
-    filterPlatformCb(platform);
+    filterPlatformCb(getSelectedJobId());
   }
 
   render() {
@@ -154,7 +154,6 @@ JobButtonComponent.propTypes = {
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
   resultStatus: PropTypes.string.isRequired,
-  platform: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   failureClassificationId: PropTypes.number, // runnable jobs won't have this
 };

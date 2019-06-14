@@ -115,7 +115,6 @@ export class JobGroupComponent extends React.Component {
     const {
       repoName,
       filterPlatformCb,
-      platform,
       filterModel,
       group: {
         name: groupName,
@@ -147,7 +146,6 @@ export class JobGroupComponent extends React.Component {
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
-                  platform={platform}
                   key={job.id}
                 />
               ))}
@@ -179,7 +177,6 @@ JobGroupComponent.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
-  platform: PropTypes.object.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
