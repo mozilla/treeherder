@@ -94,6 +94,7 @@ export class TestDataModal extends React.Component {
 
     const updates = processResponse(response, 'platforms', errorMessages);
     this.setState(updates);
+    this.processOptions();
   }
 
   addRelatedConfigs = async params => {
@@ -275,7 +276,8 @@ export class TestDataModal extends React.Component {
       {
         options: platforms,
         selectedItem: platform,
-        updateData: platform => this.setState({ platform }),
+        updateData: platform =>
+          this.setState({ platform }, this.processOptions),
         title: 'Platform',
       },
     ];
@@ -296,16 +298,14 @@ export class TestDataModal extends React.Component {
                 color="info"
                 outline
                 onClick={() =>
-                  this.setState({ includeSubtests: !includeSubtests })
+                  this.setState(
+                    { includeSubtests: !includeSubtests },
+                    this.processOptions,
+                  )
                 }
                 active={includeSubtests}
               >
                 Include subtests
-              </Button>
-            </Col>
-            <Col className="p-2">
-              <Button color="secondary" onClick={this.processOptions}>
-                Update
               </Button>
             </Col>
           </Row>
