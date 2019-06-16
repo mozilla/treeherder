@@ -1,8 +1,9 @@
 import React from 'react';
-import { Row, Col } from 'reactstrap';
+import { Row, Col , Breadcrumb , BreadcrumbItem} from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table';
+import { Link } from 'react-router-dom';
 
 import { bugsEndpoint } from '../helpers/url';
 
@@ -100,6 +101,18 @@ const MainView = props => {
       header={
         initialParamsSet && (
           <React.Fragment>
+            <Row>
+            <Col xs="12" className="text-left">
+            <Breadcrumb>
+              <BreadcrumbItem>
+                <Link to={'/'}>Treeherder</Link>
+              </BreadcrumbItem>
+              <BreadcrumbItem active>
+                <Link to={'/main'}>Main view</Link>
+              </BreadcrumbItem>
+            </Breadcrumb>
+            </Col>
+          </Row>
             <Row>
               <Col xs="12" className="mx-auto pt-3">
                 <h1>Intermittent Test Failures</h1>
