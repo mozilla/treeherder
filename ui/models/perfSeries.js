@@ -1,7 +1,8 @@
 import queryString from 'query-string';
 
 import { getProjectUrl } from '../helpers/location';
-import { getApiUrl } from '../helpers/url';
+import { getApiUrl, createQueryParams } from '../helpers/url';
+import { getData } from '../helpers/http';
 
 import OptionCollectionModel from './optionCollection';
 
@@ -70,36 +71,43 @@ export const getSeriesSummary = function getSeriesSummary(
 };
 
 export default class PerfSeriesModel {
-  static getSeriesList(projectName, params) {
-    return OptionCollectionModel.getMap().then(optionCollectionMap =>
-      fetch(
-        `${getProjectUrl(
-          '/performance/signatures/',
-          projectName,
-        )}?${queryString.stringify(params)}`,
-      ).then(async resp => {
-        if (resp.ok) {
-          const data = await resp.json();
-          return Object.entries(data).map(([signature, signatureProps]) =>
-            getSeriesSummary(
-              projectName,
-              signature,
-              signatureProps,
-              optionCollectionMap,
-            ),
-          );
-        }
-      }),
+  constructor() {
+    this.optionCollectionMap = null;
+  }
+
+  static async getSeriesList(projectName, params) {
+    if (!this.optionCollectionMap) {
+      this.optionCollectionMap = await OptionCollectionModel.getMap();
+    }
+    const response = await getData(
+      `${getProjectUrl(
+        '/performance/signatures/',
+        projectName,
+      )}${createQueryParams(params)}`,
     );
+
+    if (response.failureStatus) {
+      return response;
+    }
+    const data = Object.entries(response.data).map(
+      ([signature, signatureProps]) =>
+        getSeriesSummary(
+          projectName,
+          signature,
+          signatureProps,
+          this.optionCollectionMap,
+        ),
+    );
+    return { data, failureStatus: null };
   }
 
   static getPlatformList(projectName, params) {
-    return fetch(
+    return getData(
       `${getProjectUrl(
         '/performance/platforms/',
         projectName,
-      )}?${queryString.stringify(params)}`,
-    ).then(async resp => resp.json());
+      )}${createQueryParams(params)}`,
+    );
   }
 
   static getSeriesData(projectName, params) {

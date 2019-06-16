@@ -225,8 +225,6 @@ export const phTimeRanges = [
 
 export const phDefaultTimeRangeValue = 1209600;
 
-export const phDefaultFramework = 'talos';
-
 export const phFrameworksWithRelatedBranches = [
   1, // talos
   10, // raptor

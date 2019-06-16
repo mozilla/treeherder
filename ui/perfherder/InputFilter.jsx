@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { InputGroup, InputGroupAddon, Input, Button } from 'reactstrap';
+import { InputGroup, Input } from 'reactstrap';
+import debounce from 'lodash/debounce';
 
 import { filterText } from './constants';
 
 export default class InputFilter extends React.Component {
+  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {
@@ -12,25 +14,27 @@ export default class InputFilter extends React.Component {
     };
   }
 
+  debouncedUpdate = debounce(
+    () => this.props.updateFilterText(this.state.input),
+    800,
+  );
+
   updateInput = event => {
+    const { updateFilterText } = this.props;
     const input = event.target.value;
 
-    // reset if previous text is replaced with ""
-    if (!input && this.state.input) {
-      this.props.updateFilterText(input);
-    }
-    this.setState({ input });
-  };
-
-  handleKeyPress = event => {
-    const { input } = this.state;
-    if (event.key === 'Enter' && input) {
-      this.props.updateFilterText(input);
+    // reset if new text is ""
+    if (!input) {
+      this.debouncedUpdate.cancel();
+      updateFilterText(input);
+      this.setState({ input });
+    } else {
+      this.setState({ input }, this.debouncedUpdate);
     }
   };
 
   render() {
-    const { updateFilterText } = this.props;
+    const { disabled } = this.props;
     const { input } = this.state;
 
     return (
@@ -39,11 +43,9 @@ export default class InputFilter extends React.Component {
           placeholder={filterText.inputPlaceholder}
           onChange={this.updateInput}
           value={input}
-          onKeyPress={this.handleKeyPress}
+          disabled={disabled}
+          aria-label="filter text"
         />
-        <InputGroupAddon addonType="append">
-          <Button onClick={() => updateFilterText(input)}>filter</Button>
-        </InputGroupAddon>
       </InputGroup>
     );
   }
@@ -51,4 +53,9 @@ export default class InputFilter extends React.Component {
 
 InputFilter.propTypes = {
   updateFilterText: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+InputFilter.defaultProps = {
+  disabled: false,
 };

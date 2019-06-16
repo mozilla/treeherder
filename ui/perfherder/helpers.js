@@ -676,3 +676,12 @@ export const getStatus = (statusNum, statusMap = summaryStatusMap) => {
   const status = Object.entries(statusMap).find(item => statusNum === item[1]);
   return status[0];
 };
+
+export const containsText = (string, text) => {
+  const words = text
+    .split(' ')
+    .map(word => `(?=.*${word})`)
+    .join('');
+  const regex = RegExp(words, 'gi');
+  return regex.test(string);
+};

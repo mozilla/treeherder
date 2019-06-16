@@ -16,7 +16,7 @@ export const filterText = {
   hideUncertain: 'Hide uncertain results',
   showNoise: 'Show only noise',
   hideUncomparable: 'Hide uncomparable results',
-  inputPlaceholder: 'linux tp5o',
+  inputPlaceholder: 'filter text e.g. linux tp5o',
 };
 
 export const noDataFoundMessage = 'No Data Found';

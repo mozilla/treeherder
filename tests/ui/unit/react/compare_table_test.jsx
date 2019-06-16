@@ -4,6 +4,7 @@ import {
   cleanup,
   fireEvent,
   waitForElement,
+  waitForElementToBeRemoved,
 } from 'react-testing-library';
 
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
@@ -103,7 +104,11 @@ test('toggle buttons should filter results by selected filter', async () => {
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {
-  const { getByText, getByPlaceholderText } = compareTableControls();
+  const {
+    getByText,
+    getByPlaceholderText,
+    queryByText,
+  } = compareTableControls();
 
   const result1 = await waitForElement(() => getByText(result[0].name));
   const result2 = await waitForElement(() => getByText(result[1].name));
@@ -111,14 +116,12 @@ test('text input filter results should differ when filter button(s) are selected
   const filterInput = await waitForElement(() =>
     getByPlaceholderText(filterText.inputPlaceholder),
   );
-  const filterButton = await waitForElement(() => getByText('filter'));
 
   fireEvent.change(filterInput, { target: { value: 'linux' } });
-  fireEvent.click(filterButton);
 
   expect(filterInput.value).toBe('linux');
+  await waitForElementToBeRemoved(() => queryByText(result[1].name));
   expect(result1).toBeInTheDocument();
-  expect(result2).not.toBeInTheDocument();
 
   const hideUncertain = getByText(filterText.hideUncertain);
   fireEvent.click(hideUncertain);
