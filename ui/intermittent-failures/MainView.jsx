@@ -105,10 +105,10 @@ const MainView = props => {
             <Col xs="12" className="text-left">
             <Breadcrumb>
               <BreadcrumbItem>
-                <Link to={'/'}>Treeherder</Link>
+                <Link title="Intermittent Failures View" to={'/'}>Treeherder</Link>
               </BreadcrumbItem>
               <BreadcrumbItem active>
-                <Link to={'/main'}>Main view</Link>
+                <Link title="Intermittent Failures View main page" to={'/main'}>Main view</Link>
               </BreadcrumbItem>
             </Breadcrumb>
             </Col>
