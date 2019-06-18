@@ -137,17 +137,29 @@ const BugDetailsView = props => {
         <React.Fragment>
           <Row>
             <Col xs="12" className="text-left">
-            <Breadcrumb>
+              <Breadcrumb>
                 <BreadcrumbItem>
-                  <Link title="Intermittent Failures View" to={'/'}>Treeherder</Link>
+                  <a
+                    title="Treeherder home page"
+                    href="https://treeherder.mozilla.org/"
+                  >
+                    Treeherder
+                  </a>
                 </BreadcrumbItem>
                 <BreadcrumbItem>
-                  <Link title="Intermittent Failures View main page" to={lastLocation || '/'}>Main view</Link>
+                  <Link
+                    title="Intermittent Failures View main page"
+                    to={lastLocation || '/'}
+                  >
+                    Main view
+                  </Link>
                 </BreadcrumbItem>
                 <BreadcrumbItem>
-                  <Link to={'/bugdetails'} active>Bugdetails view</Link>
+                  <Link to="/bugdetails" active>
+                    Bugdetails view
+                  </Link>
                 </BreadcrumbItem>
-            </Breadcrumb>
+              </Breadcrumb>
             </Col>
           </Row>
           {!errorMessages.length && !tableFailureStatus && !graphFailureStatus && (
