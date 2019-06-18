@@ -258,10 +258,10 @@ class DetailsPanel extends React.Component {
                     }),
                   ),
                 );
-                const seriesList = seriesListList.reduce(
-                  (a, b) => [...a, ...b],
-                  [],
-                );
+
+                const seriesList = seriesListList
+                  .map(item => item.data)
+                  .reduce((a, b) => [...a, ...b], []);
 
                 perfJobDetail = performanceData
                   .map(d => ({
