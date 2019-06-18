@@ -22,6 +22,8 @@ import { withPushes } from '../context/Pushes';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 
+import RetriggerMultiplePrompt from './RetriggerMultiplePrompt';
+
 class PinBoard extends React.Component {
   constructor(props) {
     super(props);
@@ -29,7 +31,10 @@ class PinBoard extends React.Component {
     this.state = {
       enteringBugNumber: false,
       newBugNumber: null,
+      timesModal: false,
     };
+
+    this.toggleTimes = this.toggleTimes.bind(this);
   }
 
   componentDidMount() {
@@ -39,6 +44,13 @@ class PinBoard extends React.Component {
   componentWillUnmount() {
     window.removeEventListener(thEvents.saveClassification, this.save);
   }
+
+  toggleTimes = jobs => {
+    this.setState(prevState => ({
+      timesModal: !prevState.timesModal,
+      retriggerTimesJobs: jobs,
+    }));
+  };
 
   unPinAll = () => {
     this.props.unPinAll();
@@ -350,10 +362,13 @@ class PinBoard extends React.Component {
     }
   };
 
-  retriggerAllPinnedJobs = () => {
+  retriggerAllPinnedJobs = shiftKey => {
     const { pinnedJobs, notify, repoName } = this.props;
-
-    JobModel.retrigger(Object.values(pinnedJobs), repoName, notify);
+    if (shiftKey) {
+      this.toggleTimes(Object.values(pinnedJobs));
+    } else {
+      JobModel.retrigger(Object.values(pinnedJobs), repoName, notify);
+    }
   };
 
   render() {
@@ -592,10 +607,20 @@ class PinBoard extends React.Component {
                 >
                   <Button
                     className={`${!isLoggedIn ? 'disabled' : ''} dropdown-item`}
-                    onClick={() => !isLoggedIn || this.retriggerAllPinnedJobs()}
+                    onClick={evt =>
+                      !isLoggedIn || this.retriggerAllPinnedJobs(evt.shiftKey)
+                    }
                   >
                     Retrigger all
                   </Button>
+                  {this.state.timesModal && (
+                    <RetriggerMultiplePrompt
+                      isOpen={this.state.timesModal}
+                      toggle={this.toggleTimes}
+                      jobs={this.state.retriggerTimesJobs}
+                      repoName={this.props.repoName}
+                    />
+                  )}
                 </li>
                 <li title={this.cancelAllPinnedJobsTitle()}>
                   <Button

@@ -12,6 +12,7 @@ import {
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
+import RetriggerMultiplePrompt from '../RetriggerMultiplePrompt';
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest, isPerfTest, isTestIsolatable } from '../../../helpers/job';
@@ -31,7 +32,10 @@ class ActionBar extends React.PureComponent {
 
     this.state = {
       customJobActionsShowing: false,
+      timesModal: false,
     };
+
+    this.toggleTimes = this.toggleTimes.bind(this);
   }
 
   componentDidMount() {
@@ -44,8 +48,15 @@ class ActionBar extends React.PureComponent {
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
+  toggleTimes = jobs => {
+    this.setState(prevState => ({
+      timesModal: !prevState.timesModal,
+      retriggerTimesJobs: jobs,
+    }));
+  };
+
   onRetriggerJob = event => {
-    this.retriggerJob([event.detail.job]);
+    this.retriggerJob([event.detail.job], event.detail.shiftKey);
   };
 
   // Open the logviewer and provide notifications if it isn't available
@@ -120,22 +131,24 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  retriggerJob = jobs => {
+  retriggerJob = (jobs, shiftKey) => {
     const { user, repoName, notify } = this.props;
-
     if (!user.isLoggedIn) {
       return notify('Must be logged in to retrigger a job', 'danger');
     }
-
-    // Spin the retrigger button when retriggers happen
-    $('#retrigger-btn > svg').removeClass('action-bar-spin');
-    window.requestAnimationFrame(() => {
+    if (shiftKey) {
+      this.toggleTimes(jobs);
+    } else {
+      // Spin the retrigger button when retriggers happen
+      $('#retrigger-btn > svg').removeClass('action-bar-spin');
       window.requestAnimationFrame(() => {
-        $('#retrigger-btn > svg').addClass('action-bar-spin');
+        window.requestAnimationFrame(() => {
+          $('#retrigger-btn > svg').addClass('action-bar-spin');
+        });
       });
-    });
 
-    JobModel.retrigger(jobs, repoName, notify);
+      JobModel.retrigger(jobs, repoName, notify);
+    }
   };
 
   backfillJob = () => {
@@ -422,10 +435,18 @@ class ActionBar extends React.PureComponent {
                 }
                 className={`btn ${user.isLoggedIn ? 'icon-green' : 'disabled'}`}
                 disabled={!user.isLoggedIn}
-                onClick={() => this.retriggerJob([selectedJob])}
+                onClick={evt => this.retriggerJob([selectedJob], evt.shiftKey)}
               >
                 <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
               </Button>
+              {this.state.timesModal && (
+                <RetriggerMultiplePrompt
+                  isOpen={this.state.timesModal}
+                  toggle={this.toggleTimes}
+                  jobs={this.state.retriggerTimesJobs}
+                  repoName={this.props.repoName}
+                />
+              )}
             </li>
             {isReftest(selectedJob) &&
               jobLogUrls.map(jobLogUrl => (

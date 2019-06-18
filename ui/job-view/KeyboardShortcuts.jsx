@@ -25,7 +25,7 @@ const keyMap = {
   nextUnclassified: ['j', 'n'],
   previousUnclassified: ['k', 'p'],
   openLogviewer: 'l',
-  jobRetrigger: 'r',
+  jobRetrigger: ['r', 'shift+r'],
   selectNextTab: 't',
   toggleUnclassifiedFailures: 'u',
   clearPinboard: 'ctrl+shift+u',
@@ -127,13 +127,16 @@ class KeyboardShortcuts extends React.Component {
   };
 
   // retrigger selected job
-  jobRetrigger = () => {
+  jobRetrigger = evt => {
     const { selectedJob } = this.props;
 
     if (selectedJob) {
       window.dispatchEvent(
         new CustomEvent(thEvents.jobRetrigger, {
-          detail: { job: selectedJob },
+          detail: {
+            job: selectedJob,
+            shiftKey: evt.shiftKey,
+          },
         }),
       );
     }

@@ -62,6 +62,13 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
+                <kbd>shift</kbd>
+                <kbd>r</kbd>
+              </td>
+              <td>Retrigger selected job specified number of times</td>
+            </tr>
+            <tr>
+              <td>
                 <kbd>t</kbd>
               </td>
               <td>Select next info tab</td>
