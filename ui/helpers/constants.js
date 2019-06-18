@@ -67,7 +67,7 @@ export const thPlatformMap = {
   'windows10-64-shippable': 'Windows 10 x64 Shippable',
   'windows10-64-shippable-qr': 'Windows 10 x64 QuantumRender Shippable',
   'windows10-64-qr': 'Windows 10 x64 QuantumRender',
-  'windows10-64-ux': 'Windows 10 x64 HW UX',
+  'windows10-64-ref-hw-2017': 'Windows 10 x64 Reference HW',
   'windows10-aarch64': 'Windows 10 AArch64',
   'windows2012-32': 'Windows 2012',
   'windows2012-32-shippable': 'Windows 2012 shippable',
