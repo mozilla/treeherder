@@ -79,11 +79,14 @@ export default class PerfSeriesModel {
     if (!this.optionCollectionMap) {
       this.optionCollectionMap = await OptionCollectionModel.getMap();
     }
+
+    // we use stringify here because for certain params like 'id'
+    // the query string needs to be id=1234&id=5678 vs id=123,5678;
     const response = await getData(
       `${getProjectUrl(
         '/performance/signatures/',
         projectName,
-      )}${createQueryParams(params)}`,
+      )}?${queryString.stringify(params)}`,
     );
 
     if (response.failureStatus) {
