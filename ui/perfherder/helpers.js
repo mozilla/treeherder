@@ -434,8 +434,14 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
 
   const formatAlert = (alert, alertList) => {
     const numFormat = '0,0.00';
+    let amountPct;
 
-    const amountPct = alert.amount_pct.toFixed(0).padStart(3);
+    if (alert.amount_pct.toFixed(0) === '0') {
+      // have extra fraction digits when rounding ends up with 0%
+      amountPct = alert.amount_pct.toFixed(2);
+    } else {
+      amountPct = alert.amount_pct.toFixed(0).padStart(4);
+    }
     const title = alert.title.padEnd(getMaximumAlertLength(alertList) + 5);
     const prevValue = numeral(alert.prev_value).format(numFormat);
     const newValue = numeral(alert.new_value).format(numFormat);
