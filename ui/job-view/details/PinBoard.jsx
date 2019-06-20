@@ -128,7 +128,11 @@ class PinBoard extends React.Component {
             'success',
           );
           // update the job to show that it's now classified
-          findJobInstance(job.id).refilter();
+          const jobInstance = findJobInstance(job.id);
+
+          if (jobInstance) {
+            jobInstance.refilter();
+          }
         })
         .catch(response => {
           const message = `Error saving classification for ${job.platform} ${
