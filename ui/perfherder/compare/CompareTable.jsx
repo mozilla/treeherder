@@ -144,12 +144,8 @@ export default class CompareTable extends React.PureComponent {
                 {results.originalRuns && (
                   <SimpleTooltip
                     textClass="detail-hint"
-                    text={`${results.originalRuns.length} / ${
-                      results.newRuns.length
-                    }`}
-                    tooltipText={`${results.originalRuns.length} base / ${
-                      results.newRuns.length
-                    } new`}
+                    text={`${results.originalRuns.length} / ${results.newRuns.length}`}
+                    tooltipText={`${results.originalRuns.length} base / ${results.newRuns.length} new`}
                   />
                 )}
               </td>

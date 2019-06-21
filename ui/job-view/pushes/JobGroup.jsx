@@ -155,12 +155,8 @@ export class JobGroupComponent extends React.Component {
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}
-                  className={`${countInfo.btnClass}-count${
-                    countInfo.selectedClasses
-                  }`}
-                  title={`${countInfo.count} ${
-                    countInfo.countText
-                  } jobs in group`}
+                  className={`${countInfo.btnClass}-count${countInfo.selectedClasses}`}
+                  title={`${countInfo.count} ${countInfo.countText} jobs in group`}
                   key={countInfo.lastJob.id}
                 />
               ))}

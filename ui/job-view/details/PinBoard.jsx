@@ -135,9 +135,7 @@ class PinBoard extends React.Component {
           }
         })
         .catch(response => {
-          const message = `Error saving classification for ${job.platform} ${
-            job.job_type_name
-          }`;
+          const message = `Error saving classification for ${job.platform} ${job.job_type_name}`;
           notify(formatModelError(response, message), 'danger');
         });
     }
@@ -162,9 +160,7 @@ class PinBoard extends React.Component {
           );
         })
         .catch(response => {
-          const message = `Error saving bug association for ${job.platform} ${
-            job.job_type_name
-          }`;
+          const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
           notify(formatModelError(response, message), 'danger');
         });
     });

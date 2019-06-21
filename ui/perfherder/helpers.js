@@ -374,9 +374,7 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${
-    alert.series_signature.id
-  },1`;
+  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1`;
 
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
@@ -477,9 +475,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
-    const alertLink = `${window.location.origin}/perf.html#/alerts?id=${
-      alertSummary.id
-    }`;
+    const alertLink = `${window.location.origin}/perf.html#/alerts?id=${alertSummary.id}`;
     resultStr += `\nFor up to date results, see: ${alertLink}`;
   }
   return resultStr;
@@ -598,9 +594,9 @@ export const getAlertSummaries = options => {
       params[params.length] = `alerts__series_signature=${options.signatureId}`;
     }
     if (options && options.seriesSignature !== undefined) {
-      params[params.length] = `alerts__series_signature__signature_hash=${
-        options.seriesSignature
-      }`;
+      params[
+        params.length
+      ] = `alerts__series_signature__signature_hash=${options.seriesSignature}`;
     }
     if (options && options.repository !== undefined) {
       params[params.length] = `repository=${options.repository}`;
