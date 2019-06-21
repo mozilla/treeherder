@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, waitForElement } from 'react-testing-library';
+import { render, cleanup, waitForElement } from '@testing-library/react';
 
 import ReplicatesGraph from '../../../../ui/perfherder/compare/ReplicatesGraph';
 import { noDataFoundMessage } from '../../../../ui/perfherder/constants';

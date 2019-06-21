@@ -5,7 +5,7 @@ import {
   cleanup,
   fireEvent,
   waitForElement,
-} from 'react-testing-library';
+} from '@testing-library/react';
 
 import PushJobs from '../../../../ui/job-view/pushes/PushJobs';
 import FilterModel from '../../../../ui/models/filter';
