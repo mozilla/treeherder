@@ -5,7 +5,7 @@ import {
   fireEvent,
   waitForElement,
   waitForElementToBeRemoved,
-} from 'react-testing-library';
+} from '@testing-library/react';
 
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import { filterText } from '../../../../ui/perfherder/constants';

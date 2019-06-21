@@ -6,7 +6,7 @@ import {
   waitForElement,
   waitForElementToBeRemoved,
   wait,
-} from 'react-testing-library';
+} from '@testing-library/react';
 
 import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
 import optionCollectionMap from '../../mock/optionCollectionMap';
