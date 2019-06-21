@@ -8,9 +8,7 @@ export const webAuth = new WebAuth({
   domain: 'auth.mozilla.auth0.com',
   responseType: 'id_token token',
   audience: 'login.taskcluster.net',
-  redirectUri: `${window.location.protocol}//${
-    window.location.host
-  }${loginCallbackUrl}`,
+  redirectUri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
   scope: 'taskcluster-credentials openid profile email',
 });
 

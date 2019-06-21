@@ -64,9 +64,7 @@ export default class StatusDropdown extends React.Component {
 
     const templateArgs = {
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perf.html#/alerts?id=${
-        alertSummary.id
-      }`,
+      alertHref: `${window.location.origin}/perf.html#/alerts?id=${alertSummary.id}`,
       alertSummary: getTextualSummary(filteredAlerts, alertSummary),
     };
 

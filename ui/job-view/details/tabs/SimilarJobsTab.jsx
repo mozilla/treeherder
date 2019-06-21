@@ -280,9 +280,7 @@ class SimilarJobsTab extends React.Component {
                     <th>Classification</th>
                     <td>
                       <strong
-                        className={`badge ${
-                          selectedSimilarJob.failure_classification.star
-                        }`}
+                        className={`badge ${selectedSimilarJob.failure_classification.star}`}
                       >
                         {selectedSimilarJob.failure_classification.name}
                       </strong>

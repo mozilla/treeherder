@@ -313,9 +313,7 @@ export class BugFilerClass extends React.Component {
                 }
                 results.forEach(result => {
                   fetch(
-                    `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${
-                      result.path
-                    }`,
+                    `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`,
                   ).then(thirdRequest => {
                     if (
                       thirdRequest.data.aggregate &&

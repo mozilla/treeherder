@@ -116,14 +116,10 @@ class Platform extends React.Component {
     return (
       <span
         className="platform badge"
-        title={`${this.props.job.jobType.symbol} ${
-          this.props.job.failureClassification.name
-        }`}
+        title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
       >
         <Link
-          to={`/#/jobs?repo=${this.props.repo}&revision=${
-            this.props.revision
-          }&selectedJob=${this.props.job.jobId}`}
+          to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
           target="_blank"
           rel="noopener"
         >
