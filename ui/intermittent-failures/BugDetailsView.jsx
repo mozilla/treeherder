@@ -137,7 +137,7 @@ const BugDetailsView = props => {
         <React.Fragment>
           <Row>
             <Col xs="12" className="text-left">
-              <Breadcrumb>
+              <Breadcrumb listClassName="bg-white">
                 <BreadcrumbItem>
                   <a
                     title="Treeherder home page"
@@ -154,10 +154,8 @@ const BugDetailsView = props => {
                     Main view
                   </Link>
                 </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <Link to="/bugdetails" active>
-                    Bugdetails view
-                  </Link>
+                <BreadcrumbItem active title="Bugdetails view">
+                  Bugdetails view
                 </BreadcrumbItem>
               </Breadcrumb>
             </Col>

@@ -3,7 +3,6 @@ import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table';
-import { Link } from 'react-router-dom';
 
 import { bugsEndpoint } from '../helpers/url';
 
@@ -103,7 +102,7 @@ const MainView = props => {
           <React.Fragment>
             <Row>
               <Col xs="12" className="text-left">
-                <Breadcrumb>
+                <Breadcrumb listClassName="bg-white">
                   <BreadcrumbItem>
                     <a
                       title="Treeherder home page"
@@ -112,13 +111,11 @@ const MainView = props => {
                       Treeherder
                     </a>
                   </BreadcrumbItem>
-                  <BreadcrumbItem active>
-                    <Link
-                      title="Intermittent Failures View main page"
-                      to="/main"
-                    >
-                      Main view
-                    </Link>
+                  <BreadcrumbItem
+                    active
+                    title="Intermittent Failures View main page"
+                  >
+                    Main view
                   </BreadcrumbItem>
                 </Breadcrumb>
               </Col>
