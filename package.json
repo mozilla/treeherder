@@ -94,7 +94,7 @@
     "jest-dom": "3.5.0",
     "node-fetch": "2.6.0",
     "prettier": "1.18.2",
-    "webpack-dev-server": "3.7.1"
+    "webpack-dev-server": "3.7.2"
   },
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
