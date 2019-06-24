@@ -74,7 +74,7 @@
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.35.0",
-    "webpack-cli": "3.3.4"
+    "webpack-cli": "3.3.5"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.3",
