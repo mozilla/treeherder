@@ -945,6 +945,7 @@ perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', '
               defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
         $scope.options = options;
         $scope.timeRange = timeRange;
+        $scope.testsDisplayed = testsDisplayed;
 
         $scope.submitData = function (series) {
             $uibModalInstance.close(series);

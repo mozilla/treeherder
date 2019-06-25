@@ -29,6 +29,7 @@ export class TestDataModal extends React.Component {
       selectedTests: [],
       filteredData: [],
       showNoRelatedTests: false,
+      filterText: '',
     };
   }
 
@@ -68,6 +69,7 @@ export class TestDataModal extends React.Component {
 
   getSeriesData = async params => {
     const { errorMessages, project } = this.state;
+    const { testsDisplayed } = this.props;
 
     let updates = {
       filteredData: [],
@@ -79,6 +81,11 @@ export class TestDataModal extends React.Component {
       ...updates,
       ...processResponse(response, 'seriesData', errorMessages),
     };
+    if (testsDisplayed.length && updates.seriesData) {
+      updates.seriesData = updates.seriesData.filter(
+        item => testsDisplayed.findIndex(test => item.id === test.id) === -1,
+      );
+    }
     this.setState(updates);
   };
 
@@ -212,7 +219,7 @@ export class TestDataModal extends React.Component {
     const filteredData = seriesData.filter(test =>
       containsText(test.name, filterText),
     );
-    this.setState({ filteredData });
+    this.setState({ filteredData, filterText });
   };
 
   updateSelectedTests = (test, removeTest = false) => {
@@ -247,6 +254,7 @@ export class TestDataModal extends React.Component {
       filteredData,
       relatedTests,
       showNoRelatedTests,
+      filterText,
     } = this.state;
     const { repos, submitData } = this.props;
 
@@ -282,7 +290,7 @@ export class TestDataModal extends React.Component {
       },
     ];
     let tests = seriesData;
-    if (filteredData.length) {
+    if (filterText) {
       tests = filteredData;
     } else if (relatedTests.length) {
       tests = relatedTests;
@@ -391,17 +399,19 @@ TestDataModal.propTypes = {
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
+  testsDisplayed: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 TestDataModal.defaultProps = {
   options: undefined,
+  testsDisplayed: [],
 };
 
 perf.component(
   'testDataModal',
   react2angular(
     TestDataModal,
-    ['repos', 'seriesList', 'timeRange', 'submitData', 'options'],
+    ['repos', 'testsDisplayed', 'timeRange', 'submitData', 'options'],
     [],
   ),
 );
