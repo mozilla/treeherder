@@ -68,6 +68,7 @@ export class TestDataModal extends React.Component {
 
   getSeriesData = async params => {
     const { errorMessages, project } = this.state;
+    const { testsDisplayed } = this.props;
 
     let updates = {
       filteredData: [],
@@ -79,6 +80,11 @@ export class TestDataModal extends React.Component {
       ...updates,
       ...processResponse(response, 'seriesData', errorMessages),
     };
+    if (testsDisplayed.length && updates.seriesData) {
+      updates.seriesData = updates.seriesData.filter(
+        item => testsDisplayed.findIndex(test => item.id === test.id) === -1,
+      );
+    }
     this.setState(updates);
   };
 
@@ -391,17 +397,19 @@ TestDataModal.propTypes = {
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
+  testsDisplayed: PropTypes.arrayOf(PropTypes.shape({})),
 };
 
 TestDataModal.defaultProps = {
   options: undefined,
+  testsDisplayed: [],
 };
 
 perf.component(
   'testDataModal',
   react2angular(
     TestDataModal,
-    ['repos', 'seriesList', 'timeRange', 'submitData', 'options'],
+    ['repos', 'testsDisplayed', 'timeRange', 'submitData', 'options'],
     [],
   ),
 );
