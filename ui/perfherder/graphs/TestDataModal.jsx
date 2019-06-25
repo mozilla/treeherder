@@ -29,6 +29,7 @@ export class TestDataModal extends React.Component {
       selectedTests: [],
       filteredData: [],
       showNoRelatedTests: false,
+      filterText: '',
     };
   }
 
@@ -218,7 +219,7 @@ export class TestDataModal extends React.Component {
     const filteredData = seriesData.filter(test =>
       containsText(test.name, filterText),
     );
-    this.setState({ filteredData });
+    this.setState({ filteredData, filterText });
   };
 
   updateSelectedTests = (test, removeTest = false) => {
@@ -253,6 +254,7 @@ export class TestDataModal extends React.Component {
       filteredData,
       relatedTests,
       showNoRelatedTests,
+      filterText,
     } = this.state;
     const { repos, submitData } = this.props;
 
@@ -288,7 +290,7 @@ export class TestDataModal extends React.Component {
       },
     ];
     let tests = seriesData;
-    if (filteredData.length) {
+    if (filterText) {
       tests = filteredData;
     } else if (relatedTests.length) {
       tests = relatedTests;
