@@ -141,7 +141,7 @@ const BugDetailsView = props => {
                 <BreadcrumbItem>
                   <a
                     title="Treeherder home page"
-                    href="https://treeherder.mozilla.org/"
+                    href="/#/"
                   >
                     Treeherder
                   </a>
