@@ -628,7 +628,7 @@ export const getAlertSummaries = options => {
 export const createAlert = data =>
   create(getApiUrl(endpoints.alertSummary), {
     repository_id: data.project.id,
-    framework_id: data.series.frameworkId,
+    framework_id: data.series.framework_id,
     push_id: data.resultSetId,
     prev_push_id: data.prevResultSetId,
   })
@@ -637,7 +637,7 @@ export const createAlert = data =>
       const newAlertSummaryId = response.alert_summary_id;
       return create(getApiUrl('/performance/alert/'), {
         summary_id: newAlertSummaryId,
-        signature_id: data.series.id,
+        signature_id: data.series.signature_id,
       }).then(() => newAlertSummaryId);
     });
 

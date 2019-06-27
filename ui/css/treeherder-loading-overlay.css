@@ -1,7 +1,3 @@
-#loading-symbol {
-  position: relative; /* So we can absolutely position the loading overlay */
-}
-
 .overlay {
   position: absolute;
   top: 0;

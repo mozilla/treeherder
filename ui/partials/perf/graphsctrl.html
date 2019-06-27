@@ -1,21 +1,15 @@
 <div class="container-fluid" ng-cloak>
-  <div class="ph-horizontal-layout">
+  <graphs-view update-graphs="updateGraphs"/>
+  <!-- <div class="ph-horizontal-layout">
     <div id="graph-chooser">
       <div ng-show="seriesList.length == 0">
         <p>Nothing here yet</p>
       </div>
       <selected-tests-container series-list="seriesList" add-test-data="addTestData" remove-series="removeSeries" show-hide-series="showHideSeries"/>
-      <button id="add-test-data-button" class="btn btn-primary-soft" ng-click="addTestData()">
-        <span class="fas fa-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
     </div>
     <div id="data-display">
-      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
-      </select>
-      <hr/>
-      <div id="loading-symbol">
-        <div id="overview-plot"></div>
-        <div id="graph"></div>
-        <loading data="loadingGraphs"></loading>
+      <graphs-view-controls timeranges="timeranges" time-range-changed="timeRangeChanged" />
+      <loading data="loadingGraphs"></loading>
       </div>
       <div id="graph-bottom" ng-show="seriesList.length > 0">
         Highlight revisions:
@@ -36,7 +30,7 @@
       </div>
     </div>
     <div class="graph-right-padding"></div>
-  </div>
+  </div> -->
 
   <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
     <div class="body">
