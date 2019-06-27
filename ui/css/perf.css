@@ -62,6 +62,7 @@ h1 {
 
 .graph-legend-card > p {
   cursor: pointer;
+  font-size: 13px;
 }
 
 .graph-legend-card > p:hover {

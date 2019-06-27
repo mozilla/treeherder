@@ -35,7 +35,7 @@ perf.controller('GraphsCtrl', [
     '$window', '$q', '$timeout',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout) {
-        var availableColors = ['darkseagreen', 'lightseagreen', 'darkslateblue', 'darkgreen', 'steelblue', 'darkorchid', 'blue', 'darkcyan'];
+        const availableColors = ['darkseagreen', 'lightseagreen', 'darkslateblue', 'darkgreen', 'steelblue', 'darkorchid', 'blue', 'darkcyan'];
     
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;

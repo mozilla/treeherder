@@ -11,6 +11,7 @@ const SelectedTestsContainer = props => {
   // TODO seriesList is the same as testsDisplayed in TestDataModel - change
   // name to keep it consistent
   const { seriesList } = props;
+
   return (
     <Container className="graph-legend pl-0 pb-4">
       {seriesList.length > 0 &&

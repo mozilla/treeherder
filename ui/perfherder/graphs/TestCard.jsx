@@ -22,14 +22,20 @@ export class TestContainer extends React.Component {
   render() {
     const { series, addTestData, removeSeries } = this.props;
     const { checked } = this.state;
-    const subtitleStyle = 'p-0 mb-1 border-0 text-muted text-left';
+    const subtitleStyle = 'p-0 mb-0 border-0 text-muted text-left';
+
     return (
       <FormGroup check className="pl-0">
         <span
           className="close mr-3 my-2 ml-2"
           onClick={() => removeSeries(series.projectName, series.signature)}
         >
-          <FontAwesomeIcon icon={faTimes} size="xs" title="" />
+          <FontAwesomeIcon
+            className="pointer"
+            icon={faTimes}
+            size="xs"
+            title=""
+          />
         </span>
         <Input
           className="show-hide-check"
@@ -41,7 +47,7 @@ export class TestContainer extends React.Component {
         />
         <div className="graph-legend-card border pl-5 py-3 pr-3">
           <p
-            className={`p-0 mb-1 pointer border-0 ${
+            className={`p-0 mb-0 pointer border-0 ${
               checked ? series.color : 'text-muted'
             } text-left`}
             onClick={() => addTestData('addRelatedConfigs', series.signature)}
@@ -60,7 +66,7 @@ export class TestContainer extends React.Component {
           </p>
           <p
             className={subtitleStyle}
-            onClick={() => addTestData('addRelatedPlatforms', series.signature)}
+            onClick={() => addTestData('addRelatedPlatform', series.signature)}
             title="Add related branches"
             type="button"
           >
