@@ -27,6 +27,7 @@ h1 {
   }
 }
 
+/* TODO remove */
 .ph-horizontal-layout {
   display: flex;
   flex-flow: row;
@@ -45,6 +46,7 @@ h1 {
   padding: 8px;
 }
 
+/* TODO remove */
 #data-display {
   flex: auto;
 }

@@ -374,11 +374,13 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1`;
+  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},${alert.series_signature.framework_id}`;
 
+  // TODO deprecate usage of signature hash
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
   // information from the server)
+
   if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
     const branches =
       alertRepository === 'mozilla-beta'
@@ -387,7 +389,7 @@ export const getGraphsURL = (
     url += branches
       .map(
         branch =>
-          `&series=${branch},${alert.series_signature.signature_hash},0`,
+          `&series=${branch},${alert.series_signature.signature_hash},${alert.series_signature.framework_id}`,
       )
       .join('');
   }
@@ -628,7 +630,7 @@ export const getAlertSummaries = options => {
 export const createAlert = data =>
   create(getApiUrl(endpoints.alertSummary), {
     repository_id: data.project.id,
-    framework_id: data.series.frameworkId,
+    framework_id: data.series.framework_id,
     push_id: data.resultSetId,
     prev_push_id: data.prevResultSetId,
   })
@@ -637,7 +639,7 @@ export const createAlert = data =>
       const newAlertSummaryId = response.alert_summary_id;
       return create(getApiUrl('/performance/alert/'), {
         summary_id: newAlertSummaryId,
-        signature_id: data.series.id,
+        signature_id: data.series.signature_id,
       }).then(() => newAlertSummaryId);
     });
 

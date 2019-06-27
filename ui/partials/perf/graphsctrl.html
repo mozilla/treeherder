@@ -1,42 +1,5 @@
 <div class="container-fluid" ng-cloak>
-  <div class="ph-horizontal-layout">
-    <div id="graph-chooser">
-      <div ng-show="seriesList.length == 0">
-        <p>Nothing here yet</p>
-      </div>
-      <selected-tests-container series-list="seriesList" add-test-data="addTestData" remove-series="removeSeries" show-hide-series="showHideSeries"/>
-      <button id="add-test-data-button" class="btn btn-primary-soft" ng-click="addTestData()">
-        <span class="fas fa-plus" aria-hidden="true"></span> Add <span ng-show="seriesList.length > 0">more</span> test data</button>
-    </div>
-    <div id="data-display">
-      <select ng-model="myTimerange" ng-options="timerange.text for timerange in timeranges track by timerange.value" ng-change="timeRangeChanged()">
-      </select>
-      <hr/>
-      <div id="loading-symbol">
-        <div id="overview-plot"></div>
-        <div id="graph"></div>
-        <loading data="loadingGraphs"></loading>
-      </div>
-      <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revisions:
-        <span ng-repeat="highlightedRevision in highlightedRevisions track by $index">
-          <input type="text"
-                 maxlength="40"
-                 ng-change="updateHighlightedRevisions()"
-                 placeholder="hg revision"
-                 ng-model="highlightedRevisions[$index]">
-            <span class="reset-highlight-button" ng-show="highlightedRevisions[$index].length > 0" ng-click="resetHighlight($index)">&#10006;</span>
-          </input>
-        </span>
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-change="updateHighlightedRevisions()" ng-model="highlightAlerts">Highlight alerts</input>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="graph-right-padding"></div>
-  </div>
+  <graphs-view update-graphs="updateGraphs"/>
 
   <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
     <div class="body">

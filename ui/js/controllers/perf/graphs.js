@@ -4,7 +4,7 @@
 // to let/const won't break anything.
 
 import $ from 'jquery';
-import map from 'lodash/map';
+// import map from 'lodash/map';
 import countBy from 'lodash/countBy';
 import angular from 'angular';
 import Mousetrap from 'mousetrap';
@@ -19,7 +19,7 @@ import {
     getAlertSummaryStatusText,
     nudgeAlert,
 } from '../../../perfherder/helpers';
-import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
+// import testDataChooserTemplate from '../../../partials/perf/testdatachooser.html';
 import {
   phTimeRanges,
   phAlertStatusMap,
@@ -28,16 +28,15 @@ import {
 } from '../../../helpers/constants';
 import PushModel from '../../../models/push';
 import RepositoryModel from '../../../models/repository';
-import PerfSeriesModel from '../../../models/perfSeries';
+// import PerfSeriesModel from '../../../models/perfSeries';
 
 perf.controller('GraphsCtrl', [
     '$state', '$stateParams', '$scope', '$rootScope', '$uibModal',
     '$window', '$q', '$timeout',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout) {
-        const availableColors = [['magenta', '#e252cf'], ['blue', '#1752b8'], ['darkorchid', '#9932cc'], ['brown', '#b87e17'],
-            ['green', '#19a572'], ['turquoise', '#17a2b8'], ['scarlet', '#b81752']];
-        
+        // const availableColors = ['darkseagreen', 'lightseagreen', 'darkslateblue', 'darkgreen', 'steelblue', 'darkorchid', 'blue', 'darkcyan'];
+    
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
@@ -50,6 +49,19 @@ perf.controller('GraphsCtrl', [
         $scope.selectedDataPoint = null;
         $scope.showToolTipTimeout = null;
         $scope.seriesList = [];
+        $scope.zoom = {};
+        
+        $scope.updateGraphs = function (state) {
+            const { testData, highlightAlerts, highlightedRevisions, zoom, selectedDataPoint, timeRange, projects } = state;
+            $rootScope.repos = projects;
+            $scope.seriesList = testData;            
+            $scope.highlightAlerts = highlightAlerts;
+            $scope.highlightedRevisions = highlightedRevisions;
+            $scope.zoom = zoom;
+            $scope.selectedDataPoint = selectedDataPoint;
+            $scope.myTimerange = timeRange;
+            plotGraph();
+        }
 
         $scope.createAlert = function (dataPoint) {
             $scope.creatingAlert = true;
@@ -59,7 +71,7 @@ perf.controller('GraphsCtrl', [
                 $scope.creatingAlert = false;
             });
         };
-
+        // TODO remove - this functionality will be enabled later
         $scope.nudgeAlert = (dataPoint, direction) => {
             $scope.nudgingAlert = true;
 
@@ -101,10 +113,10 @@ perf.controller('GraphsCtrl', [
             // of cases)
             var resultSetId = flotItem.series.resultSetData[flotItem.dataIndex];
             return {
-                projectName: flotItem.series.thSeries.projectName,
-                signature: flotItem.series.thSeries.signature,
-                signatureId: flotItem.series.thSeries.id,
-                frameworkId: flotItem.series.thSeries.frameworkId,
+                projectName: flotItem.series.thSeries.repository_name,
+                signature: flotItem.series.thSeries.signature_hash,
+                signatureId: flotItem.series.thSeries.signature_id,
+                frameworkId: flotItem.series.thSeries.framework_id,
                 resultSetId: resultSetId,
                 flotDataOffset: (flotItem.dataIndex -
                                  flotItem.series.resultSetData.indexOf(resultSetId)),
@@ -133,7 +145,7 @@ perf.controller('GraphsCtrl', [
                 }
 
                 var phSeries = $scope.seriesList.find(
-                    s => s.id === dataPoint.signatureId);
+                    s => s.signature_id === dataPoint.signatureId);
 
                 // we need the flot data for calculating values/deltas and to know where
                 // on the graph to position the tooltip
@@ -141,7 +153,7 @@ perf.controller('GraphsCtrl', [
                     dataPoint.id);
                 var flotData = {
                     series: $scope.plot.getData().find(
-                        fs => fs.thSeries.id === dataPoint.signatureId),
+                        fs => fs.thSeries.signature_id === dataPoint.signatureId),
                     pointIndex: flotIndex,
                 };
                 // check if there are any points belonging to earlier pushes in this
@@ -172,8 +184,8 @@ perf.controller('GraphsCtrl', [
                 }
                 $scope.tooltipContent = {
                     project: $rootScope.repos.find(repo =>
-                                repo.name === phSeries.projectName),
-                    revisionUrl: `/#/jobs?repo=${phSeries.projectName}`,
+                                repo.name === phSeries.repository_name),
+                    revisionUrl: `/#/jobs?repo=${phSeries.repository_name}`,
                     prevResultSetId: prevResultSetId,
                     resultSetId: dataPoint.resultSetId,
                     jobId: dataPoint.jobId,
@@ -188,6 +200,10 @@ perf.controller('GraphsCtrl', [
                     alert: alert,
                 };
 
+                // TODO fix RepositoryModel to use getData wrap and use this model
+                // to fetch the list in GraphsView
+                const repoModel = new RepositoryModel($scope.tooltipContent.project);
+                
                 // Get revision information for both this datapoint and the previous
                 // one
                 [{
@@ -197,12 +213,12 @@ perf.controller('GraphsCtrl', [
                     resultSetId: prevResultSetId,
                     scopeKey: 'prevRevision',
                 }].forEach((resultRevision) => {
-                    PushModel.get(resultRevision.resultSetId, { repo: phSeries.projectName })
+                    PushModel.get(resultRevision.resultSetId, { repo: phSeries.repository_name })
                       .then(async (resp) => {
                         const push = await resp.json();
                         $scope.tooltipContent[resultRevision.scopeKey] = push.revision;
                         if ($scope.tooltipContent.prevRevision && $scope.tooltipContent.revision) {
-                            $scope.tooltipContent.pushlogURL = $scope.tooltipContent.project.getPushLogRangeHref({
+                            $scope.tooltipContent.pushlogURL = repoModel.getPushLogRangeHref({
                                 fromchange: $scope.tooltipContent.prevRevision,
                                 tochange: $scope.tooltipContent.revision,
                             });
@@ -302,7 +318,7 @@ perf.controller('GraphsCtrl', [
             // also highlighted the selected item (if there is one)
             if ($scope.selectedDataPoint) {
                 var selectedSeriesIndex = $scope.seriesList.findIndex(
-                    s => s.id === $scope.selectedDataPoint.signatureId);
+                    s => s.signature_id === $scope.selectedDataPoint.signatureId);
                 var selectedSeries = $scope.seriesList[selectedSeriesIndex];
                 var flotDataPoint = selectedSeries.flotSeries.idData.indexOf(
                     $scope.selectedDataPoint.id);
@@ -417,15 +433,20 @@ perf.controller('GraphsCtrl', [
             $scope.seriesList.forEach(function (series) {
                 series.flotSeries.points.show = series.visible;
                 series.blockColor = series.visible ? series.color : 'grey';
-            });
-
-            // reset highlights
-            $scope.seriesList.forEach(function (series) {
-                series.highlightedPoints = [];
+                series.highlightedPoints = [];                
             });
 
             // highlight points which correspond to an alert
             var markings = [];
+            if ($scope.highlightAlerts) {
+                $scope.seriesList.forEach(function (series) {
+                    if (series.visible) {
+                        series.relatedAlertSummaries.forEach(function (alertSummary) {
+                            addHighlightedDatapoint(series, alertSummary.push_id);
+                        });
+                    }
+                });
+            }
             function addHighlightedDatapoint(series, resultSetId) {
                 // add a vertical line where alerts are, for extra visibility
                 var index = series.flotSeries.resultSetData.indexOf(resultSetId);
@@ -446,19 +467,10 @@ perf.controller('GraphsCtrl', [
                         resultSetId === seriesResultSetId ? index : null
                     )).filter(v => v)])];
             }
-
-            if ($scope.highlightAlerts) {
-                $scope.seriesList.forEach(function (series) {
-                    if (series.visible) {
-                        series.relatedAlertSummaries.forEach(function (alertSummary) {
-                            addHighlightedDatapoint(series, alertSummary.push_id);
-                        });
-                    }
-                });
-            }
-
+    
             // highlight each explicitly highlighted revision on visible serii
             var highlightPromises = [];
+
             $scope.highlightedRevisions.forEach((rev) => {
                 if (rev && rev.length === 12) {
                     highlightPromises = [...new Set([
@@ -592,7 +604,7 @@ perf.controller('GraphsCtrl', [
 
         function updateDocument() {
             $state.transitionTo('graphs', {
-                series: $scope.seriesList.map(series => `${series.projectName},${series.id},${series.visible ? 1 : 0},${series.frameworkId}`),
+                series: $scope.seriesList.map(series => `${series.repository_name},${series.signature_id},${series.framework_id}`),
                 timerange: ($scope.myTimerange.value !== phDefaultTimeRangeValue) ?
                     $scope.myTimerange.value : undefined,
                 highlightedRevisions: $scope.highlightedRevisions.filter(highlight => highlight && highlight.length >= 12),
@@ -712,51 +724,6 @@ perf.controller('GraphsCtrl', [
             alert('Error loading performance data\n\n' + error);
         }
 
-        $scope.removeSeries = function (projectName, signature) {
-            var newSeriesList = [];
-            $scope.seriesList.forEach(function (series) {
-                if (series.signature !== signature ||
-                    series.projectName !== projectName) {
-                    newSeriesList.push(series);
-                } else {
-                    // add the color back to the list of available colors
-                    availableColors.push(series.color);
-
-                    // deselect datapoint if no longer valid
-                    if ($scope.selectedDataPoint &&
-                        $scope.selectedDataPoint.signatureId === series.id) {
-                        $scope.selectedDataPoint = null;
-                    }
-                }
-            });
-            $scope.seriesList = newSeriesList;
-
-            if ($scope.seriesList.length === 0) {
-                $scope.resetHighlight();
-                $scope.zoom = {};
-            }
-            updateDocument();
-            plotGraph();
-            if ($scope.selectedDataPoint) {
-                showTooltip($scope.selectedDataPoint);
-            }
-        };
-
-        $scope.showHideSeries = function (signature) {
-            const updatedSeries = $scope.seriesList.find(series => series.signature === signature);
-            updatedSeries.visible = !updatedSeries.visible;
-            updateDocument();
-            plotGraph();
-        };
-
-        $scope.resetHighlight = function (i) {
-            $scope.highlightedRevisions[i] = '';
-
-            // update url
-            updateDocument();
-            plotGraph();
-        };
-
         $scope.updateHighlightedRevisions = function () {
             updateDocument();
             plotGraph();
@@ -781,151 +748,7 @@ perf.controller('GraphsCtrl', [
 
         RepositoryModel.getList().then((repos) => {
             $rootScope.repos = repos;
-            if ($stateParams.timerange) {
-                var timeRange = phTimeRanges.find(timeRange =>
-                    timeRange.value === parseInt($stateParams.timerange));
-                $scope.myTimerange = timeRange;
-            } else {
-                $scope.myTimerange = phTimeRanges.find(timeRange =>
-                    timeRange.value === phDefaultTimeRangeValue);
-            }
-            $scope.timeRangeChanged = function () {
-                $scope.loadingGraphs = true;
-                $scope.zoom = {};
-                deselectDataPoint();
-
-                updateDocument();
-                // refetch and re-render all graph data
-                $q.all($scope.seriesList.map(getSeriesData)).then(function () {
-                    plotGraph();
-                    $scope.loadingGraphs = false;
-                });
-            };
-
-            if ($stateParams.zoom) {
-                var zoomString = decodeURIComponent($stateParams.zoom).replace(/[\[\{\}\]"]+/g, '');
-                var zoomArray = zoomString.split(',');
-                var zoomObject = {
-                    x: zoomArray.slice(0, 2),
-                    y: zoomArray.slice(2, 4),
-                };
-                $scope.zoom = (zoomString) ? zoomObject : [];
-            } else {
-                $scope.zoom = [];
-            }
-
-            if ($stateParams.series) {
-                $scope.seriesList = [];
-                if (typeof $stateParams.series === 'string') {
-                    $stateParams.series = [$stateParams.series];
-                }
-                if ($stateParams.highlightAlerts) {
-                    $scope.highlightAlerts = parseInt($stateParams.highlightAlerts);
-                }
-                if ($stateParams.highlightedRevisions) {
-                    if (typeof ($stateParams.highlightedRevisions) === 'string') {
-                        $scope.highlightedRevisions = [$stateParams.highlightedRevisions];
-                    } else {
-                        $scope.highlightedRevisions = $stateParams.highlightedRevisions;
-                    }
-                } else {
-                    $scope.highlightedRevisions = ['', ''];
-                }
-
-                // we only store the signature + project name in the url, we need to
-                // fetch everything else from the server
-                var partialSeriesList = $stateParams.series.map(function (encodedSeries) {
-                    var partialSeriesString = decodeURIComponent(encodedSeries).replace(/[\[\]"]/g, '');
-                    var partialSeriesArray = partialSeriesString.split(',');
-                    var partialSeriesObject = {
-                        project: partialSeriesArray[0],
-                        signature: partialSeriesArray[1].length === 40 ? partialSeriesArray[1] : undefined,
-                        id: partialSeriesArray[1].length === 40 ? undefined : partialSeriesArray[1],
-                        visible: partialSeriesArray[2] !== 0,
-                        frameworkId: partialSeriesArray[3],
-                    };
-                    return partialSeriesObject;
-                });
-                addSeriesList(partialSeriesList);
-            } else {
-                $scope.seriesList = [];
-                plotGraph();
-            }
-            if ($stateParams.selected) {
-                var tooltipString = decodeURIComponent($stateParams.selected).replace(/[\[\]"]/g, '');
-                var tooltipArray = tooltipString.split(',');
-                var tooltip = {
-                    projectName: tooltipArray[0],
-                    signatureId: parseInt(tooltipArray[1]),
-                    resultSetId: parseInt(tooltipArray[2]),
-                    id: parseInt(tooltipArray[3]),
-                    frameworkId: parseInt(tooltipArray[4]) || 1,
-                };
-                $scope.selectedDataPoint = (tooltipString) ? tooltip : null;
-            }
-
-            $scope.addTestData = function (option, seriesSignature) {
-                var defaultProjectName;
-                var defaultPlatform;
-                var defaultFrameworkId;
-                var options = {};
-                if ($scope.seriesList.length > 0) {
-                    var lastSeries = $scope.seriesList.slice(-1)[0];
-                    defaultProjectName = lastSeries.projectName;
-                    defaultPlatform = lastSeries.platform;
-                    defaultFrameworkId = lastSeries.frameworkId;
-                }
-
-                if (option !== undefined) {
-                    var series = $scope.seriesList.find(series =>
-                        series.signature === seriesSignature);
-                    options = { option: option, relatedSeries: series };
-                }
-
-                var modalInstance = $uibModal.open({
-                    template: testDataChooserTemplate,
-                    controller: 'TestChooserCtrl',
-                    size: 'lg',
-                    resolve: {
-                        projects: function () {
-                            return $rootScope.repos;
-                        },
-                        timeRange: function () {
-                            return $scope.myTimerange.value;
-                        },
-                        testsDisplayed: function () {
-                            return $scope.seriesList;
-                        },
-                        defaultFrameworkId: function () { return defaultFrameworkId; },
-                        defaultProjectName: function () { return defaultProjectName; },
-                        defaultPlatform: function () { return defaultPlatform; },
-                        options: function () { return options; },
-                    },
-                });
-                
-                modalInstance.result.then(function (seriesList) {
-                    $scope.loadingGraphs = true;
-                    seriesList.forEach(function (series) {
-                        series.hightlightedPoints = [];
-                        series.visible = true;
-                        series.color = availableColors.pop();
-                        $scope.seriesList.push(series);
-                    });
-                    if (!$scope.highlightedRevision) {
-                        $scope.highlightedRevision = '';
-                    }
-                    if (!$scope.zoom) {
-                        $scope.zoom = {};
-                    }
-                    updateDocument();
-                    $q.all($scope.seriesList.map(getSeriesData)).then(function () {
-                        plotGraph();
-                        $scope.loadingGraphs = false;
-                    });
-                    $scope.seriesList = [...$scope.seriesList];
-                });
-            };
-        });
+        })
     }]);
 
 perf.filter('testNameContainsWords', function () {
@@ -942,19 +765,3 @@ perf.filter('testNameContainsWords', function () {
         return tests.filter(test => filters.every(filter => test.name.toLowerCase().indexOf(filter) !== -1));
     };
 });
-
-perf.controller('TestChooserCtrl', ['$scope', '$uibModalInstance', 'projects', 'timeRange',
-    'defaultFrameworkId', 'defaultProjectName', 'defaultPlatform', '$q', 'testsDisplayed', 'options',
-    function ($scope, $uibModalInstance, projects, timeRange,
-              defaultFrameworkId, defaultProjectName, defaultPlatform, $q, testsDisplayed, options) {
-        $scope.options = options;
-        $scope.timeRange = timeRange;
-        $scope.testsDisplayed = testsDisplayed;
-
-        $scope.submitData = function (series) {
-            $uibModalInstance.close(series);
-        }
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    }]);
