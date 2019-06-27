@@ -8,7 +8,8 @@ import { didObjectsChange } from '../../helpers/object';
 import JobsAndGroups from './JobsAndGroups';
 
 function PlatformName(props) {
-  const titleText = props.title;
+  const { title } = props;
+  const titleText = title;
   return (
     <td className="platform">
       <span title={titleText}>{titleText}</span>

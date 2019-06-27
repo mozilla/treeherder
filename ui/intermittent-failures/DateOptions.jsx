@@ -22,6 +22,8 @@ export default class DateOptions extends React.Component {
   };
 
   updateDateRange = dateRange => {
+    const { updateState } = this.props;
+
     this.setState({ dateRange });
     if (dateRange === 'custom range') {
       return;
@@ -41,7 +43,7 @@ export default class DateOptions extends React.Component {
         .subtract(from, 'days'),
     );
     const endday = ISODate(moment().utc());
-    this.props.updateState({ startday, endday });
+    updateState({ startday, endday });
   };
 
   render() {

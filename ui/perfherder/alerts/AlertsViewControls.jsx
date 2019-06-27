@@ -9,7 +9,8 @@ import AlertTable from './AlertTable';
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
+    const { validated } = this.props;
+    this.validated = validated;
     this.state = {
       hideImprovements: convertParams(this.validated, 'hideImprovements'),
       hideDownstream: convertParams(this.validated, 'hideDwnToInv'),
@@ -18,10 +19,12 @@ export default class AlertsViewControls extends React.Component {
   }
 
   updateFilter = filter => {
+    const { validated } = this.props;
     this.setState(
       prevState => ({ [filter]: !prevState[filter] }),
       () =>
-        this.props.validated.updateParams({
+        validated.updateParams({
+          // eslint-disable-next-line react/destructuring-assignment
           [filter === 'hideDownstream' ? 'hideDwnToInv' : filter]: +this.state[
             filter
           ],

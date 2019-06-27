@@ -153,9 +153,10 @@ export class PinnedJobsClass extends React.Component {
   }
 
   render() {
+    const { children } = this.props;
     return (
       <PinnedJobsContext.Provider value={this.value}>
-        {this.props.children}
+        {children}
       </PinnedJobsContext.Provider>
     );
   }

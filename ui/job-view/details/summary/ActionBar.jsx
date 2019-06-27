@@ -374,7 +374,8 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJob = () => {
-    this.cancelJobs([this.props.selectedJob]);
+    const { selectedJob } = this.props;
+    this.cancelJobs([selectedJob]);
   };
 
   toggleCustomJobActions = () => {

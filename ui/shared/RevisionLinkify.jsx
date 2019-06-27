@@ -35,11 +35,12 @@ export default class RevisionLinkify extends React.Component {
   }
 
   render() {
+    const { children } = this.props;
     return (
       <ReactLinkify
         properties={{ target: '_blank', rel: 'noopener noreferrer' }}
       >
-        {this.getRevisionsAsLinkProtocol(this.props.children)}
+        {this.getRevisionsAsLinkProtocol(children)}
       </ReactLinkify>
     );
   }

@@ -38,15 +38,17 @@ class AutoclassifyTab extends React.Component {
   }
 
   async componentDidMount() {
+    const { selectedJob } = this.props;
     // Load the data here
-    if (this.props.selectedJob.id) {
+    if (selectedJob.id) {
       this.fetchErrorData();
     }
   }
 
   componentDidUpdate(prevProps) {
+    const { selectedJob } = this.props;
     // Load the data here
-    if (this.props.selectedJob.id !== prevProps.selectedJob.id) {
+    if (selectedJob.id !== prevProps.selectedJob.id) {
       this.fetchErrorData();
     }
   }
@@ -55,7 +57,8 @@ class AutoclassifyTab extends React.Component {
    * Save all pending lines
    */
   onSaveAll = pendingLines => {
-    const pending = pendingLines || Array.from(this.state.inputByLine.values());
+    const { inputByLine } = this.state;
+    const pending = pendingLines || Array.from(inputByLine.values());
     this.save(pending).then(() => {
       this.setState({ selectedLineIds: new Set() });
     });
@@ -79,8 +82,9 @@ class AutoclassifyTab extends React.Component {
    * Pin selected job to the pinBoard
    */
   onPin = () => {
+    const { pinJob, selectedJob } = this.props;
     // TODO: consider whether this should add bugs or mark all lines as ignored
-    this.props.pinJob(this.props.selectedJob);
+    pinJob(selectedJob);
   };
 
   onToggleEditable = () => {
@@ -107,7 +111,8 @@ class AutoclassifyTab extends React.Component {
   };
 
   getLoadStatusText = () => {
-    switch (this.state.loadStatus) {
+    const { loadStatus, errorLines } = this.state;
+    switch (loadStatus) {
       case 'job_pending':
         return 'Job not complete, please wait';
       case 'pending':
@@ -123,11 +128,11 @@ class AutoclassifyTab extends React.Component {
       case 'loading':
         return null;
       case 'ready':
-        return !this.state.errorLines || this.state.errorLines.length === 0
+        return !errorLines || errorLines.length === 0
           ? 'No error lines reported'
           : null;
       default:
-        return `Unexpected status: ${this.state.loadStatus}`;
+        return `Unexpected status: ${loadStatus}`;
     }
   };
 
@@ -216,10 +221,11 @@ class AutoclassifyTab extends React.Component {
    * Test if it is possible to save all in a list of lines.
    */
   canSaveAll = () => {
+    const { canClassify } = this.state;
     const pendingLines = this.getPendingLines();
 
     return (
-      this.state.canClassify &&
+      canClassify &&
       !!pendingLines.length &&
       pendingLines.every(line => this.canSave(line.id))
     );

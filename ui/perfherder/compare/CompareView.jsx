@@ -34,6 +34,7 @@ export class CompareView extends React.PureComponent {
   });
 
   getQueryParams = (timeRange, framework) => {
+    const { validated } = this.props;
     const {
       originalProject,
       newProject,
@@ -41,7 +42,7 @@ export class CompareView extends React.PureComponent {
       newRevision,
       newResultSet,
       originalResultSet,
-    } = this.props.validated;
+    } = validated;
 
     let originalParams;
     let interval;
@@ -79,12 +80,13 @@ export class CompareView extends React.PureComponent {
   };
 
   createLinks = (oldResults, newResults, timeRange, framework) => {
+    const { validated } = this.props;
     const {
       originalProject,
       newProject,
       originalRevision,
       newRevision,
-    } = this.props.validated;
+    } = validated;
 
     let links = [];
     const hasSubtests =
@@ -119,7 +121,7 @@ export class CompareView extends React.PureComponent {
       ? newResults.signature_hash
       : oldResults.signature_hash;
     links = createGraphsLinks(
-      this.props.validated,
+      validated,
       links,
       framework,
       timeRange,

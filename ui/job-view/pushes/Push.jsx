@@ -100,8 +100,9 @@ class Push extends React.PureComponent {
   }
 
   setSingleRevisionWindowTitle() {
+    const { jobCounts } = this.state;
     const { allUnclassifiedFailureCount, repoName, push } = this.props;
-    const percentComplete = getPercentComplete(this.state.jobCounts);
+    const percentComplete = getPercentComplete(jobCounts);
     const title = `[${allUnclassifiedFailureCount}] ${repoName}`;
 
     document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
@@ -397,10 +398,10 @@ class Push extends React.PureComponent {
   };
 
   cycleWatchState = async () => {
-    const { notify } = this.props;
+    const { notify, notificationSupported } = this.props;
     const { watched } = this.state;
 
-    if (!this.props.notificationSupported) {
+    if (!notificationSupported) {
       return;
     }
 

@@ -34,8 +34,10 @@ export default class DateRangePicker extends React.Component {
   };
 
   fromChange = from => {
+    const { to } = this.state;
+
     this.setState({ from }, () => {
-      if (!this.state.to) {
+      if (to) {
         this.focusTo();
       }
     });
@@ -47,11 +49,11 @@ export default class DateRangePicker extends React.Component {
 
   updateData = () => {
     const { from, to } = this.state;
-
+    const { updateState } = this.props;
     const startday = ISODate(moment(from));
     const endday = ISODate(moment(to));
 
-    this.props.updateState({ startday, endday });
+    updateState({ startday, endday });
   };
 
   render() {

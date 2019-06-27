@@ -43,12 +43,13 @@ const SKIPPED_LINK_PARAMS = [
 ];
 
 function Author(props) {
-  const authorMatch = props.author.match(/<(.*?)>+/);
-  const authorEmail = authorMatch ? authorMatch[1] : props.author;
+  const { author, url } = props;
+  const authorMatch = author.match(/<(.*?)>+/);
+  const authorEmail = authorMatch ? authorMatch[1] : author;
 
   return (
     <span title="View pushes by this user" className="push-author">
-      <a href={props.url}>{authorEmail}</a>
+      <a href={url}>{authorEmail}</a>
     </span>
   );
 }
@@ -157,7 +158,7 @@ class PushHeader extends React.Component {
         .then(result => {
           notify(result, 'success');
           hideRunnableJobs(pushId);
-          this.props.hideRunnableJobs();
+          hideRunnableJobs();
         })
         .catch(e => {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });

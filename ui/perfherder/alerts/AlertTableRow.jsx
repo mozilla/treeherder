@@ -20,8 +20,9 @@ import { phDefaultTimeRangeValue, phTimeRanges } from '../../helpers/constants';
 export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
+    const { alert } = this.props;
     this.state = {
-      starred: this.props.alert.starred,
+      starred: alert.starred,
       checkboxSelected: false,
     };
   }
@@ -67,13 +68,11 @@ export default class AlertTableRow extends React.Component {
       starred: !starred,
     };
     // passed as prop only for testing purposes
-    const { data, failureStatus } = await this.props.modifyAlert(
-      alert,
-      updatedStar,
-    );
+    const { modifyAlert, updateViewState } = this.props;
+    const { data, failureStatus } = await modifyAlert(alert, updatedStar);
 
     if (failureStatus) {
-      return this.props.updateViewState({
+      return updateViewState({
         errorMessages: [`Failed to update alert ${alert.id}: ${data}`],
       });
     }
@@ -81,10 +80,11 @@ export default class AlertTableRow extends React.Component {
   };
 
   getReassignment = alert => {
+    const { alertSummary } = this.props;
     let text = 'to';
     let alertId = alert.related_summary_id;
 
-    if (alert.related_summary_id === this.props.alertSummary.id) {
+    if (alert.related_summary_id === alertSummary.id) {
       text = 'from';
       alertId = alert.summary_id;
     }
@@ -120,7 +120,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   getTitleText = (alert, alertStatus) => {
-    const { repository, framework, id } = this.props.alertSummary;
+    const { alertSummary } = this.props;
+    const { repository, framework, id } = alertSummary;
 
     let statusColor = '';
     let textEffect = '';

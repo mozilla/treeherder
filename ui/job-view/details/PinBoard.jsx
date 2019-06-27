@@ -41,7 +41,8 @@ class PinBoard extends React.Component {
   }
 
   unPinAll = () => {
-    this.props.unPinAll();
+    const { unPinAll } = this.props;
+    unPinAll();
     this.setState({
       enteringBugNumber: false,
       newBugNumber: null,
@@ -55,9 +56,10 @@ class PinBoard extends React.Component {
       recalculateUnclassifiedCounts,
       notify,
     } = this.props;
+    const { enteringBugNumber } = this.state;
 
     let errorFree = true;
-    if (this.state.enteringBugNumber) {
+    if (enteringBugNumber) {
       // we should save this for the user, as they likely
       // just forgot to hit enter. Returns false if invalid
       errorFree = this.saveEnteredBugNumber();
@@ -171,14 +173,16 @@ class PinBoard extends React.Component {
   // the 'fixed by commit' classification type
   pasteSHA = evt => {
     const pastedData = evt.clipboardData.getData('text');
+    const { setClassificationId } = this.props;
 
     if (isSHAorCommit(pastedData)) {
-      this.props.setClassificationId(2);
+      setClassificationId(2);
     }
   };
 
   cancelAllPinnedJobsTitle = () => {
-    if (!this.props.isLoggedIn) {
+    const { isLoggedIn } = this.props;
+    if (isLoggedIn) {
       return 'Not logged in';
     }
 
@@ -190,11 +194,13 @@ class PinBoard extends React.Component {
   };
 
   canCancelAllPinnedJobs = () => {
-    const cancellableJobs = Object.values(this.props.pinnedJobs).filter(
+    const { pinnedJobs } = this.props;
+    const { isLoggedIn } = this.props;
+    const cancellableJobs = Object.values(pinnedJobs).filter(
       job => job.state === 'pending' || job.state === 'running',
     );
 
-    return this.props.isLoggedIn && cancellableJobs.length > 0;
+    return isLoggedIn && cancellableJobs.length > 0;
   };
 
   cancelAllPinnedJobs = () => {
@@ -234,11 +240,12 @@ class PinBoard extends React.Component {
     const {
       failureClassificationId,
       failureClassificationComment,
+      pinnedJobBugs,
     } = this.props;
 
     return (
       failureClassificationComment !== '' ||
-      !!Object.keys(this.props.pinnedJobBugs).length ||
+      !!Object.keys(pinnedJobBugs).length ||
       failureClassificationId !== 4
     );
   };
@@ -246,8 +253,9 @@ class PinBoard extends React.Component {
   // Dynamic btn/anchor title for classification save
   saveUITitle = category => {
     let title = '';
+    const { isLoggedIn } = this.props;
 
-    if (!this.props.isLoggedIn) {
+    if (isLoggedIn) {
       title = title.concat('not logged in / ');
     }
 
@@ -275,8 +283,10 @@ class PinBoard extends React.Component {
     return title;
   };
 
+  // eslint-disable-next-line react/destructuring-assignment
   hasPinnedJobs = () => !!Object.keys(this.props.pinnedJobs).length;
 
+  // eslint-disable-next-line react/destructuring-assignment
   hasPinnedJobBugs = () => !!Object.keys(this.props.pinnedJobBugs).length;
 
   handleRelatedBugDocumentClick = event => {
@@ -325,12 +335,13 @@ class PinBoard extends React.Component {
 
   saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
+    const { addBug } = this.props;
 
     if (enteringBugNumber) {
       if (!newBugNumber) {
         this.toggleEnterBugNumber(false);
       } else if (this.isNumber(newBugNumber)) {
-        this.props.addBug({ id: parseInt(newBugNumber, 10) });
+        addBug({ id: parseInt(newBugNumber, 10) });
         this.toggleEnterBugNumber(false);
         return true;
       }

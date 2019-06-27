@@ -27,33 +27,30 @@ const mapStateToProps = ({ groups }) => ({
 
 class BugCountComponent extends React.Component {
   onClick = () => {
-    store.dispatch(
-      actions.groups.fetchBugsSingleTest(
-        this.props.test,
-        this.props.bugSuggestions,
-      ),
-    );
+    const { test, bugSuggestions, testName, expanded } = this.props;
+    store.dispatch(actions.groups.fetchBugsSingleTest(test, bugSuggestions));
     store.dispatch(
       actions.groups.toggleExpanded(
-        Boolean(!this.props.expanded[this.props.testName]),
-        this.props.testName,
-        this.props.expanded || {},
+        Boolean(!expanded[testName]),
+        testName,
+        expanded || {},
       ),
     );
   };
 
   render() {
+    const { test } = this.props;
     return (
       <td className="bug-count" onClick={this.onClick}>
         {// TODO: Clean this up
         // eslint-disable-next-line no-nested-ternary
-        this.props.test.bugs === undefined ? (
+        test.bugs === undefined ? (
           <FontAwesomeIcon
             icon={faMinus}
             title="Click to expand and fetch bugs"
           />
-        ) : Object.keys(this.props.test.bugs).length > 0 ? (
-          Object.keys(this.props.test.bugs).length
+        ) : Object.keys(test.bugs).length > 0 ? (
+          Object.keys(test.bugs).length
         ) : (
           <Badge
             size="sm"
@@ -113,18 +110,21 @@ class Platform extends React.Component {
   }
 
   render() {
+    const { job, repo, revision, platform, option } = this.props;
     return (
       <span
         className="platform badge"
-        title={`${this.props.job.jobType.symbol} ${this.props.job.failureClassification.name}`}
+        title={`${job.jobType.symbol} ${job.failureClassification.name}`}
       >
         <Link
-          to={`/#/jobs?repo=${this.props.repo}&revision=${this.props.revision}&selectedJob=${this.props.job.jobId}`}
+          to={`/#/jobs?repo=${repo}&revision=${revision}&selectedJob=${
+            job.jobId
+          }`}
           target="_blank"
           rel="noopener"
         >
-          {this.getIcon(this.props.job.failureClassification.name)}
-          {this.props.platform} {this.props.option}
+          {this.getIcon(job.failureClassification.name)}
+          {platform} {option}
         </Link>
       </span>
     );
@@ -143,37 +143,34 @@ Platform.propTypes = {
 // eslint-disable-next-line react/no-multi-comp
 class TestComponent extends React.Component {
   onClick = () => {
-    store.dispatch(
-      actions.groups.fetchBugsSingleTest(
-        this.props.test,
-        this.props.bugSuggestions,
-      ),
-    );
+    const { test, bugSuggestions, expanded, name } = this.props;
+    store.dispatch(actions.groups.fetchBugsSingleTest(test, bugSuggestions));
     store.dispatch(
       actions.groups.toggleExpanded(
-        Boolean(!this.props.expanded[this.props.name]),
-        this.props.name,
-        this.props.expanded || {},
+        Boolean(!expanded[name]),
+        name,
+        expanded || {},
       ),
     );
   };
 
   renderExpanded() {
+    const { test, repo, revision, options } = this.props;
     return (
       <div className="test-detail-list">
         <div className="bottom-separator">
-          <strong>Test Group: {this.props.test.group}</strong>
+          <strong>Test Group: {test.group}</strong>
         </div>
-        {this.props.test.jobs.map(job => (
+        {test.jobs.map(job => (
           <div key={job.id}>
             <Platform
               job={job}
               platform={thPlatformMap[job.buildPlatform.platform]}
-              option={this.props.options[job.optionCollectionHash]}
-              repo={this.props.repo}
-              revision={this.props.revision}
+              option={options[job.optionCollectionHash]}
+              repo={repo}
+              revision={revision}
             />
-            <LogViewer job={job} repo={this.props.repo} />
+            <LogViewer job={job} repo={repo} />
             {job.tier > 1 && (
               <span className="tier badge">Tier-{job.tier}</span>
             )}
@@ -219,12 +216,12 @@ class TestComponent extends React.Component {
             </div>
           </div>
         ))}
-        {this.props.test.bugs && (
+        {test.bugs && (
           <div>
             <div className="bottom-separator">
               <strong>Bugs:</strong>
             </div>
-            {Object.values(this.props.test.bugs).map(bug => (
+            {Object.values(test.bugs).map(bug => (
               <div key={bug.id}>
                 <a
                   href={getBugUrl(bug.id)}
@@ -242,24 +239,25 @@ class TestComponent extends React.Component {
   }
 
   render() {
+    const { name, test, options, repo, revision, expanded } = this.props;
     return (
       <td className="test-table">
         <span className="test" onClick={this.onClick}>
-          {this.props.name}
+          {name}
         </span>
         <span className="platform-list">
-          {this.props.test.jobs.map(job => (
+          {test.jobs.map(job => (
             <Platform
               job={job}
               key={job.id}
               platform={thPlatformMap[job.buildPlatform.platform]}
-              option={this.props.options[job.optionCollectionHash]}
-              repo={this.props.repo}
-              revision={this.props.revision}
+              option={options[job.optionCollectionHash]}
+              repo={repo}
+              revision={revision}
             />
           ))}
         </span>
-        {this.props.expanded[this.props.name] && this.renderExpanded()}
+        {expanded[name] && this.renderExpanded()}
       </td>
     );
   }

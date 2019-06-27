@@ -28,6 +28,7 @@ export default class AlertActionPanel extends React.Component {
 
   modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(
+      // eslint-disable-next-line react/destructuring-assignment
       selectedAlerts.map(alert => this.props.modifyAlert(alert, modification)),
     );
 
@@ -97,11 +98,13 @@ export default class AlertActionPanel extends React.Component {
   };
 
   hasTriagedAlerts = () =>
+    // eslint-disable-next-line react/destructuring-assignment
     this.props.selectedAlerts.some(
       alert => alert.status !== alertStatusMap.untriaged,
     );
 
   allAlertsConfirming = () =>
+    // eslint-disable-next-line react/destructuring-assignment
     this.props.selectedAlerts.every(
       alert => alert.status === alertStatusMap.confirming,
     );

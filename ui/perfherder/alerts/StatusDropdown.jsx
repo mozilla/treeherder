@@ -29,10 +29,11 @@ import NotesModal from './NotesModal';
 export default class StatusDropdown extends React.Component {
   constructor(props) {
     super(props);
+    const { issueTrackers } = this.props;
     this.state = {
       showBugModal: false,
       showNotesModal: false,
-      selectedValue: this.props.issueTrackers[0].text,
+      selectedValue: issueTrackers[0].text,
     };
   }
 

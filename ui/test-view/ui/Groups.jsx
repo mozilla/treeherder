@@ -70,6 +70,7 @@ class Groups extends React.Component {
   }
 
   render() {
+    const { fetchStatus, rowData } = this.props;
     return (
       <div>
         <StatusNavbar />
@@ -127,8 +128,8 @@ class Groups extends React.Component {
             </tr>
           </thead>
           {// eslint-disable-next-line no-nested-ternary
-          this.props.fetchStatus === 'HasData' ? (
-            Object.entries(this.props.rowData).map(([name, rows]) => (
+          fetchStatus === 'HasData' ? (
+            Object.entries(rowData).map(([name, rows]) => (
               <tbody key={name}>
                 <tr style={{ backgroundColor: '#f9f9f9' }}>
                   <td
@@ -150,14 +151,14 @@ class Groups extends React.Component {
                 ))}
               </tbody>
             ))
-          ) : this.props.fetchStatus ? (
+          ) : fetchStatus ? (
             <tbody>
               <tr>
                 <td
                   colSpan={4}
                   style={{ textAlign: 'center', paddingTop: '2rem' }}
                 >
-                  {this.props.fetchStatus}
+                  {fetchStatus}
                 </td>
               </tr>
             </tbody>

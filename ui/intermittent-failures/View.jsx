@@ -21,8 +21,9 @@ const withView = defaultState => WrappedComponent => {
   class View extends React.Component {
     constructor(props) {
       super(props);
+      const { location } = this.props;
 
-      this.default = this.props.location.state || defaultState;
+      this.default = location.state || defaultState;
       this.state = {
         errorMessages: [],
         initialParamsSet: false,
@@ -47,11 +48,12 @@ const withView = defaultState => WrappedComponent => {
 
     componentDidUpdate(prevProps) {
       const { location } = this.props;
+      const { initialParamsSet } = this.state;
       // update all data if the user edits dates, tree or bug via the query params
       if (prevProps.location.search !== location.search) {
         this.checkQueryValidation(
           parseQueryParams(location.search),
-          this.state.initialParamsSet,
+          initialParamsSet,
         );
       }
     }
@@ -146,6 +148,7 @@ const withView = defaultState => WrappedComponent => {
       this.setState(updatedObj, () => {
         const { startday, endday, tree, bug } = this.state;
         const params = { startday, endday, tree };
+        const { history, location } = this.props;
 
         if (bug) {
           params.bug = bug;
@@ -156,17 +159,14 @@ const withView = defaultState => WrappedComponent => {
 
         // update query params if dates or tree are updated
         const queryString = createQueryParams(params);
-        updateQueryParams(
-          defaultState.route,
-          queryString,
-          this.props.history,
-          this.props.location,
-        );
+
+        updateQueryParams(defaultState.route, queryString, history, location);
       });
     };
 
     updateData = (params, urlChanged = false) => {
       const { mainGraphData, mainTableData } = this.props;
+      const { tableData } = this.state;
 
       if (mainGraphData && mainTableData && !urlChanged) {
         this.setState({ graphData: mainGraphData, tableData: mainTableData });
@@ -175,7 +175,7 @@ const withView = defaultState => WrappedComponent => {
         this.getTableData(createApiUrl(defaultState.endpoint, params));
       }
 
-      if (params.bug && this.state.tableData.length) {
+      if (params.bug && tableData.length) {
         this.getBugDetails(
           bugzillaBugsApi('bug', { include_fields: 'summary', id: params.bug }),
         );

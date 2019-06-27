@@ -49,6 +49,7 @@ const withValidation = (
     }
 
     async componentDidMount() {
+      const { $stateParams } = this.props;
       const [projects, frameworks] = await Promise.all([
         getData(getApiUrl(repoEndpoint)),
         getData(getApiUrl(endpoints.frameworks)),
@@ -58,13 +59,12 @@ const withValidation = (
         ...processResponse(projects, 'projects'),
         ...processResponse(frameworks, 'frameworks'),
       };
-      this.setState(updates, () =>
-        this.validateParams(this.props.$stateParams),
-      );
+      this.setState(updates, () => this.validateParams($stateParams));
     }
 
     updateParams = param => {
-      const { transitionTo, current } = this.props.$state;
+      const { $state } = this.props;
+      const { transitionTo, current } = $state;
       transitionTo(current.name, param, {
         inherit: true,
         notify: false,

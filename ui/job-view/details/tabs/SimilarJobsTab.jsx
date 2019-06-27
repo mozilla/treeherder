@@ -50,6 +50,7 @@ class SimilarJobsTab extends React.Component {
     };
 
     ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach(key => {
+      // eslint-disable-next-line react/destructuring-assignment
       if (this.state[key]) {
         const field = this.filterMap[key];
         options[field] = selectedJob[field];

@@ -15,6 +15,7 @@ export default class InputFilter extends React.Component {
   }
 
   debouncedUpdate = debounce(
+    // eslint-disable-next-line react/destructuring-assignment
     () => this.props.updateFilterText(this.state.input),
     800,
   );

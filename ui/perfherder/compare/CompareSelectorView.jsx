@@ -20,7 +20,8 @@ import SelectorCard from './SelectorCard';
 export default class CompareSelectorView extends React.Component {
   constructor(props) {
     super(props);
-    this.queryParams = this.props.$stateParams;
+    const { $stateParams } = this.props;
+    this.queryParams = $stateParams;
     this.state = {
       projects: [],
       failureStatus: null,
@@ -82,6 +83,7 @@ export default class CompareSelectorView extends React.Component {
       disableButton,
       missingRevision,
     } = this.state;
+    const { $stateParams } = this.props;
 
     return (
       <Container fluid className="my-5 pt-5 max-width-default">
@@ -112,7 +114,7 @@ export default class CompareSelectorView extends React.Component {
                   projectState="originalProject"
                   revisionState="originalRevision"
                   selectedRevision={originalRevision}
-                  queryParam={this.props.$stateParams.originalRevision}
+                  queryParam={$stateParams.originalRevision}
                   errorMessages={errorMessages}
                 />
                 <SelectorCard

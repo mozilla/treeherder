@@ -27,13 +27,14 @@ export default class CompareSubtestDistributionView extends React.Component {
   }
 
   async componentDidMount() {
+    const { $stateParams } = this.props;
     const {
       originalProject: originalProjectName,
       originalSubtestSignature,
       originalRevision,
       newRevision,
       newProject: newProjectName,
-    } = this.props.$stateParams;
+    } = $stateParams;
     const { originalProject, newProject } = await this.fetchProjectsToCompare(
       originalProjectName,
       newProjectName,
@@ -64,7 +65,8 @@ export default class CompareSubtestDistributionView extends React.Component {
     );
 
     Promise.all(syncPromises).then(() => {
-      window.document.title = `${this.state.platform}: ${this.state.testName}`;
+      const { platform, testName } = this.state;
+      window.document.title = `${platform}: ${testName}`;
       this.setState({ dataLoading: false });
     });
   }
@@ -150,13 +152,15 @@ export default class CompareSubtestDistributionView extends React.Component {
       dataLoading,
       platform,
       testName,
+      filters,
     } = this.state;
+    const { $stateParams } = this.props;
     const {
       originalRevision,
       newRevision,
       originalSubtestSignature,
       newSubtestSignature,
-    } = this.props.$stateParams;
+    } = $stateParams;
 
     return (
       originalRevision &&
@@ -192,14 +196,14 @@ export default class CompareSubtestDistributionView extends React.Component {
                   projectName={originalProject.name}
                   revision={originalRevision}
                   subtestSignature={originalSubtestSignature}
-                  filters={this.state.filters}
+                  filters={filters}
                 />
                 <ReplicatesGraph
                   title="New"
                   projectName={newProject.name}
                   revision={newRevision}
                   subtestSignature={newSubtestSignature}
-                  filters={this.state.filters}
+                  filters={filters}
                 />
               </div>
             </Row>

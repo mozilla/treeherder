@@ -40,12 +40,14 @@ class FuzzyJobFinder extends React.Component {
    *  If this input is empty when `enter` is pressed, reset back to the full list of runnable jobs.
    */
   filterJobs = ev => {
+    const { useFullList } = this.state;
+    const { jobList, filteredJobList } = this.props;
     // By default we show a trimmed down list of runnable jobs, but there's an option to show the full list
     let currentList;
-    if (this.state.useFullList) {
-      currentList = this.props.jobList;
+    if (useFullList) {
+      currentList = jobList;
     } else {
-      currentList = this.props.filteredJobList;
+      currentList = filteredJobList;
     }
 
     if (ev && ev.type === 'keydown') {
@@ -84,10 +86,8 @@ class FuzzyJobFinder extends React.Component {
   };
 
   addAllJobs = () => {
-    const selectedOptions = Array.from(
-      this.state.fuzzyList,
-      option => option.name,
-    );
+    const { fuzzyList } = this.state;
+    const selectedOptions = Array.from(fuzzyList, option => option.name);
     let { selectedList } = this.state;
 
     // When adding jobs, add only new, unique job names to avoid duplicates
@@ -130,19 +130,17 @@ class FuzzyJobFinder extends React.Component {
   };
 
   submitJobs = () => {
-    const { notify } = this.props;
-    if (this.state.selectedList.length > 0) {
+    const { notify, decisionTaskId, toggle } = this.props;
+    const { selectedList } = this.state;
+    if (selectedList.length > 0) {
       notify('Submitting selected jobs...');
       this.setState({
         submitDisabled: true,
       });
-      PushModel.triggerNewJobs(
-        this.state.selectedList,
-        this.props.decisionTaskId,
-      )
+      PushModel.triggerNewJobs(selectedList, decisionTaskId)
         .then(result => {
           notify(result, 'success');
-          this.props.toggle();
+          toggle();
         })
         .catch(e => {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -156,6 +154,7 @@ class FuzzyJobFinder extends React.Component {
   };
 
   toggleFullList = evt => {
+    const { fuzzySearch } = this.state;
     this.setState(
       {
         useFullList: evt.target.checked,
@@ -165,7 +164,7 @@ class FuzzyJobFinder extends React.Component {
         this.filterJobs({
           type: 'keydown',
           key: 'Enter',
-          target: { value: this.state.fuzzySearch },
+          target: { value: fuzzySearch },
         });
       },
     );
@@ -195,15 +194,23 @@ class FuzzyJobFinder extends React.Component {
   };
 
   render() {
+    const { isOpen, toggle, className } = this.props;
+    const {
+      submitDisabled,
+      fuzzyList,
+      addDisabled,
+      selectedList,
+      removeDisabled,
+    } = this.state;
     return (
       <div>
         <Modal
           onOpened={this.filterJobs}
           onClosed={this.resetForm}
           size="lg"
-          isOpen={this.props.isOpen}
-          toggle={this.props.toggle}
-          className={this.props.className}
+          isOpen={isOpen}
+          toggle={toggle}
+          className={className}
         >
           <ModalHeader>Add New Jobs (Search)</ModalHeader>
           <ModalBody>
@@ -227,12 +234,12 @@ class FuzzyJobFinder extends React.Component {
                 </Label>
               </Col>
             </FormGroup>
-            <h4> Runnable Jobs [{this.state.fuzzyList.length}]</h4>
+            <h4> Runnable Jobs [{fuzzyList.length}]</h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.addJobs}
                 color="success"
-                disabled={this.state.addDisabled}
+                disabled={addDisabled}
               >
                 Add selected
               </Button>
@@ -243,13 +250,11 @@ class FuzzyJobFinder extends React.Component {
             </div>
             <InputGroup id="addJobsGroup">
               <Input type="select" multiple onChange={this.updateAddButton}>
-                {this.state.fuzzyList.sort(sortAlphaNum).map(e => (
+                {fuzzyList.sort(sortAlphaNum).map(e => (
                   <option
                     title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
                     key={e.name}
-                    className={
-                      this.state.selectedList.includes(e.name) ? 'selected' : ''
-                    }
+                    className={selectedList.includes(e.name) ? 'selected' : ''}
                   >
                     {e.name}
                   </option>
@@ -257,12 +262,12 @@ class FuzzyJobFinder extends React.Component {
               </Input>
             </InputGroup>
             <hr />
-            <h4> Selected Jobs [{this.state.selectedList.length}]</h4>
+            <h4> Selected Jobs [{selectedList.length}]</h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.removeJobs}
                 color="danger"
-                disabled={this.state.removeDisabled}
+                disabled={removeDisabled}
               >
                 Remove selected
               </Button>
@@ -270,14 +275,14 @@ class FuzzyJobFinder extends React.Component {
               <Button
                 color="danger"
                 onClick={this.removeAllJobs}
-                disabled={this.state.selectedList.length === 0}
+                disabled={selectedList.length === 0}
               >
                 Remove all
               </Button>
             </div>
             <InputGroup id="removeJobsGroup">
               <Input type="select" multiple onChange={this.updateRemoveButton}>
-                {this.state.selectedList.sort(sortAlphaNum).map(e => (
+                {selectedList.sort(sortAlphaNum).map(e => (
                   <option title={e} key={e}>
                     {e}
                   </option>
@@ -289,14 +294,11 @@ class FuzzyJobFinder extends React.Component {
             <Button
               color="primary"
               onClick={this.submitJobs}
-              disabled={
-                this.state.selectedList.length === 0 ||
-                this.state.submitDisabled
-              }
+              disabled={selectedList.length === 0 || submitDisabled}
             >
-              Trigger ({this.state.selectedList.length}) Selected Jobs
+              Trigger ({selectedList.length}) Selected Jobs
             </Button>{' '}
-            <Button color="secondary" onClick={this.props.toggle}>
+            <Button color="secondary" onClick={toggle}>
               Cancel
             </Button>
           </ModalFooter>

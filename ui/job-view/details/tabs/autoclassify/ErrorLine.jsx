@@ -115,6 +115,7 @@ class ErrorLine extends React.Component {
 
   getStatus() {
     const { selectedOption } = this.state;
+    const { errorLine } = this.props;
 
     if (!selectedOption) {
       return;
@@ -124,7 +125,7 @@ class ErrorLine extends React.Component {
       return 'classification-disabled';
     }
 
-    if (this.props.errorLine.verified) {
+    if (errorLine.verified) {
       return 'verified';
     }
 
@@ -143,18 +144,19 @@ class ErrorLine extends React.Component {
    * Build a list of options applicable to the current line.
    */
   getOptions() {
+    const { errorLine } = this.props;
     const bugSuggestions = [].concat(
-      this.props.errorLine.data.bug_suggestions.bugs.open_recent,
-      this.props.errorLine.data.bug_suggestions.bugs.all_others,
+      errorLine.data.bug_suggestions.bugs.open_recent,
+      errorLine.data.bug_suggestions.bugs.all_others,
     );
     const classificationMatches = this.getClassifiedFailureMatcher();
-    const autoclassifyOptions = this.props.errorLine.data.classified_failures
+    const autoclassifyOptions = errorLine.data.classified_failures
       .filter(cf => cf.bug_number !== 0)
       .map(
         cf =>
           new LineOptionModel(
             'classifiedFailure',
-            `${this.props.errorLine.id}-${cf.id}`,
+            `${errorLine.id}-${cf.id}`,
             cf.id,
             cf.bug_number,
             cf.bug ? cf.bug.summary : '',
@@ -172,7 +174,7 @@ class ErrorLine extends React.Component {
         bugSuggestion =>
           new LineOptionModel(
             'unstructuredBug',
-            `${this.props.errorLine.id}-ub-${bugSuggestion.id}`,
+            `${errorLine.id}-ub-${bugSuggestion.id}`,
             null,
             bugSuggestion.id,
             bugSuggestion.summary,
@@ -185,11 +187,10 @@ class ErrorLine extends React.Component {
     // Look for an option that has been marked as the best classification.
     // This is always sorted first and never hidden, so we remove it and readd it.
     if (!this.bestIsIgnore()) {
-      const bestIndex = this.props.errorLine.bestClassification
+      const bestIndex = errorLine.bestClassification
         ? autoclassifyOptions.findIndex(
             option =>
-              option.classifiedFailureId ===
-              this.props.errorLine.bestClassification.id,
+              option.classifiedFailureId === errorLine.bestClassification.id,
           )
         : -1;
 
@@ -216,12 +217,13 @@ class ErrorLine extends React.Component {
    * Build a list of the default options that apply to all lines.
    */
   getExtraOptions() {
+    const { errorLine } = this.props;
     const extraOptions = [
-      new LineOptionModel('manual', `${this.props.errorLine.id}-manual`),
+      new LineOptionModel('manual', `${errorLine.id}-manual`),
     ];
     const ignoreOption = new LineOptionModel(
       'ignore',
-      `${this.props.errorLine.id}-ignore`,
+      `${errorLine.id}-ignore`,
       0,
     );
 
@@ -312,7 +314,7 @@ class ErrorLine extends React.Component {
           ? failureLine.signature
           : failureLine.message;
       } else {
-        message = this.props.errorLine.data.bug_suggestions.search;
+        message = errorLine.data.bug_suggestions.search;
       }
       ignore = !importantLines.some(x => x.test(message));
     }
@@ -332,16 +334,14 @@ class ErrorLine extends React.Component {
    * matcher that provided the best match, and the score of that match.
    */
   getClassifiedFailureMatcher() {
-    const matchesByCF = this.props.errorLine.data.matches.reduce(
-      (matchesByCF, match) => {
-        if (!matchesByCF.has(match.classified_failure)) {
-          matchesByCF.set(match.classified_failure, []);
-        }
-        matchesByCF.get(match.classified_failure).push(match);
-        return matchesByCF;
-      },
-      new Map(),
-    );
+    const { errorLine } = this.props;
+    const matchesByCF = errorLine.data.matches.reduce((matchesByCF, match) => {
+      if (!matchesByCF.has(match.classified_failure)) {
+        matchesByCF.set(match.classified_failure, []);
+      }
+      matchesByCF.get(match.classified_failure).push(match);
+      return matchesByCF;
+    }, new Map());
 
     return cf_id =>
       matchesByCF.get(cf_id).map(match => ({
@@ -428,9 +428,10 @@ class ErrorLine extends React.Component {
    * @param {Object[]} options - List of options to score
    */
   scoreOptions(options) {
+    const { errorLine } = this.props;
     options.forEach(option => {
       let score;
-      const { data } = this.props.errorLine;
+      const { data } = errorLine;
       if (option.type === 'classifiedFailure') {
         score = parseFloat(
           data.matches.find(

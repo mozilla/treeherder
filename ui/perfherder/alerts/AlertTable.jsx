@@ -85,7 +85,8 @@ export default class AlertTable extends React.Component {
   };
 
   filterAlert = alert => {
-    const { hideImprovements, hideDownstream, filterText } = this.props.filters;
+    const { filters } = this.props;
+    const { hideImprovements, hideDownstream, filterText } = filters;
     const { alertSummary } = this.state;
 
     const matchesFilters =

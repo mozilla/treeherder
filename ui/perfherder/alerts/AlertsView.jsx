@@ -32,7 +32,8 @@ import AlertsViewControls from './AlertsViewControls';
 export class AlertsView extends React.Component {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
+    const { validated } = this.props;
+    this.validated = validated;
     this.state = {
       status: this.getDefaultStatus(),
       framework: getFrameworkData(this.validated),
@@ -71,7 +72,8 @@ export class AlertsView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { frameworks, updateParams } = this.props.validated;
+    const { validated } = this.props;
+    const { frameworks, updateParams } = validated;
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
@@ -81,14 +83,17 @@ export class AlertsView extends React.Component {
   };
 
   updateStatus = status => {
+    const { validated } = this.props;
     const statusId = summaryStatusMap[status];
-    this.props.validated.updateParams({ status: statusId });
+    validated.updateParams({ status: statusId });
     this.setState({ status }, () => this.fetchAlertSummaries());
   };
 
   navigatePage = page => {
+    const { validated } = this.props;
+
     this.setState({ page }, this.fetchAlertSummaries);
-    this.props.validated.updateParams({ page });
+    validated.updateParams({ page });
   };
 
   getCurrentPages = () => {
@@ -108,6 +113,7 @@ export class AlertsView extends React.Component {
   };
 
   // TODO potentially pass as a prop for testing purposes
+  // eslint-disable-next-line react/destructuring-assignment
   async fetchAlertSummaries(id = this.state.id, update = false) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });

@@ -11,7 +11,8 @@ import CompareTable from './CompareTable';
 export default class CompareTableControls extends React.Component {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
+    const { validated } = this.props;
+    this.validated = validated;
     this.state = {
       hideUncomparable: convertParams(this.validated, 'showOnlyComparable'),
       showImportant: convertParams(this.validated, 'showOnlyImportant'),

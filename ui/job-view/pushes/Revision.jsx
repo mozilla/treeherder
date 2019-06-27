@@ -7,7 +7,8 @@ import { parseAuthor } from '../../helpers/revision';
 import BugLinkify from '../../shared/BugLinkify';
 
 export function Initials(props) {
-  const str = props.author || '';
+  const { author, title } = props;
+  const str = author || '';
   const words = str.split(' ');
   const firstLetters = words
     .map(word => word.replace(/[^A-Z]/gi, '')[0])
@@ -22,7 +23,7 @@ export function Initials(props) {
   }
 
   return (
-    <span title={props.title}>
+    <span title={title}>
       <span className="user-push-icon">
         <FontAwesomeIcon icon={faUser} />
       </span>

@@ -25,7 +25,9 @@ export default class TooltipGraph extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.minValue !== this.state.minValue) {
+    const { minValue } = this.state;
+
+    if (prevState.minValue !== minValue) {
       const canvas = this.canvasRef.current;
       this.context = canvas.getContext('2d');
       this.context.globalAlpha = 0.3;
@@ -48,9 +50,12 @@ export default class TooltipGraph extends React.Component {
 
   plotValues = () => {
     const { minValue, maxValue } = this.state;
-    this.props.replicates.forEach(value => {
-      this.context.beginPath();
-      this.context.arc(
+    const { replicates } = this.props;
+    const { beginPath, arc, fill } = this.context;
+
+    replicates.forEach(value => {
+      beginPath();
+      arc(
         (180 / (maxValue - minValue)) * (value - minValue) + 5,
         18,
         5,
@@ -58,7 +63,7 @@ export default class TooltipGraph extends React.Component {
         360,
       );
       this.context.fillStyle = 'white';
-      this.context.fill();
+      fill();
     });
   };
 

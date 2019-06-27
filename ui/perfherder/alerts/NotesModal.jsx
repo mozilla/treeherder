@@ -15,8 +15,9 @@ import {
 export default class NotesModal extends React.Component {
   constructor(props) {
     super(props);
+    const { alertSummary } = this.props;
     this.state = {
-      inputValue: this.props.alertSummary.notes,
+      inputValue: alertSummary.notes,
     };
   }
 

@@ -13,10 +13,11 @@ class ErrorMessages extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     const { errorMessages, failureMessage } = this.props;
+    const { visible } = this.state;
     if (
       (prevProps.errorMessages !== errorMessages ||
         prevProps.failureMessage !== failureMessage) &&
-      !this.state.visible
+      !visible
     ) {
       // reset Alert if previouly dismissed
       // eslint-disable-next-line react/no-did-update-set-state

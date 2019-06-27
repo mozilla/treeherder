@@ -25,13 +25,15 @@ export default class Navigation extends React.Component {
 
   render() {
     const { updateState, tree } = this.props;
+    const { isOpen } = this.state;
+
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <LogoMenu
           menuText="Intermittent Failures View"
           colorClass="lightorange"
         />
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <Collapse isOpen={isOpen} navbar>
           <Nav navbar />
           <UncontrolledDropdown>
             <DropdownToggle className="btn-navbar navbar-link" nav caret>

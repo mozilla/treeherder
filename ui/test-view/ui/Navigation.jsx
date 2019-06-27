@@ -14,12 +14,13 @@ export default class Navigation extends React.Component {
   }
 
   render() {
+    const { isOpen } = this.state;
     return (
       <Navbar expand fixed="top" className="th-top-navbar">
         <a id="th-logo" href="/">
           <img src={logoUrl} alt="Treeherder" />
         </a>
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <Collapse isOpen={isOpen} navbar>
           <Nav navbar className="mr-auto" />
         </Collapse>
       </Navbar>

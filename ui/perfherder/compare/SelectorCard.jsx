@@ -26,10 +26,11 @@ import { genericErrorMessage } from '../../helpers/constants';
 export default class SelectorCard extends React.Component {
   constructor(props) {
     super(props);
+    const { queryParam } = this.props;
     this.state = {
       buttonDropdownOpen: false,
       inputDropdownOpen: false,
-      checkboxSelected: this.props.queryParam,
+      checkboxSelected: queryParam,
       data: {},
       failureStatus: null,
       invalidRevision: false,
@@ -46,6 +47,7 @@ export default class SelectorCard extends React.Component {
 
   validateQueryParams = () => {
     const { projects, selectedRepo, revisionState } = this.props;
+    const { checkboxSelected } = this.state;
     const validProject = projects.find(item => item.name === selectedRepo);
 
     if (!validProject) {
@@ -58,17 +60,18 @@ export default class SelectorCard extends React.Component {
 
     // by default revisions are only needed for the 'New' component dropdown
     // so we'll fetch revisions for the 'Base' component only as needed
-    if (this.state.checkboxSelected || revisionState === 'newRevision') {
+    if (checkboxSelected || revisionState === 'newRevision') {
       this.fetchRevisions(selectedRepo);
     }
   };
 
   fetchRevisions = async selectedRepo => {
+    const { data: currentData } = this.state;
     const { selectedRevision, updateState } = this.props;
 
     // if a user selects a new project/repo, we don't want them to
     // be able to select revisions until that new data has returned
-    if (Object.keys(this.state.data) !== 0) {
+    if (Object.keys(currentData) !== 0) {
       this.setState({ disabled: true });
     }
 
@@ -96,10 +99,11 @@ export default class SelectorCard extends React.Component {
 
   updateRevisions = selectedRepo => {
     const { updateState, projectState } = this.props;
+    const { invalidProject } = this.state;
     // reset invalidProject from query param validation
     // in case user resets project via dropdown instead
     // of updating the query param
-    if (this.state.invalidProject) {
+    if (invalidProject) {
       this.setState({ invalidProject: false });
     }
     this.fetchRevisions(selectedRepo);
@@ -107,9 +111,11 @@ export default class SelectorCard extends React.Component {
   };
 
   compareRevisions = () => {
+    const { data } = this.state;
+    const { selectedRepo } = this.props;
     this.toggle('checkboxSelected');
-    if (!this.state.data.results) {
-      this.fetchRevisions(this.props.selectedRepo);
+    if (!data.results) {
+      this.fetchRevisions(selectedRepo);
     }
   };
 

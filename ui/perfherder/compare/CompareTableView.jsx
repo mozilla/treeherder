@@ -29,6 +29,7 @@ import NoiseTable from './NoiseTable';
 export default class CompareTableView extends React.Component {
   constructor(props) {
     super(props);
+    const { validated } = this.props;
     this.state = {
       compareResults: new Map(),
       testsNoResults: null,
@@ -36,7 +37,7 @@ export default class CompareTableView extends React.Component {
       failureMessage: '',
       loading: false,
       timeRange: this.setTimeRange(),
-      framework: getFrameworkData(this.props.validated),
+      framework: getFrameworkData(validated),
       title: '',
     };
   }
@@ -52,7 +53,8 @@ export default class CompareTableView extends React.Component {
   }
 
   setTimeRange = () => {
-    const { selectedTimeRange, originalRevision } = this.props.validated;
+    const { validated } = this.props;
+    const { selectedTimeRange, originalRevision } = validated;
 
     if (originalRevision) {
       return null;
@@ -69,13 +71,18 @@ export default class CompareTableView extends React.Component {
   };
 
   getPerformanceData = async () => {
-    const { getQueryParams, hasSubtests, getDisplayResults } = this.props;
+    const {
+      validated,
+      getQueryParams,
+      hasSubtests,
+      getDisplayResults,
+    } = this.props;
     const {
       originalProject,
       originalRevision,
       newProject,
       newRevision,
-    } = this.props.validated;
+    } = validated;
     const { framework, timeRange } = this.state;
 
     this.setState({ loading: true });
@@ -139,7 +146,8 @@ export default class CompareTableView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { frameworks, updateParams } = this.props.validated;
+    const { validated } = this.props;
+    const { frameworks, updateParams } = validated;
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
@@ -147,7 +155,8 @@ export default class CompareTableView extends React.Component {
   };
 
   updateTimeRange = selection => {
-    const { updateParams } = this.props.validated;
+    const { validated } = this.props;
+    const { updateParams } = validated;
     const timeRange = phTimeRanges.find(item => item.text === selection);
 
     updateParams({ selectedTimeRange: timeRange.value });
@@ -155,6 +164,7 @@ export default class CompareTableView extends React.Component {
   };
 
   render() {
+    const { validated } = this.props;
     const {
       originalProject,
       newProject,
@@ -163,7 +173,7 @@ export default class CompareTableView extends React.Component {
       originalResultSet,
       newResultSet,
       frameworks,
-    } = this.props.validated;
+    } = validated;
 
     const { filterByFramework, hasSubtests } = this.props;
     const {

@@ -24,6 +24,7 @@ export class CompareSubtestsView extends React.PureComponent {
   });
 
   getQueryParams = (timeRange, framework) => {
+    const { validated } = this.props;
     const {
       originalProject,
       newProject,
@@ -32,7 +33,7 @@ export class CompareSubtestsView extends React.PureComponent {
       newResultSet,
       originalSignature,
       newSignature,
-    } = this.props.validated;
+    } = validated;
 
     const originalParams = this.createQueryParams(
       originalSignature,
@@ -63,12 +64,13 @@ export class CompareSubtestsView extends React.PureComponent {
   };
 
   createLinks = (oldResults, newResults, timeRange, framework) => {
+    const { validated } = this.props;
     const {
       originalProject,
       newProject,
       originalRevision,
       newRevision,
-    } = this.props.validated;
+    } = validated;
     let links = [];
 
     if (
@@ -98,7 +100,7 @@ export class CompareSubtestsView extends React.PureComponent {
       : oldResults.signature_hash;
 
     links = createGraphsLinks(
-      this.props.validated,
+      validated,
       links,
       framework,
       timeRange,
@@ -108,7 +110,8 @@ export class CompareSubtestsView extends React.PureComponent {
   };
 
   getDisplayResults = (origResultsMap, newResultsMap, state) => {
-    const { originalSignature, newSignature } = this.props.validated;
+    const { validated } = this.props;
+    const { originalSignature, newSignature } = validated;
 
     const { tableNames, rowNames, framework, timeRange } = state;
     const testsWithNoise = [];

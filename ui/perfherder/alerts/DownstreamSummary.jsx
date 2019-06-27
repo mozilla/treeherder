@@ -17,7 +17,8 @@ export default class DownstreamSummary extends React.Component {
   }
 
   async componentDidMount() {
-    const tooltipText = await this.getAlertSummaryTitle(this.props.id);
+    const { id } = this.props;
+    const tooltipText = await this.getAlertSummaryTitle(id);
     this.setState({ tooltipText });
   }
 

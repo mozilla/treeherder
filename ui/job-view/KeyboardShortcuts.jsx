@@ -105,7 +105,8 @@ class KeyboardShortcuts extends React.Component {
 
   // clear the PinBoard
   clearPinboard = () => {
-    this.props.unPinAll();
+    const { unPinAll } = this.props;
+    unPinAll();
   };
 
   saveClassification = () => {
@@ -206,7 +207,7 @@ class KeyboardShortcuts extends React.Component {
   }
 
   render() {
-    const { filterModel, showOnScreenShortcuts } = this.props;
+    const { filterModel, showOnScreenShortcuts, children } = this.props;
     const handlers = {
       addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
       pinEditComment: ev => this.doKey(ev, this.pinEditComment),
@@ -244,7 +245,7 @@ class KeyboardShortcuts extends React.Component {
         focused
         tabIndex={-1}
       >
-        {this.props.children}
+        {children}
       </HotKeys>
     );
   }

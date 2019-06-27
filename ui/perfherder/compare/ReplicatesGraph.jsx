@@ -63,6 +63,7 @@ export default class ReplicatesGraph extends React.Component {
         };
 
   fetchReplicateGraphData = async () => {
+    const { filters } = this.props;
     const {
       projectName,
       revision,
@@ -96,10 +97,10 @@ export default class ReplicatesGraph extends React.Component {
           [],
           localReplicateData.map(data => {
             const testSuite = data.suites.find(
-              suite => suite.name === this.props.filters.testSuite,
+              suite => suite.name === filters.testSuite,
             );
             const subtest = testSuite.subtests.find(
-              subtest => subtest.name === this.props.filters.subtest,
+              subtest => subtest.name === filters.subtest,
             );
             return subtest.replicates;
           }),

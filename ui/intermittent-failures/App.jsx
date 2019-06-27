@@ -22,6 +22,8 @@ class App extends React.Component {
   };
 
   render() {
+    const { graphData, tableData } = this.state;
+
     return (
       <HashRouter>
         <main>
@@ -32,8 +34,8 @@ class App extends React.Component {
               render={props => (
                 <MainView
                   {...props}
-                  mainGraphData={this.state.graphData}
-                  mainTableData={this.state.tableData}
+                  mainGraphData={graphData}
+                  mainTableData={tableData}
                   updateAppState={this.updateAppState}
                 />
               )}
@@ -43,8 +45,8 @@ class App extends React.Component {
               render={props => (
                 <MainView
                   {...props}
-                  mainGraphData={this.state.graphData}
-                  mainTableData={this.state.tableData}
+                  mainGraphData={graphData}
+                  mainTableData={tableData}
                   updateAppState={this.updateAppState}
                 />
               )}

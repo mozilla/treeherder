@@ -16,11 +16,12 @@ import { containsText } from '../helpers';
 export class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
+    const { repos } = this.props;
     this.state = {
       frameworks: [],
       platforms: [],
       framework: { name: 'talos', id: 1 },
-      project: this.findObject(this.props.repos, 'name', 'mozilla-central'),
+      project: this.findObject(repos, 'name', 'mozilla-central'),
       platform: 'linux64',
       errorMessages: [],
       includeSubtests: false,
@@ -105,7 +106,8 @@ export class TestDataModal extends React.Component {
   }
 
   addRelatedConfigs = async params => {
-    const { relatedSeries } = this.props.options;
+    const { options } = this.props;
+    const { relatedSeries } = options;
     const { errorMessages, project } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(project.name, params);
@@ -128,7 +130,8 @@ export class TestDataModal extends React.Component {
   };
 
   addRelatedPlatforms = async params => {
-    const { relatedSeries } = this.props.options;
+    const { options } = this.props;
+    const { relatedSeries } = options;
     const { errorMessages, project } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(project.name, params);
@@ -150,7 +153,8 @@ export class TestDataModal extends React.Component {
   };
 
   addRelatedBranches = async params => {
-    const { relatedSeries } = this.props.options;
+    const { options } = this.props;
+    const { relatedSeries } = options;
     const errorMessages = [];
 
     const relatedProjects = thPerformanceBranches.filter(
@@ -177,7 +181,8 @@ export class TestDataModal extends React.Component {
   };
 
   processOptions = () => {
-    const { option, relatedSeries } = this.props.options;
+    const { options } = this.props;
+    const { option, relatedSeries } = options;
     const {
       platform,
       framework,
@@ -239,6 +244,7 @@ export class TestDataModal extends React.Component {
   getFullTestName = test => `${test.projectName} ${test.platform} ${test.name}`;
 
   getOriginalTestName = test =>
+    // eslint-disable-next-line react/destructuring-assignment
     this.state.relatedTests.length > 0 ? this.getFullTestName(test) : test.name;
 
   render() {

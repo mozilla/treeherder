@@ -375,9 +375,10 @@ export class PushesClass extends React.Component {
   }
 
   render() {
+    const { children } = this.props;
     return (
       <PushesContext.Provider value={this.value}>
-        {this.props.children}
+        {children}
       </PushesContext.Provider>
     );
   }

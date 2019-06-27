@@ -38,9 +38,10 @@ RevisionList.propTypes = {
 };
 
 export function MoreRevisionsLink(props) {
+  const { href } = props;
   return (
     <li>
-      <a href={props.href} target="_blank" rel="noopener noreferrer">
+      <a href={href} target="_blank" rel="noopener noreferrer">
         {'\u2026and more'}
         <FontAwesomeIcon icon={faExternalLinkSquareAlt} className="ml-1" />
       </a>

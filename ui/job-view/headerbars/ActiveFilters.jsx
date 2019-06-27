@@ -66,7 +66,8 @@ export default class ActiveFilters extends React.Component {
       newFilterValue: '',
       newFilterChoices: [],
     });
-    this.props.toggleFieldFilterVisible();
+    const { toggleFieldFilterVisible } = this.props;
+    toggleFieldFilterVisible();
   };
 
   render() {

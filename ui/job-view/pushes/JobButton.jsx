@@ -21,9 +21,11 @@ export default class JobButtonComponent extends React.Component {
   }
 
   componentDidMount() {
-    if (this.state.isSelected) {
+    const { isSelected } = this.state;
+    const { job } = this.props;
+    if (isSelected) {
       // scroll to make this job if it's selected
-      findJobInstance(this.props.job.id, true);
+      findJobInstance(job.id, true);
     }
   }
 

@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function ErrorsList(props) {
-  const errorListItem = props.errors.map((error, key) => (
+  const { errors } = props;
+  const errorListItem = errors.map((error, key) => (
     <li
       key={key} // eslint-disable-line react/no-array-index-key
     >
