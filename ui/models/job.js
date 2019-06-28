@@ -119,16 +119,7 @@ export default class JobModel {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
       const pushIds = [...new Set(jobs.map(job => job.push_id))];
-      const {
-        data: taskIdMap,
-        failureStatus,
-      } = await PushModel.getDecisionTaskMap(pushIds);
-      if (failureStatus) {
-        notify(
-          `Error getting Gecko Decision Task Ids: ${failureStatus}: ${taskIdMap}`,
-        );
-        return;
-      }
+      const taskIdMap = await PushModel.getDecisionTaskMap(pushIds, notify);
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
@@ -181,8 +172,8 @@ export default class JobModel {
     }
   }
 
-  static async cancelAll(pushId, repoName, getGeckoDecisionTaskId, notify) {
-    const decisionTaskId = await getGeckoDecisionTaskId(pushId);
+  static async cancelAll(pushId, repoName, notify) {
+    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
     const results = await TaskclusterModel.load(decisionTaskId);
     const cancelAllTask = results.actions.find(
       result => result.name === 'cancel-all',
@@ -204,8 +195,12 @@ export default class JobModel {
     notify('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobIds, repoName, getGeckoDecisionTaskId, notify) {
-    const jobTerm = jobIds.length > 1 ? 'jobs' : 'job';
+  static async cancel(jobs, repoName, notify) {
+    const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
+    const taskIdMap = await PushModel.getDecisionTaskMap(
+      [...new Set(jobs.map(job => job.push_id))],
+      notify,
+    );
 
     try {
       notify(
@@ -214,12 +209,8 @@ export default class JobModel {
       );
 
       /* eslint-disable no-await-in-loop */
-      for (const id of jobIds) {
-        const job = await JobModel.get(repoName, id);
-        const decisionTaskId = await getGeckoDecisionTaskId(
-          job.push_id,
-          repoName,
-        );
+      for (const job of jobs) {
+        const decisionTaskId = taskIdMap[job.push_id];
         const results = await TaskclusterModel.load(decisionTaskId, job);
         const cancelTask = results.actions.find(
           result => result.name === 'cancel',

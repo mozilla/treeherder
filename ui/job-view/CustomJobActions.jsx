@@ -22,9 +22,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
+import PushModel from '../models/push';
 import TaskclusterModel from '../models/taskcluster';
 
-import { withPushes } from './context/Pushes';
 import { notify } from './redux/stores/notifications';
 
 class CustomJobActions extends React.PureComponent {
@@ -45,17 +45,19 @@ class CustomJobActions extends React.PureComponent {
     };
   }
 
-  componentDidMount() {
-    const { getGeckoDecisionTaskId, pushId, job } = this.props;
+  async componentDidMount() {
+    const { pushId, job, notify } = this.props;
+    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
 
-    getGeckoDecisionTaskId(pushId).then(decisionTaskId => {
-      TaskclusterModel.load(decisionTaskId, job).then(results => {
-        const {
-          originalTask,
-          originalTaskId,
-          staticActionVariables,
-          actions,
-        } = results;
+    TaskclusterModel.load(decisionTaskId, job).then(results => {
+      const {
+        originalTask,
+        originalTaskId,
+        staticActionVariables,
+        actions,
+      } = results;
+
+      if (actions.length) {
         const actionOptions = actions.map(action => ({
           value: action,
           label: action.title,
@@ -72,9 +74,17 @@ class CustomJobActions extends React.PureComponent {
           },
           () => this.updateSelectedAction(actions[0]),
         );
-      });
-      this.setState({ decisionTaskId });
+      } else {
+        notify(
+          `No actions for task ${decisionTaskId}.  The task may be expired.`,
+          'danger',
+          {
+            sticky: true,
+          },
+        );
+      }
     });
+    this.setState({ decisionTaskId });
   }
 
   onChangeAction = actionOption => {
@@ -295,7 +305,6 @@ CustomJobActions.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
-  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   job: PropTypes.object,
 };
 
@@ -306,4 +315,4 @@ CustomJobActions.defaultProps = {
 export default connect(
   null,
   { notify },
-)(withPushes(CustomJobActions));
+)(CustomJobActions);

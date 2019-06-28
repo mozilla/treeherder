@@ -17,6 +17,7 @@ import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import { isReftest, isPerfTest, isTestIsolatable } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
+import PushModel from '../../../models/push';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import { withPinnedJobs } from '../../context/PinnedJobs';
@@ -75,49 +76,51 @@ class ActionBar extends React.PureComponent {
     return selectedJob.state === 'pending' || selectedJob.state === 'running';
   };
 
-  createGeckoProfile = () => {
-    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
+  createGeckoProfile = async () => {
+    const { user, selectedJob, notify } = this.props;
     if (!user.isLoggedIn) {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
-    getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
-      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
-        const geckoprofile = results.actions.find(
-          result => result.name === 'geckoprofile',
-        );
-
-        if (
-          geckoprofile === undefined ||
-          !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
-        ) {
-          return notify(
-            'Job was scheduled without taskcluster support for GeckoProfiles',
-          );
-        }
-
-        TaskclusterModel.submit({
-          action: geckoprofile,
-          decisionTaskId,
-          taskId: results.originalTaskId,
-          task: results.originalTask,
-          input: {},
-          staticActionVariables: results.staticActionVariables,
-        }).then(
-          () => {
-            notify(
-              'Request sent to collect gecko profile job via actions.json',
-              'success',
-            );
-          },
-          e => {
-            // The full message is too large to fit in a Treeherder
-            // notification box.
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          },
-        );
-      }),
+    const decisionTaskId = await PushModel.getDecisionTaskId(
+      selectedJob.push_id,
+      notify,
     );
+    TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+      const geckoprofile = results.actions.find(
+        result => result.name === 'geckoprofile',
+      );
+
+      if (
+        geckoprofile === undefined ||
+        !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
+      ) {
+        return notify(
+          'Job was scheduled without taskcluster support for GeckoProfiles',
+        );
+      }
+
+      TaskclusterModel.submit({
+        action: geckoprofile,
+        decisionTaskId,
+        taskId: results.originalTaskId,
+        task: results.originalTask,
+        input: {},
+        staticActionVariables: results.staticActionVariables,
+      }).then(
+        () => {
+          notify(
+            'Request sent to collect gecko profile job via actions.json',
+            'success',
+          );
+        },
+        e => {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        },
+      );
+    });
   };
 
   retriggerJob = jobs => {
@@ -138,8 +141,8 @@ class ActionBar extends React.PureComponent {
     JobModel.retrigger(jobs, repoName, notify);
   };
 
-  backfillJob = () => {
-    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
+  backfillJob = async () => {
+    const { user, selectedJob, notify } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -161,40 +164,43 @@ class ActionBar extends React.PureComponent {
       selectedJob.build_system_type === 'taskcluster' ||
       selectedJob.reason.startsWith('Created by BBB for task')
     ) {
-      getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
-        TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
-          const backfilltask = results.actions.find(
-            result => result.name === 'backfill',
-          );
-
-          return TaskclusterModel.submit({
-            action: backfilltask,
-            decisionTaskId,
-            taskId: results.originalTaskId,
-            input: {},
-            staticActionVariables: results.staticActionVariables,
-          }).then(
-            () => {
-              notify(
-                'Request sent to backfill job via actions.json',
-                'success',
-              );
-            },
-            e => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              notify(formatTaskclusterError(e), 'danger', { sticky: true });
-            },
-          );
-        }),
+      const decisionTaskId = await PushModel.getDecisionTaskId(
+        selectedJob.push_id,
+        notify,
       );
+      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+        const backfilltask = results.actions.find(
+          result => result.name === 'backfill',
+        );
+
+        return TaskclusterModel.submit({
+          action: backfilltask,
+          decisionTaskId,
+          taskId: results.originalTaskId,
+          input: {},
+          staticActionVariables: results.staticActionVariables,
+        }).then(
+          () => {
+            notify('Request sent to backfill job via actions.json', 'success');
+          },
+          e => {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
+          },
+        );
+      });
     } else {
       notify('Unable to backfill this job type!', 'danger', { sticky: true });
     }
   };
 
-  isolateJob = () => {
-    const { user, selectedJob, getGeckoDecisionTaskId, notify } = this.props;
+  isolateJob = async () => {
+    const { user, selectedJob, notify } = this.props;
+    const decisionTaskId = await PushModel.getDecisionTaskId(
+      selectedJob.push_id,
+      notify,
+    );
 
     if (!isTestIsolatable(selectedJob)) {
       return;
@@ -222,60 +228,58 @@ class ActionBar extends React.PureComponent {
       selectedJob.build_system_type === 'taskcluster' ||
       selectedJob.reason.startsWith('Created by BBB for task')
     ) {
-      getGeckoDecisionTaskId(selectedJob.push_id).then(decisionTaskId =>
-        TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
-          const isolationtask = results.actions.find(
-            result => result.name === 'isolate-test-failures',
-          );
+      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+        const isolationtask = results.actions.find(
+          result => result.name === 'isolate-test-failures',
+        );
 
-          if (!isolationtask) {
+        if (!isolationtask) {
+          notify(
+            'Request to isolate job via actions.json failed could not find action.',
+            'danger',
+            { sticky: true },
+          );
+          return;
+        }
+
+        let times = 1;
+        let response = null;
+        do {
+          response = window.prompt(
+            'Enter number of times (1..100) to run isolation jobs: ',
+            times,
+          );
+          if (response == null) {
+            break;
+          }
+          times = parseInt(response, 10);
+        } while (Number.isNaN(times) || times < 1 || times > 100);
+
+        if (response === null) {
+          notify('Request to isolate job via actions.json aborted.');
+          return;
+        }
+
+        return TaskclusterModel.submit({
+          action: isolationtask,
+          decisionTaskId,
+          taskId: results.originalTaskId,
+          input: { times },
+          staticActionVariables: results.staticActionVariables,
+        }).then(
+          () => {
             notify(
-              'Request to isolate job via actions.json failed could not find action.',
-              'danger',
-              { sticky: true },
+              'Request sent to isolate-test-failures job via actions.json',
+              'success',
             );
-            return;
-          }
-
-          let times = 1;
-          let response = null;
-          do {
-            response = window.prompt(
-              'Enter number of times (1..100) to run isolation jobs: ',
-              times,
-            );
-            if (response == null) {
-              break;
-            }
-            times = parseInt(response, 10);
-          } while (Number.isNaN(times) || times < 1 || times > 100);
-
-          if (response === null) {
-            notify('Request to isolate job via actions.json aborted.');
-            return;
-          }
-
-          return TaskclusterModel.submit({
-            action: isolationtask,
-            decisionTaskId,
-            taskId: results.originalTaskId,
-            input: { times },
-            staticActionVariables: results.staticActionVariables,
-          }).then(
-            () => {
-              notify(
-                'Request sent to isolate-test-failures job via actions.json',
-                'success',
-              );
-            },
-            e => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              notify(formatTaskclusterError(e), 'danger', { sticky: true });
-            },
-          );
-        }),
-      );
+          },
+          e => {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
+          },
+        );
+      });
     } else {
       notify('Unable to isolate this job type!', 'danger', { sticky: true });
     }
@@ -313,13 +317,7 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const {
-      user,
-      selectedJob,
-      repoName,
-      getGeckoDecisionTaskId,
-      notify,
-    } = this.props;
+    const { user, selectedJob, repoName, notify } = this.props;
     const jobId = selectedJob.id;
 
     if (!user.isLoggedIn) {
@@ -330,7 +328,10 @@ class ActionBar extends React.PureComponent {
     }
 
     const job = await JobModel.get(repoName, jobId);
-    const decisionTaskId = await getGeckoDecisionTaskId(job.push_id);
+    const decisionTaskId = await PushModel.getDecisionTaskId(
+      job.push_id,
+      notify,
+    );
     const results = await TaskclusterModel.load(decisionTaskId, job);
     const interactiveTask = results.actions.find(
       result => result.name === 'create-interactive',
@@ -360,16 +361,16 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = jobs => {
-    const { user, repoName, getGeckoDecisionTaskId, notify } = this.props;
-    const jobIds = jobs
-      .filter(({ state }) => state === 'pending' || state === 'running')
-      .map(({ id }) => id);
+    const { user, repoName, notify } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to cancel a job', 'danger');
     }
-
-    JobModel.cancel(jobIds, repoName, getGeckoDecisionTaskId, notify);
+    JobModel.cancel(
+      jobs.filter(({ state }) => state === 'pending' || state === 'running'),
+      repoName,
+      notify,
+    );
   };
 
   cancelJob = () => {
@@ -559,7 +560,6 @@ ActionBar.propTypes = {
   repoName: PropTypes.string.isRequired,
   selectedJob: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
-  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.array,
   isTryRepo: PropTypes.bool,

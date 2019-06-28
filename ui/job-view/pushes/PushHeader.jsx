@@ -19,7 +19,6 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import { withPinnedJobs } from '../context/PinnedJobs';
-import { withPushes } from '../context/Pushes';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import {
   getSelectedJobId,
@@ -132,11 +131,10 @@ class PushHeader extends React.Component {
     );
   }
 
-  triggerNewJobs = () => {
+  triggerNewJobs = async () => {
     const {
       isLoggedIn,
       pushId,
-      getGeckoDecisionTaskId,
       selectedRunnableJobs,
       hideRunnableJobs,
       notify,
@@ -150,17 +148,13 @@ class PushHeader extends React.Component {
       return;
     }
     if (isLoggedIn) {
-      getGeckoDecisionTaskId(pushId)
-        .then(decisionTaskID => {
-          PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskID)
-            .then(result => {
-              notify(result, 'success');
-              hideRunnableJobs(pushId);
-              this.props.hideRunnableJobs();
-            })
-            .catch(e => {
-              notify(formatTaskclusterError(e), 'danger', { sticky: true });
-            });
+      const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+
+      PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId)
+        .then(result => {
+          notify(result, 'success');
+          hideRunnableJobs(pushId);
+          this.props.hideRunnableJobs();
         })
         .catch(e => {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -178,11 +172,11 @@ class PushHeader extends React.Component {
         'This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?',
       )
     ) {
-      const { push, isLoggedIn, getGeckoDecisionTaskId } = this.props;
+      const { push, isLoggedIn } = this.props;
 
       if (!isLoggedIn) return;
 
-      JobModel.cancelAll(push.id, repoName, getGeckoDecisionTaskId, notify);
+      JobModel.cancelAll(push.id, repoName, notify);
     }
   };
 
@@ -397,7 +391,6 @@ PushHeader.propTypes = {
   expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   selectedRunnableJobs: PropTypes.array.isRequired,
   collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
@@ -413,4 +406,4 @@ PushHeader.defaultProps = {
 export default connect(
   null,
   { notify, setSelectedJob },
-)(withPushes(withPinnedJobs(PushHeader)));
+)(withPinnedJobs(PushHeader));

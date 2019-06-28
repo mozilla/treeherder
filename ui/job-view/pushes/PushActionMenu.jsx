@@ -6,7 +6,6 @@ import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { withPushes } from '../context/Pushes';
 import { getPushHealthUrl } from '../../helpers/url';
 import { notify } from '../redux/stores/notifications';
 
@@ -51,7 +50,7 @@ class PushActionMenu extends React.PureComponent {
   };
 
   triggerMissingJobs = () => {
-    const { getGeckoDecisionTaskId, notify, revision, pushId } = this.props;
+    const { notify, revision, pushId } = this.props;
 
     if (
       !window.confirm(
@@ -61,23 +60,13 @@ class PushActionMenu extends React.PureComponent {
       return;
     }
 
-    getGeckoDecisionTaskId(pushId)
-      .then(decisionTaskID => {
-        PushModel.triggerMissingJobs(decisionTaskID)
-          .then(msg => {
-            notify(msg, 'success');
-          })
-          .catch(e => {
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          });
-      })
-      .catch(e => {
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      });
+    PushModel.triggerMissingJobs(pushId, notify).catch(e => {
+      notify(formatTaskclusterError(e), 'danger', { sticky: true });
+    });
   };
 
   triggerAllTalosJobs = () => {
-    const { getGeckoDecisionTaskId, notify, revision, pushId } = this.props;
+    const { notify, revision, pushId } = this.props;
 
     if (
       !window.confirm(
@@ -98,15 +87,9 @@ class PushActionMenu extends React.PureComponent {
       );
     }
 
-    getGeckoDecisionTaskId(pushId)
-      .then(decisionTaskID => {
-        PushModel.triggerAllTalosJobs(times, decisionTaskID)
-          .then(msg => {
-            notify(msg, 'success');
-          })
-          .catch(e => {
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          });
+    PushModel.triggerAllTalosJobs(times, pushId)
+      .then(msg => {
+        notify(msg, 'success');
       })
       .catch(e => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -197,7 +180,7 @@ class PushActionMenu extends React.PureComponent {
               className={
                 isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
               }
-              onClick={() => this.triggerMissingJobs(revision)}
+              onClick={this.triggerMissingJobs}
             >
               Trigger missing jobs
             </li>
@@ -281,11 +264,10 @@ PushActionMenu.propTypes = {
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
-  getGeckoDecisionTaskId: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
 export default connect(
   null,
   { notify },
-)(withPushes(PushActionMenu));
+)(PushActionMenu);
