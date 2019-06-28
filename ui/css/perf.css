@@ -41,7 +41,7 @@ h1 {
 
 #graph-chooser {
   flex: none;
-  width: 240px;
+  width: 300px;
   padding: 8px;
 }
 
@@ -56,34 +56,24 @@ h1 {
   cursor: crosshair;
 }
 
-.graph-legend-table {
-  table-layout: fixed;
-}
-
-.graph-legend-table tbody > tr > td {
-  padding: 0;
-}
-
 .graph-legend {
-  padding: 8px 20px 8px 8px;
-  text-overflow: ellipsis;
-  font-size: 12px;
-  border-left: 10px solid;
+  width: 275px;
 }
 
-.graph-legend .series-inactive {
-  border-color: #d3d3d3;
-  color: #d3d3d3;
+.graph-legend-card > p {
+  cursor: pointer;
+  font-size: 13px;
 }
 
-.graph-legend-table .close {
-  margin-right: 6px;
+.graph-legend-card > p:hover {
+  text-decoration: underline;
 }
 
-.graph-legend-table .show-hide-check {
-  float: right;
-  margin-top: -20px;
-  margin-right: 6px;
+.show-hide-check {
+  float: left;
+  position: static;
+  margin-top: 20px;
+  margin-left: 15px;
 }
 
 .graph-right-padding {
@@ -170,13 +160,6 @@ h1 {
 
 .subtest-result:hover button {
   display: inline-block;
-}
-
-.graph-legend .signature {
-  display: inline-block;
-  max-width: 100px;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 /* Test Chooser graph */
@@ -420,4 +403,37 @@ button:disabled {
 li.pagination-active.active > button {
   background-color: lightgray !Important;
   border-color: lightgray !Important;
+}
+
+/* graph colors */
+.blue {
+  color: blue !Important;
+}
+
+.darkgreen {
+  color: darkgreen;
+}
+
+.darkcyan {
+  color: darkcyan;
+}
+
+.darkseagreen {
+  color: darkseagreen;
+}
+
+.steelblue {
+  color: steelblue;
+}
+
+.darkorchid {
+  color: darkorchid;
+}
+
+.lightseagreen {
+  color: lightseagreen;
+}
+
+.darkslateblue {
+  color: darkslateblue;
 }

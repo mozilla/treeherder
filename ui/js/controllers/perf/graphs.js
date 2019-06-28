@@ -35,9 +35,8 @@ perf.controller('GraphsCtrl', [
     '$window', '$q', '$timeout',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout) {
-        var availableColors = ['maroon', 'navy', 'pink', 'turquoise', 'brown',
-            'red', 'green', 'blue', 'orange', 'purple'];
-
+        const availableColors = ['darkseagreen', 'lightseagreen', 'darkslateblue', 'darkgreen', 'steelblue', 'darkorchid', 'blue', 'darkcyan'];
+    
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
@@ -697,6 +696,7 @@ perf.controller('GraphsCtrl', [
                         showTooltip($scope.selectedDataPoint);
                     }
                 });
+                $scope.seriesList = [...$scope.seriesList];
             }));
         }
 
@@ -741,7 +741,9 @@ perf.controller('GraphsCtrl', [
             }
         };
 
-        $scope.showHideSeries = function () {
+        $scope.showHideSeries = function (signature) {
+            const updatedSeries = $scope.seriesList.find(series => series.signature === signature);
+            updatedSeries.visible = !updatedSeries.visible;
             updateDocument();
             plotGraph();
         };
@@ -899,7 +901,7 @@ perf.controller('GraphsCtrl', [
                         options: function () { return options; },
                     },
                 });
-
+                
                 modalInstance.result.then(function (seriesList) {
                     $scope.loadingGraphs = true;
                     seriesList.forEach(function (series) {
@@ -919,6 +921,7 @@ perf.controller('GraphsCtrl', [
                         plotGraph();
                         $scope.loadingGraphs = false;
                     });
+                    $scope.seriesList = [...$scope.seriesList];
                 });
             };
         });
