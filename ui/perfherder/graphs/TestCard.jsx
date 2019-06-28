@@ -37,15 +37,7 @@ export class TestContainer extends React.Component {
             title=""
           />
         </span>
-        <Input
-          className="show-hide-check"
-          type="checkbox"
-          checked={checked}
-          aria-label="Show/Hide series"
-          title="Show/Hide series"
-          onChange={this.updateSelectedTest}
-        />
-        <div className="graph-legend-card border pl-5 py-3 pr-3">
+        <div className="graph-legend-card border p-3">
           <p
             className={`p-0 mb-0 pointer border-0 ${
               checked ? series.color : 'text-muted'
@@ -74,6 +66,14 @@ export class TestContainer extends React.Component {
           </p>
           <span className="small">{`${series.signature.slice(0, 16)}...`}</span>
         </div>
+        <Input
+          className="show-hide-check"
+          type="checkbox"
+          checked={checked}
+          aria-label="Show/Hide series"
+          title="Show/Hide series"
+          onChange={this.updateSelectedTest}
+        />
       </FormGroup>
     );
   }
