@@ -1,10 +1,8 @@
 import React from 'react';
-import { Row, Col } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 import {
   bugDetailsEndpoint,
@@ -139,14 +137,24 @@ const BugDetailsView = props => {
         <React.Fragment>
           <Row>
             <Col xs="12" className="text-left">
-              <Link to={lastLocation || '/'}>
-                <FontAwesomeIcon
-                  icon={faArrowLeft}
-                  className="mr-1"
-                  title="go to intermittent failures view main page"
-                />
-                back
-              </Link>
+              <Breadcrumb listClassName="bg-white">
+                <BreadcrumbItem>
+                  <a title="Treeherder home page" href="/#/">
+                    Treeherder
+                  </a>
+                </BreadcrumbItem>
+                <BreadcrumbItem>
+                  <Link
+                    title="Intermittent Failures View main page"
+                    to={lastLocation || '/'}
+                  >
+                    Main view
+                  </Link>
+                </BreadcrumbItem>
+                <BreadcrumbItem active title="Bugdetails view">
+                  Bugdetails view
+                </BreadcrumbItem>
+              </Breadcrumb>
             </Col>
           </Row>
           {!errorMessages.length && !tableFailureStatus && !graphFailureStatus && (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col } from 'reactstrap';
+import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import ReactTable from 'react-table';
@@ -100,6 +100,23 @@ const MainView = props => {
       header={
         initialParamsSet && (
           <React.Fragment>
+            <Row>
+              <Col xs="12" className="text-left">
+                <Breadcrumb listClassName="bg-white">
+                  <BreadcrumbItem>
+                    <a title="Treeherder home page" href="/#/">
+                      Treeherder
+                    </a>
+                  </BreadcrumbItem>
+                  <BreadcrumbItem
+                    active
+                    title="Intermittent Failures View main page"
+                  >
+                    Main view
+                  </BreadcrumbItem>
+                </Breadcrumb>
+              </Col>
+            </Row>
             <Row>
               <Col xs="12" className="mx-auto pt-3">
                 <h1>Intermittent Test Failures</h1>
