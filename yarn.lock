@@ -3000,10 +3000,10 @@ d3-zoom@1:
     d3-selection "1"
     d3-transition "1"
 
-d3@5.9.4, d3@^4:
-  version "5.9.4"
-  resolved "https://registry.yarnpkg.com/d3/-/d3-5.9.4.tgz#d85ce1f4c7ddc7825d56c51ace089f78bb877e6c"
-  integrity sha512-iMLfEVd2Cg3YEfOdUvQ9gJtZs4YJG0T5Nvz+A3j4sIyBwscncVheaRtwg/g6g69qwS/gl0gqlIt7CUeO/BVNbQ==
+d3@5.9.7, d3@^4:
+  version "5.9.7"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-5.9.7.tgz#f3835648a172b438e89ed57eb6c525bdabdcd7dc"
+  integrity sha512-jENytrmdXtGPw7HuSK2S4gxRM1eUGjKvWQkQ6ct4yK+DB8SG3VcnVrwesfnsv8rIcxMUg18TafT4Q8mOZUMP4Q==
   dependencies:
     d3-array "1"
     d3-axis "1"
