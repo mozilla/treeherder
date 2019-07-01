@@ -421,19 +421,22 @@ class PerformanceSummary(generics.ListAPIView):
         parent_signature = query_params.validated_data['parent_signature']
         signature = query_params.validated_data['signature']
         no_subtests = query_params.validated_data['no_subtests']
+        all_data = query_params.validated_data['all_data']
 
         signature_data = (PerformanceSignature.objects
                                               .select_related('framework', 'repository', 'platform', 'push', 'job')
-                                              .filter(repository__name=repository_name,
-                                                      parent_signature__isnull=no_subtests))
+                                              .filter(repository__name=repository_name))
+
+        if signature:
+            signature_data = signature_data.filter(id=signature)
+        else:
+            signature_data = signature_data.filter(parent_signature__isnull=no_subtests)
+
         if frameworks:
             signature_data = signature_data.filter(framework__in=frameworks)
 
         if parent_signature:
             signature_data = signature_data.filter(parent_signature_id=parent_signature)
-
-        if signature:
-            signature_data = signature_data.filter(id=signature)
 
         if interval:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
@@ -458,18 +461,25 @@ class PerformanceSummary(generics.ListAPIView):
         option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
         option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
 
-        grouped_values = defaultdict(list)
-        grouped_job_ids = defaultdict(list)
-        for signature_id, value, job_id in data.values_list('signature_id', 'value', 'job_id'):
-            if value is not None:
-                grouped_values[signature_id].append(value)
-                grouped_job_ids[signature_id].append(job_id)
+        if all_data:
+            # add push__revision also maybe prev revision
+            for item in self.queryset:
+                item['data'] = data.values('value', 'job_id', 'id', 'push_id', 'push_timestamp')
+                item['option_name'] = option_collection_map[item['option_collection_id']]
 
-        # name field is created in the serializer
-        for item in self.queryset:
-            item['values'] = grouped_values.get(item['id'], [])
-            item['job_ids'] = grouped_job_ids.get(item['id'], [])
-            item['option_name'] = option_collection_map[item['option_collection_id']]
+        else:
+            grouped_values = defaultdict(list)
+            grouped_job_ids = defaultdict(list)
+            for signature_id, value, job_id in data.values_list('signature_id', 'value', 'job_id'):
+                if value is not None:
+                    grouped_values[signature_id].append(value)
+                    grouped_job_ids[signature_id].append(job_id)
+
+            # name field is created in the serializer
+            for item in self.queryset:
+                item['values'] = grouped_values.get(item['id'], [])
+                item['job_ids'] = grouped_job_ids.get(item['id'], [])
+                item['option_name'] = option_collection_map[item['option_collection_id']]
 
         serializer = self.get_serializer(self.queryset, many=True)
         return Response(data=serializer.data)

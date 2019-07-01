@@ -12,7 +12,8 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
                                     PerformanceFramework,
-                                    PerformanceSignature)
+                                    PerformanceSignature,
+                                    PerformanceDatum)
 from treeherder.webapp.api.utils import to_timestamp
 
 
@@ -192,6 +193,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
+    all_data = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
         if data['revision'] is None and (data['startday'] is None or data['endday'] is None):
@@ -209,20 +211,28 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
         return repository
 
 
+class PerformanceDatumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceDatum
+        fields = ['job_id', 'id', 'value', 'push_timestamp', 'push_id']
+
+
 class PerformanceSummarySerializer(serializers.ModelSerializer):
     platform = serializers.CharField(source="platform__platform")
     values = serializers.ListField(child=serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False))
+        rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False), default=[])
     name = serializers.SerializerMethodField()
     suite = serializers.CharField()
-    parent_signature = serializers.CharField(source="parent_signature_id")
+    parent_signature = serializers.IntegerField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
-    job_ids = serializers.ListField(child=serializers.IntegerField())
+    job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    data = PerformanceDatumSerializer(read_only=True, many=True)
 
     class Meta:
         model = PerformanceSignature
         fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
-                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids']
+                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids', 
+                  'data']
 
     def get_name(self, value):
         test = value['test']
