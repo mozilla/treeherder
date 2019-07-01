@@ -70,10 +70,10 @@ h1 {
 }
 
 .show-hide-check {
-  float: left;
+  float: right;
   position: static;
-  margin-top: 20px;
-  margin-left: 15px;
+  margin-right: 13px !important;
+  margin-top: -27px;
 }
 
 .graph-right-padding {
