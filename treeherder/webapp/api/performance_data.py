@@ -461,10 +461,9 @@ class PerformanceSummary(generics.ListAPIView):
         option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
         option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
 
-        if all_data:
-            # add push__revision also maybe prev revision
+        if signature and all_data:
             for item in self.queryset:
-                item['data'] = data.values('value', 'job_id', 'id', 'push_id', 'push_timestamp')
+                item['data'] = data.values('value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision').order_by('push_timestamp')
                 item['option_name'] = option_collection_map[item['option_collection_id']]
 
         else:

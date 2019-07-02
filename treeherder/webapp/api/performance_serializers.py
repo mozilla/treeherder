@@ -11,9 +11,9 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
+                                    PerformanceDatum,
                                     PerformanceFramework,
-                                    PerformanceSignature,
-                                    PerformanceDatum)
+                                    PerformanceSignature)
 from treeherder.webapp.api.utils import to_timestamp
 
 
@@ -212,9 +212,11 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
 
 
 class PerformanceDatumSerializer(serializers.ModelSerializer):
+    revision = serializers.CharField(source='push__revision')
+
     class Meta:
         model = PerformanceDatum
-        fields = ['job_id', 'id', 'value', 'push_timestamp', 'push_id']
+        fields = ['job_id', 'id', 'value', 'push_timestamp', 'push_id', 'revision']
 
 
 class PerformanceSummarySerializer(serializers.ModelSerializer):
@@ -231,7 +233,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
-                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids', 
+                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids',
                   'data']
 
     def get_name(self, value):
