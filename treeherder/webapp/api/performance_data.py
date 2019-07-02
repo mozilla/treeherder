@@ -426,9 +426,9 @@ class PerformanceSummary(generics.ListAPIView):
         signature_data = (PerformanceSignature.objects
                                               .select_related('framework', 'repository', 'platform', 'push', 'job')
                                               .filter(repository__name=repository_name))
-
-        if signature:
-            signature_data = signature_data.filter(id=signature)
+        print(signature)
+        if len(signature):
+            signature_data = signature_data.filter(id__in=list(signature))
         else:
             signature_data = signature_data.filter(parent_signature__isnull=no_subtests)
 
