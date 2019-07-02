@@ -196,8 +196,8 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     all_data = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
-        if data['revision'] is None and (data['startday'] is None or data['endday'] is None):
-            raise serializers.ValidationError('Required: revision or startday and endday.')
+        if data['revision'] is None and data['interval'] is None and (data['startday'] is None or data['endday'] is None):
+            raise serializers.ValidationError('Required: revision, startday and endday or interval.')
 
         return data
 

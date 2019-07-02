@@ -454,6 +454,9 @@ class PerformanceSummary(generics.ListAPIView):
 
         if revision:
             data = data.filter(push__revision=revision)
+        elif interval and not startday and not endday:
+            data = data.filter(push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                                                   int(time.time() - int(interval))))
         else:
             data = data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
