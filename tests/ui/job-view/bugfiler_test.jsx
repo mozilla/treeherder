@@ -1,10 +1,10 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount } from 'enzyme/build';
 import { fetchMock } from 'fetch-mock';
 
-import { hgBaseUrl, bzBaseUrl } from '../../../../ui/helpers/url';
-import { isReftest } from '../../../../ui/helpers/job';
-import { BugFilerClass } from '../../../../ui/job-view/details/BugFiler';
+import { hgBaseUrl, bzBaseUrl } from '../../../ui/helpers/url';
+import { isReftest } from '../../../ui/helpers/job';
+import { BugFilerClass } from '../../../ui/job-view/details/BugFiler';
 
 describe('BugFiler', () => {
   const fullLog =

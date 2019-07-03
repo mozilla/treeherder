@@ -1,6 +1,6 @@
 import React from 'react';
 import { fetchMock } from 'fetch-mock';
-import { mount } from 'enzyme';
+import { mount } from 'enzyme/build';
 
 import { getProjectUrl } from '../../../../ui/helpers/location';
 import { PushesClass } from '../../../../ui/job-view/context/Pushes';
@@ -44,7 +44,11 @@ describe('Pushes context', () => {
      */
   test('should have 2 pushes', async () => {
     const pushes = mount(
-      <PushesClass filterModel={new FilterModel()} notify={() => {}}>
+      <PushesClass
+        filterModel={new FilterModel()}
+        notify={() => {}}
+        setSelectedJob={() => {}}
+      >
         <div />
       </PushesClass>,
     );
@@ -54,7 +58,11 @@ describe('Pushes context', () => {
 
   test('should have id of 1 in current repo', async () => {
     const pushes = mount(
-      <PushesClass filterModel={new FilterModel()} notify={() => {}}>
+      <PushesClass
+        filterModel={new FilterModel()}
+        notify={() => {}}
+        setSelectedJob={() => {}}
+      >
         <div />
       </PushesClass>,
     );

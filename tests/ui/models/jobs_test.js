@@ -1,10 +1,10 @@
 import { fetchMock } from 'fetch-mock';
 
-import JobModel from '../../../../ui/models/job';
-import { getProjectUrl } from '../../../../ui/helpers/location';
-import jobListFixtureOne from '../../mock/job_list/job_1';
-import paginatedJobListFixtureOne from '../../mock/job_list/pagination/page_1';
-import paginatedJobListFixtureTwo from '../../mock/job_list/pagination/page_2';
+import JobModel from '../../../ui/models/job';
+import { getProjectUrl } from '../../../ui/helpers/location';
+import jobListFixtureOne from '../mock/job_list/job_1';
+import paginatedJobListFixtureOne from '../mock/job_list/pagination/page_1';
+import paginatedJobListFixtureTwo from '../mock/job_list/pagination/page_2';
 
 describe('JobModel', () => {
   afterEach(() => {

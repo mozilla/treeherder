@@ -1,12 +1,12 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount } from 'enzyme/build';
 
-import RepositoryModel from '../../../../ui/models/repository';
-import { Revision, Initials } from '../../../../ui/job-view/pushes/Revision';
+import RepositoryModel from '../../../ui/models/repository';
+import { Revision, Initials } from '../../../ui/job-view/pushes/Revision';
 import {
   RevisionList,
   MoreRevisionsLink,
-} from '../../../../ui/job-view/pushes/RevisionList';
+} from '../../../ui/job-view/pushes/RevisionList';
 
 describe('Revision list component', () => {
   let mockData;

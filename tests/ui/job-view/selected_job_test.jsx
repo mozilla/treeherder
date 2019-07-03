@@ -7,12 +7,12 @@ import {
   waitForElement,
 } from '@testing-library/react';
 
-import PushJobs from '../../../../ui/job-view/pushes/PushJobs';
-import FilterModel from '../../../../ui/models/filter';
-import { store } from '../../../../ui/job-view/redux/store';
-import { PinnedJobs } from '../../../../ui/job-view/context/PinnedJobs';
-import { getUrlParam, setUrlParam } from '../../../../ui/helpers/location';
-import JobModel from '../../../../ui/models/job';
+import PushJobs from '../../../ui/job-view/pushes/PushJobs';
+import FilterModel from '../../../ui/models/filter';
+import { store } from '../../../ui/job-view/redux/store';
+import { PinnedJobs } from '../../../ui/job-view/context/PinnedJobs';
+import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
+import JobModel from '../../../ui/models/job';
 
 const testPush = {
   id: 494796,
