@@ -7,10 +7,10 @@ import { Provider } from 'react-redux';
 
 import { thFavicons } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
-import { allFilterParams, matchesDefaults } from '../helpers/filter';
+import { hasUrlFilterChanges, matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
-import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
+import { deployedRevisionUrl } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
@@ -211,14 +211,6 @@ class App extends React.Component {
 
   handleUrlChanges = ev => {
     const { newURL, oldURL } = ev;
-    const oldFilters = pick(
-      parseQueryParams(oldURL.split('?')[1]),
-      allFilterParams,
-    );
-    const newFilters = pick(
-      parseQueryParams(newURL.split('?')[1]),
-      allFilterParams,
-    );
     const urlParams = getAllUrlParams();
     // We only want to set state if any of these or the filter values have changed
     const newState = {
@@ -229,7 +221,7 @@ class App extends React.Component {
     const oldState = pick(this.state, Object.keys(newState));
 
     // Only re-create the FilterModel if url params that affect it have changed.
-    if (!isEqual(oldFilters, newFilters)) {
+    if (hasUrlFilterChanges(oldURL, newURL)) {
       this.setState({ filterModel: new FilterModel() });
     }
     if (!isEqual(newState, oldState)) {
