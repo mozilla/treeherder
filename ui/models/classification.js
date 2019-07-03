@@ -2,7 +2,7 @@ import { destroy, create } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams } from '../helpers/url';
 
-const uri = getProjectUrl('/note/');
+const uri = '/note/';
 
 export default class JobClassificationModel {
   // JobClassificationModel is the js counterpart of note
@@ -11,18 +11,19 @@ export default class JobClassificationModel {
   }
 
   static getList(params) {
-    return fetch(`${uri}${createQueryParams(params)}`).then(resp =>
-      resp
-        .json()
-        .then(data => data.map(elem => new JobClassificationModel(elem))),
+    return fetch(`${getProjectUrl(uri)}${createQueryParams(params)}`).then(
+      resp =>
+        resp
+          .json()
+          .then(data => data.map(elem => new JobClassificationModel(elem))),
     );
   }
 
   create() {
-    return create(uri, this);
+    return create(getProjectUrl(uri), this);
   }
 
   destroy() {
-    return destroy(`${uri}${this.id}/`);
+    return destroy(`${getProjectUrl(uri)}${this.id}/`);
   }
 }
