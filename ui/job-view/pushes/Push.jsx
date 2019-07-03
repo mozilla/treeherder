@@ -27,7 +27,7 @@ import { RevisionList } from './RevisionList';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
-class Push extends React.Component {
+class Push extends React.PureComponent {
   constructor(props) {
     super(props);
 

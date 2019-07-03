@@ -11,7 +11,6 @@ import { getSelectedJobId } from '../../helpers/location';
 import { didObjectsChange } from '../../helpers/object';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
-import { withPushes } from '../context/Pushes';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 
 import Platform from './Platform';
@@ -156,4 +155,4 @@ PushJobs.propTypes = {
 export default connect(
   null,
   { setSelectedJob },
-)(withPushes(withPinnedJobs(PushJobs)));
+)(withPinnedJobs(PushJobs));
