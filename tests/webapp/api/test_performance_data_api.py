@@ -397,7 +397,9 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         'name': 'mysuite mytest opt e10s opt',
         'parent_signature': None,
         'job_ids': [test_perf_data[0].job_id],
-        'suite': test_perf_signature.suite
+        'suite': test_perf_signature.suite,
+        'repository_name': test_perf_signature.repository.name,
+        'repository_id': test_perf_signature.repository.id,
     }]
 
     resp1 = client.get(reverse('performance-summary') + query_params1)

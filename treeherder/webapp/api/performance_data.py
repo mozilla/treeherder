@@ -445,7 +445,7 @@ class PerformanceSummary(generics.ListAPIView):
         # TODO signature_hash is being returned for legacy support - should be removed at some point
         self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
                                                'signature_hash', 'platform__platform', 'test', 'option_collection_id',
-                                               'parent_signature_id'))
+                                               'parent_signature_id', 'repository_id'))
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 
@@ -468,6 +468,7 @@ class PerformanceSummary(generics.ListAPIView):
             for item in self.queryset:
                 item['data'] = data.values('value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision').order_by('push_timestamp')
                 item['option_name'] = option_collection_map[item['option_collection_id']]
+                item['repository_name'] = repository_name
 
         else:
             grouped_values = defaultdict(list)
@@ -482,6 +483,7 @@ class PerformanceSummary(generics.ListAPIView):
                 item['values'] = grouped_values.get(item['id'], [])
                 item['job_ids'] = grouped_job_ids.get(item['id'], [])
                 item['option_name'] = option_collection_map[item['option_collection_id']]
+                item['repository_name'] = repository_name
 
         serializer = self.get_serializer(self.queryset, many=True)
         return Response(data=serializer.data)

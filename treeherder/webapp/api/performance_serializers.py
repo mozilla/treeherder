@@ -229,12 +229,13 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     signature_id = serializers.IntegerField(source="id")
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     data = PerformanceDatumSerializer(read_only=True, many=True)
+    repository_name = serializers.CharField()
 
     class Meta:
         model = PerformanceSignature
         fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
                   'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids',
-                  'data']
+                  'repository_name', 'repository_id', 'data']
 
     def get_name(self, value):
         test = value['test']
