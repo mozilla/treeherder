@@ -266,7 +266,8 @@ python-jose[pycryptodome]==3.0.1 \
     --hash=sha256:29701d998fe560e52f17246c3213a882a4a39da7e42c7015bcc1f7823ceaff1c \
     --hash=sha256:ed7387f0f9af2ea0ddc441d83a6eb47a5909bd0c8a72ac3250e75afec2cc1371
 
-taskcluster-urls==11.0.0
+taskcluster-urls==11.0.0 \
+    --hash=sha256:2aceab7cf5b1948bc197f2e5e50c371aa48181ccd490b8bada00f1e3baf0c5cc
 
 # Used by python-jose
 rsa==4.0 \
