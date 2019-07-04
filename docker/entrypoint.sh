@@ -9,9 +9,9 @@ set -euo pipefail
 DATABASE_HOST='mysql'
 DATABASE_PORT='3306'
 
-while ! nc -z "${DATABASE_HOST}" "${DATABASE_PORT}" &> /dev/null; do
-    echo '-----> Waiting for MySQL server to be ready'
-    sleep 1;
-done
+# while ! nc -z "${DATABASE_HOST}" "${DATABASE_PORT}" &> /dev/null; do
+#     echo '-----> Waiting for MySQL server to be ready'
+#     sleep 1;
+# done
 
 exec "$@"
