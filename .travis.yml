@@ -5,58 +5,12 @@ services:
   - docker
 matrix:
   include:
-    - env: js-tests
-      language: node_js
-      # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '11'
-      cache:
-        directories:
-          - node_modules
-      install:
-        - yarn install --frozen-lockfile
-      script:
-        # `yarn build` is tested as part of the Selenium job.
-        - yarn lint
-        # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
-        - yarn format:check
-        - yarn test
-
-    - env: python-linters
-      language: minimal
-      install:
-        - docker-compose build
-      script:
-        - docker-compose run backend ./runtests.sh
-
     - env: python-tests-main
       language: minimal
       install:
         - docker-compose build
       script:
-        # Several security features in settings.py (eg setting HSTS headers) are conditional on
-        # 'https://' being in the site URL. In addition, we override the test environment's debug
-        # value so the tests pass. The real environment variable will be checked during deployment.
-        - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
-        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
-
-    - env: python-tests-selenium
-      language: node_js
-      # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '11'
-      cache:
-        directories:
-          - node_modules
-      before_install:
-        - docker-compose build
-      install:
-        - yarn install
-      before_script:
-        # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
-        - yarn build
-      script:
-        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend python -bb -m pytest tests/selenium/
+        - docker-compose run backend bash -c "pip freeze | grep taskcluster-urls"
 
 notifications:
   email:
