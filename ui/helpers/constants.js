@@ -113,6 +113,7 @@ export const thPlatformMap = {
   'android-em-7-0-x86_64-release': 'Android 7.0 x86-64 Release',
   'android-hw-g5-7-0-arm7-api-16': 'Android 7.0 MotoG5',
   'android-hw-p2-8-0-arm7-api-16': 'Android 8.0 Pixel2',
+  'android-hw-p2-8-0-arm7-api-16-qr': 'Android 8.0 Pixel2 QuantumRender',
   'android-hw-p2-8-0-arm7-api-16-nightly': 'Android 8.0 Pixel2 Nightly',
   'android-hw-p2-8-0-android-aarch64': 'Android 8.0 Pixel2 AArch64',
   'android-hw-p2-8-0-android-aarch64-nightly':
