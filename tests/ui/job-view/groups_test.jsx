@@ -1,12 +1,12 @@
 /* eslint-disable jest/prefer-to-have-length */
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
-import { mount } from 'enzyme';
+import { mount } from 'enzyme/build';
 
-import { JobGroupComponent } from '../../../../ui/job-view/pushes/JobGroup';
-import FilterModel from '../../../../ui/models/filter';
-import mappedGroupFixture from '../../mock/mappedGroup';
-import mappedGroupDupsFixture from '../../mock/mappedGroupDups';
+import { JobGroupComponent } from '../../../ui/job-view/pushes/JobGroup';
+import FilterModel from '../../../ui/models/filter';
+import mappedGroupFixture from '../mock/mappedGroup';
+import mappedGroupDupsFixture from '../mock/mappedGroupDups';
 
 describe('JobGroup component', () => {
   let countGroup;

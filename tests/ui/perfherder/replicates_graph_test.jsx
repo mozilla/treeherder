@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, cleanup, waitForElement } from '@testing-library/react';
 
-import ReplicatesGraph from '../../../../ui/perfherder/compare/ReplicatesGraph';
-import { noDataFoundMessage } from '../../../../ui/perfherder/constants';
+import ReplicatesGraph from '../../../ui/perfherder/compare/ReplicatesGraph';
+import { noDataFoundMessage } from '../../../ui/perfherder/constants';
 
 // TODO addtional tests:
 const TEST_SUITE_NAME = 'testSuiteName';

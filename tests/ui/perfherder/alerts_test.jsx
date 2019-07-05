@@ -8,9 +8,9 @@ import {
   wait,
 } from '@testing-library/react';
 
-import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
-import optionCollectionMap from '../../mock/optionCollectionMap';
-import { summaryStatusMap } from '../../../../ui/perfherder/constants';
+import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
+import optionCollectionMap from '../mock/optionCollectionMap';
+import { summaryStatusMap } from '../../../ui/perfherder/constants';
 
 const testUser = {
   username: 'test user',

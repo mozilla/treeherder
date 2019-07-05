@@ -7,8 +7,8 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
-import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
-import { filterText } from '../../../../ui/perfherder/constants';
+import CompareTableControls from '../../../ui/perfherder/compare/CompareTableControls';
+import { filterText } from '../../../ui/perfherder/constants';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
