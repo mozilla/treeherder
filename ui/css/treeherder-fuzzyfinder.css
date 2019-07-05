@@ -2,6 +2,14 @@
  * Fuzzy runnable job finder
  */
 
+.fuzzy-modal #preset-group > * {
+  margin: 1px;
+}
+
+.fuzzy-modal #preset-group label {
+  margin-top: 5px;
+}
+
 .fuzzy-modal .modal-body #addJobsGroup option.selected::before {
   content: '• ';
   color: red;
@@ -16,9 +24,13 @@ div.fuzzybuttons {
 }
 
 .fuzzy-modal .modal-body #addJobsGroup {
-  height: 30vh;
+  height: 28vh;
 }
 
 .fuzzy-modal .modal-body #removeJobsGroup {
-  height: 29vh;
+  height: 28vh;
+}
+
+.fuzzy-modal #save-presets {
+  float: right !important;
 }

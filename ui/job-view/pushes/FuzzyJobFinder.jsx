@@ -25,6 +25,7 @@ class FuzzyJobFinder extends React.Component {
     super(props);
 
     this.state = {
+      presets: {},
       fuzzySearch: '',
       fuzzyList: [],
       selectedList: [],
@@ -32,6 +33,10 @@ class FuzzyJobFinder extends React.Component {
       addDisabled: true,
       submitDisabled: false,
     };
+  }
+
+  componentDidMount() {
+    this.loadPresets();
   }
 
   /*
@@ -102,16 +107,25 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
-  addJobs = evt => {
+  addJobs = (evt, preset) => {
     const { selectedList } = this.state;
     const { addJobsSelected } = this.state;
+    const { presets } = this.state;
+    const { selectedPreset } = this.state;
+    let jobsToBeAdded;
+
+    if (preset) {
+      jobsToBeAdded = presets[selectedPreset];
+    } else {
+      jobsToBeAdded = addJobsSelected;
+      evt.target.parentNode.previousElementSibling.selectedIndex = -1;
+    }
 
     // When adding jobs, add only new, unique job names to avoid duplicates
     const newSelectedList = [
-      ...new Set([].concat(selectedList, addJobsSelected)),
+      ...new Set([].concat(selectedList, jobsToBeAdded)),
     ];
     this.setState({ selectedList: newSelectedList });
-    evt.target.parentNode.previousElementSibling.selectedIndex = -1;
   };
 
   removeJobs = () => {
@@ -127,6 +141,51 @@ class FuzzyJobFinder extends React.Component {
         removeDisabled: true,
       });
     });
+  };
+
+  loadPresets = () => {
+    try {
+      const savedPresets =
+        JSON.parse(localStorage.getItem('saved-presets')) || {};
+      this.setState({ presets: savedPresets });
+    } catch (e) {
+      // localStorage is disabled/not supported.
+    }
+  };
+
+  deletePreset = () => {
+    try {
+      const savedPresets =
+        JSON.parse(localStorage.getItem('saved-presets')) || {};
+      delete savedPresets[this.state.selectedPreset];
+      localStorage.setItem('saved-presets', JSON.stringify(savedPresets));
+      this.setState({ presets: savedPresets, selectedPreset: '' });
+    } catch (e) {
+      // localStorage is disabled/not supported.
+    }
+  };
+
+  savePreset = () => {
+    const presetName = window.prompt('Name for this preset?');
+
+    try {
+      const savedPresets =
+        JSON.parse(localStorage.getItem('saved-presets')) || {};
+      if (savedPresets[presetName]) {
+        if (
+          window.confirm('Preset of this name already exists. Overwrite it?')
+        ) {
+          savedPresets[presetName] = this.state.selectedList;
+          localStorage.setItem('saved-presets', JSON.stringify(savedPresets));
+        }
+      } else {
+        savedPresets[presetName] = this.state.selectedList;
+        localStorage.setItem('saved-presets', JSON.stringify(savedPresets));
+      }
+      this.setState({ presets: savedPresets });
+    } catch (e) {
+      // localStorage is disabled/not supported.
+    }
   };
 
   submitJobs = () => {
@@ -183,6 +242,12 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
+  updatePresetSelection = evt => {
+    this.setState({
+      selectedPreset: evt.target.selectedOptions[0].textContent,
+    });
+  };
+
   updateRemoveButton = evt => {
     const selectedOptions = Array.from(
       evt.target.selectedOptions,
@@ -207,6 +272,39 @@ class FuzzyJobFinder extends React.Component {
         >
           <ModalHeader>Add New Jobs (Search)</ModalHeader>
           <ModalBody>
+            <InputGroup id="preset-group">
+              <Label htmlFor="preset-select">Saved Presets:</Label>
+              <Input
+                bsSize="sm"
+                type="select"
+                id="preset-select"
+                onChange={this.updatePresetSelection}
+              >
+                <option value=""></option>
+                {Object.keys(this.state.presets)
+                  .sort()
+                  .map(e => (
+                    <option key={e} title={this.state.presets[e].join('\n')}>
+                      {e}
+                    </option>
+                  ))}
+              </Input>
+              <Button
+                onClick={evt => this.addJobs(evt, true)}
+                size="sm"
+                color="success"
+              >
+                Add to Selection
+              </Button>
+              <Button
+                size="sm"
+                color="danger"
+                disabled={this.state.selectedPreset === ''}
+                onClick={this.deletePreset}
+              >
+                Delete Preset
+              </Button>
+            </InputGroup>
             <FormGroup row>
               <Col sm={10}>
                 <Input
@@ -274,6 +372,17 @@ class FuzzyJobFinder extends React.Component {
               >
                 Remove all
               </Button>
+              <Button
+                id="save-presets"
+                color="primary"
+                onClick={this.savePreset}
+                disabled={
+                  this.state.selectedList.length === 0 ||
+                  this.state.submitDisabled
+                }
+              >
+                Save Selected Jobs as Preset
+              </Button>
             </div>
             <InputGroup id="removeJobsGroup">
               <Input type="select" multiple onChange={this.updateRemoveButton}>
@@ -287,7 +396,7 @@ class FuzzyJobFinder extends React.Component {
           </ModalBody>
           <ModalFooter>
             <Button
-              color="primary"
+              color="success"
               onClick={this.submitJobs}
               disabled={
                 this.state.selectedList.length === 0 ||
