@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 import { getStatus } from '../../../helpers/job';
 
@@ -26,6 +25,4 @@ StatusPanel.propTypes = {
   selectedJob: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
-export default connect(mapStateToProps)(StatusPanel);
+export default StatusPanel;

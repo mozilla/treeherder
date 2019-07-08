@@ -655,9 +655,7 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
 export default connect(
-  mapStateToProps,
+  null,
   { notify, setSelectedJob },
 )(withPushes(withPinnedJobs(PinBoard)));

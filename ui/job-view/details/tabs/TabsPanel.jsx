@@ -286,9 +286,7 @@ TabsPanel.defaultProps = {
   reftestUrl: null,
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
 export default connect(
-  mapStateToProps,
+  null,
   { clearSelectedJob },
 )(withPinnedJobs(TabsPanel));

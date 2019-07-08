@@ -356,6 +356,7 @@ class DetailsPanel extends React.Component {
         {!!selectedJob && (
           <div id="details-panel-content">
             <SummaryPanel
+              selectedJob={selectedJob}
               repoName={repoName}
               currentRepo={currentRepo}
               classificationMap={classificationMap}
@@ -372,6 +373,7 @@ class DetailsPanel extends React.Component {
             />
             <span className="job-tabs-divider" />
             <TabsPanel
+              selectedJob={selectedJob}
               jobDetails={jobDetails}
               perfJobDetail={perfJobDetail}
               repoName={repoName}

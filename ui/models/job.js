@@ -9,7 +9,7 @@ import { getProjectUrl } from '../helpers/location';
 import PushModel from './push';
 import TaskclusterModel from './taskcluster';
 
-const uri = getProjectUrl('/jobs/');
+const uri = '/jobs/';
 
 // JobModel is the js counterpart of job
 export default class JobModel {
@@ -52,7 +52,7 @@ export default class JobModel {
     // The `uri` config allows to fetch a list of jobs from an arbitrary
     // endpoint e.g. the similar jobs endpoint. It defaults to the job
     // list endpoint.
-    const jobUri = config.uri || uri;
+    const jobUri = config.uri || getProjectUrl(uri);
 
     return fetch(`${jobUri}${options ? createQueryParams(options) : ''}`).then(
       async resp => {
@@ -94,21 +94,23 @@ export default class JobModel {
 
   static get(repoName, pk, signal) {
     // a static method to retrieve a single instance of JobModel
-    return fetch(`${uri}${pk}/`, { signal }).then(async response => {
-      if (response.ok) {
-        const job = await response.json();
-        return new JobModel(job);
-      }
-      const text = await response.text();
-      throw Error(`Loading job with id ${pk} : ${text}`);
-    });
+    return fetch(`${getProjectUrl(uri)}${pk}/`, { signal }).then(
+      async response => {
+        if (response.ok) {
+          const job = await response.json();
+          return new JobModel(job);
+        }
+        const text = await response.text();
+        throw Error(`Loading job with id ${pk} : ${text}`);
+      },
+    );
   }
 
   static getSimilarJobs(pk, options, config) {
     config = config || {};
     // The similar jobs endpoints returns the same type of objects as
     // the job list endpoint, so let's reuse the getList method logic.
-    config.uri = `${uri}${pk}/similar_jobs/`;
+    config.uri = `${getProjectUrl(uri)}${pk}/similar_jobs/`;
     return JobModel.getList(options, config);
   }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -39,6 +38,7 @@ class SummaryPanel extends React.PureComponent {
     return (
       <div id="summary-panel" role="region" aria-label="Summary">
         <ActionBar
+          selectedJob={selectedJob}
           repoName={repoName}
           logParseStatus={logParseStatus}
           isTryRepo={currentRepo.is_try_repo}
@@ -72,7 +72,7 @@ class SummaryPanel extends React.PureComponent {
                   currentRepo={currentRepo}
                 />
               )}
-              <StatusPanel />
+              <StatusPanel selectedJob={selectedJob} />
               <JobInfo job={selectedJob} extraFields={logStatus} />
             </ul>
           </div>
@@ -88,7 +88,7 @@ SummaryPanel.propTypes = {
   user: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJob: PropTypes.object.isRequired,
   latestClassification: PropTypes.object,
   jobLogUrls: PropTypes.array,
   jobDetailLoading: PropTypes.bool,
@@ -98,7 +98,6 @@ SummaryPanel.propTypes = {
 };
 
 SummaryPanel.defaultProps = {
-  selectedJob: null,
   latestClassification: null,
   jobLogUrls: [],
   jobDetailLoading: false,
@@ -107,6 +106,4 @@ SummaryPanel.defaultProps = {
   logViewerFullUrl: null,
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
-export default connect(mapStateToProps)(SummaryPanel);
+export default SummaryPanel;

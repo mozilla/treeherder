@@ -1,4 +1,8 @@
+import pick from 'lodash/pick';
+import isEqual from 'lodash/isEqual';
+
 import { thFailureResults } from './constants';
+import { parseQueryParams } from './url';
 
 // used with field-filters to determine how to match the value against the
 // job field.
@@ -90,6 +94,22 @@ export const getFieldChoices = function getFieldChoices() {
 
   delete choices.searchStr;
   return choices;
+};
+
+export const hasUrlFilterChanges = function hasUrlFilterChanges(
+  oldURL,
+  newURL,
+) {
+  const oldFilters = pick(
+    parseQueryParams(oldURL.split('?')[1]),
+    allFilterParams,
+  );
+  const newFilters = pick(
+    parseQueryParams(newURL.split('?')[1]),
+    allFilterParams,
+  );
+
+  return !isEqual(oldFilters, newFilters);
 };
 
 // DEPRECATED: Used to convert from old filter format to new.
