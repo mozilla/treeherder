@@ -16,6 +16,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
@@ -37,6 +38,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
+            "type": "defect",
             "product": "Bugzilla",
             "component": "Administration",
             "summary": u"Intermittent summary",
@@ -60,6 +62,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"**Filed by:** {}\nIntermittent “description” string".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
@@ -81,6 +84,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
+            "type": "defect",
             "product": "Bugzilla",
             "component": "Administration",
             "summary": u"Intermittent “summary”",
@@ -104,6 +108,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
         assert requestdata['component'] == "Administration"
@@ -128,6 +133,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
+            "type": "defect",
             "product": "Bugzilla",
             "component": "Administration",
             "summary": u"Intermittent summary",
@@ -154,6 +160,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"**Filed by:** MyName\nIntermittent Description"
         assert requestdata['component'] == "Administration"
@@ -176,6 +183,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
+            "type": "defect",
             "product": "Bugzilla",
             "component": "Administration",
             "summary": u"Intermittent summary",
@@ -202,6 +210,7 @@ def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activa
         requestdata = json.loads(request.body)
         requestheaders = request.headers
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
+        assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
         assert requestdata['description'] == u"**Filed by:** MyName\nIntermittent Description"
         assert requestdata['component'] == "Administration"
@@ -228,6 +237,7 @@ def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activa
     resp = client.post(
         reverse("bugzilla-create-bug"),
         {
+            "type": "defect",
             "product": "Bugzilla",
             "component": "Administration",
             "summary": u"Intermittent summary",

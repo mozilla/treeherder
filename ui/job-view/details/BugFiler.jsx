@@ -442,6 +442,7 @@ export class BugFilerClass extends React.Component {
           .filter(prodVer => prodVer.is_active)
           .slice(-1)[0];
         const payload = {
+          type: 'defect',
           product,
           component,
           summary,
