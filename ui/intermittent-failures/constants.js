@@ -42,5 +42,6 @@ export const treeOptions = [
   'firefox-releases',
   'comm-central',
   'comm-esr60',
+  'comm-esr68',
   'comm-releases',
 ];
