@@ -87,12 +87,8 @@ export class AlertsView extends React.Component {
   };
 
   navigatePage = page => {
-    const { framework, status } = this.state;
-    this.props.$state.go('alerts', {
-      page,
-      framework: framework.id,
-      status: summaryStatusMap[status],
-    });
+    this.setState({ page }, this.fetchAlertSummaries);
+    this.props.validated.updateParams({ page });
   };
 
   getCurrentPages = () => {
