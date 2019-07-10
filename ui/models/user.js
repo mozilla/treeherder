@@ -9,7 +9,6 @@ export default class UserModel {
   }
 
   static get() {
-    // TODO: The credentials param can be removed in July once Firefox 62 ships and it is the default.
     return fetch(`${uri}`).then(resp =>
       resp.json().then(data => (data.length > 0 ? new UserModel(data[0]) : {})),
     );
