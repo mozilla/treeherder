@@ -105,20 +105,17 @@ also be configured in the environment like so:
 `PULSE_JOB_SOURCES` defines a list of exchanges with projects.
 
 ```bash
-export PULSE_JOB_SOURCES="exchange/taskcluster-treeherder/v1/jobs.mozilla-central:mozilla-inbound,exchange/fxtesteng/jobs.#",
+export PULSE_JOB_SOURCES="exchange/taskcluster-treeherder/v1/jobs.mozilla-central:mozilla-inbound",
 ```
 
-In this example we've defined two exchanges:
+In this example we've defined one exchange:
 
 - `exchange/taskcluster-treeherder/v1/jobs`
-- `exchange/fxtesteng/jobs`
 
 The taskcluster-treeherder exchange defines two projects:
 
 - `mozilla-central`
 - `mozilla-inbound`
-
-The `fxtesteng` exchange defines a wildcard (`#`) for its project.
 
 When Jobs are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending `#.` to each project key.
 

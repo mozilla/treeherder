@@ -19,7 +19,6 @@ job_sources = env.list(
     "PULSE_JOB_SOURCES",
     default=[
         "exchange/taskcluster-treeherder/v1/jobs.#",
-        "exchange/fxtesteng/jobs.#",
         # ... other CI systems
     ],
 )
