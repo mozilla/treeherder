@@ -40,6 +40,7 @@ class BugzillaViewSet(viewsets.ViewSet):
             'Accept': 'application/json'
         }
         data = {
+            'type': "defect",
             'product': params.get("product"),
             'component': params.get("component"),
             'summary': summary,
