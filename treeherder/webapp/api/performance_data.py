@@ -426,7 +426,7 @@ class PerformanceSummary(generics.ListAPIView):
         signature_data = (PerformanceSignature.objects
                                               .select_related('framework', 'repository', 'platform', 'push', 'job')
                                               .filter(repository__name=repository_name))
-        print(signature)
+
         if len(signature):
             signature_data = signature_data.filter(id__in=list(signature))
         else:
