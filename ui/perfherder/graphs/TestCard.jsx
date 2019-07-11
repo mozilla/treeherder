@@ -22,10 +22,10 @@ export class TestContainer extends React.Component {
   render() {
     const { series, addTestData, removeSeries } = this.props;
     const { checked } = this.state;
-    const subtitleStyle = 'p-0 mb-0 border-0 text-muted text-left';
+    const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
 
     return (
-      <FormGroup check className="pl-0">
+      <FormGroup check className="pl-0 border">
         <span
           className="close mr-3 my-2 ml-2"
           onClick={() => removeSeries(series.projectName, series.signature)}
@@ -37,11 +37,13 @@ export class TestContainer extends React.Component {
             title=""
           />
         </span>
-        <div className="graph-legend-card border p-3">
+        <div
+          className={`${
+            checked ? series.color[0] : 'border-secondary'
+          } graph-legend-card p-3`}
+        >
           <p
-            className={`p-0 mb-0 pointer border-0 ${
-              checked ? series.color : 'text-muted'
-            } text-left`}
+            className="p-0 mb-0 border-0 text-left"
             onClick={() => addTestData('addRelatedConfigs', series.signature)}
             title="Add related configurations"
             type="button"
@@ -64,7 +66,10 @@ export class TestContainer extends React.Component {
           >
             {series.platform}
           </p>
-          <span className="small">{`${series.signature.slice(0, 16)}...`}</span>
+          <span className="small text-muted">{`${series.signature.slice(
+            0,
+            16,
+          )}...`}</span>
         </div>
         <Input
           className="show-hide-check"

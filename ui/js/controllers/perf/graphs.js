@@ -35,8 +35,9 @@ perf.controller('GraphsCtrl', [
     '$window', '$q', '$timeout',
     function GraphsCtrl($state, $stateParams, $scope, $rootScope,
         $uibModal, $window, $q, $timeout) {
-        const availableColors = ['darkseagreen', 'lightseagreen', 'darkslateblue', 'darkgreen', 'steelblue', 'darkorchid', 'blue', 'darkcyan'];
-    
+        const availableColors = [['magenta', '#e252cf'], ['blue', '#1752b8'], ['darkorchid', '#9932cc'], ['brown', '#b87e17'],
+            ['green', '#19a572'], ['turquoise', '#17a2b8'], ['scarlet', '#b81752']];
+        
         $scope.highlightedRevisions = [undefined, undefined];
         $scope.highlightAlerts = true;
         $scope.loadingGraphs = false;
@@ -633,7 +634,7 @@ perf.controller('GraphsCtrl', [
                     series.flotSeries = {
                         lines: { show: false },
                         points: { show: series.visible },
-                        color: series.color,
+                        color: series.color[1],
                         label: series.projectName + ' ' + series.name,
                         data: map(
                             seriesData[series.signature],
