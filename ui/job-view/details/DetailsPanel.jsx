@@ -352,6 +352,7 @@ class DetailsPanel extends React.Component {
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
+          selectedJob={selectedJob}
         />
         {!!selectedJob && (
           <div id="details-panel-content">
