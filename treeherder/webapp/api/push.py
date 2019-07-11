@@ -272,12 +272,16 @@ class PushViewSet(viewsets.ViewSet):
         job_type = JobType.objects.get(name='Gecko Decision Task')
         decision_jobs = Job.objects.filter(
             push_id__in=push_ids,
-            job_type=job_type
+            job_type=job_type,
+            result='success',
         ).select_related('taskcluster_metadata')
 
         if decision_jobs:
             return Response(
-                {job.push_id: job.taskcluster_metadata.task_id for job in decision_jobs}
+                {job.push_id: {
+                    'id': job.taskcluster_metadata.task_id,
+                    'run': job.guid.split('/')[1],
+                } for job in decision_jobs}
             )
         else:
             return Response("No decision tasks found for pushes: {}".format(push_ids),
