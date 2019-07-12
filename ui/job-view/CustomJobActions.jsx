@@ -47,7 +47,10 @@ class CustomJobActions extends React.PureComponent {
 
   async componentDidMount() {
     const { pushId, job, notify } = this.props;
-    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+      pushId,
+      notify,
+    );
 
     TaskclusterModel.load(decisionTaskId, job).then(results => {
       const {

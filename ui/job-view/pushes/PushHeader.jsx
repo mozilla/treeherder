@@ -148,7 +148,10 @@ class PushHeader extends React.Component {
       return;
     }
     if (isLoggedIn) {
-      const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+        pushId,
+        notify,
+      );
 
       PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId)
         .then(result => {

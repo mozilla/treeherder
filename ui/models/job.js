@@ -125,7 +125,7 @@ export default class JobModel {
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
-        const decisionTaskId = taskIdMap[key];
+        const decisionTaskId = taskIdMap[key].id;
 
         TaskclusterModel.load(decisionTaskId).then(async results => {
           const actionTaskId = slugid();
@@ -175,7 +175,10 @@ export default class JobModel {
   }
 
   static async cancelAll(pushId, repoName, notify) {
-    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+      pushId,
+      notify,
+    );
     const results = await TaskclusterModel.load(decisionTaskId);
     const cancelAllTask = results.actions.find(
       result => result.name === 'cancel-all',
@@ -212,7 +215,7 @@ export default class JobModel {
 
       /* eslint-disable no-await-in-loop */
       for (const job of jobs) {
-        const decisionTaskId = taskIdMap[job.push_id];
+        const decisionTaskId = taskIdMap[job.push_id].id;
         const results = await TaskclusterModel.load(decisionTaskId, job);
         const cancelTask = results.actions.find(
           result => result.name === 'cancel',

@@ -60,7 +60,10 @@ export default class PushModel {
   }
 
   static async triggerMissingJobs(pushId, notify) {
-    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+      pushId,
+      notify,
+    );
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
@@ -86,7 +89,10 @@ export default class PushModel {
   }
 
   static async triggerAllTalosJobs(times, pushId, notify) {
-    const decisionTaskId = await PushModel.getDecisionTaskId(pushId, notify);
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+      pushId,
+      notify,
+    );
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
