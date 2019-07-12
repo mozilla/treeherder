@@ -231,9 +231,9 @@ idna==2.8 \
 # required for taskcluster
 slugid==2.0.0 --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297
 
-graphene-django==2.3.2 \
-    --hash=sha256:7720a459da5bc99fba251f697c4d41858612bf1a36096326af86739dd31705f3 \
-    --hash=sha256:f155cfbd9d201604c3f681ef6b824cc693263946cfdf9ba140880994285016d4
+graphene-django==2.4.0 \
+    --hash=sha256:5714c5dd1200800ddc12d0782b0d82db70aedf387575e5b57ee2cdee4f25c681 \
+    --hash=sha256:3101e8a8353c6b13f33261f5b0437deb3d3614d1c44b2d56932b158e3660c0cd
 
 # Used by graphene-django
 graphene==2.1.6 \
