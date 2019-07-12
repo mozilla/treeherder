@@ -1131,7 +1131,7 @@
       "name": "fxapom",
       "url": "https://github.com/mozilla/fxapom",
       "branch": "master",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "fxapom",
       "repository_group": 5,
       "description": "Firefox Account Page Object Model"
@@ -1145,7 +1145,7 @@
       "name": "go-bouncer",
       "url": "https://github.com/mozilla-services/go-bouncer",
       "branch": "master",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "go-bouncer",
       "repository_group": 5,
       "description": "Go version of the redirector portion of bouncer"
@@ -1159,7 +1159,7 @@
       "name": "mozillians-tests",
       "url": "https://github.com/mozilla/mozillians-tests",
       "branch": "master",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "mozillians-tests",
       "repository_group": 5,
       "description": "Tests for Mozillians"
@@ -1201,7 +1201,7 @@
       "name": "stubattribution-tests",
       "url": "https://github.com/mozilla/stubattribution-tests",
       "branch": "master",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "stubattribution-tests",
       "repository_group": 5,
       "description": "Tests for the stub attribution service"
