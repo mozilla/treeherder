@@ -82,7 +82,7 @@ class ActionBar extends React.PureComponent {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
-    const decisionTaskId = await PushModel.getDecisionTaskId(
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       selectedJob.push_id,
       notify,
     );
@@ -164,7 +164,7 @@ class ActionBar extends React.PureComponent {
       selectedJob.build_system_type === 'taskcluster' ||
       selectedJob.reason.startsWith('Created by BBB for task')
     ) {
-      const decisionTaskId = await PushModel.getDecisionTaskId(
+      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
         selectedJob.push_id,
         notify,
       );
@@ -197,7 +197,7 @@ class ActionBar extends React.PureComponent {
 
   isolateJob = async () => {
     const { user, selectedJob, notify } = this.props;
-    const decisionTaskId = await PushModel.getDecisionTaskId(
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       selectedJob.push_id,
       notify,
     );
@@ -328,7 +328,7 @@ class ActionBar extends React.PureComponent {
     }
 
     const job = await JobModel.get(repoName, jobId);
-    const decisionTaskId = await PushModel.getDecisionTaskId(
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       job.push_id,
       notify,
     );
