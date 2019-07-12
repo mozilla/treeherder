@@ -17,6 +17,13 @@ const GROUP_ORDER = [
   'other',
 ];
 
+const DEV_GROUP_ORDER = {
+  'mozilla-central': 1,
+  'mozilla-inbound': 2,
+  autoland: 3,
+  try: 4,
+};
+
 export default function ReposMenu(props) {
   const { repos } = props;
   const groups = repos.reduce(
@@ -26,7 +33,14 @@ export default function ReposMenu(props) {
     }),
     {},
   );
-  const groupedRepos = GROUP_ORDER.map(name => ({ name, repos: groups[name] }));
+  const groupedRepos = GROUP_ORDER.map(name => ({
+    name,
+    repos: groups[name]
+      ? groups[name].sort((a, b) =>
+          DEV_GROUP_ORDER[a.name] > DEV_GROUP_ORDER[b.name] ? 1 : -1,
+        )
+      : null,
+  }));
 
   return (
     <span>
