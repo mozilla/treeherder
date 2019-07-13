@@ -315,10 +315,7 @@ class Push extends React.PureComponent {
     const { push, repoName, notify } = this.props;
 
     try {
-      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-        push.id,
-        notify,
-      );
+      const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
       const jobList = await RunnableJobModel.getList(repoName, {
         decision_task_id: decisionTaskId,
         push_id: push.id,
@@ -365,10 +362,7 @@ class Push extends React.PureComponent {
       test-verify|test-windows10-64-ux|toolchain|upload-generated-sources)`;
 
     try {
-      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-        push.id,
-        notify,
-      );
+      const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
 
       notify('Fetching runnable jobs... This could take a while...');
       let fuzzyJobList = await RunnableJobModel.getList(repoName, {
@@ -391,7 +385,7 @@ class Push extends React.PureComponent {
       this.setState({
         fuzzyJobList,
         filteredFuzzyList,
-        decisionTaskId,
+        decisionTaskId: decisionTaskId.id,
       });
       this.toggleFuzzyModal();
     } catch (error) {

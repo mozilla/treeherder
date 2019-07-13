@@ -269,7 +269,10 @@ class PushViewSet(viewsets.ViewSet):
         Return the decision task ids for the pushes.
         """
         push_ids = request.query_params.getlist('push_ids')
-        job_types = JobType.objects.filter(name__contains='Decision Task')
+        job_types = JobType.objects.filter(
+            name__endswith='Decision Task',
+            symbol='D'
+        )
         decision_jobs = Job.objects.filter(
             push_id__in=push_ids,
             job_type__in=job_types,
