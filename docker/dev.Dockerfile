@@ -37,6 +37,9 @@ RUN curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHE
 ADD . /app
 WORKDIR /app
 
+# There was a bad release of graphql_relay:
+# https://github.com/graphql-python/graphql-relay-py/issues/23
+RUN pip install https://files.pythonhosted.org/packages/5e/b0/b91fadc180544fc9e3c156d7049561fd5f1e2211d26fd29033548fd50934/graphql-relay-0.4.5.tar.gz
 # Common and dev deps installed separately to prove that common.txt works standalone
 # (given that dev.txt is not installed on Heroku)
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
