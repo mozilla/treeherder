@@ -36,7 +36,7 @@
     "d3": "5.9.4",
     "fuse.js": "3.4.5",
     "history": "4.9.0",
-    "jquery": "3.3.1",
+    "jquery": "3.4.0",
     "jquery.flot": "0.8.3",
     "jquery.scrollto": "2.1.2",
     "js-cookie": "2.2.0",
@@ -74,7 +74,8 @@
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
     "webpack": "4.35.0",
-    "webpack-cli": "3.3.5"
+    "webpack-cli": "3.3.5",
+    "snyk": "^1.193.2"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.3",
@@ -106,6 +107,9 @@
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
     "start:stage": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=https://treeherder.allizom.org",
     "test": "node ./node_modules/jest/bin/jest",
-    "test:watch": "node ./node_modules/jest/bin/jest --watch"
-  }
+    "test:watch": "node ./node_modules/jest/bin/jest --watch",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
