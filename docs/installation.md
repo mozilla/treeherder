@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- If you are new to Mozilla or the A-Team, read the [A-Team Bootcamp].
+- If you are new to Mozilla or Treeherder, read the [A-Team Bootcamp].
 - Install [Git]
 - Clone the [treeherder repo] from GitHub.
 
@@ -39,46 +39,6 @@ production site. You do not need to set up the Docker environment unless making 
   ```bash
   $ yarn start:stage
   ```
-
-### Validating JavaScript
-
-We run our JavaScript code in the frontend through [ESLint] to ensure
-that new code has a consistent style and doesn't suffer from common
-errors. ESLint will run automatically when you build the JavaScript code
-or run the development server. A production build will fail if your code
-does not match the style requirements.
-
-To run ESLint by itself, you may run the lint task:
-
-```bash
-$ yarn lint
-```
-
-Or to automatically fix issues found (where possible):
-
-```bash
-$ yarn lint --fix
-```
-
-See the [code style](code_style.md#ui) section for more details.
-
-### Running the Jest front-end unit tests
-
-The unit tests for the UI are run with [Jest].
-
-To run the tests:
-
-- If you haven't already done so, install local dependencies by running `yarn install` from the project root.
-- Then run `yarn test` to execute the tests.
-
-While working on the frontend, you may wish to watch JavaScript files and re-run tests
-automatically when files change. To do this, you may run one of the following commands:
-
-```bash
-$ yarn test:watch
-```
-
-The tests will perform an initial run and then re-execute each time a project file is changed.
 
 ## Server and Full-stack Development
 
@@ -156,18 +116,6 @@ Alternatively, you can `export` that value in your terminal prior to executing
 DATABASE_URL=mysql://user:password@hostname/treeherder docker-compose up
 ```
 
-### Running the Python and Selenium back-end unit tests
-
-```bash
-docker-compose run backend sh -c "./runtests.sh"
-```
-
-or
-
-```bash
-docker-compose run backend python -bb -m pytest tests/
-```
-
 ### Running the ingestion tasks
 
 Ingestion tasks populate the database with version control push logs, queued/running/completed jobs & output from log parsing, as well as maintain a cache of intermittent failure bugs. To run these:
@@ -188,8 +136,7 @@ Ingestion tasks populate the database with version control push logs, queued/run
 <!-- prettier-ignore -->
 !!! warning
     With the end of life of buildbot, this command is no longer able to ingest jobs.
-
-    For now after running it, you will need to manually follow the steps from the
+    For now, after running it, you will need to manually follow the steps from the
     [loading pulse data](pulseload.md) page.
 
 Alternatively, instead of running a full ingestion task, you can process just
