@@ -111,7 +111,7 @@ GraphsViewControls.propTypes = {
     PropTypes.arrayOf(PropTypes.string),
   ]).isRequired,
   updateTimeRange: PropTypes.func.isRequired,
-  hasNoData: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  hasNoData: PropTypes.bool.isRequired,
 };
 
 export default GraphsViewControls;

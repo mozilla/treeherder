@@ -1,36 +1,5 @@
 <div class="container-fluid" ng-cloak>
   <graphs-view update-graphs="updateGraphs"/>
-  <!-- <div class="ph-horizontal-layout">
-    <div id="graph-chooser">
-      <div ng-show="seriesList.length == 0">
-        <p>Nothing here yet</p>
-      </div>
-      <selected-tests-container series-list="seriesList" add-test-data="addTestData" remove-series="removeSeries" show-hide-series="showHideSeries"/>
-    </div>
-    <div id="data-display">
-      <graphs-view-controls timeranges="timeranges" time-range-changed="timeRangeChanged" />
-      <loading data="loadingGraphs"></loading>
-      </div>
-      <div id="graph-bottom" ng-show="seriesList.length > 0">
-        Highlight revisions:
-        <span ng-repeat="highlightedRevision in highlightedRevisions track by $index">
-          <input type="text"
-                 maxlength="40"
-                 ng-change="updateHighlightedRevisions()"
-                 placeholder="hg revision"
-                 ng-model="highlightedRevisions[$index]">
-            <span class="reset-highlight-button" ng-show="highlightedRevisions[$index].length > 0" ng-click="resetHighlight($index)">&#10006;</span>
-          </input>
-        </span>
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-change="updateHighlightedRevisions()" ng-model="highlightAlerts">Highlight alerts</input>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="graph-right-padding"></div>
-  </div> -->
 
   <div id="graph-tooltip" ng-class="{locked: selectedDataPoint}">
     <div class="body">
