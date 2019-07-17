@@ -438,7 +438,9 @@ class PerformanceSummary(generics.ListAPIView):
         if parent_signature:
             signature_data = signature_data.filter(parent_signature_id=parent_signature)
 
-        if interval:
+        # we do this so all relevant signature data is returned even if there isn't performance data
+        # and it's also not needed since this param is used to filter directly on signature_id
+        if interval and not all_data:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
                                                    int(time.time() - int(interval))))
 
