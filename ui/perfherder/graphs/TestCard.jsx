@@ -7,8 +7,10 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 export class TestContainer extends React.Component {
   constructor(props) {
     super(props);
+    const { series } = props;
+
     this.state = {
-      checked: this.props.series.visible,
+      checked: series.visible,
     };
   }
 

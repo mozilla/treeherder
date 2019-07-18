@@ -117,9 +117,7 @@ class Platform extends React.Component {
         title={`${job.jobType.symbol} ${job.failureClassification.name}`}
       >
         <Link
-          to={`/#/jobs?repo=${repo}&revision=${revision}&selectedJob=${
-            job.jobId
-          }`}
+          to={`/#/jobs?repo=${repo}&revision=${revision}&selectedJob=${job.jobId}`}
           target="_blank"
           rel="noopener"
         >
