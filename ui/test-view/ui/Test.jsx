@@ -28,6 +28,7 @@ const mapStateToProps = ({ groups }) => ({
 class BugCountComponent extends React.Component {
   onClick = () => {
     const { test, bugSuggestions, testName, expanded } = this.props;
+
     store.dispatch(actions.groups.fetchBugsSingleTest(test, bugSuggestions));
     store.dispatch(
       actions.groups.toggleExpanded(
@@ -40,6 +41,7 @@ class BugCountComponent extends React.Component {
 
   render() {
     const { test } = this.props;
+
     return (
       <td className="bug-count" onClick={this.onClick}>
         {// TODO: Clean this up
@@ -111,6 +113,7 @@ class Platform extends React.Component {
 
   render() {
     const { job, repo, revision, platform, option } = this.props;
+
     return (
       <span
         className="platform badge"
@@ -142,6 +145,7 @@ Platform.propTypes = {
 class TestComponent extends React.Component {
   onClick = () => {
     const { test, bugSuggestions, expanded, name } = this.props;
+
     store.dispatch(actions.groups.fetchBugsSingleTest(test, bugSuggestions));
     store.dispatch(
       actions.groups.toggleExpanded(
@@ -154,6 +158,7 @@ class TestComponent extends React.Component {
 
   renderExpanded() {
     const { test, repo, revision, options } = this.props;
+
     return (
       <div className="test-detail-list">
         <div className="bottom-separator">
@@ -238,6 +243,7 @@ class TestComponent extends React.Component {
 
   render() {
     const { name, test, options, repo, revision, expanded } = this.props;
+
     return (
       <td className="test-table">
         <span className="test" onClick={this.onClick}>

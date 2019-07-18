@@ -20,8 +20,8 @@ import SelectorCard from './SelectorCard';
 export default class CompareSelectorView extends React.Component {
   constructor(props) {
     super(props);
-    const { $stateParams } = this.props;
-    this.queryParams = $stateParams;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.queryParams = this.props.$stateParams;
     this.state = {
       projects: [],
       failureStatus: null,

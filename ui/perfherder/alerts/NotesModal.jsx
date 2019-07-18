@@ -16,6 +16,7 @@ export default class NotesModal extends React.Component {
   constructor(props) {
     super(props);
     const { alertSummary } = this.props;
+
     this.state = {
       inputValue: alertSummary.notes,
     };

@@ -10,6 +10,7 @@ import JobsAndGroups from './JobsAndGroups';
 function PlatformName(props) {
   const { title } = props;
   const titleText = title;
+
   return (
     <td className="platform">
       <span title={titleText}>{titleText}</span>

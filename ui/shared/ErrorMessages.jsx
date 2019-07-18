@@ -14,6 +14,7 @@ class ErrorMessages extends React.PureComponent {
   componentDidUpdate(prevProps) {
     const { errorMessages, failureMessage } = this.props;
     const { visible } = this.state;
+
     if (
       (prevProps.errorMessages !== errorMessages ||
         prevProps.failureMessage !== failureMessage) &&

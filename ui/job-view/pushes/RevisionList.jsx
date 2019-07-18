@@ -39,6 +39,7 @@ RevisionList.propTypes = {
 
 export function MoreRevisionsLink(props) {
   const { href } = props;
+
   return (
     <li>
       <a href={href} target="_blank" rel="noopener noreferrer">

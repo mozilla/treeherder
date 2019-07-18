@@ -42,6 +42,7 @@ export default class BugLinkify extends React.Component {
 
   render() {
     const { children } = this.props;
+
     return (
       <ReactLinkify
         properties={{ target: '_blank', rel: 'noopener noreferrer' }}

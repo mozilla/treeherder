@@ -6,6 +6,7 @@ import logUrl from '../../img/logviewerIcon.png';
 
 export default function LogViewer(props) {
   const { repo, job } = props;
+
   return (
     <span className="logviewer badge">
       <Link

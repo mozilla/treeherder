@@ -85,8 +85,8 @@ export default class AlertTable extends React.Component {
   };
 
   filterAlert = alert => {
-    const { filters } = this.props;
-    const { hideImprovements, hideDownstream, filterText } = filters;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { hideImprovements, hideDownstream, filterText } = this.props.filters;
     const { alertSummary } = this.state;
 
     const matchesFilters =

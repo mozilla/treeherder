@@ -53,8 +53,8 @@ export default class CompareTableView extends React.Component {
   }
 
   setTimeRange = () => {
-    const { validated } = this.props;
-    const { selectedTimeRange, originalRevision } = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { selectedTimeRange, originalRevision } = this.props.validated;
 
     if (originalRevision) {
       return null;
@@ -146,8 +146,8 @@ export default class CompareTableView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { validated } = this.props;
-    const { frameworks, updateParams } = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { frameworks, updateParams } = this.props.validated;
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
@@ -155,8 +155,8 @@ export default class CompareTableView extends React.Component {
   };
 
   updateTimeRange = selection => {
-    const { validated } = this.props;
-    const { updateParams } = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { updateParams } = this.props.validated;
     const timeRange = phTimeRanges.find(item => item.text === selection);
 
     updateParams({ selectedTimeRange: timeRange.value });

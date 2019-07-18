@@ -194,8 +194,7 @@ class PinBoard extends React.Component {
   };
 
   canCancelAllPinnedJobs = () => {
-    const { pinnedJobs } = this.props;
-    const { isLoggedIn } = this.props;
+    const { pinnedJobs, isLoggedIn } = this.props;
     const cancellableJobs = Object.values(pinnedJobs).filter(
       job => job.state === 'pending' || job.state === 'running',
     );

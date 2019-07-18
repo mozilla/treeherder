@@ -57,6 +57,7 @@ class LoginCallback extends React.PureComponent {
 
   render() {
     const { loginError } = this.state;
+
     if (loginError) {
       return <p>{loginError}</p>;
     }

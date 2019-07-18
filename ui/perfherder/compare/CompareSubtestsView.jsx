@@ -110,8 +110,8 @@ export class CompareSubtestsView extends React.PureComponent {
   };
 
   getDisplayResults = (origResultsMap, newResultsMap, state) => {
-    const { validated } = this.props;
-    const { originalSignature, newSignature } = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { originalSignature, newSignature } = this.props.validated;
 
     const { tableNames, rowNames, framework, timeRange } = state;
     const testsWithNoise = [];

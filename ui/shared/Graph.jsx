@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 export default class Graph extends React.Component {
   componentDidUpdate() {
     const { specs, data } = this.props;
+
     if (specs.data !== data) {
       specs.data = data;
       MG.data_graphic(specs);
@@ -37,6 +38,7 @@ export default class Graph extends React.Component {
 
   render() {
     const { specs } = this.props;
+
     return (
       <div className="mx-auto pb-3" ref={ele => this.updateSpecs(ele)}>
         {specs.legend && <div className="legend" />}

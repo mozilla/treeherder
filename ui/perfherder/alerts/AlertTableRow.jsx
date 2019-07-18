@@ -21,6 +21,7 @@ export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
     const { alert } = this.props;
+
     this.state = {
       starred: alert.starred,
       checkboxSelected: false,
@@ -120,8 +121,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   getTitleText = (alert, alertStatus) => {
-    const { alertSummary } = this.props;
-    const { repository, framework, id } = alertSummary;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { repository, framework, id } = this.props.alertSummary;
 
     let statusColor = '';
     let textEffect = '';

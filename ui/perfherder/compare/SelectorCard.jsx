@@ -27,6 +27,7 @@ export default class SelectorCard extends React.Component {
   constructor(props) {
     super(props);
     const { queryParam } = this.props;
+
     this.state = {
       buttonDropdownOpen: false,
       inputDropdownOpen: false,
@@ -100,6 +101,7 @@ export default class SelectorCard extends React.Component {
   updateRevisions = selectedRepo => {
     const { updateState, projectState } = this.props;
     const { invalidProject } = this.state;
+
     // reset invalidProject from query param validation
     // in case user resets project via dropdown instead
     // of updating the query param
@@ -113,6 +115,7 @@ export default class SelectorCard extends React.Component {
   compareRevisions = () => {
     const { data } = this.state;
     const { selectedRepo } = this.props;
+
     this.toggle('checkboxSelected');
     if (!data.results) {
       this.fetchRevisions(selectedRepo);

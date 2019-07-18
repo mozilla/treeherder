@@ -17,6 +17,7 @@ export class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
     const { repos } = this.props;
+
     this.state = {
       frameworks: [],
       platforms: [],
@@ -106,8 +107,8 @@ export class TestDataModal extends React.Component {
   }
 
   addRelatedConfigs = async params => {
-    const { options } = this.props;
-    const { relatedSeries } = options;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { relatedSeries } = this.props.options;
     const { errorMessages, project } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(project.name, params);
@@ -130,8 +131,8 @@ export class TestDataModal extends React.Component {
   };
 
   addRelatedPlatforms = async params => {
-    const { options } = this.props;
-    const { relatedSeries } = options;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { relatedSeries } = this.props.options;
     const { errorMessages, project } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(project.name, params);
@@ -153,8 +154,8 @@ export class TestDataModal extends React.Component {
   };
 
   addRelatedBranches = async params => {
-    const { options } = this.props;
-    const { relatedSeries } = options;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { relatedSeries } = this.props.options;
     const errorMessages = [];
 
     const relatedProjects = thPerformanceBranches.filter(
@@ -181,8 +182,8 @@ export class TestDataModal extends React.Component {
   };
 
   processOptions = () => {
-    const { options } = this.props;
-    const { option, relatedSeries } = options;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { option, relatedSeries } = this.props.options;
     const {
       platform,
       framework,

@@ -30,6 +30,7 @@ export default class StatusDropdown extends React.Component {
   constructor(props) {
     super(props);
     const { issueTrackers } = this.props;
+
     this.state = {
       showBugModal: false,
       showNotesModal: false,

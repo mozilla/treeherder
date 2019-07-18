@@ -157,7 +157,6 @@ class PushHeader extends React.Component {
       PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId)
         .then(result => {
           notify(result, 'success');
-          hideRunnableJobs(pushId);
           hideRunnableJobs();
         })
         .catch(e => {

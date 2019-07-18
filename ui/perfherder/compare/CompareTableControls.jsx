@@ -11,8 +11,8 @@ import CompareTable from './CompareTable';
 export default class CompareTableControls extends React.Component {
   constructor(props) {
     super(props);
-    const { validated } = this.props;
-    this.validated = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.validated = this.props.validated;
     this.state = {
       hideUncomparable: convertParams(this.validated, 'showOnlyComparable'),
       showImportant: convertParams(this.validated, 'showOnlyImportant'),

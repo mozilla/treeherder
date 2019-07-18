@@ -32,8 +32,8 @@ import AlertsViewControls from './AlertsViewControls';
 export class AlertsView extends React.Component {
   constructor(props) {
     super(props);
-    const { validated } = this.props;
-    this.validated = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    this.validated = this.props.validated;
     this.state = {
       status: this.getDefaultStatus(),
       framework: getFrameworkData(this.validated),
@@ -72,8 +72,8 @@ export class AlertsView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { validated } = this.props;
-    const { frameworks, updateParams } = validated;
+    // eslint-disable-next-line react/destructuring-assignment
+    const { frameworks, updateParams } = this.props.validated;
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
