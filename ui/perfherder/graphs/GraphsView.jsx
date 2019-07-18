@@ -173,7 +173,11 @@ class GraphsView extends React.Component {
     if (errorMessages.length) {
       this.setState({ errorMessages, loading: false });
     } else {
-      const data = responses.map(response => response.data[0]);
+      // If the server returns an empty array instead of signature data with data: [],
+      // that test won't be shown in the graph or legend; this will prevent the UI from breaking
+      const data = responses
+        .filter(response => response.data.length)
+        .map(reponse => reponse.data[0]);
       let newTestData = await this.createGraphObject(data);
 
       if (newDisplayedTests.length) {
@@ -252,9 +256,10 @@ class GraphsView extends React.Component {
       const partialSeriesArray = partialSeriesString.split(',');
       const partialSeriesObject = {
         repository_name: partialSeriesArray[0],
+        // TODO deprecate signature_hash
         signature_id:
           partialSeriesArray[1].length === 40
-            ? undefined
+            ? partialSeriesArray[1]
             : parseInt(partialSeriesArray[1], 10),
         framework_id: parseInt(partialSeriesArray[2], 10),
       };

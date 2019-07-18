@@ -191,7 +191,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
-    signature = serializers.ListField(child=serializers.IntegerField(), required=False, allow_null=True, default=[])
+    signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
     all_data = serializers.BooleanField(required=False, default=False)
 

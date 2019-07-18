@@ -374,11 +374,13 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1`;
+  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},${alert.series_signature.framework_id}`;
 
+  // TODO deprecate usage of signature hash
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
   // information from the server)
+
   if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
     const branches =
       alertRepository === 'mozilla-beta'
@@ -387,7 +389,7 @@ export const getGraphsURL = (
     url += branches
       .map(
         branch =>
-          `&series=${branch},${alert.series_signature.signature_hash},0`,
+          `&series=${branch},${alert.series_signature.signature_hash},${alert.series_signature.framework_id}`,
       )
       .join('');
   }
