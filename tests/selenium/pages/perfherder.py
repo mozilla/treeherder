@@ -6,15 +6,16 @@ from .base import (Base,
                    Modal)
 
 
+# TODO fix tests to work with react
 class Perfherder(Base):
     URL_TEMPLATE = '/perf.html'
 
-    _add_test_data_locator = (By.ID, 'add-test-data-button')
-    _test_series_locator = (By.CSS_SELECTOR, 'tr[ng-repeat*="series"]')
+    # _add_test_data_locator = (By.ID, 'add-test-data-button')
+    # _test_series_locator = (By.CSS_SELECTOR, 'tr[ng-repeat*="series"]')
 
-    @property
-    def loaded(self):
-        return self.is_element_displayed(By.CSS_SELECTOR, '#graph canvas')
+    # @property
+    # def loaded(self):
+    #     return self.is_element_displayed(By.CSS_SELECTOR, '#graph canvas')
 
     def add_test_data(self):
         self.find_element(*self._add_test_data_locator).click()
