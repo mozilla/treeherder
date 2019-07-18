@@ -51,7 +51,6 @@ class GraphsView extends React.Component {
       highlightedRevisions: ['', ''],
       showModal: false,
       testData: [],
-      graphData: [],
       errorMessages: [],
       options: {},
       colors: [...dataColors],
@@ -66,12 +65,6 @@ class GraphsView extends React.Component {
   async componentDidMount() {
     this.getData();
     this.checkQueryParams();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.timeRange !== this.state.timeRange) {
-      this.getTestData();
-    }
   }
 
   // TODO should add a custom time range option based on query param
@@ -229,6 +222,7 @@ class GraphsView extends React.Component {
     return seriesData;
   };
 
+  // TODO possibly move to helpers file
   getAlertSummaries = async (signatureId, repository) => {
     const { errorMessages } = this.state;
 
@@ -258,11 +252,6 @@ class GraphsView extends React.Component {
       const partialSeriesArray = partialSeriesString.split(',');
       const partialSeriesObject = {
         repository_name: partialSeriesArray[0],
-        // TODO deprecate hash usage - show message to require id
-        // signature:
-        //   partialSeriesArray[1].length === 40
-        //     ? partialSeriesArray[1]
-        //     : undefined,
         signature_id:
           partialSeriesArray[1].length === 40
             ? undefined
