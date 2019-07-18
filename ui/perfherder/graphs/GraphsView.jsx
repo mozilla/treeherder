@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
@@ -23,6 +21,7 @@ import perf from '../../js/perf';
 import { endpoints } from '../constants';
 import ErrorMessages from '../../shared/ErrorMessages';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import GraphsContainer from './GraphsContainer';
 import TestDataModal from './TestDataModal';
@@ -345,16 +344,8 @@ class GraphsView extends React.Component {
         message={genericErrorMessage}
       >
         <Container fluid className="pt-5 max-width-default">
-          {loading && (
-            <div className="loading">
-              <FontAwesomeIcon
-                icon={faCog}
-                size="4x"
-                spin
-                title="loading page, please wait"
-              />
-            </div>
-          )}
+          {loading && <LoadingSpinner />}
+
           {errorMessages.length > 0 && (
             <Container className="pb-4 px-0 max-width-default">
               <ErrorMessages errorMessages={errorMessages} />

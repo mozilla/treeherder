@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import { errorMessageClass } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
@@ -10,6 +8,7 @@ import PerfSeriesModel from '../../models/perfSeries';
 import { getData } from '../../helpers/http';
 import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
 import { noDataFoundMessage } from '../constants';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 // TODO remove $stateParams after switching to react router
 export default class ReplicatesGraph extends React.Component {
@@ -130,14 +129,7 @@ export default class ReplicatesGraph extends React.Component {
         : undefined;
 
     return dataLoading ? (
-      <div className="loading">
-        <FontAwesomeIcon
-          icon={faCog}
-          size="4x"
-          spin
-          title="loading page, please wait"
-        />
-      </div>
+      <LoadingSpinner />
     ) : (
       <ErrorBoundary
         errorClasses={errorMessageClass}

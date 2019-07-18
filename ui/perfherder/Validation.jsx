@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import { getData, processResponse } from '../helpers/http';
 import { getApiUrl, repoEndpoint } from '../helpers/url';
 import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
+import LoadingSpinner from '../shared/LoadingSpinner';
 
 import { endpoints, summaryStatusMap } from './constants';
 
@@ -190,14 +189,7 @@ const withValidation = (
       return (
         <React.Fragment>
           {!validationComplete && errorMessages.length === 0 && (
-            <div className="loading">
-              <FontAwesomeIcon
-                icon={faCog}
-                size="4x"
-                spin
-                title="loading page, please wait"
-              />
-            </div>
+            <LoadingSpinner />
           )}
 
           {errorMessages.length > 0 && (
