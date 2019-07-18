@@ -413,7 +413,7 @@ export class BugFilerClass extends React.Component {
 
     // Join that with the comment (log body) separated with a horizontal rule.
     // Also wrap the comment with a code block.
-    const descriptionStrings = `${logLinks}\n\n---\n\n\`\`\`${comment}\`\`\``;
+    const descriptionStrings = `${logLinks}\n\n---\n\n\`\`\`\n${comment}\n\`\`\``;
 
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
     keywords.push('regression');
