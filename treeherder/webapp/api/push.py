@@ -1,6 +1,8 @@
 import datetime
+import logging
 
 import newrelic.agent
+from cache_memoize import cache_memoize
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,6 +18,8 @@ from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
                                          to_timestamp)
+
+logger = logging.getLogger(__name__)
 
 
 class PushViewSet(viewsets.ViewSet):
@@ -263,21 +267,25 @@ class PushViewSet(viewsets.ViewSet):
             ],
         })
 
+    @cache_memoize(60 * 60)
+    def get_decision_jobs(self, push_ids):
+        job_types = JobType.objects.filter(
+            name__endswith='Decision Task',
+            symbol='D'
+        )
+        return Job.objects.filter(
+            push_id__in=push_ids,
+            job_type__in=job_types,
+            result='success',
+        ).select_related('taskcluster_metadata')
+
     @action(detail=False)
     def decisiontask(self, request, project):
         """
         Return the decision task ids for the pushes.
         """
-        push_ids = request.query_params.getlist('push_ids')
-        job_types = JobType.objects.filter(
-            name__endswith='Decision Task',
-            symbol='D'
-        )
-        decision_jobs = Job.objects.filter(
-            push_id__in=push_ids,
-            job_type__in=job_types,
-            result='success',
-        ).select_related('taskcluster_metadata')
+        push_ids = self.request.query_params.get('push_ids', '').split(',')
+        decision_jobs = self.get_decision_jobs(push_ids)
 
         if decision_jobs:
             return Response(
@@ -286,9 +294,10 @@ class PushViewSet(viewsets.ViewSet):
                     'run': job.guid.split('/')[1],
                 } for job in decision_jobs}
             )
-        else:
-            return Response("No decision tasks found for pushes: {}".format(push_ids),
-                            status=HTTP_404_NOT_FOUND)
+        logger.error('/decisiontask/ found no decision jobs for {}'.format(push_ids))
+        self.get_decision_jobs.invalidate(push_ids)
+        return Response("No decision tasks found for pushes: {}".format(push_ids),
+                        status=HTTP_404_NOT_FOUND)
 
     # TODO: Remove when we no longer support short revisions: Bug 1306707
     def report_if_short_revision(self, param, revision):

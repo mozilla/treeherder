@@ -1,4 +1,5 @@
 import { slugid } from 'taskcluster-client-web';
+import pick from 'lodash/pick';
 
 import { thMaxPushFetchSize } from '../helpers/constants';
 import { getData } from '../helpers/http';
@@ -24,6 +25,8 @@ const convertDates = function convertDates(locationParams) {
   }
   return locationParams;
 };
+
+const decisionTaskIdCache = {};
 
 export default class PushModel {
   static async getList(options = {}) {
@@ -151,24 +154,44 @@ export default class PushModel {
   }
 
   static async getDecisionTaskId(pushId, notify) {
-    const taskIdMap = await PushModel.getDecisionTaskMap([pushId], notify);
+    const taskId = decisionTaskIdCache[pushId];
 
-    return taskIdMap[pushId];
+    if (taskId) {
+      return taskId;
+    }
+    Object.assign(
+      decisionTaskIdCache,
+      await PushModel.getDecisionTaskMap([pushId], notify),
+    );
+    return decisionTaskIdCache[pushId];
   }
 
   static async getDecisionTaskMap(pushIds, notify) {
+    // If any Push ids are not yet in the cache, then fetch them.
+    // Otherwise just return the map since it has everything
+    // that's needed.
+    const cachedMap = pick(decisionTaskIdCache, pushIds);
+    const missedIds = pushIds.filter(id => !cachedMap[id]);
+
+    if (!missedIds.length) {
+      return cachedMap;
+    }
+
+    // Some Push ids were not yet in the cache, so must fetch them.
     const { data, failureStatus } = await getData(
-      getProjectUrl(`${pushEndpoint}decisiontask/?push_ids=${pushIds}`),
+      getProjectUrl(`${pushEndpoint}decisiontask/?push_ids=${missedIds}`),
     );
 
     if (failureStatus) {
-      const msg = `Error getting Gecko Decision Task Ids: ${failureStatus}: ${data}`;
+      const msg = `Error getting Gecko Decision Tasks for ids: ${missedIds}: ${failureStatus}: ${data}`;
 
       if (notify) {
         notify(msg, 'danger', { sticky: true });
       }
       throw Error(msg);
     }
-    return data;
+    // Update the cache with the new push ids / decision task ids.
+    Object.assign(decisionTaskIdCache, data);
+    return { ...cachedMap, ...data };
   }
 }

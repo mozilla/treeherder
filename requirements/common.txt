@@ -362,3 +362,6 @@ attrs==19.1.0 \
     --hash=sha256:f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399
 pyrsistent==0.15.4 \
     --hash=sha256:34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533
+
+django-cache-memoize==0.1.6 \
+    --hash=sha256:d239e8c37734b0a70b74f94fa33b180b3b0c82c3784beb21209bb4ab64a3e6fb
