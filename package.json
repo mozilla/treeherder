@@ -68,7 +68,7 @@
     "react-table": "6.10.0",
     "react-tabs": "3.0.0",
     "react2angular": "4.0.6",
-    "reactstrap": "7.1.0",
+    "reactstrap": "8.0.1",
     "redux": "4.0.4",
     "redux-debounce": "1.0.1",
     "taskcluster-client-web": "8.1.1",
