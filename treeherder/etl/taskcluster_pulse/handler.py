@@ -110,21 +110,21 @@ def validateTask(task):
 # treeherder job information in task.extra.treeherder are accepted
 # This will generate a list of messages that need to be ingested by Treeherder
 async def handleMessage(message, taskDefinition=None):
+    jobs = []
     taskId = message["payload"]["status"]["taskId"]
     task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
     try:
         parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
     except PulseHandlerError as e:
         logger.warning("%s", str(e))
-        return None
+        return jobs
     logger.debug("Message received for task %s with route %s", taskId, str(task["routes"])[0:100])
 
     # Validation failures are common and logged, so do nothing more.
     if not validateTask(task):
-        return None
+        return jobs
 
     taskType = EXCHANGE_EVENT_MAP.get(message["exchange"])
-    jobs = []
 
     # Originally this code was only within the "pending" case, however, in order to support
     # ingesting all tasks at once which might not have "pending" case
