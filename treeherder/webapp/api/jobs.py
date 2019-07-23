@@ -96,9 +96,73 @@ class JobFilter(django_filters.FilterSet):
         }
 
 
-class JobsViewSet(viewsets.ViewSet):
+class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    This viewset is responsible for the jobs endpoint.
+    This viewset is the jobs endpoint.
+    """
+    _default_select_related = [
+        'job_type',
+        'job_group',
+        'machine_platform',
+        'signature',
+    ]
+    _query_field_names = [
+        'submit_time',
+        'start_time',
+        'end_time',
+        'failure_classification_id',
+        'id',
+        'job_group__name',
+        'job_group__symbol',
+        'job_type__name',
+        'job_type__symbol',
+        'last_modified',
+        'option_collection_hash',
+        'machine_platform__platform',
+        'option_collection_hash',
+        'push_id',
+        'result',
+        'signature__signature',
+        'state',
+        'tier',
+    ]
+    _output_field_names = [
+        'failure_classification_id',
+        'id',
+        'job_group_name',
+        'job_group_symbol',
+        'job_type_name',
+        'job_type_symbol',
+        'last_modified',
+        'platform',
+        'push_id',
+        'result',
+        'signature',
+        'state',
+        'tier',
+        'duration',
+        'platform_option',
+    ]
+    queryset = Job.objects.all().order_by('id').select_related(
+        *_default_select_related
+    ).values(*_query_field_names)
+    serializer_class = serializers.JobSerializer
+    filterset_class = JobFilter
+    pagination_class = pagination.JobPagination
+
+    def get_serializer_context(self):
+        option_collection_map = OptionCollection.objects.get_option_collection_map()
+        return {'option_collection_map': option_collection_map}
+
+    def list(self, request, *args, **kwargs):
+        resp = super().list(request, *args, **kwargs)
+        resp.data['job_property_names'] = self._output_field_names
+        return Response(resp.data)
+
+
+class JobsProjectViewSet(viewsets.ViewSet):
+    """
+    This viewset is the project bound version of the jobs endpoint.
     """
 
     # data that we want to do select_related on when returning job objects
@@ -208,7 +272,7 @@ class JobsViewSet(viewsets.ViewSet):
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        resp = serializers.JobSerializer(job, read_only=True).data
+        resp = serializers.JobProjectSerializer(job, read_only=True).data
 
         resp["resource_uri"] = reverse("jobs-detail",
                                        kwargs={"project": project, "pk": pk})
