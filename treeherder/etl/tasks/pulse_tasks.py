@@ -2,6 +2,7 @@
 This module contains tasks related to pulse job ingestion
 """
 import asyncio
+
 import newrelic.agent
 
 from treeherder.etl.job_loader import JobLoader
