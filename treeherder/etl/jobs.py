@@ -1,4 +1,3 @@
-import copy
 import logging
 import os
 import time
@@ -373,7 +372,7 @@ def _schedule_log_parsing(job, job_logs, result):
                            args=[job.id, job_log_ids, priority])
 
 
-def store_job_data(repository, originalData):
+def store_job_data(repository, data):
     """
     Store job data instances into jobs db
 
@@ -430,7 +429,6 @@ def store_job_data(repository, originalData):
     ]
 
     """
-    data = copy.deepcopy(originalData)
     # Ensure that we have job data to process
     if not data:
         return

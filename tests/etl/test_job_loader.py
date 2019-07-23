@@ -1,11 +1,9 @@
 import copy
 
 import pytest
-import responses
 
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.job_loader import JobLoader
-from treeherder.etl.taskcluster_pulse.handler import handleMessage
 from treeherder.model.models import (Job,
                                      JobDetail,
                                      JobLog,
@@ -37,65 +35,12 @@ def transformed_pulse_jobs(sample_data, test_repository):
     return jobs
 
 
-def mock_artifact(taskId, runId, artifactName):
-    # Mock artifact with empty body
-    baseUrl = "https://queue.taskcluster.net/v1/task/{taskId}/runs/{runId}/artifacts/{artifactName}"
-    responses.add(
-        responses.GET,
-        baseUrl.format(taskId=taskId, runId=runId, artifactName=artifactName),
-        body="",
-        content_type='text/plain',
-        status=200)
-
-
-@pytest.fixture
-async def new_pulse_jobs(sample_data, test_repository, push_stored):
-    revision = push_stored[0]["revisions"][0]["revision"]
-    pulseMessages = copy.deepcopy(sample_data.taskcluster_pulse_messages)
-    tasks = copy.deepcopy(sample_data.taskcluster_tasks)
-    jobs = []
-    # Over here we transform the Pulse messages into the intermediary taskcluster-treeherder
-    # generated messages
-    for message in list(pulseMessages.values()):
-        taskId = message["payload"]["status"]["taskId"]
-        task = tasks[taskId]
-        # If we pass task to handleMessage we won't hit the network
-        taskRuns = await handleMessage(message, task)
-        # handleMessage returns [] when it is a task that is not meant for Treeherder
-        for run in reversed(taskRuns):
-            mock_artifact(taskId, run["runId"], "public/logs/live_backing.log")
-            run["origin"]["project"] = test_repository.name
-            run["origin"]["revision"] = revision
-            jobs.append(run)
-    return jobs
-
-
-@pytest.fixture
-def new_transformed_jobs(sample_data, test_repository, push_stored):
-    revision = push_stored[0]["revisions"][0]["revision"]
-    jobs = copy.deepcopy(sample_data.taskcluster_transformed_jobs)
-    for job in jobs.values():
-        job["revision"] = revision
-    return jobs
-
-
 def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
     import json
     jl = JobLoader()
     for idx, pulse_job in enumerate(pulse_jobs):
         assert jl._is_valid_job(pulse_job)
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(pulse_job)))
-
-
-@responses.activate
-def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_classifications):
-    jl = JobLoader()
-    for message in new_pulse_jobs:
-        taskId = message["realTaskId"]
-        transformed_job = jl.process_job(message)
-        # Not all messages from Taskcluster will be processed
-        if transformed_job:
-            assert new_transformed_jobs[taskId] == transformed_job
 
 
 def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,

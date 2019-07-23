@@ -122,7 +122,7 @@ import yaml
 import jsonschema
 
 with open('schemas/text-log-summary-artifact.yml') as f:
-    schema = yaml.load(f, Loader=yaml.FullLoader)
+    schema = yaml.load(f)
 
 jsonschema.validate(data, schema)
 ```
