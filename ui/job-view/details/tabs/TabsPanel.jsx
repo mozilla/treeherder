@@ -11,7 +11,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import { getAllUrlParams } from '../../../helpers/location';
 import { getStatus } from '../../../helpers/job';
 import JobDetails from '../../../shared/JobDetails';
 import { withPinnedJobs } from '../../context/PinnedJobs';
@@ -19,7 +18,6 @@ import { clearSelectedJob } from '../../redux/stores/selectedJob';
 
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
 import PerformanceTab from './PerformanceTab';
-import AutoclassifyTab from './autoclassify/AutoclassifyTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 
@@ -28,14 +26,12 @@ class TabsPanel extends React.Component {
     super(props);
 
     this.state = {
-      showAutoclassifyTab: getAllUrlParams().has('autoclassify'),
       tabIndex: 0,
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const { perfJobDetail, selectedJob } = props;
-    const { showAutoclassifyTab } = state;
 
     // This fires every time the props change.  But we only want to figure out the new default
     // tab when we get a new job.  However, the job could change, then later, the perf details fetch
@@ -47,7 +43,6 @@ class TabsPanel extends React.Component {
       const tabIndex = TabsPanel.getDefaultTabIndex(
         getStatus(selectedJob),
         !!perfJobDetail.length,
-        showAutoclassifyTab,
       );
 
       return {
@@ -68,19 +63,16 @@ class TabsPanel extends React.Component {
   }
 
   onSelectNextTab = () => {
-    const { tabIndex, showAutoclassifyTab } = this.state;
+    const { tabIndex } = this.state;
     const { perfJobDetail } = this.props;
     const nextIndex = tabIndex + 1;
-    const tabCount = TabsPanel.getTabNames(
-      !!perfJobDetail.length,
-      showAutoclassifyTab,
-    ).length;
+    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length).length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   };
 
-  static getDefaultTabIndex(status, showPerf, showAutoclassify) {
+  static getDefaultTabIndex(status, showPerf) {
     let idx = 0;
-    const tabNames = TabsPanel.getTabNames(showPerf, showAutoclassify);
+    const tabNames = TabsPanel.getTabNames(showPerf);
     const tabIndexes = tabNames.reduce(
       (acc, name) => ({ ...acc, [name]: idx++ }),
       {},
@@ -88,27 +80,14 @@ class TabsPanel extends React.Component {
 
     let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
     if (['busted', 'testfailed', 'exception'].includes(status)) {
-      tabIndex = showAutoclassify
-        ? tabIndexes.autoclassify
-        : tabIndexes.failure;
+      tabIndex = tabIndexes.failure;
     }
     return tabIndex;
   }
 
-  static getTabNames(showPerf, showAutoclassify) {
-    return [
-      'details',
-      'failure',
-      'autoclassify',
-      'annotations',
-      'similar',
-      'perf',
-    ].filter(
-      name =>
-        !(
-          (name === 'autoclassify' && !showAutoclassify) ||
-          (name === 'perf' && !showPerf)
-        ),
+  static getTabNames(showPerf) {
+    return ['details', 'failure', 'annotations', 'similar', 'perf'].filter(
+      name => !(name === 'perf' && !showPerf),
     );
   }
 
@@ -123,7 +102,6 @@ class TabsPanel extends React.Component {
       logParseStatus,
       suggestions,
       errors,
-      user,
       bugs,
       bugSuggestionsLoading,
       perfJobDetail,
@@ -138,7 +116,7 @@ class TabsPanel extends React.Component {
       reftestUrl,
       clearSelectedJob,
     } = this.props;
-    const { showAutoclassifyTab, tabIndex } = this.state;
+    const { tabIndex } = this.state;
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -151,7 +129,6 @@ class TabsPanel extends React.Component {
             <span className="tab-header-tabs">
               <Tab>Job Details</Tab>
               <Tab>Failure Summary</Tab>
-              {showAutoclassifyTab && <Tab>Failure Classification</Tab>}
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>
               {!!perfJobDetail.length && <Tab>Performance</Tab>}
@@ -217,11 +194,6 @@ class TabsPanel extends React.Component {
               reftestUrl={reftestUrl}
             />
           </TabPanel>
-          {showAutoclassifyTab && (
-            <TabPanel>
-              <AutoclassifyTab user={user} repoName={repoName} />
-            </TabPanel>
-          )}
           <TabPanel>
             <AnnotationsTab
               classificationMap={classificationMap}
@@ -259,7 +231,6 @@ TabsPanel.propTypes = {
   isPinBoardVisible: PropTypes.bool.isRequired,
   countPinnedJobs: PropTypes.number.isRequired,
   bugs: PropTypes.array.isRequired,
-  user: PropTypes.object.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   perfJobDetail: PropTypes.array,
   suggestions: PropTypes.array,

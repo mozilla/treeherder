@@ -192,7 +192,7 @@ export const thJobNavSelectors = {
   UNCLASSIFIED_FAILURES: {
     name: 'unclassified failures',
     selector:
-      '.selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple, .job-btn.autoclassified',
+      '.selected-job, .job-btn.btn-red, .job-btn.btn-orange, .job-btn.btn-purple',
   },
 };
 
@@ -211,7 +211,6 @@ export const thEvents = {
   saveClassification: 'save-classification-EVT',
   deleteClassification: 'delete-classification-EVT',
   openLogviewer: 'open-logviewer-EVT',
-  autoclassifyIgnore: 'ac-ignore-EVT',
   applyNewJobs: 'apply-new-jobs-EVT',
   filtersUpdated: 'filters-updated-EVT',
   clearPinboard: 'clear-pinboard-EVT',

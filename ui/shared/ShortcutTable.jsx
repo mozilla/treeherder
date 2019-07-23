@@ -146,46 +146,6 @@ const ShortcutTable = function ShortcutTable() {
               <td>Delete job classification and related bugs</td>
             </tr>
             <tr>
-              <th colSpan="2">Autoclassify Panel</th>
-            </tr>
-            <tr>
-              <td>
-                <kbd>a</kbd>
-              </td>
-              <td>Add all subsequent lines to the selection</td>
-            </tr>
-            <tr>
-              <td>
-                <kbd>e</kbd>
-              </td>
-              <td>Toggle editing selected lines</td>
-            </tr>
-            <tr>
-              <td>
-                <kbd>shift</kbd>
-                <kbd>i</kbd>
-              </td>
-              <td>Ignore the failure</td>
-            </tr>
-            <tr>
-              <td>
-                <kbd>s</kbd>
-              </td>
-              <td>Save all classifications</td>
-            </tr>
-            <tr>
-              <td>
-                <kbd>x</kbd>
-              </td>
-              <td>Toggle showing additional classification suggestions</td>
-            </tr>
-            <tr>
-              <td>
-                <kbd>0</kbd>-<kbd>9</kbd>
-              </td>
-              <td>Select the Nth classification option</td>
-            </tr>
-            <tr>
               <td>
                 <kbd>&darr;</kbd>
               </td>
