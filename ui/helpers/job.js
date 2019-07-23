@@ -44,10 +44,6 @@ export const getBtnClass = function getBtnClass(
   const classificationId = parseInt(failureClassificationId, 10);
   if (classificationId > 1) {
     btnClass += '-classified';
-    // autoclassification-only case
-    if (classificationId === 7) {
-      btnClass += ' autoclassified';
-    }
   }
   return btnClass;
 };

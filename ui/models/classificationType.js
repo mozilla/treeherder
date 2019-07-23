@@ -7,7 +7,6 @@ const classificationColors = {
   4: 'label-warning', // intermittent",
   5: 'label-default', // infra",
   6: 'label-danger', // intermittent needs filing",
-  7: 'label-warning', // autoclassified intermittent
 };
 
 const uri = getApiUrl('/failureclassification/');
